@@ -1830,7 +1830,7 @@
             <sequence id="00924">
                 <element ref-id="expression" />
                 <sequence id="00925" optional="true">
-                    <token id="00926" optional="true" type-id="KW_AS" />
+                    <token attributes="IDENTIFIER_LEAD" id="00926" optional="true" type-id="KW_AS" />
                     <alias-def id="00927" optional="true" original-name="c_alias" type="COLUMN" />
                 </sequence>
             </sequence>
@@ -1849,7 +1849,7 @@
             <element ref-id="lateral_view_expression" />
             <sequence id="00933">
                 <element ref-id="query_table_expression" />
-                <token id="00934" optional="true" type-id="KW_AS" />
+                <token attributes="IDENTIFIER_LEAD" id="00934" optional="true" type-id="KW_AS" />
                 <alias-def id="00935" optional="true" original-name="t_alias" type="DATASET" />
                 <element optional="true" ref-id="flashback_query_clause" />
                 <one-of id="00936" optional="true">
@@ -1858,7 +1858,7 @@
                 </one-of>
             </sequence>
         </one-of>
-        <token id="00937" optional="true" type-id="KW_AS" />
+        <token attributes="IDENTIFIER_LEAD" id="00937" optional="true" type-id="KW_AS" />
         <alias-def id="00938" optional="true" original-name="t_alias" type="DATASET" />
         <iteration id="00939" optional="true">
             <element ref-id="join_clause" />
@@ -1876,7 +1876,7 @@
         <wrapper id="00943" template="PARENTHESES">
             <element ref-id="subquery" />
         </wrapper>
-        <token id="00944" optional="true" type-id="KW_AS" />
+        <token attributes="IDENTIFIER_LEAD" id="00944" optional="true" type-id="KW_AS" />
         <alias-def id="00945" optional="true" original-name="t_alias" type="DATASET" />
     </element-def>
     <element-def attributes="CLAUSE" description="Flashback query clause" id="flashback_query_clause">
@@ -1933,7 +1933,7 @@
                     <sequence id="00980">
                         <element ref-id="aggregate_function" />
                         <sequence id="00981" optional="true">
-                            <token id="00982" optional="true" type-id="KW_AS" />
+                            <token attributes="IDENTIFIER_LEAD" id="00982" optional="true" type-id="KW_AS" />
                             <alias-def id="00983" type="COLUMN" />
                         </sequence>
                     </sequence>
@@ -1965,7 +1965,7 @@
                         </iteration>
                         &gt;
                         <sequence id="00996" optional="true">
-                            <token id="00997" optional="true" type-id="KW_AS" />
+                            <token attributes="IDENTIFIER_LEAD" id="00997" optional="true" type-id="KW_AS" />
                             <alias-def id="00998" type="COLUMN" />
                         </sequence>
                     </sequence>
@@ -2428,7 +2428,7 @@
     <element-def description="MODEL column" id="model_column">
         <element ref-id="expression" />
         <sequence id="01206" optional="true">
-            <token id="01207" optional="true" type-id="KW_AS" />
+            <token attributes="IDENTIFIER_LEAD" id="01207" optional="true" type-id="KW_AS" />
             <alias-def id="01208" original-name="c_alias" type="COLUMN" />
         </sequence>
     </element-def>
@@ -4956,7 +4956,7 @@
                         <sequence id="02530">
                             <element ref-id="expression" />
                             <sequence id="02531" optional="true">
-                                <token id="02532" type-id="KW_AS" />
+                                <token attributes="IDENTIFIER_LEAD" id="02532" type-id="KW_AS" />
                                 <alias-def id="02533" type="ANY" />
                             </sequence>
                         </sequence>

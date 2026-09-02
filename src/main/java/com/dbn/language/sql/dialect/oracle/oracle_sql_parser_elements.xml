@@ -7879,7 +7879,7 @@
             <token type-id="KW_GLOBAL" id="04567" />
         </one-of>
         <token id="04568" type-id="KW_STORE" />
-        <token id="04569" type-id="KW_AS" />
+        <token id="04569" type-id="KW_AS"  attributes="IDENTIFIER_LEAD"/>
         <object-ref id="04570" original-name="storage_table" type="NESTED_TABLE" />
         <wrapper id="04571" optional="true" template="PARENTHESES">
             <iteration id="04572">
@@ -10482,7 +10482,7 @@
             </variant>
         </qualified-identifier>
         <sequence optional="true" id="05846">
-            <token type-id="KW_AS" id="05847" />
+            <token type-id="KW_AS" id="05847"  attributes="IDENTIFIER_LEAD"/>
             <alias-def type="DATASET" original-name="graph_element_name" id="05848" />
         </sequence>
         <element ref-id="graph_element_key" optional="true" />
@@ -10527,7 +10527,7 @@
     <element-def attributes="CLAUSE" description="Column or expression" id="column_or_expression">
         <element ref-id="expression" original-name="value_expression" />
         <sequence id="05864" optional="true">
-            <token type-id="KW_AS" id="05865" />
+            <token type-id="KW_AS" id="05865"  attributes="IDENTIFIER_LEAD"/>
             <token type-id="IDENTIFIER" original-name="property_name" id="05866" />
         </sequence>
     </element-def>
@@ -11435,7 +11435,7 @@
                 </one-of>
             </sequence>
             <sequence id="06335">
-                <token type-id="KW_AS" id="06336" />
+                <token type-id="KW_AS" id="06336" attributes="IDENTIFIER_LEAD"/>
                 <token type-id="IDENTIFIER" original-name="TODO source_char" id="06337" />
             </sequence>
 
@@ -12572,7 +12572,7 @@
         <token type-id="CT_DBLINK_QUALIFIER" optional="true" id="06949" />
         <token type-id="KW_REMOTE" optional="true" id="06950" />
         <sequence optional="true" id="06951">
-            <token type-id="KW_AS" optional="true" id="06952" />
+            <token attributes="IDENTIFIER_LEAD" type-id="KW_AS" optional="true" id="06952" />
             <alias-def original-name="alias" type="DATASET" id="06953" />
         </sequence>
     </element-def>
@@ -12628,7 +12628,7 @@
             </variant>
         </qualified-identifier>
         <sequence optional="true" id="06975">
-            <token type-id="KW_AS" optional="true" id="06976" />
+            <token attributes="IDENTIFIER_LEAD" type-id="KW_AS" optional="true" id="06976" />
             <object-def type="ATTRIBUTE" original-name="attribute_name" id="06977" />
         </sequence>
         <iteration optional="true" id="06978">
@@ -12821,7 +12821,7 @@
             </variant>
         </qualified-identifier>
         <sequence optional="true" id="07083">
-            <token type-id="KW_AS" optional="true" id="07084" />
+            <token attributes="IDENTIFIER_LEAD" type-id="KW_AS" optional="true" id="07084" />
             <alias-def type="DATASET" original-name="dim__alias" id="07085" />
         </sequence>
     </element-def>
@@ -12833,7 +12833,7 @@
             </variant>
         </qualified-identifier>
         <sequence optional="true" id="07089">
-            <token type-id="KW_AS" optional="true" id="07090" />
+            <token attributes="IDENTIFIER_LEAD" type-id="KW_AS" optional="true" id="07090" />
             <alias-def type="DATASET" original-name="hier_alias" id="07091" />
         </sequence>
         <token type-id="KW_DEFAULT" optional="true" id="07092" />
@@ -12961,7 +12961,7 @@
             <sequence id="07151">
                 <object-ref type="COLUMN" original-name="fact_column" id="07152" />
                 <sequence optional="true" id="07153">
-                    <token type-id="KW_AS" optional="true" id="07154" />
+                    <token attributes="IDENTIFIER_LEAD" type-id="KW_AS" optional="true" id="07154" />
                     <alias-def type="COLUMN" original-name="fact_alias" id="07155" />
                 </sequence>
             </sequence>
@@ -18629,7 +18629,7 @@
                 </iteration>
             </sequence>
         </wrapper>
-        <token id="10107" type-id="KW_AS" optional="true" />
+        <token attributes="IDENTIFIER_LEAD" id="10107" type-id="KW_AS" optional="true" />
         <alias-def id="10108" original-name="t_alias" type="DATASET" optional="true" />
         <wrapper id="10109" template="PARENTHESES" optional="true">
             <iteration id="10110" separator="CHR_COMMA">
@@ -20060,7 +20060,7 @@
     </element-def>
     <element-def description="Row pattern measure column" id="row_pattern_measure_column">
         <element ref-id="expression" />
-        <token type-id="KW_AS" id="10852" />
+        <token attributes="IDENTIFIER_LEAD" type-id="KW_AS" id="10852" />
         <alias-def type="COLUMN" original-name="c_alias" id="10853" />
     </element-def>
     <element-def description="Row pattern rows per match" id="row_pattern_rows_per_match">
@@ -20164,7 +20164,7 @@
             <element ref-id="sub_av_clause" />
         </wrapper>
         <sequence optional="true" id="10904">
-            <token optional="true" type-id="KW_AS" id="10905" />
+            <token attributes="IDENTIFIER_LEAD" optional="true" type-id="KW_AS" id="10905" />
             <alias-def type="DATASET" original-name="inline_av_alias" id="10906" />
         </sequence>
     </element-def>
@@ -23300,7 +23300,7 @@
                         <sequence id="12451">
                             <element ref-id="expression" />
                             <sequence id="12452" optional="true">
-                                <token id="12453" type-id="KW_AS" />
+                                <token attributes="IDENTIFIER_LEAD" id="12453" type-id="KW_AS" />
                                 <one-of id="12454">
                                     <alias-def id="12455" type="ANY" />
                                     <sequence id="12456">
@@ -23477,13 +23477,13 @@
                         <sequence id="12556">
                             <element original-name="value_expr" ref-id="expression" />
                             <sequence id="12557" optional="true">
-                                <token id="12558" type-id="KW_AS" />
+                                <token attributes="IDENTIFIER_LEAD" id="12558" type-id="KW_AS" />
                                 <one-of id="12559">
-                                    <alias-def id="12560" type="ANY" />
                                     <sequence id="12561">
                                         <token id="12562" optional="true" type-id="KW_EVALNAME" />
                                         <element original-name="value_expr" ref-id="expression" />
                                     </sequence>
+                                    <alias-def id="12560" type="ANY" />
                                 </one-of>
                             </sequence>
                         </sequence>
@@ -23776,7 +23776,7 @@
                                     <sequence id="12735">
                                         <element ref-id="expr" />
                                         <sequence optional="true" id="12736">
-                                            <token type-id="KW_AS" optional="true" id="12737" />
+                                            <token attributes="IDENTIFIER_LEAD" type-id="KW_AS" optional="true" id="12737" />
                                             <alias-def type="COLUMN" id="12738" />
                                         </sequence>
                                     </sequence>
@@ -24124,7 +24124,7 @@
         <iteration separator="CHR_COMMA" id="12886">
             <sequence id="12887">
                 <element ref-id="expression" original-name="expr" />
-                <token type-id="KW_AS" id="12888" />
+                <token attributes="IDENTIFIER_LEAD" type-id="KW_AS" id="12888" />
                 <token type-id="IDENTIFIER" original-name="identifier" id="12889" />
             </sequence>
         </iteration>
@@ -25705,13 +25705,13 @@
                         <one-of id="13828" optional="true">
                             <alias-def id="13829" type="ANY" />
                             <sequence id="13830">
-                                <token id="13831" type-id="KW_AS" />
+                                <token attributes="IDENTIFIER_LEAD" id="13831" type-id="KW_AS" />
                                 <one-of id="13832">
-                                    <alias-def id="13833" type="ANY" />
                                     <sequence id="13834">
                                         <token id="13835" optional="true" type-id="KW_EVALNAME" />
                                         <element original-name="value_expr" ref-id="expression" />
                                     </sequence>
+                                    <alias-def id="13833" type="ANY" />
                                 </one-of>
                             </sequence>
                         </one-of>
@@ -26311,7 +26311,7 @@
                 <element ref-id="mining_attribute_clause" />
             </sequence>
         </wrapper>
-        <element ref-id="mining_over_analytic_clause" />
+        <element ref-id="mining_over_analytic_clause" optional="true"/>
     </element-def>
 
     <element-def description="PREDICTION_SET analytic function" id="prediction_set_analytic_function">
@@ -26486,7 +26486,7 @@
                 <sequence id="14162">
                     <element ref-id="expression" />
                     <sequence optional="true" id="14163">
-                        <token type-id="KW_AS" id="14164" />
+                        <token attributes="IDENTIFIER_LEAD" type-id="KW_AS" id="14164" />
                         <alias-ref type="COLUMN" original-name="alias" id="14165" />
                     </sequence>
                 </sequence>
@@ -28609,11 +28609,11 @@
     </element-def>
 
     <element-def description="Column alias definition" id="column_alias_definition">
-        <token id="15501" optional="true" type-id="KW_AS" />
+        <token attributes="IDENTIFIER_LEAD" id="15501" optional="true" type-id="KW_AS" />
         <alias-def id="15502" type="COLUMN" attributes="ALIAS_DEFINITION" />
     </element-def>
     <element-def description="Dataset alias definition" id="dataset_alias_definition">
-        <token id="15503" optional="true" type-id="KW_AS" />
+        <token attributes="IDENTIFIER_LEAD" id="15503" optional="true" type-id="KW_AS" />
         <alias-def id="15504" type="DATASET" />
     </element-def>
 

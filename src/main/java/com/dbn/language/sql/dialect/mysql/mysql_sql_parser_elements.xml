@@ -1011,7 +1011,7 @@
     <element-def attributes="SCOPE_DEMARCATION" description="Table identifier with alias" id="table_identifier_with_alias">
         <element ref-id="table_identifier" />
         <sequence id="00493" optional="true">
-            <token id="00494" optional="true" type-id="KW_AS" />
+            <token attributes="IDENTIFIER_LEAD" id="00494" optional="true" type-id="KW_AS" />
             <alias-def id="00495" type="TABLE" />
         </sequence>
     </element-def>
@@ -4099,7 +4099,7 @@
             <sequence id="02210">
                 <token id="02211" type-id="KW_OPEN" />
                 <sequence id="02212" optional="true">
-                    <token id="02213" optional="true" type-id="KW_AS" />
+                    <token attributes="IDENTIFIER_LEAD" id="02213" optional="true" type-id="KW_AS" />
                     <alias-def id="02214" type="TABLE" />
                 </sequence>
             </sequence>
@@ -4295,7 +4295,7 @@
         </iteration>
     </element-def>
     <element-def custom="true" description="Row alias" id="row_alias">
-        <token type-id="KW_AS" id="02298" />
+        <token attributes="IDENTIFIER_LEAD" type-id="KW_AS" id="02298" />
         <alias-def original-name="row_alias" type="DATASET" id="02299" />
         <wrapper optional="true" template="PARENTHESES" id="02300">
             <iteration separator="CHR_COMMA" id="02301">
@@ -4542,7 +4542,7 @@
                     <element ref-id="expr" />
                 </one-of>
                 <sequence id="02413" optional="true">
-                    <token id="02414" optional="true" type-id="KW_AS" />
+                    <token attributes="IDENTIFIER_LEAD" id="02414" optional="true" type-id="KW_AS" />
                     <alias-def id="02415" type="COLUMN" />
                 </sequence>
             </sequence>
@@ -4564,7 +4564,7 @@
                     </variant>
                 </qualified-identifier>
                 <sequence id="02423" optional="true">
-                    <token id="02424" optional="true" type-id="KW_AS" />
+                    <token attributes="IDENTIFIER_LEAD" id="02424" optional="true" type-id="KW_AS" />
                     <alias-def id="02425" original-name="alias" type="DATASET" />
                 </sequence>
                 <element optional="true" ref-id="partition_clause" />
@@ -4582,7 +4582,7 @@
                     <sequence id="02432">
                         <element original-name="table_subquery" ref-id="subquery" />
                         <token id="02433" type-id="CHR_RIGHT_PARENTHESIS" />
-                        <token id="02434" optional="true" type-id="KW_AS" />
+                        <token attributes="IDENTIFIER_LEAD" id="02434" optional="true" type-id="KW_AS" />
                         <alias-def id="02435" original-name="alias" type="DATASET" />
                     </sequence>
                 </one-of>
@@ -5327,7 +5327,7 @@
     <element-def custom="true" description="LOCK TABLES table specification" id="lock_table_spec">
         <element ref-id="table_identifier" />
         <sequence optional="true" id="02837">
-            <token type-id="KW_AS" optional="true" id="02838" />
+            <token attributes="IDENTIFIER_LEAD" type-id="KW_AS" optional="true" id="02838" />
             <alias-def original-name="alias" type="TABLE" id="02839" />
         </sequence>
         <element ref-id="lock_type" />

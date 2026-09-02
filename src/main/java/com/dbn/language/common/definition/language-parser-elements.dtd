@@ -52,6 +52,7 @@
         optional (true | false) #IMPLIED
         exit (true | false) #IMPLIED
         flavor CDATA #IMPLIED
+        attributes CDATA #IMPLIED
         original-name CDATA #IMPLIED
         virtual-object CDATA #IMPLIED
         object-type CDATA #IMPLIED

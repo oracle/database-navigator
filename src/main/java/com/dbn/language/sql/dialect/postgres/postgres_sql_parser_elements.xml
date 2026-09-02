@@ -8151,7 +8151,7 @@
         </qualified-identifier>
         <token optional="true" type-id="CHR_STAR" id="04883" />
         <sequence optional="true" id="04884">
-            <token optional="true" type-id="KW_AS" id="04885" />
+            <token attributes="IDENTIFIER_LEAD" optional="true" type-id="KW_AS" id="04885" />
             <alias-def type="DATASET" id="04886" />
         </sequence>
         <token type-id="KW_USING" id="04887" />
@@ -8257,7 +8257,7 @@
                 <sequence id="04949">
                     <element ref-id="expression" />
                     <sequence optional="true" id="04950">
-                        <token optional="true" type-id="KW_AS" id="04951" />
+                        <token attributes="IDENTIFIER_LEAD" optional="true" type-id="KW_AS" id="04951" />
                         <alias-def type="COLUMN" id="04952" />
                     </sequence>
                 </sequence>
@@ -8279,7 +8279,7 @@
         </qualified-identifier>
         <token optional="true" type-id="CHR_STAR" id="04959" />
         <sequence optional="true" id="04960">
-            <token type-id="KW_AS" id="04961" />
+            <token attributes="IDENTIFIER_LEAD" type-id="KW_AS" id="04961" />
             <alias-def type="DATASET" id="04962" />
         </sequence>
         <wrapper attributes="COLUMN_PARAMETER_PROVIDER" id="04963" optional="true" template="PARENTHESES">
@@ -8402,7 +8402,7 @@
                                 <token type-id="KW_OLD" id="05033" />
                                 <token type-id="KW_NEW" id="05034" />
                             </one-of>
-                            <token type-id="KW_AS" id="05035" />
+                            <token attributes="IDENTIFIER_LEAD" type-id="KW_AS" id="05035" />
                             <alias-def type="DATASET" id="05036" />
                         </sequence>
                     </iteration>
@@ -8412,7 +8412,7 @@
                 <sequence id="05038">
                     <element ref-id="expression" />
                     <sequence id="05039" optional="true">
-                        <token id="05040" type-id="KW_AS" />
+                        <token attributes="IDENTIFIER_LEAD" id="05040" type-id="KW_AS" />
                         <alias-def id="05041" type="ANY" />
                     </sequence>
                 </sequence>
@@ -8434,7 +8434,7 @@
         </qualified-identifier>
         <token id="05047" optional="true" type-id="CHR_STAR" />
         <sequence id="05048" optional="true" version="8.2">
-            <token id="05049" optional="true" type-id="KW_AS" />
+            <token attributes="IDENTIFIER_LEAD" id="05049" optional="true" type-id="KW_AS" />
             <alias-def id="05050" type="DATASET" />
         </sequence>
         <token id="05051" type-id="KW_SET" />
@@ -8505,7 +8505,7 @@
                 <sequence id="05088">
                     <element ref-id="expression" />
                     <sequence id="05089" optional="true">
-                        <token id="05090" type-id="KW_AS" />
+                        <token attributes="IDENTIFIER_LEAD" id="05090" type-id="KW_AS" />
                         <alias-def id="05091" type="ANY" />
                     </sequence>
                 </sequence>
@@ -8621,7 +8621,7 @@
         </qualified-identifier>
         <token id="05151" optional="true" type-id="CHR_STAR" version="8.3" />
         <sequence id="05152" optional="true" version="8.1">
-            <token id="05153" optional="true" type-id="KW_AS" />
+            <token attributes="IDENTIFIER_LEAD" id="05153" optional="true" type-id="KW_AS" />
             <alias-def id="05154" type="DATASET" />
         </sequence>
         <sequence id="05155" optional="true" version="8.1">
@@ -8652,7 +8652,7 @@
                                 <token type-id="KW_OLD" id="05173" />
                                 <token type-id="KW_NEW" id="05174" />
                             </one-of>
-                            <token type-id="KW_AS" id="05175" />
+                            <token attributes="IDENTIFIER_LEAD" type-id="KW_AS" id="05175" />
                             <alias-def type="DATASET" id="05176" />
                         </sequence>
                     </iteration>
@@ -8662,7 +8662,7 @@
                 <sequence id="05178">
                     <element ref-id="expression" />
                     <sequence id="05179" optional="true">
-                        <token id="05180" type-id="KW_AS" />
+                        <token attributes="IDENTIFIER_LEAD" id="05180" type-id="KW_AS" />
                         <alias-def id="05181" type="ANY" />
                     </sequence>
                 </sequence>
@@ -9025,7 +9025,7 @@
         </iteration>
     </element-def>
     <element-def attributes="CLAUSE" description="JOIN clause" id="from_item_alias">
-        <token id="05369" optional="true" type-id="KW_AS" />
+        <token attributes="IDENTIFIER_LEAD" id="05369" optional="true" type-id="KW_AS" />
         <alias-def id="05370" optional="true" type="DATASET" />
         <wrapper id="05371" optional="true" template="PARENTHESES">
             <iteration id="05372" separator="CHR_COMMA">

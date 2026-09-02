@@ -201,7 +201,7 @@
     <element-def attributes="CLAUSE" description="WITH clause" id="result_column">
         <element ref-id="expr" />
         <sequence id="00068" optional="true">
-            <token id="00069" optional="true" type-id="KW_AS" />
+            <token attributes="IDENTIFIER_LEAD" id="00069" optional="true" type-id="KW_AS" />
             <alias-def id="00070" original-name="column-alias" type="COLUMN" />
         </sequence>
     </element-def>
@@ -245,7 +245,7 @@
                 </qualified-identifier>
                 <element optional="true" ref-id="wrapped_expression_list" />
                 <sequence id="00090" optional="true">
-                    <token id="00091" optional="true" type-id="KW_AS" />
+                    <token attributes="IDENTIFIER_LEAD" id="00091" optional="true" type-id="KW_AS" />
                     <alias-def id="00092" type="TABLE" />
                 </sequence>
                 <element optional="true" ref-id="indexed_clause" />
@@ -263,7 +263,7 @@
             </wrapper>
         </one-of>
         <sequence optional="true" id="00097">
-            <token optional="true" type-id="KW_AS" id="00098" />
+            <token attributes="IDENTIFIER_LEAD" optional="true" type-id="KW_AS" id="00098" />
             <alias-def type="TABLE" id="00099" />
         </sequence>
         <element optional="true" ref-id="join_clause" />
@@ -346,7 +346,7 @@
             </variant>
         </qualified-identifier>
         <sequence id="00138" optional="true">
-            <token id="00139" optional="true" type-id="KW_AS" />
+            <token attributes="IDENTIFIER_LEAD" id="00139" optional="true" type-id="KW_AS" />
             <alias-def type="TABLE" id="00140" />
         </sequence>
         <element optional="true" ref-id="indexed_clause" />
@@ -424,7 +424,7 @@
             </variant>
         </qualified-identifier>
         <sequence optional="true" id="00174">
-            <token type-id="KW_AS" optional="true" id="00175" />
+            <token attributes="IDENTIFIER_LEAD" type-id="KW_AS" optional="true" id="00175" />
             <alias-def type="TABLE" id="00176" />
         </sequence>
         <wrapper id="00177" optional="true" template="PARENTHESES">
