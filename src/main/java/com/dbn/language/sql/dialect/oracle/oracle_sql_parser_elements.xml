@@ -21912,6 +21912,7 @@
             <element ref-id="cursor_expression" />
             <element ref-id="interval_expression" />
             <element ref-id="json_expression" />
+            <element ref-id="row_pattern_rec_func" />
             <element ref-id="function_expression" />
             <element ref-id="callable_expression" />
             <element ref-id="model_expression" />
