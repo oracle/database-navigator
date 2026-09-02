@@ -23,6 +23,7 @@ import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.data.type.DBDataType;
 import com.dbn.data.type.GenericDataType;
+import com.dbn.database.common.statement.SqlLiterals;
 import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import com.dbn.editor.data.filter.ui.DatasetBasicFilterConditionForm;
 import com.dbn.object.DBColumn;
@@ -154,23 +155,7 @@ public class DatasetBasicFilterCondition extends BasicConfiguration<DatasetBasic
 
     @NotNull
     private String quoteValue(String value) {
-        if (value.length() > 0) {
-            boolean needsBeginQuote = value.charAt(0) != '\'';
-            boolean needsEndQuote = value.charAt(value.length() -1) != '\'';
-
-            if (needsBeginQuote && needsEndQuote) {
-                value = Strings.replace(value, "'", "''");
-            }
-
-            if (needsBeginQuote) {
-                value = '\'' + value;
-            }
-
-            if (needsEndQuote) {
-                value = value + '\'';
-            }
-        }
-        return value;
+        return SqlLiterals.renderLiteral(value);
     }
 
     /****************************************************

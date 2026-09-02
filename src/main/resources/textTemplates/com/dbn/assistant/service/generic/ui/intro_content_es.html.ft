@@ -20,14 +20,14 @@ Para empezar a usar DB Assistant, asegúrese de cumplir los siguientes prerrequi
     <li><b>Credenciales API</b> - Introduzca sus claves API para el proveedor LLM seleccionado (p. ej., OpenAI, Cohere, Anthropic u otras API públicas soportadas).</li>
     <li><b>Perfiles de IA</b> - Cree perfiles de IA personalizados para adaptar el comportamiento del modelo de lenguaje, como ajustar el equilibrio entre objetividad y creatividad o añadir instrucciones específicas.</li>
 </ul>
-Para obtener instrucciones detalladas de configuración, consulte la documentación de Oracle® Database Navigator.
+Para obtener instrucciones detalladas de configuración, consulte la documentación de Oracle Database Navigator.
 
 <br>
 <br>
 <br>
 <b>Nota</b><br>
 Esta es una función experimental. La precisión de la salida puede variar según el modelo de lenguaje seleccionado, sus permisos de acceso a la base de datos y otros factores.
-Valide las salidas cuidadosamente e informe cualquier problema al equipo de desarrollo de Oracle® Database Navigator para ayudar a mejorar esta función.
+Valide las salidas cuidadosamente e informe cualquier problema al equipo de desarrollo de Oracle Database Navigator para ayudar a mejorar esta función.
 </body>
 </html>
 

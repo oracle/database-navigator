@@ -24,6 +24,8 @@ import java.sql.SQLException;
 @Getter
 @Setter
 public abstract class LargeObjectValue extends ValueAdapter<String> {
+    public static final int MAX_READ_SIZE = 1024 * 1024;
+
     private boolean truncated;
 
     public abstract String read(int maxSize) throws SQLException;
