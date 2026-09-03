@@ -22657,6 +22657,7 @@
             <element ref-id="datetime_function" />
             <element ref-id="calendar_function" />
             <element ref-id="conversion_function" />
+            <element ref-id="charset_function" />
             <element ref-id="collection_function" />
             <element ref-id="miscellaneous_single_row_function" />
             <element ref-id="xml_function" />
@@ -22769,16 +22770,9 @@
                     <element ref-id="expression" />
                 </wrapper>
             </sequence>
-            <sequence id="12147">
-                <token id="12148" type-id="FN_CONCAT" />
-                <wrapper id="12149" template="PARENTHESES">
-                    <iteration elements-count="2" id="12150" separator="CHR_COMMA">
-                        <element ref-id="expression" />
-                    </iteration>
-                </wrapper>
-            </sequence>
             <sequence id="12151">
                 <one-of id="12152">
+                    <token id="12148" type-id="FN_CONCAT" />
                     <token id="12153" type-id="FN_LPAD" />
                     <token flavor="function" id="12154" type-id="KW_REPLACE" />
                     <token id="12155" type-id="FN_RPAD" />
@@ -22787,77 +22781,43 @@
                     <token id="12158" type-id="FN_SUBSTRC" />
                     <token id="12159" type-id="FN_SUBSTR2" />
                     <token id="12160" type-id="FN_SUBSTR4" />
-                </one-of>
-                <wrapper id="12161" template="PARENTHESES">
-                    <iteration elements-count="2-3" id="12162" separator="CHR_COMMA">
-                        <element ref-id="expression" />
-                    </iteration>
-                </wrapper>
-            </sequence>
-            <sequence id="12163">
-                <one-of id="12164">
                     <token id="12165" type-id="FN_INSTR" />
                     <token id="12166" type-id="FN_INSTRB" />
                     <token id="12167" type-id="FN_INSTRC" />
                     <token id="12168" type-id="FN_INSTR2" />
                     <token id="12169" type-id="FN_INSTR4" />
-                </one-of>
-                <wrapper id="12170" template="PARENTHESES">
-                    <iteration elements-count="2-4" id="12171" separator="CHR_COMMA">
-                        <element ref-id="expression" />
-                    </iteration>
-                </wrapper>
-            </sequence>
-            <sequence id="12172">
-                <token id="12173" type-id="FN_TRANSLATE" />
-                <wrapper id="12174" template="PARENTHESES">
-                    <one-of id="12175">
-                        <sequence id="12176">
-                            <element ref-id="expression" />
-                            <token exit="true" id="12177" type-id="KW_USING" />
-                            <one-of id="12178">
-                                <token id="12179" type-id="KW_CHAR_CS" />
-                                <token id="12180" type-id="KW_NCHAR_CS" />
-                            </one-of>
-                        </sequence>
-                        <iteration elements-count="3" id="12181" separator="CHR_COMMA">
-                            <element ref-id="expression" />
-                        </iteration>
-                    </one-of>
-                </wrapper>
-            </sequence>
-            <sequence id="12182">
-                <one-of id="12183">
                     <token id="12184" type-id="FN_LTRIM" />
                     <token id="12185" type-id="FN_NLS_INITCAP" />
                     <token id="12186" type-id="FN_NLS_LOWER" />
                     <token id="12187" type-id="FN_NLSSORT" />
                     <token id="12188" type-id="FN_NLS_UPPER" />
                     <token id="12189" type-id="FN_RTRIM" />
-                </one-of>
-                <wrapper id="12190" template="PARENTHESES">
-                    <iteration elements-count="1-2" id="12191" separator="CHR_COMMA">
-                        <element ref-id="expression" />
-                    </iteration>
-                </wrapper>
-            </sequence>
-            <sequence id="12192">
-                <one-of id="12193">
+                    <token type-id="FN_REGEXP_COUNT" />
                     <token id="12194" type-id="FN_REGEXP_REPLACE" />
                     <token id="12195" type-id="FN_REGEXP_INSTR" />
+                    <token id="12199" type-id="FN_REGEXP_SUBSTR" />
                 </one-of>
-                <wrapper id="12196" template="PARENTHESES">
-                    <iteration elements-count="2-6" id="12197" separator="CHR_COMMA">
-                        <element ref-id="expression" />
-                    </iteration>
-                </wrapper>
+                <element ref-id="wrapped_expression_list" />
             </sequence>
-            <sequence id="12198">
-                <token id="12199" type-id="FN_REGEXP_SUBSTR" />
-                <wrapper id="12200" template="PARENTHESES">
-                    <iteration elements-count="2-6" id="12201" separator="CHR_COMMA">
+            <sequence id="12172">
+                <token id="12173" type-id="FN_TRANSLATE" />
+                <wrapper template="PARENTHESES">
+                    <sequence>
                         <element ref-id="expression" />
-                    </iteration>
+                        <one-of optional="true">
+                            <sequence>
+                                <token id="12177" type-id="KW_USING" />
+                                <one-of id="12178">
+                                    <token id="12179" type-id="KW_CHAR_CS" />
+                                    <token id="12180" type-id="KW_NCHAR_CS" />
+                                </one-of>
+                            </sequence>
+                            <sequence>
+                                <token type-id="CHR_COMMA"/>
+                                <element ref-id="expression_list" />
+                            </sequence>
+                        </one-of>
+                    </sequence>
                 </wrapper>
             </sequence>
             <sequence id="12202">
@@ -23215,6 +23175,20 @@
             </sequence>
         </one-of>
     </element-def>
+    <element-def description="NLS character set function" id="charset_function" original-name="nls_charset_decl_len_function, nls_charset_id_function, nls_charset_name_function">
+        <one-of>
+            <sequence>
+                <one-of>
+                    <token type-id="FN_NLS_CHARSET_DECL_LEN" />
+                    <token type-id="FN_NLS_CHARSET_ID" />
+                    <token type-id="FN_NLS_CHARSET_NAME" />
+                </one-of>
+                <wrapper template="PARENTHESES">
+                    <element ref-id="expression" />
+                </wrapper>
+            </sequence>
+        </one-of>
+    </element-def>
     <element-def description="Collection function" id="collection_function">
         <one-of id="12440">
             <sequence id="12441">
@@ -23310,9 +23284,7 @@
             </sequence>
             <sequence id="12481">
                 <one-of id="12482">
-                    <token id="12483" type-id="FN_NLS_CHARSET_ID" />
                     <token id="12484" type-id="FN_DEPTH" />
-                    <token id="12485" type-id="FN_NLS_CHARSET_NAME" />
                     <token flavor="function" id="12486" type-id="KW_PATH" />
                     <token id="12487" type-id="FN_SYS_TYPEID" />
                     <token id="12488" type-id="FN_USERENV" />
@@ -23324,7 +23296,6 @@
             </sequence>
             <sequence id="12491">
                 <one-of id="12492">
-                    <token id="12493" type-id="FN_NLS_CHARSET_DECL_LEN" />
                     <token id="12494" type-id="FN_BFILENAME" />
                     <token id="12495" type-id="FN_NULLIF" />
                     <token id="12496" type-id="FN_NVL" />
