@@ -1746,18 +1746,19 @@ DBLINK_QUALIFIER = "@"({IDENTIFIER}|{QUOTED_IDENTIFIER})("."({IDENTIFIER}|{QUOTE
 "xmlcomment" {return tt.ftt(399);}
 "xmlconcat" {return tt.ftt(400);}
 "xmldiff" {return tt.ftt(401);}
-"xmlelement" {return tt.ftt(402);}
-"xmlforest" {return tt.ftt(403);}
-"xmlisvalid" {return tt.ftt(404);}
-"xmlparse" {return tt.ftt(405);}
-"xmlpatch" {return tt.ftt(406);}
-"xmlpi" {return tt.ftt(407);}
-"xmlquery" {return tt.ftt(408);}
-"xmlroot" {return tt.ftt(409);}
-"xmlsequence" {return tt.ftt(410);}
-"xmlserialize" {return tt.ftt(411);}
-"xmltable" {return tt.ftt(412);}
-"xmltransform" {return tt.ftt(413);}
+"xmlexists" {return tt.ftt(402);}
+"xmlelement" {return tt.ftt(403);}
+"xmlforest" {return tt.ftt(404);}
+"xmlisvalid" {return tt.ftt(405);}
+"xmlparse" {return tt.ftt(406);}
+"xmlpatch" {return tt.ftt(407);}
+"xmlpi" {return tt.ftt(408);}
+"xmlquery" {return tt.ftt(409);}
+"xmlroot" {return tt.ftt(410);}
+"xmlsequence" {return tt.ftt(411);}
+"xmlserialize" {return tt.ftt(412);}
+"xmltable" {return tt.ftt(413);}
+"xmltransform" {return tt.ftt(414);}
 // MARKER_END_FUNCTIONS
 
 

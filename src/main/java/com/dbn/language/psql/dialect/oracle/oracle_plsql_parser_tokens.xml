@@ -756,18 +756,19 @@
         <token index="222" id="FN_XMLCOMMENT" value="xmlcomment" category="function"/>
         <token index="223" id="FN_XMLCONCAT" value="xmlconcat" category="function"/>
         <token index="224" id="FN_XMLDIFF" value="xmldiff" category="function"/>
-        <token index="225" id="FN_XMLELEMENT" value="xmlelement" category="function"/>
-        <token index="226" id="FN_XMLFOREST" value="xmlforest" category="function"/>
-        <token index="227" id="FN_XMLISVALID" value="xmlisvalid" category="function"/>
-        <token index="228" id="FN_XMLPARSE" value="xmlparse" category="function"/>
-        <token index="229" id="FN_XMLPATCH" value="xmlpatch" category="function"/>
-        <token index="230" id="FN_XMLPI" value="xmlpi" category="function"/>
-        <token index="231" id="FN_XMLQUERY" value="xmlquery" category="function"/>
-        <token index="232" id="FN_XMLROOT" value="xmlroot" category="function"/>
-        <token index="233" id="FN_XMLSEQUENCE" value="xmlsequence" category="function"/>
-        <token index="234" id="FN_XMLSERIALIZE" value="xmlserialize" category="function"/>
-        <token index="235" id="FN_XMLTABLE" value="xmltable" category="function"/>
-        <token index="236" id="FN_XMLTRANSFORM" value="xmltransform" category="function"/>
+        <token index="225" id="FN_XMLEXISTS" value="xmlexists" category="function"/>
+        <token index="226" id="FN_XMLELEMENT" value="xmlelement" category="function"/>
+        <token index="227" id="FN_XMLFOREST" value="xmlforest" category="function"/>
+        <token index="228" id="FN_XMLISVALID" value="xmlisvalid" category="function"/>
+        <token index="229" id="FN_XMLPARSE" value="xmlparse" category="function"/>
+        <token index="230" id="FN_XMLPATCH" value="xmlpatch" category="function"/>
+        <token index="231" id="FN_XMLPI" value="xmlpi" category="function"/>
+        <token index="232" id="FN_XMLQUERY" value="xmlquery" category="function"/>
+        <token index="233" id="FN_XMLROOT" value="xmlroot" category="function"/>
+        <token index="234" id="FN_XMLSEQUENCE" value="xmlsequence" category="function"/>
+        <token index="235" id="FN_XMLSERIALIZE" value="xmlserialize" category="function"/>
+        <token index="236" id="FN_XMLTABLE" value="xmltable" category="function"/>
+        <token index="237" id="FN_XMLTRANSFORM" value="xmltransform" category="function"/>
         <!-- MARKER_END_FUNCTIONS -->
 
 
