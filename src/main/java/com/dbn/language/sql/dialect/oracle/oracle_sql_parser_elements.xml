@@ -8868,7 +8868,7 @@
         <wrapper id="05046" template="PARENTHESES">
             <iteration id="05047" separator="CHR_COMMA">
                 <one-of id="05048">
-                    <element ref-id="typed_literal" original-name="literal" />
+                    <element ref-id="expression_list" original-name="literal" />
                     <token id="05049" type-id="KW_MAXVALUE" />
                 </one-of>
             </iteration>
@@ -19724,7 +19724,7 @@
                         </qualified-identifier>
                     </sequence>
                 </one-of>
-                <wrapper attributes="METHOD_PARAMETER_HANDLER" exit="true" template="PARENTHESES" id="10702">
+                <wrapper attributes="METHOD_PARAMETER_HANDLER" template="PARENTHESES" id="10702" optional="true">
                     <iteration optional="true" separator="CHR_COMMA" id="10703">
                         <sequence id="10704">
                             <sequence optional="true" id="10705">
@@ -21946,7 +21946,7 @@
                     <token id="11731" type-id="DT_DATE" />
                     <token id="11732" type-id="DT_TIMESTAMP" />
                 </one-of>
-                <token id="11733" type-id="STRING" />
+                <token id="11733" type-id="STRING" exit="true"/>
             </sequence>
             <sequence id="11734" optional-wrapping="PARENTHESES">
                 <qualified-identifier id="11735" separator="CHR_DOT">
@@ -27443,1021 +27443,1014 @@
                 <wrapper id="14576" optional="true" template="PARENTHESES">
                     <token id="14577" original-name="fractional_seconds_precision" type-id="INTEGER" />
                 </wrapper>
-                <one-of id="14578" optional="true">
-                    <sequence id="14579">
-                        <token flavor="datatype" type-id="KW_WITH" id="14580" />
-                        <token flavor="datatype" type-id="KW_TIME" id="14581" />
-                        <token flavor="datatype" type-id="KW_ZONE" id="14582" />
-                    </sequence>
-                    <sequence id="14583">
-                        <token flavor="datatype" type-id="KW_WITH" id="14584" />
-                        <token flavor="datatype" type-id="KW_LOCAL" id="14585" />
-                        <token flavor="datatype" type-id="KW_TIME" id="14586" />
-                        <token flavor="datatype" type-id="KW_ZONE" id="14587" />
-                    </sequence>
-                </one-of>
+                <sequence id="14578" optional="true">
+                    <token flavor="datatype" type-id="KW_WITH" id="14579" />
+                    <token flavor="datatype" type-id="KW_LOCAL" id="14580" optional="true" />
+                    <token flavor="datatype" type-id="KW_TIME" id="14581" />
+                    <token flavor="datatype" type-id="KW_ZONE" id="14582" />
+                </sequence>
             </sequence>
-            <sequence id="14588">
-                <one-of id="14589">
-                    <token id="14590" type-id="DT_DECIMAL" />
-                    <token id="14591" type-id="DT_NUMBER" />
-                    <token id="14592" type-id="DT_NUMERIC" />
+            <sequence id="14583">
+                <one-of id="14584">
+                    <token id="14585" type-id="DT_DECIMAL" />
+                    <token id="14586" type-id="DT_NUMBER" />
+                    <token id="14587" type-id="DT_NUMERIC" />
                 </one-of>
-                <wrapper id="14593" optional="true" template="PARENTHESES">
-                    <sequence id="14594">
-                        <token id="14595" original-name="precision" type-id="INTEGER" />
-                        <sequence id="14596" optional="true">
-                            <token id="14597" type-id="CHR_COMMA" />
-                            <token id="14598" original-name="size" type-id="INTEGER" />
+                <wrapper id="14588" optional="true" template="PARENTHESES">
+                    <sequence id="14589">
+                        <token id="14590" original-name="precision" type-id="INTEGER" />
+                        <sequence id="14591" optional="true">
+                            <token id="14592" type-id="CHR_COMMA" />
+                            <token id="14593" original-name="size" type-id="INTEGER" />
                         </sequence>
                     </sequence>
                 </wrapper>
             </sequence>
-            <sequence id="14599">
-                <token id="14600" type-id="DT_INTERVAL" />
-                <one-of id="14601">
-                    <sequence id="14602">
-                        <token flavor="datatype" id="14603" type-id="KW_YEAR" />
-                        <wrapper id="14604" optional="true" template="PARENTHESES">
-                            <token id="14605" original-name="year_precision" type-id="INTEGER" />
+            <sequence id="14594">
+                <token id="14595" type-id="DT_INTERVAL" />
+                <one-of id="14596">
+                    <sequence id="14597">
+                        <token flavor="datatype" id="14598" type-id="KW_YEAR" />
+                        <wrapper id="14599" optional="true" template="PARENTHESES">
+                            <token id="14600" original-name="year_precision" type-id="INTEGER" />
                         </wrapper>
-                        <token flavor="datatype" id="14606" type-id="KW_TO" />
-                        <token flavor="datatype" id="14607" type-id="KW_MONTH" />
+                        <token flavor="datatype" id="14601" type-id="KW_TO" />
+                        <token flavor="datatype" id="14602" type-id="KW_MONTH" />
                     </sequence>
-                    <sequence id="14608">
-                        <token flavor="datatype" id="14609" type-id="KW_DAY" />
-                        <wrapper id="14610" optional="true" template="PARENTHESES">
-                            <token id="14611" original-name="day_precision" type-id="INTEGER" />
+                    <sequence id="14603">
+                        <token flavor="datatype" id="14604" type-id="KW_DAY" />
+                        <wrapper id="14605" optional="true" template="PARENTHESES">
+                            <token id="14606" original-name="day_precision" type-id="INTEGER" />
                         </wrapper>
-                        <token flavor="datatype" id="14612" type-id="KW_TO" />
-                        <token flavor="datatype" id="14613" type-id="KW_SECOND" />
-                        <wrapper id="14614" optional="true" template="PARENTHESES">
-                            <token id="14615" original-name="fractional_seconds" type-id="INTEGER" />
+                        <token flavor="datatype" id="14607" type-id="KW_TO" />
+                        <token flavor="datatype" id="14608" type-id="KW_SECOND" />
+                        <wrapper id="14609" optional="true" template="PARENTHESES">
+                            <token id="14610" original-name="fractional_seconds" type-id="INTEGER" />
                         </wrapper>
                     </sequence>
                 </one-of>
             </sequence>
 
-            <token id="14616" type-id="DT_BFILE" />
-            <token id="14617" type-id="DT_BINARY_DOUBLE" />
-            <token id="14618" type-id="DT_BINARY_FLOAT" />
-            <token id="14619" type-id="DT_BLOB" />
-            <token id="14620" type-id="DT_CLOB" />
-            <token id="14621" type-id="DT_DATE" />
-            <sequence id="14622">
-                <token type-id="DT_DOUBLE" id="14623" />
-                <token flavor="datatype" type-id="KW_PRECISION" id="14624" optional="true" />
+            <token id="14611" type-id="DT_BFILE" />
+            <token id="14612" type-id="DT_BINARY_DOUBLE" />
+            <token id="14613" type-id="DT_BINARY_FLOAT" />
+            <token id="14614" type-id="DT_BLOB" />
+            <token id="14615" type-id="DT_CLOB" />
+            <token id="14616" type-id="DT_DATE" />
+            <sequence id="14617">
+                <token type-id="DT_DOUBLE" id="14618" />
+                <token flavor="datatype" type-id="KW_PRECISION" id="14619" optional="true" />
             </sequence>
-            <token id="14625" type-id="DT_FLOAT" />
-            <token id="14626" type-id="DT_INT" />
-            <token id="14627" type-id="DT_LONG" />
-            <sequence id="14628">
-                <token type-id="DT_LONG" id="14629" />
-                <token type-id="DT_RAW" id="14630" exit="true" />
+            <token id="14620" type-id="DT_FLOAT" />
+            <token id="14621" type-id="DT_INT" />
+            <token id="14622" type-id="DT_LONG" />
+            <sequence id="14623">
+                <token type-id="DT_LONG" id="14624" />
+                <token type-id="DT_RAW" id="14625" exit="true" />
             </sequence>
-            <token id="14631" type-id="DT_ROWID" />
-            <token id="14632" type-id="DT_REAL" />
-            <token id="14633" type-id="DT_NCLOB" />
-            <token id="14634" type-id="DT_INTEGER" />
-            <token id="14635" type-id="DT_SMALLINT" />
-            <sequence id="14636">
-                <one-of id="14637">
-                    <token id="14638" type-id="DT_CHAR" />
-                    <token id="14639" type-id="DT_VARCHAR2" />
+            <token id="14626" type-id="DT_ROWID" />
+            <token id="14627" type-id="DT_REAL" />
+            <token id="14628" type-id="DT_NCLOB" />
+            <token id="14629" type-id="DT_INTEGER" />
+            <token id="14630" type-id="DT_SMALLINT" />
+            <sequence id="14631">
+                <one-of id="14632">
+                    <token id="14633" type-id="DT_CHAR" />
+                    <token id="14634" type-id="DT_VARCHAR2" />
                 </one-of>
-                <wrapper id="14640" template="PARENTHESES">
-                    <sequence id="14641">
-                        <token id="14642" original-name="size" type-id="INTEGER" />
-                        <one-of id="14643" optional="true">
-                            <token id="14644" type-id="DT_BYTE" />
-                            <token id="14645" type-id="DT_CHAR" />
+                <wrapper id="14635" template="PARENTHESES">
+                    <sequence id="14636">
+                        <token id="14637" original-name="size" type-id="INTEGER" />
+                        <one-of id="14638" optional="true">
+                            <token id="14639" type-id="DT_BYTE" />
+                            <token id="14640" type-id="DT_CHAR" />
                         </one-of>
                     </sequence>
                 </wrapper>
             </sequence>
-            <sequence id="14646">
-                <token type-id="DT_VECTOR" id="14647" />
-                <wrapper id="14648" optional="true" template="PARENTHESES">
-                    <sequence id="14649">
-                        <one-of id="14650">
-                            <token type-id="CHR_STAR" id="14651" />
-                            <token type-id="INTEGER" id="14652" />
+            <sequence id="14641">
+                <token type-id="DT_VECTOR" id="14642" />
+                <wrapper id="14643" optional="true" template="PARENTHESES">
+                    <sequence id="14644">
+                        <one-of id="14645">
+                            <token type-id="CHR_STAR" id="14646" />
+                            <token type-id="INTEGER" id="14647" />
                         </one-of>
-                        <sequence optional="true" id="14653">
-                            <token type-id="CHR_COMMA" id="14654" />
-                            <one-of id="14655">
-                                <token type-id="CHR_STAR" id="14656" />
-                                <token type-id="DT_INT8" id="14657" />
-                                <token type-id="DT_FLOAT32" id="14658" />
-                                <token type-id="DT_FLOAT64" id="14659" />
+                        <sequence optional="true" id="14648">
+                            <token type-id="CHR_COMMA" id="14649" />
+                            <one-of id="14650">
+                                <token type-id="CHR_STAR" id="14651" />
+                                <token type-id="DT_INT8" id="14652" />
+                                <token type-id="DT_FLOAT32" id="14653" />
+                                <token type-id="DT_FLOAT64" id="14654" />
                             </one-of>
                         </sequence>
                     </sequence>
                 </wrapper>
             </sequence>
             <element ref-id="json_type_specification" />
-            <qualified-identifier id="14660" separator="CHR_DOT">
+            <qualified-identifier id="14655" separator="CHR_DOT">
                 <variant>
-                    <object-ref id="14661" optional="true" type="SCHEMA" />
-                    <object-ref id="14662" optional="true" type="PACKAGE" />
-                    <object-ref id="14663" type="PACKAGE_TYPE" />
+                    <object-ref id="14656" optional="true" type="SCHEMA" />
+                    <object-ref id="14657" optional="true" type="PACKAGE" />
+                    <object-ref id="14658" type="PACKAGE_TYPE" />
                 </variant>
                 <variant>
-                    <object-ref id="14664" optional="true" type="SCHEMA" />
-                    <object-ref id="14665" type="TYPE" />
+                    <object-ref id="14659" optional="true" type="SCHEMA" />
+                    <object-ref id="14660" type="TYPE" />
                 </variant>
             </qualified-identifier>
         </one-of>
     </element-def>
 
     <element-def custom="true" description="System action" id="system_action">
-        <one-of id="14666" unbounded="true">
-            <sequence atomic="true" tokens="KW_ADMINISTER, KW_KEY, KW_MANAGEMENT" id="14667" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANALYTIC, KW_VIEW" id="14668" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ASSEMBLY" id="14669" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ATTRIBUTE, KW_DIMENSION" id="14670" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_AUDIT, KW_POLICY" id="14671" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_CLUSTER" id="14672" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_DATA, KW_LABEL" id="14673" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_DATABASE" id="14674" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_DATABASE, KW_DICTIONARY" id="14675" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_DATABASE, KW_LINK" id="14676" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_DIMENSION" id="14677" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_DISK, KW_GROUP" id="14678" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_FLASHBACK, KW_ARCHIVE" id="14679" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_FUNCTION" id="14680" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_HIERARCHY" id="14681" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_INDEX" id="14682" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_INDEXTYPE" id="14683" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_INMEMORY, KW_JOIN, KW_GROUP" id="14684" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_JAVA" id="14685" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_LABEL, KW_COMPONENTS" id="14686" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_LIBRARY" id="14687" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_LOCKDOWN, KW_PROFILE" id="14688" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_MATERIALIZED, KW_VIEW" id="14689" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_MATERIALIZED, KW_VIEW, KW_LOG" id="14690" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_MATERIALIZED, KW_ZONEMAP" id="14691" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_MINING, KW_MODEL" id="14692" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_OPERATOR" id="14693" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_OUTLINE" id="14694" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_PACKAGE" id="14695" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_PACKAGE, KW_BODY" id="14696" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_PLUGGABLE, KW_DATABASE" id="14697" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_POLICY" id="14698" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_PROCEDURE" id="14699" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_PROFILE" id="14700" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_RESOURCE, KW_COST" id="14701" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ROLE" id="14702" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ROLLBACK, KW_SEGMENT" id="14703" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_SEQUENCE" id="14704" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_SESSION" id="14705" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_SYNONYM" id="14706" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_SYSTEM" id="14707" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_TABLE" id="14708" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_TABLESPACE" id="14709" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_TRACING" id="14710" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_TRIGGER" id="14711" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_TYPE" id="14712" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_TYPE, KW_BODY" id="14713" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_USER" id="14714" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_VIEW" id="14715" />
-            <sequence atomic="true" tokens="KW_ANALYZE, KW_CLUSTER" id="14716" />
-            <sequence atomic="true" tokens="KW_ANALYZE, KW_INDEX" id="14717" />
-            <sequence atomic="true" tokens="KW_ANALYZE, KW_TABLE" id="14718" />
-            <sequence atomic="true" tokens="KW_ASSOCIATE, KW_STATISTICS" id="14719" />
-            <sequence atomic="true" tokens="KW_AUDIT" id="14720" />
-            <sequence atomic="true" tokens="KW_CALL" id="14721" />
-            <sequence atomic="true" tokens="KW_CHANGE, KW_PASSWORD" id="14722" />
-            <sequence atomic="true" tokens="KW_COMMENT" id="14723" />
-            <sequence atomic="true" tokens="KW_COMMIT" id="14724" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ACL" id="14725" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANALYTIC, KW_VIEW" id="14726" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ASSEMBLY" id="14727" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ATTRIBUTE, KW_DIMENSION" id="14728" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_AUDIT, KW_POLICY" id="14729" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_CLUSTER" id="14730" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_CONTEXT" id="14731" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_DATA, KW_LABEL" id="14732" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_DATA, KW_SECURITY" id="14733" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_DATABASE, KW_LINK" id="14734" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_DIMENSION" id="14735" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_DIRECTORY" id="14736" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_DISK, KW_GROUP" id="14737" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_EDITION" id="14738" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_FLASHBACK, KW_ARCHIVE" id="14739" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_FUNCTION" id="14740" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_HIERARCHY" id="14741" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_INDEX" id="14742" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_INDEXTYPE" id="14743" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_INMEMORY, KW_JOIN, KW_GROUP" id="14744" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_JAVA" id="14745" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_LABEL, KW_COMPONENTS" id="14746" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_LIBRARY" id="14747" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_LOCKDOWN, KW_PROFILE" id="14748" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_LOGICAL, KW_PARTITION, KW_TRACKING" id="14749" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_MATERIALIZED, KW_VIEW" id="14750" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_MATERIALIZED, KW_VIEW, KW_LOG" id="14751" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_MATERIALIZED, KW_ZONEMAP" id="14752" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_MINING, KW_MODEL" id="14753" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_NAMESPACE, KW_ATTRIBUTE" id="14754" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_NAMESPACE, KW_TEMPLATE" id="14755" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_OPERATOR" id="14756" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_OUTLINE" id="14757" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_PACKAGE" id="14758" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_PACKAGE, KW_BODY" id="14759" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_PFILE" id="14760" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_PLUGGABLE, KW_DATABASE" id="14761" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_POLICY" id="14762" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_PROCEDURE" id="14763" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_PROFILE" id="14764" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_RESTORE, KW_POINT" id="14765" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ROLE" id="14766" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ROLE" id="14767" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ROLESET" id="14768" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ROLLBACK, KW_SEGMENT" id="14769" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_SCHEMA" id="14770" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_SCHEMA, KW_SYNONYM" id="14771" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_SECURITY, KW_CLASS" id="14772" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_SEQUENCE" id="14773" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_SESSION" id="14774" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_SESSION, KW_NAMESPACE" id="14775" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_SPFILE" id="14776" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_SYNONYM" id="14777" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_TABLE" id="14778" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_TABLESPACE" id="14779" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_TRIGGER" id="14780" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_TYPE" id="14781" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_TYPE, KW_BODY" id="14782" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_USER" id="14783" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_USER" id="14784" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_VIEW" id="14785" />
-            <sequence atomic="true" tokens="KW_DELETE" id="14786" />
-            <sequence atomic="true" tokens="KW_DESTROY, KW_SESSION" id="14787" />
-            <sequence atomic="true" tokens="KW_DISASSOCIATE, KW_STATISTICS" id="14788" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANALYTIC, KW_VIEW" id="14789" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ASSEMBLY" id="14790" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ATTRIBUTE, KW_DIMENSION" id="14791" />
-            <sequence atomic="true" tokens="KW_DROP, KW_AUDIT, KW_POLICY" id="14792" />
-            <sequence atomic="true" tokens="KW_DROP, KW_CLUSTER" id="14793" />
-            <sequence atomic="true" tokens="KW_DROP, KW_CONTEXT" id="14794" />
-            <sequence atomic="true" tokens="KW_DROP, KW_DATA, KW_LABEL" id="14795" />
-            <sequence atomic="true" tokens="KW_DROP, KW_DATABASE, KW_LINK" id="14796" />
-            <sequence atomic="true" tokens="KW_DROP, KW_DIMENSION" id="14797" />
-            <sequence atomic="true" tokens="KW_DROP, KW_DIRECTORY" id="14798" />
-            <sequence atomic="true" tokens="KW_DROP, KW_DISK, KW_GROUP" id="14799" />
-            <sequence atomic="true" tokens="KW_DROP, KW_EDITION" id="14800" />
-            <sequence atomic="true" tokens="KW_DROP, KW_FLASHBACK, KW_ARCHIVE" id="14801" />
-            <sequence atomic="true" tokens="KW_DROP, KW_FUNCTION" id="14802" />
-            <sequence atomic="true" tokens="KW_DROP, KW_HIERARCHY" id="14803" />
-            <sequence atomic="true" tokens="KW_DROP, KW_INDEX" id="14804" />
-            <sequence atomic="true" tokens="KW_DROP, KW_INDEXTYPE" id="14805" />
-            <sequence atomic="true" tokens="KW_DROP, KW_INMEMORY, KW_JOIN, KW_GROUP" id="14806" />
-            <sequence atomic="true" tokens="KW_DROP, KW_JAVA" id="14807" />
-            <sequence atomic="true" tokens="KW_DROP, KW_LABEL, KW_COMPONENTS" id="14808" />
-            <sequence atomic="true" tokens="KW_DROP, KW_LIBRARY" id="14809" />
-            <sequence atomic="true" tokens="KW_DROP, KW_LOCKDOWN, KW_PROFILE" id="14810" />
-            <sequence atomic="true" tokens="KW_DROP, KW_LOGICAL, KW_PARTITION, KW_TRACKING" id="14811" />
-            <sequence atomic="true" tokens="KW_DROP, KW_MATERIALIZED, KW_VIEW" id="14812" />
-            <sequence atomic="true" tokens="KW_DROP, KW_MATERIALIZED, KW_VIEW, KW_LOG" id="14813" />
-            <sequence atomic="true" tokens="KW_DROP, KW_MATERIALIZED, KW_ZONEMAP" id="14814" />
-            <sequence atomic="true" tokens="KW_DROP, KW_MINING, KW_MODEL" id="14815" />
-            <sequence atomic="true" tokens="KW_DROP, KW_OPERATOR" id="14816" />
-            <sequence atomic="true" tokens="KW_DROP, KW_OUTLINE" id="14817" />
-            <sequence atomic="true" tokens="KW_DROP, KW_PACKAGE" id="14818" />
-            <sequence atomic="true" tokens="KW_DROP, KW_PACKAGE, KW_BODY" id="14819" />
-            <sequence atomic="true" tokens="KW_DROP, KW_PLUGGABLE, KW_DATABASE" id="14820" />
-            <sequence atomic="true" tokens="KW_DROP, KW_POLICY" id="14821" />
-            <sequence atomic="true" tokens="KW_DROP, KW_PROCEDURE" id="14822" />
-            <sequence atomic="true" tokens="KW_DROP, KW_PROFILE" id="14823" />
-            <sequence atomic="true" tokens="KW_DROP, KW_RESTORE, KW_POINT" id="14824" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ROLE" id="14825" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ROLLBACK, KW_SEGMENT" id="14826" />
-            <sequence atomic="true" tokens="KW_DROP, KW_SCHEMA, KW_SYNONYM" id="14827" />
-            <sequence atomic="true" tokens="KW_DROP, KW_SEQUENCE" id="14828" />
-            <sequence atomic="true" tokens="KW_DROP, KW_SYNONYM" id="14829" />
-            <sequence atomic="true" tokens="KW_DROP, KW_TABLE" id="14830" />
-            <sequence atomic="true" tokens="KW_DROP, KW_TABLESPACE" id="14831" />
-            <sequence atomic="true" tokens="KW_DROP, KW_TRIGGER" id="14832" />
-            <sequence atomic="true" tokens="KW_DROP, KW_TYPE" id="14833" />
-            <sequence atomic="true" tokens="KW_DROP, KW_TYPE, KW_BODY" id="14834" />
-            <sequence atomic="true" tokens="KW_DROP, KW_USER" id="14835" />
-            <sequence atomic="true" tokens="KW_DROP, KW_VIEW" id="14836" />
-            <sequence atomic="true" tokens="KW_EXECUTE, KW_DIRECTORY" id="14837" />
-            <sequence atomic="true" tokens="KW_EXPLAIN, KW_PLAN" id="14838" />
-            <sequence atomic="true" tokens="KW_FLASHBACK, KW_TABLE" id="14839" />
-            <sequence atomic="true" tokens="KW_LOCK, KW_TABLE" id="14840" />
-            <sequence atomic="true" tokens="KW_PRIVILEGED, KW_ACTION" id="14841" />
-            <sequence atomic="true" tokens="KW_PURGE, KW_DBA_RECYCLEBIN" id="14842" />
-            <sequence atomic="true" tokens="KW_PURGE, KW_INDEX" id="14843" />
-            <sequence atomic="true" tokens="KW_PURGE, KW_RECYCLEBIN" id="14844" />
-            <sequence atomic="true" tokens="KW_PURGE, KW_TABLE" id="14845" />
-            <sequence atomic="true" tokens="KW_PURGE, KW_TABLESPACE" id="14846" />
-            <sequence atomic="true" tokens="KW_READ, KW_DIRECTORY" id="14847" />
-            <sequence atomic="true" tokens="KW_SET, KW_TRANSACTION" id="14848" />
-            <sequence atomic="true" tokens="KW_SWITCH, KW_USER" id="14849" />
-            <sequence atomic="true" tokens="KW_TRUNCATE, KW_CLUSTER" id="14850" />
-            <sequence atomic="true" tokens="KW_TRUNCATE, KW_TABLE" id="14851" />
-            <sequence atomic="true" tokens="KW_WRITE, KW_DIRECTORY" id="14852" />
-            <token type-id="KW_ALL" id="14853" />
-            <token type-id="KW_EXECUTE" id="14854" />
-            <token type-id="KW_EXPORT" id="14855" />
-            <token type-id="KW_GRANT" id="14856" />
-            <token type-id="KW_IMPORT" id="14857" />
-            <token type-id="KW_INSERT" id="14858" />
-            <token type-id="KW_LOAD" id="14859" />
-            <token type-id="KW_LOGOFF" id="14860" />
-            <token type-id="KW_LOGON" id="14861" />
-            <token type-id="KW_NOAUDIT" id="14862" />
-            <token type-id="KW_RENAME" id="14863" />
-            <token type-id="KW_REVOKE" id="14864" />
-            <token type-id="KW_ROLLBACK" id="14865" />
-            <token type-id="KW_SELECT" id="14866" />
-            <token type-id="KW_UPDATE" id="14867" />
+        <one-of id="14661" unbounded="true">
+            <sequence atomic="true" tokens="KW_ADMINISTER, KW_KEY, KW_MANAGEMENT" id="14662" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANALYTIC, KW_VIEW" id="14663" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ASSEMBLY" id="14664" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ATTRIBUTE, KW_DIMENSION" id="14665" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_AUDIT, KW_POLICY" id="14666" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_CLUSTER" id="14667" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_DATA, KW_LABEL" id="14668" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_DATABASE" id="14669" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_DATABASE, KW_DICTIONARY" id="14670" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_DATABASE, KW_LINK" id="14671" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_DIMENSION" id="14672" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_DISK, KW_GROUP" id="14673" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_FLASHBACK, KW_ARCHIVE" id="14674" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_FUNCTION" id="14675" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_HIERARCHY" id="14676" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_INDEX" id="14677" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_INDEXTYPE" id="14678" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_INMEMORY, KW_JOIN, KW_GROUP" id="14679" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_JAVA" id="14680" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_LABEL, KW_COMPONENTS" id="14681" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_LIBRARY" id="14682" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_LOCKDOWN, KW_PROFILE" id="14683" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_MATERIALIZED, KW_VIEW" id="14684" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_MATERIALIZED, KW_VIEW, KW_LOG" id="14685" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_MATERIALIZED, KW_ZONEMAP" id="14686" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_MINING, KW_MODEL" id="14687" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_OPERATOR" id="14688" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_OUTLINE" id="14689" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_PACKAGE" id="14690" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_PACKAGE, KW_BODY" id="14691" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_PLUGGABLE, KW_DATABASE" id="14692" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_POLICY" id="14693" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_PROCEDURE" id="14694" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_PROFILE" id="14695" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_RESOURCE, KW_COST" id="14696" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ROLE" id="14697" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ROLLBACK, KW_SEGMENT" id="14698" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_SEQUENCE" id="14699" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_SESSION" id="14700" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_SYNONYM" id="14701" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_SYSTEM" id="14702" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_TABLE" id="14703" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_TABLESPACE" id="14704" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_TRACING" id="14705" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_TRIGGER" id="14706" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_TYPE" id="14707" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_TYPE, KW_BODY" id="14708" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_USER" id="14709" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_VIEW" id="14710" />
+            <sequence atomic="true" tokens="KW_ANALYZE, KW_CLUSTER" id="14711" />
+            <sequence atomic="true" tokens="KW_ANALYZE, KW_INDEX" id="14712" />
+            <sequence atomic="true" tokens="KW_ANALYZE, KW_TABLE" id="14713" />
+            <sequence atomic="true" tokens="KW_ASSOCIATE, KW_STATISTICS" id="14714" />
+            <sequence atomic="true" tokens="KW_AUDIT" id="14715" />
+            <sequence atomic="true" tokens="KW_CALL" id="14716" />
+            <sequence atomic="true" tokens="KW_CHANGE, KW_PASSWORD" id="14717" />
+            <sequence atomic="true" tokens="KW_COMMENT" id="14718" />
+            <sequence atomic="true" tokens="KW_COMMIT" id="14719" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ACL" id="14720" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANALYTIC, KW_VIEW" id="14721" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ASSEMBLY" id="14722" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ATTRIBUTE, KW_DIMENSION" id="14723" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_AUDIT, KW_POLICY" id="14724" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_CLUSTER" id="14725" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_CONTEXT" id="14726" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_DATA, KW_LABEL" id="14727" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_DATA, KW_SECURITY" id="14728" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_DATABASE, KW_LINK" id="14729" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_DIMENSION" id="14730" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_DIRECTORY" id="14731" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_DISK, KW_GROUP" id="14732" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_EDITION" id="14733" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_FLASHBACK, KW_ARCHIVE" id="14734" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_FUNCTION" id="14735" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_HIERARCHY" id="14736" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_INDEX" id="14737" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_INDEXTYPE" id="14738" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_INMEMORY, KW_JOIN, KW_GROUP" id="14739" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_JAVA" id="14740" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_LABEL, KW_COMPONENTS" id="14741" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_LIBRARY" id="14742" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_LOCKDOWN, KW_PROFILE" id="14743" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_LOGICAL, KW_PARTITION, KW_TRACKING" id="14744" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_MATERIALIZED, KW_VIEW" id="14745" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_MATERIALIZED, KW_VIEW, KW_LOG" id="14746" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_MATERIALIZED, KW_ZONEMAP" id="14747" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_MINING, KW_MODEL" id="14748" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_NAMESPACE, KW_ATTRIBUTE" id="14749" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_NAMESPACE, KW_TEMPLATE" id="14750" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_OPERATOR" id="14751" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_OUTLINE" id="14752" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_PACKAGE" id="14753" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_PACKAGE, KW_BODY" id="14754" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_PFILE" id="14755" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_PLUGGABLE, KW_DATABASE" id="14756" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_POLICY" id="14757" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_PROCEDURE" id="14758" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_PROFILE" id="14759" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_RESTORE, KW_POINT" id="14760" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ROLE" id="14761" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ROLE" id="14762" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ROLESET" id="14763" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ROLLBACK, KW_SEGMENT" id="14764" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_SCHEMA" id="14765" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_SCHEMA, KW_SYNONYM" id="14766" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_SECURITY, KW_CLASS" id="14767" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_SEQUENCE" id="14768" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_SESSION" id="14769" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_SESSION, KW_NAMESPACE" id="14770" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_SPFILE" id="14771" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_SYNONYM" id="14772" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_TABLE" id="14773" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_TABLESPACE" id="14774" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_TRIGGER" id="14775" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_TYPE" id="14776" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_TYPE, KW_BODY" id="14777" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_USER" id="14778" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_USER" id="14779" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_VIEW" id="14780" />
+            <sequence atomic="true" tokens="KW_DELETE" id="14781" />
+            <sequence atomic="true" tokens="KW_DESTROY, KW_SESSION" id="14782" />
+            <sequence atomic="true" tokens="KW_DISASSOCIATE, KW_STATISTICS" id="14783" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANALYTIC, KW_VIEW" id="14784" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ASSEMBLY" id="14785" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ATTRIBUTE, KW_DIMENSION" id="14786" />
+            <sequence atomic="true" tokens="KW_DROP, KW_AUDIT, KW_POLICY" id="14787" />
+            <sequence atomic="true" tokens="KW_DROP, KW_CLUSTER" id="14788" />
+            <sequence atomic="true" tokens="KW_DROP, KW_CONTEXT" id="14789" />
+            <sequence atomic="true" tokens="KW_DROP, KW_DATA, KW_LABEL" id="14790" />
+            <sequence atomic="true" tokens="KW_DROP, KW_DATABASE, KW_LINK" id="14791" />
+            <sequence atomic="true" tokens="KW_DROP, KW_DIMENSION" id="14792" />
+            <sequence atomic="true" tokens="KW_DROP, KW_DIRECTORY" id="14793" />
+            <sequence atomic="true" tokens="KW_DROP, KW_DISK, KW_GROUP" id="14794" />
+            <sequence atomic="true" tokens="KW_DROP, KW_EDITION" id="14795" />
+            <sequence atomic="true" tokens="KW_DROP, KW_FLASHBACK, KW_ARCHIVE" id="14796" />
+            <sequence atomic="true" tokens="KW_DROP, KW_FUNCTION" id="14797" />
+            <sequence atomic="true" tokens="KW_DROP, KW_HIERARCHY" id="14798" />
+            <sequence atomic="true" tokens="KW_DROP, KW_INDEX" id="14799" />
+            <sequence atomic="true" tokens="KW_DROP, KW_INDEXTYPE" id="14800" />
+            <sequence atomic="true" tokens="KW_DROP, KW_INMEMORY, KW_JOIN, KW_GROUP" id="14801" />
+            <sequence atomic="true" tokens="KW_DROP, KW_JAVA" id="14802" />
+            <sequence atomic="true" tokens="KW_DROP, KW_LABEL, KW_COMPONENTS" id="14803" />
+            <sequence atomic="true" tokens="KW_DROP, KW_LIBRARY" id="14804" />
+            <sequence atomic="true" tokens="KW_DROP, KW_LOCKDOWN, KW_PROFILE" id="14805" />
+            <sequence atomic="true" tokens="KW_DROP, KW_LOGICAL, KW_PARTITION, KW_TRACKING" id="14806" />
+            <sequence atomic="true" tokens="KW_DROP, KW_MATERIALIZED, KW_VIEW" id="14807" />
+            <sequence atomic="true" tokens="KW_DROP, KW_MATERIALIZED, KW_VIEW, KW_LOG" id="14808" />
+            <sequence atomic="true" tokens="KW_DROP, KW_MATERIALIZED, KW_ZONEMAP" id="14809" />
+            <sequence atomic="true" tokens="KW_DROP, KW_MINING, KW_MODEL" id="14810" />
+            <sequence atomic="true" tokens="KW_DROP, KW_OPERATOR" id="14811" />
+            <sequence atomic="true" tokens="KW_DROP, KW_OUTLINE" id="14812" />
+            <sequence atomic="true" tokens="KW_DROP, KW_PACKAGE" id="14813" />
+            <sequence atomic="true" tokens="KW_DROP, KW_PACKAGE, KW_BODY" id="14814" />
+            <sequence atomic="true" tokens="KW_DROP, KW_PLUGGABLE, KW_DATABASE" id="14815" />
+            <sequence atomic="true" tokens="KW_DROP, KW_POLICY" id="14816" />
+            <sequence atomic="true" tokens="KW_DROP, KW_PROCEDURE" id="14817" />
+            <sequence atomic="true" tokens="KW_DROP, KW_PROFILE" id="14818" />
+            <sequence atomic="true" tokens="KW_DROP, KW_RESTORE, KW_POINT" id="14819" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ROLE" id="14820" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ROLLBACK, KW_SEGMENT" id="14821" />
+            <sequence atomic="true" tokens="KW_DROP, KW_SCHEMA, KW_SYNONYM" id="14822" />
+            <sequence atomic="true" tokens="KW_DROP, KW_SEQUENCE" id="14823" />
+            <sequence atomic="true" tokens="KW_DROP, KW_SYNONYM" id="14824" />
+            <sequence atomic="true" tokens="KW_DROP, KW_TABLE" id="14825" />
+            <sequence atomic="true" tokens="KW_DROP, KW_TABLESPACE" id="14826" />
+            <sequence atomic="true" tokens="KW_DROP, KW_TRIGGER" id="14827" />
+            <sequence atomic="true" tokens="KW_DROP, KW_TYPE" id="14828" />
+            <sequence atomic="true" tokens="KW_DROP, KW_TYPE, KW_BODY" id="14829" />
+            <sequence atomic="true" tokens="KW_DROP, KW_USER" id="14830" />
+            <sequence atomic="true" tokens="KW_DROP, KW_VIEW" id="14831" />
+            <sequence atomic="true" tokens="KW_EXECUTE, KW_DIRECTORY" id="14832" />
+            <sequence atomic="true" tokens="KW_EXPLAIN, KW_PLAN" id="14833" />
+            <sequence atomic="true" tokens="KW_FLASHBACK, KW_TABLE" id="14834" />
+            <sequence atomic="true" tokens="KW_LOCK, KW_TABLE" id="14835" />
+            <sequence atomic="true" tokens="KW_PRIVILEGED, KW_ACTION" id="14836" />
+            <sequence atomic="true" tokens="KW_PURGE, KW_DBA_RECYCLEBIN" id="14837" />
+            <sequence atomic="true" tokens="KW_PURGE, KW_INDEX" id="14838" />
+            <sequence atomic="true" tokens="KW_PURGE, KW_RECYCLEBIN" id="14839" />
+            <sequence atomic="true" tokens="KW_PURGE, KW_TABLE" id="14840" />
+            <sequence atomic="true" tokens="KW_PURGE, KW_TABLESPACE" id="14841" />
+            <sequence atomic="true" tokens="KW_READ, KW_DIRECTORY" id="14842" />
+            <sequence atomic="true" tokens="KW_SET, KW_TRANSACTION" id="14843" />
+            <sequence atomic="true" tokens="KW_SWITCH, KW_USER" id="14844" />
+            <sequence atomic="true" tokens="KW_TRUNCATE, KW_CLUSTER" id="14845" />
+            <sequence atomic="true" tokens="KW_TRUNCATE, KW_TABLE" id="14846" />
+            <sequence atomic="true" tokens="KW_WRITE, KW_DIRECTORY" id="14847" />
+            <token type-id="KW_ALL" id="14848" />
+            <token type-id="KW_EXECUTE" id="14849" />
+            <token type-id="KW_EXPORT" id="14850" />
+            <token type-id="KW_GRANT" id="14851" />
+            <token type-id="KW_IMPORT" id="14852" />
+            <token type-id="KW_INSERT" id="14853" />
+            <token type-id="KW_LOAD" id="14854" />
+            <token type-id="KW_LOGOFF" id="14855" />
+            <token type-id="KW_LOGON" id="14856" />
+            <token type-id="KW_NOAUDIT" id="14857" />
+            <token type-id="KW_RENAME" id="14858" />
+            <token type-id="KW_REVOKE" id="14859" />
+            <token type-id="KW_ROLLBACK" id="14860" />
+            <token type-id="KW_SELECT" id="14861" />
+            <token type-id="KW_UPDATE" id="14862" />
         </one-of>
     </element-def>
     <element-def custom="true" description="Component action" id="component_action">
-        <one-of id="14868" unbounded="true">
-            <sequence atomic="true" tokens="KW_ADD, KW_GLOBAL, KW_CALLBACK" id="14869" />
-            <sequence atomic="true" tokens="KW_ADD, KW_PROXY" id="14870" />
-            <sequence atomic="true" tokens="KW_APPLY, KW_POLICY" id="14871" />
-            <sequence atomic="true" tokens="KW_ASSIGN, KW_USER" id="14872" />
-            <sequence atomic="true" tokens="KW_DELETE, KW_ACL" id="14873" />
-            <sequence atomic="true" tokens="KW_DELETE, KW_DATA, KW_SECURITY" id="14874" />
-            <sequence atomic="true" tokens="KW_DELETE, KW_GLOBAL, KW_CALLBACK" id="14875" />
-            <sequence atomic="true" tokens="KW_DELETE, KW_NAMESPACE, KW_ATTRIBUTE" id="14876" />
-            <sequence atomic="true" tokens="KW_DELETE, KW_NAMESPACE, KW_TEMPLATE" id="14877" />
-            <sequence atomic="true" tokens="KW_DELETE, KW_ROLE" id="14878" />
-            <sequence atomic="true" tokens="KW_DELETE, KW_ROLESET" id="14879" />
-            <sequence atomic="true" tokens="KW_DELETE, KW_SECURITY, KW_CLASS" id="14880" />
-            <sequence atomic="true" tokens="KW_DELETE, KW_SESSION, KW_NAMESPACE" id="14881" />
-            <sequence atomic="true" tokens="KW_DELETE, KW_USER" id="14882" />
-            <sequence atomic="true" tokens="KW_DISABLE, KW_DATA, KW_SECURITY" id="14883" />
-            <sequence atomic="true" tokens="KW_DISABLE, KW_POLICY" id="14884" />
-            <sequence atomic="true" tokens="KW_DISABLE, KW_ROLE" id="14885" />
-            <sequence atomic="true" tokens="KW_ENABLE, KW_DATA, KW_SECURITY" id="14886" />
-            <sequence atomic="true" tokens="KW_ENABLE, KW_GLOBAL, KW_CALLBACK" id="14887" />
-            <sequence atomic="true" tokens="KW_ENABLE, KW_POLICY" id="14888" />
-            <sequence atomic="true" tokens="KW_ENABLE, KW_ROLE" id="14889" />
-            <sequence atomic="true" tokens="KW_FACTOR, KW_ALL" id="14890" />
-            <sequence atomic="true" tokens="KW_FACTOR, KW_ERROR" id="14891" />
-            <sequence atomic="true" tokens="KW_FACTOR, KW_NULL" id="14892" />
-            <sequence atomic="true" tokens="KW_FACTOR, KW_TRUST, KW_LEVEL, KW_NEG" id="14893" />
-            <sequence atomic="true" tokens="KW_FACTOR, KW_TRUST, KW_LEVEL, KW_NULL" id="14894" />
-            <sequence atomic="true" tokens="KW_FACTOR, KW_VALIDATE, KW_ERROR" id="14895" />
-            <sequence atomic="true" tokens="KW_FACTOR, KW_VALIDATE, KW_FALSE" id="14896" />
-            <sequence atomic="true" tokens="KW_GET, KW_NAMESPACE, KW_ATTRIBUTE" id="14897" />
-            <sequence atomic="true" tokens="KW_GRANT, KW_ROLE" id="14898" />
-            <sequence atomic="true" tokens="KW_GRANT, KW_SYSTEM, KW_PRIVILEGE" id="14899" />
-            <sequence atomic="true" tokens="KW_REALM, KW_ACCESS" id="14900" />
-            <sequence atomic="true" tokens="KW_REALM, KW_SUCCESS" id="14901" />
-            <sequence atomic="true" tokens="KW_REALM, KW_VIOLATION" id="14902" />
-            <sequence atomic="true" tokens="KW_REMOVE, KW_POLICY" id="14903" />
-            <sequence atomic="true" tokens="KW_REMOVE, KW_PROXY" id="14904" />
-            <sequence atomic="true" tokens="KW_REVOKE, KW_ROLE" id="14905" />
-            <sequence atomic="true" tokens="KW_REVOKE, KW_SYSTEM, KW_PRIVILEGE" id="14906" />
-            <sequence atomic="true" tokens="KW_RULE, KW_SET, KW_EVAL" id="14907" />
-            <sequence atomic="true" tokens="KW_RULE, KW_SET, KW_FAILURE" id="14908" />
-            <sequence atomic="true" tokens="KW_RULE, KW_SET, KW_SUCCESS" id="14909" />
-            <sequence atomic="true" tokens="KW_SET, KW_AUTHORIZATION" id="14910" />
-            <sequence atomic="true" tokens="KW_SET, KW_COOKIE" id="14911" />
-            <sequence atomic="true" tokens="KW_SET, KW_INACTIVE, KW_TIMEOUT" id="14912" />
-            <sequence atomic="true" tokens="KW_SET, KW_NAMESPACE, KW_ATTRIBUTE" id="14913" />
-            <sequence atomic="true" tokens="KW_SET, KW_ROLE" id="14914" />
-            <sequence atomic="true" tokens="KW_SET, KW_USER, KW_PASSWORD" id="14915" />
-            <sequence atomic="true" tokens="KW_SET, KW_USER, KW_PROFILE" id="14916" />
-            <sequence atomic="true" tokens="KW_SET, KW_USER, KW_VERIFIER" id="14917" />
-            <sequence atomic="true" tokens="KW_SUBSCRIBE, KW_OID" id="14918" />
-            <sequence atomic="true" tokens="KW_UNSUBSCRIBE, KW_OID" id="14919" />
-            <sequence atomic="true" tokens="KW_UPDATE, KW_ACL" id="14920" />
-            <sequence atomic="true" tokens="KW_UPDATE, KW_DATA, KW_SECURITY" id="14921" />
-            <sequence atomic="true" tokens="KW_UPDATE, KW_NAMESPACE, KW_TEMPLATE" id="14922" />
-            <sequence atomic="true" tokens="KW_UPDATE, KW_ROLE" id="14923" />
-            <sequence atomic="true" tokens="KW_UPDATE, KW_ROLESET" id="14924" />
-            <sequence atomic="true" tokens="KW_UPDATE, KW_SECURITY, KW_CLASS" id="14925" />
-            <sequence atomic="true" tokens="KW_UPDATE, KW_USER" id="14926" />
-            <token type-id="KW_FTP" id="14927" />
-            <token type-id="KW_HTTP" id="14928" />
-            <token type-id="KW_AUTHENTICATION" id="14929" />
-            <token type-id="KW_IMPORT" id="14930" />
-            <token type-id="KW_EXPORT" id="14931" />
+        <one-of id="14863" unbounded="true">
+            <sequence atomic="true" tokens="KW_ADD, KW_GLOBAL, KW_CALLBACK" id="14864" />
+            <sequence atomic="true" tokens="KW_ADD, KW_PROXY" id="14865" />
+            <sequence atomic="true" tokens="KW_APPLY, KW_POLICY" id="14866" />
+            <sequence atomic="true" tokens="KW_ASSIGN, KW_USER" id="14867" />
+            <sequence atomic="true" tokens="KW_DELETE, KW_ACL" id="14868" />
+            <sequence atomic="true" tokens="KW_DELETE, KW_DATA, KW_SECURITY" id="14869" />
+            <sequence atomic="true" tokens="KW_DELETE, KW_GLOBAL, KW_CALLBACK" id="14870" />
+            <sequence atomic="true" tokens="KW_DELETE, KW_NAMESPACE, KW_ATTRIBUTE" id="14871" />
+            <sequence atomic="true" tokens="KW_DELETE, KW_NAMESPACE, KW_TEMPLATE" id="14872" />
+            <sequence atomic="true" tokens="KW_DELETE, KW_ROLE" id="14873" />
+            <sequence atomic="true" tokens="KW_DELETE, KW_ROLESET" id="14874" />
+            <sequence atomic="true" tokens="KW_DELETE, KW_SECURITY, KW_CLASS" id="14875" />
+            <sequence atomic="true" tokens="KW_DELETE, KW_SESSION, KW_NAMESPACE" id="14876" />
+            <sequence atomic="true" tokens="KW_DELETE, KW_USER" id="14877" />
+            <sequence atomic="true" tokens="KW_DISABLE, KW_DATA, KW_SECURITY" id="14878" />
+            <sequence atomic="true" tokens="KW_DISABLE, KW_POLICY" id="14879" />
+            <sequence atomic="true" tokens="KW_DISABLE, KW_ROLE" id="14880" />
+            <sequence atomic="true" tokens="KW_ENABLE, KW_DATA, KW_SECURITY" id="14881" />
+            <sequence atomic="true" tokens="KW_ENABLE, KW_GLOBAL, KW_CALLBACK" id="14882" />
+            <sequence atomic="true" tokens="KW_ENABLE, KW_POLICY" id="14883" />
+            <sequence atomic="true" tokens="KW_ENABLE, KW_ROLE" id="14884" />
+            <sequence atomic="true" tokens="KW_FACTOR, KW_ALL" id="14885" />
+            <sequence atomic="true" tokens="KW_FACTOR, KW_ERROR" id="14886" />
+            <sequence atomic="true" tokens="KW_FACTOR, KW_NULL" id="14887" />
+            <sequence atomic="true" tokens="KW_FACTOR, KW_TRUST, KW_LEVEL, KW_NEG" id="14888" />
+            <sequence atomic="true" tokens="KW_FACTOR, KW_TRUST, KW_LEVEL, KW_NULL" id="14889" />
+            <sequence atomic="true" tokens="KW_FACTOR, KW_VALIDATE, KW_ERROR" id="14890" />
+            <sequence atomic="true" tokens="KW_FACTOR, KW_VALIDATE, KW_FALSE" id="14891" />
+            <sequence atomic="true" tokens="KW_GET, KW_NAMESPACE, KW_ATTRIBUTE" id="14892" />
+            <sequence atomic="true" tokens="KW_GRANT, KW_ROLE" id="14893" />
+            <sequence atomic="true" tokens="KW_GRANT, KW_SYSTEM, KW_PRIVILEGE" id="14894" />
+            <sequence atomic="true" tokens="KW_REALM, KW_ACCESS" id="14895" />
+            <sequence atomic="true" tokens="KW_REALM, KW_SUCCESS" id="14896" />
+            <sequence atomic="true" tokens="KW_REALM, KW_VIOLATION" id="14897" />
+            <sequence atomic="true" tokens="KW_REMOVE, KW_POLICY" id="14898" />
+            <sequence atomic="true" tokens="KW_REMOVE, KW_PROXY" id="14899" />
+            <sequence atomic="true" tokens="KW_REVOKE, KW_ROLE" id="14900" />
+            <sequence atomic="true" tokens="KW_REVOKE, KW_SYSTEM, KW_PRIVILEGE" id="14901" />
+            <sequence atomic="true" tokens="KW_RULE, KW_SET, KW_EVAL" id="14902" />
+            <sequence atomic="true" tokens="KW_RULE, KW_SET, KW_FAILURE" id="14903" />
+            <sequence atomic="true" tokens="KW_RULE, KW_SET, KW_SUCCESS" id="14904" />
+            <sequence atomic="true" tokens="KW_SET, KW_AUTHORIZATION" id="14905" />
+            <sequence atomic="true" tokens="KW_SET, KW_COOKIE" id="14906" />
+            <sequence atomic="true" tokens="KW_SET, KW_INACTIVE, KW_TIMEOUT" id="14907" />
+            <sequence atomic="true" tokens="KW_SET, KW_NAMESPACE, KW_ATTRIBUTE" id="14908" />
+            <sequence atomic="true" tokens="KW_SET, KW_ROLE" id="14909" />
+            <sequence atomic="true" tokens="KW_SET, KW_USER, KW_PASSWORD" id="14910" />
+            <sequence atomic="true" tokens="KW_SET, KW_USER, KW_PROFILE" id="14911" />
+            <sequence atomic="true" tokens="KW_SET, KW_USER, KW_VERIFIER" id="14912" />
+            <sequence atomic="true" tokens="KW_SUBSCRIBE, KW_OID" id="14913" />
+            <sequence atomic="true" tokens="KW_UNSUBSCRIBE, KW_OID" id="14914" />
+            <sequence atomic="true" tokens="KW_UPDATE, KW_ACL" id="14915" />
+            <sequence atomic="true" tokens="KW_UPDATE, KW_DATA, KW_SECURITY" id="14916" />
+            <sequence atomic="true" tokens="KW_UPDATE, KW_NAMESPACE, KW_TEMPLATE" id="14917" />
+            <sequence atomic="true" tokens="KW_UPDATE, KW_ROLE" id="14918" />
+            <sequence atomic="true" tokens="KW_UPDATE, KW_ROLESET" id="14919" />
+            <sequence atomic="true" tokens="KW_UPDATE, KW_SECURITY, KW_CLASS" id="14920" />
+            <sequence atomic="true" tokens="KW_UPDATE, KW_USER" id="14921" />
+            <token type-id="KW_FTP" id="14922" />
+            <token type-id="KW_HTTP" id="14923" />
+            <token type-id="KW_AUTHENTICATION" id="14924" />
+            <token type-id="KW_IMPORT" id="14925" />
+            <token type-id="KW_EXPORT" id="14926" />
         </one-of>
     </element-def>
     <element-def custom="true" description="Object audit action" id="object_action">
-        <one-of id="14932">
-            <token type-id="KW_ALTER" id="14933" />
-            <token type-id="KW_AUDIT" id="14934" />
-            <token type-id="KW_COMMENT" id="14935" />
-            <token type-id="KW_DELETE" id="14936" />
-            <token type-id="KW_EXECUTE" id="14937" />
-            <token type-id="KW_FLASHBACK" id="14938" />
-            <token type-id="KW_GRANT" id="14939" />
-            <token type-id="KW_INDEX" id="14940" />
-            <token type-id="KW_INSERT" id="14941" />
-            <token type-id="KW_LOCK" id="14942" />
-            <token type-id="KW_READ" id="14943" />
-            <token type-id="KW_RENAME" id="14944" />
-            <token type-id="KW_SELECT" id="14945" />
-            <token type-id="KW_UPDATE" id="14946" />
-            <token type-id="KW_TRUNCATE" id="14947" />
-            <token type-id="IDENTIFIER" id="14948" />
+        <one-of id="14927">
+            <token type-id="KW_ALTER" id="14928" />
+            <token type-id="KW_AUDIT" id="14929" />
+            <token type-id="KW_COMMENT" id="14930" />
+            <token type-id="KW_DELETE" id="14931" />
+            <token type-id="KW_EXECUTE" id="14932" />
+            <token type-id="KW_FLASHBACK" id="14933" />
+            <token type-id="KW_GRANT" id="14934" />
+            <token type-id="KW_INDEX" id="14935" />
+            <token type-id="KW_INSERT" id="14936" />
+            <token type-id="KW_LOCK" id="14937" />
+            <token type-id="KW_READ" id="14938" />
+            <token type-id="KW_RENAME" id="14939" />
+            <token type-id="KW_SELECT" id="14940" />
+            <token type-id="KW_UPDATE" id="14941" />
+            <token type-id="KW_TRUNCATE" id="14942" />
+            <token type-id="IDENTIFIER" id="14943" />
         </one-of>
     </element-def>
     <element-def custom="true" description="System privileges" id="system_privilege">
-        <one-of object-type="SYSTEM_PRIVILEGE" id="14949" unbounded="true">
-            <sequence atomic="true" tokens="FN_TRANSLATE:keyword, KW_ANY, KW_SQL" id="14950" />
-            <sequence atomic="true" tokens="KW_ADMINISTER, KW_ANY, KW_DATA, KW_GRANT" id="14951" />
-            <sequence atomic="true" tokens="KW_ADMINISTER, KW_ANY, KW_SQL, KW_TUNING, KW_SET" id="14952" />
-            <sequence atomic="true" tokens="KW_ADMINISTER, KW_DATABASE, KW_TRIGGER" id="14953" />
-            <sequence atomic="true" tokens="KW_ADMINISTER, KW_KEY, KW_MANAGEMENT" id="14954" />
-            <sequence atomic="true" tokens="KW_ADMINISTER, KW_RESOURCE, KW_MANAGER" id="14955" />
-            <sequence atomic="true" tokens="KW_ADMINISTER, KW_SQL, KW_MANAGEMENT, KW_OBJECT" id="14956" />
-            <sequence atomic="true" tokens="KW_ADMINISTER, KW_SQL, KW_MANAGEMENT, KW_OBJECT" id="14957" />
-            <sequence atomic="true" tokens="KW_ADMINISTER, KW_SQL, KW_TUNING, KW_SET" id="14958" />
-            <sequence atomic="true" tokens="KW_ADMINISTER, KW_SQL, KW_TUNING, KW_SET" id="14959" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_ANALYTIC, KW_VIEW" id="14960" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_ASSEMBLY" id="14961" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_ASSERTION" id="14962" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_ATTRIBUTE, KW_DIMENSION" id="14963" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_ATTRIBUTE, KW_DIMENSION" id="14964" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_CLUSTER" id="14965" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_CUBE" id="14966" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_CUBE, KW_BUILD, KW_PROCESS" id="14967" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_CUBE, KW_DIMENSION" id="14968" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_DIMENSION" id="14969" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_DOMAIN" id="14970" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_EDITION" id="14971" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_EVALUATION, KW_CONTEXT" id="14972" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_HIERARCHY" id="14973" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_HIERARCHY" id="14974" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_INDEX" id="14975" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_INDEXTYPE" id="14976" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_LIBRARY" id="14977" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_MATERIALIZED, KW_VIEW" id="14978" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_MEASURE, KW_FOLDER" id="14979" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_MINING, KW_MODEL" id="14980" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_OPERATOR" id="14981" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_OUTLINE" id="14982" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_PROCEDURE" id="14983" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_PROPERTY, KW_GRAPH" id="14984" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_ROLE" id="14985" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_RULE" id="14986" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_RULE, KW_SET" id="14987" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_SEQUENCE" id="14988" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_SNAPSHOT" id="14989" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_SQL, KW_PROFILE" id="14990" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_SQL, KW_TRANSLATION, KW_PROFILE" id="14991" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_TABLE" id="14992" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_TRIGGER" id="14993" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_TYPE" id="14994" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_DATABASE" id="14995" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_DATABASE, KW_LINK" id="14996" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_END, KW_USER" id="14997" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_JAVA" id="14998" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_LOCKDOWN, KW_PROFILE" id="14999" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_PROFILE" id="15000" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_RESOURCE, KW_COST" id="15001" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ROLLBACK, KW_SEGMENT" id="15002" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_SESSION" id="15003" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_SYSTEM" id="15004" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_TABLESPACE" id="15005" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_USER" id="15006" />
-            <sequence atomic="true" tokens="KW_ANALYZE, KW_ANY" id="15007" />
-            <sequence atomic="true" tokens="KW_ANALYZE, KW_ANY, KW_DICTIONARY" id="15008" />
-            <sequence atomic="true" tokens="KW_AUDIT, KW_ANY" id="15009" />
-            <sequence atomic="true" tokens="KW_AUDIT, KW_SYSTEM" id="15010" />
-            <sequence atomic="true" tokens="KW_BACKUP, KW_ANY, KW_TABLE" id="15011" />
-            <sequence atomic="true" tokens="KW_BECOME, KW_USER" id="15012" />
-            <sequence atomic="true" tokens="KW_CHANGE, KW_NOTIFICATION" id="15013" />
-            <sequence atomic="true" tokens="KW_COMMENT, KW_ANY, KW_MINING, KW_MODEL" id="15014" />
-            <sequence atomic="true" tokens="KW_COMMENT, KW_ANY, KW_PROPERTY, KW_GRAPH" id="15015" />
-            <sequence atomic="true" tokens="KW_COMMENT, KW_ANY, KW_TABLE" id="15016" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANALYTIC, KW_VIEW" id="15017" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_ANALYTIC, KW_VIEW" id="15018" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_ASSEMBLY" id="15019" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_ASSERTION" id="15020" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_ATTRIBUTE, KW_DIMENSION" id="15021" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_ATTRIBUTE, KW_DIMENSION" id="15022" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_CLUSTER" id="15023" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_CONTEXT" id="15024" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_CREDENTIAL" id="15025" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_CUBE" id="15026" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_CUBE, KW_BUILD, KW_PROCESS" id="15027" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_CUBE, KW_DIMENSION" id="15028" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_DIMENSION" id="15029" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_DIRECTORY" id="15030" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_DOMAIN" id="15031" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_EDITION" id="15032" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_EVALUATION, KW_CONTEXT" id="15033" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_HIERARCHY" id="15034" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_HIERARCHY" id="15035" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_INDEX" id="15036" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_INDEXTYPE" id="15037" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_JOB" id="15038" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_LIBRARY" id="15039" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_MATERIALIZED, KW_VIEW" id="15040" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_MEASURE, KW_FOLDER" id="15041" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_MINING, KW_MODEL" id="15042" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_OPERATOR" id="15043" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_OUTLINE" id="15044" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_PROCEDURE" id="15045" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_PROPERTY, KW_GRAPH" id="15046" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_RULE" id="15047" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_RULE, KW_SET" id="15048" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_SEQUENCE" id="15049" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_SNAPSHOT" id="15050" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_SQL, KW_PROFILE" id="15051" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_SQL, KW_TRANSLATION, KW_PROFILE" id="15052" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_SYNONYM" id="15053" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_TABLE" id="15054" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_TRIGGER" id="15055" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_TYPE" id="15056" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_VIEW" id="15057" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_APPLICATION, KW_IDENTITY" id="15058" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ASSEMBLY" id="15059" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ASSERTION" id="15060" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ATTRIBUTE, KW_DIMENSION" id="15061" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ATTRIBUTE, KW_DIMENSION" id="15062" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_CLUSTER" id="15063" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_CREDENTIAL" id="15064" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_CUBE" id="15065" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_CUBE, KW_BUILD, KW_PROCESS" id="15066" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_CUBE, KW_DIMENSION" id="15067" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_DATA, KW_GRANT" id="15068" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_DATA, KW_ROLE" id="15069" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_DATABASE, KW_LINK" id="15070" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_DIMENSION" id="15071" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_DOMAIN" id="15072" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_END, KW_USER" id="15073" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_END, KW_USER, KW_CONTEXT" id="15074" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_EVALUATION, KW_CONTEXT" id="15075" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_EXTERNAL, KW_JOB" id="15076" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_HIERARCHY" id="15077" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_HIERARCHY" id="15078" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_INDEXTYPE" id="15079" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_JAVA" id="15080" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_JOB" id="15081" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_LIBRARY" id="15082" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_LOCKDOWN, KW_PROFILE" id="15083" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_LOGICAL, KW_PARTITION, KW_TRACKING" id="15084" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_MATERIALIZED, KW_VIEW" id="15085" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_MEASURE, KW_FOLDER" id="15086" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_MINING, KW_MODEL" id="15087" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_OPERATOR" id="15088" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_PLUGGABLE, KW_DATABASE" id="15089" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_PROCEDURE" id="15090" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_PROFILE" id="15091" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_PUBLIC, KW_DATABASE, KW_LINK" id="15092" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_PUBLIC, KW_SYNONYM" id="15093" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ROLE" id="15094" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ROLLBACK, KW_SEGMENT" id="15095" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_RULE" id="15096" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_RULE, KW_SET" id="15097" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_SEQUENCE" id="15098" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_SESSION" id="15099" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_SNAPSHOT" id="15100" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_SQL, KW_TRANSLATION, KW_PROFILE" id="15101" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_SYNONYM" id="15102" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_TABLE" id="15103" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_TABLESPACE" id="15104" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_TRIGGER" id="15105" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_TYPE" id="15106" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_USER" id="15107" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_VIEW" id="15108" />
-            <sequence atomic="true" tokens="KW_DEBUG, KW_ANY, KW_PROCEDURE" id="15109" />
-            <sequence atomic="true" tokens="KW_DEBUG, KW_CONNECT, KW_ANY" id="15110" />
-            <sequence atomic="true" tokens="KW_DEBUG, KW_CONNECT, KW_SESSION" id="15111" />
-            <sequence atomic="true" tokens="KW_DELETE, KW_ANY, KW_CUBE, KW_DIMENSION" id="15112" />
-            <sequence atomic="true" tokens="KW_DELETE, KW_ANY, KW_MEASURE, KW_FOLDER" id="15113" />
-            <sequence atomic="true" tokens="KW_DELETE, KW_ANY, KW_TABLE" id="15114" />
-            <sequence atomic="true" tokens="KW_DEQUEUE, KW_ANY, KW_QUEUE" id="15115" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_ANALYTIC, KW_VIEW" id="15116" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_ASSEMBLY" id="15117" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_ASSERTION" id="15118" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_ATTRIBUTE, KW_DIMENSION" id="15119" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_ATTRIBUTE, KW_DIMENSION" id="15120" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_CLUSTER" id="15121" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_CONTEXT" id="15122" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_CUBE" id="15123" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_CUBE, KW_BUILD, KW_PROCESS" id="15124" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_CUBE, KW_DIMENSION" id="15125" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_DATA, KW_GRANT" id="15126" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_DIMENSION" id="15127" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_DIRECTORY" id="15128" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_DOMAIN" id="15129" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_EDITION" id="15130" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_EVALUATION, KW_CONTEXT" id="15131" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_HIERARCHY" id="15132" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_HIERARCHY" id="15133" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_INDEX" id="15134" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_INDEXTYPE" id="15135" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_LIBRARY" id="15136" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_MATERIALIZED, KW_VIEW" id="15137" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_MEASURE, KW_FOLDER" id="15138" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_MINING, KW_MODEL" id="15139" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_OPERATOR" id="15140" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_OUTLINE" id="15141" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_PROCEDURE" id="15142" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_PROPERTY, KW_GRAPH" id="15143" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_ROLE" id="15144" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_RULE" id="15145" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_RULE, KW_SET" id="15146" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_SEQUENCE" id="15147" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_SNAPSHOT" id="15148" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_SQL, KW_PROFILE" id="15149" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_SQL, KW_TRANSLATION, KW_PROFILE" id="15150" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_SYNONYM" id="15151" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_TABLE" id="15152" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_TRIGGER" id="15153" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_TYPE" id="15154" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_VIEW" id="15155" />
-            <sequence atomic="true" tokens="KW_DROP, KW_APPLICATION, KW_IDENTITY" id="15156" />
-            <sequence atomic="true" tokens="KW_DROP, KW_DATA, KW_ROLE" id="15157" />
-            <sequence atomic="true" tokens="KW_DROP, KW_END, KW_USER" id="15158" />
-            <sequence atomic="true" tokens="KW_DROP, KW_END, KW_USER, KW_CONTEXT" id="15159" />
-            <sequence atomic="true" tokens="KW_DROP, KW_JAVA" id="15160" />
-            <sequence atomic="true" tokens="KW_DROP, KW_LOCKDOWN, KW_PROFILE" id="15161" />
-            <sequence atomic="true" tokens="KW_DROP, KW_LOGICAL, KW_PARTITION, KW_TRACKING" id="15162" />
-            <sequence atomic="true" tokens="KW_DROP, KW_PROFILE" id="15163" />
-            <sequence atomic="true" tokens="KW_DROP, KW_PUBLIC, KW_DATABASE, KW_LINK" id="15164" />
-            <sequence atomic="true" tokens="KW_DROP, KW_PUBLIC, KW_SYNONYM" id="15165" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ROLLBACK, KW_SEGMENT" id="15166" />
-            <sequence atomic="true" tokens="KW_DROP, KW_TABLESPACE" id="15167" />
-            <sequence atomic="true" tokens="KW_DROP, KW_USER" id="15168" />
-            <sequence atomic="true" tokens="KW_EM, KW_EXPRESS, KW_CONNECT" id="15169" />
-            <sequence atomic="true" tokens="KW_ENABLE, KW_DIAGNOSTICS" id="15170" />
-            <sequence atomic="true" tokens="KW_ENQUEUE, KW_ANY, KW_QUEUE" id="15171" />
-            <sequence atomic="true" tokens="KW_EXECUTE, KW_ANY, KW_ASSEMBLY" id="15172" />
-            <sequence atomic="true" tokens="KW_EXECUTE, KW_ANY, KW_CLASS" id="15173" />
-            <sequence atomic="true" tokens="KW_EXECUTE, KW_ANY, KW_DOMAIN" id="15174" />
-            <sequence atomic="true" tokens="KW_EXECUTE, KW_ANY, KW_EVALUATION, KW_CONTEXT" id="15175" />
-            <sequence atomic="true" tokens="KW_EXECUTE, KW_ANY, KW_INDEXTYPE" id="15176" />
-            <sequence atomic="true" tokens="KW_EXECUTE, KW_ANY, KW_LIBRARY" id="15177" />
-            <sequence atomic="true" tokens="KW_EXECUTE, KW_ANY, KW_OPERATOR" id="15178" />
-            <sequence atomic="true" tokens="KW_EXECUTE, KW_ANY, KW_PROCEDURE" id="15179" />
-            <sequence atomic="true" tokens="KW_EXECUTE, KW_ANY, KW_PROGRAM" id="15180" />
-            <sequence atomic="true" tokens="KW_EXECUTE, KW_ANY, KW_RULE" id="15181" />
-            <sequence atomic="true" tokens="KW_EXECUTE, KW_ANY, KW_RULE, KW_SET" id="15182" />
-            <sequence atomic="true" tokens="KW_EXECUTE, KW_ANY, KW_TYPE" id="15183" />
-            <sequence atomic="true" tokens="KW_EXTENDS, KW_ANY, KW_TYPE" id="15184" />
-            <sequence atomic="true" tokens="KW_EXECUTE, KW_ASSEMBLY" id="15185" />
-            <sequence atomic="true" tokens="KW_EXEMPT, KW_ACCESS, KW_POLICY" id="15186" />
-            <sequence atomic="true" tokens="KW_EXEMPT, KW_REDACTION, KW_POLICY" id="15187" />
-            <sequence atomic="true" tokens="KW_EXPORT, KW_FULL, KW_DATABASE" id="15188" />
-            <sequence atomic="true" tokens="KW_FLASHBACK, KW_ANY, KW_TABLE" id="15189" />
-            <sequence atomic="true" tokens="KW_FLASHBACK, KW_ARCHIVE, KW_ADMINISTER" id="15190" />
-            <sequence atomic="true" tokens="KW_FORCE, KW_ANY, KW_TRANSACTION" id="15191" />
-            <sequence atomic="true" tokens="KW_FORCE, KW_ANY, KW_TRANSACTION" id="15192" />
-            <sequence atomic="true" tokens="KW_FORCE, KW_TRANSACTION" id="15193" />
-            <sequence atomic="true" tokens="KW_FORCE, KW_TRANSACTION" id="15194" />
-            <sequence atomic="true" tokens="KW_GLOBAL, KW_QUERY, KW_REWRITE" id="15195" />
-            <sequence atomic="true" tokens="KW_GRANT, KW_ANY, KW_DATA, KW_ROLE" id="15196" />
-            <sequence atomic="true" tokens="KW_GRANT, KW_ANY, KW_OBJECT, KW_PRIVILEGE" id="15197" />
-            <sequence atomic="true" tokens="KW_GRANT, KW_ANY, KW_OBJECT, KW_PRIVILEGE" id="15198" />
-            <sequence atomic="true" tokens="KW_GRANT, KW_ANY, KW_PRIVILEGE" id="15199" />
-            <sequence atomic="true" tokens="KW_GRANT, KW_ANY, KW_ROLE" id="15200" />
-            <sequence atomic="true" tokens="KW_IMPORT, KW_FULL, KW_DATABASE" id="15201" />
-            <sequence atomic="true" tokens="KW_INHERIT, KW_ANY, KW_PRIVILEGES" id="15202" />
-            <sequence atomic="true" tokens="KW_INHERIT, KW_ANY, KW_PRIVILEGES" id="15203" />
-            <sequence atomic="true" tokens="KW_INSERT, KW_ANY, KW_CUBE, KW_DIMENSION" id="15204" />
-            <sequence atomic="true" tokens="KW_INSERT, KW_ANY, KW_MEASURE, KW_FOLDER" id="15205" />
-            <sequence atomic="true" tokens="KW_INSERT, KW_ANY, KW_TABLE" id="15206" />
-            <sequence atomic="true" tokens="KW_KEEP, DT_DATE:keyword, KW_TIME" id="15207" />
-            <sequence atomic="true" tokens="KW_KEEP, KW_SYSGUID" id="15208" />
-            <sequence atomic="true" tokens="KW_LOCK, KW_ANY, KW_TABLE" id="15209" />
-            <sequence atomic="true" tokens="KW_MANAGE, KW_ANY, KW_FILE, KW_GROUP" id="15210" />
-            <sequence atomic="true" tokens="KW_MANAGE, KW_ANY, KW_QUEUE" id="15211" />
-            <sequence atomic="true" tokens="KW_MANAGE, KW_FILE, KW_GROUP" id="15212" />
-            <sequence atomic="true" tokens="KW_MANAGE, KW_SCHEDULER" id="15213" />
-            <sequence atomic="true" tokens="KW_MANAGE, KW_TABLESPACE" id="15214" />
-            <sequence atomic="true" tokens="KW_MERGE, KW_ANY, KW_VIEW" id="15215" />
-            <sequence atomic="true" tokens="KW_ON, KW_COMMIT, KW_REFRESH" id="15216" />
-            <sequence atomic="true" tokens="KW_PURGE, KW_DBA_RECYCLEBIN" id="15217" />
-            <sequence atomic="true" tokens="KW_QUERY, KW_REWRITE" id="15218" />
-            <sequence atomic="true" tokens="KW_READ, KW_ANY, KW_ANALYTIC, KW_VIEW, KW_CACHE" id="15219" />
-            <sequence atomic="true" tokens="KW_READ, KW_ANY, KW_FILE, KW_GROUP" id="15220" />
-            <sequence atomic="true" tokens="KW_READ, KW_ANY, KW_PROPERTY, KW_GRAPH" id="15221" />
-            <sequence atomic="true" tokens="KW_READ, KW_ANY, KW_TABLE" id="15222" />
-            <sequence atomic="true" tokens="KW_REDEFINE, KW_ANY, KW_TABLE" id="15223" />
-            <sequence atomic="true" tokens="KW_REDEFINE, KW_ANY, KW_TABLE" id="15224" />
-            <sequence atomic="true" tokens="KW_RESTRICTED, KW_SESSION" id="15225" />
-            <sequence atomic="true" tokens="KW_SELECT, KW_ANY, KW_CUBE" id="15226" />
-            <sequence atomic="true" tokens="KW_SELECT, KW_ANY, KW_CUBE, KW_BUILD, KW_PROCESS" id="15227" />
-            <sequence atomic="true" tokens="KW_SELECT, KW_ANY, KW_CUBE, KW_DIMENSION" id="15228" />
-            <sequence atomic="true" tokens="KW_SELECT, KW_ANY, KW_DICTIONARY" id="15229" />
-            <sequence atomic="true" tokens="KW_SELECT, KW_ANY, KW_END, KW_USER, KW_CONTEXT" id="15230" />
-            <sequence atomic="true" tokens="KW_SELECT, KW_ANY, KW_MEASURE, KW_FOLDER" id="15231" />
-            <sequence atomic="true" tokens="KW_SELECT, KW_ANY, KW_MINING, KW_MODEL" id="15232" />
-            <sequence atomic="true" tokens="KW_SELECT, KW_ANY, KW_SEQUENCE" id="15233" />
-            <sequence atomic="true" tokens="KW_SELECT, KW_ANY, KW_TABLE" id="15234" />
-            <sequence atomic="true" tokens="KW_SELECT, KW_ANY, KW_TRANSACTION" id="15235" />
-            <sequence atomic="true" tokens="KW_SET, KW_CONTAINER" id="15236" />
-            <sequence atomic="true" tokens="KW_TABLE, KW_RETENTION" id="15237" />
-            <sequence atomic="true" tokens="KW_UNDER, KW_ANY, KW_TABLE" id="15238" />
-            <sequence atomic="true" tokens="KW_UNDER, KW_ANY, KW_TYPE" id="15239" />
-            <sequence atomic="true" tokens="KW_UNDER, KW_ANY, KW_VIEW" id="15240" />
-            <sequence atomic="true" tokens="KW_UNLIMITED, KW_TABLESPACE" id="15241" />
-            <sequence atomic="true" tokens="KW_UPDATE, KW_ANY, KW_CUBE" id="15242" />
-            <sequence atomic="true" tokens="KW_UPDATE, KW_ANY, KW_CUBE, KW_BUILD, KW_PROCESS" id="15243" />
-            <sequence atomic="true" tokens="KW_UPDATE, KW_ANY, KW_CUBE, KW_DIMENSION" id="15244" />
-            <sequence atomic="true" tokens="KW_UPDATE, KW_ANY, KW_END, KW_USER, KW_CONTEXT" id="15245" />
-            <sequence atomic="true" tokens="KW_UPDATE, KW_ANY, KW_TABLE" id="15246" />
-            <sequence atomic="true" tokens="KW_USE, KW_ANY, KW_JOB, KW_RESOURCE" id="15247" />
-            <sequence atomic="true" tokens="KW_USE, KW_ANY, KW_SQL, KW_TRANSLATION, KW_PROFILE" id="15248" />
-            <sequence atomic="true" tokens="KW_WRITE, KW_ANY, KW_ANALYTIC, KW_VIEW, KW_CACHE" id="15249" />
-            <token type-id="KW_LOGMINING" id="15250" />
+        <one-of object-type="SYSTEM_PRIVILEGE" id="14944" unbounded="true">
+            <sequence atomic="true" tokens="FN_TRANSLATE:keyword, KW_ANY, KW_SQL" id="14945" />
+            <sequence atomic="true" tokens="KW_ADMINISTER, KW_ANY, KW_DATA, KW_GRANT" id="14946" />
+            <sequence atomic="true" tokens="KW_ADMINISTER, KW_ANY, KW_SQL, KW_TUNING, KW_SET" id="14947" />
+            <sequence atomic="true" tokens="KW_ADMINISTER, KW_DATABASE, KW_TRIGGER" id="14948" />
+            <sequence atomic="true" tokens="KW_ADMINISTER, KW_KEY, KW_MANAGEMENT" id="14949" />
+            <sequence atomic="true" tokens="KW_ADMINISTER, KW_RESOURCE, KW_MANAGER" id="14950" />
+            <sequence atomic="true" tokens="KW_ADMINISTER, KW_SQL, KW_MANAGEMENT, KW_OBJECT" id="14951" />
+            <sequence atomic="true" tokens="KW_ADMINISTER, KW_SQL, KW_MANAGEMENT, KW_OBJECT" id="14952" />
+            <sequence atomic="true" tokens="KW_ADMINISTER, KW_SQL, KW_TUNING, KW_SET" id="14953" />
+            <sequence atomic="true" tokens="KW_ADMINISTER, KW_SQL, KW_TUNING, KW_SET" id="14954" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_ANALYTIC, KW_VIEW" id="14955" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_ASSEMBLY" id="14956" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_ASSERTION" id="14957" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_ATTRIBUTE, KW_DIMENSION" id="14958" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_ATTRIBUTE, KW_DIMENSION" id="14959" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_CLUSTER" id="14960" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_CUBE" id="14961" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_CUBE, KW_BUILD, KW_PROCESS" id="14962" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_CUBE, KW_DIMENSION" id="14963" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_DIMENSION" id="14964" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_DOMAIN" id="14965" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_EDITION" id="14966" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_EVALUATION, KW_CONTEXT" id="14967" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_HIERARCHY" id="14968" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_HIERARCHY" id="14969" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_INDEX" id="14970" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_INDEXTYPE" id="14971" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_LIBRARY" id="14972" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_MATERIALIZED, KW_VIEW" id="14973" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_MEASURE, KW_FOLDER" id="14974" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_MINING, KW_MODEL" id="14975" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_OPERATOR" id="14976" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_OUTLINE" id="14977" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_PROCEDURE" id="14978" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_PROPERTY, KW_GRAPH" id="14979" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_ROLE" id="14980" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_RULE" id="14981" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_RULE, KW_SET" id="14982" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_SEQUENCE" id="14983" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_SNAPSHOT" id="14984" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_SQL, KW_PROFILE" id="14985" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_SQL, KW_TRANSLATION, KW_PROFILE" id="14986" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_TABLE" id="14987" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_TRIGGER" id="14988" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_TYPE" id="14989" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_DATABASE" id="14990" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_DATABASE, KW_LINK" id="14991" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_END, KW_USER" id="14992" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_JAVA" id="14993" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_LOCKDOWN, KW_PROFILE" id="14994" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_PROFILE" id="14995" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_RESOURCE, KW_COST" id="14996" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ROLLBACK, KW_SEGMENT" id="14997" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_SESSION" id="14998" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_SYSTEM" id="14999" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_TABLESPACE" id="15000" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_USER" id="15001" />
+            <sequence atomic="true" tokens="KW_ANALYZE, KW_ANY, KW_DICTIONARY" id="15002" />
+            <sequence atomic="true" tokens="KW_ANALYZE, KW_ANY" id="15003" />
+            <sequence atomic="true" tokens="KW_AUDIT, KW_ANY" id="15004" />
+            <sequence atomic="true" tokens="KW_AUDIT, KW_SYSTEM" id="15005" />
+            <sequence atomic="true" tokens="KW_BACKUP, KW_ANY, KW_TABLE" id="15006" />
+            <sequence atomic="true" tokens="KW_BECOME, KW_USER" id="15007" />
+            <sequence atomic="true" tokens="KW_CHANGE, KW_NOTIFICATION" id="15008" />
+            <sequence atomic="true" tokens="KW_COMMENT, KW_ANY, KW_MINING, KW_MODEL" id="15009" />
+            <sequence atomic="true" tokens="KW_COMMENT, KW_ANY, KW_PROPERTY, KW_GRAPH" id="15010" />
+            <sequence atomic="true" tokens="KW_COMMENT, KW_ANY, KW_TABLE" id="15011" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANALYTIC, KW_VIEW" id="15012" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_ANALYTIC, KW_VIEW" id="15013" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_ASSEMBLY" id="15014" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_ASSERTION" id="15015" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_ATTRIBUTE, KW_DIMENSION" id="15016" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_ATTRIBUTE, KW_DIMENSION" id="15017" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_CLUSTER" id="15018" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_CONTEXT" id="15019" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_CREDENTIAL" id="15020" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_CUBE" id="15021" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_CUBE, KW_BUILD, KW_PROCESS" id="15022" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_CUBE, KW_DIMENSION" id="15023" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_DIMENSION" id="15024" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_DIRECTORY" id="15025" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_DOMAIN" id="15026" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_EDITION" id="15027" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_EVALUATION, KW_CONTEXT" id="15028" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_HIERARCHY" id="15029" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_HIERARCHY" id="15030" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_INDEX" id="15031" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_INDEXTYPE" id="15032" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_JOB" id="15033" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_LIBRARY" id="15034" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_MATERIALIZED, KW_VIEW" id="15035" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_MEASURE, KW_FOLDER" id="15036" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_MINING, KW_MODEL" id="15037" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_OPERATOR" id="15038" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_OUTLINE" id="15039" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_PROCEDURE" id="15040" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_PROPERTY, KW_GRAPH" id="15041" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_RULE" id="15042" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_RULE, KW_SET" id="15043" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_SEQUENCE" id="15044" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_SNAPSHOT" id="15045" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_SQL, KW_PROFILE" id="15046" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_SQL, KW_TRANSLATION, KW_PROFILE" id="15047" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_SYNONYM" id="15048" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_TABLE" id="15049" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_TRIGGER" id="15050" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_TYPE" id="15051" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_VIEW" id="15052" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_APPLICATION, KW_IDENTITY" id="15053" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ASSEMBLY" id="15054" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ASSERTION" id="15055" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ATTRIBUTE, KW_DIMENSION" id="15056" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ATTRIBUTE, KW_DIMENSION" id="15057" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_CLUSTER" id="15058" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_CREDENTIAL" id="15059" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_CUBE" id="15060" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_CUBE, KW_BUILD, KW_PROCESS" id="15061" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_CUBE, KW_DIMENSION" id="15062" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_DATA, KW_GRANT" id="15063" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_DATA, KW_ROLE" id="15064" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_DATABASE, KW_LINK" id="15065" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_DIMENSION" id="15066" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_DOMAIN" id="15067" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_END, KW_USER" id="15068" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_END, KW_USER, KW_CONTEXT" id="15069" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_EVALUATION, KW_CONTEXT" id="15070" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_EXTERNAL, KW_JOB" id="15071" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_HIERARCHY" id="15072" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_HIERARCHY" id="15073" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_INDEXTYPE" id="15074" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_JAVA" id="15075" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_JOB" id="15076" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_LIBRARY" id="15077" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_LOCKDOWN, KW_PROFILE" id="15078" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_LOGICAL, KW_PARTITION, KW_TRACKING" id="15079" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_MATERIALIZED, KW_VIEW" id="15080" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_MEASURE, KW_FOLDER" id="15081" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_MINING, KW_MODEL" id="15082" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_OPERATOR" id="15083" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_PLUGGABLE, KW_DATABASE" id="15084" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_PROCEDURE" id="15085" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_PROFILE" id="15086" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_PUBLIC, KW_DATABASE, KW_LINK" id="15087" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_PUBLIC, KW_SYNONYM" id="15088" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ROLE" id="15089" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ROLLBACK, KW_SEGMENT" id="15090" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_RULE" id="15091" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_RULE, KW_SET" id="15092" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_SEQUENCE" id="15093" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_SESSION" id="15094" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_SNAPSHOT" id="15095" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_SQL, KW_TRANSLATION, KW_PROFILE" id="15096" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_SYNONYM" id="15097" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_TABLE" id="15098" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_TABLESPACE" id="15099" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_TRIGGER" id="15100" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_TYPE" id="15101" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_USER" id="15102" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_VIEW" id="15103" />
+            <sequence atomic="true" tokens="KW_DEBUG, KW_ANY, KW_PROCEDURE" id="15104" />
+            <sequence atomic="true" tokens="KW_DEBUG, KW_CONNECT, KW_ANY" id="15105" />
+            <sequence atomic="true" tokens="KW_DEBUG, KW_CONNECT, KW_SESSION" id="15106" />
+            <sequence atomic="true" tokens="KW_DELETE, KW_ANY, KW_CUBE, KW_DIMENSION" id="15107" />
+            <sequence atomic="true" tokens="KW_DELETE, KW_ANY, KW_MEASURE, KW_FOLDER" id="15108" />
+            <sequence atomic="true" tokens="KW_DELETE, KW_ANY, KW_TABLE" id="15109" />
+            <sequence atomic="true" tokens="KW_DEQUEUE, KW_ANY, KW_QUEUE" id="15110" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_ANALYTIC, KW_VIEW" id="15111" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_ASSEMBLY" id="15112" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_ASSERTION" id="15113" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_ATTRIBUTE, KW_DIMENSION" id="15114" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_ATTRIBUTE, KW_DIMENSION" id="15115" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_CLUSTER" id="15116" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_CONTEXT" id="15117" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_CUBE" id="15118" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_CUBE, KW_BUILD, KW_PROCESS" id="15119" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_CUBE, KW_DIMENSION" id="15120" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_DATA, KW_GRANT" id="15121" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_DIMENSION" id="15122" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_DIRECTORY" id="15123" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_DOMAIN" id="15124" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_EDITION" id="15125" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_EVALUATION, KW_CONTEXT" id="15126" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_HIERARCHY" id="15127" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_HIERARCHY" id="15128" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_INDEX" id="15129" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_INDEXTYPE" id="15130" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_LIBRARY" id="15131" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_MATERIALIZED, KW_VIEW" id="15132" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_MEASURE, KW_FOLDER" id="15133" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_MINING, KW_MODEL" id="15134" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_OPERATOR" id="15135" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_OUTLINE" id="15136" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_PROCEDURE" id="15137" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_PROPERTY, KW_GRAPH" id="15138" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_ROLE" id="15139" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_RULE" id="15140" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_RULE, KW_SET" id="15141" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_SEQUENCE" id="15142" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_SNAPSHOT" id="15143" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_SQL, KW_PROFILE" id="15144" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_SQL, KW_TRANSLATION, KW_PROFILE" id="15145" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_SYNONYM" id="15146" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_TABLE" id="15147" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_TRIGGER" id="15148" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_TYPE" id="15149" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_VIEW" id="15150" />
+            <sequence atomic="true" tokens="KW_DROP, KW_APPLICATION, KW_IDENTITY" id="15151" />
+            <sequence atomic="true" tokens="KW_DROP, KW_DATA, KW_ROLE" id="15152" />
+            <sequence atomic="true" tokens="KW_DROP, KW_END, KW_USER" id="15153" />
+            <sequence atomic="true" tokens="KW_DROP, KW_END, KW_USER, KW_CONTEXT" id="15154" />
+            <sequence atomic="true" tokens="KW_DROP, KW_JAVA" id="15155" />
+            <sequence atomic="true" tokens="KW_DROP, KW_LOCKDOWN, KW_PROFILE" id="15156" />
+            <sequence atomic="true" tokens="KW_DROP, KW_LOGICAL, KW_PARTITION, KW_TRACKING" id="15157" />
+            <sequence atomic="true" tokens="KW_DROP, KW_PROFILE" id="15158" />
+            <sequence atomic="true" tokens="KW_DROP, KW_PUBLIC, KW_DATABASE, KW_LINK" id="15159" />
+            <sequence atomic="true" tokens="KW_DROP, KW_PUBLIC, KW_SYNONYM" id="15160" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ROLLBACK, KW_SEGMENT" id="15161" />
+            <sequence atomic="true" tokens="KW_DROP, KW_TABLESPACE" id="15162" />
+            <sequence atomic="true" tokens="KW_DROP, KW_USER" id="15163" />
+            <sequence atomic="true" tokens="KW_EM, KW_EXPRESS, KW_CONNECT" id="15164" />
+            <sequence atomic="true" tokens="KW_ENABLE, KW_DIAGNOSTICS" id="15165" />
+            <sequence atomic="true" tokens="KW_ENQUEUE, KW_ANY, KW_QUEUE" id="15166" />
+            <sequence atomic="true" tokens="KW_EXECUTE, KW_ANY, KW_ASSEMBLY" id="15167" />
+            <sequence atomic="true" tokens="KW_EXECUTE, KW_ANY, KW_CLASS" id="15168" />
+            <sequence atomic="true" tokens="KW_EXECUTE, KW_ANY, KW_DOMAIN" id="15169" />
+            <sequence atomic="true" tokens="KW_EXECUTE, KW_ANY, KW_EVALUATION, KW_CONTEXT" id="15170" />
+            <sequence atomic="true" tokens="KW_EXECUTE, KW_ANY, KW_INDEXTYPE" id="15171" />
+            <sequence atomic="true" tokens="KW_EXECUTE, KW_ANY, KW_LIBRARY" id="15172" />
+            <sequence atomic="true" tokens="KW_EXECUTE, KW_ANY, KW_OPERATOR" id="15173" />
+            <sequence atomic="true" tokens="KW_EXECUTE, KW_ANY, KW_PROCEDURE" id="15174" />
+            <sequence atomic="true" tokens="KW_EXECUTE, KW_ANY, KW_PROGRAM" id="15175" />
+            <sequence atomic="true" tokens="KW_EXECUTE, KW_ANY, KW_RULE" id="15176" />
+            <sequence atomic="true" tokens="KW_EXECUTE, KW_ANY, KW_RULE, KW_SET" id="15177" />
+            <sequence atomic="true" tokens="KW_EXECUTE, KW_ANY, KW_TYPE" id="15178" />
+            <sequence atomic="true" tokens="KW_EXTENDS, KW_ANY, KW_TYPE" id="15179" />
+            <sequence atomic="true" tokens="KW_EXECUTE, KW_ASSEMBLY" id="15180" />
+            <sequence atomic="true" tokens="KW_EXEMPT, KW_ACCESS, KW_POLICY" id="15181" />
+            <sequence atomic="true" tokens="KW_EXEMPT, KW_REDACTION, KW_POLICY" id="15182" />
+            <sequence atomic="true" tokens="KW_EXPORT, KW_FULL, KW_DATABASE" id="15183" />
+            <sequence atomic="true" tokens="KW_FLASHBACK, KW_ANY, KW_TABLE" id="15184" />
+            <sequence atomic="true" tokens="KW_FLASHBACK, KW_ARCHIVE, KW_ADMINISTER" id="15185" />
+            <sequence atomic="true" tokens="KW_FORCE, KW_ANY, KW_TRANSACTION" id="15186" />
+            <sequence atomic="true" tokens="KW_FORCE, KW_ANY, KW_TRANSACTION" id="15187" />
+            <sequence atomic="true" tokens="KW_FORCE, KW_TRANSACTION" id="15188" />
+            <sequence atomic="true" tokens="KW_FORCE, KW_TRANSACTION" id="15189" />
+            <sequence atomic="true" tokens="KW_GLOBAL, KW_QUERY, KW_REWRITE" id="15190" />
+            <sequence atomic="true" tokens="KW_GRANT, KW_ANY, KW_DATA, KW_ROLE" id="15191" />
+            <sequence atomic="true" tokens="KW_GRANT, KW_ANY, KW_OBJECT, KW_PRIVILEGE" id="15192" />
+            <sequence atomic="true" tokens="KW_GRANT, KW_ANY, KW_OBJECT, KW_PRIVILEGE" id="15193" />
+            <sequence atomic="true" tokens="KW_GRANT, KW_ANY, KW_PRIVILEGE" id="15194" />
+            <sequence atomic="true" tokens="KW_GRANT, KW_ANY, KW_ROLE" id="15195" />
+            <sequence atomic="true" tokens="KW_IMPORT, KW_FULL, KW_DATABASE" id="15196" />
+            <sequence atomic="true" tokens="KW_INHERIT, KW_ANY, KW_PRIVILEGES" id="15197" />
+            <sequence atomic="true" tokens="KW_INHERIT, KW_ANY, KW_PRIVILEGES" id="15198" />
+            <sequence atomic="true" tokens="KW_INSERT, KW_ANY, KW_CUBE, KW_DIMENSION" id="15199" />
+            <sequence atomic="true" tokens="KW_INSERT, KW_ANY, KW_MEASURE, KW_FOLDER" id="15200" />
+            <sequence atomic="true" tokens="KW_INSERT, KW_ANY, KW_TABLE" id="15201" />
+            <sequence atomic="true" tokens="KW_KEEP, DT_DATE:keyword, KW_TIME" id="15202" />
+            <sequence atomic="true" tokens="KW_KEEP, KW_SYSGUID" id="15203" />
+            <sequence atomic="true" tokens="KW_LOCK, KW_ANY, KW_TABLE" id="15204" />
+            <sequence atomic="true" tokens="KW_MANAGE, KW_ANY, KW_FILE, KW_GROUP" id="15205" />
+            <sequence atomic="true" tokens="KW_MANAGE, KW_ANY, KW_QUEUE" id="15206" />
+            <sequence atomic="true" tokens="KW_MANAGE, KW_FILE, KW_GROUP" id="15207" />
+            <sequence atomic="true" tokens="KW_MANAGE, KW_SCHEDULER" id="15208" />
+            <sequence atomic="true" tokens="KW_MANAGE, KW_TABLESPACE" id="15209" />
+            <sequence atomic="true" tokens="KW_MERGE, KW_ANY, KW_VIEW" id="15210" />
+            <sequence atomic="true" tokens="KW_ON, KW_COMMIT, KW_REFRESH" id="15211" />
+            <sequence atomic="true" tokens="KW_PURGE, KW_DBA_RECYCLEBIN" id="15212" />
+            <sequence atomic="true" tokens="KW_QUERY, KW_REWRITE" id="15213" />
+            <sequence atomic="true" tokens="KW_READ, KW_ANY, KW_ANALYTIC, KW_VIEW, KW_CACHE" id="15214" />
+            <sequence atomic="true" tokens="KW_READ, KW_ANY, KW_FILE, KW_GROUP" id="15215" />
+            <sequence atomic="true" tokens="KW_READ, KW_ANY, KW_PROPERTY, KW_GRAPH" id="15216" />
+            <sequence atomic="true" tokens="KW_READ, KW_ANY, KW_TABLE" id="15217" />
+            <sequence atomic="true" tokens="KW_REDEFINE, KW_ANY, KW_TABLE" id="15218" />
+            <sequence atomic="true" tokens="KW_REDEFINE, KW_ANY, KW_TABLE" id="15219" />
+            <sequence atomic="true" tokens="KW_RESTRICTED, KW_SESSION" id="15220" />
+            <sequence atomic="true" tokens="KW_SELECT, KW_ANY, KW_CUBE" id="15221" />
+            <sequence atomic="true" tokens="KW_SELECT, KW_ANY, KW_CUBE, KW_BUILD, KW_PROCESS" id="15222" />
+            <sequence atomic="true" tokens="KW_SELECT, KW_ANY, KW_CUBE, KW_DIMENSION" id="15223" />
+            <sequence atomic="true" tokens="KW_SELECT, KW_ANY, KW_DICTIONARY" id="15224" />
+            <sequence atomic="true" tokens="KW_SELECT, KW_ANY, KW_END, KW_USER, KW_CONTEXT" id="15225" />
+            <sequence atomic="true" tokens="KW_SELECT, KW_ANY, KW_MEASURE, KW_FOLDER" id="15226" />
+            <sequence atomic="true" tokens="KW_SELECT, KW_ANY, KW_MINING, KW_MODEL" id="15227" />
+            <sequence atomic="true" tokens="KW_SELECT, KW_ANY, KW_SEQUENCE" id="15228" />
+            <sequence atomic="true" tokens="KW_SELECT, KW_ANY, KW_TABLE" id="15229" />
+            <sequence atomic="true" tokens="KW_SELECT, KW_ANY, KW_TRANSACTION" id="15230" />
+            <sequence atomic="true" tokens="KW_SET, KW_CONTAINER" id="15231" />
+            <sequence atomic="true" tokens="KW_TABLE, KW_RETENTION" id="15232" />
+            <sequence atomic="true" tokens="KW_UNDER, KW_ANY, KW_TABLE" id="15233" />
+            <sequence atomic="true" tokens="KW_UNDER, KW_ANY, KW_TYPE" id="15234" />
+            <sequence atomic="true" tokens="KW_UNDER, KW_ANY, KW_VIEW" id="15235" />
+            <sequence atomic="true" tokens="KW_UNLIMITED, KW_TABLESPACE" id="15236" />
+            <sequence atomic="true" tokens="KW_UPDATE, KW_ANY, KW_CUBE" id="15237" />
+            <sequence atomic="true" tokens="KW_UPDATE, KW_ANY, KW_CUBE, KW_BUILD, KW_PROCESS" id="15238" />
+            <sequence atomic="true" tokens="KW_UPDATE, KW_ANY, KW_CUBE, KW_DIMENSION" id="15239" />
+            <sequence atomic="true" tokens="KW_UPDATE, KW_ANY, KW_END, KW_USER, KW_CONTEXT" id="15240" />
+            <sequence atomic="true" tokens="KW_UPDATE, KW_ANY, KW_TABLE" id="15241" />
+            <sequence atomic="true" tokens="KW_USE, KW_ANY, KW_JOB, KW_RESOURCE" id="15242" />
+            <sequence atomic="true" tokens="KW_USE, KW_ANY, KW_SQL, KW_TRANSLATION, KW_PROFILE" id="15243" />
+            <sequence atomic="true" tokens="KW_WRITE, KW_ANY, KW_ANALYTIC, KW_VIEW, KW_CACHE" id="15244" />
+            <token type-id="KW_LOGMINING" id="15245" />
         </one-of>
     </element-def>
     <element-def description="Schema privilege" id="schema_privilege">
-        <one-of id="15251" unbounded="true">
-            <sequence atomic="true" tokens="KW_ADMINISTER, KW_FINE, KW_GRAINED, KW_AUDIT, KW_POLICY" id="15252" />
-            <sequence atomic="true" tokens="KW_ADMINISTER, KW_REDACTION, KW_POLICY" id="15253" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_ANALYTIC, KW_VIEW" id="15254" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_ASSERTION" id="15255" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_ATTRIBUTE, KW_DIMENSION" id="15256" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_CLUSTER" id="15257" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_CUBE" id="15258" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_CUBE, KW_DIMENSION" id="15259" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_DIMENSION" id="15260" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_DOMAIN" id="15261" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_HIERARCHY" id="15262" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_INDEX" id="15263" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_INDEXTYPE" id="15264" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_LIBRARY" id="15265" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_MATERIALIZED, KW_VIEW" id="15266" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_MINING, KW_MODEL" id="15267" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_OPERATOR" id="15268" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_PROCEDURE" id="15269" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_PROPERTY, KW_GRAPH" id="15270" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_SEQUENCE" id="15271" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_SQL, KW_TRANSLATION, KW_PROFILE" id="15272" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_TABLE" id="15273" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_TRIGGER" id="15274" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_TYPE" id="15275" />
-            <sequence atomic="true" tokens="KW_ALTER, KW_USER" id="15276" />
-            <sequence atomic="true" tokens="KW_AUDIT, KW_ANY" id="15277" />
-            <sequence atomic="true" tokens="KW_BACKUP, KW_ANY, KW_TABLE" id="15278" />
-            <sequence atomic="true" tokens="KW_COMMENT, KW_ANY, KW_MINING, KW_MODEL" id="15279" />
-            <sequence atomic="true" tokens="KW_COMMENT, KW_ANY, KW_PROPERTY, KW_GRAPH" id="15280" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_ANALYTIC, KW_VIEW" id="15281" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_ASSERTION" id="15282" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_ATTRIBUTE, KW_DIMENSION" id="15283" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_CLUSTER" id="15284" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_CUBE" id="15285" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_CUBE, KW_BUILD, KW_PROCESS" id="15286" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_CUBE, KW_DIMENSION" id="15287" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_DIMENSION" id="15288" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_DOMAIN" id="15289" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_HIERARCHY" id="15290" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_INDEX" id="15291" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_INDEXTYPE" id="15292" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_JOB" id="15293" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_LIBRARY" id="15294" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_MATERIALIZED, KW_VIEW" id="15295" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_MEASURE, KW_FOLDER" id="15296" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_MINING, KW_MODEL" id="15297" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_OPERATOR" id="15298" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_PROCEDURE" id="15299" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_PROPERTY, KW_GRAPH" id="15300" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_SEQUENCE" id="15301" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_SQL, KW_TRANSLATION, KW_PROFILE" id="15302" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_SYNONYM" id="15303" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_TABLE" id="15304" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_TRIGGER" id="15305" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_TYPE" id="15306" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_VIEW" id="15307" />
-            <sequence atomic="true" tokens="KW_CREATE, KW_USER" id="15308" />
-            <sequence atomic="true" tokens="KW_DELETE, KW_ANY, KW_CUBE, KW_DIMENSION" id="15309" />
-            <sequence atomic="true" tokens="KW_DELETE, KW_ANY, KW_MEASURE, KW_FOLDER" id="15310" />
-            <sequence atomic="true" tokens="KW_DELETE, KW_ANY, KW_TABLE" id="15311" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_ANALYTIC, KW_VIEW" id="15312" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_ASSERTION" id="15313" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_ATTRIBUTE, KW_DIMENSION" id="15314" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_CLUSTER" id="15315" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_CUBE" id="15316" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_CUBE, KW_BUILD, KW_PROCESS" id="15317" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_CUBE, KW_DIMENSION" id="15318" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_DIMENSION" id="15319" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_DOMAIN" id="15320" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_HIERARCHY" id="15321" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_INDEX" id="15322" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_INDEXTYPE" id="15323" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_LIBRARY" id="15324" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_MATERIALIZED, KW_VIEW" id="15325" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_MEASURE, KW_FOLDER" id="15326" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_MINING, KW_MODEL" id="15327" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_OPERATOR" id="15328" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_PROCEDURE" id="15329" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_PROPERTY, KW_GRAPH" id="15330" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_SEQUENCE" id="15331" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_SQL, KW_TRANSLATION, KW_PROFILE" id="15332" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_SYNONYM" id="15333" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_TABLE" id="15334" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_TRIGGER" id="15335" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_TYPE" id="15336" />
-            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_VIEW" id="15337" />
-            <sequence atomic="true" tokens="KW_DROP, KW_USER" id="15338" />
-            <sequence atomic="true" tokens="KW_EXECUTE, KW_ANY, KW_DOMAIN" id="15339" />
-            <sequence atomic="true" tokens="KW_EXECUTE, KW_ANY, KW_INDEXTYPE" id="15340" />
-            <sequence atomic="true" tokens="KW_EXECUTE, KW_ANY, KW_LIBRARY" id="15341" />
-            <sequence atomic="true" tokens="KW_EXECUTE, KW_ANY, KW_OPERATOR" id="15342" />
-            <sequence atomic="true" tokens="KW_EXECUTE, KW_ANY, KW_PROCEDURE" id="15343" />
-            <sequence atomic="true" tokens="KW_EXECUTE, KW_ANY, KW_TYPE" id="15344" />
-            <sequence atomic="true" tokens="KW_EXEMPT, KW_REDACTION, KW_POLICY" id="15345" />
-            <sequence atomic="true" tokens="KW_FLASHBACK, KW_ANY, KW_TABLE" id="15346" />
-            <sequence atomic="true" tokens="KW_FLASHBACK, KW_ANY, KW_TABLE" id="15347" />
-            <sequence atomic="true" tokens="KW_GLOBAL, KW_QUERY, KW_REWRITE" id="15348" />
-            <sequence atomic="true" tokens="KW_INSERT, KW_ANY, KW_CUBE, KW_DIMENSION" id="15349" />
-            <sequence atomic="true" tokens="KW_INSERT, KW_ANY, KW_MEASURE, KW_FOLDER" id="15350" />
-            <sequence atomic="true" tokens="KW_INSERT, KW_ANY, KW_TABLE" id="15351" />
-            <sequence atomic="true" tokens="KW_LOCK, KW_ANY, KW_TABLE" id="15352" />
-            <sequence atomic="true" tokens="KW_READ, KW_ANY, KW_PROPERTY, KW_GRAPH" id="15353" />
-            <sequence atomic="true" tokens="KW_READ, KW_ANY, KW_TABLE" id="15354" />
-            <sequence atomic="true" tokens="KW_SELECT, KW_ANY, KW_CUBE" id="15355" />
-            <sequence atomic="true" tokens="KW_SELECT, KW_ANY, KW_CUBE, KW_DIMENSION" id="15356" />
-            <sequence atomic="true" tokens="KW_SELECT, KW_ANY, KW_MINING, KW_MODEL" id="15357" />
-            <sequence atomic="true" tokens="KW_SELECT, KW_ANY, KW_SEQUENCE" id="15358" />
-            <sequence atomic="true" tokens="KW_SELECT, KW_ANY, KW_TABLE" id="15359" />
-            <sequence atomic="true" tokens="FN_TRANSLATE:keyword, KW_ANY, KW_SQL" id="15360" />
-            <sequence atomic="true" tokens="KW_UNDER, KW_ANY, KW_TYPE" id="15361" />
-            <sequence atomic="true" tokens="KW_UNDER, KW_ANY, KW_VIEW" id="15362" />
-            <sequence atomic="true" tokens="KW_UPDATE, KW_ANY, KW_CUBE" id="15363" />
-            <sequence atomic="true" tokens="KW_UPDATE, KW_ANY, KW_CUBE, KW_BUILD, KW_PROCESS" id="15364" />
-            <sequence atomic="true" tokens="KW_UPDATE, KW_ANY, KW_CUBE, KW_DIMENSION" id="15365" />
-            <sequence atomic="true" tokens="KW_UPDATE, KW_ANY, KW_TABLE" id="15366" />
-            <sequence atomic="true" tokens="KW_USE, KW_ANY, KW_SQL, KW_TRANSLATION, KW_PROFILE" id="15367" />
+        <one-of id="15246" unbounded="true">
+            <sequence atomic="true" tokens="KW_ADMINISTER, KW_FINE, KW_GRAINED, KW_AUDIT, KW_POLICY" id="15247" />
+            <sequence atomic="true" tokens="KW_ADMINISTER, KW_REDACTION, KW_POLICY" id="15248" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_ANALYTIC, KW_VIEW" id="15249" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_ASSERTION" id="15250" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_ATTRIBUTE, KW_DIMENSION" id="15251" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_CLUSTER" id="15252" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_CUBE" id="15253" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_CUBE, KW_DIMENSION" id="15254" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_DIMENSION" id="15255" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_DOMAIN" id="15256" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_HIERARCHY" id="15257" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_INDEX" id="15258" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_INDEXTYPE" id="15259" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_LIBRARY" id="15260" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_MATERIALIZED, KW_VIEW" id="15261" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_MINING, KW_MODEL" id="15262" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_OPERATOR" id="15263" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_PROCEDURE" id="15264" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_PROPERTY, KW_GRAPH" id="15265" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_SEQUENCE" id="15266" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_SQL, KW_TRANSLATION, KW_PROFILE" id="15267" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_TABLE" id="15268" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_TRIGGER" id="15269" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_ANY, KW_TYPE" id="15270" />
+            <sequence atomic="true" tokens="KW_ALTER, KW_USER" id="15271" />
+            <sequence atomic="true" tokens="KW_AUDIT, KW_ANY" id="15272" />
+            <sequence atomic="true" tokens="KW_BACKUP, KW_ANY, KW_TABLE" id="15273" />
+            <sequence atomic="true" tokens="KW_COMMENT, KW_ANY, KW_MINING, KW_MODEL" id="15274" />
+            <sequence atomic="true" tokens="KW_COMMENT, KW_ANY, KW_PROPERTY, KW_GRAPH" id="15275" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_ANALYTIC, KW_VIEW" id="15276" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_ASSERTION" id="15277" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_ATTRIBUTE, KW_DIMENSION" id="15278" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_CLUSTER" id="15279" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_CUBE" id="15280" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_CUBE, KW_BUILD, KW_PROCESS" id="15281" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_CUBE, KW_DIMENSION" id="15282" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_DIMENSION" id="15283" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_DOMAIN" id="15284" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_HIERARCHY" id="15285" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_INDEX" id="15286" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_INDEXTYPE" id="15287" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_JOB" id="15288" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_LIBRARY" id="15289" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_MATERIALIZED, KW_VIEW" id="15290" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_MEASURE, KW_FOLDER" id="15291" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_MINING, KW_MODEL" id="15292" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_OPERATOR" id="15293" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_PROCEDURE" id="15294" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_PROPERTY, KW_GRAPH" id="15295" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_SEQUENCE" id="15296" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_SQL, KW_TRANSLATION, KW_PROFILE" id="15297" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_SYNONYM" id="15298" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_TABLE" id="15299" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_TRIGGER" id="15300" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_TYPE" id="15301" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_ANY, KW_VIEW" id="15302" />
+            <sequence atomic="true" tokens="KW_CREATE, KW_USER" id="15303" />
+            <sequence atomic="true" tokens="KW_DELETE, KW_ANY, KW_CUBE, KW_DIMENSION" id="15304" />
+            <sequence atomic="true" tokens="KW_DELETE, KW_ANY, KW_MEASURE, KW_FOLDER" id="15305" />
+            <sequence atomic="true" tokens="KW_DELETE, KW_ANY, KW_TABLE" id="15306" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_ANALYTIC, KW_VIEW" id="15307" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_ASSERTION" id="15308" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_ATTRIBUTE, KW_DIMENSION" id="15309" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_CLUSTER" id="15310" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_CUBE" id="15311" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_CUBE, KW_BUILD, KW_PROCESS" id="15312" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_CUBE, KW_DIMENSION" id="15313" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_DIMENSION" id="15314" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_DOMAIN" id="15315" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_HIERARCHY" id="15316" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_INDEX" id="15317" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_INDEXTYPE" id="15318" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_LIBRARY" id="15319" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_MATERIALIZED, KW_VIEW" id="15320" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_MEASURE, KW_FOLDER" id="15321" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_MINING, KW_MODEL" id="15322" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_OPERATOR" id="15323" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_PROCEDURE" id="15324" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_PROPERTY, KW_GRAPH" id="15325" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_SEQUENCE" id="15326" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_SQL, KW_TRANSLATION, KW_PROFILE" id="15327" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_SYNONYM" id="15328" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_TABLE" id="15329" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_TRIGGER" id="15330" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_TYPE" id="15331" />
+            <sequence atomic="true" tokens="KW_DROP, KW_ANY, KW_VIEW" id="15332" />
+            <sequence atomic="true" tokens="KW_DROP, KW_USER" id="15333" />
+            <sequence atomic="true" tokens="KW_EXECUTE, KW_ANY, KW_DOMAIN" id="15334" />
+            <sequence atomic="true" tokens="KW_EXECUTE, KW_ANY, KW_INDEXTYPE" id="15335" />
+            <sequence atomic="true" tokens="KW_EXECUTE, KW_ANY, KW_LIBRARY" id="15336" />
+            <sequence atomic="true" tokens="KW_EXECUTE, KW_ANY, KW_OPERATOR" id="15337" />
+            <sequence atomic="true" tokens="KW_EXECUTE, KW_ANY, KW_PROCEDURE" id="15338" />
+            <sequence atomic="true" tokens="KW_EXECUTE, KW_ANY, KW_TYPE" id="15339" />
+            <sequence atomic="true" tokens="KW_EXEMPT, KW_REDACTION, KW_POLICY" id="15340" />
+            <sequence atomic="true" tokens="KW_FLASHBACK, KW_ANY, KW_TABLE" id="15341" />
+            <sequence atomic="true" tokens="KW_FLASHBACK, KW_ANY, KW_TABLE" id="15342" />
+            <sequence atomic="true" tokens="KW_GLOBAL, KW_QUERY, KW_REWRITE" id="15343" />
+            <sequence atomic="true" tokens="KW_INSERT, KW_ANY, KW_CUBE, KW_DIMENSION" id="15344" />
+            <sequence atomic="true" tokens="KW_INSERT, KW_ANY, KW_MEASURE, KW_FOLDER" id="15345" />
+            <sequence atomic="true" tokens="KW_INSERT, KW_ANY, KW_TABLE" id="15346" />
+            <sequence atomic="true" tokens="KW_LOCK, KW_ANY, KW_TABLE" id="15347" />
+            <sequence atomic="true" tokens="KW_READ, KW_ANY, KW_PROPERTY, KW_GRAPH" id="15348" />
+            <sequence atomic="true" tokens="KW_READ, KW_ANY, KW_TABLE" id="15349" />
+            <sequence atomic="true" tokens="KW_SELECT, KW_ANY, KW_CUBE" id="15350" />
+            <sequence atomic="true" tokens="KW_SELECT, KW_ANY, KW_CUBE, KW_DIMENSION" id="15351" />
+            <sequence atomic="true" tokens="KW_SELECT, KW_ANY, KW_MINING, KW_MODEL" id="15352" />
+            <sequence atomic="true" tokens="KW_SELECT, KW_ANY, KW_SEQUENCE" id="15353" />
+            <sequence atomic="true" tokens="KW_SELECT, KW_ANY, KW_TABLE" id="15354" />
+            <sequence atomic="true" tokens="FN_TRANSLATE:keyword, KW_ANY, KW_SQL" id="15355" />
+            <sequence atomic="true" tokens="KW_UNDER, KW_ANY, KW_TYPE" id="15356" />
+            <sequence atomic="true" tokens="KW_UNDER, KW_ANY, KW_VIEW" id="15357" />
+            <sequence atomic="true" tokens="KW_UPDATE, KW_ANY, KW_CUBE" id="15358" />
+            <sequence atomic="true" tokens="KW_UPDATE, KW_ANY, KW_CUBE, KW_BUILD, KW_PROCESS" id="15359" />
+            <sequence atomic="true" tokens="KW_UPDATE, KW_ANY, KW_CUBE, KW_DIMENSION" id="15360" />
+            <sequence atomic="true" tokens="KW_UPDATE, KW_ANY, KW_TABLE" id="15361" />
+            <sequence atomic="true" tokens="KW_USE, KW_ANY, KW_SQL, KW_TRANSLATION, KW_PROFILE" id="15362" />
         </one-of>
     </element-def>
     <element-def description="Object privilege" id="object_privilege">
-        <one-of id="15368" unbounded="true">
-            <sequence atomic="true" tokens="FN_TRANSLATE:keyword, KW_SQL" id="15369" />
-            <sequence atomic="true" tokens="KW_ASSERTION, KW_REFERENCES" id="15370" />
-            <sequence atomic="true" tokens="KW_FLASHBACK, KW_ARCHIVE" id="15371" />
-            <sequence atomic="true" tokens="KW_INHERIT, KW_PRIVILEGES" id="15372" />
-            <sequence atomic="true" tokens="KW_INHERIT, KW_REMOTE, KW_PRIVILEGES" id="15373" />
-            <sequence atomic="true" tokens="KW_KEEP, KW_SEQUENCE" id="15374" />
-            <sequence atomic="true" tokens="KW_MERGE, KW_VIEW" id="15375" />
-            <sequence atomic="true" tokens="KW_ON, KW_COMMIT, KW_REFRESH" id="15376" />
-            <sequence atomic="true" tokens="KW_QUERY, KW_REWRITE" id="15377" />
-            <token type-id="FN_SIGN" id="15378" flavor="keyword" />
-            <token type-id="KW_ALTER" id="15379" />
-            <token type-id="KW_DEBUG" id="15380" />
-            <token type-id="KW_DELETE" id="15381" />
-            <token type-id="KW_EXECUTE" id="15382" />
-            <token type-id="KW_FLASHBACK" id="15383" />
-            <token type-id="KW_INDEX" id="15384" />
-            <token type-id="KW_INHERIT" id="15385" />
-            <token type-id="KW_INSERT" id="15386" />
-            <token type-id="KW_READ" id="15387" />
-            <token type-id="KW_REFERENCES" id="15388" />
-            <token type-id="KW_SELECT" id="15389" />
-            <token type-id="KW_UNDER" id="15390" />
-            <token type-id="KW_UPDATE" id="15391" />
-            <token type-id="KW_USE" id="15392" />
-            <token type-id="KW_WRITE" id="15393" />
+        <one-of id="15363" unbounded="true">
+            <sequence atomic="true" tokens="FN_TRANSLATE:keyword, KW_SQL" id="15364" />
+            <sequence atomic="true" tokens="KW_ASSERTION, KW_REFERENCES" id="15365" />
+            <sequence atomic="true" tokens="KW_FLASHBACK, KW_ARCHIVE" id="15366" />
+            <sequence atomic="true" tokens="KW_INHERIT, KW_PRIVILEGES" id="15367" />
+            <sequence atomic="true" tokens="KW_INHERIT, KW_REMOTE, KW_PRIVILEGES" id="15368" />
+            <sequence atomic="true" tokens="KW_KEEP, KW_SEQUENCE" id="15369" />
+            <sequence atomic="true" tokens="KW_MERGE, KW_VIEW" id="15370" />
+            <sequence atomic="true" tokens="KW_ON, KW_COMMIT, KW_REFRESH" id="15371" />
+            <sequence atomic="true" tokens="KW_QUERY, KW_REWRITE" id="15372" />
+            <token type-id="FN_SIGN" id="15373" flavor="keyword" />
+            <token type-id="KW_ALTER" id="15374" />
+            <token type-id="KW_DEBUG" id="15375" />
+            <token type-id="KW_DELETE" id="15376" />
+            <token type-id="KW_EXECUTE" id="15377" />
+            <token type-id="KW_FLASHBACK" id="15378" />
+            <token type-id="KW_INDEX" id="15379" />
+            <token type-id="KW_INHERIT" id="15380" />
+            <token type-id="KW_INSERT" id="15381" />
+            <token type-id="KW_READ" id="15382" />
+            <token type-id="KW_REFERENCES" id="15383" />
+            <token type-id="KW_SELECT" id="15384" />
+            <token type-id="KW_UNDER" id="15385" />
+            <token type-id="KW_UPDATE" id="15386" />
+            <token type-id="KW_USE" id="15387" />
+            <token type-id="KW_WRITE" id="15388" />
         </one-of>
     </element-def>
 
     <element-def description="COLUMN reference" id="column_ref">
-        <qualified-identifier id="15394" separator="CHR_DOT">
+        <qualified-identifier id="15389" separator="CHR_DOT">
             <variant>
-                <object-ref id="15395" optional="true" type="SCHEMA" />
-                <object-ref id="15396" optional="true" type="DATASET" />
-                <object-ref id="15397" type="COLUMN" />
+                <object-ref id="15390" optional="true" type="SCHEMA" />
+                <object-ref id="15391" optional="true" type="DATASET" />
+                <object-ref id="15392" type="COLUMN" />
             </variant>
             <variant>
-                <alias-ref id="15398" optional="true" type="DATASET" />
-                <object-ref id="15399" type="COLUMN" />
+                <alias-ref id="15393" optional="true" type="DATASET" />
+                <object-ref id="15394" type="COLUMN" />
             </variant>
         </qualified-identifier>
     </element-def>
     <element-def description="COLUMN reference" id="table_column_ref">
-        <qualified-identifier id="15400" separator="CHR_DOT">
+        <qualified-identifier id="15395" separator="CHR_DOT">
             <variant>
-                <object-ref id="15401" optional="true" type="SCHEMA" />
-                <object-ref id="15402" optional="true" type="TABLE" />
-                <object-ref id="15403" type="COLUMN" />
+                <object-ref id="15396" optional="true" type="SCHEMA" />
+                <object-ref id="15397" optional="true" type="TABLE" />
+                <object-ref id="15398" type="COLUMN" />
             </variant>
         </qualified-identifier>
     </element-def>
     <element-def description="TABLESPACE reference" id="tablespace_ref">
-        <one-of id="15404">
-            <exec-variable id="15405" />
-            <qualified-identifier id="15406" separator="CHR_DOT">
+        <one-of id="15399">
+            <exec-variable id="15400" />
+            <qualified-identifier id="15401" separator="CHR_DOT">
                 <variant>
-                    <object-ref id="15407" optional="true" type="SCHEMA" />
-                    <object-ref id="15408" type="TABLESPACE" />
+                    <object-ref id="15402" optional="true" type="SCHEMA" />
+                    <object-ref id="15403" type="TABLESPACE" />
                 </variant>
             </qualified-identifier>
         </one-of>
     </element-def>
     <element-def description="SYNONYM reference" id="synonym_ref">
-        <qualified-identifier id="15409" separator="CHR_DOT">
+        <qualified-identifier id="15404" separator="CHR_DOT">
             <variant>
-                <object-ref id="15410" optional="true" type="SCHEMA" />
-                <object-ref attributes="SUBJECT" id="15411" type="SYNONYM" />
+                <object-ref id="15405" optional="true" type="SCHEMA" />
+                <object-ref attributes="SUBJECT" id="15406" type="SYNONYM" />
             </variant>
         </qualified-identifier>
     </element-def>
     <element-def description="PACKAGE reference" id="package_ref">
-        <qualified-identifier id="15412" separator="CHR_DOT">
+        <qualified-identifier id="15407" separator="CHR_DOT">
             <variant>
-                <object-ref id="15413" optional="true" type="SCHEMA" />
-                <object-ref attributes="SUBJECT" id="15414" type="PACKAGE" />
+                <object-ref id="15408" optional="true" type="SCHEMA" />
+                <object-ref attributes="SUBJECT" id="15409" type="PACKAGE" />
             </variant>
         </qualified-identifier>
     </element-def>
     <element-def description="TRIGGER reference" id="trigger_ref">
-        <qualified-identifier id="15415" separator="CHR_DOT">
+        <qualified-identifier id="15410" separator="CHR_DOT">
             <variant>
-                <object-ref id="15416" optional="true" type="SCHEMA" />
-                <object-ref attributes="SUBJECT" id="15417" type="TRIGGER" />
+                <object-ref id="15411" optional="true" type="SCHEMA" />
+                <object-ref attributes="SUBJECT" id="15412" type="TRIGGER" />
             </variant>
         </qualified-identifier>
     </element-def>
     <element-def description="TRIGGER reference" id="type_ref">
-        <qualified-identifier id="15418" separator="CHR_DOT">
+        <qualified-identifier id="15413" separator="CHR_DOT">
+            <variant>
+                <object-ref id="15414" optional="true" type="SCHEMA" />
+                <object-ref attributes="SUBJECT" id="15415" type="TYPE" />
+            </variant>
+            <variant>
+                <object-ref id="15416" optional="true" type="SCHEMA" />
+                <object-ref id="15417" optional="true" type="PACKAGE" />
+                <object-ref attributes="SUBJECT" id="15418" type="PACKAGE_TYPE" />
+            </variant>
             <variant>
                 <object-ref id="15419" optional="true" type="SCHEMA" />
-                <object-ref attributes="SUBJECT" id="15420" type="TYPE" />
-            </variant>
-            <variant>
-                <object-ref id="15421" optional="true" type="SCHEMA" />
-                <object-ref id="15422" optional="true" type="PACKAGE" />
-                <object-ref attributes="SUBJECT" id="15423" type="PACKAGE_TYPE" />
-            </variant>
-            <variant>
-                <object-ref id="15424" optional="true" type="SCHEMA" />
-                <object-ref id="15425" optional="true" type="TYPE" />
-                <object-ref attributes="SUBJECT" id="15426" type="TYPE" />
+                <object-ref id="15420" optional="true" type="TYPE" />
+                <object-ref attributes="SUBJECT" id="15421" type="TYPE" />
             </variant>
         </qualified-identifier>
     </element-def>
 
     <element-def description="METHOD reference" id="method_ref">
-        <qualified-identifier id="15427" separator="CHR_DOT">
+        <qualified-identifier id="15422" separator="CHR_DOT">
             <variant>
-                <object-ref id="15428" optional="true" type="SCHEMA" />
-                <object-ref id="15429" type="FUNCTION" />
+                <object-ref id="15423" optional="true" type="SCHEMA" />
+                <object-ref id="15424" type="FUNCTION" />
+            </variant>
+            <variant>
+                <object-ref id="15425" optional="true" type="SCHEMA" />
+                <object-ref id="15426" type="PROCEDURE" />
+            </variant>
+            <variant>
+                <object-ref id="15427" optional="true" type="SCHEMA" />
+                <object-ref id="15428" type="PACKAGE" />
+                <object-ref id="15429" type="PACKAGE_FUNCTION" />
             </variant>
             <variant>
                 <object-ref id="15430" optional="true" type="SCHEMA" />
-                <object-ref id="15431" type="PROCEDURE" />
+                <object-ref id="15431" type="PACKAGE" />
+                <object-ref id="15432" type="PACKAGE_PROCEDURE" />
             </variant>
             <variant>
-                <object-ref id="15432" optional="true" type="SCHEMA" />
-                <object-ref id="15433" type="PACKAGE" />
-                <object-ref id="15434" type="PACKAGE_FUNCTION" />
+                <object-ref id="15433" optional="true" type="SCHEMA" />
+                <object-ref id="15434" type="TYPE" />
+                <object-ref id="15435" type="TYPE_FUNCTION" />
             </variant>
             <variant>
-                <object-ref id="15435" optional="true" type="SCHEMA" />
-                <object-ref id="15436" type="PACKAGE" />
-                <object-ref id="15437" type="PACKAGE_PROCEDURE" />
-            </variant>
-            <variant>
-                <object-ref id="15438" optional="true" type="SCHEMA" />
-                <object-ref id="15439" type="TYPE" />
-                <object-ref id="15440" type="TYPE_FUNCTION" />
-            </variant>
-            <variant>
-                <object-ref id="15441" optional="true" type="SCHEMA" />
-                <object-ref id="15442" type="TYPE" />
-                <object-ref id="15443" type="TYPE_PROCEDURE" />
+                <object-ref id="15436" optional="true" type="SCHEMA" />
+                <object-ref id="15437" type="TYPE" />
+                <object-ref id="15438" type="TYPE_PROCEDURE" />
             </variant>
         </qualified-identifier>
     </element-def>
     <element-def description="FUNCTION reference" id="function_ref">
-        <qualified-identifier id="15444" separator="CHR_DOT">
+        <qualified-identifier id="15439" separator="CHR_DOT">
+            <variant>
+                <object-ref id="15440" optional="true" type="SCHEMA" />
+                <object-ref id="15441" type="FUNCTION" />
+            </variant>
+            <variant>
+                <object-ref id="15442" optional="true" type="SCHEMA" />
+                <object-ref id="15443" type="PACKAGE" />
+                <object-ref id="15444" type="PACKAGE_FUNCTION" />
+            </variant>
             <variant>
                 <object-ref id="15445" optional="true" type="SCHEMA" />
-                <object-ref id="15446" type="FUNCTION" />
-            </variant>
-            <variant>
-                <object-ref id="15447" optional="true" type="SCHEMA" />
-                <object-ref id="15448" type="PACKAGE" />
-                <object-ref id="15449" type="PACKAGE_FUNCTION" />
-            </variant>
-            <variant>
-                <object-ref id="15450" optional="true" type="SCHEMA" />
-                <object-ref id="15451" type="TYPE" />
-                <object-ref id="15452" type="TYPE_FUNCTION" />
+                <object-ref id="15446" type="TYPE" />
+                <object-ref id="15447" type="TYPE_FUNCTION" />
             </variant>
         </qualified-identifier>
     </element-def>
 
     <element-def description="VIEW reference" id="view_ref">
-        <qualified-identifier id="15453" separator="CHR_DOT">
+        <qualified-identifier id="15448" separator="CHR_DOT">
             <variant>
-                <object-ref id="15454" optional="true" type="SCHEMA" />
-                <object-ref attributes="SUBJECT" id="15455" type="VIEW" />
+                <object-ref id="15449" optional="true" type="SCHEMA" />
+                <object-ref attributes="SUBJECT" id="15450" type="VIEW" />
             </variant>
         </qualified-identifier>
     </element-def>
 
     <element-def description="TABLE reference" id="table_ref">
-        <qualified-identifier id="15456" separator="CHR_DOT">
+        <qualified-identifier id="15451" separator="CHR_DOT">
             <variant>
-                <object-ref id="15457" optional="true" type="SCHEMA" />
-                <object-ref attributes="SUBJECT" id="15458" type="TABLE" />
+                <object-ref id="15452" optional="true" type="SCHEMA" />
+                <object-ref attributes="SUBJECT" id="15453" type="TABLE" />
             </variant>
         </qualified-identifier>
     </element-def>
@@ -28489,143 +28482,143 @@
         <element ref-id="simple_expression" />
     </element-def>
     <element-def description="Date string" id="date">
-        <token id="15459" type-id="STRING" />
+        <token id="15454" type-id="STRING" />
     </element-def>
     <element-def description="Number" id="number">
-        <one-of id="15460" optional="true">
-            <token id="15461" type-id="CHR_MINUS" />
-            <token id="15462" type-id="CHR_PLUS" />
+        <one-of id="15455" optional="true">
+            <token id="15456" type-id="CHR_MINUS" />
+            <token id="15457" type-id="CHR_PLUS" />
         </one-of>
-        <one-of id="15463">
-            <token id="15464" type-id="NUMBER" />
-            <token id="15465" type-id="INTEGER" />
+        <one-of id="15458">
+            <token id="15459" type-id="NUMBER" />
+            <token id="15460" type-id="INTEGER" />
         </one-of>
     </element-def>
 
 
     <element-def description="COMPARISON operator" id="comparison_operator">
-        <one-of id="15466">
-            <token id="15467" type-id="CHR_EQUAL" />
-            <token id="15468" type-id="CHR_LESS" />
-            <token id="15469" type-id="CHR_GREATER" />
-            <token id="15470" type-id="OPR_NOT_EQUAL" />
-            <token id="15471" type-id="OPR_LESS_GREATER" />
-            <token id="15472" type-id="OPR_LESS_EQUAL" />
-            <token id="15473" type-id="OPR_GREATER_EQUAL" />
+        <one-of id="15461">
+            <token id="15462" type-id="CHR_EQUAL" />
+            <token id="15463" type-id="CHR_LESS" />
+            <token id="15464" type-id="CHR_GREATER" />
+            <token id="15465" type-id="OPR_NOT_EQUAL" />
+            <token id="15466" type-id="OPR_LESS_GREATER" />
+            <token id="15467" type-id="OPR_LESS_EQUAL" />
+            <token id="15468" type-id="OPR_GREATER_EQUAL" />
         </one-of>
     </element-def>
 
 
     <element-def description="Function name" id="function_name" original-name="PLSQL_function_name">
-        <qualified-identifier id="15474" optional="true" separator="CHR_DOT">
+        <qualified-identifier id="15469" optional="true" separator="CHR_DOT">
             <variant>
-                <object-ref id="15475" optional="true" type="SCHEMA" />
-                <object-ref id="15476" type="PACKAGE" />
-                <object-ref id="15477" type="PACKAGE_FUNCTION" />
+                <object-ref id="15470" optional="true" type="SCHEMA" />
+                <object-ref id="15471" type="PACKAGE" />
+                <object-ref id="15472" type="PACKAGE_FUNCTION" />
             </variant>
             <variant>
-                <object-ref id="15478" optional="true" type="SCHEMA" />
-                <object-ref id="15479" type="TYPE" />
-                <object-ref id="15480" type="TYPE_FUNCTION" />
+                <object-ref id="15473" optional="true" type="SCHEMA" />
+                <object-ref id="15474" type="TYPE" />
+                <object-ref id="15475" type="TYPE_FUNCTION" />
             </variant>
             <variant>
-                <object-ref id="15481" optional="true" type="SCHEMA" />
-                <object-ref id="15482" type="FUNCTION" />
+                <object-ref id="15476" optional="true" type="SCHEMA" />
+                <object-ref id="15477" type="FUNCTION" />
             </variant>
         </qualified-identifier>
     </element-def>
     <element-def custom="true" description="Chained references list" id="chained_references_list">
-        <iteration id="15483" separator="CHR_COMMA">
+        <iteration id="15478" separator="CHR_COMMA">
             <element ref-id="chained_references" />
         </iteration>
     </element-def>
     <element-def custom="true" description="Chained reference" id="chained_references">
-        <iteration id="15484" separator="CHR_DOT">
-            <one-of id="15485">
+        <iteration id="15479" separator="CHR_DOT">
+            <one-of id="15480">
                 <element ref-id="numeric_index_suffix" />
-                <sequence id="15486">
-                    <variable-ref attributes="SUBJECT" id="15487" type="ANY" />
+                <sequence id="15481">
+                    <variable-ref attributes="SUBJECT" id="15482" type="ANY" />
                     <element optional="true" ref-id="wrapped_expression_list" />
                 </sequence>
             </one-of>
         </iteration>
     </element-def>
     <element-def custom="true" description="Chained reference" id="chained_references_suffix">
-        <token id="15488" type-id="CHR_DOT" />
+        <token id="15483" type-id="CHR_DOT" />
         <element ref-id="chained_references" />
     </element-def>
     <element-def custom="true" description="Numeric index suffix" id="numeric_index_suffix">
-        <one-of id="15489">
-            <token id="15490" type-id="KW_FIRST" />
-            <token id="15491" type-id="KW_LAST" />
-            <token flavor="keyword" id="15492" type-id="FN_COUNT" />
+        <one-of id="15484">
+            <token id="15485" type-id="KW_FIRST" />
+            <token id="15486" type-id="KW_LAST" />
+            <token flavor="keyword" id="15487" type-id="FN_COUNT" />
         </one-of>
     </element-def>
     <element-def custom="true" description="DEFAULT ON CONVERSION ERROR" id="default_on_conversion_error">
-        <token id="15493" type-id="KW_DEFAULT" />
+        <token id="15488" type-id="KW_DEFAULT" />
         <element ref-id="expression" />
-        <token id="15494" type-id="KW_ON" />
-        <token id="15495" type-id="KW_CONVERSION" />
-        <token id="15496" type-id="KW_ERROR" />
+        <token id="15489" type-id="KW_ON" />
+        <token id="15490" type-id="KW_CONVERSION" />
+        <token id="15491" type-id="KW_ERROR" />
     </element-def>
     <element-def custom="true" description="FMT NLSPARAM" id="fmt_nlsparam">
-        <sequence id="15497">
-            <token id="15498" type-id="CHR_COMMA" />
+        <sequence id="15492">
+            <token id="15493" type-id="CHR_COMMA" />
             <element original-name="fmt" ref-id="expression" />
-            <sequence id="15499" optional="true">
-                <token id="15500" type-id="CHR_COMMA" />
+            <sequence id="15494" optional="true">
+                <token id="15495" type-id="CHR_COMMA" />
                 <element original-name="nlsparam" ref-id="expression" />
             </sequence>
         </sequence>
     </element-def>
     <element-def id="if_exists_clause" description="IF EXISTS clause">
-        <token type-id="KW_IF" id="15501" />
-        <token type-id="KW_EXISTS" id="15502" />
+        <token type-id="KW_IF" id="15496" />
+        <token type-id="KW_EXISTS" id="15497" />
     </element-def>
 
     <element-def id="if_not_exists_clause" description="IF NOT EXISTS clause">
-        <token type-id="KW_IF" id="15503" />
-        <token type-id="KW_NOT" id="15504" />
-        <token type-id="KW_EXISTS" id="15505" />
+        <token type-id="KW_IF" id="15498" />
+        <token type-id="KW_NOT" id="15499" />
+        <token type-id="KW_EXISTS" id="15500" />
     </element-def>
 
     <element-def description="Column alias definition" id="column_alias_definition">
-        <token attributes="IDENTIFIER_LEAD" id="15506" optional="true" type-id="KW_AS" />
-        <alias-def id="15507" type="COLUMN" attributes="ALIAS_DEFINITION" />
+        <token attributes="IDENTIFIER_LEAD" id="15501" optional="true" type-id="KW_AS" />
+        <alias-def id="15502" type="COLUMN" attributes="ALIAS_DEFINITION" />
     </element-def>
     <element-def description="Dataset alias definition" id="dataset_alias_definition">
-        <token attributes="IDENTIFIER_LEAD" id="15508" optional="true" type-id="KW_AS" />
-        <alias-def id="15509" type="DATASET" />
+        <token attributes="IDENTIFIER_LEAD" id="15503" optional="true" type-id="KW_AS" />
+        <alias-def id="15504" type="DATASET" />
     </element-def>
 
     <element-def description="Unknown identifier" id="custom_undefined">
-        <token id="15510" type-id="IDENTIFIER" />
+        <token id="15505" type-id="IDENTIFIER" />
     </element-def>
     <element-def description="Statement end" formatting-spacing-before="NO_SPACE" id="end" truncate-on-execution="true">
-        <one-of id="15511">
-            <token id="15512" type-id="CHR_SEMICOLON" />
-            <token id="15513" type-id="CHR_SLASH" />
+        <one-of id="15506">
+            <token id="15507" type-id="CHR_SEMICOLON" />
+            <token id="15508" type-id="CHR_SLASH" />
         </one-of>
     </element-def>
 
     <element-def description="String or identifier" id="string_identifier">
-        <one-of id="15514">
-            <token type-id="STRING" id="15515" />
-            <token type-id="IDENTIFIER" id="15516" />
-            <exec-variable id="15517" />
+        <one-of id="15509">
+            <token type-id="STRING" id="15510" />
+            <token type-id="IDENTIFIER" id="15511" />
+            <exec-variable id="15512" />
         </one-of>
     </element-def>
 
     <element-def custom="true" description="Wrapped string list" id="wrapped_string_list">
-        <wrapper template="PARENTHESES" id="15518">
-            <iteration separator="CHR_COMMA" id="15519">
-                <token type-id="STRING" id="15520" />
+        <wrapper template="PARENTHESES" id="15513">
+            <iteration separator="CHR_COMMA" id="15514">
+                <token type-id="STRING" id="15515" />
             </iteration>
         </wrapper>
     </element-def>
 
     <element-def id="comment_clause" description="COMMENT clause">
-        <token type-id="KW_COMMENT" id="15521" />
-        <token type-id="STRING" original-name="comment" id="15522" />
+        <token type-id="KW_COMMENT" id="15516" />
+        <token type-id="STRING" original-name="comment" id="15517" />
     </element-def>
 </element-defs>
