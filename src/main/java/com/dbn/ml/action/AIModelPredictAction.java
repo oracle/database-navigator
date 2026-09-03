@@ -25,7 +25,7 @@ import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
 import com.dbn.ml.model.MLTaskType;
 import com.dbn.ml.ui.MLPredictDialog;
-import com.dbn.object.DBAIModel;
+import com.dbn.object.DBMiningModel;
 import com.dbn.object.action.AnObjectAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -44,14 +44,14 @@ import java.util.List;
  *
  * @author ayoub allali
  */
-public class AIModelPredictAction extends AnObjectAction<DBAIModel> {
+public class AIModelPredictAction extends AnObjectAction<DBMiningModel> {
 
-    public AIModelPredictAction(@NotNull DBAIModel model) {
+    public AIModelPredictAction(@NotNull DBMiningModel model) {
         super(model);
     }
 
     @Override
-    protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DBAIModel model) {
+    protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DBMiningModel model) {
         ConnectionHandler connection = model.getConnection();
         String modelName = model.getName();
 
@@ -105,7 +105,7 @@ public class AIModelPredictAction extends AnObjectAction<DBAIModel> {
     }
 
     @Override
-    protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DBAIModel target) {
+    protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DBMiningModel target) {
         presentation.setText("Predict...");
         presentation.setIcon(Icons.ACTION_EXECUTE);
         presentation.setVisible(target != null);

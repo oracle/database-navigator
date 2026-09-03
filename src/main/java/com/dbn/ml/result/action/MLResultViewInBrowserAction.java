@@ -22,7 +22,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.ml.backend.dbms.DBMSModelHandle;
 import com.dbn.ml.model.MLResult;
 import com.dbn.ml.result.MLExecutionResult;
-import com.dbn.object.DBAIModel;
+import com.dbn.object.DBMiningModel;
 import com.dbn.object.DBSchema;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -56,7 +56,7 @@ public class MLResultViewInBrowserAction extends AbstractMLExecutionResultAction
         }
 
         // Find the model by name
-        DBAIModel aiModel = findAIModel(schema, modelName);
+        DBMiningModel aiModel = findAIModel(schema, modelName);
         if (aiModel == null) {
             Messages.showWarningDialog(project,
                     txt("msg.machineLearning.title.ModelNotFound"),
@@ -69,8 +69,8 @@ public class MLResultViewInBrowserAction extends AbstractMLExecutionResultAction
     }
 
     @Nullable
-    private DBAIModel findAIModel(DBSchema schema, String modelName) {
-        for (DBAIModel model : schema.getAIModels()) {
+    private DBMiningModel findAIModel(DBSchema schema, String modelName) {
+        for (DBMiningModel model : schema.getMiningModels()) {
             if (model.getName().equalsIgnoreCase(modelName)) {
                 return model;
             }
@@ -81,7 +81,7 @@ public class MLResultViewInBrowserAction extends AbstractMLExecutionResultAction
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable MLExecutionResult target) {
         presentation.setText(txt("app.machineLearning.action.ViewInDatabase"));
-        presentation.setIcon(Icons.DBO_AI_MODEL);
+        presentation.setIcon(Icons.DBO_MINING_MODEL);
 
         presentation.setVisible(target != null);
         presentation.setEnabled(target != null);

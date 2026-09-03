@@ -395,7 +395,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
     }
 
     @Override
-    public List<DBMiningModel> getAIModels() {
+    public List<DBMiningModel> getMiningModels() {
         return getChildObjects(MINING_MODEL);
     }
 

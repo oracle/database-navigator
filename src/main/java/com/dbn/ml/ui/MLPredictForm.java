@@ -76,7 +76,7 @@ public class MLPredictForm extends DBNFormBase {
 
         DBNHeaderForm headerForm = new DBNHeaderForm(this,
                 "Prediction using " + modelName,
-                Icons.DBO_AI_MODEL,
+                Icons.DBO_MINING_MODEL,
                 connection.getEnvironmentType().getColor());
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
 

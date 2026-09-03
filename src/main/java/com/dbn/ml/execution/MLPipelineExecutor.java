@@ -105,7 +105,7 @@ public class MLPipelineExecutor {
         result.setModelHandle(modelHandle);
 
         // Notify browser to refresh AI models
-        DBObjectUtil.refreshUserObjects(connectionHandler.getConnectionId(), DBObjectType.AI_MODEL);
+        DBObjectUtil.refreshUserObjects(connectionHandler.getConnectionId(), DBObjectType.MINING_MODEL);
 
         // Oracle creates DM$V* views when a model is trained - reload schema views so they appear in the browser.
         DBSchema schema = connectionHandler.getUserSchema();

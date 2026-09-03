@@ -75,7 +75,7 @@ public class EmbeddingModelDatabaseForm extends VectorToolboxFormBase {
         DBSchema schema = getSelectedSchema();
         if (schema == null) return emptyList();
 
-        return schema.getAIModels();
+        return schema.getMiningModels();
     }
 
     @Nullable

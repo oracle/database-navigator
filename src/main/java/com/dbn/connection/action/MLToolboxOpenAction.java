@@ -38,7 +38,7 @@ public class MLToolboxOpenAction extends AbstractConnectionAction {
         // ML Toolbox is available for all connections (uses Tribuo, not DB-specific features)
         presentation.setVisible(true);
         presentation.setText(txt("app.machineLearning.action.OpenMLToolbox"));
-        presentation.setIcon(Icons.DBO_AI_MODEL); // TODO: Create ML-specific icon
+        presentation.setIcon(Icons.DBO_MINING_MODEL); // TODO: Create ML-specific icon
     }
 
     @Override

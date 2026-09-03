@@ -42,7 +42,7 @@ public class MLToolboxOpenAction extends ProjectAction {
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
         presentation.setText(txt("app.machineLearning.action.OpenMLToolboxEllipsis"));
-        presentation.setIcon(Icons.DBO_AI_MODEL);
+        presentation.setIcon(Icons.DBO_MINING_MODEL);
         presentation.setVisible(true);
     }
 
