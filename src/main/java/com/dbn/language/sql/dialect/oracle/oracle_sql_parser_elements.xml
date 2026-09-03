@@ -22381,7 +22381,7 @@
         <qualified-identifier separator="CHR_DOT" id="11942">
             <variant>
                 <object-ref type="SCHEMA" optional="true" id="11943" />
-                <object-ref type="AI_MODEL" original-name="model" id="11944" />
+                <object-ref type="MINING_MODEL" original-name="model" id="11944" />
             </variant>
         </qualified-identifier>
     </element-def>
@@ -23807,7 +23807,7 @@
                         <qualified-identifier id="12789">
                             <variant>
                                 <object-ref id="12790" optional="true" type="SCHEMA" />
-                                <object-ref id="12791" type="AI_MODEL" original-name="model_name" />
+                                <object-ref id="12791" type="MINING_MODEL" original-name="model_name" />
                             </variant>
                         </qualified-identifier>
                         <token type-id="KW_USING" id="12792" />
