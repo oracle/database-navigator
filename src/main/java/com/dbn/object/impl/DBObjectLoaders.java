@@ -23,7 +23,6 @@ import com.dbn.common.content.loader.DynamicContentResultSetLoader;
 import com.dbn.common.content.loader.DynamicSubcontentLoader;
 import com.dbn.common.exception.ElementSkippedException;
 import com.dbn.database.common.metadata.DBObjectMetadata;
-import com.dbn.database.common.metadata.def.DBAIModelMetadata;
 import com.dbn.database.common.metadata.def.DBAIProfileMetadata;
 import com.dbn.database.common.metadata.def.DBArgumentMetadata;
 import com.dbn.database.common.metadata.def.DBCharsetMetadata;
@@ -49,6 +48,7 @@ import com.dbn.database.common.metadata.def.DBJavaResourceMetadata;
 import com.dbn.database.common.metadata.def.DBJsonViewMetadata;
 import com.dbn.database.common.metadata.def.DBJsonViewTableMetadata;
 import com.dbn.database.common.metadata.def.DBMaterializedViewMetadata;
+import com.dbn.database.common.metadata.def.DBMiningModelMetadata;
 import com.dbn.database.common.metadata.def.DBNestedTableMetadata;
 import com.dbn.database.common.metadata.def.DBObjectDependencyMetadata;
 import com.dbn.database.common.metadata.def.DBPackageMetadata;
@@ -398,10 +398,10 @@ public class DBObjectLoaders {
                 (content, conn, mdi) -> mdi.loadAiProfiles(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBAIProfileImpl(content.getParentEntity(), md));
 
-        DynamicContentResultSetLoader.<DBAIModelImpl, DBAIModelMetadata>create(
-                "AI_MODELS", DBObjectType.SCHEMA, DBObjectType.AI_MODEL, true, true,
+        DynamicContentResultSetLoader.<DBMiningModelImpl, DBMiningModelMetadata>create(
+                "MINING_MODELS", DBObjectType.SCHEMA, DBObjectType.MINING_MODEL, true, true,
                 (content, conn, mdi) -> mdi.loadAiModels(content.ensureParentEntity().getName(), conn),
-                (content, cache, md) -> new DBAIModelImpl(content.getParentEntity(), md));
+                (content, cache, md) -> new DBMiningModelImpl(content.getParentEntity(), md));
         DynamicContentResultSetLoader.<DBDatabaseLink, DBDatabaseLinkMetadata>create(
                 "DBLINKS", SCHEMA, DBLINK, true, true,
                 (content, conn, mdi) -> mdi.loadDatabaseLinks(content.ensureParentEntity().getName(), conn),

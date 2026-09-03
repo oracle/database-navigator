@@ -17,7 +17,7 @@ import com.dbn.object.common.ui.DBObjectSelector;
 import com.dbn.object.factory.ObjectFactoryManager;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.lookup.DBObjectRef;
-import com.dbn.object.type.DBAIModelSourceType;
+import com.dbn.object.type.DBMiningModelSourceType;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
@@ -43,25 +43,25 @@ import static com.dbn.common.util.FileChoosers.addFileChooser;
 import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.nls.NlsResources.txt;
-import static com.dbn.object.factory.model.DBObjectAttributeType.AI_MODEL_CREDENTIAL;
-import static com.dbn.object.factory.model.DBObjectAttributeType.AI_MODEL_SOURCE_LOCATION;
-import static com.dbn.object.factory.model.DBObjectAttributeType.AI_MODEL_SOURCE_TYPE;
-import static com.dbn.object.type.DBAIModelSourceType.MODEL_FILE;
-import static com.dbn.object.type.DBAIModelSourceType.OBJECT_STORAGE;
+import static com.dbn.object.factory.model.DBObjectAttributeType.MINING_MODEL_CREDENTIAL;
+import static com.dbn.object.factory.model.DBObjectAttributeType.MINING_MODEL_SOURCE_LOCATION;
+import static com.dbn.object.factory.model.DBObjectAttributeType.MINING_MODEL_SOURCE_TYPE;
 import static com.dbn.object.type.DBCredentialType.PASSWORD;
 import static com.dbn.object.type.DBCredentialType.TOKEN;
+import static com.dbn.object.type.DBMiningModelSourceType.MODEL_FILE;
+import static com.dbn.object.type.DBMiningModelSourceType.OBJECT_STORAGE;
 import static com.dbn.object.type.DBObjectType.CREDENTIAL;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
 import static java.util.Collections.emptyList;
 
-public class DBAIModelFactoryInputForm extends DBSchemaObjectFactoryInputForm {
+public class DBMiningModelFactoryInputForm extends DBSchemaObjectFactoryInputForm {
     private JPanel mainPanel;
     private @Getter JPanel headerPanel;
     private @Getter DBNComboBox<ConnectionHandler> connectionComboBox;
     private @Getter DBNComboBox<SchemaId> schemaComboBox;
     private @Getter JTextField nameTextField;
 
-    private DBNComboBox<DBAIModelSourceType> sourceComboBox;
+    private DBNComboBox<DBMiningModelSourceType> sourceComboBox;
     private TextFieldWithBrowseButton modelFileTextField;
     private JTextField objectUrlTextField;
     private JLabel modelFileLabel;
@@ -75,7 +75,7 @@ public class DBAIModelFactoryInputForm extends DBSchemaObjectFactoryInputForm {
     private JCheckBox preserveCaseCheckBox;
     private DBNInfoLabel preserveCaseInfoLabel;
 
-    public DBAIModelFactoryInputForm(DBNComponent parent, DBObjectSpec input) {
+    public DBMiningModelFactoryInputForm(DBNComponent parent, DBObjectSpec input) {
         super(parent, input);
 
         initHeaderForm();
@@ -128,8 +128,8 @@ public class DBAIModelFactoryInputForm extends DBSchemaObjectFactoryInputForm {
         schemaComboBox.setEnabled(false); // TODO support connection switch
 
         // model source combo-box
-        DBAIModelSourceType sourceType = AI_MODEL_SOURCE_TYPE.of(input);
-        initComboBox(sourceComboBox, DBAIModelSourceType.values());
+        DBMiningModelSourceType sourceType = MINING_MODEL_SOURCE_TYPE.of(input);
+        initComboBox(sourceComboBox, DBMiningModelSourceType.values());
         setSelection(sourceComboBox, sourceType == null ? MODEL_FILE : sourceType);
         onSelectionChange(sourceComboBox, e -> updateFieldAvailability());
 
@@ -247,9 +247,9 @@ public class DBAIModelFactoryInputForm extends DBSchemaObjectFactoryInputForm {
     public void applyFormChanges() {
         input.setObjectName(getText(nameTextField));
         input.setIdentifierCase(getSelectedIdentifierCase());
-        input.setAttributeValue(AI_MODEL_CREDENTIAL, getCredential());
-        input.setAttributeValue(AI_MODEL_SOURCE_TYPE, getModelSourceType());
-        input.setAttributeValue(AI_MODEL_SOURCE_LOCATION, getModelSourceLocation());
+        input.setAttributeValue(MINING_MODEL_CREDENTIAL, getCredential());
+        input.setAttributeValue(MINING_MODEL_SOURCE_TYPE, getModelSourceType());
+        input.setAttributeValue(MINING_MODEL_SOURCE_LOCATION, getModelSourceLocation());
     }
 
     private DBObjectRef<DBCredential> getCredential() {
@@ -259,15 +259,15 @@ public class DBAIModelFactoryInputForm extends DBSchemaObjectFactoryInputForm {
     @Override
     public void resetFormChanges() {
         nameTextField.setText(input.getObjectName());
-        modelFileTextField.setText(AI_MODEL_SOURCE_LOCATION.of(input));
+        modelFileTextField.setText(MINING_MODEL_SOURCE_LOCATION.of(input));
     }
 
-    private DBAIModelSourceType getModelSourceType() {
+    private DBMiningModelSourceType getModelSourceType() {
         return getSelection(sourceComboBox);
     }
 
     private String getModelSourceLocation() {
-        DBAIModelSourceType sourceType = getModelSourceType();
+        DBMiningModelSourceType sourceType = getModelSourceType();
         return sourceType == MODEL_FILE ?
                 modelFileTextField.getText() :
                 objectUrlTextField.getText();

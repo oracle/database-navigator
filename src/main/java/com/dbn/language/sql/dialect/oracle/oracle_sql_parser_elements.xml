@@ -19631,7 +19631,7 @@
                 <qualified-identifier separator="CHR_DOT" id="10647">
                     <variant>
                         <object-ref optional="true" type="SCHEMA" id="10648" />
-                        <object-ref type="MODEL" original-name="model" id="10649" />
+                        <object-ref type="MINING_MODEL" original-name="model" id="10649" />
                     </variant>
                 </qualified-identifier>
             </sequence>
@@ -21161,7 +21161,7 @@
     </element-def>
     <element-def description="REFERENCE model" id="reference_model">
         <token id="11361" type-id="KW_REFERENCE" />
-        <alias-ref id="11362" original-name="reference_model_name" type="MODEL" />
+        <alias-ref id="11362" original-name="reference_model_name" type="MINING_MODEL" />
         <token id="11363" type-id="KW_ON" />
         <wrapper id="11364" template="PARENTHESES">
             <element ref-id="subquery" />
@@ -21172,7 +21172,7 @@
     <element-def description="MAIN model" id="main_model">
         <sequence id="11365" optional="true">
             <token id="11366" type-id="KW_MAIN" />
-            <alias-ref id="11367" original-name="main_model_name" type="MODEL" />
+            <alias-ref id="11367" original-name="main_model_name" type="MINING_MODEL" />
         </sequence>
         <element ref-id="model_column_clauses" />
         <element optional="true" ref-id="cell_reference_options" />
@@ -23729,7 +23729,7 @@
                         <qualified-identifier id="12716">
                             <variant>
                                 <object-ref id="12717" optional="true" type="SCHEMA" />
-                                <object-ref id="12718" type="AI_MODEL" original-name="model_name" />
+                                <object-ref id="12718" type="MINING_MODEL" original-name="model_name" />
                             </variant>
                         </qualified-identifier>
                         <token type-id="KW_USING" id="12719" />

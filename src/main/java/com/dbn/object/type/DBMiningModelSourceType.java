@@ -22,13 +22,13 @@ import lombok.Getter;
 import static com.dbn.nls.NlsResources.txt;
 
 @Getter
-public enum DBAIModelSourceType implements Presentable {
-  MODEL_FILE(txt("app.objects.const.DBAIModelSourceType_MODEL_FILE")),
-  OBJECT_STORAGE(txt("app.objects.const.DBAIModelSourceType_OBJECT_STORAGE"));
+public enum DBMiningModelSourceType implements Presentable {
+  MODEL_FILE(txt("app.objects.const.DBMiningModelSourceType_MODEL_FILE")),
+  OBJECT_STORAGE(txt("app.objects.const.DBMiningModelSourceType_OBJECT_STORAGE"));
 
   private final String name;
 
-  DBAIModelSourceType(String name) {
+  DBMiningModelSourceType(String name) {
     this.name = name;
   }
 }
