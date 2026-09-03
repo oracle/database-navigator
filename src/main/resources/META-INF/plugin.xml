@@ -309,7 +309,7 @@
 
         <!--object property providers-->
         <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBGenericObjectPropertiesProvider"/>
-        <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBAIModelPropertiesProvider"/>
+        <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBMiningModelPropertiesProvider"/>
         <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBAIProfilePropertiesProvider"/>
         <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBColumnPropertiesProvider"/>
         <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBConstraintPropertiesProvider"/>
@@ -344,7 +344,7 @@
 
 
         <!--object factory adapters-->
-        <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBAIModelFactoryAdapter"/>
+        <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBMiningModelFactoryAdapter"/>
         <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBJavaClassFactoryAdapter"/>
         <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBFunctionFactoryAdapter"/>
         <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBProcedureFactoryAdapter"/>
@@ -359,7 +359,7 @@
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBCredentialManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBDatasourceConfigManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBAIProfileManagementAdapter"/>
-        <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBAIModelManagementAdapter"/>
+        <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBMiningModelManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBTriggerManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBJsonViewManagementAdapter"/>
 

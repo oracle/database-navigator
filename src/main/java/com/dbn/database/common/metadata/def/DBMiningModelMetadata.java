@@ -7,7 +7,7 @@ import lombok.Data;
 
 import java.sql.SQLException;
 
-public interface DBAIModelMetadata extends DBObjectMetadata {
+public interface DBMiningModelMetadata extends DBObjectMetadata {
     @ObjectIdentifier
     String getModelName() throws SQLException;
 
