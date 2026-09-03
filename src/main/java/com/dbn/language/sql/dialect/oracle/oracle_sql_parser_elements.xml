@@ -27237,9 +27237,9 @@
         <one-of id="14458">
             <object-ref type="WINDOW" original-name="window_name" id="14459" />
             <wrapper id="14460" template="PARENTHESES">
-                <sequence id="14461">
+                <sequence id="14461" optional="true">
                     <object-ref type="WINDOW" optional="true" original-name="window_name" id="14462" />
-                    <element ref-id="query_partition_clause" />
+                    <element ref-id="query_partition_clause" optional="true"/>
                 </sequence>
             </wrapper>
         </one-of>
