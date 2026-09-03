@@ -9,6 +9,7 @@ import com.dbn.common.editor.BasicTextEditor;
 import com.dbn.common.editor.EditorNotificationProvider;
 import com.dbn.diagnostics.ui.ParserIssueEditorNotificationPanel;
 import com.dbn.editor.code.options.CodeEditorGeneralSettings;
+import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.language.common.psi.PsiUtil;
 import com.intellij.openapi.fileEditor.FileEditor;
@@ -38,10 +39,15 @@ public class ParserIssueEditorNotificationProvider extends EditorNotificationPro
         if (isDismissed(relevantFile)) return null;
 
         PsiFile psiFile = PsiUtil.getPsiFile(project, relevantFile);
-        if (!(psiFile instanceof DBLanguagePsiFile dbLanguagePsiFile)) return null;
+        if (!(psiFile instanceof DBLanguagePsiFile databasePsiFile)) return null;
+
+        DBLanguageDialect languageDialect = databasePsiFile.getLanguageDialect();
+        if (languageDialect == null) return null;
+        if (!languageDialect.isInitialized()) return null;
+
         if (!PsiUtil.hasErrors(psiFile)) return null;
 
-        return new ParserIssueEditorNotificationPanel(project, file, fileEditor, dbLanguagePsiFile);
+        return new ParserIssueEditorNotificationPanel(project, file, fileEditor, databasePsiFile);
     }
 
     public static boolean isDismissed(@NotNull VirtualFile file) {

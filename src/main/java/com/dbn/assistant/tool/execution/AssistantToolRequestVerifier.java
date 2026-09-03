@@ -18,7 +18,6 @@ package com.dbn.assistant.tool.execution;
 
 import com.dbn.common.util.Csvs;
 import lombok.experimental.UtilityClass;
-import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -32,17 +31,12 @@ import java.util.Set;
 import static com.dbn.assistant.tool.execution.AssistantToolParameters.getToolParameter;
 import static com.dbn.assistant.tool.execution.AssistantToolParameters.getToolParameters;
 
-@Slf4j
 @UtilityClass
 public class AssistantToolRequestVerifier {
     public static void verifyRequest(AssistantToolRequest request, Method method, Object... args) {
-        try {
-            verifyRequestMethod(request, method);
-            verifyParameterNames(request);
-            verifyParameterTypes(request, args);
-        } catch (Throwable e) {
-            log.error("Failed to verify tool request", e);
-        }
+        verifyRequestMethod(request, method);
+        verifyParameterNames(request);
+        verifyParameterTypes(request, args);
     }
 
     private static void verifyRequestMethod(AssistantToolRequest request, Method method) {

@@ -1496,7 +1496,7 @@
         <element optional="true" ref-id="as_clause" />
     </element-def>
     <element-def description="AS clause" id="as_clause">
-        <token id="00565" optional="true" type-id="KW_AS" />
+        <token attributes="IDENTIFIER_LEAD" id="00565" optional="true" type-id="KW_AS" />
         <alias-def id="00566" original-name="column_name" type="COLUMN" />
     </element-def>
     <element-def description="Value expression" id="value_expression">
@@ -1646,7 +1646,7 @@
         </wrapper>
     </element-def>
     <element-def description="Correlation specification" id="correlation_specification">
-        <token optional="true" type-id="KW_AS" id="00613" />
+        <token attributes="IDENTIFIER_LEAD" optional="true" type-id="KW_AS" id="00613" />
         <alias-def type="DATASET" id="00614" />
         <wrapper optional="true" template="PARENTHESES" id="00615">
             <iteration separator="CHR_COMMA" id="00616">

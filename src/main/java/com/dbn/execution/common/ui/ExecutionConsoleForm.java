@@ -387,7 +387,7 @@ public class ExecutionConsoleForm extends DBNFormBase {
             tabs.setTabIcon(component, Icons.EXEC_RESULT_MESSAGES);
         }
 
-        tabs.selectTab(messagesPanel, instructions.isFocus());
+        queueSelectTab(messagesPanel.getComponent(), instructions.isFocus());
     }
 
 
@@ -469,7 +469,7 @@ public class ExecutionConsoleForm extends DBNFormBase {
             tabs.setTabColor(component, color);
 
             if (selectTab) {
-                tabs.selectTab(component, true);
+                queueSelectTab(component, true);
             }
 
             logOutput.write(context, output);
@@ -532,7 +532,11 @@ public class ExecutionConsoleForm extends DBNFormBase {
         tabs.setTabIcon(component, icon);
         tabs.setTabColor(component, color);
 
-        tabs.selectTab(component, true);
+        queueSelectTab(component, true);
+    }
+
+    private void queueSelectTab(JComponent component, boolean requestFocus) {
+        dispatch(() -> getResultTabs().selectTab(component, requestFocus));
     }
 
     public void removeResultTab(ExecutionResult<?> executionResult) {

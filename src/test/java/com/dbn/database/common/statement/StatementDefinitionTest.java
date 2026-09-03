@@ -16,14 +16,19 @@
 
 package com.dbn.database.common.statement;
 
+import com.dbn.database.oracle.OracleDebuggerInterface;
+import com.dbn.database.postgres.PostgresDataDefinitionInterface;
 import com.dbn.language.common.quotes.QuoteDefinition;
 import com.dbn.language.common.quotes.QuotePair;
+import org.jdom.Element;
 import org.junit.Test;
 
 import java.sql.SQLException;
 
+import static com.dbn.common.util.XmlContents.fileToElement;
 import static com.dbn.language.common.quotes.QuoteEscaping.DATABASE;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class StatementDefinitionTest {
     private static final QuoteDefinition SQLITE_QUOTE_DEFINITION = new QuoteDefinition(
@@ -157,6 +162,88 @@ public class StatementDefinitionTest {
                 (Object) null);
 
         assertEquals("BEGIN MY_PKG.RUN(comment_text => NULL); END;", statementText);
+    }
+
+    @Test
+    public void prepareStatementTextQuotesPostgresDropTriggerIdentifiers() throws Exception {
+        Element dataDictionary = fileToElement(PostgresDataDefinitionInterface.class, "postgres_ddl_interface.xml");
+        StatementDefinition definition = statementDefinition(dataDictionary, "drop-trigger");
+
+        String statementText = definition.prepareStatementText(
+                StatementDefinitionTest::enquoteSqliteIdentifier,
+                "schema\"; injected",
+                "table\"; injected",
+                "trigger\"; injected");
+
+        assertEquals(
+                "drop trigger \"trigger\"\"; injected\" on \"schema\"\"; injected\".\"table\"\"; injected\"",
+                statementText);
+    }
+
+    @Test
+    public void prepareStatementTextEscapesProgramBreakpointObjectNames() throws Exception {
+        Element dataDictionary = fileToElement(OracleDebuggerInterface.class, "oracle_debug_interface.xml");
+        Element processor = dataDictionary.getChildren("statement-execution-processor").stream()
+                .filter(element -> "add-program-breakpoint".equals(element.getAttributeValue("id")))
+                .findFirst()
+                .orElseThrow();
+        StatementDefinition definition = new StatementDefinition(processor.getChildTextTrim("statement"), null, null, 0.0);
+
+        String statementText = definition.prepareStatementText(
+                StatementDefinitionTest::enquoteSqliteIdentifier,
+                "SCOTT' ; injected",
+                "PROGRAM' ; injected",
+                "PROCEDURE",
+                7);
+
+        assertTrue(statementText.contains("v_program_info.owner := 'SCOTT'' ; injected';"));
+        assertTrue(statementText.contains("v_program_info.name := 'PROGRAM'' ; injected';"));
+        assertTrue(statementText.contains("v_program_type := 'PROCEDURE';"));
+    }
+
+    @Test
+    public void prepareStatementTextBindsDebuggerArgumentsAndEscapesAssignmentText() throws Exception {
+        Element dataDictionary = fileToElement(OracleDebuggerInterface.class, "oracle_debug_interface.xml");
+
+        StatementDefinition jdwpDefinition = statementDefinition(dataDictionary, "connect-jdwp-session");
+        String jdwpStatementText = jdwpDefinition.prepareStatementText(
+                StatementDefinitionTest::enquoteSqliteIdentifier,
+                "localhost'; injected",
+                "4000'; injected");
+
+        assertTrue(jdwpStatementText.contains("SYS.DBMS_DEBUG_JDWP.connect_tcp(?, ?);"));
+
+        StatementDefinition attachDefinition = statementDefinition(dataDictionary, "attach-session");
+        String attachStatementText = attachDefinition.prepareStatementText(
+                StatementDefinitionTest::enquoteSqliteIdentifier,
+                "SESSION'; injected");
+
+        assertTrue(attachStatementText.contains("SYS.DBMS_DEBUG.attach_session(?, SYS.DBMS_DEBUG.diagnostic_level);"));
+
+        StatementDefinition variableDefinition = statementDefinition(dataDictionary, "get-variable");
+        String variableStatementText = variableDefinition.prepareStatementText(
+                StatementDefinitionTest::enquoteSqliteIdentifier,
+                "VALUE'; injected",
+                1);
+
+        assertTrue(variableStatementText.contains("SYS.DBMS_DEBUG.get_value(?, v_frame, v_scalar_value, null);"));
+
+        StatementDefinition assignmentDefinition = statementDefinition(dataDictionary, "set-variable-value");
+        String assignmentStatementText = assignmentDefinition.prepareStatementText(
+                StatementDefinitionTest::enquoteSqliteIdentifier,
+                1,
+                "VALUE'; injected",
+                "text'; injected");
+
+        assertTrue(assignmentStatementText.contains("v_assignment_statement := 'VALUE''; injected' || ' := ' || 'text''; injected' || ';';"));
+    }
+
+    private static StatementDefinition statementDefinition(Element dataDictionary, String id) {
+        Element processor = dataDictionary.getChildren("statement-execution-processor").stream()
+                .filter(element -> id.equals(element.getAttributeValue("id")))
+                .findFirst()
+                .orElseThrow();
+        return new StatementDefinition(processor.getChildTextTrim("statement"), null, null, 0.0);
     }
 
     private static String enquoteSqliteIdentifier(String identifier) {
