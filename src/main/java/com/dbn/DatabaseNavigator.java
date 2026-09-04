@@ -29,7 +29,6 @@ import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.PluginStateManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
-import com.intellij.openapi.extensions.PluginId;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
@@ -55,9 +54,6 @@ import static com.dbn.common.util.FileChoosers.nativeFileChoosers;
 public class DatabaseNavigator extends ApplicationComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Application.Settings";
     public static final String STORAGE_FILE = "dbnavigator.xml";
-
-    public static final PluginId SQL_PLUGIN_ID = PluginId.getId("com.intellij.database");
-    public static final PluginId DBN_PLUGIN_ID = PluginId.getId("DBN");
 
     private String clientId = UUIDs.compact();
     private String configVersion;
@@ -94,7 +90,7 @@ public class DatabaseNavigator extends ApplicationComponentBase implements Persi
 
     @NotNull
     public static IdeaPluginDescriptor getPluginDescriptor() {
-        return Objects.requireNonNull(Plugins.getPlugin(DBN_PLUGIN_ID));
+        return Objects.requireNonNull(Plugins.getPlugin(Plugins.DBN_PLUGIN_ID));
     }
 
     private static String loadPluginVersion() {

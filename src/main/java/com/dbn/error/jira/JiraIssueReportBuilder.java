@@ -17,6 +17,7 @@
 package com.dbn.error.jira;
 
 import com.dbn.DatabaseNavigator;
+import com.dbn.common.util.Plugins;
 import com.dbn.connection.ConnectionBundle;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
@@ -47,6 +48,7 @@ import static com.dbn.common.checksum.Checksum.fromStringContent;
 import static com.dbn.common.checksum.ChecksumType.SHA_256;
 import static com.dbn.common.data.Data.asIterable;
 import static com.dbn.common.util.Commons.coalesce;
+import static com.dbn.common.util.Plugins.isThirdPartyPlugin;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.common.util.Unsafe.silent;
 
@@ -89,6 +91,16 @@ public abstract class JiraIssueReportBuilder implements IssueReportBuilder {
         report.setJavaVersion(System.getProperty("java.version"));
         report.setPluginVersion(report.getPlugin().getVersion());
         report.setClientId(DatabaseNavigator.getInstance().getClientId());
+        report.setThirdPartyPlugins(loadThirdPartyPluginIds());
+    }
+
+    private static List<String> loadThirdPartyPluginIds() {
+        return Plugins.getLoadedPlugins()
+                .stream()
+                .filter(d -> isThirdPartyPlugin(d))
+                .map(d -> d.getPluginId().getIdString())
+                .sorted()
+                .toList();
     }
 
     private static void initDatabaseInfo(IssueReport report) {
@@ -150,6 +162,7 @@ public abstract class JiraIssueReportBuilder implements IssueReportBuilder {
         addEnvironmentInfo(description, "System Charset", report.getSystemCharset());
         addEnvironmentInfo(description, "Last Action Id", report.getLastActionId());
         addEnvironmentInfo(description, "Client Id", report.getClientId());
+        addEnvironmentInfo(description, "Third-party Plugins", report.getThirdPartyPluginIds());
     }
 
     protected void buildAdditionalInfo(IssueReport report, StringBuilder description) {
