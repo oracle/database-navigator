@@ -38,7 +38,6 @@ import com.dbn.language.common.element.impl.TokenElementType;
 import com.dbn.language.common.element.impl.WrapperElementType;
 import com.dbn.language.common.element.parser.Branch;
 import com.dbn.language.common.element.path.AstNode;
-import com.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dbn.language.common.psi.BasePsiElement;
 import com.dbn.language.common.psi.IdentifierPsiElement;
 import com.dbn.language.common.psi.LeafPsiElement;
@@ -77,6 +76,8 @@ import java.util.Set;
 
 import static com.dbn.common.util.Naming.nextNumberedIdentifier;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.SCOPE_ISOLATION;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.STATEMENT;
 import static com.dbn.language.common.psi.lookup.LookupAdapters.aliasDefinition;
 import static com.dbn.object.DBSynonym.unwrap;
 import static com.dbn.object.type.DBObjectType.ANY;
@@ -222,14 +223,12 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
 
         if (!context.hasCompletionCandidates()) {
             collectExtendedOneOfVariants(element, context);
-        }
 
-        if (!context.hasCompletionCandidates()) {
             LeafElementType elementType = (LeafElementType) element.elementType;
             AstNode node = new AstNode(element.getNode());
             ElementLookupContext lookupContext = computeParseBranches(element.getNode(), context.getDatabaseVersion());
             if (!context.isNewLine()) {
-                lookupContext.addBreakOnAttribute(ElementTypeAttribute.STATEMENT);
+                lookupContext.addBreakOnAttribute(STATEMENT);
             }
             var candidates = elementType.getNextPossibleLeafs(node, lookupContext);
             context.addCompletionCandidates(candidates);
@@ -243,17 +242,19 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
         context.awaitCompletion();
     }
 
-    private static void collectExtendedOneOfVariants(LeafPsiElement element, CodeCompletionContext context) {
-        PsiElement parent = element.getParent();
-        while (parent instanceof BasePsiElement basePsiElement) {
+    private static void collectExtendedOneOfVariants(LeafPsiElement source, CodeCompletionContext context) {
+        PsiElement element = source.getParent();
+        while (element instanceof BasePsiElement basePsiElement) {
             ElementTypeBase elementType = basePsiElement.elementType;
-            if (elementType instanceof OneOfElementType oneOfElementType && oneOfElementType.extension != null) {
-                List<TokenType> tokenPath = collectTokenPath(basePsiElement, element);
-                LeafElementType[] nextLeafs = oneOfElementType.extension.nextLeafs(tokenPath);
-                context.addCompletionCandidates(Arrays.asList(nextLeafs));
-                if (context.hasCompletionCandidates()) return;
+            if (elementType instanceof OneOfElementType oneOfElementType) {
+                if (oneOfElementType.extension != null) {
+                    List<TokenType> tokenPath = collectTokenPath(basePsiElement, source);
+                    LeafElementType[] nextLeafs = oneOfElementType.extension.nextLeafs(tokenPath);
+                    context.addCompletionCandidates(Arrays.asList(nextLeafs));
+                }
             }
-            parent = parent.getParent();
+            if (elementType.is(STATEMENT) || elementType.is(SCOPE_ISOLATION)) return;
+            element = element.getParent();
         }
     }
 
