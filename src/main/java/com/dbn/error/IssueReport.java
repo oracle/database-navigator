@@ -57,6 +57,7 @@ public class IssueReport {
     private String summary;
     private String description;
     private String clientId;
+    private List<String> thirdPartyPlugins = new ArrayList<>();
     private List<Attachment> attachments = new ArrayList<>();
     private List<String> labels = new ArrayList<>();
 
@@ -102,6 +103,12 @@ public class IssueReport {
 
     public String getDatabaseDriver() {
         return nvl(databaseDriver, NA);
+    }
+
+    public String getThirdPartyPluginIds() {
+        return thirdPartyPlugins.isEmpty() ?
+                NA :
+                String.join("\n", thirdPartyPlugins);
     }
 
     public String getLastActionId() {

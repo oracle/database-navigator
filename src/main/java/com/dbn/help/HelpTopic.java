@@ -16,9 +16,9 @@
 
 package com.dbn.help;
 
-import com.dbn.DatabaseNavigator;
 import com.dbn.common.constant.Constant;
 import com.dbn.common.constant.Constants;
+import com.dbn.common.util.Plugins;
 import lombok.Getter;
 import org.jetbrains.annotations.NonNls;
 
@@ -74,7 +74,7 @@ public enum HelpTopic implements Constant<HelpTopic> {
     //...
     ;
 
-    public static final String ID_PREFIX = DatabaseNavigator.DBN_PLUGIN_ID + ".";
+    public static final String ID_PREFIX = Plugins.DBN_PLUGIN_ID + ".";
     private final String path;
 
     HelpTopic(@NonNls String path) {
