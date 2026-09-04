@@ -25,7 +25,7 @@ import com.dbn.common.checksum.Checksum;
 import java.io.File;
 
 import static com.dbn.common.approval.UserApprovalAction.PASSWORD_ENVIRONMENT_VARIABLE;
-import static com.dbn.common.checksum.Checksum.fromFileAttributes;
+import static com.dbn.common.checksum.Checksum.fromFileContent;
 import static com.dbn.common.checksum.ChecksumType.SHA_256;
 import static com.dbn.common.util.Executables.resolveExecutableFile;
 import static com.dbn.nls.NlsResources.txt;
@@ -85,7 +85,7 @@ public class CmdLineEnvPasswordApprovalAdapter implements UserApprovalAdapter<Cm
 
         String executableSignature = executableFile == null ?
                 "path:" + executablePath :
-                "file:" + executableFile.getPath() + ":" + fromFileAttributes(executableFile, SHA_256);
+                "file:" + executableFile.getPath() + ":" + fromFileContent(executableFile, SHA_256);
 
         return Checksum.fromStringContent(getDatabaseType(cmdLineInterface) + ":" + executableSignature, SHA_256);
     }

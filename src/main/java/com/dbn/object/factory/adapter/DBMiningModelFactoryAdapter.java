@@ -29,9 +29,9 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.factory.ObjectFactoryAdapter;
 import com.dbn.object.factory.model.DBObjectSpec;
-import com.dbn.object.factory.ui.DBAIModelFactoryInputForm;
+import com.dbn.object.factory.ui.DBMiningModelFactoryInputForm;
 import com.dbn.object.lookup.DBObjectRef;
-import com.dbn.object.type.DBAIModelSourceType;
+import com.dbn.object.type.DBMiningModelSourceType;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.progress.ProgressIndicator;
 
@@ -47,28 +47,28 @@ import java.util.List;
 import static com.dbn.common.Priority.MEDIUM;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
-import static com.dbn.object.factory.model.DBObjectAttributeType.AI_MODEL_CREDENTIAL;
-import static com.dbn.object.factory.model.DBObjectAttributeType.AI_MODEL_SOURCE_LOCATION;
-import static com.dbn.object.factory.model.DBObjectAttributeType.AI_MODEL_SOURCE_TYPE;
-import static com.dbn.object.type.DBAIModelSourceType.MODEL_FILE;
-import static com.dbn.object.type.DBObjectType.AI_MODEL;
+import static com.dbn.object.factory.model.DBObjectAttributeType.MINING_MODEL_CREDENTIAL;
+import static com.dbn.object.factory.model.DBObjectAttributeType.MINING_MODEL_SOURCE_LOCATION;
+import static com.dbn.object.factory.model.DBObjectAttributeType.MINING_MODEL_SOURCE_TYPE;
+import static com.dbn.object.type.DBMiningModelSourceType.MODEL_FILE;
+import static com.dbn.object.type.DBObjectType.MINING_MODEL;
 
-public class DBAIModelFactoryAdapter implements ObjectFactoryAdapter {
+public class DBMiningModelFactoryAdapter implements ObjectFactoryAdapter {
 
     @Override
     public DBObjectType getObjectType() {
-        return AI_MODEL;
+        return MINING_MODEL;
     }
 
     @Override
     public DBObjectSpec createInput(DBSchema schema) {
-        DBObjectSpec input = new DBObjectSpec(schema, AI_MODEL);
-        input.setAttributeValue(AI_MODEL_SOURCE_TYPE, MODEL_FILE);
+        DBObjectSpec input = new DBObjectSpec(schema, MINING_MODEL);
+        input.setAttributeValue(MINING_MODEL_SOURCE_TYPE, MODEL_FILE);
         return input;
     }
 
-    public DBAIModelFactoryInputForm createInputForm(DBNComponent parent, DBObjectSpec input) {
-        return new DBAIModelFactoryInputForm(parent, input);
+    public DBMiningModelFactoryInputForm createInputForm(DBNComponent parent, DBObjectSpec input) {
+        return new DBMiningModelFactoryInputForm(parent, input);
     }
 
     @Override
@@ -78,7 +78,7 @@ public class DBAIModelFactoryAdapter implements ObjectFactoryAdapter {
 
     @Override
     public void createObject(DBObjectSpec input) throws SQLException {
-        DBAIModelSourceType modelSourceType = AI_MODEL_SOURCE_TYPE.of(input);
+        DBMiningModelSourceType modelSourceType = MINING_MODEL_SOURCE_TYPE.of(input);
 
         DBObjectType objectType = input.getObjectType();
         DBSchema schema = input.getSchema();
@@ -94,8 +94,8 @@ public class DBAIModelFactoryAdapter implements ObjectFactoryAdapter {
                 connectionId,
                 conn -> {
                     DatabaseVectorInterface dataDefinition = schema.getVectorInterface();
-                    if (modelSourceType == DBAIModelSourceType.OBJECT_STORAGE) {
-                        String modelLocation = AI_MODEL_SOURCE_LOCATION.of(input);
+                    if (modelSourceType == DBMiningModelSourceType.OBJECT_STORAGE) {
+                        String modelLocation = MINING_MODEL_SOURCE_LOCATION.of(input);
                         String credentialName = getCredentialName(input);
                         dataDefinition.createModelFromStorage(conn,
                                 input.getSchemaName(true),
@@ -103,7 +103,7 @@ public class DBAIModelFactoryAdapter implements ObjectFactoryAdapter {
                                 modelLocation,
                                 credentialName);
 
-                    } else if (modelSourceType == DBAIModelSourceType.MODEL_FILE) {
+                    } else if (modelSourceType == DBMiningModelSourceType.MODEL_FILE) {
                         Blob modelBlob = uploadOnnxModel(conn, input, progress);
                         dataDefinition.createModelFromFile(conn,
                                 input.getSchemaName(true),
@@ -115,18 +115,18 @@ public class DBAIModelFactoryAdapter implements ObjectFactoryAdapter {
                     }
                 });
 
-        ObjectChangeEvent.notify(CREATE, AI_MODEL, connectionId, schemaId);
+        ObjectChangeEvent.notify(CREATE, MINING_MODEL, connectionId, schemaId);
     }
 
     private static String getCredentialName(DBObjectSpec input) {
-        return DBObjectRef.getQualifiedObjectName(AI_MODEL_CREDENTIAL.of(input));
+        return DBObjectRef.getQualifiedObjectName(MINING_MODEL_CREDENTIAL.of(input));
     }
 
     private Blob uploadOnnxModel(
             DBNConnection conn,
             DBObjectSpec input,
             ProgressIndicator progress) throws SQLException {
-        File modelFile = new File(AI_MODEL_SOURCE_LOCATION.of(input));
+        File modelFile = new File(MINING_MODEL_SOURCE_LOCATION.of(input));
         long fileSize = modelFile.length();
         double totalMB = fileSize / (1024.0 * 1024.0);
 

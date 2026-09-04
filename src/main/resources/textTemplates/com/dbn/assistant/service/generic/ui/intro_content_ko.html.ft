@@ -19,14 +19,14 @@ DB Assistant를 사용하려면 다음 필수 조건이 충족되어 있는지 �
     <li><b>API 자격 증명</b> - 선택한 LLM 제공자의 API 키를 입력하세요(예: OpenAI, Cohere, Anthropic 또는 지원되는 다른 공개 API).</li>
     <li><b>AI 프로파일</b> - 객관성과 창의성의 균형 조정 또는 특정 지침 추가 등 언어 모델의 동작을 맞춤화할 사용자 지정 AI 프로파일을 생성하세요.</li>
 </ul>
-자세한 설정 지침은 Oracle® Database Navigator 설명서를 참조하세요.
+자세한 설정 지침은 Oracle Database Navigator 설명서를 참조하세요.
 
 <br>
 <br>
 <br>
 <b>참고</b><br>
 이 기능은 실험적 기능입니다. 출력 정확도는 선택한 언어 모델, 데이터베이스 접근 권한 및 기타 요인에 따라 달라질 수 있습니다.
-출력을 신중하게 검증하고, 이 기능 개선에 도움이 되도록 문제를 Oracle® Database Navigator 개발 팀에 보고하세요.
+출력을 신중하게 검증하고, 이 기능 개선에 도움이 되도록 문제를 Oracle Database Navigator 개발 팀에 보고하세요.
 </body>
 </html>
 

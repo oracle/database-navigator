@@ -436,7 +436,7 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
             }
 
             String databaseUrl = urlPattern.buildUrl(databaseInfo, configProviderInfo);
-            databaseInfo.setDatabase(databaseUrl);
+            databaseInfo.setUrl(databaseUrl);
         }
 
         driverSource  = getEnum(element, "driver-source", driverSource);

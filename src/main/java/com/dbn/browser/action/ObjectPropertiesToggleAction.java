@@ -17,6 +17,7 @@
 package com.dbn.browser.action;
 
 import com.dbn.browser.DatabaseBrowserManager;
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.action.ToggleAction;
 import com.dbn.common.icon.Icons;
@@ -28,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
 
+@BackgroundUpdate
 public class ObjectPropertiesToggleAction extends ToggleAction implements DumbAware {
     public ObjectPropertiesToggleAction() {
         super(txt("app.browser.action.ShowObjectProperties"), null, Icons.BROWSER_OBJECT_PROPERTIES);

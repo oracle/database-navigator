@@ -119,10 +119,18 @@ public class PsiUtil {
     public static BasePsiElement resolveAliasedEntityElement(IdentifierPsiElement aliasElement) {
         PsiElement psiElement = aliasElement.isReference() ? aliasElement.resolve() : aliasElement; 
         if (psiElement instanceof BasePsiElement basePsiElement) {
-            BasePsiElement scope = basePsiElement.findEnclosingNamedElement();
-
             DBObjectType objectType = aliasElement.getObjectType();
             BasePsiElement objectPsiElement = null;
+
+            // previous leaf lookup
+            LeafPsiElement previousLeaf = basePsiElement.getPrevLeaf();
+            if (previousLeaf instanceof IdentifierPsiElement identifierPsiElement) {
+                if (identifierPsiElement.isObject() && identifierPsiElement.getObjectType() == objectType) {
+                    return identifierPsiElement;
+                }
+            }
+
+            BasePsiElement<?> scope = basePsiElement.findEnclosingNamedElement();
             if (scope != null) {
                 IdentifierLookupAdapter lookupInput = new IdentifierLookupAdapter(aliasElement, null, null, objectType, null);
 
@@ -133,9 +141,9 @@ public class PsiUtil {
                         objectPsiElement = lookupInput.findInScope(scope);
                     }
                 }
-            }
 
-            if (objectPsiElement != null) {
+                if (objectPsiElement == null) return null;
+
                 SetCollector<BasePsiElement> virtualObjectPsiElements = SetCollector.linked();
                 scope.collectVirtualObjectPsiElements(objectType, virtualObjectPsiElements);
                 for (BasePsiElement virtualObjectPsiElement : virtualObjectPsiElements.elements()) {
@@ -144,7 +152,6 @@ public class PsiUtil {
 
                 }
             }
-
             return objectPsiElement;
 
         }

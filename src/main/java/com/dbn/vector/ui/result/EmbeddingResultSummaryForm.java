@@ -62,7 +62,7 @@ import static com.dbn.common.text.TextContent.html;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.Buttons.onButtonClick;
 import static com.dbn.common.util.TimeUtil.presentableDuration;
-import static com.dbn.object.type.DBObjectType.AI_MODEL;
+import static com.dbn.object.type.DBObjectType.MINING_MODEL;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
 import static com.dbn.object.type.DBObjectType.TABLE;
 import static com.dbn.vector.model.request.EmbeddingModelLocation.IN_DATABASE_MODEL;
@@ -203,7 +203,7 @@ public class EmbeddingResultSummaryForm extends DBNFormBase {
                 destinationConfig.getTableName(),
                 TABLE));
 
-        embeddingModelHyperlinkLabel.setIcon(Icons.DBO_AI_MODEL);
+        embeddingModelHyperlinkLabel.setIcon(Icons.DBO_MINING_MODEL);
         embeddingModelHyperlinkLabel.setHyperlinkText(request.getModelConfig().getDatabaseModelConfig().getQualifiedModelName());
         embeddingModelHyperlinkLabel.addHyperlinkListener(e -> navigateToModel());
     }
@@ -216,7 +216,7 @@ public class EmbeddingResultSummaryForm extends DBNFormBase {
         navigateToObject(
                 databaseModelConfig.getSchemaName(),
                 databaseModelConfig.getModelName(),
-                AI_MODEL);
+                MINING_MODEL);
     }
 
     private void navigateToObject(String schemaName, String objectName, DBObjectType objectType) {
