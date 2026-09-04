@@ -1,14 +1,14 @@
 package com.dbn.database.common.metadata.impl;
 
 import com.dbn.database.common.metadata.DBObjectMetadataBase;
-import com.dbn.database.common.metadata.def.DBAIModelMetadata;
+import com.dbn.database.common.metadata.def.DBMiningModelMetadata;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public  class DBAIModelMetaDataImpl extends DBObjectMetadataBase implements DBAIModelMetadata {
+public  class DBMiningModelMetaDataImpl extends DBObjectMetadataBase implements DBMiningModelMetadata {
 
-    public DBAIModelMetaDataImpl(ResultSet resultSet) {
+    public DBMiningModelMetaDataImpl(ResultSet resultSet) {
         super(resultSet);
     }
 

@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
+import static com.dbn.assistant.tool.AssistantToolContents.prepareUntrustedDatabaseContent;
 import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 
 @NonNls
@@ -113,7 +114,7 @@ public abstract class AssistantToolBase extends ConnectionComponent implements A
     protected static String loadObjectSourceCode(DBSchemaObject object, DBContentType contentType) throws SQLException {
         SourceCodeManager sourceCodeManager = SourceCodeManager.getInstance(object.getProject());
         SourceCodeContent sourceCode = sourceCodeManager.loadSourceFromDatabase(object, contentType);
-        return sourceCode.getRawContent();
+        return prepareUntrustedDatabaseContent(sourceCode.getRawContent());
     }
 
     protected static void openEditor(DBObject object) {

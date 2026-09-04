@@ -82,6 +82,9 @@ public class SequenceElementTypeParser<E extends SequenceElementType> extends El
                         result = element.elementType.parser.parse(node, context);
 
                         if (result.type != NO_MATCH) {
+                            if (element.branch != null) {
+                                context.addBranchMarker(node, element.branch);
+                            }
                             node.matchedTokens += result.matchedTokens;
                             node.matchedElements++;
                         }

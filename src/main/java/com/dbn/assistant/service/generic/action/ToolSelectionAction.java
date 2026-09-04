@@ -23,6 +23,7 @@ import com.dbn.assistant.tool.AssistantToolCategory;
 import com.dbn.assistant.tool.AssistantToolData;
 import com.dbn.assistant.tool.AssistantToolType;
 import com.dbn.assistant.tool.approval.AssistantToolApprovals;
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ComboBoxAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
@@ -37,6 +38,7 @@ import java.util.List;
 import static com.dbn.assistant.chat.ChatAvailability.AVAILABLE;
 import static com.dbn.nls.NlsResources.txt;
 
+@BackgroundUpdate
 public class ToolSelectionAction extends ComboBoxAction implements AssistantActionSupport {
 
     public ToolSelectionAction() {

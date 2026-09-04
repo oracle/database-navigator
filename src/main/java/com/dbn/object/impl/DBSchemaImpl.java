@@ -28,7 +28,6 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.DatabaseEntity;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.common.metadata.def.DBSchemaMetadata;
-import com.dbn.object.DBAIModel;
 import com.dbn.object.DBAIProfile;
 import com.dbn.object.DBCluster;
 import com.dbn.object.DBColumn;
@@ -48,6 +47,7 @@ import com.dbn.object.DBJavaResource;
 import com.dbn.object.DBJsonView;
 import com.dbn.object.DBMaterializedView;
 import com.dbn.object.DBMethod;
+import com.dbn.object.DBMiningModel;
 import com.dbn.object.DBPackage;
 import com.dbn.object.DBProcedure;
 import com.dbn.object.DBProgram;
@@ -99,7 +99,6 @@ import static com.dbn.object.type.DBObjectRelationType.COLUMN_COLUMN;
 import static com.dbn.object.type.DBObjectRelationType.CONSTRAINT_COLUMN;
 import static com.dbn.object.type.DBObjectRelationType.INDEX_COLUMN;
 import static com.dbn.object.type.DBObjectRelationType.JSON_VIEW_TABLE;
-import static com.dbn.object.type.DBObjectType.AI_MODEL;
 import static com.dbn.object.type.DBObjectType.AI_PROFILE;
 import static com.dbn.object.type.DBObjectType.ANY;
 import static com.dbn.object.type.DBObjectType.ARGUMENT;
@@ -123,6 +122,7 @@ import static com.dbn.object.type.DBObjectType.JAVA_PRIMITIVE;
 import static com.dbn.object.type.DBObjectType.JAVA_RESOURCE;
 import static com.dbn.object.type.DBObjectType.JSON_VIEW;
 import static com.dbn.object.type.DBObjectType.MATERIALIZED_VIEW;
+import static com.dbn.object.type.DBObjectType.MINING_MODEL;
 import static com.dbn.object.type.DBObjectType.NESTED_TABLE;
 import static com.dbn.object.type.DBObjectType.PACKAGE;
 import static com.dbn.object.type.DBObjectType.PACKAGE_FUNCTION;
@@ -180,7 +180,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
         childObjects.createObjectList(DBLINK,            this);
         childObjects.createObjectList(CREDENTIAL,        this);
         childObjects.createObjectList(AI_PROFILE,        this);
-        childObjects.createObjectList(AI_MODEL,          this);
+        childObjects.createObjectList(MINING_MODEL,          this);
         childObjects.createObjectList(DATASOURCE_CONFIG, this);
         DBObjectList<DBConstraint> constraints = childObjects.createObjectList(CONSTRAINT, this, INTERNAL, GROUPED);
         DBObjectList<DBIndex> indexes          = childObjects.createObjectList(INDEX,      this, INTERNAL, GROUPED);
@@ -395,8 +395,8 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
     }
 
     @Override
-    public List<DBAIModel> getAIModels() {
-        return getChildObjects(AI_MODEL);
+    public List<DBMiningModel> getAIModels() {
+        return getChildObjects(MINING_MODEL);
     }
 
 
@@ -472,8 +472,8 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
     }
 
     @Override
-    public DBAIModel getAIModel(String name) {
-        return getChildObject(AI_MODEL, name);
+    public DBMiningModel getAIModel(String name) {
+        return getChildObject(MINING_MODEL, name);
     }
 
     @Override
@@ -693,7 +693,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
                 getChildObjectList(DBLINK),
                 getChildObjectList(CREDENTIAL),
                 getChildObjectList(AI_PROFILE),
-                getChildObjectList(AI_MODEL),
+                getChildObjectList(MINING_MODEL),
                 getChildObjectList(DATASOURCE_CONFIG));
     }
 
@@ -719,7 +719,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
             settings.isVisible(DBLINK) ||
             settings.isVisible(CREDENTIAL) ||
             settings.isVisible(AI_PROFILE) ||
-            settings.isVisible(AI_MODEL) ||
+            settings.isVisible(MINING_MODEL) ||
             settings.isVisible(DATASOURCE_CONFIG);
     }
 }

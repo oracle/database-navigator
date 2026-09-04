@@ -156,16 +156,16 @@ public class LargeValuePreviewPopup extends DBNFormBase {
         Object userValue = userValueHolder.getUserValue();
         if (userValue instanceof LargeObjectValue largeObjectValue) {
             try {
-                text = initial ?
-                        largeObjectValue.read(INITIAL_MAX_SIZE) :
-                        largeObjectValue.read();
+                int maxSize = initial ? INITIAL_MAX_SIZE : LargeObjectValue.MAX_READ_SIZE;
+                text = largeObjectValue.read(maxSize);
                 text = Commons.nvl(text, "");
 
-                long contentSize = largeObjectValue.size();
-                if (initial && contentSize > INITIAL_MAX_SIZE) {
-                    contentInfoText = txt("app.data.text.LargeValueInfoPartial", getNumberOfLines(text), INITIAL_MAX_SIZE);
-                    loadContentVisible = true;
-                    loadContentCaption = txt("app.data.action.LoadEntireContent");
+                if (largeObjectValue.isTruncated()) {
+                    contentInfoText = txt("app.data.text.LargeValueInfoPartial", getNumberOfLines(text), text.length());
+                    loadContentVisible = initial;
+                    if (loadContentVisible) {
+                        loadContentCaption = txt("app.data.action.LoadEntireContent");
+                    }
                 } else {
                     contentInfoText = txt("app.data.text.LargeValueInfo", getNumberOfLines(text), text.length());
                     loadContentVisible = false;

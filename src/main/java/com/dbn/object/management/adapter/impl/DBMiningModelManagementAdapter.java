@@ -3,23 +3,23 @@ package com.dbn.object.management.adapter.impl;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseVectorInterface;
-import com.dbn.object.DBAIModel;
+import com.dbn.object.DBMiningModel;
 import com.dbn.object.management.ObjectManagementAdapterBase;
 import com.dbn.object.type.DBObjectType;
 
 import java.sql.SQLException;
 
 import static com.dbn.common.constant.Constant.array;
-import static com.dbn.object.type.DBObjectType.AI_MODEL;
+import static com.dbn.object.type.DBObjectType.MINING_MODEL;
 
-public class DBAIModelManagementAdapter extends ObjectManagementAdapterBase<DBAIModel> {
+public class DBMiningModelManagementAdapter extends ObjectManagementAdapterBase<DBMiningModel> {
     @Override
     public DBObjectType[] getObjectTypes() {
-        return array(AI_MODEL);
+        return array(MINING_MODEL);
     }
 
     @Override
-    protected void createObject(ConnectionHandler connection, DBNConnection conn, DBAIModel object) throws SQLException {
+    protected void createObject(ConnectionHandler connection, DBNConnection conn, DBMiningModel object) throws SQLException {
 //        DatabaseVectorInterface databaseInterface = connection.getAssistantInterface();
 //        String profileName = object.getName(true);
 //        String profileOwner = object.getSchemaName(true);
@@ -38,7 +38,7 @@ public class DBAIModelManagementAdapter extends ObjectManagementAdapterBase<DBAI
     }
 
     @Override
-    protected void updateObject(ConnectionHandler connection, DBNConnection conn, DBAIModel object) throws SQLException {
+    protected void updateObject(ConnectionHandler connection, DBNConnection conn, DBMiningModel object) throws SQLException {
 //        DatabaseAssistantInterface databaseInterface = connection.getAssistantInterface();
 //        String profileName = object.getName(true);
 //        String profileOwner = object.getSchemaName(true);
@@ -54,7 +54,7 @@ public class DBAIModelManagementAdapter extends ObjectManagementAdapterBase<DBAI
     }
 
     @Override
-    protected void deleteObject(ConnectionHandler connection, DBNConnection conn, DBAIModel object) throws SQLException {
+    protected void deleteObject(ConnectionHandler connection, DBNConnection conn, DBMiningModel object) throws SQLException {
         DatabaseVectorInterface vectorInterface = connection.getVectorInterface();
         vectorInterface.dropModel(conn,
                 object.getSchemaName(true),
@@ -62,7 +62,7 @@ public class DBAIModelManagementAdapter extends ObjectManagementAdapterBase<DBAI
     }
 
     @Override
-    protected void enableObject(ConnectionHandler connection, DBNConnection conn, DBAIModel object) throws SQLException {
+    protected void enableObject(ConnectionHandler connection, DBNConnection conn, DBMiningModel object) throws SQLException {
 //        DatabaseAssistantInterface databaseInterface = connection.getAssistantInterface();
 //        databaseInterface.enableProfile(conn,
 //                object.getSchemaName(true),
@@ -70,7 +70,7 @@ public class DBAIModelManagementAdapter extends ObjectManagementAdapterBase<DBAI
     }
 
     @Override
-    protected void disableObject(ConnectionHandler connection, DBNConnection conn, DBAIModel object) throws SQLException {
+    protected void disableObject(ConnectionHandler connection, DBNConnection conn, DBMiningModel object) throws SQLException {
 //        DatabaseAssistantInterface databaseInterface = connection.getAssistantInterface();
 //        databaseInterface.disableProfile(conn,
 //                object.getSchemaName(true),
