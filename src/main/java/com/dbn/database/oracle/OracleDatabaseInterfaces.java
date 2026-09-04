@@ -43,6 +43,7 @@ public class OracleDatabaseInterfaces extends DatabaseInterfacesBase {
     @Override
     protected DatabaseInterface createInterface(DatabaseInterfaceType interfaceType) {
         return switch (interfaceType) {
+            case DRIVER -> new OracleDriverInterface();
             case MESSAGE_PARSER -> new OracleMessageParserInterface();
             case ENVIRONMENT -> new OracleEnvironmentInterface();
             case COMPATIBILITY -> new OracleCompatibilityInterface();

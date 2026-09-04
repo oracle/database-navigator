@@ -180,7 +180,7 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         DBSchema schema = connection.getUserSchema();
         if (schema == null) return connection;
 
-        return new DBObjectRef<>(schema.ref(), DBObjectType.AI_MODEL, modelName);
+        return new DBObjectRef<>(schema.ref(), DBObjectType.MINING_MODEL, modelName);
     }
 
     private void initializeMetricsCards() {

@@ -239,7 +239,16 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
     }
 
     public void setAuthenticationTypes(AuthenticationType ...  authenticationTypes) {
+        AuthenticationType authenticationType = getAuthenticationType();
         initComboBox(authTypeComboBox, authenticationTypes);
+        if (authenticationType != null && authenticationType.isOneOf(authenticationTypes)) {
+            setSelection(authTypeComboBox, authenticationType);
+        } else if (USER_PASSWORD.isOneOf(authenticationTypes)) {
+            setSelection(authTypeComboBox, USER_PASSWORD);
+        } else if (authenticationTypes.length > 0) {
+            setSelection(authTypeComboBox, authenticationTypes[0]);
+        }
+        updateFieldAvailability();
     }
 
     public void addChangeListeners(Runnable runnable) {

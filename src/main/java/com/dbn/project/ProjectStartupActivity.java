@@ -18,6 +18,7 @@ package com.dbn.project;
 
 import com.dbn.DatabaseNavigator;
 import com.dbn.assistant.DatabaseAssistantManager;
+import com.dbn.browser.DatabaseBrowserManager;
 import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.state.StateEncryption;
 import com.dbn.connection.config.ConnectionBundleSettings;
@@ -40,6 +41,7 @@ public class ProjectStartupActivity implements ProjectActivity {
     public Object execute(@NotNull Project project, @NotNull Continuation<? super Unit> continuation) {
         DatabaseNavigator.getInstance();
         ConnectionBundleSettings.getInstance(project);
+        DatabaseBrowserManager.getInstance(project);
         DatabaseAssistantManager.getInstance(project);
         ProjectComponentsInitializer.getInstance(project);
         ProjectWorkspaceSettingsManager.getInstance(project);

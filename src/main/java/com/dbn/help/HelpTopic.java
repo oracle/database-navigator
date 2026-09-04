@@ -70,6 +70,7 @@ public enum HelpTopic implements Constant<HelpTopic> {
     SCRIPT_EXECUTION_SETUP("creating-command-line-interfaces-databases.html"),
     DATABASE_ASSISTANT_AI_PROFILES("creating-ai-profiles-oracle-select-ai.html"),
     DATABASE_ASSISTANT_CREDENTIALS("creating-credentials-oracle-select-ai.html"),
+    MCP_SERVER_BUILDER("building-mcp-server.html"),
     //...
     ;
 

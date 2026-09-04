@@ -72,6 +72,7 @@ public class DriverDownloadDialog extends DBNDialog<DriverDownloadForm> {
         DriverDownloadForm form = getForm();
         DriverPackage driverPackage = getSelection(form.libraryPackageComboBox);
         if (driverPackage == null) return;
+        if (!driverPackage.isDetailsAvailable()) return;
 
         String downloadPath = getSelectedDownloadPath();
 
@@ -94,5 +95,9 @@ public class DriverDownloadDialog extends DBNDialog<DriverDownloadForm> {
 
     public String getSelectedDownloadPath() {
         return getForm().libraryPathTextField.getText();
+    }
+
+    void setDownloadEnabled(boolean enabled) {
+        getOKAction().setEnabled(enabled);
     }
 }

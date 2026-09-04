@@ -76,7 +76,7 @@ public class EventRegistrationsForm extends DBNFormBase {
         return event -> when(event.getConnectionId() == getConnectionId(), () -> refresh());
     }
 
-    private @Nullable ConnectionId getConnectionId() {
+    public @Nullable ConnectionId getConnectionId() {
         return registrationsTable.getModel().getConnectionId();
     }
 

@@ -270,7 +270,7 @@ public class ProfileManagementForm extends DBNFormBase {
         return connection.ensure();
     }
 
-    private @NotNull ConnectionId getConnectionId() {
+    public @NotNull ConnectionId getConnectionId() {
         return getConnection().getConnectionId();
     }
 

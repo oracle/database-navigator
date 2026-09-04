@@ -30,7 +30,7 @@
     <statement-execution-processor id="connect-jdwp-session" timeout="60">
         <statement>
             begin
-                SYS.DBMS_DEBUG_JDWP.connect_tcp('{0}', '{1}');
+                SYS.DBMS_DEBUG_JDWP.connect_tcp({#0}, {#1});
             end;
         </statement>
     </statement-execution-processor>
@@ -69,7 +69,7 @@
         <statement>
             declare
             begin
-                SYS.DBMS_DEBUG.attach_session('{0}', SYS.DBMS_DEBUG.diagnostic_level);
+                SYS.DBMS_DEBUG.attach_session({#0}, SYS.DBMS_DEBUG.diagnostic_level);
             end;
         </statement>
     </statement-execution-processor>
@@ -266,7 +266,7 @@
                 v_message VARCHAR2(100);
             begin
 
-                v_program_type := '{2}';
+                v_program_type := {$2};
 
                 v_program_info.namespace :=
                     case v_program_type
@@ -277,8 +277,8 @@
                         else SYS.DBMS_DEBUG.namespace_none
                     end;
 
-                v_program_info.owner := '{0}';
-                v_program_info.name := '{1}';
+                v_program_info.owner := {$0};
+                v_program_info.name := {$1};
                 v_program_info.line# := {3};
 
                 v_result := SYS.DBMS_DEBUG.set_breakpoint(
@@ -508,7 +508,7 @@
                 v_frame BINARY_INTEGER;
             begin
                 v_frame := {1};
-                v_result := SYS.DBMS_DEBUG.get_value('{0}', v_frame, v_scalar_value, null);
+                v_result := SYS.DBMS_DEBUG.get_value({#0}, v_frame, v_scalar_value, null);
             
                 ? := v_scalar_value;
 
@@ -532,7 +532,7 @@
                 v_result BINARY_INTEGER;
                 v_message VARCHAR2(100);
             begin
-                v_assignment_statement := '{1} := ''{2}'';';
+                v_assignment_statement := {$1} || ' := ' || {$2} || ';';
 
                 v_result := SYS.DBMS_DEBUG.set_value({0}, v_assignment_statement);
 

@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.dbn.common.exception.Exceptions.unwrap;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Unsafe.cast;
 
@@ -64,7 +65,11 @@ public class Reflection {
 
     @SneakyThrows
     public static <T> T invokeMethod(Object object, Method method, Object... args) {
-        return cast(method.invoke(object, args));
+        try {
+            return cast(method.invoke(object, args));
+        } catch (Throwable e) {
+            throw unwrap(e);
+        }
     }
 
     @SneakyThrows

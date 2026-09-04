@@ -109,7 +109,7 @@ public class MLPipelineExecutor {
     }
 
     private void refreshModelObjects(ConnectionHandler connectionHandler) {
-        DBObjectUtil.refreshUserObjects(connectionHandler.getConnectionId(), DBObjectType.AI_MODEL);
+        DBObjectUtil.refreshUserObjects(connectionHandler.getConnectionId(), DBObjectType.MINING_MODEL);
         DBObjectUtil.refreshUserObjects(connectionHandler.getConnectionId(), DBObjectType.VIEW);
     }
 

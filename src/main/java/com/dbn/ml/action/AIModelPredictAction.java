@@ -18,7 +18,7 @@ package com.dbn.ml.action;
 
 import com.dbn.common.icon.Icons;
 import com.dbn.ml.DatabaseMLManager;
-import com.dbn.object.DBAIModel;
+import com.dbn.object.DBMiningModel;
 import com.dbn.object.action.AnObjectAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -35,19 +35,19 @@ import static com.dbn.nls.NlsResources.txt;
  *
  * @author ayoub allali
  */
-public class AIModelPredictAction extends AnObjectAction<DBAIModel> {
+public class AIModelPredictAction extends AnObjectAction<DBMiningModel> {
 
-    public AIModelPredictAction(@NotNull DBAIModel model) {
+    public AIModelPredictAction(@NotNull DBMiningModel model) {
         super(model);
     }
 
     @Override
-    protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DBAIModel model) {
+    protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DBMiningModel model) {
         DatabaseMLManager.getInstance(project).openPredictionDialog(model.getConnection(), model.getName(), null);
     }
 
     @Override
-    protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DBAIModel target) {
+    protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DBMiningModel target) {
         presentation.setText(txt("app.machineLearning.action.Predict"));
         presentation.setIcon(Icons.ACTION_EXECUTE);
         presentation.setVisible(target != null);

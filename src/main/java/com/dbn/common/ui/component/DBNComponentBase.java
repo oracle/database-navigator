@@ -25,16 +25,21 @@ import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.UserDataHolder;
+import com.intellij.openapi.util.UserDataHolderBase;
+import lombok.experimental.Delegate;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class DBNComponentBase extends StatefulDisposableBase implements DBNComponent {
     private final ProjectRef project;
     private WeakRef<Disposable> parent;
+    private final @Delegate UserDataHolder userDataHolder = new UserDataHolderBase();
 
     public DBNComponentBase(@Nullable Disposable parent) {
         this.parent = WeakRef.of(parent);
         this.project = null;
 
+        inheritConnection(parent);
         registerDisposable(parent);
     }
 
@@ -42,12 +47,22 @@ public abstract class DBNComponentBase extends StatefulDisposableBase implements
     public DBNComponentBase(Disposable parent, @Nullable Project project) {
         this.parent = WeakRef.of(parent);
         this.project = ProjectRef.of(project);
+
+        inheritConnection(parent);
         registerDisposable(parent);
     }
 
     public final void setParent(Disposable parent) {
         this.parent = WeakRef.of(parent);
+
+        inheritConnection(parent);
         registerDisposable(parent);
+    }
+
+    private void inheritConnection(Disposable parent) {
+        if (parent instanceof DBNComponent component) {
+            inheritConnection(component);
+        }
     }
 
     private void registerDisposable(Disposable parent) {

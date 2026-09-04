@@ -92,15 +92,14 @@ public final class ConnectionRef implements Reference<ConnectionHandler>, Identi
 
     @Contract("null -> null;!null -> !null;")
     public static ConnectionRef of(@Nullable ConnectionHandler connection) {
-        if (connection != null) {
-            ConnectionRef ref = ConnectionRef.of(connection.getConnectionId());
-            ConnectionHandler local = ref.reference();
-            if (local == null || local != connection) {
-                ref.reference = WeakRef.of(connection);
-            }
-            return ref;
+        if (connection == null) return null;
+
+        ConnectionRef ref = ConnectionRef.of(connection.getConnectionId());
+        ConnectionHandler local = ref.reference();
+        if (local == null || local != connection) {
+            ref.reference = WeakRef.of(connection);
         }
-        return null;
+        return ref;
     }
 
     @NotNull

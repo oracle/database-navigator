@@ -27,6 +27,7 @@ import com.dbn.common.util.Chars;
 import com.dbn.common.util.Strings;
 import com.intellij.openapi.options.ConfigurationException;
 
+import static com.dbn.common.ui.util.PasswordFields.getPasswordPlaceholder;
 import static com.dbn.nls.NlsResources.txt;
 
 public class AssistantCredentialsTableModel extends DBNEntityEditableTableModel<AssistantCredential> {
@@ -38,6 +39,14 @@ public class AssistantCredentialsTableModel extends DBNEntityEditableTableModel<
         addColumn(txt("app.assistant.column.LlmProvider"), String.class, c -> getProviderName(c.getProviderId()), null);
         addColumn(txt("app.assistant.column.User"), String.class, c -> c.getUser(), (c, v) -> c.setUser(v));
         addColumn(txt("app.assistant.column.Secret"), String.class, c -> Chars.toString(c.getSecret()), (c, v) -> c.setSecret(Chars.fromString(v)));
+    }
+
+    @Override
+    public String getPresentableValue(Object value, int column) {
+        if (column == AssistantCredentialsTableCellRenderer.SECRET_COLUMN) {
+            return getPasswordPlaceholder(value == null ? 0 : value.toString().length());
+        }
+        return value == null ? "" : value.toString();
     }
 
     private String getProviderName(AIProviderId providerId) {

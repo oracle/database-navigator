@@ -79,6 +79,7 @@ import static com.dbn.common.options.ConfigStorage.CLIPBOARD;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Splitters.makeRegular;
+import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Lists.anyMatch;
 import static com.dbn.common.util.Lists.count;
@@ -114,6 +115,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         connectionsList.setBackground(Colors.getTextFieldBackground());
         connectionsList.setBorder(Borders.EMPTY_BORDER);
         makeRegular(contentSplitPane);
+        setSplitPaneProportion(contentSplitPane, 0.25);
 
         ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBN.Connection.Settings");
         setAccessibleName(actionToolbar, txt("cfg.connections.aria.ConnectionConfigurationActions"));

@@ -112,7 +112,7 @@ public class SelectAiIntroductionForm extends DBNFormBase implements AssistantIn
         Dialogs.show(() -> new SelectAiHelpDialog(getConnection()));
     }
 
-    private @NotNull ConnectionHandler getConnection() {
+    public @NotNull ConnectionHandler getConnection() {
         return getChatBox().getConnection();
     }
 

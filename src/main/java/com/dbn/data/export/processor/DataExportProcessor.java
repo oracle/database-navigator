@@ -16,6 +16,7 @@
 
 package com.dbn.data.export.processor;
 
+import com.dbn.common.export.ExportDestination;
 import com.dbn.common.extension.ExtensionPoint;
 import com.dbn.common.locale.Formatter;
 import com.dbn.common.util.Commons;
@@ -92,7 +93,7 @@ public abstract class DataExportProcessor implements ExtensionPoint {
     public abstract DataExportFormat getFormat();
 
     void writeContent(DataExportInstructions instructions, String content) throws DataExportException {
-        if (instructions.getDestination() == DataExportInstructions.Destination.CLIPBOARD) {
+        if (instructions.getDestination() == ExportDestination.CLIPBOARD) {
             writeToClipboard(content);
         } else {
             writeToFile(instructions.getFile(), content, instructions.getCharset());

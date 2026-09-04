@@ -57,7 +57,7 @@ import static com.dbn.nls.NlsResources.txt;
 @Slf4j
 @Getter
 public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentable {
-    AI_MODEL(DatabaseObjectTypeId.AI_MODEL,"AI model","AI models", Icons.DBO_AI_MODEL, null, Icons.DBO_AI_MODELS,false),
+    MINING_MODEL(DatabaseObjectTypeId.MINING_MODEL,"mining model","mining models", Icons.DBO_MINING_MODEL, null, Icons.DBO_MINING_MODEL,false),
     AI_PROFILE(DatabaseObjectTypeId.AI_PROFILE, "AI profile", "AI profiles", Icons.DBO_AI_PROFILE, Icons.DBO_AI_PROFILE_DISABLED, Icons.DBO_AI_PROFILES, false),
     ANALYTIC_VIEW(DatabaseObjectTypeId.ANALYTIC_VIEW, "analytic view", "analytic views", null, null, null, false),
     APPLICATION(DatabaseObjectTypeId.APPLICATION, "application", "applications", null, null, null, false),
@@ -115,7 +115,6 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     METHOD(DatabaseObjectTypeId.METHOD, "method", "methods", null, null, null, true),
     MODEL(DatabaseObjectTypeId.MODEL, "model", "models", null, null, null, false),
     MODULE(DatabaseObjectTypeId.MODULE, "module", "modules", null, null, null, false),
-    MINING_MODEL(DatabaseObjectTypeId.MINING_MODEL, "mining model", "mining models", null, null, null, false),
     NESTED_TABLE(DatabaseObjectTypeId.NESTED_TABLE, "nested table", "nested tables", Icons.DBO_NESTED_TABLE, null, Icons.DBO_NESTED_TABLES, false),
     NESTED_TABLE_COLUMN(DatabaseObjectTypeId.NESTED_TABLE_COLUMN, "nested table column", "nested table columns", null, null, null, false),
     OPERATOR(DatabaseObjectTypeId.OPERATOR, "operator", "operators", null, null, null, false),
@@ -263,7 +262,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
             DBObjectType.DBLINK,
             DBObjectType.CREDENTIAL,
             DBObjectType.AI_PROFILE,
-            DBObjectType.AI_MODEL,
+            DBObjectType.MINING_MODEL,
             DBObjectType.DATASOURCE_CONFIG));
 
     DBObjectType(DatabaseObjectTypeId typeId, @NonNls String name, @NonNls String listName, Icon icon, Icon disabledIcon, Icon listIcon, boolean generic) {
@@ -495,7 +494,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     }
 
     private static void initParentRelations() {
-        AI_MODEL.addParent(SCHEMA);
+        MINING_MODEL.addParent(SCHEMA);
         AI_PROFILE.addParent(SCHEMA);
         ARGUMENT.addParent(FUNCTION);
         ARGUMENT.addParent(PROCEDURE);

@@ -36,6 +36,7 @@ public class SqlLiteralsTest {
     public void escapesQuotesInStringLiterals() {
         assertEquals("'O''Brien'", SqlLiterals.renderLiteral("O'Brien"));
         assertEquals("'x''; DROP TABLE users; --'", SqlLiterals.renderLiteral("x'; DROP TABLE users; --"));
+        assertEquals("'x'' OR 1=1 --'''", SqlLiterals.renderLiteral("x' OR 1=1 --'"));
         assertEquals("'plain'", SqlLiterals.renderLiteral("plain"));
     }
 

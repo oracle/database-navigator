@@ -50,6 +50,9 @@ public class OneOfElementTypeParser<E extends OneOfElementType> extends ElementT
             ParseResult result = candidate.elementType.parser.parse(node, context);
             if (result.type == NO_MATCH) continue;
 
+            if (candidate.branch != null) {
+                context.addBranchMarker(node, candidate.branch);
+            }
             node.matchedTokens = result.matchedTokens;
             return stepOut(node, context, result.type);
         }

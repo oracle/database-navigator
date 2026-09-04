@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.Set;
 
 import static com.dbn.common.options.setting.Settings.integerAttribute;
 import static com.dbn.common.options.setting.Settings.setIntegerAttribute;
@@ -37,8 +38,13 @@ import static com.dbn.common.util.Unsafe.cast;
 @Setter
 @NonNls
 public class EmbeddingChunkingConfig extends EmbeddingRequestConfig implements Cloneable<EmbeddingChunkingConfig> {
-    private String chunkBy = "WORDS";
-    private String splitBy = "NEWLINE";
+    private static final String DEFAULT_CHUNK_BY = "WORDS";
+    private static final String DEFAULT_SPLIT_BY = "NEWLINE";
+    public static final Set<String> CHUNK_BY_OPTIONS = Set.of("CHARACTERS", "WORDS", "NONE");
+    public static final Set<String> SPLIT_BY_OPTIONS = Set.of("NEWLINE", "SENTENCE", "RECURSIVELY", "BLANKLINE", "SPACE", "NONE");
+
+    private String chunkBy = DEFAULT_CHUNK_BY;
+    private String splitBy = DEFAULT_SPLIT_BY;
     private int maxSize = 100;
     private int overlap = 10;
 
@@ -70,10 +76,18 @@ public class EmbeddingChunkingConfig extends EmbeddingRequestConfig implements C
         if (element == null) return;
 
         super.readState(element);
-        chunkBy = stringAttribute(element, "chunk-by", chunkBy);
-        splitBy = stringAttribute(element, "split-by", splitBy);
+        chunkBy = validChunkBy(stringAttribute(element, "chunk-by", chunkBy));
+        splitBy = validSplitBy(stringAttribute(element, "split-by", splitBy));
         maxSize = integerAttribute(element, "max-size", maxSize);
         overlap = integerAttribute(element, "overlap", overlap);
+    }
+
+    private static String validChunkBy(String value) {
+        return value != null && CHUNK_BY_OPTIONS.contains(value) ? value : DEFAULT_CHUNK_BY;
+    }
+
+    private static String validSplitBy(String value) {
+        return value != null && SPLIT_BY_OPTIONS.contains(value) ? value : DEFAULT_SPLIT_BY;
     }
 
     @Override

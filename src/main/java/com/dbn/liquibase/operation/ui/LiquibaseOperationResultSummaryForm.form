@@ -3,7 +3,7 @@
   <grid id="1" binding="mainPanel" layout-manager="GridLayoutManager" row-count="4" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="437" height="525"/>
+      <xy x="20" y="20" width="437" height="600"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -19,7 +19,7 @@
         </constraints>
         <properties/>
       </component>
-      <grid id="1c16c" layout-manager="GridLayoutManager" row-count="17" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="8" vgap="-1">
+      <grid id="1c16c" layout-manager="GridLayoutManager" row-count="20" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="8" vgap="-1">
         <margin top="16" left="16" bottom="16" right="16"/>
         <constraints>
           <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -27,9 +27,60 @@
         <properties/>
         <border type="none"/>
         <children>
-          <component id="2" class="javax.swing.JLabel" binding="sourceConnectionCaptionLabel">
+          <component id="36" class="javax.swing.JLabel">
             <constraints>
               <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text resource-bundle="messages/DBNResources" key="app.liquibase.label.Workspace"/>
+            </properties>
+          </component>
+          <component id="37" class="javax.swing.JLabel" binding="workspaceLabel">
+            <constraints>
+              <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <font style="1"/>
+              <text value="[workspace]"/>
+            </properties>
+          </component>
+          <component id="38" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text resource-bundle="messages/DBNResources" key="cfg.liquibase.label.ChangelogFormat"/>
+            </properties>
+          </component>
+          <component id="39" class="javax.swing.JLabel" binding="workspaceFormatLabel">
+            <constraints>
+              <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <font style="1"/>
+              <text value="[format]"/>
+            </properties>
+          </component>
+          <component id="40" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text resource-bundle="messages/DBNResources" key="app.liquibase.label.EnvironmentProfile"/>
+            </properties>
+          </component>
+          <component id="41" class="javax.swing.JLabel" binding="environmentProfileLabel">
+            <constraints>
+              <grid row="3" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <font style="1"/>
+              <text value="[environment profile]"/>
+            </properties>
+          </component>
+          <component id="2" class="javax.swing.JLabel" binding="sourceConnectionCaptionLabel">
+            <constraints>
+              <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text resource-bundle="messages/DBNResources" key="app.liquibase.label.SourceConnection"/>
@@ -37,7 +88,7 @@
           </component>
           <component id="3" class="javax.swing.JLabel" binding="sourceConnectionLabel">
             <constraints>
-              <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="4" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <font style="1"/>
@@ -46,7 +97,7 @@
           </component>
           <component id="4" class="javax.swing.JLabel" binding="sourceSchemaCaptionLabel">
             <constraints>
-              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text resource-bundle="messages/DBNResources" key="app.liquibase.label.SourceSchema"/>
@@ -54,7 +105,7 @@
           </component>
           <component id="5" class="javax.swing.JLabel" binding="sourceSchemaLabel">
             <constraints>
-              <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="5" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <font style="1"/>
@@ -66,7 +117,7 @@
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Operation"/>
+              <text resource-bundle="messages/DBNResources" key="app.liquibase.label.Operation"/>
             </properties>
           </component>
           <component id="7" class="javax.swing.JLabel" binding="operationLabel">
@@ -80,7 +131,7 @@
           </component>
           <component id="24" class="javax.swing.JLabel" binding="processedItemsCaptionLabel">
             <constraints>
-              <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="10" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text resource-bundle="messages/DBNResources" key="app.liquibase.label.ProcessedItems"/>
@@ -88,7 +139,7 @@
           </component>
           <component id="25" class="javax.swing.JLabel" binding="processedItemsLabel">
             <constraints>
-              <grid row="7" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="10" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <font style="1"/>
@@ -97,7 +148,7 @@
           </component>
           <component id="12" class="javax.swing.JLabel" binding="changelogLabel">
             <constraints>
-              <grid row="13" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="16" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text resource-bundle="messages/DBNResources" key="app.liquibase.label.MasterChangelog"/>
@@ -105,7 +156,7 @@
           </component>
           <component id="13" class="com.dbn.common.ui.link.DBNHyperlinkLabel" binding="changelogLink">
             <constraints>
-              <grid row="13" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="16" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text value=""/>
@@ -113,7 +164,7 @@
           </component>
           <component id="18" class="javax.swing.JLabel" binding="databaseChangeLogLabel">
             <constraints>
-              <grid row="15" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="18" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text resource-bundle="messages/DBNResources" key="app.liquibase.label.DatabaseChangeLogTable"/>
@@ -121,7 +172,7 @@
           </component>
           <component id="19" class="com.dbn.common.ui.link.DBNHyperlinkLabel" binding="databaseChangeLogLink">
             <constraints>
-              <grid row="15" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="18" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text value=""/>
@@ -129,7 +180,7 @@
           </component>
           <component id="20" class="javax.swing.JLabel" binding="databaseChangeLogLockLabel">
             <constraints>
-              <grid row="16" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="19" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text resource-bundle="messages/DBNResources" key="app.liquibase.label.DatabaseChangeLogLockTable"/>
@@ -137,7 +188,7 @@
           </component>
           <component id="21" class="com.dbn.common.ui.link.DBNHyperlinkLabel" binding="databaseChangeLogLockLink">
             <constraints>
-              <grid row="16" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="19" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text value=""/>
@@ -145,7 +196,7 @@
           </component>
           <component id="26" class="javax.swing.JLabel" binding="documentationLabel">
             <constraints>
-              <grid row="14" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="17" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text resource-bundle="messages/DBNResources" key="app.liquibase.label.Documentation"/>
@@ -153,7 +204,7 @@
           </component>
           <component id="27" class="com.dbn.common.ui.link.DBNHyperlinkLabel" binding="documentationLink">
             <constraints>
-              <grid row="14" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="17" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text value=""/>
@@ -161,12 +212,12 @@
           </component>
           <hspacer id="b9944">
             <constraints>
-              <grid row="1" column="3" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="4" column="3" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
           </hspacer>
           <component id="14" class="javax.swing.JLabel" binding="targetConnectionCaptionLabel">
             <constraints>
-              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text resource-bundle="messages/DBNResources" key="app.liquibase.label.TargetConnection"/>
@@ -174,7 +225,7 @@
           </component>
           <component id="15" class="javax.swing.JLabel" binding="targetConnectionLabel">
             <constraints>
-              <grid row="3" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="6" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <font style="1"/>
@@ -183,7 +234,7 @@
           </component>
           <component id="16" class="javax.swing.JLabel" binding="targetSchemaCaptionLabel">
             <constraints>
-              <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text resource-bundle="messages/DBNResources" key="app.liquibase.label.TargetSchema"/>
@@ -191,7 +242,7 @@
           </component>
           <component id="17" class="javax.swing.JLabel" binding="targetSchemaLabel">
             <constraints>
-              <grid row="4" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="7" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <font style="1"/>
@@ -200,15 +251,15 @@
           </component>
           <component id="26" class="javax.swing.JLabel" binding="tagCaptionLabel">
             <constraints>
-              <grid row="11" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="14" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Tag"/>
+              <text resource-bundle="messages/DBNResources" key="app.liquibase.label.Tag"/>
             </properties>
           </component>
           <component id="27" class="javax.swing.JLabel" binding="tagLabel">
             <constraints>
-              <grid row="11" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="14" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <font style="1"/>
@@ -217,7 +268,7 @@
           </component>
           <component id="28" class="javax.swing.JLabel" binding="rollbackTypeCaptionLabel">
             <constraints>
-              <grid row="10" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="13" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text resource-bundle="messages/DBNResources" key="app.liquibase.label.RollbackType"/>
@@ -225,7 +276,7 @@
           </component>
           <component id="29" class="javax.swing.JLabel" binding="rollbackTypeLabel">
             <constraints>
-              <grid row="10" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="13" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <font style="1"/>
@@ -234,15 +285,15 @@
           </component>
           <component id="8" class="javax.swing.JLabel">
             <constraints>
-              <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Status"/>
+              <text resource-bundle="messages/DBNResources" key="app.liquibase.label.Status"/>
             </properties>
           </component>
           <component id="9" class="javax.swing.JLabel" binding="statusLabel">
             <constraints>
-              <grid row="5" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="8" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <font style="1"/>
@@ -251,7 +302,7 @@
           </component>
           <component id="30" class="javax.swing.JLabel" binding="updateTypeCaptionLabel">
             <constraints>
-              <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="11" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text resource-bundle="messages/DBNResources" key="app.liquibase.label.UpdateType"/>
@@ -259,7 +310,7 @@
           </component>
           <component id="31" class="javax.swing.JLabel" binding="updateTypeLabel">
             <constraints>
-              <grid row="8" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="11" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <font style="1"/>
@@ -268,7 +319,7 @@
           </component>
           <component id="32" class="javax.swing.JLabel" binding="updateValueCaptionLabel">
             <constraints>
-              <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="12" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text resource-bundle="messages/DBNResources" key="app.liquibase.label.UpdateCount"/>
@@ -276,7 +327,7 @@
           </component>
           <component id="33" class="javax.swing.JLabel" binding="updateValueLabel">
             <constraints>
-              <grid row="9" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="12" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <font style="1"/>
@@ -285,15 +336,15 @@
           </component>
           <component id="10" class="javax.swing.JLabel">
             <constraints>
-              <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Duration"/>
+              <text resource-bundle="messages/DBNResources" key="app.liquibase.label.Duration"/>
             </properties>
           </component>
           <component id="11" class="javax.swing.JLabel" binding="durationLabel">
             <constraints>
-              <grid row="6" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="9" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <font style="1"/>
@@ -302,19 +353,19 @@
           </component>
           <component id="23" class="com.dbn.common.ui.info.DBNInfoLabel" binding="databaseChangeLogLockInfoLabel">
             <constraints>
-              <grid row="16" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="19" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties/>
           </component>
           <component id="22" class="com.dbn.common.ui.info.DBNInfoLabel" binding="databaseChangeLogInfoLabel">
             <constraints>
-              <grid row="15" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="18" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties/>
           </component>
           <vspacer id="3fad">
             <constraints>
-              <grid row="12" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false">
+              <grid row="15" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false">
                 <preferred-size width="-1" height="16"/>
               </grid>
             </constraints>

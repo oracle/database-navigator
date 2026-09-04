@@ -48,6 +48,11 @@ import static java.util.stream.Collectors.toList;
 
 public class OciConfigUtil {
 
+    @NonNls
+    public static String getDefaultConfigFilePath() {
+        return ConfigFileReader.DEFAULT_FILE_PATH;
+    }
+
     @Workaround
     public static List<String> getConfigProfileNames(String configFilePath) {
         if (isEmpty(configFilePath)) return emptyList();

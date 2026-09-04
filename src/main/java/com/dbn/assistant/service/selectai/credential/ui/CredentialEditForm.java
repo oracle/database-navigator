@@ -137,7 +137,7 @@ public class CredentialEditForm extends DBNFormBase {
         return mainPanel;
     }
 
-    private ConnectionHandler getConnection() {
+    public ConnectionHandler getConnection() {
         return connection.ensure();
     }
 

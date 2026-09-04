@@ -31,6 +31,8 @@ public interface DatabaseInterfaces {
 
     DatabaseNativeDataTypes getNativeDataTypes();
 
+    DatabaseDriverInterface getDriverInterface();
+
     DatabaseMessageParserInterface getMessageParserInterface();
 
     DatabaseEnvironmentInterface getEnvironmentInterface();

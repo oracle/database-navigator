@@ -16,6 +16,7 @@
 
 package com.dbn.object.common.list.action;
 
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.ref.WeakRef;
@@ -32,6 +33,7 @@ import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.factory.ObjectFactoryAdapters.isSupported;
 import static com.dbn.object.factory.ObjectFactoryAdapters.isSuppressed;
 
+@BackgroundUpdate
 public class CreateObjectAction extends BasicAction {
 
     private final WeakRef<DBObjectList> objectList;

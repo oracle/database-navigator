@@ -33,6 +33,7 @@ public enum DatabaseUrlType implements Presentable, Constant<DatabaseUrlType> {
     LDAP(txt("cfg.connection.const.DatabaseUrlType_LDAP")),
     LDAPS(txt("cfg.connection.const.DatabaseUrlType_LDAPS")),
     DATABASE(txt("cfg.connection.const.DatabaseUrlType_DATABASE")),
+    PROVIDER(txt("cfg.connection.const.DatabaseUrlType_PROVIDER")),
     CUSTOM(txt("cfg.connection.const.DatabaseUrlType_CUSTOM")),
     FILE(txt("cfg.connection.const.DatabaseUrlType_FILE"));
 

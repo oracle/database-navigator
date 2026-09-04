@@ -62,6 +62,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -168,7 +169,6 @@ public class DependencyParser {
 
         @Override
         public void get(GetTask task) throws Exception {
-            File targetFile = new File(task.getDataFile().getAbsolutePath());
             String relativePath = task.getLocation().toString();
 
             int separatorIndex = relativePath.lastIndexOf("/");// Artifact path relative to the repository
@@ -179,9 +179,30 @@ public class DependencyParser {
             downloadSession.updateProgress(fileName);
             if (downloadSession.isCanceled()) return;
 
-            Downloads.downloadAtomically(null, fullUrl, targetFile);
-            verifyDownloadedFile(targetFile, fullUrl);
-            notifyTransferListener(task, targetFile);
+            File dataFile = task.getDataFile();
+            if (dataFile == null) {
+                File tempFile = FileUtil.createTempFile("dbn-maven-get", ".tmp", true);
+                try {
+                    Downloads.downloadAtomically(null, fullUrl, tempFile);
+                    verifyDownloadedFile(tempFile, fullUrl);
+                    copyToTask(task, tempFile);
+                } finally {
+                    FileUtil.delete(tempFile);
+                }
+            } else {
+                Downloads.downloadAtomically(null, fullUrl, dataFile);
+                verifyDownloadedFile(dataFile, fullUrl);
+                notifyTransferListener(task, dataFile);
+            }
+        }
+
+        private static void copyToTask(GetTask task, File file) throws Exception {
+            notifyTransferListener(task, file);
+            try (FileInputStream fileInputStream = new FileInputStream(file);
+                 BufferedInputStream inputStream = new BufferedInputStream(fileInputStream);
+                 OutputStream outputStream = task.newOutputStream()) {
+                inputStream.transferTo(outputStream);
+            }
         }
 
         private static void notifyTransferListener(GetTask task, File file) throws Exception {

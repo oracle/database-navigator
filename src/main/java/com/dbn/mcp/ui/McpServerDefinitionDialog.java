@@ -19,6 +19,7 @@ package com.dbn.mcp.ui;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.help.HelpTopic;
 import com.dbn.mcp.McpServerBuilderManager;
 import com.dbn.mcp.build.McpBuildTask;
 import com.dbn.mcp.model.McpServerDefinition;
@@ -83,6 +84,11 @@ public class McpServerDefinitionDialog extends DBNDialog<McpServerDefinitionForm
     public void doCancelAction() {
         snapshotServerDefinition();
         super.doCancelAction();
+    }
+
+    @Override
+    protected HelpTopic getHelpTopic() {
+        return HelpTopic.MCP_SERVER_BUILDER;
     }
 
     @Override

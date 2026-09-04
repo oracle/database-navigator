@@ -249,7 +249,7 @@ public class CredentialManagementForm extends DBNFormBase {
     }
   }
 
-  private ConnectionId getConnectionId() {
+  public ConnectionId getConnectionId() {
     return getConnection().getConnectionId();
   }
 

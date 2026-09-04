@@ -16,6 +16,7 @@
 
 package com.dbn.language.common;
 
+import com.dbn.common.latent.Latent;
 import com.dbn.common.util.XmlContents;
 import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.impl.NamedElementType;
@@ -26,7 +27,6 @@ import com.intellij.lang.ASTNode;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.PsiParser;
 import com.intellij.psi.tree.IElementType;
-import lombok.Getter;
 import lombok.SneakyThrows;
 import org.jdom.Document;
 import org.jetbrains.annotations.NonNls;
@@ -34,6 +34,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
 
+import static com.dbn.common.latent.Latent.basic;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public abstract class DBLanguageParser implements PsiParser {
@@ -43,8 +44,8 @@ public abstract class DBLanguageParser implements PsiParser {
     private final String elementDefinitionFile;
     private final String elementExtensionFile;
 
-    private final @Getter(lazy = true) TokenTypeBundle tokenTypes = loadTokenTypes();
-    private final @Getter(lazy = true) ElementTypeBundle elementTypes = loadElementTypes();
+    private final Latent<TokenTypeBundle> tokenTypes = basic(() -> loadTokenTypes());
+    private final Latent<ElementTypeBundle> elementTypes = basic(() -> loadElementTypes());
 
     public DBLanguageParser(
             DBLanguageDialect languageDialect,
@@ -57,6 +58,18 @@ public abstract class DBLanguageParser implements PsiParser {
         this.tokenDefinitionFile = tokenDefinitionFile;
         this.elementDefinitionFile = elementDefinitionFile;
         this.elementExtensionFile = elementExtensionFile;
+    }
+
+    public boolean isInitialized() {
+        return tokenTypes.loaded() && elementTypes.loaded();
+    }
+
+    public TokenTypeBundle getTokenTypes() {
+        return tokenTypes.get();
+    }
+
+    public ElementTypeBundle getElementTypes() {
+        return elementTypes.get();
     }
 
     @SneakyThrows

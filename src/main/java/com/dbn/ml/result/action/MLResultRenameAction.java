@@ -104,7 +104,7 @@ public class MLResultRenameAction extends AbstractMLExecutionResultAction {
     }
 
     private static void invalidateModelObjects(ConnectionHandler connection) {
-        DBObjectUtil.refreshUserObjects(connection.getConnectionId(), DBObjectType.AI_MODEL);
+        DBObjectUtil.refreshUserObjects(connection.getConnectionId(), DBObjectType.MINING_MODEL);
         DBObjectUtil.refreshUserObjects(connection.getConnectionId(), DBObjectType.VIEW);
     }
 

@@ -62,6 +62,7 @@ import java.awt.event.ActionEvent;
 import java.util.Arrays;
 
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.common.latent.Latent.basic;
 import static com.dbn.common.ui.alignment.FieldAligner.alignFormFields;
 import static com.dbn.common.ui.form.DBNFormBinding.bindForm;
 import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.disableFormField;
@@ -80,8 +81,8 @@ public abstract class DBNFormBase
     @Getter
     private boolean initialized;
 
-    private final Latent<DBNFormFieldAdapter> fieldAdapter = Latent.basic(() -> DBNFormFieldAdapter.create(this));
-    private final Latent<Boolean> hasScrollBars = Latent.basic(() -> hasChildComponent(getMainComponent(), c -> c instanceof JScrollPane));
+    private final Latent<DBNFormFieldAdapter> fieldAdapter = basic(() -> DBNFormFieldAdapter.create(this));
+    private final Latent<Boolean> hasScrollBars = basic(() -> hasChildComponent(getMainComponent(), c -> c instanceof JScrollPane));
     private final @Getter DBNFormMonitor monitor = new DBNFormMonitor(this);
     private Formatter formatter;
 
@@ -93,8 +94,9 @@ public abstract class DBNFormBase
         super(parent, project);
     }
 
+    @NotNull
     protected DBNFormFieldAdapter getFieldAdapter() {
-        return fieldAdapter.get();
+        return fieldAdapter.ensure();
     }
 
     @Nullable

@@ -21,7 +21,7 @@ import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.common.util.Strings;
-import com.dbn.object.DBAIModel;
+import com.dbn.object.DBMiningModel;
 import com.dbn.object.DBSchema;
 import com.dbn.vector.model.request.EmbeddingModelConfig;
 import com.dbn.vector.model.request.EmbeddingModelLocation;
@@ -125,7 +125,7 @@ public class EmbeddingModelConfigForm extends VectorToolboxFormBase implements D
     String modelLocationName = modelLocation == null ? "" : modelLocation.getName();
     if (modelLocation == EmbeddingModelLocation.IN_DATABASE_MODEL) {
       DBSchema selectedSchema = databaseModelConfigForm.getSelectedSchema();
-      DBAIModel selectedModel = databaseModelConfigForm.getSelectedModel();
+      DBMiningModel selectedModel = databaseModelConfigForm.getSelectedModel();
       if (selectedModel == null) return modelLocationName;
 
       return txt("msg.vector.text.ModelSelectionDetail", modelLocationName, selectedSchema + "." + selectedModel);

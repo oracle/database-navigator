@@ -38,7 +38,7 @@ public class MLToolboxOpenAction extends AbstractConnectionAction {
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable ConnectionHandler target) {
         presentation.setVisible(MACHINE_LEARNING.isSupported(target));
         presentation.setText(txt("app.machineLearning.action.OpenMLToolbox"));
-        presentation.setIcon(Icons.DBO_AI_MODEL); // TODO: Create ML-specific icon
+        presentation.setIcon(Icons.DBO_MINING_MODEL); // TODO: Create ML-specific icon
     }
 
     @Override

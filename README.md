@@ -1,9 +1,9 @@
-# Oracle® Database Navigator for IntelliJ IDEA
+# Oracle Database Navigator for IntelliJ IDEA
 
 [![JetBrains Plugin](https://img.shields.io/jetbrains/plugin/v/1800-database-navigator.svg)](https://plugins.jetbrains.com/plugin/1800-database-navigator)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/1800-database-navigator.svg)](https://plugins.jetbrains.com/plugin/1800-database-navigator)
 
-Oracle® Database Navigator is a database development and management tool for IntelliJ-based IDEs, providing a comprehensive set of features for working with relational databases directly within the IDE.
+Oracle Database Navigator is a database development and management tool for IntelliJ-based IDEs, providing a comprehensive set of features for working with relational databases directly within the IDE.
 
 This plugin is developed and actively maintained by Oracle as part of its developer tools ecosystem.
 

@@ -69,14 +69,13 @@ public class AssistantToolInvocationHandler<T extends AssistantTool> extends Ass
         if (invocation == null) return null;
 
         AssistantToolRequest request = invocation.getRequest();
-        request.assertExecutable();
-        request.setMethodArguments(args);
-        verifyRequest(request, method, args);
-
-
         ConnectionHandler connection = getConnection();
         Project project = connection.getProject();
         try {
+            request.assertExecutable();
+            request.setMethodArguments(args);
+            verifyRequest(request, method, args);
+
             // initiate request
             handleEvent(project, invocation, REQUESTED, null);
 

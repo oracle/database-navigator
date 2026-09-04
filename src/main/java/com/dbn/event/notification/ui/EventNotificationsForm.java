@@ -74,7 +74,7 @@ public class EventNotificationsForm extends DBNFormBase {
         return (connectionId, tableName) -> when(connectionId == getConnectionId(), () -> refresh());
     }
 
-    private @Nullable ConnectionId getConnectionId() {
+    public @Nullable ConnectionId getConnectionId() {
         return notificationsTable.getModel().getConnectionId();
     }
 

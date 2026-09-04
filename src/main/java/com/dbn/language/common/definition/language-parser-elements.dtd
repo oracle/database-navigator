@@ -52,6 +52,7 @@
         optional (true | false) #IMPLIED
         exit (true | false) #IMPLIED
         flavor CDATA #IMPLIED
+        attributes CDATA #IMPLIED
         original-name CDATA #IMPLIED
         virtual-object CDATA #IMPLIED
         object-type CDATA #IMPLIED
@@ -125,7 +126,7 @@
         formatting-spacing-before (NO_SPACE | ONE_SPACE | ONE_LINE) #IMPLIED
         formatting-spacing-after (NO_SPACE | ONE_SPACE | ONE_LINE) #IMPLIED
         original-name CDATA #IMPLIED>
-<!ELEMENT one-of (token|element|sequence|iteration|one-of|wrapper|qualified-identifier|object-ref|object-def|alias-ref|alias-def|variable-ref|variable-def|exec-variable)*>
+<!ELEMENT one-of (token|element|sequence|iteration|wrapper|qualified-identifier|object-ref|object-def|alias-ref|alias-def|variable-ref|variable-def|exec-variable)*>
 <!ATTLIST one-of
         legacy (true | false) #IMPLIED
         id CDATA #IMPLIED

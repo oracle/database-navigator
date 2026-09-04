@@ -21,6 +21,7 @@ import com.dbn.common.database.DatabaseInfo;
 import com.dbn.common.environment.EnvironmentType;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.options.ConfigMonitor;
 import com.dbn.common.options.SettingsChangeNotifier;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.options.ui.ConfigurationEditors;
@@ -40,8 +41,13 @@ import com.dbn.connection.config.ConnectionConfigType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.config.file.DatabaseFileBundle;
+import com.dbn.connection.config.provider.CloudAuthenticationType;
+import com.dbn.connection.config.provider.CloudConfigProviderType;
+import com.dbn.connection.config.provider.ConfigProviderInfo;
+import com.dbn.connection.config.provider.ConfigSourceType;
 import com.dbn.credentials.Secret;
 import com.dbn.driver.DriverSource;
+import com.dbn.oci.config.OciAuthenticationConfig;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.DocumentAdapter;
@@ -65,6 +71,9 @@ import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.common.util.Strings.isEmptyOrSpaces;
+import static com.dbn.connection.AuthenticationType.NONE;
+import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 import static com.dbn.nls.NlsResources.txt;
 import static java.awt.event.KeyEvent.VK_UNDEFINED;
 
@@ -117,6 +126,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         urlPanel.add(urlSettingsForm.getComponent(), BorderLayout.CENTER);
         authenticationPanel.add(authSettingsForm.getComponent(), BorderLayout.CENTER);
         driverLibraryPanel.add(driverSettingsForm.getComponent(), BorderLayout.CENTER);
+        authSettingsForm.addCloudProviderChangeListeners(urlSettingsForm::updateUrlField);
 
         resetFormChanges();
         registerComponent(mainPanel);
@@ -125,7 +135,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         AuthenticationType[] authTypes = databaseType.getAuthTypes();
 
         urlSettingsForm.updateFieldVisibility();
-        authenticationPanel.setVisible(databaseType.supportsAuthentication());
+        updateAuthenticationVisibility();
 
 
         if (configType == ConnectionConfigType.CUSTOM) {
@@ -143,7 +153,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         AuthenticationType[] authTypes = newDatabaseType.getAuthTypes();
 
         urlSettingsForm.handleDatabaseTypeChange(oldDatabaseType, newDatabaseType);
-        authenticationPanel.setVisible(newDatabaseType.supportsAuthentication());
+        updateAuthenticationVisibility();
         driverSettingsForm.updateDriverFields();
 
         updateNativeSupportDatabaseHint();
@@ -165,6 +175,10 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
                 configuration.getProject(),
                 ConnectionPresentationChangeListener.TOPIC,
                 (listener) -> listener.presentationChanged(name, icon, color, connectionId, databaseType));
+    }
+
+    OciAuthenticationConfig getOciAuthenticationConfig() {
+        return authSettingsForm.getOciAuthenticationConfig();
     }
 
     private Icon getIcon(ConnectionSettings connectionSettings, ConnectivityStatus connectivityStatus) {
@@ -239,9 +253,17 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
 
     @Override
     public void applyFormChanges(final ConnectionDatabaseSettings configuration) throws ConfigurationException {
+        if (isCloudProviderAuthenticationVisible()) {
+            authSettingsForm.validateCloudProviderSettings();
+        }
+
         DatabaseType databaseType = getSelectedDatabaseType();
         DriverOption driverOption = driverSettingsForm.getDriverOption();
         DatabaseUrlType urlType = Commons.nvl(urlSettingsForm.getUrlType(), DatabaseUrlType.CUSTOM);
+
+        boolean localConfigFile = urlType == DatabaseUrlType.PROVIDER &&
+                urlSettingsForm.getConfigSourceType() == ConfigSourceType.FILE;
+
         String url = urlSettingsForm.getUrl();
         DatabaseUrlPattern urlPattern = urlType == DatabaseUrlType.CUSTOM ?
                 Commons.nvl(databaseType.resolveUrlPattern(url), DatabaseUrlPattern.GENERIC) :
@@ -255,6 +277,8 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         configuration.setUrlPattern(urlPattern);
 
         DatabaseInfo databaseInfo = configuration.getDatabaseInfo();
+        ConfigProviderInfo configProviderInfo = configuration.getConfigProviderInfo();
+        Secret[] oldConfigProviderSecrets = configProviderInfo.snapshotSecrets();
         databaseInfo.reset();
 
         databaseInfo.setUrlType(urlType);
@@ -274,6 +298,15 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         else if (urlType == DatabaseUrlType.TNS) {
         	databaseInfo.setTnsFolder(urlSettingsForm.getTnsFolder());
         	databaseInfo.setTnsProfile(urlSettingsForm.getTnsProfile());
+        } else if (urlType == DatabaseUrlType.PROVIDER) {
+            urlSettingsForm.applyConfigProviderInfo(configuration.getConfigProviderInfo());
+            if (isCloudProviderAuthenticationVisible()) {
+                authSettingsForm.applyCloudProviderFormChanges(configuration.getConfigProviderInfo());
+            }
+            if (urlSettingsForm.getConfigSourceType() == ConfigSourceType.FILE &&
+                    isEmptyOrSpaces(urlSettingsForm.getConfigLocation())) {
+                throw new ConfigurationException("Config file is required.");
+            }
         } else if (urlType == DatabaseUrlType.FILE){
             DatabaseFileBundle fileBundle = urlSettingsForm.getFileBundle();
             fileBundle.validate();
@@ -289,12 +322,23 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         Secret[] oldSecrets = authenticationInfo.snapshotSecrets();
 
         // apply changes and create snapshot of new authentication
-        authSettingsForm.applyFormChanges(authenticationInfo);
+        if (urlSettingsForm.isCloudProviderConfig()) {
+            authenticationInfo.setType(AuthenticationType.NONE);
+        } else {
+            authSettingsForm.applyFormChanges(authenticationInfo);
+        }
+
+        if (localConfigFile) {
+            authenticationInfo.setType(AuthenticationType.NONE);
+        }
         //Secret[] newSecrets = authenticationInfo.getSecrets();
 
         if (!authenticationInfo.isTemporary()) {
             // update password store if authentication info is not marked as temporary
             authenticationInfo.updateSecrets(oldSecrets);
+        }
+        if (!ConfigMonitor.isCloning()) {
+            configProviderInfo.updateSecrets(oldConfigProviderSecrets);
         }
 
         configuration.setDriverSource(driverSettingsForm.getDriverSource());
@@ -323,7 +367,9 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         DatabaseInfo databaseInfo = configuration.getDatabaseInfo();
         boolean settingsChanged =
                 urlSettingsForm.settingsChanged() ||
-                authSettingsForm.settingsChanged() ||
+                (isCloudProviderAuthenticationVisible() ?
+                        authSettingsForm.cloudProviderSettingsChanged() :
+                        authSettingsForm.settingsChanged()) ||
                 !Commons.match(configuration.getDatabaseType(), selectedDatabaseType) ||
                 !Commons.match(configuration.getDriverLibrary(), driverSettingsForm.getDriverLibrary());
 
@@ -352,6 +398,74 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         return Commons.nvl(getSelection(databaseTypeComboBox), configuration.getDatabaseType());
     }
 
+    void updateAuthenticationVisibility() {
+        DatabaseType databaseType = getSelectedDatabaseType();
+        authSettingsForm.setAuthenticationTypes(getAuthenticationTypes());
+        authSettingsForm.setCredentialsTitle(getCredentialsTitle());
+        boolean cloudProviderConfig = urlSettingsForm.isCloudProviderConfig();
+        CloudConfigProviderType cloudProviderType = isCloudProviderAuthenticationVisible() ?
+                urlSettingsForm.getCloudConfigProviderType() :
+                null;
+        authSettingsForm.setCloudProviderMode(cloudProviderType);
+        authenticationPanel.setVisible(cloudProviderType != null ||
+                !cloudProviderConfig && databaseType.supportsAuthentication() && urlSettingsForm.requiresAuthentication());
+        if (driverSettingsForm != null) {
+            driverSettingsForm.updateDriverFields();
+        }
+    }
+
+    CloudConfigProviderType getExternalLibraryCloudProvider() {
+        CloudConfigProviderType provider = urlSettingsForm.getCloudConfigProviderType();
+        if (getSelectedDatabaseType() != DatabaseType.ORACLE) return null;
+        if (!urlSettingsForm.isCloudProviderConfig()) return null;
+        if (provider == null) return null;
+
+        return provider;
+    }
+
+    DatabaseUrlType getUrlType() {
+        return urlSettingsForm.getUrlType();
+    }
+
+    CloudConfigProviderType getCloudConfigProviderType() {
+        return urlSettingsForm.isCloudProviderConfig() ? urlSettingsForm.getCloudConfigProviderType() : null;
+    }
+
+    void addJsonExportChangeListeners(Runnable listener) {
+        databaseTypeComboBox.addActionListener(e -> listener.run());
+        urlSettingsForm.addUrlTypeChangeListeners(listener);
+    }
+
+    private boolean isCloudProviderAuthenticationVisible() {
+        CloudConfigProviderType provider = urlSettingsForm.getCloudConfigProviderType();
+        return urlSettingsForm.isCloudProviderConfig() &&
+                provider != null &&
+                (provider.isGcp() || provider.isAws() ||
+                        CloudAuthenticationType.values(provider).length > 0);
+    }
+
+    private AuthenticationType[] getAuthenticationTypes() {
+        DatabaseUrlType urlType = Commons.nvl(urlSettingsForm.getUrlType(), DatabaseUrlType.CUSTOM);
+        return isHttpsConfigFile(urlType) ?
+                new AuthenticationType[]{NONE, USER_PASSWORD} :
+                getSelectedDatabaseType().getAuthTypes();
+    }
+
+    private String getCredentialsTitle() {
+        if (urlSettingsForm.isCloudProviderConfig()) {
+            return txt("cfg.connection.title.CloudProviderCredentials");
+        }
+        if (isHttpsConfigFile(urlSettingsForm.getUrlType())) {
+            return txt("cfg.connection.title.ServerCredentials");
+        }
+        return txt("cfg.connection.title.DatabaseCredentials");
+    }
+
+    private boolean isHttpsConfigFile(DatabaseUrlType urlType) {
+        return urlType == DatabaseUrlType.PROVIDER &&
+                urlSettingsForm.getConfigSourceType() == ConfigSourceType.URL;
+    }
+
     @Override
     public void resetFormChanges() {
         ConnectionDatabaseSettings configuration = getConfiguration();
@@ -364,6 +478,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
 
         urlSettingsForm.resetFormChanges();
         authSettingsForm.resetFormChanges();
+        urlSettingsForm.updateUrlField();
         driverSettingsForm.resetFormChanges();
     }
 

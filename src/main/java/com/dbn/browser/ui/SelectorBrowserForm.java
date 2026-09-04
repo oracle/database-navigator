@@ -144,7 +144,7 @@ public class SelectorBrowserForm extends DatabaseBrowserForm {
     }
 
     @Nullable
-    private ConnectionHandler getConnection() {
+    public ConnectionHandler getConnection() {
         return ConnectionHandler.get(selectedConnectionId);
     }
 

@@ -31,6 +31,7 @@ import com.dbn.common.util.Editors;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.liquibase.operation.LiquibaseOperation;
+import com.dbn.liquibase.operation.LiquibaseOperationInput;
 import com.dbn.liquibase.operation.LiquibaseOperationResult;
 import com.dbn.liquibase.operation.LiquibaseOperationSupport;
 import com.dbn.liquibase.operation.LiquibaseRollbackInstruction;
@@ -90,6 +91,9 @@ public class LiquibaseOperationResultSummaryForm extends DBNFormBase {
     private JLabel targetSchemaCaptionLabel;
     private JLabel targetSchemaLabel;
     private JLabel operationLabel;
+    private JLabel workspaceLabel;
+    private JLabel workspaceFormatLabel;
+    private JLabel environmentProfileLabel;
     private JLabel processedItemsCaptionLabel;
     private JLabel processedItemsLabel;
     private JLabel statusLabel;
@@ -142,6 +146,7 @@ public class LiquibaseOperationResultSummaryForm extends DBNFormBase {
 
         operationLabel.setText(result.getOperation().getName());
         setToolTipText(operationLabel, result.getOperation().getDescription());
+        updateWorkspaceInfo(result);
         updateStatus(result);
         updateProcessedItems(result);
         updateRollbackInfo(result);
@@ -160,6 +165,18 @@ public class LiquibaseOperationResultSummaryForm extends DBNFormBase {
         updateLiquibaseTableLinks(result);
 
         initMessageForm(result, result.getRelevantSchema());
+    }
+
+    private void updateWorkspaceInfo(@NotNull LiquibaseOperationResult result) {
+        LiquibaseOperationInput input = result.getInput();
+        var workspace = input.getWorkspace();
+        var profile = input.getEnvironmentProfile();
+
+        workspaceLabel.setText(workspace.getName());
+        workspaceFormatLabel.setText(workspace.getChangelogFormat().getName());
+        setToolTipText(workspaceLabel, input.getWorkspacePaths().getLiquibaseRootPath().toString());
+
+        environmentProfileLabel.setText(profile.getName());
     }
 
     private void initContextLabels(@NotNull LiquibaseOperationResult result) {

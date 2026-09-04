@@ -152,6 +152,8 @@ public class DBNColoredTabs<T extends DBNForm> extends JBEditorTabs {
     }
 
     public void selectTab(JComponent component, boolean requestFocus) {
+        if (!requestFocus && getSelectedTabComponent() == component) return;
+
         TabInfo tabInfo = getTabInfo(component);
         if (tabInfo == null) return;
 

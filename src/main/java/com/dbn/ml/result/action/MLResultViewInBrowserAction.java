@@ -25,7 +25,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.ml.backend.dbms.DBMSModelHandle;
 import com.dbn.ml.model.MLResult;
 import com.dbn.ml.result.MLExecutionResult;
-import com.dbn.object.DBAIModel;
+import com.dbn.object.DBMiningModel;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.type.DBObjectType;
@@ -60,10 +60,10 @@ public class MLResultViewInBrowserAction extends AbstractMLExecutionResultAction
             return;
         }
 
-        DBObjectList<DBAIModel> modelList = schema.getChildObjectList(DBObjectType.AI_MODEL);
+        DBObjectList<DBMiningModel> modelList = schema.getChildObjectList(DBObjectType.MINING_MODEL);
         if (modelList == null) return;
 
-        DBAIModel aiModel = modelList.getObject(modelName);
+        DBMiningModel aiModel = modelList.getObject(modelName);
         if (aiModel != null) {
             aiModel.navigate(true);
             return;
@@ -77,7 +77,7 @@ public class MLResultViewInBrowserAction extends AbstractMLExecutionResultAction
     private void loadAndNavigateToModel(
             @NotNull Project project,
             @NotNull DBSchema schema,
-            @NotNull DBObjectList<DBAIModel> modelList,
+            @NotNull DBObjectList<DBMiningModel> modelList,
             @NotNull String modelName) {
         String modelListName = modelList.getTitleCasedName();
         String title = modelList.isLoaded() ?
@@ -97,7 +97,7 @@ public class MLResultViewInBrowserAction extends AbstractMLExecutionResultAction
                                 modelList.load();
                             }
 
-                            DBAIModel aiModel = modelList.getObject(modelName);
+                            DBMiningModel aiModel = modelList.getObject(modelName);
                             if (aiModel != null) {
                                 aiModel.navigate(true);
                             } else {
@@ -111,7 +111,7 @@ public class MLResultViewInBrowserAction extends AbstractMLExecutionResultAction
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable MLExecutionResult target) {
         presentation.setText(txt("app.machineLearning.action.ViewInDatabase"));
-        presentation.setIcon(Icons.DBO_AI_MODEL);
+        presentation.setIcon(Icons.DBO_MINING_MODEL);
 
         presentation.setVisible(target != null);
         presentation.setEnabled(target != null);

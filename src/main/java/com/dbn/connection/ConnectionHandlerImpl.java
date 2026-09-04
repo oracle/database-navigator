@@ -236,7 +236,8 @@ public class ConnectionHandlerImpl extends StatefulDisposableBase implements Con
 
     @Override
     public boolean isAuthenticationProvided() {
-        return getAuthenticationInfo().isProvided() || getTemporaryAuthenticationInfo().isProvided();
+        return getSettings().getDatabaseSettings().isAuthenticationProvidedForConnect() ||
+                getTemporaryAuthenticationInfo().isProvided();
     }
 
     @Override
