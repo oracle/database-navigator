@@ -19,7 +19,6 @@ package com.dbn.ml.ui;
 import com.dbn.common.Priority;
 import com.dbn.common.color.Colors;
 import com.dbn.common.thread.Background;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.misc.DBNScrollPane;
@@ -269,12 +268,11 @@ public class MLPredictForm extends DBNFormBase {
         Background.run(() -> {
             try {
                 ResultSetDataModel result = executePrediction(project, values, isClassification);
-                Dispatch.run(resultTable, () -> resultTable.setModel(result));
+                dispatch(() -> resultTable.setModel(result));
             } catch (Exception ex) {
-                Dispatch.run(resultTable, () ->
-                        showError(txt("msg.machineLearning.error.PredictionFailed", ex.getMessage())));
+                showError(txt("msg.machineLearning.error.PredictionFailed", ex.getMessage()));
             } finally {
-                Dispatch.run(resultTable, () -> {
+                dispatch(() -> {
                     resultTable.setLoading(false);
                     predictButton.setEnabled(true);
                 });

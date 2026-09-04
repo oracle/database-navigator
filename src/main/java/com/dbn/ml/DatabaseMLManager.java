@@ -17,6 +17,7 @@
 package com.dbn.ml;
 
 import com.dbn.DatabaseNavigator;
+import com.dbn.common.Priority;
 import com.dbn.common.component.Components;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
@@ -26,12 +27,9 @@ import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.common.outcome.OutcomeHandlers;
 import com.dbn.common.outcome.OutcomeHandlersImpl;
 import com.dbn.common.outcome.OutcomeType;
-import com.dbn.common.Priority;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Conditional;
 import com.dbn.common.util.Dialogs;
-import com.dbn.common.util.Messages;
 import com.dbn.common.util.Naming;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
@@ -39,9 +37,9 @@ import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
 import com.dbn.execution.ExecutionManager;
+import com.dbn.ml.backend.model.MLPredictionAttribute;
 import com.dbn.ml.execution.MLPipelineExecutor;
 import com.dbn.ml.execution.MLTrainingJobSubmission;
-import com.dbn.ml.backend.model.MLPredictionAttribute;
 import com.dbn.ml.model.MLRequest;
 import com.dbn.ml.model.MLResult;
 import com.dbn.ml.model.MLTaskType;
@@ -78,6 +76,10 @@ import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.constantAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setConstantAttribute;
+import static com.dbn.common.util.Messages.OPTIONS_RETRY_CANCEL;
+import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.common.util.Messages.showMessageDialog;
+import static com.dbn.common.util.Messages.showWarningDialog;
 import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
@@ -125,7 +127,7 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
         try {
             Dialogs.show(() -> new MLToolboxDialog(connection, request));
         } catch (Exception e) {
-            Messages.showErrorDialog(
+            showErrorDialog(
                 getProject(),
                 txt("msg.machineLearning.title.MLToolboxError"),
                 txt("msg.machineLearning.error.MLToolboxOpenFailed", e.getMessage())
@@ -157,9 +159,9 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
                             if (resolvedTaskType == null) {
                                 String miningFunction = ml.getModelFunction(conn, modelName);
                                 if (miningFunction == null) {
-                                    Dispatch.run(() -> Messages.showWarningDialog(getProject(),
+                                    showWarningDialog(getProject(),
                                             txt("msg.machineLearning.title.ModelNotFound"),
-                                            txt("msg.machineLearning.error.ModelNotFound", modelName)));
+                                            txt("msg.machineLearning.error.ModelNotFound", modelName));
                                     return;
                                 }
                                 resolvedTaskType = "CLASSIFICATION".equalsIgnoreCase(miningFunction) ?
@@ -177,18 +179,18 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
                             }
 
                             if (attributes.isEmpty()) {
-                                Dispatch.run(() -> Messages.showWarningDialog(getProject(),
+                                showWarningDialog(getProject(),
                                         txt("msg.machineLearning.title.CannotPredict"),
-                                        txt("msg.machineLearning.error.NoFeatureColumns")));
+                                        txt("msg.machineLearning.error.NoFeatureColumns"));
                                 return;
                             }
 
                             for (MLPredictionAttribute attribute : attributes) {
                                 if (!attribute.isSupportedForPrediction()) {
-                                    Dispatch.run(() -> Messages.showWarningDialog(getProject(),
+                                    showWarningDialog(getProject(),
                                             txt("msg.machineLearning.title.CannotPredict"),
                                             txt("msg.machineLearning.error.PredictionAttributeTypeUnsupported",
-                                                    attribute.getName(), attribute.getDisplayDataType())));
+                                                    attribute.getName(), attribute.getDisplayDataType()));
                                     return;
                                 }
                             }
@@ -196,17 +198,13 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
                             boolean withProbability = resolvedTaskType == MLTaskType.CLASSIFICATION;
                             String statement = ml.buildPredictionStatement(conn, modelName, attributes, withProbability);
                             MLTaskType finalTaskType = resolvedTaskType;
-                            Dispatch.run(() -> {
-                                MLPredictDialog dialog = new MLPredictDialog(
-                                        connection, modelName, finalTaskType, attributes, statement);
-                                dialog.show();
-                            });
+                            Dialogs.show(() -> new MLPredictDialog(connection, modelName, finalTaskType, attributes, statement));
                         });
             } catch (Exception e) {
                 log.warn("Failed to load prediction metadata for model {}", modelName, e);
-                Dispatch.run(() -> Messages.showErrorDialog(getProject(),
+                showErrorDialog(getProject(),
                         txt("msg.machineLearning.title.CannotPredict"),
-                        txt("msg.machineLearning.error.ModelMetadataLoadFailed", e.getMessage())));
+                        txt("msg.machineLearning.error.ModelMetadataLoadFailed", e.getMessage()));
             }
         });
     }
@@ -253,19 +251,19 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
                         DatabaseSchedulerManager schedulerManager = DatabaseSchedulerManager.getInstance(getProject());
                         SchedulerJob job = schedulerManager.submitJob(connection, submission.getJobRequest());
                         log.info("Training job {} submitted for model: {}", job.getName(), submission.getModelName());
-                        Dispatch.run(() -> sendInfoNotification(EXECUTION,
-                                txt("ntf.machineLearning.info.TrainingSubmitted", modelName)));
+                        sendInfoNotification(EXECUTION,
+                                txt("ntf.machineLearning.info.TrainingSubmitted", modelName));
 
                         schedulerManager.monitorJob(job,
                                 createTrainingJobMonitor(modelName),
                                 createTrainingOutcomeHandlers(executor, submission, connection));
                     } catch (Exception e) {
                         log.warn("Failed to submit training job", e);
-                        Dispatch.run(() -> showRetryableTrainingFailure(
+                        showRetryableTrainingFailure(
                                 txt("msg.machineLearning.title.TrainingJobSubmitFailed"),
                                 txt("msg.machineLearning.error.ModelTrainingFailed", e.getMessage()),
                                 connection,
-                                requestSnapshot));
+                                requestSnapshot);
                     }
                 });
     }
@@ -295,11 +293,11 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
                 (OutcomeHandler.HighPriority) outcome -> completeTrainingJob(executor, submission, connection));
         outcomeHandlers.addHandler(OutcomeType.FAILURE, (OutcomeHandler.HighPriority) outcome -> {
             log.warn("Async training monitor failed for model {}", modelName, outcome.getException());
-            Dispatch.run(() -> showRetryableTrainingFailure(
+            showRetryableTrainingFailure(
                     txt("msg.machineLearning.title.TrainingMonitoringFailed"),
                     txt("msg.machineLearning.error.TrainingMonitoringFailed", modelName, outcome.getMessage()),
                     connection,
-                    submission.getContext().getRequest()));
+                    submission.getContext().getRequest());
         });
         return outcomeHandlers;
     }
@@ -312,18 +310,15 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
         String modelName = getResultModelName(submission);
         try {
             MLResult result = executor.completeAsync(submission, connection);
-            Dispatch.run(() -> {
-                showResultInExecutionManager(result);
-                sendInfoNotification(EXECUTION,
-                        txt("ntf.machineLearning.info.TrainingCompleted", modelName));
-            });
+            showResultInExecutionManager(result);
+            sendInfoNotification(EXECUTION, txt("ntf.machineLearning.info.TrainingCompleted", modelName));
         } catch (Exception e) {
             log.warn("Failed to finalize training result for model {}", modelName, e);
-            Dispatch.run(() -> showRetryableTrainingFailure(
+            showRetryableTrainingFailure(
                     txt("msg.machineLearning.title.TrainingMonitoringFailed"),
                     txt("msg.machineLearning.error.TrainingMonitoringFailed", modelName, e.getMessage()),
                     connection,
-                    submission.getContext().getRequest()));
+                    submission.getContext().getRequest());
         }
     }
 
@@ -335,10 +330,10 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
 
         MLRequest preservedRequest = request.clone();
         InteractiveMessage failure = InteractiveMessage.error(title, message)
-                .withOptions(Messages.OPTIONS_RETRY_CANCEL, 0)
+                .withOptions(OPTIONS_RETRY_CANCEL, 0)
                 .withCallback(option -> Conditional.when(option == 0,
                         () -> doOpenToolbox(connection, preservedRequest)));
-        Messages.showMessageDialog(getProject(), failure);
+        showMessageDialog(getProject(), failure);
     }
 
     private String getResultModelName(MLTrainingJobSubmission submission) {

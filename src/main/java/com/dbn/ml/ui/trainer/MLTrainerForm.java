@@ -18,7 +18,6 @@ package com.dbn.ml.ui.trainer;
 
 import com.dbn.common.Priority;
 import com.dbn.common.thread.Background;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.misc.DBNComboBox;
@@ -123,7 +122,7 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
                     });
 
             existingModelNames = names;
-            Dispatch.run(() -> {
+            dispatch(() -> {
                 updateGeneratedModelName(generatedSourceName);
                 validateInput(modelNameField);
             });

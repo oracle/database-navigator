@@ -17,13 +17,11 @@
 package com.dbn.ml.result;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.util.Actions;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.execution.common.result.ui.ExecutionResultFormBase;
@@ -70,6 +68,7 @@ import java.util.Map;
 import java.util.TreeSet;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.common.util.TimeUtil.presentableDuration;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -492,9 +491,9 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
                             if (view != null) {
                                 view.navigate(true);
                             } else {
-                                Dispatch.run(() -> Messages.showErrorDialog(project,
+                                showErrorDialog(project,
                                         txt("msg.machineLearning.title.RefreshRequired"),
-                                        txt("msg.machineLearning.error.ViewNotVisible", viewName)));
+                                        txt("msg.machineLearning.error.ViewNotVisible", viewName));
                             }
                         }));
     }
