@@ -91,7 +91,7 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
     private void initComponents() {
         splitSlider.setMinimum(10);
         splitSlider.setMaximum(90);
-        seedSpinner.setModel(new SpinnerNumberModel(1L, 0L, Long.MAX_VALUE, 1L));
+        seedSpinner.setModel(new SpinnerNumberModel(1L, 0L, MLTrainerConfig.MAX_RANDOM_SEED, 1L));
         setPreferredWidth(splitSlider, 200);
         setPreferredWidth(seedSpinner, 200);
     }

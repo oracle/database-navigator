@@ -279,7 +279,9 @@ public class DBMSBackend {
 
         MLTrainerConfig trainerConfig = context.getTrainerConfig();
         int trainPercent = (int) (trainerConfig.getTrainTestSplitRatio() * 100);
-        long seed = trainerConfig.isUseFixedSeed() ? trainerConfig.getRandomSeed() : System.currentTimeMillis();
+        long seed = trainerConfig.isUseFixedSeed()
+                ? MLTrainerConfig.normalizeRandomSeed(trainerConfig.getRandomSeed())
+                : Math.floorMod(System.currentTimeMillis(), MLTrainerConfig.MAX_RANDOM_SEED + 1);
 
         log.info("Creating training table: {} ({}% of data, seed={})", trainTableName, trainPercent, seed);
 

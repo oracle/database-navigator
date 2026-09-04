@@ -29,6 +29,9 @@ import static com.dbn.common.options.setting.Settings.*;
 @Getter
 @Setter
 public class MLTrainerConfig extends MLConfig {
+    /** Maximum value accepted by Oracle's SAMPLE ... SEED clause. */
+    public static final long MAX_RANDOM_SEED = 4_294_967_295L;
+
     private MLTrainerType trainerType = MLTrainerType.LOGISTIC_REGRESSION;
     private String modelName;
 
@@ -50,7 +53,7 @@ public class MLTrainerConfig extends MLConfig {
         modelName = stringAttribute(element, "model-name", modelName);
         trainTestSplitRatio = doubleAttribute(element, "split-ratio", trainTestSplitRatio);
         useFixedSeed = booleanAttribute(element, "use-fixed-seed", useFixedSeed);
-        randomSeed = longAttribute(element, "random-seed", randomSeed);
+        randomSeed = normalizeRandomSeed(longAttribute(element, "random-seed", randomSeed));
         partitioned = booleanAttribute(element, "partitioned", partitioned);
 
         partitionColumns.clear();
@@ -83,5 +86,9 @@ public class MLTrainerConfig extends MLConfig {
                 setStringAttribute(partElement, "column", col);
             }
         }
+    }
+
+    public static long normalizeRandomSeed(long randomSeed) {
+        return Math.max(0L, Math.min(MAX_RANDOM_SEED, randomSeed));
     }
 }

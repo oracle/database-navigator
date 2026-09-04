@@ -39,6 +39,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.List;
 import java.util.Set;
+import java.util.StringJoiner;
 
 import static com.dbn.nls.NlsResources.txt;
 
@@ -197,21 +198,20 @@ public class DBMSDataManager {
         List<String> partitionColumns = context.getTrainerConfig().getPartitionColumns();
         boolean isClassification = context.getTaskType() == MLTaskType.CLASSIFICATION;
 
-        // Build column definitions with auto-detected types
-        StringBuilder columnDefs = new StringBuilder();
+        // Build column definitions with auto-detected types.
+        StringJoiner columnDefs = new StringJoiner(", ");
         for (int i = 0; i < featureColumns.size(); i++) {
-            if (i > 0) columnDefs.append(", ");
-            columnDefs.append(featureColumns.get(i));
-            columnDefs.append(numericFeatures[i] ? " NUMBER" : " VARCHAR2(" + MLCSVParser.MAX_TEXT_LENGTH + ")");
+            columnDefs.add(featureColumns.get(i) +
+                    (numericFeatures[i] ? " NUMBER" : " VARCHAR2(" + MLCSVParser.MAX_TEXT_LENGTH + ")"));
         }
         for (String labelColumn : labelColumns) {
-            columnDefs.append(", ").append(labelColumn);
-            columnDefs.append(isClassification ? " VARCHAR2(" + MLCSVParser.MAX_TEXT_LENGTH + ")" : " NUMBER");
+            columnDefs.add(labelColumn +
+                    (isClassification ? " VARCHAR2(" + MLCSVParser.MAX_TEXT_LENGTH + ")" : " NUMBER"));
         }
         // Partition columns must be present in the input table for ODMS_PARTITION_COLUMNS
         for (int i = 0; i < partitionColumns.size(); i++) {
-            columnDefs.append(", ").append(partitionColumns.get(i));
-            columnDefs.append(numericPartitions[i] ? " NUMBER" : " VARCHAR2(" + MLCSVParser.MAX_TEXT_LENGTH + ")");
+            columnDefs.add(partitionColumns.get(i) +
+                    (numericPartitions[i] ? " NUMBER" : " VARCHAR2(" + MLCSVParser.MAX_TEXT_LENGTH + ")"));
         }
 
         // Execute create table

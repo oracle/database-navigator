@@ -50,6 +50,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -144,6 +145,13 @@ public class MLPredictForm extends DBNFormBase {
             inputFields.add(field);
             fieldsPanel.add(field, gbc);
         }
+
+        gbc.gridx = 0;
+        gbc.gridy = attributes.size();
+        gbc.gridwidth = 2;
+        gbc.weighty = 1.0;
+        gbc.fill = GridBagConstraints.VERTICAL;
+        fieldsPanel.add(Box.createVerticalGlue(), gbc);
     }
 
     private void initResultPanel() {

@@ -442,15 +442,13 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
             String columnDefinitions
     ) throws SQLException {
         log.debug("Creating staging table: {}.{}", schemaName, tableName);
-        String fullTableName = buildFullTableName(schemaName, tableName);
-        executeUpdate(conn, "create-staging-table", fullTableName, columnDefinitions);
+        executeUpdate(conn, "create-staging-table", schemaName, tableName, columnDefinitions);
     }
 
     @Override
     public void dropStagingTable(DBNConnection conn, String schemaName, String tableName) throws SQLException {
         log.debug("Dropping staging table: {}.{}", schemaName, tableName);
-        String fullTableName = buildFullTableName(schemaName, tableName);
-        executeUpdate(conn, "drop-staging-table", fullTableName);
+        executeUpdate(conn, "drop-staging-table", schemaName, tableName);
     }
 
     @Override
@@ -556,11 +554,4 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
         return executeQuery(conn, "get-attribute-contribution", modelName, testTableName, topN);
     }
 
-    // ==================== HELPER METHODS ====================
-
-    private String buildFullTableName(String schemaName, String tableName) {
-        return (schemaName != null && !schemaName.isEmpty())
-                ? schemaName + "." + tableName
-                : tableName;
-    }
 }

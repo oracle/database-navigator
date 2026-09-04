@@ -468,19 +468,21 @@
 
     <!-- ==================== UTILITY OPERATIONS ==================== -->
 
+    <!-- Parameters: 0=schema, 1=table, 2=column definitions -->
     <!-- Create Staging Table -->
     <statement-execution-processor id="create-staging-table" timeout="10000">
         <statement>
-            CREATE TABLE {0} (
-                {1}
+            CREATE TABLE {@0}.{@1} (
+                {2}
             )
         </statement>
     </statement-execution-processor>
 
+    <!-- Parameters: 0=schema, 1=table -->
     <!-- Drop Staging Table -->
     <statement-execution-processor id="drop-staging-table" timeout="10000">
         <statement>
-            DROP TABLE {0} PURGE
+            DROP TABLE {@0}.{@1} PURGE
         </statement>
     </statement-execution-processor>
 
