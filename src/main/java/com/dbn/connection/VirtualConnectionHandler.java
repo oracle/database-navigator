@@ -450,7 +450,7 @@ public class VirtualConnectionHandler extends StatefulDisposableBase implements 
 
     @Override
     public DatabaseInfo getDatabaseInfo() {
-        return databaseType.getUrlPatterns()[0].getDefaultInfo();
+        return databaseType.getUrlPatterns()[0].createDefaultInfo();
     }
 
     @Override

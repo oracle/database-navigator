@@ -202,7 +202,7 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
             case CREDENTIAL -> databaseVersion >= 12.1;
             case JSON_VIEW -> databaseVersion >= 23.0;
             case AI_PROFILE -> databaseVersion >= 19.0;
-            case AI_MODEL -> databaseVersion >= 23.0;
+            case MINING_MODEL -> databaseVersion >= 23.0;
             case DATASOURCE_CONFIG -> databaseVersion >= 26.0;
             default -> supportsObjectType(objectTypeId);
         };

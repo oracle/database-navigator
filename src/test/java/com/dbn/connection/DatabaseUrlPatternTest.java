@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 
 import static com.dbn.connection.DatabaseUrlPattern.MYSQL_DB;
+import static com.dbn.connection.DatabaseUrlPattern.ORACLE_CONFIG;
 import static com.dbn.connection.DatabaseUrlPattern.ORACLE_EZCONNECT;
 import static com.dbn.connection.DatabaseUrlPattern.ORACLE_LDAP;
 import static com.dbn.connection.DatabaseUrlPattern.ORACLE_LDAPS;
@@ -68,6 +69,11 @@ public class DatabaseUrlPatternTest {
                 "jdbc:oracle:thin:@//192.168.1.1:1234/XE.ch",
                 "jdbc:oracle:thin:@//host.domain.net:1234/XE");
 
+        test(ORACLE_CONFIG,
+                "jdbc:oracle:thin:@config-file:///tmp/connections.json",
+                "jdbc:oracle:thin:@config-https://example.com/connections.json?key=production",
+                "jdbc:oracle:thin:@config-ociobject://objectstorage.eu-frankfurt-1.oraclecloud.com/n/example/b/connections/o/connections.json",
+                "jdbc:oracle:thin:@config-awss3://s3.eu-west-1.amazonaws.com/example-bucket/connections.json?AWS_REGION=eu-west-1");
 
         test(ORACLE_LDAP,
                 "jdbc:oracle:thin:@ldap://host123:1234/SRV.AB",
@@ -131,7 +137,8 @@ public class DatabaseUrlPatternTest {
                 null,
                 DatabaseProtocol.TCPS,
                 null,
-                parameters);
+                null, null, parameters
+        );
 
         Assert.assertEquals("jdbc:oracle:thin:@tcps://host123:1522/SRV?SDU=11", url);
     }

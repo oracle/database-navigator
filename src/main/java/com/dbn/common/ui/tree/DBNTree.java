@@ -28,10 +28,13 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionPopupMenu;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.UserDataHolder;
+import com.intellij.openapi.util.UserDataHolderBase;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.ui.JBUI;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Delegate;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -54,6 +57,7 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class DBNTree extends Tree implements DBNComponent {
     private WeakRef<DBNComponent> parent;
+    private final @Delegate UserDataHolder userDataHolder = new UserDataHolderBase();
 
     public DBNTree(@NotNull DBNComponent parent) {
         init(parent, null);

@@ -16,6 +16,7 @@
 
 package com.dbn.data.export;
 
+import com.dbn.common.export.ExportDestination;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.Cloneable;
 import lombok.Data;
@@ -44,7 +45,7 @@ public class DataExportInstructions implements PersistentStateElement, Cloneable
     private String fileName;
     private String fileLocation;
     private Scope scope = Scope.GLOBAL;
-    private Destination destination = Destination.FILE;
+    private ExportDestination destination = ExportDestination.FILE;
     private DataExportFormat format = DataExportFormat.EXCEL;
     private String baseName;
     private Charset charset = Charset.defaultCharset();
@@ -56,11 +57,6 @@ public class DataExportInstructions implements PersistentStateElement, Cloneable
     public enum Scope{
         GLOBAL,
         SELECTION
-    }
-
-    public enum Destination{
-        FILE,
-        CLIPBOARD
     }
 
     @Override

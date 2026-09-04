@@ -27,6 +27,7 @@ RAW|reserved
 REAL
 ROWID|reserved
 SMALLINT|reserved
+STRING
 TIMESTAMP
 UROWID
 VARCHAR|reserved

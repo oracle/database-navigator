@@ -122,7 +122,11 @@ public class BlobValue extends LargeObjectValue {
     @Override
     @Nullable
     public String read() throws SQLException {
-        return read(0);
+        if (blob != null && blob.length() > MAX_READ_SIZE) {
+            setTruncated(true);
+            throw new SQLException("Could not read value from BLOB.");
+        }
+        return read(MAX_READ_SIZE);
     }
 
     @Nullable
@@ -136,7 +140,8 @@ public class BlobValue extends LargeObjectValue {
         if (blob == null) return null;
 
         long totalLength = blob.length();
-        int size = (int) (maxSize == 0 ? totalLength : Math.min(maxSize, totalLength));
+        int requestedSize = maxSize <= 0 ? MAX_READ_SIZE : Math.min(maxSize, MAX_READ_SIZE);
+        int size = (int) Math.min(requestedSize, totalLength);
         setTruncated(totalLength > size);
         try {
             release();

@@ -18,7 +18,6 @@ package com.dbn.database.common.metadata;
 
 import com.dbn.common.content.DynamicContentType;
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.database.common.metadata.impl.DBAIModelMetaDataImpl;
 import com.dbn.database.common.metadata.impl.DBAIProfileMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBArgumentMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBCharsetMetadataImpl;
@@ -44,6 +43,7 @@ import com.dbn.database.common.metadata.impl.DBJavaResourceMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBJsonViewMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBJsonViewTableMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBMaterializedViewMetadataImpl;
+import com.dbn.database.common.metadata.impl.DBMiningModelMetaDataImpl;
 import com.dbn.database.common.metadata.impl.DBNestedTableMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBObjectDependencyMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBPackageMetadataImpl;
@@ -99,7 +99,7 @@ public class DBObjectMetadataFactory {
             case CREDENTIAL -> new DBCredentialMetadataImpl(resultSet);
             case DATASOURCE_CONFIG -> new DBDatasourceConfigMetadataImpl(resultSet);
             case AI_PROFILE -> new DBAIProfileMetadataImpl(resultSet);
-            case AI_MODEL -> new DBAIModelMetaDataImpl(resultSet);
+            case MINING_MODEL -> new DBMiningModelMetaDataImpl(resultSet);
             case OBJECT_PRIVILEGE -> new DBPrivilegeMetadataImpl(resultSet);
             case SYSTEM_PRIVILEGE -> new DBPrivilegeMetadataImpl(resultSet);
             case PROCEDURE -> new DBProcedureMetadataImpl(resultSet);

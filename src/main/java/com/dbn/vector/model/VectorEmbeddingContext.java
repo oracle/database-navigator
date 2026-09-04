@@ -17,18 +17,26 @@
 package com.dbn.vector.model;
 
 import com.dbn.connection.jdbc.DBNConnection;
-import com.intellij.openapi.progress.ProgressIndicator;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
 public class VectorEmbeddingContext {
-    private final ProgressIndicator progressIndicator;
+    private final VectorEmbeddingRequest request;
+    private final VectorEmbeddingResult result;
     private final DBNConnection connection;
 
-    public VectorEmbeddingContext(ProgressIndicator progressIndicator, DBNConnection connection) {
-        this.progressIndicator = progressIndicator;
+    public VectorEmbeddingContext(
+            VectorEmbeddingRequest request,
+            VectorEmbeddingResult result,
+            DBNConnection connection) {
+        this.request = request;
+        this.result = result;
         this.connection = connection;
+    }
+
+    public boolean isCancellationRequested() {
+        return result.isCancellationRequested();
     }
 }

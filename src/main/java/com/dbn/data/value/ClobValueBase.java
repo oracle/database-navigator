@@ -116,7 +116,11 @@ abstract class ClobValueBase<T extends Clob> extends LargeObjectValue {
     @Override
     @Nullable
     public final String read() throws SQLException {
-        return read(0);
+        if (clob != null && clob.length() > MAX_READ_SIZE) {
+            setTruncated(true);
+            throw new SQLException(txt("msg.data.exception.CouldNotReadClobValue"));
+        }
+        return read(MAX_READ_SIZE);
     }
 
     @Nullable
@@ -130,7 +134,8 @@ abstract class ClobValueBase<T extends Clob> extends LargeObjectValue {
         if (clob == null) return null;
 
         long totalLength = clob.length();
-        int size = (int) (maxSize == 0 ? totalLength : Math.min(maxSize, totalLength));
+        int requestedSize = maxSize <= 0 ? MAX_READ_SIZE : Math.min(maxSize, MAX_READ_SIZE);
+        int size = (int) Math.min(requestedSize, totalLength);
         setTruncated(totalLength > size);
         try {
             release();

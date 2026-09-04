@@ -31,6 +31,12 @@ public enum SecretType implements Presentable {
     CONNECTION_PASSWORD("Connection password"),                                       // connection passwords
     CONNECTION_AZURE_TOKEN_CLIENT_SECRET("Azure token client secret"),                // token client secret for azure
     CONNECTION_AZURE_TOKEN_CERTIFICATE_PASSWORD("Azure token certificate password"),  // token certificate password for azure
+    CONNECTION_AZURE_CONFIG_PROVIDER_CLIENT_SECRET("Azure config provider client secret"),                // config provider client secret for azure
+    CONNECTION_AZURE_CONFIG_PROVIDER_CERTIFICATE_PASSWORD("Azure config provider certificate password"),  // config provider certificate password for azure
+    CONNECTION_HASHICORP_VAULT_TOKEN("HashiCorp Vault token"),                        // config provider vault token for hashicorp
+    CONNECTION_HASHICORP_VAULT_PASSWORD("HashiCorp Vault password"),                  // config provider userpass password for hashicorp
+    CONNECTION_HASHICORP_APPROLE_SECRET_ID("HashiCorp AppRole secret ID"),            // config provider approle secret id for hashicorp
+    CONNECTION_HASHICORP_GITHUB_TOKEN("HashiCorp GitHub token"),                      // config provider github token for hashicorp
     SSH_TUNNEL_PASSWORD("SSH tunnel password"),                                       // password for SSH tunnels
     SSH_TUNNEL_KEY_PASSPHRASE("SSH tunnel key passphrase"),                           // key passphrases for SSH tunnels
     DEBUGGER_SSH_TUNNEL_PASSWORD("Debugger SSH tunnel password"),                     // password for debugger SSH reverse tunnels

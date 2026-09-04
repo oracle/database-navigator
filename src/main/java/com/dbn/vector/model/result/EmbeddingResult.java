@@ -41,6 +41,7 @@ public abstract class EmbeddingResult<T extends EmbeddingSource> implements Pres
     @NonNls
     private String errorCode;
     private Throwable exception;
+    private Runnable changeListener;
 
 
     protected EmbeddingResult(T source) {
@@ -58,6 +59,7 @@ public abstract class EmbeddingResult<T extends EmbeddingSource> implements Pres
         StepResult step = getStep(stepType);
         step.start();
         this.status = TaskStatus.RUNNING;
+        notifyChanged();
         return step;
     }
 
@@ -74,7 +76,9 @@ public abstract class EmbeddingResult<T extends EmbeddingSource> implements Pres
         for (int i = 0; i < steps.size(); i++) {
             StepResult stepResult = steps.get(i);
             if (stepResult.getStep().equals(step)) {
-                return steps.remove(i);
+                StepResult removedStep = steps.remove(i);
+                notifyChanged();
+                return removedStep;
             }
         }
         return null;
@@ -84,15 +88,18 @@ public abstract class EmbeddingResult<T extends EmbeddingSource> implements Pres
         finish(TaskStatus.FAILED);
         this.errorCode = errorCode;
         this.exception = exception;
+        notifyChanged();
     }
 
     public void finishSkipped() {
         finish(TaskStatus.SKIPPED);
+        notifyChanged();
     }
 
     public void finishSuccess(long rowsInserted) {
         finish(TaskStatus.DONE);
         this.rowsInserted = rowsInserted;
+        notifyChanged();
     }
 
     private void finish(TaskStatus failed) {
@@ -122,6 +129,10 @@ public abstract class EmbeddingResult<T extends EmbeddingSource> implements Pres
 
     public String getStatusMessage() {
         return exception == null ? null : exception.getMessage();
+    }
+
+    private void notifyChanged() {
+        if (changeListener != null) changeListener.run();
     }
 
 }

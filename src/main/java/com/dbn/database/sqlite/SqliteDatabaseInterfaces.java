@@ -43,6 +43,7 @@ public class SqliteDatabaseInterfaces extends DatabaseInterfacesBase {
     @Override
     protected DatabaseInterface createInterface(DatabaseInterfaceType interfaceType) {
         return switch (interfaceType) {
+            case DRIVER -> new SqliteDriverInterface();
             case MESSAGE_PARSER -> new SqliteMessageParserInterface();
             case ENVIRONMENT -> new DatabaseEnvironmentInterfaceImpl();
             case COMPATIBILITY -> new SqliteCompatibilityInterface();

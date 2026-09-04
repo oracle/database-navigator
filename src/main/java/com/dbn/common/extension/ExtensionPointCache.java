@@ -16,6 +16,7 @@
 
 package com.dbn.common.extension;
 
+import com.dbn.common.util.Lists;
 import com.intellij.openapi.extensions.ExtensionPointName;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -29,6 +30,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
+import static com.dbn.common.util.Unsafe.silent;
+import static java.util.Collections.emptyList;
+
 @Slf4j
 public abstract class ExtensionPointCache<K, E extends ExtensionPoint> {
     private final ExtensionPointName<E> extensionPointName;
@@ -39,9 +43,14 @@ public abstract class ExtensionPointCache<K, E extends ExtensionPoint> {
     protected ExtensionPointCache(ExtensionPointName<E> extensionPointName, Function<E, K> keyProvider) {
         this.extensionPointName = extensionPointName;
         this.keyProvider = keyProvider;
-        List<K> keys = extensionPointName.getExtensionList().stream().map(keyProvider).toList();
+        this.keys = initializeKeys();
+    }
+
+    private Set<K> initializeKeys() {
+        List<E> extensionList = silent(emptyList(), () -> extensionPointName.getExtensionList());
+        List<K> keys = Lists.convert(extensionList, keyProvider);
         reportDuplicateKeys(extensionPointName, keys);
-        this.keys = new HashSet<>(keys);
+        return new HashSet<>(keys);
     }
 
     private static <K, E extends ExtensionPoint> void reportDuplicateKeys(ExtensionPointName<E> extensionPointName, List<K> keys) {
@@ -55,6 +64,12 @@ public abstract class ExtensionPointCache<K, E extends ExtensionPoint> {
 
     protected E find(K key) {
         return cache.computeIfAbsent(key, t -> scan(t));
+    }
+
+    public void register(E extension) {
+        K key = keyProvider.apply(extension);
+        cache.put(key, extension);
+        keys.add(key);
     }
 
     protected Set<K> keys() {

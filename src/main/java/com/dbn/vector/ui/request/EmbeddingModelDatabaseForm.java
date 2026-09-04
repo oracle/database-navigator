@@ -19,7 +19,7 @@ package com.dbn.vector.ui.request;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.object.DBAIModel;
+import com.dbn.object.DBMiningModel;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.ui.DBObjectSelector;
 import com.dbn.vector.model.request.EmbeddingModelDatabaseSpec;
@@ -37,7 +37,7 @@ import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.nls.NlsResources.txt;
-import static com.dbn.object.type.DBObjectType.AI_MODEL;
+import static com.dbn.object.type.DBObjectType.MINING_MODEL;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
 import static java.util.Collections.emptyList;
 
@@ -45,7 +45,7 @@ public class EmbeddingModelDatabaseForm extends VectorToolboxFormBase {
     private JPanel mainPanel;
     private JLabel schemaLabel;
     private JLabel modelLabel;
-    private DBObjectSelector<DBAIModel> modelComboBox;
+    private DBObjectSelector<DBMiningModel> modelComboBox;
     private DBObjectSelector<DBSchema> schemaComboBox;
 
     public EmbeddingModelDatabaseForm(@NotNull VectorToolboxFormBase parent) {
@@ -71,7 +71,7 @@ public class EmbeddingModelDatabaseForm extends VectorToolboxFormBase {
         addSelectionValidation(modelComboBox, txt("msg.vector.error.SelectOrCreateModel"));
     }
 
-    private List<DBAIModel> loadModels() {
+    private List<DBMiningModel> loadModels() {
         DBSchema schema = getSelectedSchema();
         if (schema == null) return emptyList();
 
@@ -84,7 +84,7 @@ public class EmbeddingModelDatabaseForm extends VectorToolboxFormBase {
     }
 
     @Nullable
-    public DBAIModel getSelectedModel() {
+    public DBMiningModel getSelectedModel() {
         return getSelection(modelComboBox);
     }
 
@@ -99,7 +99,7 @@ public class EmbeddingModelDatabaseForm extends VectorToolboxFormBase {
                 .withValuePreselector(() -> config.getSchemaName())
                 .triggerLoad();
 
-        modelComboBox.initialize(this, AI_MODEL)
+        modelComboBox.initialize(this, MINING_MODEL)
                 .withConnectionContext(() -> getConnection())
                 .withSchemaContext(() -> getSelectedSchema())
                 .withValueLoader(() -> loadModels())

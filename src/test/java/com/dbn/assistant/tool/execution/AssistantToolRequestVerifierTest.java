@@ -27,6 +27,7 @@ import java.util.List;
 
 import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.MAX_TOOL_REQUEST_ARGUMENT_LENGTH;
 import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.MAX_TOOL_REQUEST_PREVIEW_LENGTH;
+import static com.dbn.assistant.tool.execution.AssistantToolRequestVerifier.verifyRequest;
 
 public class AssistantToolRequestVerifierTest {
     @Test
@@ -105,6 +106,28 @@ public class AssistantToolRequestVerifierTest {
         Assert.assertTrue(exception.getMessage().contains("expected argument type at index 3"));
         Assert.assertTrue(exception.getMessage().contains("interface java.util.Collection"));
         Assert.assertTrue(exception.getMessage().contains("interface java.lang.CharSequence"));
+    }
+
+    @Test
+    public void verifyRequestRejectsUnknownArguments() {
+        AssistantToolRequest request = request("{\"arg0\":\"schema\",\"arg1\":true,\"arg99\":\"unknown\"}");
+
+        IllegalArgumentException exception = Assert.assertThrows(
+                IllegalArgumentException.class,
+                () -> verifyRequest(request, nameMethod(), "schema", true, null));
+
+        Assert.assertTrue(exception.getMessage().contains("unknown arguments: \"arg99\""));
+    }
+
+    @Test
+    public void verifyRequestRejectsMismatchedArgumentTypes() {
+        AssistantToolRequest request = request(typeMethod(), "{\"arg0\":\"text\",\"arg1\":42,\"arg2\":true,\"arg3\":\"one\"}");
+
+        IllegalArgumentException exception = Assert.assertThrows(
+                IllegalArgumentException.class,
+                () -> verifyRequest(request, typeMethod(), "text", 42, true, "one", null));
+
+        Assert.assertTrue(exception.getMessage().contains("expected argument type at index 3"));
     }
 
     @Test

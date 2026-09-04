@@ -1,22 +1,15 @@
 ---
 name: dbn-language-parser-guide
-description: Oracle Database Navigator (DBN) language parser guide. Use when changing, reviewing, explaining, validating, or generating SQL/PSQL parser element XML files, language-parser-elements.dtd, grammar element definitions, parser branches, wrappers, semantic object/alias/variable identifiers, dialect parser definitions under com/dbn/language, or parser migration work from legacy surrogate ambiguity handling to extension-based ambiguity resolution.
+description: Oracle Database Navigator (DBN) language parser guide. Use when changing, reviewing, explaining, validating, or generating SQL/PSQL parser element XML files, language-parser-elements.dtd, grammar element definitions, parser branches, wrappers, semantic object/alias/variable identifiers, and dialect parser definitions under com/dbn/language.
 ---
 
 # DBN Language Parser Definitions
 
 Use this skill for DBN SQL/PSQL parser grammar XML work, especially files named `*_parser_elements.xml` and the shared DTD at `src/main/java/com/dbn/language/common/definition/language-parser-elements.dtd`.
 
-## Parser Migration Mission
+When a specification provides a syntax diagram or linked diagram-text definition, treat the diagram as the authoritative grammar source. Prefer it over reconstructing syntax from prose descriptions; use prose for semantics, restrictions, and examples.
 
-When working on parser migration, inch the new extension-based parser toward legacy parser behavior with small, observable changes. Prefer preserving the raw grammar tree and improving generated extension candidate selection over changing runtime one-of parsing strategy. Treat regressions as one of two things first: a real grammar definition gap, or a generated extension look-ahead/candidate-selection gap.
-
-Keep these boundaries clear:
-
-- Legacy path: sortable one-of behavior, token-monitor borrowing, and `exit="true"` remain compatibility mechanisms. Avoid expanding this surface; the old surrogate-based branch-rewrite machinery has been removed.
-- New path: `LanguageSpecificationParserExtensionBuilder` should generate enough look-ahead metadata for `OneOfElementTypeParser.parseCandidates()` to choose the same branch legacy would have chosen, without rewriting grammar children.
-- Runtime path: avoid broad changes in `OneOfElementTypeParser` unless explicitly requested. Candidate selection should be controlled by generated extension metadata where possible.
-- Grammar path: when a statement is invalid in both parser models, or when the syntax is absent from the dialect definition, fix the dialect parser XML locally and leave generated numeric ids to tooling.
+When reading Oracle diagram text, distinguish diagram grouping from SQL punctuation before adding a `PARENTHESES` wrapper. Parentheses that merely group alternatives or a path in the railroad diagram are structural and must not become lexical SQL parentheses. Add a `PARENTHESES` wrapper only when the diagram shows literal `(` and `)` nodes in the token flow, or when the supplied syntax/example clearly requires those characters. Whitespace in extracted diagram text is only a secondary clue: spaced forms such as `( MOUNT ... )` often denote grouping, while tight forms such as `(column, ...)` often denote SQL syntax, but never rely on spacing alone. Confirm against the diagram image and verified examples; if the diagram is unreadable or ambiguous, do not infer the grammar—ask for the diagram text or an image.
 
 ## Quick Workflow
 
@@ -25,7 +18,7 @@ Keep these boundaries clear:
 3. For dialect syntax work, use the official links in [references/parser-elements.md](references/parser-elements.md) `Specification References`.
 4. For token ids or lexer/token-list changes, inspect the `modules/dbn-dev` language tooling before inventing names.
 5. Keep XML changes declarative and local to the grammar construct requested. Do not refactor unrelated statement definitions while adding one clause or alternative.
-6. Preserve existing generated numeric child ids, but never add ids to new parser elements manually. Leave new elements without `id`; the parser tooling/reindexer assigns ids.
+6. Do not maintain numeric parser-element ids by hand. When adding or restructuring definitions, omit `id` attributes from the affected new/changed elements; the parser builder/reindexer assigns ids. Unchanged existing ids may remain until regeneration.
 7. Keep dbn-dev token registries sorted, de-duplicated, and free of blank token entries.
 8. Keep parser XMLs pointed at the shared DTD:
 
@@ -57,7 +50,9 @@ Keep these boundaries clear:
 
 - Prefer explicit child elements for complex grammar. Use `tokens="A,B,C"` only for simple fixed token sequences or alternatives already following that style.
 - `one-of` children are alternatives; child-level `optional="true"` is not supported there and the runtime warns about it. Put optionality on the `one-of` itself or wrap the optional alternative in a parent `sequence`.
+- Flatten redundant nested `one-of` alternatives when they represent the same alternatives at the same grammar position. Keep a nested `one-of` only when it is part of a distinct `sequence`/subproduction or preserves a meaningful grouping boundary.
 - `iteration` and `wrapper` must each contain exactly one child. Put repeated or wrapped multi-part constructs inside a single child `sequence`.
+- For deeply similar optional clause sequences that create parser ambiguity, preserve the established workaround of representing the sequence as an `iteration` over a `one-of` of the optional elements. Do not replace these intentional ambiguity workarounds with a plain optional sequence during unrelated grammar edits.
 - Use semantic identifier nodes (`object-def`, `object-ref`, `alias-def`, `alias-ref`, `variable-def`, `variable-ref`) when the parsed token should participate in resolve, rename, structure, or object context behavior.
 - Prefer exactly one semantic `SUBJECT` object per statement: normally the object being created, altered, dropped, or otherwise acted upon.
 - Add `original-name` only when the semantic name differs from the element or referenced definition name. Do not add redundant `original-name` attributes merely to repeat the ref-id name.
@@ -69,17 +64,17 @@ Keep these boundaries clear:
 - `custom="true"` marks intentional helper definitions, usually repetitive structures defined once and reused from several grammar positions. They do not have to map directly to a SQL specification term, but should still be named and described clearly.
 - When several root statements share the same leading keyword, add an artificial `custom="true"` grouping element such as `create_statement`, `drop_statement`, `alter_statement`, `transaction_control_statement`, or `access_control_statement` with a `one-of` of the concrete statement roots, then reference that group from the block/root statement list.
 - Add section comments for main statement roots in large grammar blocks, for example `<!-- ========= create table ========= -->`, while keeping helper definitions under the nearest relevant section.
-- When alternatives are all identifier-name shapes, prefer one surrogate `qualified-identifier` with multiple `variant` children over a `one-of` of separate `*_name` elements or individual identifier refs. This applies to object-type alternatives such as `TABLE` vs `DOMAIN` and identifier-category alternatives such as `object-ref DATASET` vs `alias-ref DATASET`.
+- When alternatives are all identifier-name shapes, prefer one `qualified-identifier` with multiple `variant` children over a `one-of` of separate `*_name` elements or individual identifier refs. This applies to object-type alternatives such as `TABLE` vs `DOMAIN` and identifier-category alternatives such as `object-ref DATASET` vs `alias-ref DATASET`.
 - Model schema-qualified objects with a `qualified-identifier` variant containing an optional `SCHEMA` reference followed by the semantic object reference/definition. Audit every occurrence of the object, including `DROP` subjects, `ON` targets, partition/inheritance parents, callback functions, and index references; do not assume only the primary statement subject needs qualification.
 - `qualified-identifier` falls back to `CHR_DOT` as its separator. Omit a redundant `separator="CHR_DOT"` attribute unless a construct genuinely requires a different separator.
 - Keep names unqualified when the dialect scopes them through a surrounding object, such as column names in table definitions or DML target clauses, constraint names, policy names, rule names, and trigger names. Query column references should use the existing dataset-alias and schema/table/column variants; leave broader expression qualification to the expression grammar.
 - Treat `variant original-name="..."` as definition-only metadata for documenting specification-name deviations; do not add Java/runtime behavior for it unless explicitly requested.
-- Prefer extension-based ambiguity resolution over surrogate rewrites. The runtime `OneOfElementTypeParser.parseCandidates()` uses raw `one-of` children when no extension is loaded, and uses `OneOfElementTypeExtension.parseCandidates()` when generated extension metadata exists.
+- Use the generated parser-extension metadata for ambiguity resolution; keep the grammar tree declarative and unchanged by ambiguity handling.
 - Keep overlapping alternatives as raw grammar children; generated extension look-ahead resolves them without rewriting the grammar tree.
 - Treat `LanguageSpecificationParserExtensionBuilder` as the current ambiguity model. It scans raw grammar trees, builds token look-ahead tries, and emits `one-of-extension` nodes into `*_parser_elements_ext.xml`. Runtime parsing then narrows candidates by deepest matching trie node before trying normal child parsers, keeping the grammar tree intact.
 - If a `one-of` ambiguity is unresolved, first inspect the generated extension XML and the candidate token prefixes before changing grammar structure. Only edit parser element XML or extension tooling source; generated `*_parser_elements_ext.xml` files should normally be refreshed by tooling.
 - When fixing a parser-definition gap, inspect the surrounding grammar construct and its sibling forms for related omissions, including alternate operators, optional clauses, delimiters, nesting, and lexer token-category collisions. Make the adjacent completeness fixes in the same pass when they are clearly part of the same syntax family.
-- Do not introduce new `exit="true"` markers. Existing markers are a deprecated workaround for ambiguous parser branches; future ambiguity handling should move to trie-based look-ahead.
+- Preserve backward compatibility when refining an existing element. Existing branches may represent legacy Oracle syntax, so do not replace or remove them merely because the current specification shows a newer form. Add the documented modern branch alongside retained legacy branches; remove an existing alternative only when the user explicitly requests it or authoritative documentation confirms it is no longer supported and compatibility is intentionally being dropped.
 - Use token id prefixes from `LanguageSpecificationLexerBuilder.TokenDefinition`, not guesses: `KW_` keywords, `FN_` functions, `DT_` datatypes, `PRM_` parameters, `EX_` exceptions. Before introducing any token, search every relevant token registry/category. Never duplicate a word across keyword, function, datatype, or parameter registries: the lexer can match a word only once. If an existing token needs a different presentation at a grammar site, use `flavor` there instead. Register genuinely new token keys in the maintained registry/source list before using them in parser element XML, and keep registries alphabetically sorted. Empty registries should generate no tokens; if tooling emits `PRM_`, `EX_`, or empty lexer rules from blank files, fix blank-line handling in dbn-dev and let the developer run the tooling. Treat `token text="..." type-id="IDENTIFIER"` as legacy/deprecated for known SQL words: register a real keyword or use the existing token id. Common shared tokens such as `CHR_*`, `OPR_*`, `IDENTIFIER`, `STRING`, `NUMBER`, and comments come from the shared/parser token XMLs.
 - If the same word can behave as different token categories, define it in the most common/generated family and use `flavor` at parser-use sites to qualify the role, for example `<token type-id="DT_INTERVAL" flavor="keyword" />`. Do not duplicate the same word across registries: the lexer can match a word only once, so duplicate generated rules clash instead of producing context-sensitive token categories.
 - Treat `attributes`, `branch`, `branch-check`, `version`, `formatting-*`, and `optional-wrapping` as runtime behavior, not comments.
@@ -94,28 +89,18 @@ Expression grammar is usually the most fragile part of each SQL dialect because 
 - Model special expression atoms as simple-expression alternatives when that matches the specification shape: parameter markers such as `?`, user/system/bind variables emitted by the lexer, row constructors, `{identifier expr}`, ODBC escapes, interval expressions, current temporal expressions, and quantified subquery operands such as `{ALL | ANY} (subquery)`.
 - Put concrete callable/function alternatives before generic qualified identifiers. If a function token can also satisfy an identifier sequence, the generic branch can consume the name and leave the opening parenthesis orphaned.
 - Use `optional-wrapping="PARENTHESES"` on expression tiers and list elements that can legally be parenthesized. Prefer optional wrappers over duplicating parenthesized alternatives, unless parentheses introduce a distinct production such as a subquery, row/list constructor, or function argument list.
-- Add wrapping cautiously and locally. Wrapper borrowing should let the monitor allocate balanced parentheses to the nearest capable wrapper, but changing the expression tree shape just to handle parentheses tends to break unrelated arithmetic, predicate, and function cases.
+- Add wrapping cautiously and locally. Changing the expression tree shape just to handle parentheses tends to break unrelated arithmetic, predicate, and function cases.
 - Keep delimiter-sensitive constructs separate from generic expression chains: `BETWEEN ... AND ...`, `IN (expr_list | subquery)`, `ANY/ALL (subquery)`, interval units after `INTERVAL`, and expression lists inside `INSERT`, `LOAD DATA`, function calls, and row constructors.
 - When a statement embeds query expressions, check branch ordering around standalone query forms. For example, regular `INSERT ... VALUES (...)` or `REPLACE ... VALUES (...)` alternatives should win before broader standalone `VALUES` query/table-value-constructor branches.
 - After expression changes, run a focused dialect corpus before broad validation. Include arithmetic precedence chains, nested parentheses, shift/bit operators, intervals, `BETWEEN`, `IN` lists, `ANY/ALL` subqueries, `CASE`, built-in and qualified functions, window functions, `SELECT ... INTO`, `INSERT ... VALUES`, and `LOAD DATA ... SET` expressions.
 
-## Extension Builder Regression Notes
+## Parser Extension Metadata
 
-When touching `LanguageSpecificationParserExtensionBuilder`, keep these migration regressions in mind and re-check their statement shapes after generation:
-
-- `ALTER TABLE ... ADD CONSTRAINT ... CHECK (col IN (...))`: list and wrapper continuations must look through nested expression/list structures far enough to keep the `IN (...)` list branch alive.
-- Object/type constructor calls such as `MDSYS.SDO_GEOMETRY(...)`, nested `MDSYS.SDO_POINT_TYPE(...)`, and unqualified `cust_address_typ(...)`: qualified-name and callable look-ahead must allow `IDENTIFIER CHR_DOT IDENTIFIER CHR_LEFT_PARENTHESIS` paths, and unqualified constructor/function ambiguity may need a grammar-level composite rather than builder-specific favoritism.
-- `INSERT ... VALUES (..., constructor(...), NULL, ...)`: constructor/function resolution must continue to work recursively inside value lists and nested argument lists, including after commas and `NULL` arguments.
-- `CREATE VIEW ... AS SELECT COUNT(*), MIN(...), MAX(...) ... GROUP BY ...`: specificity ranking must not let broad wrapper/model-expression branches steal ordinary built-in function calls. Bare callable prefixes like `FN_MIN CHR_LEFT_PARENTHESIS` and `FN_COUNT CHR_LEFT_PARENTHESIS CHR_STAR` are especially sensitive.
-- `SELECT ... WHERE owner IN ('HR', ...) AND object_name LIKE 'SYS%' ORDER BY ...`: condition and expression branches must keep ordinary string-list `IN`, `LIKE`, and trailing `ORDER BY` statements stable after changes to list or wrapper look-through.
-- `WITH ... ON a.column IN (b.column, 'literal')`: same-candidate trie pruning must not stop at `IDENTIFIER` when the reducing token is only visible after qualified-name continuation (`IDENTIFIER CHR_DOT IDENTIFIER CHR_COMMA`).
-- Builder performance is part of correctness. Unbounded same-candidate expansion over generic expression/condition branches caused very slow generation; keep structural look-through bounded and log progress with timestamps when investigating.
-- Avoid definition-specific checks in the builder. Prefer definition-agnostic token-shape rules such as structural tokens, qualified-name continuation, callable parentheses, candidate completion/specificity, and bounded pruning. If two constructs are syntactically indistinguishable, consider a grammar composite with `custom="true"` and `original-name` metadata.
+The extension builder generates look-ahead metadata for ambiguous `one-of` branches. Keep overlapping alternatives as raw grammar children and inspect the generated extension XML when diagnosing candidate-selection problems. Do not encode ambiguity resolution through grammar rewrites or definition-specific checks.
 
 ## Tooling Runs
 
-- Treat `dbn-dev` language tooling execution as a developer task for now. Do not run builds or tooling from `modules/dbn-dev` unless the developer explicitly asks for it.
-- It is fine to inspect and edit dbn-dev source and registry files when requested. Leave generated marker-block refreshes to the developer after those changes.
+- Treat generated parser token, flex, and extension artifacts as tooling outputs. Update their maintained source definitions and leave regeneration to the developer unless explicitly requested.
 
 ## Structural Constraints
 

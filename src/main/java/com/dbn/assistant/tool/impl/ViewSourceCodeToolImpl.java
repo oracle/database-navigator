@@ -20,8 +20,6 @@ import com.dbn.assistant.tool.AssistantToolBase;
 import com.dbn.assistant.tool.spec.ViewSourceCodeTool;
 import com.dbn.common.util.Commons;
 import com.dbn.editor.DBContentType;
-import com.dbn.editor.code.SourceCodeManager;
-import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBView;
 import com.dbn.object.type.DBObjectType;
@@ -39,12 +37,9 @@ public class ViewSourceCodeToolImpl extends AssistantToolBase implements ViewSou
                 () -> schema.getJsonView(viewName));
         verify(view, DBObjectType.VIEW, viewName);
 
-        SourceCodeManager sourceCodeManager = SourceCodeManager.getInstance(view.getProject());
-        SourceCodeContent sourceCode = sourceCodeManager.loadSourceFromDatabase(view, DBContentType.CODE);
-
         ViewSourceCode viewSourceCode = new ViewSourceCode();
         viewSourceCode.setName(viewName);
-        viewSourceCode.setCode(sourceCode.getRawContent());
+        viewSourceCode.setCode(loadObjectSourceCode(view, DBContentType.CODE));
         return viewSourceCode;
     }
 }
