@@ -490,7 +490,7 @@
             <action id="DBN.Assistant.Generate.SQLWithExplanation" class="com.dbn.assistant.service.selectai.editor.action.SelectAiExplainSqlAction"/>
         </group>
         <group id="DBN.ProjectView.Context">
-            <group id="DBN.ProjectView.Popup" popup="true" keep-content="true">
+            <group id="DBN.ProjectView.Popup" popup="true">
                 <action id="DBN.File.ExecuteScript" class="com.dbn.execution.script.action.ExecuteScriptFileAction" icon="com.dbn.common.icon.Icons.EXECUTE_SQL_SCRIPT"/>
                 <action id="DBN.Connection.Context.LinkConnection" class="com.dbn.connection.context.action.FolderConnectionLinkAction" icon="com.dbn.common.icon.Icons.FOLDER_CONNECTION_ASSOCIATION"/>
                 <action id="DBN.Connection.Context.LinkSchema" class="com.dbn.connection.context.action.FolderSchemaLinkAction" icon="com.dbn.common.icon.Icons.FOLDER_SCHEMA_ASSOCIATION"/>
