@@ -89,9 +89,10 @@ public class DBMSBackend {
         // Data prep — fast, requires connection
         String sourceTableName = prepareDataSource(context);
         String sourceSchemaName = getSourceSchemaName(context);
+        validateDataSource(sourceSchemaName, sourceTableName);
         String trainTableName = MLObjectNames.trainTable(timestamp);
         String testTableName = MLObjectNames.testTable(timestamp);
-        splitData(context, sourceSchemaName, sourceTableName, trainTableName, testTableName);
+        splitData(context, sourceSchemaName, sourceTableName, selectedColumns(context), trainTableName, testTableName);
         String settingsTableName = createSettingsTable(context, timestamp);
         String modelName = generateModelName(context, timestamp);
 
@@ -274,7 +275,7 @@ public class DBMSBackend {
      * Splits data into training and test sets using Oracle's SAMPLE SEED.
      * This follows Oracle's recommended approach for ML model evaluation.
      */
-    private void splitData(MLTrainingContext context, String sourceSchemaName, String sourceTableName,
+    private void splitData(MLTrainingContext context, String sourceSchemaName, String sourceTableName, List<String> columnNames,
                           String trainTableName, String testTableName) throws SQLException {
 
         MLTrainerConfig trainerConfig = context.getTrainerConfig();
@@ -295,12 +296,12 @@ public class DBMSBackend {
 
                     // Create training table with SAMPLE SEED
                     mlInterface.createTrainingTable(
-                            conn, trainTableName, sourceSchemaName, sourceTableName, trainPercent, seed);
+                            conn, trainTableName, sourceSchemaName, sourceTableName, columnNames, trainPercent, seed);
 
                     // Create test table (source MINUS training)
                     log.info("Creating test table: {} (remaining data)", testTableName);
                     mlInterface.createTestTable(
-                            conn, testTableName, sourceSchemaName, sourceTableName, trainTableName);
+                            conn, testTableName, sourceSchemaName, sourceTableName, trainTableName, columnNames);
 
                     // Add CASE_ID columns for evaluation procedures
                     mlInterface.addCaseIdColumn(conn, trainTableName);
@@ -442,6 +443,23 @@ public class DBMSBackend {
     }
 
     // ==================== Private Helper Methods ====================
+
+    private void validateDataSource(String schemaName, String tableName) throws SQLException {
+        boolean hasRows = DatabaseInterfaceInvoker.load(Priority.HIGH,
+                getProject(),
+                connection.getConnectionId(),
+                conn -> connection.getInterfaces().getMachineLearningInterface().hasTableRows(conn, schemaName, tableName));
+        if (!hasRows) {
+            throw new IllegalArgumentException(txt("msg.machineLearning.exception.SourceDataRowsMissing"));
+        }
+    }
+
+    private List<String> selectedColumns(MLTrainingContext context) {
+        Set<String> columns = new java.util.LinkedHashSet<>(context.getFeatureConfig().getFeatureColumns());
+        columns.addAll(context.getFeatureConfig().getLabelColumns());
+        columns.addAll(context.getTrainerConfig().getPartitionColumns());
+        return new ArrayList<>(columns);
+    }
 
     private String prepareDataSource(MLTrainingContext context) throws Exception {
         MLSourceType sourceType = context.getSourceConfig().getSourceType();

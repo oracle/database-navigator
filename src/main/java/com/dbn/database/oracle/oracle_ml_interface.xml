@@ -87,18 +87,18 @@
     <!-- ==================== DATA SPLITTING ==================== -->
 
     <!-- Create Training Data Table using SAMPLE with SEED (80% by default) -->
-    <!-- Parameters: 0=train_table, 1=source_schema, 2=source_table, 3=sample_percent, 4=seed -->
+    <!-- Parameters: 0=train_table, 1=source_schema, 2=source_table, 3=column_list, 4=sample_percent, 5=seed -->
     <statement-execution-processor id="create-training-table" timeout="60000">
         <statement>
-            CREATE TABLE {@0} AS SELECT * FROM {@1}.{@2} SAMPLE ({$3}) SEED ({$4})
+            CREATE TABLE {@0} AS SELECT {3} FROM {@1}.{@2} SAMPLE ({$4}) SEED ({$5})
         </statement>
     </statement-execution-processor>
 
     <!-- Create Test Data Table (remaining data not in training) -->
-    <!-- Parameters: 0=test_table, 1=source_schema, 2=source_table, 3=train_table -->
+    <!-- Parameters: 0=test_table, 1=source_schema, 2=source_table, 3=train_table, 4=column_list -->
     <statement-execution-processor id="create-test-table" timeout="60000">
         <statement>
-            CREATE TABLE {@0} AS SELECT * FROM {@1}.{@2} MINUS SELECT * FROM {@3}
+            CREATE TABLE {@0} AS SELECT {4} FROM {@1}.{@2} MINUS SELECT {4} FROM {@3}
         </statement>
     </statement-execution-processor>
 
@@ -114,6 +114,13 @@
     <statement-execution-processor id="get-row-count" timeout="10000">
         <statement>
             SELECT COUNT(*) AS ROW_COUNT FROM {0}
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Parameters: 0=schema_name, 1=table_name -->
+    <statement-execution-processor id="check-table-has-rows" timeout="10000">
+        <statement>
+            SELECT 1 FROM {@0}.{@1} WHERE ROWNUM = 1
         </statement>
     </statement-execution-processor>
 
