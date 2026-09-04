@@ -47,9 +47,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.dbn.common.content.DynamicContentProperty.LOADED;
 import static com.dbn.common.content.DynamicContentProperty.LOADING;
 import static com.dbn.common.content.DynamicContentProperty.REFRESHING;
 import static com.dbn.common.notification.NotificationCategory.METADATA;
+import static com.dbn.common.thread.ThreadProperty.CODE_ANNOTATION;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -135,7 +137,7 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
 
     @Override
     public boolean isReady() {
-        return isLoaded() && !isLoading() && !isDirty();
+        return isLoaded() && !isLoading() && !isDirty() && !is(REFRESHING);
     }
 
     @Override
@@ -253,23 +255,23 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
 
     @Override
     public void refresh() {
-        Synchronized.on(this, o -> {
-            if (o.is(REFRESHING)) return;
+        if (isNot(LOADED)) return;
+        if (is(LOADING)) return;
+        if (is(REFRESHING)) return;
 
-            try {
-                o.set(REFRESHING, true);
-                // refresh sources even if this content itself does not need refresh
-                // (e.g. if not loaded yet or already marked dirty)
-                o.refreshSources();
+        try {
+            set(REFRESHING, true);
+            // refresh sources even if this content itself does not need refresh
+            // (e.g. if not loaded yet or already marked dirty)
+            refreshSources();
 
-                if (o.shouldRefresh()) {
-                    o.refreshElements();
-                    o.markDirty();
-                }
-            } finally {
-                o.set(REFRESHING, false);
+            if (shouldRefresh()) {
+                refreshElements();
+                markDirty();
             }
-        });
+        } finally {
+            set(REFRESHING, false);
+        }
     }
 
     private void refreshSources() {
@@ -417,6 +419,7 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
     }
 
     private boolean allowSyncLoad() {
+        if (CODE_ANNOTATION.isCurrent()) return false;
         if (ThreadMonitor.isDispatchThread()) return false;
         if (ThreadMonitor.isDispatcherThread()) return false;
         if (ThreadMonitor.isWriteActionThread()) return false;
