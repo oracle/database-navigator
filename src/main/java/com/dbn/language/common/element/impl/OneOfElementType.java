@@ -21,6 +21,7 @@ import com.dbn.common.util.Strings;
 import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.cache.OneOfElementTypeCache;
 import com.dbn.language.common.element.extension.OneOfElementTypeExtension;
+import com.dbn.language.common.element.parser.Branch;
 import com.dbn.language.common.element.parser.BranchCheck;
 import com.dbn.language.common.element.parser.impl.OneOfElementTypeParser;
 import com.dbn.language.common.element.util.ElementTypeDefinitionException;
@@ -94,8 +95,10 @@ public class OneOfElementType extends ElementTypeBase {
                 ElementTypeBase elementType = bundle.resolveElementDefinition(child, type, this);
                 double version = Double.parseDouble(Commons.nvl(stringAttribute(child, "version"), "0"));
                 Set<BranchCheck> branchChecks = parseBranchChecks(stringAttribute(child, "branch-check"));
+                String branchName = stringAttribute(child, "branch");
+                Branch branch = branchName == null ? null : new Branch(branchName);
 
-                this.children[i] = new ElementTypeRef(elementType, false, version, branchChecks);
+                this.children[i] = new ElementTypeRef(elementType, false, version, branch, branchChecks);
             }
         }
 

@@ -51,7 +51,7 @@ public interface DBSchema extends DBRootObject, com.dbn.api.object.DBSchema {
     List<DBCredential> getCredentials();
     List<DBDatasourceConfig> getDatasourceConfigs();
     List<DBAIProfile> getAIProfiles();
-    List<DBAIModel> getAIModels();
+    List<DBMiningModel> getAIModels();
 
     List<DBDatabaseLink> getDatabaseLinks();
     List<DBColumn> getPrimaryKeyColumns();
@@ -79,7 +79,7 @@ public interface DBSchema extends DBRootObject, com.dbn.api.object.DBSchema {
     DBCredential getCredential(String name);
     DBDatasourceConfig getDatasourceConfig(String name);
     DBCredential getAIProfile(String name);
-    DBAIModel getAIModel(String name);
+    DBMiningModel getAIModel(String name);
     DBDatabaseLink getDatabaseLink(String name);
     DBJavaClass getJavaPrimitive(String name);
     DBJavaClass getJavaClass(String name);

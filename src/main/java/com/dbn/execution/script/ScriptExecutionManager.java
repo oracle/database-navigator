@@ -153,9 +153,6 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
             recentlyUsedInterfaces.put(connection.getDatabaseType(), cmdLineExecutable.getId());
             clearOutputOption = executionInput.isClearOutput();
 
-            DatabaseExecutionInterface executionInterface = connection.getInterfaces().getExecutionInterface();
-            executionInterface.verifyScriptExecutionInput(executionInput);
-
             Progress.background(project, connection, true,
                     txt("prc.execution.title.ExecutingScript"),
                     txt("prc.execution.text.ExecutingScript",virtualFile.getName()),
@@ -181,6 +178,9 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
         ScriptExecutionContext context = input.getExecutionContext();
         context.set(ExecutionStatus.EXECUTING, true);
         ConnectionHandler connection = input.getConnection();
+
+        DatabaseExecutionInterface executionInterface = connection.getInterfaces().getExecutionInterface();
+        executionInterface.verifyScriptExecutionInput(input);
         VirtualFile sourceFile = input.getSourceFile();
         activeProcesses.remove(sourceFile, null);
 

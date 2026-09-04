@@ -25,6 +25,7 @@ import com.dbn.language.common.element.cache.ElementLookupContext;
 import com.dbn.language.common.element.cache.ElementTypeCache;
 import com.dbn.language.common.element.cache.ElementTypeIndexedCache;
 import com.dbn.language.common.element.cache.SequenceElementTypeCache;
+import com.dbn.language.common.element.parser.Branch;
 import com.dbn.language.common.element.parser.BranchCheck;
 import com.dbn.language.common.element.parser.impl.SequenceElementTypeParser;
 import com.dbn.language.common.element.util.ElementTypeDefinitionException;
@@ -143,7 +144,9 @@ public class SequenceElementType extends ElementTypeBase {
                 double version = Double.parseDouble(Commons.nvl(stringAttribute(child, "version"), "0"));
 
                 Set<BranchCheck> branchChecks = parseBranchChecks(stringAttribute(child, "branch-check"));
-                this.children[i] = new ElementTypeRef(elementType, optional, version, branchChecks);
+                String branchName = stringAttribute(child, "branch");
+                Branch branch = branchName == null ? null : new Branch(branchName);
+                this.children[i] = new ElementTypeRef(elementType, optional, version, branch, branchChecks);
 
                 if (stringAttribute(child, "exit") != null) exitIndex = i;
             }

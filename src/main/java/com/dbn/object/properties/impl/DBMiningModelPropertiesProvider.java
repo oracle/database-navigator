@@ -16,7 +16,7 @@
 
 package com.dbn.object.properties.impl;
 
-import com.dbn.object.DBAIModel;
+import com.dbn.object.DBMiningModel;
 import com.dbn.object.properties.DBObjectProperty;
 import com.dbn.object.properties.SimplePresentableProperty;
 import com.dbn.object.type.DBObjectType;
@@ -25,13 +25,13 @@ import java.util.List;
 
 import static com.dbn.nls.NlsResources.txt;
 
-public class DBAIModelPropertiesProvider extends DBGenericObjectPropertiesProvider<DBAIModel> {
-    public DBAIModelPropertiesProvider() {
-        super(DBObjectType.AI_MODEL);
+public class DBMiningModelPropertiesProvider extends DBGenericObjectPropertiesProvider<DBMiningModel> {
+    public DBMiningModelPropertiesProvider() {
+        super(DBObjectType.MINING_MODEL);
     }
 
     @Override
-    public List<DBObjectProperty> getProperties(DBAIModel model) {
+    public List<DBObjectProperty> getProperties(DBMiningModel model) {
         List<DBObjectProperty> properties = super.getProperties(model);
         properties.add(0, new SimplePresentableProperty(txt("app.objects.property.MiningFunction"), model.getMiningFunction()));
         properties.add(1, new SimplePresentableProperty(txt("app.objects.property.Algorithm"), model.getAlgorithm()));
