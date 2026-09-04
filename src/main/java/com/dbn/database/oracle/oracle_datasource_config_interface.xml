@@ -1,0 +1,91 @@
+<!--
+  ~ Copyright 2026 Oracle and/or its affiliates
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE data-dictionary [
+        <!ELEMENT data-dictionary (statement-execution-processor)*>
+        <!ELEMENT statement-execution-processor (statement)*>
+        <!ATTLIST statement-execution-processor
+                id CDATA #REQUIRED
+                timeout CDATA #IMPLIED>
+        <!ELEMENT statement (#PCDATA)>
+        <!ATTLIST statement
+                comment CDATA #IMPLIED
+                prefixes CDATA #IMPLIED>
+        ]>
+<data-dictionary>
+    <statement-execution-processor id="datasource-config-creation-scope">
+        <statement>
+            select case
+                when exists (
+                    select 1 from SESSION_PRIVS
+                    where PRIVILEGE = 'CREATE ANY DATA SOURCE CONFIG'
+                ) then 'ANY_SCHEMA'
+                when exists (
+                    select 1 from SESSION_PRIVS
+                    where PRIVILEGE = 'CREATE DATA SOURCE CONFIG'
+                ) then 'OWN_SCHEMA'
+                else 'NONE'
+            end as scope
+            from DUAL
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="datasource-config">
+        <statement prefixes="DBA, ALL">
+            select
+                json_serialize(value returning clob pretty) as value
+            from [PREFIX]_DATA_SOURCE_CONFIGS
+            where upper(owner) = upper({#0})
+              and upper(config_name) = upper({#1})
+        </statement>
+        <statement prefixes="USER">
+            select
+                json_serialize(value returning clob pretty) as value
+            from USER_DATA_SOURCE_CONFIGS
+            where upper(config_name) = upper({#1})
+        </statement>
+        <statement>
+            <!--empty fallback for databases without data source config store-->
+            select
+                null as value
+            from dual
+            where 1 = 0
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="create-datasource-config">
+        <statement>
+            begin SYS.DBMS_DATA_SOURCE_CONFIG.CREATE_CONFIG(
+                p_config_name => {#0},
+                p_value => JSON({#1})); end;
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="update-datasource-config">
+        <statement>
+            begin SYS.DBMS_DATA_SOURCE_CONFIG.ALTER_CONFIG(
+                p_config_name => {#0},
+                p_value => JSON({#1})); end;
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="delete-datasource-config">
+        <statement>
+            begin SYS.DBMS_DATA_SOURCE_CONFIG.DROP_CONFIG(
+                p_config_name => {#0}); end;
+        </statement>
+    </statement-execution-processor>
+</data-dictionary>

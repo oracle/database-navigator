@@ -116,7 +116,7 @@ public class McpToolDefinitionForm extends DBNFormBase {
         whenFirstShown(this::initStatementEditor);
     }
 
-    private ConnectionHandler getConnection() {
+    public ConnectionHandler getConnection() {
         return connection.ensure();
     }
 

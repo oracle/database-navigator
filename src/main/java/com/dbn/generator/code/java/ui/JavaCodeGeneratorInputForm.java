@@ -16,11 +16,10 @@
 
 package com.dbn.generator.code.java.ui;
 
-import com.dbn.common.file.VirtualFilePresentable;
 import com.dbn.common.project.ModulePresentable;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.util.ComboBoxes;
+import com.dbn.common.ui.misc.ContentRootSelector;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.generator.code.CodeGeneratorCategory;
 import com.dbn.generator.code.CodeGeneratorManager;
@@ -60,7 +59,7 @@ public class JavaCodeGeneratorInputForm<I extends JavaCodeGeneratorInput> extend
     private JPanel mainPanel;
     private JPanel targetLocationPanel;
     private JComboBox<ModulePresentable> moduleComboBox;
-    private JComboBox<VirtualFilePresentable> contentRootComboBox;
+    private ContentRootSelector contentRootComboBox;
     private JTextField packageTextField;
     private JTextField classNameTextField;
 
@@ -113,14 +112,13 @@ public class JavaCodeGeneratorInputForm<I extends JavaCodeGeneratorInput> extend
     private void initContentRoots() {
         Module module = getSelectedModule();
         if (module == null) {
-            ComboBoxes.initComboBox(contentRootComboBox);
+            contentRootComboBox.setContentRoots(new VirtualFile[0]);
         } else {
             ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(module);
             Set<JavaSourceRootType> javaSourceRootTypes = Set.of(JavaSourceRootType.SOURCE, JavaSourceRootType.TEST_SOURCE);
             List<VirtualFile> sourceRoots = moduleRootManager.getSourceRoots(javaSourceRootTypes);
 
-            List<VirtualFilePresentable> presentableFiles = VirtualFilePresentable.fromFiles(sourceRoots);
-            ComboBoxes.initComboBox(contentRootComboBox, presentableFiles);
+            contentRootComboBox.setContentRoots(sourceRoots);
         }
     }
 
@@ -144,14 +142,8 @@ public class JavaCodeGeneratorInputForm<I extends JavaCodeGeneratorInput> extend
     }
 
     @Nullable
-    private VirtualFile getSelectedContentRoot() {
-        VirtualFilePresentable presentable = getSelection(contentRootComboBox);
-        return presentable == null ? null : presentable.getFile();
-    }
-
     private String getSelectedContentPath() {
-        VirtualFile selectedContentRoot = getSelectedContentRoot();
-        return selectedContentRoot == null ? null : selectedContentRoot.getPath();
+        return contentRootComboBox.getSelectedPath();
     }
 
     @NotNull

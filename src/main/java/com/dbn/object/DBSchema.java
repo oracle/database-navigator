@@ -21,6 +21,7 @@ import com.dbn.connection.SchemaId;
 import com.dbn.object.common.DBRootObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Set;
@@ -48,8 +49,9 @@ public interface DBSchema extends DBRootObject, com.dbn.api.object.DBSchema {
     List<DBDimension> getDimensions();
     List<DBCluster> getClusters();
     List<DBCredential> getCredentials();
+    List<DBDatasourceConfig> getDatasourceConfigs();
     List<DBAIProfile> getAIProfiles();
-    List<DBAIModel> getAIModels();
+    List<DBMiningModel> getAIModels();
 
     List<DBDatabaseLink> getDatabaseLinks();
     List<DBColumn> getPrimaryKeyColumns();
@@ -75,8 +77,9 @@ public interface DBSchema extends DBRootObject, com.dbn.api.object.DBSchema {
     DBSynonym getSynonym(String name);
     DBCluster getCluster(String name);
     DBCredential getCredential(String name);
+    DBDatasourceConfig getDatasourceConfig(String name);
     DBCredential getAIProfile(String name);
-    DBAIModel getAIModel(String name);
+    DBMiningModel getAIModel(String name);
     DBDatabaseLink getDatabaseLink(String name);
     DBJavaClass getJavaPrimitive(String name);
     DBJavaClass getJavaClass(String name);
@@ -87,4 +90,8 @@ public interface DBSchema extends DBRootObject, com.dbn.api.object.DBSchema {
     SchemaId getIdentifier();
 
     Set<DatabaseEntity> resetObjectsStatus();
+
+    @Override
+    @NotNull
+    SchemaId getSchemaId();
 }

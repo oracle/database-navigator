@@ -20,9 +20,10 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.util.FileChoosers;
+import com.dbn.diagnostics.Diagnostics;
 import com.dbn.oci.config.OciConfig;
-import com.dbn.oci.config.OciConfigFileUtil;
 import com.dbn.oci.config.OciConfigType;
+import com.dbn.oci.config.OciConfigUtil;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
@@ -62,6 +63,7 @@ public class OciConfigForm extends DBNFormBase {
     private JBTextField tenancyIdTextField;
     private JBTextField fingerprintTextField;
     private DBNComboBox<String> configProfileComboBox;
+    private DBNComboBox<String> regionComboBox;
     private JComboBox<OciConfigType> configTypeComboBox;
     private JLabel configFileLabel;
     private JLabel configProfileLabel;
@@ -80,12 +82,21 @@ public class OciConfigForm extends DBNFormBase {
         initComboBox(configTypeComboBox, OciConfigType.values());
         initConfigFileChooser();
         initPrivateKeyFileChooser();
+        regionComboBox.withValueLoader(() -> loadOciRegions());
 
         userIdTextField.getEmptyText().setText(txt("cfg.oci.placeholder.UserOcidExample"));
         tenancyIdTextField.getEmptyText().setText(txt("cfg.oci.placeholder.TenancyOcidExample"));
         compartmentIdTextField.getEmptyText().setText(txt("cfg.oci.placeholder.CompartmentOrTenancyOcidExample"));
         onTextChange(configFileTextField, e -> configProfileComboBox.reloadValues());
         onSelectionChange(configTypeComboBox, v -> updateFieldAvailability());
+        onTextChange(configFileTextField, e -> regionComboBox.reloadValues());
+        onTextChange(privateKeyFileTextField, e -> regionComboBox.reloadValues());
+        onTextChange(userIdTextField, e -> regionComboBox.reloadValues());
+        onTextChange(compartmentIdTextField, e -> regionComboBox.reloadValues());
+        onTextChange(tenancyIdTextField, e -> regionComboBox.reloadValues());
+        onTextChange(fingerprintTextField, e -> regionComboBox.reloadValues());
+        onSelectionChange(configProfileComboBox, v -> regionComboBox.reloadValues());
+        onSelectionChange(configTypeComboBox, v -> regionComboBox.reloadValues());
     }
 
     private void initConfigFileChooser() {
@@ -144,6 +155,11 @@ public class OciConfigForm extends DBNFormBase {
     }
 
     public void applyFormChanges() {
+        OciConfig config = this.config;
+        applyFormChanges(config);
+    }
+
+    private void applyFormChanges(OciConfig config) {
         config.setType(getSelection(configTypeComboBox));
 
         config.setUserId(getText(userIdTextField));
@@ -152,6 +168,7 @@ public class OciConfigForm extends DBNFormBase {
 
         config.setConfigFile(getText(configFileTextField));
         config.setConfigProfile(getSelection(configProfileComboBox));
+        config.setRegionId(getSelection(regionComboBox));
 
         config.setPrivateKeyFile(getText(privateKeyFileTextField));
         config.setFingerprint(getText(fingerprintTextField));
@@ -159,6 +176,7 @@ public class OciConfigForm extends DBNFormBase {
 
     public void resetFormChanges() {
         String configProfile = config.getConfigProfile();
+        String region = config.getRegionId();
         setSelection(configTypeComboBox, config.getType());
 
         setText(userIdTextField, config.getUserId());
@@ -175,11 +193,26 @@ public class OciConfigForm extends DBNFormBase {
                 .withValueLoader(() -> loadOciConfigProfiles())
                 .withValuePreselector(p -> Objects.equals(p, configProfile))
                 .triggerLoad();
+
+        regionComboBox
+                .withValuePreselector(r -> Objects.equals(r, region))
+                .triggerLoad();
     }
 
     private List<String> loadOciConfigProfiles() {
         String configFilePath = getText(configFileTextField);
-        return OciConfigFileUtil.getConfigProfileNames(configFilePath);
+        return OciConfigUtil.getConfigProfileNames(configFilePath);
+    }
+
+    private List<String> loadOciRegions() {
+        try {
+            OciConfig config = this.config.clone();
+            applyFormChanges(config);
+            return OciConfigUtil.getRegionNames(config);
+        } catch (Exception e) {
+            Diagnostics.conditionallyLog(e);
+            return List.of();
+        }
     }
 
     @Override

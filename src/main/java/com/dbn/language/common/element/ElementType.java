@@ -17,6 +17,7 @@
 package com.dbn.language.common.element;
 
 import com.dbn.code.common.style.formatting.FormattingDefinition;
+import com.dbn.common.index.Identifiable;
 import com.dbn.common.property.PropertyHolder;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguageDialect;
@@ -31,7 +32,7 @@ import org.jetbrains.annotations.NonNls;
 import javax.swing.Icon;
 import java.util.Set;
 
-public interface ElementType extends PropertyHolder<ElementTypeAttribute>{
+public interface ElementType extends PropertyHolder<ElementTypeAttribute>, Comparable<ElementType>, Identifiable<String> {
 
     @NonNls
     String getId();
@@ -76,4 +77,10 @@ public interface ElementType extends PropertyHolder<ElementTypeAttribute>{
     TokenType getTokenType();
 
     default void collectAnonymousLeafs(Set<LeafElementType> leafElementTypes) {};
+
+    @Override
+    default int compareTo(ElementType elementType) {
+        return getId().compareTo(elementType.getId());
+    }
+
 }

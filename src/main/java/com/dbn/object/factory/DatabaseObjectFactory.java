@@ -21,7 +21,6 @@ import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
-import com.dbn.common.util.Messages;
 import com.dbn.common.util.Safe;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
@@ -32,6 +31,7 @@ import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseJavaInterface;
 import com.dbn.editor.DBContentType;
 import com.dbn.object.DBSchema;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.common.status.DBObjectStatusHolder;
@@ -53,8 +53,11 @@ import java.util.stream.Collectors;
 
 import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Messages.OPTIONS_YES_CANCEL;
+import static com.dbn.common.util.Messages.OPTIONS_YES_NO;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.common.util.Messages.showQuestionDialog;
+import static com.dbn.common.util.Messages.whenOk;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.event.ObjectChangeAction.DELETE;
@@ -114,13 +117,12 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                 showQuestionDialog(project,
                         txt("msg.objects.title.OwnerRestriction"),
                         txt("msg.objects.question.OwnerRestriction", objectTypeName),
-                        Messages.OPTIONS_YES_CANCEL, 0,
-                        option -> when(option == 0, () ->
-                                openFactoryInputDialog(
-                                        userSchema,
-                                        objectType,
-                                        initialInput,
-                                        callback)));
+                        OPTIONS_YES_CANCEL, 0,
+                        whenOk(() -> openFactoryInputDialog(
+                                userSchema,
+                                objectType,
+                                initialInput,
+                                callback)));
                 return;
             }
 
@@ -159,17 +161,19 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
 
     }
 
-    public void dropObject(DBSchemaObject object) {
+    public void dropObject(DBObject object) {
         Project project = getProject();
         showQuestionDialog(
                 project,
                 txt("msg.objects.title.DropObject"),
                 txt("msg.objects.question.DropObject", object.getQualifiedNameWithType()),
-                Messages.OPTIONS_YES_NO, 0,
-                option -> when(option == 0, () ->
+                OPTIONS_YES_NO, 0,
+                whenOk(() ->
                         ConnectionAction.invoke(txt("msg.objects.title.DroppingObject"), false, object, action -> {
-                            DatabaseFileManager databaseFileManager = DatabaseFileManager.getInstance(project);
-                            databaseFileManager.closeFile(object);
+                            if (object instanceof DBSchemaObject schemaObject) {
+                                DatabaseFileManager databaseFileManager = DatabaseFileManager.getInstance(project);
+                                databaseFileManager.closeFile(schemaObject);
+                            }
 
                             ObjectManagementService objectManagementService = ObjectManagementService.getInstance(project);
                             if (objectManagementService.supports(object)) {
@@ -177,11 +181,16 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                                 return;
                             }
 
+                            if (!(object instanceof DBSchemaObject schemaObject)) {
+                                showErrorDialog(project, txt("msg.objects.error.CouldNotDropObject", object.getQualifiedNameWithType()));
+                                return;
+                            }
+
                             // TODO old implementation (implement appropriate ObjectManagementServices and cleanup)
-                            Progress.prompt(project, object, false,
+                            Progress.prompt(project, schemaObject, false,
                                     txt("prc.objects.title.DroppingObject"),
                                      txt("prc.objects.text.DroppingObject", object.getQualifiedNameWithType()),
-                                    progress -> doDropObject(object));
+                                    progress -> doDropObject(schemaObject));
                         })));
 
     }

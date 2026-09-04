@@ -83,6 +83,16 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     }
 
     @Override
+    public ResultSet loadDatasourceConfigs(String ownerName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "datasource-configs", ownerName);
+    }
+
+    @Override
+    public ResultSet loadDatasourceConfigSourceCode(String ownerName, String configName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "datasource-config-source-code", ownerName, configName);
+    }
+
+    @Override
     public ResultSet loadAllUserPrivileges(DBNConnection connection) throws SQLException {
         return executeQuery(connection, "all-user-privileges");
     }
@@ -160,6 +170,16 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     @Override
     public ResultSet loadAllConstraintRelations(String ownerName, DBNConnection connection) throws SQLException {
         return executeQuery(connection, "all-column-constraint-relations", ownerName);
+    }
+
+    @Override
+    public ResultSet loadAllColumnRelations(String ownerName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "all-column-relations", ownerName);
+    }
+
+    @Override
+    public ResultSet loadColumnRelations(String ownerName, String datasetName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "column-relations", ownerName, datasetName);
     }
 
     @Override

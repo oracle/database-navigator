@@ -18,6 +18,7 @@ package com.dbn.language.common.element.parser.impl;
 
 import com.dbn.language.common.ParseException;
 import com.dbn.language.common.TokenType;
+import com.dbn.language.common.element.extension.OneOfElementTypeExtension;
 import com.dbn.language.common.element.impl.ElementTypeRef;
 import com.dbn.language.common.element.impl.OneOfElementType;
 import com.dbn.language.common.element.parser.ElementTypeParser;
@@ -41,18 +42,27 @@ public class OneOfElementTypeParser<E extends OneOfElementType> extends ElementT
 
         ParserNode node = stepIn(parentNode, context);
 
-        ElementTypeRef element = elementType.getFirstChild();
-        while (element != null) {
-            if (context.check(element) && shouldParseElement(element.elementType, node, context)) {
-                ParseResult result = element.elementType.parser.parse(node, context);
+        ElementTypeRef[] candidates = parseCandidates(context);
+        for (ElementTypeRef candidate : candidates) {
+            if (!context.check(candidate)) continue;
+            if (!shouldParseElement(candidate.elementType, node, context)) continue;
 
-                if (result.type != NO_MATCH) {
-                    node.matchedTokens = result.matchedTokens;
-                    return stepOut(node, context, result.type);
-                }
+            ParseResult result = candidate.elementType.parser.parse(node, context);
+            if (result.type == NO_MATCH) continue;
+
+            if (candidate.branch != null) {
+                context.addBranchMarker(node, candidate.branch);
             }
-            element = element.next;
+            node.matchedTokens = result.matchedTokens;
+            return stepOut(node, context, result.type);
         }
         return stepOut(node, context, NO_MATCH);
+    }
+
+    private ElementTypeRef[] parseCandidates(ParserContext context) {
+        OneOfElementTypeExtension extension = elementType.extension;
+        return extension == null ?
+                elementType.children :
+                extension.parseCandidates(context);
     }
 }

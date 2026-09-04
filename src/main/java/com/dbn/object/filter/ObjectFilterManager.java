@@ -22,7 +22,6 @@ import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.util.Dialogs;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.object.common.DBObject;
@@ -43,7 +42,9 @@ import org.jetbrains.annotations.Nullable;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Messages.OPTIONS_YES_NO;
 import static com.dbn.common.util.Messages.showQuestionDialog;
+import static com.dbn.common.util.Messages.whenOk;
 import static com.dbn.nls.NlsResources.txt;
 
 @State(
@@ -102,7 +103,7 @@ public class ObjectFilterManager extends ProjectComponentBase implements Persist
 			showQuestionDialog(project,
                     txt("msg.objects.title.EnableFilter"),
                     txt("msg.objects.question.EnableFilter", listName),
-					Messages.OPTIONS_YES_NO, 0, o -> when(o == 0, () -> filter.setActive(true)));
+					OPTIONS_YES_NO, 0, whenOk(() -> filter.setActive(true)));
 		}
 		filterSettings.addFilter(filter);
 

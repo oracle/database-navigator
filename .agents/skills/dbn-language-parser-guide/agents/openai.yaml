@@ -1,0 +1,4 @@
+interface:
+  display_name: "DBN Parser Definitions"
+  short_description: "DBN parser XML and grammar guidance"
+  default_prompt: "Use $dbn-language-parser-guide when changing or reviewing DBN parser XML and grammar definitions."

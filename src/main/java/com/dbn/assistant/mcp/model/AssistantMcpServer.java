@@ -19,6 +19,7 @@ package com.dbn.assistant.mcp.model;
 import com.dbn.common.EntityId;
 import com.dbn.common.approval.UserApprovable;
 import com.dbn.common.approval.UserApprovalAction;
+import com.dbn.common.index.Identifiable;
 import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Cloneable;
@@ -51,7 +52,7 @@ import static java.util.Collections.emptyList;
 @Getter
 @Setter
 @NoArgsConstructor
-public class AssistantMcpServer implements PersistentConfiguration, Presentable, Cloneable<AssistantMcpServer>, UserApprovable {
+public class AssistantMcpServer implements PersistentConfiguration, Presentable, Cloneable<AssistantMcpServer>, UserApprovable, Identifiable<EntityId> {
     public static final EntityId IDE_MCP_SERVER_ID = EntityId.get("ide-mcp-server-id");
     private static final Set<String> serverKeyStore = new HashSet<>();
 

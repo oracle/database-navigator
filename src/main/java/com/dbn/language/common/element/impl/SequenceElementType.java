@@ -25,6 +25,7 @@ import com.dbn.language.common.element.cache.ElementLookupContext;
 import com.dbn.language.common.element.cache.ElementTypeCache;
 import com.dbn.language.common.element.cache.ElementTypeIndexedCache;
 import com.dbn.language.common.element.cache.SequenceElementTypeCache;
+import com.dbn.language.common.element.parser.Branch;
 import com.dbn.language.common.element.parser.BranchCheck;
 import com.dbn.language.common.element.parser.impl.SequenceElementTypeParser;
 import com.dbn.language.common.element.util.ElementTypeDefinitionException;
@@ -41,11 +42,13 @@ import java.util.Set;
 
 import static com.dbn.common.Linked.linkElements;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.SYNTHETIC;
 
 public class SequenceElementType extends ElementTypeBase {
     public ElementTypeRef[] children;
     private int exitIndex;
     private boolean basic;
+    private boolean atomic;
 
     public ElementTypeRef getFirstChild() {
         // TODO check parser definitions (empty sequence blocks)
@@ -85,11 +88,17 @@ public class SequenceElementType extends ElementTypeBase {
             cache.allPossibleTokens.addAll(elementTypeCache.getAllPossibleTokens());
         }
 
-        ElementTypeCache<?> elementTypeCache = children[0].elementType.cache;
-        cache.firstPossibleLeafs.addAll(elementTypeCache.getFirstPossibleLeafs());
-        cache.firstRequiredLeafs.addAll(elementTypeCache.getFirstRequiredLeafs());
-        cache.firstPossibleTokens.addAll(elementTypeCache.getFirstPossibleTokens());
-        cache.firstRequiredTokens.addAll(elementTypeCache.getFirstRequiredTokens());
+        for (ElementTypeRef child : children) {
+            ElementTypeCache<?> elementTypeCache = child.elementType.cache;
+            cache.firstPossibleLeafs.addAll(elementTypeCache.getFirstPossibleLeafs());
+            cache.firstPossibleTokens.addAll(elementTypeCache.getFirstPossibleTokens());
+
+            if (!child.optional) {
+                cache.firstRequiredLeafs.addAll(elementTypeCache.getFirstRequiredLeafs());
+                cache.firstRequiredTokens.addAll(elementTypeCache.getFirstRequiredTokens());
+                break;
+            }
+        }
 
     }
 
@@ -108,14 +117,19 @@ public class SequenceElementType extends ElementTypeBase {
     protected void loadDefinition(Element def) throws ElementTypeDefinitionException {
         super.loadDefinition(def);
         String tokenIds = stringAttribute(def, "tokens");
+        atomic = getBooleanAttribute(def, "atomic");
         if (Strings.isNotEmptyOrSpaces(tokenIds)) {
             basic = true;
             String[] tokens = tokenIds.split(",");
             children = new ElementTypeRef[tokens.length];
             for (int i=0; i<tokens.length; i++) {
-                String tokenTypeId = tokens[i].trim();
+                String[] tokenId = tokens[i].trim().split(":");
+                String tokenTypeId = tokenId[0].trim();
+                String tokenFlavor = tokenId.length == 1 ? null : tokenId[1].trim();
 
                 TokenElementType tokenElementType = new TokenElementType(this, tokenTypeId);
+                tokenElementType.setFlavor(tokenFlavor);
+                tokenElementType.set(SYNTHETIC, false);
                 children[i] = new ElementTypeRef(tokenElementType);
             }
         } else {
@@ -130,7 +144,9 @@ public class SequenceElementType extends ElementTypeBase {
                 double version = Double.parseDouble(Commons.nvl(stringAttribute(child, "version"), "0"));
 
                 Set<BranchCheck> branchChecks = parseBranchChecks(stringAttribute(child, "branch-check"));
-                this.children[i] = new ElementTypeRef(elementType, optional, version, branchChecks);
+                String branchName = stringAttribute(child, "branch");
+                Branch branch = branchName == null ? null : new Branch(branchName);
+                this.children[i] = new ElementTypeRef(elementType, optional, version, branch, branchChecks);
 
                 if (stringAttribute(child, "exit") != null) exitIndex = i;
             }
@@ -155,6 +171,10 @@ public class SequenceElementType extends ElementTypeBase {
 
     public boolean isExitIndex(int index) {
         return index <= exitIndex;
+    }
+
+    public boolean isAtomic() {
+        return atomic;
     }
 
     @NotNull
@@ -222,16 +242,6 @@ public class SequenceElementType extends ElementTypeBase {
 
         for (ElementTypeRef child : children) {
             bucket.add((LeafElementType) child.elementType);
-        }
-    }
-
-    public void initialize() {
-        if (initialized) return;
-        initialized = true;
-
-        // rebuild children before this
-        for (ElementTypeRef child : children) {
-            child.elementType.initialize();
         }
     }
 }

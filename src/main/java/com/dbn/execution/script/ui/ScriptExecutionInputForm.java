@@ -85,13 +85,12 @@ public class ScriptExecutionInputForm extends DBNFormBase {
 
         Project project = ensureProject();
         ConnectionManager connectionManager = ConnectionManager.getInstance(project);
-        connectionComboBox.set(ValueSelectorOption.HIDE_DESCRIPTION, true);
         connectionComboBox.setEnabled(sourceFile.isInLocalFileSystem());
         connectionComboBox.setValues(connectionManager.getConnections());
 
-        schemaComboBox.set(ValueSelectorOption.HIDE_DESCRIPTION, true);
 
         cmdLineExecutableComboBox.set(ValueSelectorOption.HIDE_ICON, true);
+        cmdLineExecutableComboBox.set(ValueSelectorOption.SHOW_DESCRIPTION, true);
         cmdLineExecutableComboBox.withValueFactory(createCmdLineFactory(project));
 
         clearOutputCheckBox.setSelected(executionInput.isClearOutput());

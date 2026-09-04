@@ -53,7 +53,7 @@ digit = [0-9]
 INTEGER = {digit}+("e"{sign}?{digit}+)?
 NUMBER = {INTEGER}?"."{digit}+(("e"{sign}?{digit}+)|(("f"|"d"){ws}))?
 
-VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
+VARIABLE = ":"({IDENTIFIER}|{INTEGER})
 
 operator_equals             = "="
 operator_not_equals         = (("!"|"^"){wso}"=")|("<"{wso}">")
@@ -74,7 +74,7 @@ DATA_TYPE = "array"|"bigint"|"bigserial"|"bit"{ws}"varying"|"bool"|"boolean"|"bo
 %state DIV
 %%
 
-{VARIABLE}           { return tt.getTokenType("VARIABLE"); }
+{VARIABLE}           { return tt.variable; }
 
 {WHITE_SPACE}+       { return stt.whiteSpace; }
 
@@ -85,12 +85,12 @@ DATA_TYPE = "array"|"bigint"|"bigserial"|"bit"{ws}"varying"|"bool"|"boolean"|"bo
 {NUMBER}             { return stt.number; }
 {STRING}             { return stt.string; }
 
-{FUNCTION}           { return tt.getTokenType("FUNCTION");}
-//{PARAMETER}          { return tt.getTokenType("PARAMETER");}
+{FUNCTION}           { return tt.function;}
+//{PARAMETER}          { return tt.parameter;}
 
-{DATA_TYPE}          { return tt.getTokenType("DATA_TYPE"); }
-{KEYWORD}            { return tt.getTokenType("KEYWORD"); }
-{OPERATOR}           { return tt.getTokenType("OPERATOR"); }
+{DATA_TYPE}          { return tt.dataType; }
+{KEYWORD}            { return tt.keyword; }
+{OPERATOR}           { return tt.operator; }
 
 
 {IDENTIFIER}         { return stt.identifier; }

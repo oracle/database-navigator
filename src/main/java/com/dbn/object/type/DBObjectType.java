@@ -22,6 +22,7 @@ import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Characters;
 import com.dbn.common.util.Lists;
 import com.dbn.common.util.Strings;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
@@ -30,6 +31,7 @@ import com.dbn.editor.DBContentType;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,9 +57,13 @@ import static com.dbn.nls.NlsResources.txt;
 @Slf4j
 @Getter
 public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentable {
-    AI_MODEL(DatabaseObjectTypeId.AI_MODEL,"AI model","AI models", Icons.DBO_AI_MODEL, null, Icons.DBO_AI_MODELS,false),
+    MINING_MODEL(DatabaseObjectTypeId.MINING_MODEL,"mining model","mining models", Icons.DBO_MINING_MODEL, null, Icons.DBO_MINING_MODEL,false),
     AI_PROFILE(DatabaseObjectTypeId.AI_PROFILE, "AI profile", "AI profiles", Icons.DBO_AI_PROFILE, Icons.DBO_AI_PROFILE_DISABLED, Icons.DBO_AI_PROFILES, false),
+    ANALYTIC_VIEW(DatabaseObjectTypeId.ANALYTIC_VIEW, "analytic view", "analytic views", null, null, null, false),
+    APPLICATION(DatabaseObjectTypeId.APPLICATION, "application", "applications", null, null, null, false),
+    ASSERTION(DatabaseObjectTypeId.ASSERTION, "assertion", "assertions", null, null, null, false),
     ATTRIBUTE(DatabaseObjectTypeId.ATTRIBUTE, "attribute", "attribute", Icons.DBO_ATTRIBUTE, null, Icons.DBO_ATTRIBUTES, false),
+    ATTRIBUTE_DIMENSION(DatabaseObjectTypeId.ATTRIBUTE_DIMENSION, "attribute dimension", "attribute dimensions", null, null, null, false),
     ARGUMENT(DatabaseObjectTypeId.ARGUMENT, "argument", "arguments", Icons.DBO_ARGUMENT, null, Icons.DBO_ARGUMENTS, false),
     CATEGORY(DatabaseObjectTypeId.CATEGORY, "category", "categories", null, null, null, false),
     CERTIFICATE(DatabaseObjectTypeId.CERTIFICATE, "certificate", "certificates", Icons.DBO_CERTIFICATE, Icons.DBO_CERTIFICATE_DISABLED, Icons.DBO_CERTIFICATES, false),
@@ -69,6 +75,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     COLUMN(DatabaseObjectTypeId.COLUMN, "column", "columns", Icons.DBO_COLUMN, null, Icons.DBO_COLUMNS, false),
     CONSTRAINT(DatabaseObjectTypeId.CONSTRAINT, "constraint", "constraints", Icons.DBO_CONSTRAINT, Icons.DBO_CONSTRAINT_DISABLED, Icons.DBO_CONSTRAINTS, false),
     CREDENTIAL(DatabaseObjectTypeId.CREDENTIAL, "credential", "credentials", Icons.DBO_CREDENTIAL, Icons.DBO_CREDENTIAL_DISABLED, Icons.DBO_CREDENTIALS, false),
+    DATASOURCE_CONFIG(DatabaseObjectTypeId.DATASOURCE_CONFIG, "datasource config", "datasource configs", Icons.DBO_DATASOURCE_CONFIG, null, Icons.DBO_DATASOURCE_CONFIGS, false),
     DATABASE(DatabaseObjectTypeId.DATABASE, "database", "databases", null, null, null, false),
     DATASET(DatabaseObjectTypeId.DATASET, "dataset", "datasets", null, null, null, true),
     DIRECTORY(DatabaseObjectTypeId.DIRECTORY, "directory", "directories", null, null, null, true),
@@ -77,10 +84,18 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     DIMENSION_ATTRIBUTE(DatabaseObjectTypeId.DIMENSION_ATTRIBUTE, "dimension attribute", "dimension attributes", null, null, null, false),
     DIMENSION_HIERARCHY(DatabaseObjectTypeId.DIMENSION_HIERARCHY, "dimension hierarchy", "dimension hierarchies", null, null, null, false),
     DIMENSION_LEVEL(DatabaseObjectTypeId.DIMENSION_LEVEL, "dimension level", "dimension levels", null, null, null, false),
+    HIERARCHY(DatabaseObjectTypeId.HIERARCHY, "hierarchy", "hierarchies", null, null, null, false),
+    LEVEL(DatabaseObjectTypeId.LEVEL, "level", "levels", null, null, null, false),
     DISKGROUP(DatabaseObjectTypeId.DISKGROUP, "diskgroup", "diskgroups", null, null, null, false),
     DOMAIN(DatabaseObjectTypeId.DOMAIN, "domain", "domains", null, null, null, false),
+    EVENT_TRIGGER(DatabaseObjectTypeId.EVENT_TRIGGER, "event trigger", "event triggers", null, null, null, false),
     EDITION(DatabaseObjectTypeId.EDITION, "edition", "editions", null, null, null, false),
+    ENGINE(DatabaseObjectTypeId.ENGINE, "engine", "engines", null, null, null, false),
+    EVENT(DatabaseObjectTypeId.EVENT, "event", "events", null, null, null, false),
     FUNCTION(DatabaseObjectTypeId.FUNCTION, "function", "functions", Icons.DBO_FUNCTION, null, Icons.DBO_FUNCTIONS, false),
+    FOREIGN_DATA_WRAPPER(DatabaseObjectTypeId.FOREIGN_DATA_WRAPPER, "foreign data wrapper", "foreign data wrappers", null, null, null, false),
+    FOREIGN_TABLE(DatabaseObjectTypeId.FOREIGN_TABLE, "foreign table", "foreign tables", null, null, null, false),
+    EXTENSION(DatabaseObjectTypeId.EXTENSION, "extension", "extensions", null, null, null, false),
     GRANTED_ROLE(DatabaseObjectTypeId.GRANTED_ROLE, "granted role", "granted roles", Icons.DBO_ROLE, null, Icons.DBO_ROLES, false),
     GRANTED_PRIVILEGE(DatabaseObjectTypeId.GRANTED_PRIVILEGE, "granted privilege", "granted privileges", Icons.DBO_PRIVILEGE, null, Icons.DBO_PRIVILEGES, false),
     INDEX(DatabaseObjectTypeId.INDEX, "index", "indexes", Icons.DBO_INDEX, Icons.DBO_INDEX_DISABLED, Icons.DBO_INDEXES, false),
@@ -94,14 +109,17 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     JAVA_PARAMETER(DatabaseObjectTypeId.JAVA_PARAMETER, "java parameter", "parameters", Icons.DBO_JAVA_PARAMETER, null, null, false),
     JSON_VIEW(DatabaseObjectTypeId.JSON_VIEW, "json view", "json views", Icons.DBO_JSON_VIEW, null, Icons.DBO_JSON_VIEWS, false),
     LIBRARY(DatabaseObjectTypeId.LIBRARY, "library", "libraries", null, null, null, false),
+    LOGFILE_GROUP(DatabaseObjectTypeId.LOGFILE_GROUP, "logfile group", "logfile groups", null, null, null, false),
     LOB(DatabaseObjectTypeId.LOB, "lob", "lobs", null, null, null, false),
     MATERIALIZED_VIEW(DatabaseObjectTypeId.MATERIALIZED_VIEW, "materialized view", "materialized views", Icons.DBO_MATERIALIZED_VIEW, null, Icons.DBO_MATERIALIZED_VIEWS, false),
     METHOD(DatabaseObjectTypeId.METHOD, "method", "methods", null, null, null, true),
     MODEL(DatabaseObjectTypeId.MODEL, "model", "models", null, null, null, false),
-    MINING_MODEL(DatabaseObjectTypeId.MINING_MODEL, "mining model", "mining models", null, null, null, false),
+    MODULE(DatabaseObjectTypeId.MODULE, "module", "modules", null, null, null, false),
     NESTED_TABLE(DatabaseObjectTypeId.NESTED_TABLE, "nested table", "nested tables", Icons.DBO_NESTED_TABLE, null, Icons.DBO_NESTED_TABLES, false),
     NESTED_TABLE_COLUMN(DatabaseObjectTypeId.NESTED_TABLE_COLUMN, "nested table column", "nested table columns", null, null, null, false),
     OPERATOR(DatabaseObjectTypeId.OPERATOR, "operator", "operators", null, null, null, false),
+    OPERATOR_CLASS(DatabaseObjectTypeId.OPERATOR_CLASS, "operator class", "operator classes", null, null, null, false),
+    OPERATOR_FAMILY(DatabaseObjectTypeId.OPERATOR_FAMILY, "operator family", "operator families", null, null, null, false),
     OUTLINE(DatabaseObjectTypeId.OUTLINE, "outline", "outlines", null, null, null, false),
     PACKAGE(DatabaseObjectTypeId.PACKAGE, "package", "packages", Icons.DBO_PACKAGE, null, Icons.DBO_PACKAGES, false),
     PACKAGE_BODY(DatabaseObjectTypeId.PACKAGE_BODY, "package body", "package bodies", Icons.DBO_PACKAGE, null, Icons.DBO_PACKAGES, false),
@@ -114,19 +132,26 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     SYSTEM_PRIVILEGE(DatabaseObjectTypeId.SYSTEM_PRIVILEGE, "system privilege", "system privileges", Icons.DBO_PRIVILEGE, null, Icons.DBO_PRIVILEGES, false),
     OBJECT_PRIVILEGE(DatabaseObjectTypeId.OBJECT_PRIVILEGE, "object privilege", "object privileges", Icons.DBO_PRIVILEGE, null, Icons.DBO_PRIVILEGES, false),
     PROCEDURE(DatabaseObjectTypeId.PROCEDURE, "procedure", "procedures", Icons.DBO_PROCEDURE, null, Icons.DBO_PROCEDURES, false),
+    PREPARED_STATEMENT(DatabaseObjectTypeId.PREPARED_STATEMENT, "prepared statement", "prepared statements", null, null, null, false),
     PROGRAM(DatabaseObjectTypeId.PROGRAM, "program", "programs", null, null, null, true),
+    RESOURCE_GROUP(DatabaseObjectTypeId.RESOURCE_GROUP, "resource group", "resource groups", null, null, null, false),
     PROFILE(DatabaseObjectTypeId.PROFILE, "profile", "profiles", null, null, null, false),
     POLICY(DatabaseObjectTypeId.POLICY, "policy", "policies", null, null, null, false),
     ROLLBACK_SEGMENT(DatabaseObjectTypeId.ROLLBACK_SEGMENT, "rollback segment", "rollback segments", null, null, null, false),
     ROLE(DatabaseObjectTypeId.ROLE, "role", "roles", Icons.DBO_ROLE, null, Icons.DBO_ROLES, false),
+    ROUTINE(DatabaseObjectTypeId.ROUTINE, "routine", "routines", null, null, null, false),
     SCHEMA(DatabaseObjectTypeId.SCHEMA, "schema", "schemas", Icons.DBO_SCHEMA, null, Icons.DBO_SCHEMAS, false),
     SEQUENCE(DatabaseObjectTypeId.SEQUENCE, "sequence", "sequences", Icons.DBO_SEQUENCE, null, Icons.DBO_SEQUENCES, false),
+    SERVER(DatabaseObjectTypeId.SERVER, "server", "servers", null, null, null, false),
     SUBPARTITION(DatabaseObjectTypeId.SUBPARTITION, "subpartition", "subpartitions", null, null, null, false),
     SYNONYM(DatabaseObjectTypeId.SYNONYM, "synonym", "synonyms", Icons.DBO_SYNONYM, null, Icons.DBO_SYNONYMS, false),
     TABLE(DatabaseObjectTypeId.TABLE, "table", "tables", Icons.DBO_TABLE, null, Icons.DBO_TABLES, false),
     TABLESPACE(DatabaseObjectTypeId.TABLESPACE, "tablespace", "tablespaces", null, null, null, false),
     TABLESPACE_SET(DatabaseObjectTypeId.TABLESPACE_SET, "tablespace set", "tablespace sets", null, null, null, false),
+    STATISTICS(DatabaseObjectTypeId.STATISTICS, "statistics", "statistics", null, null, null, false),
+    SUBSCRIPTION(DatabaseObjectTypeId.SUBSCRIPTION, "subscription", "subscriptions", null, null, null, false),
     TRIGGER(DatabaseObjectTypeId.TRIGGER, "trigger", "triggers", Icons.DBO_TRIGGER, Icons.DBO_TRIGGER_DISABLED, Icons.DBO_TRIGGERS, false),
+    RULE(DatabaseObjectTypeId.RULE, "rule", "rules", null, null, null, false),
     DATASET_TRIGGER(DatabaseObjectTypeId.DATASET_TRIGGER, "dataset trigger", "triggers", Icons.DBO_TRIGGER, Icons.DBO_TRIGGER_DISABLED, Icons.DBO_TRIGGERS, false),
     DATABASE_TRIGGER(DatabaseObjectTypeId.DATABASE_TRIGGER, "database trigger", "triggers", Icons.DBO_DATABASE_TRIGGER, Icons.DBO_DATABASE_TRIGGER_DISABLED, Icons.DBO_DATABASE_TRIGGERS, false),
     TYPE(DatabaseObjectTypeId.TYPE, "type", "types", Icons.DBO_TYPE, null, Icons.DBO_TYPES, false),
@@ -137,6 +162,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     TYPE_PROCEDURE(DatabaseObjectTypeId.TYPE_PROCEDURE, "type procedure", "procedures", Icons.DBO_PROCEDURE, null, Icons.DBO_PROCEDURES, false),
     TYPE_TYPE(DatabaseObjectTypeId.TYPE_TYPE, "type", "types", Icons.DBO_TYPE, null, Icons.DBO_TYPES, false),
     USER(DatabaseObjectTypeId.USER, "user", "users", Icons.DBO_USER, null, Icons.DBO_USERS, false),
+    VALIDATION_DIRECTIVE(DatabaseObjectTypeId.VALIDATION_DIRECTIVE, "validation directive", "validation directives", null, null, null, false),
     VARRAY(DatabaseObjectTypeId.VARRAY, "varray", "varrays", null, null, null, false),
     VARRAY_TYPE(DatabaseObjectTypeId.VARRAY_TYPE, "varray type", "varray types", null, null, null, false),
     VIEW(DatabaseObjectTypeId.VIEW, "view", "views", Icons.DBO_VIEW, null, Icons.DBO_VIEWS, false),
@@ -152,6 +178,12 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     SAVEPOINT(DatabaseObjectTypeId.SAVEPOINT, "savepoint", "savepoints", null, null, null, false),
     LANGUAGE(DatabaseObjectTypeId.LANGUAGE, "language", "languages", null, null, null, false),
     WINDOW(DatabaseObjectTypeId.WINDOW, "window", "windows", null, null, null, false),
+    CONVERSION(DatabaseObjectTypeId.CONVERSION, "conversion", "conversions", null, null, null, false),
+    PUBLICATION(DatabaseObjectTypeId.PUBLICATION, "publication", "publications", null, null, null, false),
+    TEXT_SEARCH_CONFIGURATION(DatabaseObjectTypeId.TEXT_SEARCH_CONFIGURATION, "text search configuration", "text search configurations", null, null, null, false),
+    TEXT_SEARCH_DICTIONARY(DatabaseObjectTypeId.TEXT_SEARCH_DICTIONARY, "text search dictionary", "text search dictionaries", null, null, null, false),
+    TEXT_SEARCH_PARSER(DatabaseObjectTypeId.TEXT_SEARCH_PARSER, "text search parser", "text search parsers", null, null, null, false),
+    TEXT_SEARCH_TEMPLATE(DatabaseObjectTypeId.TEXT_SEARCH_TEMPLATE, "text search template", "text search templates", null, null, null, false),
 
     LABEL(DatabaseObjectTypeId.LABEL, "label", "labels", null, null, null, false),
     CONSTANT(DatabaseObjectTypeId.CONSTANT, "constant", "constants", null, null, null, false),
@@ -230,9 +262,10 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
             DBObjectType.DBLINK,
             DBObjectType.CREDENTIAL,
             DBObjectType.AI_PROFILE,
-            DBObjectType.AI_MODEL));
+            DBObjectType.MINING_MODEL,
+            DBObjectType.DATASOURCE_CONFIG));
 
-    DBObjectType(DatabaseObjectTypeId typeId, String name, String listName, Icon icon, Icon disabledIcon, Icon listIcon, boolean generic) {
+    DBObjectType(DatabaseObjectTypeId typeId, @NonNls String name, @NonNls String listName, Icon icon, Icon disabledIcon, Icon listIcon, boolean generic) {
         this.typeId = typeId;
         this.name = name.intern();
         this.listName = listName;
@@ -338,6 +371,10 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         return ddlFileTypeIds == null ? null : ddlFileTypeIds.get(contentType);
     }
 
+    public boolean supportsDdl(@Nullable DBContentType contentType) {
+        return getDdlFileTypeId(contentType) != null;
+    }
+
     @Nullable
     public Collection<DDLFileTypeId> getDdlFileTypeIds() {
         return ddlFileTypeIds == null ? null : ddlFileTypeIds.values();
@@ -426,11 +463,14 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     private static void initInheritanceRelations() {
         TABLE.setInheritedType(DATASET);
         VIEW.setInheritedType(DATASET);
+        ANALYTIC_VIEW.setInheritedType(DATASET);
         CURSOR.setInheritedType(DATASET);
         JSON_VIEW.setInheritedType(DATASET);
         MATERIALIZED_VIEW.setInheritedType(DATASET);
         PROCEDURE.setInheritedType(METHOD);
         FUNCTION.setInheritedType(METHOD);
+        ROUTINE.setInheritedType(METHOD);
+        FOREIGN_TABLE.setInheritedType(DATASET);
         TYPE.setInheritedType(PROGRAM);
         TYPE_PROCEDURE.setInheritedType(PROCEDURE);
         TYPE_FUNCTION.setInheritedType(FUNCTION);
@@ -454,7 +494,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     }
 
     private static void initParentRelations() {
-        AI_MODEL.addParent(SCHEMA);
+        MINING_MODEL.addParent(SCHEMA);
         AI_PROFILE.addParent(SCHEMA);
         ARGUMENT.addParent(FUNCTION);
         ARGUMENT.addParent(PROCEDURE);
@@ -463,6 +503,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         ARGUMENT.addParent(PACKAGE_PROCEDURE);
         CLUSTER.addParent(SCHEMA);
         CREDENTIAL.addParent(SCHEMA);
+        DATASOURCE_CONFIG.addParent(SCHEMA);
         COLUMN.addParent(DATASET);
         COLUMN.addParent(TABLE);
         COLUMN.addParent(VIEW);
@@ -476,11 +517,15 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         DATASET.addParent(SCHEMA);
         DBLINK.addParent(SCHEMA);
         DIMENSION.addParent(SCHEMA);
+        VALIDATION_DIRECTIVE.addParent(SCHEMA);
         FUNCTION.addParent(SCHEMA);
         FUNCTION.addParent(PACKAGE);
         DIMENSION_ATTRIBUTE.addParent(DIMENSION);
         DIMENSION_HIERARCHY.addParent(DIMENSION);
         DIMENSION_LEVEL.addParent(DIMENSION);
+        ATTRIBUTE_DIMENSION.addParent(SCHEMA);
+        HIERARCHY.addParent(DIMENSION);
+        LEVEL.addParent(DIMENSION);
         INDEX.addParent(SCHEMA);
         JSON_VIEW.addParent(SCHEMA);
         MATERIALIZED_VIEW.addParent(SCHEMA);
@@ -517,6 +562,9 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         TYPE_PROCEDURE.addParent(TYPE);
         TYPE_TYPE.addParent(TYPE);
         VIEW.addParent(SCHEMA);
+        ANALYTIC_VIEW.addParent(SCHEMA);
+        APPLICATION.addParent(SCHEMA);
+        ASSERTION.addParent(SCHEMA);
         JAVA_PRIMITIVE.addParent(SCHEMA);
         JAVA_CLASS.addParent(SCHEMA);
         JAVA_INNER_CLASS.addParent(JAVA_CLASS);
@@ -531,8 +579,10 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         PROCEDURE.contentType = DBContentType.CODE;
         TABLE.contentType = DBContentType.DATA;
         VIEW.contentType = DBContentType.CODE_AND_DATA;
+        ANALYTIC_VIEW.contentType = DBContentType.CODE_AND_DATA;
         MATERIALIZED_VIEW.contentType = DBContentType.CODE_AND_DATA;
         JSON_VIEW.contentType = DBContentType.CODE_AND_JSON;
+        DATASOURCE_CONFIG.contentType = DBContentType.CODE;
         TYPE.contentType = DBContentType.CODE_SPEC_AND_BODY;
         PACKAGE.contentType = DBContentType.CODE_SPEC_AND_BODY;
         TRIGGER.contentType = DBContentType.CODE;
@@ -705,7 +755,10 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         if (connectionProvider == null) return false;
 
         DatabaseCompatibilityInterface compatibility = connectionProvider.getCompatibilityInterface();
-        return compatibility.supportsObjectType(getTypeId());
+        ConnectionHandler connection = connectionProvider.getConnection();
+        return connection == null ?
+                compatibility.supportsObjectType(getTypeId()) :
+                compatibility.supportsObjectType(getTypeId(), connection.getDatabaseVersion());
     }
 
     public boolean isBrowsable() {

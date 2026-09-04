@@ -62,7 +62,7 @@ import static com.dbn.common.text.TextContent.html;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.Buttons.onButtonClick;
 import static com.dbn.common.util.TimeUtil.presentableDuration;
-import static com.dbn.object.type.DBObjectType.AI_MODEL;
+import static com.dbn.object.type.DBObjectType.MINING_MODEL;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
 import static com.dbn.object.type.DBObjectType.TABLE;
 import static com.dbn.vector.model.request.EmbeddingModelLocation.IN_DATABASE_MODEL;
@@ -72,6 +72,7 @@ import static com.dbn.vfs.DBConsoleType.SEARCH;
 public class EmbeddingResultSummaryForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel messagePanel;
+    private DBNMessageForm messageForm;
     private JLabel sourceTypeLabel;
     private JLabel sourceCountLabel;
     private JLabel embeddedRowsLabel;
@@ -180,9 +181,7 @@ public class EmbeddingResultSummaryForm extends DBNFormBase {
         sourceTypeLabel.setText(sourceConfig.getSourceType().getName());
         sourceCountLabel.setText(sourceConfig.getSourceCount() + "");
 
-        embeddedRowsLabel.setText(result.getTotalInsertedRows() +"");
-        successRateLabel.setText(result.getSuccessRate() + "%");
-        taskDurationLabel.setText(presentableDuration(result.getDuration(), true));
+        updateSummaryLabels();
 
         stagingTableInfoLabel.setContent(html(this, "info/embedding_staging_table_info.html.ft"));
         embeddingsTableInfoLabel.setContent(html(this, "info/embedding_destination_table_info.html.ft"));
@@ -204,7 +203,7 @@ public class EmbeddingResultSummaryForm extends DBNFormBase {
                 destinationConfig.getTableName(),
                 TABLE));
 
-        embeddingModelHyperlinkLabel.setIcon(Icons.DBO_AI_MODEL);
+        embeddingModelHyperlinkLabel.setIcon(Icons.DBO_MINING_MODEL);
         embeddingModelHyperlinkLabel.setHyperlinkText(request.getModelConfig().getDatabaseModelConfig().getQualifiedModelName());
         embeddingModelHyperlinkLabel.addHyperlinkListener(e -> navigateToModel());
     }
@@ -217,7 +216,7 @@ public class EmbeddingResultSummaryForm extends DBNFormBase {
         navigateToObject(
                 databaseModelConfig.getSchemaName(),
                 databaseModelConfig.getModelName(),
-                AI_MODEL);
+                MINING_MODEL);
     }
 
     private void navigateToObject(String schemaName, String objectName, DBObjectType objectType) {
@@ -235,8 +234,19 @@ public class EmbeddingResultSummaryForm extends DBNFormBase {
 
     private void initMessagePanel() {
         TitledMessage message = result.getSummaryMessage();
-        DBNMessageForm messageForm = new DBNMessageForm(this, message);
+        messageForm = new DBNMessageForm(this, message);
         messagePanel.add(messageForm.getComponent());
+    }
+
+    public void refresh() {
+        updateSummaryLabels();
+        messageForm.setMessage(result.getSummaryMessage());
+    }
+
+    private void updateSummaryLabels() {
+        embeddedRowsLabel.setText(result.getTotalInsertedRows() + "");
+        successRateLabel.setText(result.getSuccessRate() + "%");
+        taskDurationLabel.setText(presentableDuration(result.getDuration(), true));
     }
 
     @Override

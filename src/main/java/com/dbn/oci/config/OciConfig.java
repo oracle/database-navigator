@@ -39,7 +39,7 @@ public class OciConfig implements PersistentStateElement, Cloneable<OciConfig> {
     private String fingerprint;
     private String configFile;
     private String configProfile;
-    private String region;
+    private String regionId = "us-chicago-1";  // fallback to the initially supported region
 
     public boolean isProvided() {
         if (type == OciConfigType.FILE) {
@@ -65,7 +65,7 @@ public class OciConfig implements PersistentStateElement, Cloneable<OciConfig> {
         userId = getString(element, "user-id", userId);
         tenancyId = getString(element, "tenancy-id", tenancyId);
         compartmentId = getString(element, "compartment-id", compartmentId);
-        region = getString(element, "region", region);
+        regionId = getString(element, "region-id", regionId);
 
         privateKeyFile = getString(element, "private-key-file", privateKeyFile);
         fingerprint = getString(element, "fingerprint", fingerprint);
@@ -81,7 +81,7 @@ public class OciConfig implements PersistentStateElement, Cloneable<OciConfig> {
         setString(element, "user-id", userId);
         setString(element, "tenancy-id", tenancyId);
         setString(element, "compartment-id", compartmentId);
-        setString(element, "region", region);
+        setString(element, "region-id", regionId);
 
         setString(element, "private-key-file", privateKeyFile);
         setString(element, "fingerprint", fingerprint);

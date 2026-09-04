@@ -21,6 +21,7 @@ import com.dbn.common.dispose.ComponentDisposer;
 import com.dbn.common.environment.options.EnvironmentSettings;
 import com.dbn.common.event.ApplicationEvents;
 import com.dbn.common.latent.Latent;
+import com.dbn.common.locale.Formatter;
 import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.alignment.FieldAlignerData;
@@ -61,6 +62,7 @@ import java.awt.event.ActionEvent;
 import java.util.Arrays;
 
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.common.latent.Latent.basic;
 import static com.dbn.common.ui.alignment.FieldAligner.alignFormFields;
 import static com.dbn.common.ui.form.DBNFormBinding.bindForm;
 import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.disableFormField;
@@ -79,8 +81,10 @@ public abstract class DBNFormBase
     @Getter
     private boolean initialized;
 
-    private final Latent<DBNFormFieldAdapter> fieldAdapter = Latent.basic(() -> DBNFormFieldAdapter.create(this));
-    private final Latent<Boolean> hasScrollBars = Latent.basic(() -> hasChildComponent(getMainComponent(), c -> c instanceof JScrollPane));
+    private final Latent<DBNFormFieldAdapter> fieldAdapter = basic(() -> DBNFormFieldAdapter.create(this));
+    private final Latent<Boolean> hasScrollBars = basic(() -> hasChildComponent(getMainComponent(), c -> c instanceof JScrollPane));
+    private final @Getter DBNFormMonitor monitor = new DBNFormMonitor(this);
+    private Formatter formatter;
 
     public DBNFormBase(@Nullable Disposable parent) {
         super(parent);
@@ -90,8 +94,25 @@ public abstract class DBNFormBase
         super(parent, project);
     }
 
+    @NotNull
     protected DBNFormFieldAdapter getFieldAdapter() {
-        return fieldAdapter.get();
+        return fieldAdapter.ensure();
+    }
+
+    @Nullable
+    public final Formatter getFormatter() {
+        if (formatter != null) return formatter;
+
+        Project project = getProject();
+        if (project == null || project.isDisposed()) return null;
+
+        formatter = Formatter.getInstance(project);
+        return formatter;
+    }
+
+    @NotNull
+    public final Formatter ensureFormatter() {
+        return nd(getFormatter());
     }
 
     @NotNull
@@ -170,6 +191,16 @@ public abstract class DBNFormBase
 
         ApplicationEvents.subscribe(this, LafManagerListener.TOPIC, source -> lookAndFeelChanged());
         updateFieldAvailability();
+        monitor.init();
+    }
+
+    /** Returns whether a user interaction has changed one of this form's fields. */
+    public boolean isFormChanged() {
+        return monitor.isChanged();
+    }
+
+    public final void markFormChanged() {
+        monitor.markChanged();
     }
 
     /**

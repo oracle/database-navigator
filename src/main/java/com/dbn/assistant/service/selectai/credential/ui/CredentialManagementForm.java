@@ -29,7 +29,6 @@ import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Lists;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
@@ -60,8 +59,10 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
-import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Messages.OPTIONS_YES_NO;
 import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.common.util.Messages.showQuestionDialog;
+import static com.dbn.common.util.Messages.whenOk;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.common.DBObjectUtil.refreshUserObjects;
@@ -194,11 +195,11 @@ public class CredentialManagementForm extends DBNFormBase {
         detailedMessage.append(", ");
       });
     }
-    Messages.showQuestionDialog(getProject(),
+    showQuestionDialog(getProject(),
             txt("msg.assistant.title.DeleteCredential"),
             detailedMessage.toString(),
-            Messages.OPTIONS_YES_NO, 0,
-            option -> when(option == 0, () -> removeCredential(credential)));
+            OPTIONS_YES_NO, 0,
+            whenOk(() -> removeCredential(credential)));
   }
 
   private boolean isCredentialUsed(DBCredential credential) {
@@ -248,7 +249,7 @@ public class CredentialManagementForm extends DBNFormBase {
     }
   }
 
-  private ConnectionId getConnectionId() {
+  public ConnectionId getConnectionId() {
     return getConnection().getConnectionId();
   }
 

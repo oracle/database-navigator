@@ -46,19 +46,19 @@ SQLP_VARIABLE = "&""&"?{IDENTIFIER}
 {BLOCK_COMMENT}      { return stt.blockComment; }
 {LINE_COMMENT}       { return stt.lineComment; }
 
-"wrapped"            { yybegin(WRAPPED); return tt.getKeyword();}
+"wrapped"            { yybegin(WRAPPED); return tt.keyword;}
 
 {INTEGER}            { return stt.integer; }
 {NUMBER}             { return stt.number; }
 {STRING}             { return stt.string; }
 
-{PLSQL_FUNCTION}     { return tt.getFunction();}
-{PLSQL_PARAMETER}    { return tt.getParameter();}
-{PLSQL_EXCEPTION}    { return tt.getException();}
-{PLSQL_DATATYPE}     { return tt.getDataType(); }
-{PLSQL_KEYWORD}      { return tt.getKeyword(); }
+{PLSQL_FUNCTION}     { return tt.function;}
+{PLSQL_PARAMETER}    { return tt.parameter;}
+{PLSQL_EXCEPTION}    { return tt.exception;}
+{PLSQL_DATATYPE}     { return tt.dataType; }
+{PLSQL_KEYWORD}      { return tt.keyword; }
 
-{OPERATOR}           { return tt.getOperator(); }
+{OPERATOR}           { return tt.operator; }
 {IDENTIFIER}         { return stt.identifier; }
 {QUOTED_IDENTIFIER}  { return stt.identifier; }
 
@@ -69,4 +69,3 @@ SQLP_VARIABLE = "&""&"?{IDENTIFIER}
 
 {WHITE_SPACE}        { return stt.whiteSpace; }
 .                    { return stt.identifier; }
-

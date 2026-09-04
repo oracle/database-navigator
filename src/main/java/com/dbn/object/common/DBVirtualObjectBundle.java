@@ -27,6 +27,7 @@ import com.dbn.data.type.DBNativeDataType;
 import com.dbn.database.DatabaseObjectIdentifier;
 import com.dbn.object.DBCharset;
 import com.dbn.object.DBConsole;
+import com.dbn.object.DBDatasourceConfig;
 import com.dbn.object.DBPrivilege;
 import com.dbn.object.DBRole;
 import com.dbn.object.DBSchema;
@@ -44,8 +45,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
-import java.util.Collections;
 import java.util.List;
+
+import static java.util.Collections.emptyList;
 
 @Getter
 @Setter
@@ -61,51 +63,57 @@ public class DBVirtualObjectBundle extends StatefulDisposableBase implements DBO
 
     @Override
     public List<DBConsole> getConsoles() {
-        return Collections.emptyList();
+        return emptyList();
     }
 
     @Override
     public List<DBSchema> getSchemas() {
-        return Collections.emptyList();
+        return emptyList();
     }
 
     @Override
     public List<DBSchema> getSchemas(boolean filtered) {
-        return Collections.emptyList();
+        return emptyList();
     }
 
     @Override
     public List<DBSchema> getPublicSchemas() {
-        return Collections.emptyList();
+        return emptyList();
     }
 
     @Override
     public List<SchemaId> getSchemaIds() {
-        return Collections.emptyList();
+        return emptyList();
     }
 
     @Nullable
     @Override
     public List<DBUser> getUsers() {
-        return Collections.emptyList();
+        return emptyList();
     }
 
     @Nullable
     @Override
     public List<DBRole> getRoles() {
-        return Collections.emptyList();
+        return emptyList();
     }
 
     @Nullable
     @Override
     public List<DBSystemPrivilege> getSystemPrivileges() {
-        return Collections.emptyList();
+        return emptyList();
     }
 
     @Nullable
     @Override
     public List<DBCharset> getCharsets() {
-        return Collections.emptyList();
+        return emptyList();
+    }
+
+    @Nullable
+    @Override
+    public List<DBDatasourceConfig> getDatasourceConfigs() {
+        return emptyList();
     }
 
     @Nullable

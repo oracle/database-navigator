@@ -33,6 +33,8 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Conditional.when;
@@ -47,6 +49,7 @@ public class OciConfigManager extends ProjectComponentBase implements Persistent
     public static final String COMPONENT_NAME = "DBNavigator.Project.OciConfigManager";
 
     private final StateContainer states = new StateContainer();
+    private final OciConfigModels models = new OciConfigModels();
 
     private OciConfigManager(Project project) {
         super(project, COMPONENT_NAME);
@@ -68,6 +71,11 @@ public class OciConfigManager extends ProjectComponentBase implements Persistent
                 when(exitCode == OK_EXIT_CODE, () -> consumer.accept(dialog.getConfig())));
     }
 
+    @Nullable
+    public List<String> getModelNames(OciConfig config) {
+        return models.getModelNames(config);
+    }
+
     /****************************************
      *       PersistentStateComponent       *
      *****************************************/
@@ -76,11 +84,13 @@ public class OciConfigManager extends ProjectComponentBase implements Persistent
     public Element getComponentState() {
         Element element = newStateElement();
         states.writeState(element, "config-states");
+        models.writeState(element, "model-names");
         return element;
     }
 
     @Override
     public void loadComponentState(@NotNull Element element) {
         states.readState(element, "config-states");
+        models.readState(element, "model-names");
     }
 }

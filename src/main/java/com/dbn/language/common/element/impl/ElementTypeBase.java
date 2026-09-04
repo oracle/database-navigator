@@ -21,6 +21,7 @@ import com.dbn.code.common.style.formatting.FormattingDefinitionFactory;
 import com.dbn.code.common.style.formatting.IndentDefinition;
 import com.dbn.code.common.style.formatting.SpacingDefinition;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.index.Identifiable;
 import com.dbn.common.util.Strings;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguageDialect;
@@ -56,13 +57,11 @@ import java.util.StringTokenizer;
 
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.language.common.element.util.ElementTypeAttribute.OPTIONAL_WRAPPING;
-import static com.dbn.language.common.element.util.ElementTypeAttribute.SCOPE_DEMARCATION;
-import static com.dbn.language.common.element.util.ElementTypeAttribute.SCOPE_ISOLATION;
 import static com.dbn.language.common.element.util.ElementTypeAttribute.STATEMENT;
 
 @Slf4j
 @Setter
-public abstract class ElementTypeBase extends IElementType implements ElementType, ICompositeElementType {
+public abstract class ElementTypeBase extends IElementType implements ElementType, ICompositeElementType, Identifiable<String> {
     private static final FormattingDefinition STATEMENT_FORMATTING = new FormattingDefinition(null, IndentDefinition.NORMAL, SpacingDefinition.MIN_LINE_BREAK, null);
 
     private final int hashCode;
@@ -81,11 +80,6 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
     public DBObjectType virtualObjectType;
     public WrappingDefinition wrapping;
     private ElementTypeAttributeHolder attributes;
-
-    public boolean scopeDemarcation;
-    public boolean scopeIsolation;
-    protected transient boolean initialized;
-
 
     @Override
     public ASTNode createCompositeNode() {
@@ -133,10 +127,6 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
             }
         }
         return branches;
-    }
-
-    public void initialize() {
-        this.initialized = true;
     }
 
     public String nextChildId() {
@@ -229,8 +219,11 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
             wrapping = new WrappingDefinition(beginTokenElement, endTokenElement, true);
         }
 
-        scopeDemarcation = is(SCOPE_DEMARCATION) || is(STATEMENT);
-        scopeIsolation = is(SCOPE_ISOLATION);
+    }
+
+    public void loadExtension(Element def) {
+        log.warn("DBN - [{}] unsupported element extension (element = {}, type = {})",
+                getLanguageDialect().getID(), getId(), def.getName());
     }
 
     @Override

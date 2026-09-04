@@ -30,7 +30,7 @@ import com.dbn.common.util.Commons;
 import com.dbn.common.util.Sockets;
 import com.dbn.connection.AuthenticationTokenType;
 import com.dbn.connection.AuthenticationType;
-import com.dbn.oci.config.OciConfigFileUtil;
+import com.dbn.oci.config.OciConfigUtil;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -239,7 +239,16 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
     }
 
     public void setAuthenticationTypes(AuthenticationType ...  authenticationTypes) {
+        AuthenticationType authenticationType = getAuthenticationType();
         initComboBox(authTypeComboBox, authenticationTypes);
+        if (authenticationType != null && authenticationType.isOneOf(authenticationTypes)) {
+            setSelection(authTypeComboBox, authenticationType);
+        } else if (USER_PASSWORD.isOneOf(authenticationTypes)) {
+            setSelection(authTypeComboBox, USER_PASSWORD);
+        } else if (authenticationTypes.length > 0) {
+            setSelection(authTypeComboBox, authenticationTypes[0]);
+        }
+        updateFieldAvailability();
     }
 
     public void addChangeListeners(Runnable runnable) {
@@ -310,7 +319,7 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
 
     private List<String> loadOciConfigProfiles() {
         String configFilePath = getConfigFilePath();
-        return OciConfigFileUtil.getConfigProfileNames(configFilePath);
+        return OciConfigUtil.getConfigProfileNames(configFilePath);
     }
 
     private String getConfigFilePath() {

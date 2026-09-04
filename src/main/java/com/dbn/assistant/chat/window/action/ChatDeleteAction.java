@@ -21,14 +21,14 @@ import com.dbn.assistant.chat.message.AuthorType;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.util.Messages;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Messages.OPTIONS_YES_NO;
 import static com.dbn.common.util.Messages.showQuestionDialog;
+import static com.dbn.common.util.Messages.whenOk;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
@@ -78,8 +78,8 @@ public class ChatDeleteAction extends AbstractChatBoxAction {
                 txt("msg.assistant.question.ClearChat");
 
         showQuestionDialog(project, title, message,
-                Messages.OPTIONS_YES_NO, 0,
-                option -> when(option == 0, () -> chatBox.deleteCurrentChat()));
+                OPTIONS_YES_NO, 0,
+                whenOk(() -> chatBox.deleteCurrentChat()));
 
     }
 

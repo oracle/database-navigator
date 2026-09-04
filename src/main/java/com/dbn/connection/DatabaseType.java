@@ -32,6 +32,7 @@ import static com.dbn.common.constant.Constant.array;
 import static com.dbn.common.util.Strings.toUpperCase;
 import static com.dbn.connection.AuthenticationType.NONE;
 import static com.dbn.connection.AuthenticationType.OS_CREDENTIALS;
+import static com.dbn.connection.AuthenticationType.TOKEN;
 import static com.dbn.connection.AuthenticationType.USER;
 import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 import static com.dbn.nls.NlsResources.txt;
@@ -43,8 +44,8 @@ public enum DatabaseType implements Constant<DatabaseType>, Presentable{
             Icons.DB_ORACLE,
             Icons.DB_ORACLE_LARGE,
             "oracle.jdbc.driver.OracleDriver",
-            AuthenticationType.values(),
-            array(DatabaseUrlPattern.ORACLE_SERVICE, DatabaseUrlPattern.ORACLE_SID, DatabaseUrlPattern.ORACLE_EZCONNECT, DatabaseUrlPattern.ORACLE_TNS, DatabaseUrlPattern.GENERIC)),
+            array(NONE, USER, USER_PASSWORD, OS_CREDENTIALS, TOKEN),
+            array(DatabaseUrlPattern.ORACLE_SERVICE, DatabaseUrlPattern.ORACLE_SID, DatabaseUrlPattern.ORACLE_EZCONNECT, DatabaseUrlPattern.ORACLE_TNS, DatabaseUrlPattern.ORACLE_CONFIG, DatabaseUrlPattern.GENERIC)),
 
     MYSQL(
             txt("cfg.connection.const.DatabaseType_MYSQL"),
@@ -80,13 +81,21 @@ public enum DatabaseType implements Constant<DatabaseType>, Presentable{
             array(NONE, USER, USER_PASSWORD, OS_CREDENTIALS),
             array(DatabaseUrlPattern.GENERIC)),
 
+    ISO92(
+            txt("cfg.connection.const.DatabaseType_ISO92"),
+            Icons.DB_GENERIC,
+            Icons.DB_GENERIC_LARGE,
+            "java.sql.Driver",
+            array(NONE),
+            array(DatabaseUrlPattern.GENERIC)),
+
     @Deprecated // used for fallback on existing configs TODO decommission after a few releases
     UNKNOWN(
             txt("cfg.connection.const.DatabaseType_UNKNOWN"),
             null,
             null,
             "java.sql.Driver",
-            AuthenticationType.values(),
+            array(NONE, USER, USER_PASSWORD, OS_CREDENTIALS, TOKEN),
             array(DatabaseUrlPattern.GENERIC));
 
     public static final DatabaseType[] SUPPORTED = {ORACLE, MYSQL, POSTGRES, SQLITE, GENERIC};

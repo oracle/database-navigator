@@ -38,19 +38,24 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.impl.PsiManagerEx;
 import com.intellij.psi.impl.file.impl.FileManager;
+import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Iterator;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.util.Unsafe.cast;
 
+@UtilityClass
 public class PsiUtil {
     // TODO: check if any other visitor relevant
     public static final PsiElementVisitors SUPPORTED_VISITORS = PsiElementVisitors.create(
@@ -60,6 +65,25 @@ public class PsiUtil {
             "SpellCheckingInspection",
             "ParserDiagnosticsUtil",
             "UpdateCopyrightAction");
+
+    public static boolean hasErrors(@NotNull PsiFile psiFile) {
+        return Read.call(psiFile, file -> {
+            Deque<PsiElement> elements = new ArrayDeque<>();
+            elements.push(file);
+            while (!elements.isEmpty()) {
+                PsiElement element = elements.pop();
+
+                for (PsiElement child = element.getFirstChild(); child != null; child = child.getNextSibling()) {
+                    if (child instanceof PsiWhiteSpace) continue;
+                    if (child instanceof PsiComment) continue;
+                    if (child instanceof PsiErrorElement) return true;
+
+                    elements.push(child);
+                }
+            }
+            return false;
+        });
+    }
 
 
     public static DBSchema getDatabaseSchema(PsiElement psiElement) {
@@ -95,10 +119,18 @@ public class PsiUtil {
     public static BasePsiElement resolveAliasedEntityElement(IdentifierPsiElement aliasElement) {
         PsiElement psiElement = aliasElement.isReference() ? aliasElement.resolve() : aliasElement; 
         if (psiElement instanceof BasePsiElement basePsiElement) {
-            BasePsiElement scope = basePsiElement.findEnclosingNamedElement();
-
             DBObjectType objectType = aliasElement.getObjectType();
             BasePsiElement objectPsiElement = null;
+
+            // previous leaf lookup
+            LeafPsiElement previousLeaf = basePsiElement.getPrevLeaf();
+            if (previousLeaf instanceof IdentifierPsiElement identifierPsiElement) {
+                if (identifierPsiElement.isObject() && identifierPsiElement.getObjectType() == objectType) {
+                    return identifierPsiElement;
+                }
+            }
+
+            BasePsiElement<?> scope = basePsiElement.findEnclosingNamedElement();
             if (scope != null) {
                 IdentifierLookupAdapter lookupInput = new IdentifierLookupAdapter(aliasElement, null, null, objectType, null);
 
@@ -109,9 +141,9 @@ public class PsiUtil {
                         objectPsiElement = lookupInput.findInScope(scope);
                     }
                 }
-            }
 
-            if (objectPsiElement != null) {
+                if (objectPsiElement == null) return null;
+
                 SetCollector<BasePsiElement> virtualObjectPsiElements = SetCollector.linked();
                 scope.collectVirtualObjectPsiElements(objectType, virtualObjectPsiElements);
                 for (BasePsiElement virtualObjectPsiElement : virtualObjectPsiElements.elements()) {
@@ -120,7 +152,6 @@ public class PsiUtil {
 
                 }
             }
-
             return objectPsiElement;
 
         }

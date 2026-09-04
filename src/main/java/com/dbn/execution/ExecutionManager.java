@@ -32,13 +32,10 @@ import com.dbn.execution.common.result.ui.ExecutionResultForm;
 import com.dbn.execution.common.ui.ExecutionConsoleForm;
 import com.dbn.execution.compiler.CompilerResult;
 import com.dbn.execution.explain.result.ExplainPlanResult;
-import com.dbn.execution.java.result.JavaExecutionResult;
 import com.dbn.execution.logging.LogOutput;
 import com.dbn.execution.logging.LogOutputContext;
-import com.dbn.execution.method.result.MethodExecutionResult;
 import com.dbn.execution.statement.options.StatementExecutionSettings;
 import com.dbn.execution.statement.result.StatementExecutionResult;
-import com.dbn.vector.model.VectorEmbeddingExecutionResult;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -62,6 +59,9 @@ import static com.dbn.common.navigation.NavigationInstruction.SELECT;
 import static com.dbn.common.options.setting.Settings.getBoolean;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setBoolean;
+import static com.dbn.common.util.Messages.OPTIONS_YES_NO;
+import static com.dbn.common.util.Messages.showQuestionDialog;
+import static com.dbn.common.util.Messages.whenOk;
 import static com.dbn.common.util.Modality.nonModal;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -181,15 +181,7 @@ public class ExecutionManager extends ProjectComponentBase implements Persistent
     }
 
 
-    public void addExecutionResult(MethodExecutionResult executionResult) {
-        showExecutionConsole(c -> c.addResult(executionResult));
-    }
-
-    public void addExecutionResult(VectorEmbeddingExecutionResult executionResult) {
-        showExecutionConsole(c -> c.addResult(executionResult));
-    }
-
-    public void addExecutionResult(JavaExecutionResult executionResult) {
+    public void addExecutionResult(ExecutionResult<?> executionResult) {
         showExecutionConsole(c -> c.addResult(executionResult));
     }
 
@@ -203,6 +195,24 @@ public class ExecutionManager extends ProjectComponentBase implements Persistent
     }
 
     public void removeResultTab(ExecutionResult executionResult) {
+        ExecutionCancellationAdapter cancellationAdapter = executionResult.getCancellationAdapter();
+        if (cancellationAdapter == null) {
+            doRemoveResultTab(executionResult);
+        } else {
+            showQuestionDialog(
+                    getProject(),
+                    cancellationAdapter.getConfirmationTitle(),
+                    cancellationAdapter.getConfirmationMessage(),
+                    OPTIONS_YES_NO,
+                    0,
+                    whenOk(() -> {
+                        cancellationAdapter.cancelExecution();
+                        doRemoveResultTab(executionResult);
+                    }));
+        }
+    }
+
+    private void doRemoveResultTab(ExecutionResult executionResult) {
         Dispatch.run(nonModal(), () -> getExecutionConsoleForm().removeResultTab(executionResult));
     }
 

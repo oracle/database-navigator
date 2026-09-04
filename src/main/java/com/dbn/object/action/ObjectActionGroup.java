@@ -32,6 +32,7 @@ import com.dbn.execution.method.action.MethodExecuteAction;
 import com.dbn.execution.method.action.ProgramMethodDebugAction;
 import com.dbn.execution.method.action.ProgramMethodExecuteAction;
 import com.dbn.generator.statement.action.GenerateStatementActionGroup;
+import com.dbn.liquibase.action.LiquibaseSchemaActions;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBConsole;
 import com.dbn.object.DBJavaClass;
@@ -48,6 +49,9 @@ import com.dbn.object.common.list.action.HideAuditColumnsToggleAction;
 import com.dbn.object.common.list.action.HideEmptySchemasToggleAction;
 import com.dbn.object.common.list.action.HidePseudoColumnsToggleAction;
 import com.dbn.object.dependency.action.ObjectDependencyTreeAction;
+import com.dbn.object.diagram.DatabaseDiagrams;
+import com.dbn.object.diagram.actions.OpenDependencyDiagramAction;
+import com.dbn.object.management.ObjectManagementService;
 import com.dbn.object.navigation.DBObjectNavigationInfoProvider;
 import com.dbn.object.navigation.DBObjectNavigationInfoProviderCache;
 import com.dbn.object.type.DBObjectType;
@@ -72,6 +76,7 @@ import static com.dbn.editor.DBContentType.CODE_AND_DATA;
 import static com.dbn.editor.DBContentType.CODE_SPEC_AND_BODY;
 import static com.dbn.editor.DBContentType.DATA;
 import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
+import static com.dbn.object.common.property.DBObjectProperty.DIAGRAMMABLE;
 import static com.dbn.object.common.property.DBObjectProperty.DISABLEABLE;
 import static com.dbn.object.common.property.DBObjectProperty.EDITABLE;
 import static com.dbn.object.common.property.DBObjectProperty.REFERENCEABLE;
@@ -81,7 +86,6 @@ import static com.dbn.vfs.DBConsoleType.SEARCH;
 import static com.dbn.vfs.DBConsoleType.STANDARD;
 
 public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
-
     public ObjectActionGroup(DBObject[] objects) {
         DBObject object = objects[0];
 
@@ -96,6 +100,7 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
         addCodeGeneratorActions(object);
         addObjectListActions(object);
         addObjectPropertiesActions(object);
+        addLiquibaseActions(object);
     }
 
     private void addTableActions(DBObject object) {
@@ -139,6 +144,12 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
                 }
 
                 //add(new TestAction(object));
+            }
+        } else {
+            // connection-root managed objects: edit (when an editor provider is registered) + drop
+            ObjectManagementService managementService = ObjectManagementService.getInstance(object.getProject());
+            if (managementService.supports(object)) {
+                add(new ObjectDropAction(object));
             }
         }
     }
@@ -186,10 +197,17 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
     }
 
     private void addDependencyActions(DBObject object) {
-        if (object instanceof DBSchemaObject) {
+        boolean separated = false;
+        if (object.is(DIAGRAMMABLE) && DatabaseDiagrams.isAvailable()) {
+            addSeparator();
+            separated = true;
+            add(new OpenDependencyDiagramAction(object));
+        }
+
+        if (object instanceof DBSchemaObject schemaObject) {
             if (object.is(REFERENCEABLE) && OBJECT_DEPENDENCIES.isSupported(object)) {
-                addSeparator();
-                add(new ObjectDependencyTreeAction((DBSchemaObject) object));
+                if (!separated) addSeparator();
+                add(new ObjectDependencyTreeAction(schemaObject));
             }
         }
     }
@@ -249,6 +267,13 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
             add(new HideEmptySchemasToggleAction(connection));
         }
         add(new RefreshActionGroup(object));
+    }
+
+    private void addLiquibaseActions(DBObject object) {
+        if (object instanceof DBSchema schema) {
+            addSeparator();
+            add(new LiquibaseSchemaActions(schema));
+        }
     }
 
     private void addObjectPropertiesActions(DBObject object) {

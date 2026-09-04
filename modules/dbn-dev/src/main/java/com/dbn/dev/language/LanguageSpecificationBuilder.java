@@ -16,9 +16,13 @@
 
 package com.dbn.dev.language;
 
-import com.dbn.dev.language.LanguageSpecificationBuilderInput.Operation;
+import com.dbn.dev.language.LanguageSpecificationBuilderInput.Action;
+import com.dbn.dev.language.LanguageSpecificationBuilderInput.Artifact;
+import com.dbn.language.common.element.impl.ElementTypeIdCache;
 import org.jetbrains.annotations.NonNls;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.stream.Collectors;
@@ -26,28 +30,108 @@ import java.util.stream.Collectors;
 @NonNls
 public class LanguageSpecificationBuilder {
     private static final Scanner SCANNER = new Scanner(System.in);
-    private static final LanguageSpecificationBuilderInput input = new LanguageSpecificationBuilderInput();
+    private static final Deque<String> INPUT_BUFFER = new ArrayDeque<>();
 
-    public static void main(String[] args) {
-        input.setDatabase(selectOption("database", LanguageSpecificationBuilderInput.DATABASE_OPTIONS));
-        input.setLanguage(selectOption("language", LanguageSpecificationBuilderInput.LANGUAGE_OPTIONS));
-
-
-        Operation operation = selectOption("operation", LanguageSpecificationBuilderInput.OPERATION_OPTIONS);
-
-        if (operation == Operation.LEXER_DEFINITION) {
-            LanguageSpecificationLexerBuilder lexerBuilder = new LanguageSpecificationLexerBuilder(input);
-            lexerBuilder.build();
-        } else if (operation == Operation.PARSER_DEFINITION) {
-            LanguageSpecificationParserBuilder parserBuilder = new LanguageSpecificationParserBuilder(input);
-            parserBuilder.build();
+    public static void main(String[] args) throws Exception {
+        try {
+            runSelection();
+        } catch (ExitRequestedException e) {
+            System.out.println("Bye bye!");
+        } finally {
+            INPUT_BUFFER.clear();
+            clearRunState();
         }
+    }
+
+    private static void clearRunState() {
+        ElementTypeIdCache.clear();
+    }
+
+    private static void runSelection() throws Exception {
+        BuildSession session = new BuildSession();
+        session.input.setDatabase(selectOption("database", LanguageSpecificationBuilderInput.DATABASE_OPTIONS));
+        session.input.setLanguage(selectOption("language", LanguageSpecificationBuilderInput.LANGUAGE_OPTIONS));
+
+        session.selectedArtifact = selectOption("artifact", LanguageSpecificationBuilderInput.ARTIFACT_OPTIONS);
+        if (session.selectedArtifact == Artifact.ALL) {
+            buildAll(session);
+            return;
+        }
+
+        session.selectedAction = selectOption("action", session.selectedArtifact.getActionOptions());
+
+        if (session.selectedArtifact == Artifact.LEXER && session.selectedAction == Action.UPDATE_DEFINITION) {
+            buildLexerDefinition(session);
+        } else if (session.selectedArtifact == Artifact.PARSER && session.selectedAction == Action.UPDATE_DEFINITION) {
+            buildParserDefinition(session);
+        } else if (session.selectedArtifact == Artifact.LEXER && session.selectedAction == Action.BUILD_CLASS) {
+            buildLexerClass(session);
+        } else if (session.selectedArtifact == Artifact.PARSER && session.selectedAction == Action.BUILD_EXTENSION) {
+            buildParserExtension(session);
+        } else if (session.selectedArtifact == Artifact.LEXER && session.selectedAction == Action.ALL) {
+            buildLexerDefinition(session);
+            buildLexerClass(session);
+        } else if (session.selectedArtifact == Artifact.PARSER && session.selectedAction == Action.ALL) {
+            buildParserDefinition(session);
+            buildParserExtension(session);
+        } else {
+            throw new IllegalArgumentException("Unsupported action: " + session.selectedArtifact + " " + session.selectedAction);
+        }
+    }
+
+    private static void buildAll(BuildSession session) throws Exception {
+        buildLexerDefinition(session);
+        buildLexerClass(session);
+        buildParserDefinition(session);
+        buildParserExtension(session);
+    }
+
+    private static void buildLexerDefinition(BuildSession session) throws Exception {
+        build(new LanguageSpecificationLexerBuilder(session.input), session, Artifact.LEXER, Action.UPDATE_DEFINITION);
+    }
+
+    private static void buildLexerClass(BuildSession session) throws Exception {
+        build(new LanguageSpecificationLexerClassBuilder(session.input), session, Artifact.LEXER, Action.BUILD_CLASS);
+    }
+
+    private static void buildParserDefinition(BuildSession session) throws Exception {
+        build(new LanguageSpecificationParserBuilder(session.input), session, Artifact.PARSER, Action.UPDATE_DEFINITION);
+    }
+
+    private static void buildParserExtension(BuildSession session) throws Exception {
+        LanguageSpecificationArtifactBuilder builder = new LanguageSpecificationParserExtensionBuilder(session.input);
+        build(builder, session, Artifact.PARSER, Action.BUILD_EXTENSION);
+    }
+
+    private static void build(
+            LanguageSpecificationArtifactBuilder builder,
+            BuildSession session,
+            Artifact artifact,
+            Action action) throws Exception {
+        String title = "database " + session.input.database +
+                " | language " + session.input.languageFid.toUpperCase() +
+                " | artifact " + artifact.toString().toUpperCase() +
+                " | action " + action.toString().toUpperCase();
+        printBanner("START: " + title);
+        try {
+            builder.build();
+        } finally {
+            printBanner("END: " + title);
+        }
+    }
+
+    private static void printBanner(String title) {
+        String line = "=".repeat(80);
+        System.out.println();
+        System.out.println(line);
+        System.out.println(title);
+        System.out.println(line);
     }
 
     private static <T> T selectOption(String name, Map<String, T> options) {
         System.out.println("_______________________________________");
         System.out.print("Select " + name + " (x to exit)\n" + presentableOptions(options) + "\n");
-        String s = SCANNER.next();
+        String s = readOptionInput();
 
         T option = options.get(s.toLowerCase());
         if (option != null) {
@@ -56,16 +140,38 @@ public class LanguageSpecificationBuilder {
         }
 
         if (s.equalsIgnoreCase("x")) {
-            System.out.println("Bye bye!");
-            System.exit(0);
-            return null;
+            throw new ExitRequestedException();
         }
 
         System.out.println("Invalid option: " + s);
         return selectOption(name, options);
     }
 
+    private static String readOptionInput() {
+        if (!INPUT_BUFFER.isEmpty()) {
+            return INPUT_BUFFER.removeFirst();
+        }
+
+        String input = SCANNER.next();
+        if (input.length() > 1) {
+            for (int i = 1; i < input.length(); i++) {
+                INPUT_BUFFER.addLast(String.valueOf(input.charAt(i)));
+            }
+            return input.substring(0, 1);
+        }
+        return input;
+    }
+
     private static String presentableOptions(Map<String, ?> options) {
         return options.keySet().stream().map(k -> k + " " + options.get(k)).collect(Collectors.joining("\n"));
+    }
+
+    private static class ExitRequestedException extends RuntimeException {
+    }
+
+    private static class BuildSession {
+        private final LanguageSpecificationBuilderInput input = new LanguageSpecificationBuilderInput();
+        private Artifact selectedArtifact;
+        private Action selectedAction;
     }
 }

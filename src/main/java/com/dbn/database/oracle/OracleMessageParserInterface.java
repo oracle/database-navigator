@@ -23,6 +23,7 @@ import com.dbn.database.common.DatabaseObjectIdentifierImpl;
 import com.dbn.database.interfaces.DatabaseMessageParserInterface;
 import com.dbn.object.type.DBObjectType;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
@@ -38,6 +39,11 @@ public class OracleMessageParserInterface implements DatabaseMessageParserInterf
                 24344  // https://docs.oracle.com/error-help/db/ora-24344
                        // ...
                     );
+
+    @Override
+    public String formatErrorCode(@NotNull String errorCode) {
+        return "ORA-" + errorCode;
+    }
 
     @Override
     @Nullable
@@ -70,6 +76,11 @@ public class OracleMessageParserInterface implements DatabaseMessageParserInterf
     @Override
     public boolean isAuthenticationException(SQLException e) {
         return e.getErrorCode() == 1017;
+    }
+
+    @Override
+    public boolean isPasswordExpiredException(SQLException e) {
+        return e.getErrorCode() == 28001;
     }
 
     @Override

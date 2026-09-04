@@ -22,10 +22,10 @@ import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 
 public class QualifiedIdentifierVariant implements Comparable{
-    private LeafElementType[] leafs;
+    public LeafElementType[] leafs;
     /**@deprecated*/
-    private boolean incomplete;
-    private int matchedTokens;
+    public boolean incomplete;
+    public int matchedTokens;
 
     public QualifiedIdentifierVariant(LeafElementType[] leafs, boolean partial) {
         this.leafs = leafs;

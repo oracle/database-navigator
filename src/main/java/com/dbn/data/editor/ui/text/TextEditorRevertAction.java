@@ -24,7 +24,7 @@ import static com.dbn.nls.NlsResources.txt;
 
 class TextEditorRevertAction extends TextEditorAction {
     public TextEditorRevertAction() {
-        super(txt("app.dataEditor.action.RevertChanges"), null, Icons.TEXT_CELL_EDIT_REVERT);
+        super(txt("app.dataEditor.button.RevertChanges"), null, Icons.TEXT_CELL_EDIT_REVERT);
     }
 
     @Override
@@ -38,6 +38,6 @@ class TextEditorRevertAction extends TextEditorAction {
     @Override
     public void update(@NotNull AnActionEvent e) {
         TextEditorPopupProviderForm form = getTextEditorForm(e);
-        e.getPresentation().setEnabled(form != null && form.isChanged());
+        e.getPresentation().setEnabled(form != null && form.isFormChanged());
     }
 }

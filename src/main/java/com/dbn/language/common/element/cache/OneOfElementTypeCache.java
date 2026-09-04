@@ -74,13 +74,4 @@ public class OneOfElementTypeCache extends ElementTypeIndexedCache<OneOfElementT
         return bucket;
     }
 
-    @Override
-    public Set<LeafElementType> captureSurrogateSuccessors(LeafElementType surrogateLead, Set<LeafElementType> bucket) {
-        ElementTypeRef leadCandidate = elementType.getFirstChild();
-        while (leadCandidate != null) {
-            bucket = leadCandidate.elementType.cache.captureSurrogateSuccessors(surrogateLead, bucket);
-            leadCandidate = leadCandidate.next;
-        }
-        return bucket;
-    }
 }

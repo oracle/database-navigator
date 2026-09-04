@@ -36,7 +36,7 @@ class CalendarResetTimeAction extends CalendarPopupAction {
         if (form == null) return;
 
         Calendar calendar = new GregorianCalendar(2000, Calendar.JANUARY, 1, 0, 0, 0);
-        String timeString = form.getFormatter().formatTime(calendar.getTime());
+        String timeString = form.ensureFormatter().formatTime(calendar.getTime());
         form.setTimeText(timeString);
     }
 }

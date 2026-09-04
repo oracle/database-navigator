@@ -20,7 +20,6 @@ import com.dbn.language.common.ParseException;
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.impl.ElementTypeRef;
-import com.dbn.language.common.element.impl.IdentifierElementType;
 import com.dbn.language.common.element.impl.IterationElementType;
 import com.dbn.language.common.element.impl.SequenceElementType;
 import com.dbn.language.common.element.parser.ElementTypeParser;
@@ -64,7 +63,7 @@ public class SequenceElementTypeParser<E extends SequenceElementType> extends El
                 TokenType token = builder.getToken();
                 if (token == null) {
 
-                    if (element.isFirst() || elementType.isExitIndex(index)) {
+                    if (elementType.isAtomic() || element.isFirst() || elementType.isExitIndex(index)) {
                         return stepOut(node, context, NO_MATCH);
                     }
 
@@ -83,6 +82,9 @@ public class SequenceElementTypeParser<E extends SequenceElementType> extends El
                         result = element.elementType.parser.parse(node, context);
 
                         if (result.type != NO_MATCH) {
+                            if (element.branch != null) {
+                                context.addBranchMarker(node, element.branch);
+                            }
                             node.matchedTokens += result.matchedTokens;
                             node.matchedElements++;
                         }
@@ -90,7 +92,8 @@ public class SequenceElementTypeParser<E extends SequenceElementType> extends El
 
                     // not matched and not optional
                     if (result.type == NO_MATCH && !element.optional) {
-                        if (element.isFirst() ||
+                        if (elementType.isAtomic() ||
+                                element.isFirst() ||
                                 node.matchedElements == 0 ||
                                 node.matchedTokens == 0 ||
                                 elementType.isExitIndex(index) ||
@@ -127,17 +130,7 @@ public class SequenceElementTypeParser<E extends SequenceElementType> extends El
     }
 
     private boolean isWeakMatch(ParserNode node) {
-        return node.matchedElements < 2 && node.matchedTokens < 3 && node.elementIndex > 1 && ignoreFirstMatch();
-    }
-
-    @Deprecated // ambiguous
-    private boolean ignoreFirstMatch() {
-        ElementTypeRef firstChild = elementType.children[0];
-        ElementType elementType = firstChild.elementType;
-        if (elementType instanceof IdentifierElementType identifierElementType) {
-            return !identifierElementType.isDefinition();
-        }
-        return false;
+        return node.matchedElements < 2 && node.matchedTokens < 3 && node.elementIndex > 1;
     }
 
     private int advanceLexerToNextLandmark(ParserNode node, ParserContext context) {

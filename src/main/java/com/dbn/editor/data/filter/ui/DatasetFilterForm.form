@@ -65,7 +65,7 @@
                 <properties/>
                 <border type="none"/>
                 <children>
-                  <component id="6870b" class="javax.swing.JList" binding="filtersList" custom-create="true">
+                  <component id="6870b" class="com.intellij.ui.components.JBList" binding="filtersList" custom-create="true">
                     <constraints/>
                     <properties/>
                   </component>

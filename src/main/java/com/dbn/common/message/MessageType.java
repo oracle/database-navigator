@@ -28,6 +28,7 @@ public enum MessageType {
     SUCCESS,
     WARNING,
     ERROR,
+    PAUSE,
     SYSTEM,
     QUESTION,
     PROCESSING,
@@ -40,6 +41,7 @@ public enum MessageType {
             case SUCCESS -> Icons.DIALOG_SUCCESS;
             case WARNING -> Icons.DIALOG_WARNING;
             case ERROR -> Icons.DIALOG_ERROR;
+            case PAUSE -> Icons.DIALOG_PAUSE;
             case QUESTION -> Icons.DIALOG_QUESTION;
             default -> null;
         };
@@ -52,6 +54,7 @@ public enum MessageType {
             case SUCCESS -> Icons.COMMON_STATUS_SUCCESS; // TODO
             case WARNING -> Icons.COMMON_WARNING;
             case ERROR -> Icons.COMMON_ERROR;
+            case PAUSE -> Icons.COMMON_PAUSED;
             case QUESTION -> Icons.DIALOG_QUESTION; // TODO
             default -> null;
         };

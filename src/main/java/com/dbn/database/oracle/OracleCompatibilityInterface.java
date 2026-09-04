@@ -40,9 +40,13 @@ import com.dbn.language.common.quotes.QuoteDefinition;
 import com.dbn.language.common.quotes.QuotePair;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -57,10 +61,13 @@ import static com.dbn.connection.AuthenticationTokenType.OCI_API_KEY;
 import static com.dbn.connection.AuthenticationTokenType.OCI_INTERACTIVE;
 import static com.dbn.database.DatabaseFeature.AI_ASSISTANT;
 import static com.dbn.database.DatabaseFeature.AUTHID_METHOD_EXECUTION;
+import static com.dbn.database.DatabaseFeature.CHANGE_EXPIRED_PASSWORD;
+import static com.dbn.database.DatabaseFeature.CHANGE_PASSWORD;
 import static com.dbn.database.DatabaseFeature.CONNECTION_ERROR_RECOVERY;
 import static com.dbn.database.DatabaseFeature.CONSTRAINT_MANIPULATION;
 import static com.dbn.database.DatabaseFeature.CURRENT_SCHEMA;
 import static com.dbn.database.DatabaseFeature.DATABASE_LOGGING;
+import static com.dbn.database.DatabaseFeature.DATASOURCE_CONFIG;
 import static com.dbn.database.DatabaseFeature.DATA_CHANGE_NOTIFICATION;
 import static com.dbn.database.DatabaseFeature.DEBUGGING;
 import static com.dbn.database.DatabaseFeature.EXPLAIN_PLAN;
@@ -75,6 +82,7 @@ import static com.dbn.database.DatabaseFeature.OBJECT_INVALIDATION;
 import static com.dbn.database.DatabaseFeature.OBJECT_REPLACING;
 import static com.dbn.database.DatabaseFeature.OBJECT_SOURCE_EDITING;
 import static com.dbn.database.DatabaseFeature.READONLY_CONNECTIVITY;
+import static com.dbn.database.DatabaseFeature.SCHEDULER_JOBS;
 import static com.dbn.database.DatabaseFeature.SESSION_BROWSING;
 import static com.dbn.database.DatabaseFeature.SESSION_CURRENT_SQL;
 import static com.dbn.database.DatabaseFeature.SESSION_DISCONNECT;
@@ -97,6 +105,14 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
     private static final int MIN_JDWP_PORT = 1024;
     private static final int MAX_JDWP_PORT = 65535;
 
+    @Override
+    public void initializeLiquibaseConnection(@NotNull Connection connection) throws SQLException {
+        if (!connection.getAutoCommit()) connection.rollback();
+        try (Statement statement = connection.createStatement()) {
+            statement.execute("ALTER SESSION DISABLE PARALLEL DML");
+        }
+    }
+
     @NonNls
     private interface Property {
         String SESSION_PROGRAM = "v$session.program";
@@ -115,6 +131,7 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
         String ORACLE_JDBC_AZURE_CLIENT_SECRET = "oracle.jdbc.clientSecret";
         String ORACLE_JDBC_AZURE_CLIENT_ID = "oracle.jdbc.clientId";
         String ORACLE_JDBC_AZURE_TENANT_ID = "oracle.jdbc.tenantId";
+        String ORACLE_JDBC_NEW_PASSWORD = "oracle.jdbc.newPassword";
         String ORACLE_JDBC_SSL_SERVER_DN_MATCH = "oracle.net.ssl_server_dn_match";
     }
 
@@ -180,6 +197,18 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
     }
 
     @Override
+    public boolean supportsObjectType(DatabaseObjectTypeId objectTypeId, double databaseVersion) {
+        return switch (objectTypeId) {
+            case CREDENTIAL -> databaseVersion >= 12.1;
+            case JSON_VIEW -> databaseVersion >= 23.0;
+            case AI_PROFILE -> databaseVersion >= 19.0;
+            case MINING_MODEL -> databaseVersion >= 23.0;
+            case DATASOURCE_CONFIG -> databaseVersion >= 26.0;
+            default -> supportsObjectType(objectTypeId);
+        };
+    }
+
+    @Override
     public List<DatabaseObjectTypeId> getSupportedObjectTypes() {
         return Collections.emptyList(); // default implementation not used (all object types are supported)
     }
@@ -205,6 +234,8 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
                 SESSION_KILL,
                 SESSION_CURRENT_SQL,
                 CONNECTION_ERROR_RECOVERY,
+                CHANGE_PASSWORD,
+                CHANGE_EXPIRED_PASSWORD,
                 UPDATABLE_RESULT_SETS,
                 CURRENT_SCHEMA,
                 USER_SCHEMA,
@@ -215,6 +246,8 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
                 VECTOR_EMBEDDING,
                 VECTOR_SEARCH,
                 MCP_SERVER_BUILDER,
+                DATASOURCE_CONFIG,
+                SCHEDULER_JOBS,
                 JAVA_VIRTUAL_MACHINE
                 //EMPTY_SCHEMA_EVALUATION // TODO disabled due to performance reasons
                 );
@@ -310,6 +343,12 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
         } else {
             super.initConnectorAuthentication(properties, authenticationInfo);
         }
+    }
+
+    @Override
+    public void initConnectorPasswordChange(@NotNull ConnectorProperties properties, @Nullable char[] newPassword) {
+        if (newPassword == null) return;
+        properties.add(Property.ORACLE_JDBC_NEW_PASSWORD, Chars.toStringAcceptEmpty(newPassword));
     }
 
     @Override

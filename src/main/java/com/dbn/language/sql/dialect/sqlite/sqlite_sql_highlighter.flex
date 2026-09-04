@@ -47,32 +47,32 @@ CHARSET ="armscii8"|"ascii"|"big5"|"binary"|"cp1250"|"cp1251"|"cp1256"|"cp1257"|
 
 string_simple_quoted      = "'"([^\']|"''"|{WHITE_SPACE})*"'"?
 STRING = ("n"|"_"{CHARSET})?{wso}{string_simple_quoted}
+BLOB = ("x"|"X")"'"([0-9a-fA-F][0-9a-fA-F])*"'"
 
 sign = "+"|"-"
 digit = [0-9]
-INTEGER = {digit}+("e"{sign}?{digit}+)?
+INTEGER = ("0x"|"0X")[0-9a-fA-F]+|{digit}+("e"{sign}?{digit}+)?
 NUMBER = {INTEGER}?"."{digit}+(("e"{sign}?{digit}+)|(("f"|"d"){ws}))?
 
-VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
+VARIABLE = "?"{digit}*|(":"|"@"|"$")({IDENTIFIER}|{INTEGER})
 
-operator_equals             = "="
-operator_not_equals         = (("!"|"^"){wso}"=")|("<"{wso}">")
-operator_greater_than       = ">"
-operator_greater_equal_than = ">"{wso}"="
-operator_less_than          = "<"
-operator_less_equal_than    = ">"{wso}"="
-OPERATOR                    = {operator_equals}|{operator_not_equals}|{operator_greater_than}|{operator_greater_equal_than}|{operator_less_than}|{operator_less_equal_than}
+OPERATOR = "=="|"||"|"<<"|">>"|"<="|">="|"<>"|"!="|":="|"=>"|".."|"::"|"->>"|"->"|"&"|"|"|"="|">"|"<"
 
 
-SQL_KEYWORD = "abort"|"action"|"add"|"after"|"all"|"alter"|"analyze"|"and"|"as"|"asc"|"attach"|"autoincrement"|"before"|"begin"|"between"|"by"|"cascade"|"case"|"cast"|"check"|"collate"|"column"|"commit"|"conflict"|"constraint"|"create"|"cross"|"current_date"|"current_time"|"current_timestamp"|"database"|"default"|"deferrable"|"deferred"|"delete"|"desc"|"detach"|"distinct"|"drop"|"each"|"else"|"end"|"escape"|"except"|"exclusive"|"exists"|"explain"|"fail"|"for"|"foreign"|"from"|"full"|"glob"|"group"|"having"|"if"|"ignore"|"immediate"|"in"|"index"|"indexed"|"initially"|"inner"|"insert"|"instead"|"intersect"|"into"|"is"|"isnull"|"join"|"key"|"left"|"like"|"limit"|"match"|"natural"|"no"|"not"|"notnull"|"null"|"of"|"off"|"offset"|"on"|"or"|"order"|"outer"|"plan"|"pragma"|"primary"|"query"|"raise"|"recursive"|"references"|"regexp"|"reindex"|"release"|"rename"|"replace"|"restrict"|"right"|"rollback"|"row"|"rowid"|"savepoint"|"select"|"set"|"table"|"temp"|"temporary"|"then"|"to"|"transaction"|"trigger"|"union"|"unique"|"update"|"using"|"vacuum"|"values"|"view"|"virtual"|"when"|"where"|"with"|"without"
-SQL_FUNCTION = "abs"|"avg"|"changes"|"char"|"coalesce"|"count"|"group_concat"|"hex"|"ifnull"|"instr"|"json"|"json_array"|"json_array_length"|"json_extract"|"json_insert"|"json_object"|"json_remove"|"json_replace"|"json_set"|"json_type"|"json_valid"|"julianday"|"last_insert_rowid"|"length"|"likelihood"|"likely"|"load_extension"|"lower"|"ltrim"|"max"|"min"|"nullif"|"printf"|"quote"|"random"|"randomblob"|"round"|"rtrim"|"soundex"|"sqlite_compileoption_get"|"sqlite_compileoption_used"|"sqlite_source_id"|"sqlite_version"|"strftime"|"substr"|"sum"|"total"|"total_changes"|"trim"|"typeof"|"unicode"|"unlikely"|"upper"|"zeroblob"
-SQL_DATATYPE = "bigint"|"blob"|"boolean"|"character"|"clob"|"date"|"datetime"|"decimal"|"double"|"double"{ws}"precision"|"float"|"int"|"int2"|"int8"|"integer"|"mediumint"|"native"{ws}"character"|"nchar"|"numeric"|"nvarchar"|"real"|"smallint"|"text"|"time"|"tinyint"|"unsigned"{ws}"big"{ws}"int"|"varchar"|"varying"{ws}"character"
-SQL_PARAMETER = "application_id"|"automatic_index"|"auto_vacuum"|"busy_timeout"|"cache_size"|"cache_spill"|"case_sensitive_like"|"cell_size_check"|"checkpoint_fullfsync"|"collation_list"|"compile_options"|"count_changes"|"database_list"|"data_store_directory"|"data_version"|"default_cache_size"|"defer_foreign_keys"|"empty_result_callbacks"|"encoding"|"foreign_keys"|"foreign_key_check"|"foreign_key_list"|"freelist_count"|"fullfsync"|"full_column_names"|"ignore_check_constraints"|"incremental_vacuum"|"index_info"|"index_list"|"index_xinfo"|"integrity_check"|"journal_mode"|"journal_size_limit"|"legacy_file_format"|"locking_mode"|"max_page_count"|"mmap_size"|"page_count"|"page_size"|"parser_trace"|"query_only"|"quick_check"|"read_uncommitted"|"recursive_triggers"|"reverse_unordered_selects"|"schema_version"|"secure_delete"|"short_column_names"|"shrink_memory"|"soft_heap_limit"|"stats"|"synchronous"|"table_info"|"temp_store"|"temp_store_directory"|"threads"|"user_version"|"vdbe_addoptrace"|"vdbe_debug"|"vdbe_listing"|"vdbe_trace"|"wal_autocheckpoint"|"wal_checkpoint"|"writable_schema"
+SQL_KEYWORD = "abort"|"always"|"action"|"add"|"after"|"all"|"alter"|"analyze"|"and"|"as"|"asc"|"attach"|"autoincrement"|"before"|"begin"|"between"|"by"|"cascade"|"case"|"cast"|"check"|"collate"|"column"|"commit"|"conflict"|"constraint"|"create"|"cross"|"current_date"|"current_time"|"current_timestamp"|"current"|"database"|"default"|"deferrable"|"deferred"|"delete"|"desc"|"detach"|"distinct"|"do"|"drop"|"exclude"|"each"|"else"|"end"|"escape"|"except"|"exclusive"|"exists"|"explain"|"expressions"|"fail"|"file"|"false"|"fast"|"first"|"filter"|"for"|"foreign"|"following"|"from"|"full"|"last"|"generated"|"glob"|"group"|"groups"|"having"|"if"|"ignore"|"immediate"|"in"|"index"|"indexed"|"initially"|"inner"|"incremental"|"insert"|"instead"|"intersect"|"into"|"is"|"isnull"|"join"|"key"|"left"|"like"|"limit"|"match"|"materialized"|"memory"|"natural"|"n"|"no"|"none"|"not"|"nothing"|"notnull"|"normal"|"null"|"nulls"|"of"|"off"|"offset"|"on"|"or"|"order"|"others"|"outer"|"over"|"passive"|"persist"|"partition"|"plan"|"pragma"|"preceding"|"primary"|"query"|"raise"|"recursive"|"references"|"range"|"regexp"|"reindex"|"release"|"rename"|"replace"|"restrict"|"restart"|"returning"|"right"|"rollback"|"rows"|"row"|"rowid"|"savepoint"|"select"|"set"|"strict"|"stored"|"table"|"temp"|"temporary"|"then"|"ties"|"to"|"transaction"|"trigger"|"true"|"truncate"|"union"|"unique"|"unbounded"|"update"|"using"|"vacuum"|"values"|"window"|"view"|"virtual"|"wal"|"when"|"where"|"with"|"without"|"yes"
+SQL_FUNCTION = "abs"|"acos"|"acosh"|"asin"|"asinh"|"atan"|"atan2"|"atanh"|"avg"|"ceil"|"ceiling"|"changes"|"char"|"coalesce"|"concat"|"concat_ws"|"cos"|"cosh"|"count"|"cume_dist"|"degrees"|"dense_rank"|"exp"|"first_value"|"floor"|"format"|"group_concat"|"hex"|"ifnull"|"iif"|"instr"|"json"|"jsonb"|"jsonb_array"|"jsonb_array_insert"|"jsonb_each"|"jsonb_extract"|"jsonb_group_array"|"jsonb_group_object"|"jsonb_insert"|"jsonb_object"|"jsonb_patch"|"jsonb_remove"|"jsonb_replace"|"jsonb_set"|"jsonb_tree"|"json_array"|"json_array_insert"|"json_array_length"|"json_each"|"json_error_position"|"json_extract"|"json_group_array"|"json_group_object"|"json_insert"|"json_object"|"json_patch"|"json_pretty"|"json_remove"|"json_replace"|"json_set"|"json_tree"|"json_type"|"json_valid"|"julianday"|"lag"|"last_insert_rowid"|"last_value"|"lead"|"length"|"likelihood"|"likely"|"ln"|"load_extension"|"log"|"log10"|"log2"|"lower"|"ltrim"|"max"|"median"|"min"|"mod"|"nth_value"|"ntile"|"nullif"|"octet_length"|"percentile"|"percentile_cont"|"percentile_disc"|"percent_rank"|"pi"|"pow"|"power"|"printf"|"quote"|"radians"|"random"|"randomblob"|"rank"|"round"|"row_number"|"rtrim"|"sign"|"sin"|"sinh"|"soundex"|"sqlite_compileoption_get"|"sqlite_compileoption_used"|"sqlite_offset"|"sqlite_source_id"|"sqlite_version"|"sqrt"|"strftime"|"string_agg"|"substr"|"substring"|"sum"|"tan"|"tanh"|"timediff"|"total"|"total_changes"|"trim"|"trunc"|"typeof"|"unhex"|"unicode"|"unistr"|"unistr_quote"|"unixepoch"|"unlikely"|"upper"|"zeroblob"
+SQL_DATATYPE = "bigint"|"blob"|"boolean"|"character"|"clob"|"date"|"datetime"|"decimal"|"double"|"double precision"|"float"|"int"|"int2"|"int8"|"integer"|"mediumint"|"native character"|"nchar"|"numeric"|"nvarchar"|"real"|"smallint"|"text"|"time"|"tinyint"|"unsigned big int"|"varchar"|"varying character"
+SQL_PARAMETER = "analysis_limit"|"application_id"|"automatic_index"|"auto_vacuum"|"busy_timeout"|"cache_size"|"cache_spill"|"case_sensitive_like"|"cell_size_check"|"checkpoint_fullfsync"|"collation_list"|"compile_options"|"count_changes"|"database_list"|"data_store_directory"|"data_version"|"default_cache_size"|"defer_foreign_keys"|"empty_result_callbacks"|"encoding"|"foreign_keys"|"foreign_key_check"|"foreign_key_list"|"freelist_count"|"fullfsync"|"full_column_names"|"function_list"|"hard_heap_limit"|"ignore_check_constraints"|"incremental_vacuum"|"index_info"|"index_list"|"index_xinfo"|"integrity_check"|"journal_mode"|"journal_size_limit"|"legacy_file_format"|"locking_mode"|"max_page_count"|"mmap_size"|"module_list"|"optimize"|"page_count"|"page_size"|"parser_trace"|"pragma_list"|"query_only"|"quick_check"|"read_uncommitted"|"recursive_triggers"|"reverse_unordered_selects"|"schema_version"|"secure_delete"|"short_column_names"|"shrink_memory"|"soft_heap_limit"|"stats"|"synchronous"|"table_info"|"table_list"|"temp_store"|"temp_store_directory"|"threads"|"trusted_schema"|"user_version"|"vdbe_addoptrace"|"vdbe_debug"|"vdbe_listing"|"vdbe_trace"|"wal_autocheckpoint"|"wal_checkpoint"|"writable_schema"
 
 %state DIV
 %%
 
-{VARIABLE}           { return tt.getTokenType("VARIABLE"); }
+"UTF-8"             { return tt.getCharacterTokenType(27); }
+"UTF-16"            { return tt.getCharacterTokenType(28); }
+"UTF-16le"          { return tt.getCharacterTokenType(29); }
+"UTF-16be"          { return tt.getCharacterTokenType(30); }
+
+{VARIABLE}           { return tt.variable; }
 
 {WHITE_SPACE}+       { return stt.whiteSpace; }
 
@@ -81,14 +81,15 @@ SQL_PARAMETER = "application_id"|"automatic_index"|"auto_vacuum"|"busy_timeout"|
 
 {INTEGER}            { return stt.integer; }
 {NUMBER}             { return stt.number; }
+{BLOB}               { return stt.string; }
 {STRING}             { return stt.string; }
 
-{SQL_FUNCTION}       { return tt.getTokenType("FUNCTION");}
-{SQL_PARAMETER}      { return tt.getTokenType("PARAMETER"); }
-{SQL_DATATYPE}       { return tt.getTokenType("DATA_TYPE"); }
-{SQL_KEYWORD}        { return tt.getTokenType("KEYWORD"); }
+{SQL_FUNCTION}       { return tt.function;}
+{SQL_PARAMETER}      { return tt.parameter; }
+{SQL_DATATYPE}       { return tt.dataType; }
+{SQL_KEYWORD}        { return tt.keyword; }
 
-{OPERATOR}           { return tt.getTokenType("OPERATOR"); }
+{OPERATOR}           { return tt.operator; }
 
 {IDENTIFIER}         { return stt.identifier; }
 {QUOTED_IDENTIFIER}  { return stt.identifier; }

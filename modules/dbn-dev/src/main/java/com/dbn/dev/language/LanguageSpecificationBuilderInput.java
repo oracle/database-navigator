@@ -24,33 +24,60 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
+
+import static com.dbn.connection.DatabaseType.ISO92;
+import static com.dbn.connection.DatabaseType.MYSQL;
+import static com.dbn.connection.DatabaseType.ORACLE;
+import static com.dbn.connection.DatabaseType.POSTGRES;
+import static com.dbn.connection.DatabaseType.SQLITE;
 
 @NonNls
 public class LanguageSpecificationBuilderInput {
+    private static final String CONFIG_FILE_PATH = "modules/dbn-dev/language-builder.properties";
+
     public DatabaseType database;
     public DBLanguage language;
 
     public String databaseId; // database path & file identifier
     public String languagePid; // language path identifier
     public String languageFid; // language file identifier
+    private final Properties properties = new Properties();
 
     public static final Map<String, DatabaseType> DATABASE_OPTIONS = new LinkedHashMap<>();
     public static final Map<String, DBLanguage> LANGUAGE_OPTIONS = new LinkedHashMap<>();
-    public static final Map<String, Operation> OPERATION_OPTIONS = new LinkedHashMap<>();
+    public static final Map<String, Artifact> ARTIFACT_OPTIONS = new LinkedHashMap<>();
+    public static final Map<String, Action> LEXER_ACTION_OPTIONS = new LinkedHashMap<>();
+    public static final Map<String, Action> PARSER_ACTION_OPTIONS = new LinkedHashMap<>();
     static {
-        DATABASE_OPTIONS.put("o", DatabaseType.ORACLE);
-        DATABASE_OPTIONS.put("m", DatabaseType.MYSQL);
-        DATABASE_OPTIONS.put("p", DatabaseType.POSTGRES);
-        DATABASE_OPTIONS.put("l", DatabaseType.SQLITE);
+        DATABASE_OPTIONS.put("o", ORACLE);
+        DATABASE_OPTIONS.put("m", MYSQL);
+        DATABASE_OPTIONS.put("p", POSTGRES);
+        DATABASE_OPTIONS.put("l", SQLITE);
+        DATABASE_OPTIONS.put("i", ISO92);
 
         LANGUAGE_OPTIONS.put("s", SQLLanguage.INSTANCE);
         LANGUAGE_OPTIONS.put("p", PSQLLanguage.INSTANCE);
 
-        OPERATION_OPTIONS.put("l", Operation.LEXER_DEFINITION);
-        OPERATION_OPTIONS.put("p", Operation.PARSER_DEFINITION);
+        ARTIFACT_OPTIONS.put("l", Artifact.LEXER);
+        ARTIFACT_OPTIONS.put("p", Artifact.PARSER);
+        ARTIFACT_OPTIONS.put("a", Artifact.ALL);
+
+        LEXER_ACTION_OPTIONS.put("d", Action.UPDATE_DEFINITION);
+        LEXER_ACTION_OPTIONS.put("c", Action.BUILD_CLASS);
+        LEXER_ACTION_OPTIONS.put("a", Action.ALL);
+
+        PARSER_ACTION_OPTIONS.put("d", Action.UPDATE_DEFINITION);
+        PARSER_ACTION_OPTIONS.put("e", Action.BUILD_EXTENSION);
+        PARSER_ACTION_OPTIONS.put("a", Action.ALL);
+    }
+
+    public LanguageSpecificationBuilderInput() {
+        loadProperties();
     }
 
     public void setDatabase(DatabaseType database) {
@@ -72,13 +99,31 @@ public class LanguageSpecificationBuilderInput {
         return new File(getProjectPath(), getDefinitionFilePath() + getDefinitionFilePrefix() + "_parser_tokens.xml");
     }
 
-    public File getHighlighterLexerFile() {
+    public File getParserElementsFile() {
+        return new File(getProjectPath(), getDefinitionFilePath() + getDefinitionFilePrefix() + "_parser_elements.xml");
+    }
+
+    public File getParserElementsExtensionFile() {
+        return new File(getProjectPath(), getDefinitionFilePath() + getDefinitionFilePrefix() + "_parser_elements_ext.xml");
+    }
+
+    public File getTokenRegistryFile(String categoryIdentifier) {
+        return new File(
+                getProjectPath(),
+                "modules/dbn-dev/src/main/resources/language/" + databaseId + "/" +
+                        getDefinitionFilePrefix() + "_" + categoryIdentifier + ".txt");
+    }
+
+    public File getHighlighterLexerBaseFile() {
         String commonLexerPath = "src/main/java/com/dbn/language/common/lexer/";
         File file = new File(getProjectPath(), commonLexerPath + "shared_elements_" + databaseId + "_" + languageFid + ".flext");
         if (file.exists()) return file;
 
-        file = new File(getProjectPath(), getDefinitionFilePath() + getDefinitionFilePrefix() + "_highlighter.flex");
-        return file;
+        return getHighlighterLexerFile();
+    }
+
+    public File getHighlighterLexerFile() {
+        return new File(getProjectPath(), getDefinitionFilePath() + getDefinitionFilePrefix() + "_highlighter.flex");
     }
 
     public String getDefinitionFilePath() {
@@ -93,8 +138,58 @@ public class LanguageSpecificationBuilderInput {
         return Paths.get("").toAbsolutePath().toFile();
     }
 
-    public enum Operation {
-        LEXER_DEFINITION,
-        PARSER_DEFINITION
+    public String getRequiredProperty(String name) {
+        String value = getProperty(name);
+
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException("Missing required configuration property: " + name +
+                    " (provide -D" + name + "=<path> or set it in " + CONFIG_FILE_PATH + ")");
+        }
+        return value;
+    }
+
+    private String getProperty(String name) {
+        String value = System.getProperty(name);
+        return value == null || value.isBlank() ? properties.getProperty(name) : value;
+    }
+
+    private void loadProperties() {
+        File configFile = new File(getProjectPath(), CONFIG_FILE_PATH);
+        if (!configFile.exists()) return;
+
+        try (FileInputStream inputStream = new FileInputStream(configFile)) {
+            properties.load(inputStream);
+            System.out.println("Loaded configuration: " + configFile.getAbsolutePath());
+        } catch (Exception e) {
+            throw new IllegalStateException("Could not load configuration: " + configFile.getAbsolutePath(), e);
+        }
+    }
+
+    public enum Artifact {
+        LEXER,
+        PARSER,
+        ALL;
+
+        public Map<String, Action> getActionOptions() {
+            if (this == ALL) return Map.of();
+            return this == LEXER ? LEXER_ACTION_OPTIONS : PARSER_ACTION_OPTIONS;
+        }
+
+        @Override
+        public String toString() {
+            return name().toLowerCase();
+        }
+    }
+
+    public enum Action {
+        UPDATE_DEFINITION,
+        BUILD_CLASS,
+        BUILD_EXTENSION,
+        ALL;
+
+        @Override
+        public String toString() {
+            return name().toLowerCase().replace('_', ' ');
+        }
     }
 }

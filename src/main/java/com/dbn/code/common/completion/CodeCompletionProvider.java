@@ -32,6 +32,7 @@ import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.IdentifierElementType;
 import com.dbn.language.common.element.impl.LeafElementType;
 import com.dbn.language.common.element.impl.NamedElementType;
+import com.dbn.language.common.element.impl.OneOfElementType;
 import com.dbn.language.common.element.impl.QualifiedIdentifierVariant;
 import com.dbn.language.common.element.impl.TokenElementType;
 import com.dbn.language.common.element.impl.WrapperElementType;
@@ -68,6 +69,7 @@ import com.intellij.psi.tree.IElementType;
 import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -219,6 +221,10 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
         }
 
         if (!context.hasCompletionCandidates()) {
+            collectExtendedOneOfVariants(element, context);
+        }
+
+        if (!context.hasCompletionCandidates()) {
             LeafElementType elementType = (LeafElementType) element.elementType;
             AstNode node = new AstNode(element.getNode());
             ElementLookupContext lookupContext = computeParseBranches(element.getNode(), context.getDatabaseVersion());
@@ -235,6 +241,42 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
         collectTokenElements(consumer);
         collectIdentifierElements(element, consumer);
         context.awaitCompletion();
+    }
+
+    private static void collectExtendedOneOfVariants(LeafPsiElement element, CodeCompletionContext context) {
+        PsiElement parent = element.getParent();
+        while (parent instanceof BasePsiElement basePsiElement) {
+            ElementTypeBase elementType = basePsiElement.elementType;
+            if (elementType instanceof OneOfElementType oneOfElementType && oneOfElementType.extension != null) {
+                List<TokenType> tokenPath = collectTokenPath(basePsiElement, element);
+                LeafElementType[] nextLeafs = oneOfElementType.extension.nextLeafs(tokenPath);
+                context.addCompletionCandidates(Arrays.asList(nextLeafs));
+                if (context.hasCompletionCandidates()) return;
+            }
+            parent = parent.getParent();
+        }
+    }
+
+    private static List<TokenType> collectTokenPath(BasePsiElement scope, LeafPsiElement boundary) {
+        List<TokenType> tokenPath = new ArrayList<>();
+        collectTokenPath(scope, boundary, tokenPath);
+        return tokenPath;
+    }
+
+    private static boolean collectTokenPath(PsiElement element, LeafPsiElement boundary, List<TokenType> tokenPath) {
+        if (element instanceof LeafPsiElement leafPsiElement) {
+            tokenPath.add(leafPsiElement.elementType.getTokenType());
+            return leafPsiElement == boundary;
+        }
+
+        PsiElement child = element.getFirstChild();
+        while (child != null) {
+            if (collectTokenPath(child, boundary, tokenPath)) {
+                return true;
+            }
+            child = child.getNextSibling();
+        }
+        return false;
     }
 
     private static void collectTokenElements(CodeCompletionLookupConsumer consumer) {

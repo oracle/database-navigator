@@ -45,12 +45,18 @@ public class Icons {
     public static final Icon DONATE = load("/img/Donate.png");
     public static final Icon DONATE_DISABLED = load("/img/DonateDisabled.png");
 
+    public static final Icon COMMON_EMPTY              = load("/img/common/Empty.svg");
     public static final Icon COMMON_INFO              = load("/img/common/Information.svg");
     public static final Icon COMMON_ERROR             = load("/img/common/Error.svg");
     public static final Icon COMMON_WARNING           = load("/img/common/Warning.svg");
+    public static final Icon COMMON_PAUSED            = AllIcons.RunConfigurations.TestPaused;
+    public static final Icon COMMON_SUCCES            = AllIcons.Status.Success;
     public static final Icon COMMON_INFO_INACTIVE     = load("/img/common/InformationInactive.svg");
+    public static final Icon COMMON_INFO_OUTLINE      = AllIcons.General.ShowInfos;
     public static final Icon COMMON_ERROR_INACTIVE    = load("/img/common/ErrorInactive.svg");
+    public static final Icon COMMON_ERROR_OUTLINE     = AllIcons.Ide.FatalErrorRead;
     public static final Icon COMMON_WARNING_INACTIVE  = load("/img/common/WarningInactive.svg");
+    public static final Icon COMMON_WARNING_OUTLINE   = AllIcons.General.ShowWarning;;
     public static final Icon COMMON_CHECK             = AllIcons.General.InspectionsOK;
     public static final Icon COMMON_RIGHT             = load("/img/common/SplitRight.png");
     public static final Icon COMMON_LEFT              = load("/img/common/SplitLeft.png");
@@ -60,11 +66,15 @@ public class Icons {
     public static final Icon COMMON_TIMER             = load("/img/Timer.png");
     public static final Icon COMMON_DATA_GRID         = load("/img/common/DataGrid.png");
 
+    public static final Icon COMMON_STATUS_RUNNING   = load("/img/common/StatusRunning.svg");
     public static final Icon COMMON_STATUS_SUCCESS   = load("/img/common/StatusSuccess.svg");
     public static final Icon COMMON_STATUS_ERROR     = load("/img/common/StatusError.svg");
 
     public static final Icon COMMON_FILTER_ACTIVE =    AllIcons.Actions.IntentionBulb;
     public static final Icon COMMON_FILTER_INACTIVE =  AllIcons.Actions.IntentionBulbGrey;
+
+    public static final Icon ACTION_APPROVE                   = load("/img/action/Approve.svg");
+    public static final Icon ACTION_REJECT                    = load("/img/action/Reject.svg");
 
     public static final Icon ACTION_ADD                       = AllIcons.General.Add;
     public static final Icon ACTION_INFO                      = load("/img/action/Info.svg");
@@ -154,6 +164,7 @@ public class Icons {
     public static final Icon DIALOG_ERROR       = AllIcons.General.ErrorDialog;
     public static final Icon DIALOG_QUESTION    = AllIcons.General.QuestionDialog;
     public static final Icon DIALOG_SUCCESS     = AllIcons.General.SuccessDialog;
+    public static final Icon DIALOG_PAUSE       = AllIcons.General.QuestionDialog;
 
 
     public static final Icon METHOD_EXECUTION_RUN     = ACTION_EXECUTE;
@@ -368,6 +379,8 @@ public class Icons {
     public static final Icon DB_MYSQL             = AllIcons.Providers.Mysql;
     public static final Icon DB_SQLITE            = AllIcons.Providers.Sqlite;
     public static final Icon DB_GENERIC           = load("/img/database/Generic.svg");
+    public static final Icon DB_LIQUIBASE         = load("/img/database/Liquibase.svg");
+
 
     public static final Icon DB_ORACLE_LARGE      = IconUtil.toSize(AllIcons.Providers.Oracle, 32, 32);
     public static final Icon DB_POSTGRESQL_LARGE  = IconUtil.toSize(AllIcons.Providers.Postgresql, 32, 32);
@@ -381,8 +394,8 @@ public class Icons {
 
 
 
-    public static final Icon DBO_AI_MODEL                        = load("/img/object/model/AIModel.svg");
-    public static final Icon DBO_AI_MODELS                       = load("/img/object/model/AIModels.svg");
+    public static final Icon DBO_MINING_MODEL                    = load("/img/object/model/MiningModel.svg");
+    public static final Icon DBO_MINING_MODELS                   = load("/img/object/model/MiningModels.svg");
     public static final Icon DBO_AI_PROFILE                      = load("/img/object/profile/AIProfile.svg");
     public static final Icon DBO_AI_PROFILE_CONVERSATION         = load("/img/object/profile/AIProfileConversation.svg");
     public static final Icon DBO_AI_PROFILE_DISABLED             = load("/img/object/profile/AIProfileDisabled.svg");
@@ -490,6 +503,8 @@ public class Icons {
     public static final Icon DBO_DATABASE_TRIGGER_DEBUG          = load("/img/object/trigger/DatabaseTriggerDebug.svg");
     public static final Icon DBO_DATABASE_TRIGGER_DEBUG_DISABLED = load("/img/object/trigger/DatabaseTriggerDebugDisabled.svg");
     public static final Icon DBO_DATABASE_TRIGGERS               = load("/img/object/trigger/DatabaseTriggers.svg");
+    public static final Icon DBO_DATASOURCE_CONFIG               = load("/img/object/datasource/DataSourceConfig.svg");
+    public static final Icon DBO_DATASOURCE_CONFIGS              = load("/img/object/datasource/DataSourceConfigs.svg");
     public static final Icon DBO_TYPE                            = load("/img/object/type/Type.svg");
     public static final Icon DBO_TYPE_COLLECTION                 = load("/img/object/type/TypeCollection.svg");
     public static final Icon DBO_TYPE_COLLECTION_ERR             = load("/img/object/type/TypeCollectionErr.svg");

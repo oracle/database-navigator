@@ -16,6 +16,7 @@
 
 package com.dbn.language.common;
 
+import com.dbn.common.latent.Latent;
 import com.dbn.common.util.XmlContents;
 import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.impl.NamedElementType;
@@ -26,43 +27,69 @@ import com.intellij.lang.ASTNode;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.PsiParser;
 import com.intellij.psi.tree.IElementType;
-import lombok.Getter;
 import lombok.SneakyThrows;
 import org.jdom.Document;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Locale;
+
+import static com.dbn.common.latent.Latent.basic;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public abstract class DBLanguageParser implements PsiParser {
     public final DBLanguageDialect languageDialect;
     private final String defaultParseRootId;
-    private final String tokenTypesFile;
-    private final String elementTypesFile;
+    private final String tokenDefinitionFile;
+    private final String elementDefinitionFile;
+    private final String elementExtensionFile;
 
-    private final @Getter(lazy = true) TokenTypeBundle tokenTypes = loadTokenTypes();
-    private final @Getter(lazy = true) ElementTypeBundle elementTypes = loadElementTypes();
+    private final Latent<TokenTypeBundle> tokenTypes = basic(() -> loadTokenTypes());
+    private final Latent<ElementTypeBundle> elementTypes = basic(() -> loadElementTypes());
 
-    public DBLanguageParser(DBLanguageDialect languageDialect, @NonNls String tokenTypesFile, @NonNls String elementTypesFile, @NonNls String defaultParseRootId) {
+    public DBLanguageParser(
+            DBLanguageDialect languageDialect,
+            @NonNls String tokenDefinitionFile,
+            @NonNls String elementDefinitionFile,
+            @NonNls String elementExtensionFile,
+            @NonNls String defaultParseRootId) {
         this.languageDialect = languageDialect;
         this.defaultParseRootId = defaultParseRootId;
-        this.tokenTypesFile = tokenTypesFile;
-        this.elementTypesFile = elementTypesFile;
+        this.tokenDefinitionFile = tokenDefinitionFile;
+        this.elementDefinitionFile = elementDefinitionFile;
+        this.elementExtensionFile = elementExtensionFile;
+    }
+
+    public boolean isInitialized() {
+        return tokenTypes.loaded() && elementTypes.loaded();
+    }
+
+    public TokenTypeBundle getTokenTypes() {
+        return tokenTypes.get();
+    }
+
+    public ElementTypeBundle getElementTypes() {
+        return elementTypes.get();
     }
 
     @SneakyThrows
-    private Document loadDefinition(String tokenTypesFile) {
-        return XmlContents.fileToDocument(getResourceLookupClass(), tokenTypesFile);
+    private Document loadDefinition(String definitionFile) {
+        return XmlContents.fileToDocument(getResourceLookupClass(), definitionFile);
     }
 
     private TokenTypeBundle loadTokenTypes() {
-        Document document = loadDefinition(tokenTypesFile);
+        Document document = loadDefinition(tokenDefinitionFile);
         return new TokenTypeBundle(languageDialect, document);
     }
 
     private ElementTypeBundle loadElementTypes() {
-        Document document = loadDefinition(elementTypesFile);
-        return new ElementTypeBundle(languageDialect, getTokenTypes(), document);
+        Document definitionDocument = loadDefinition(elementDefinitionFile);
+        Document extensionDocument = loadDefinition(elementExtensionFile);
+        return new ElementTypeBundle(languageDialect, getTokenTypes(), definitionDocument, extensionDocument, null);
+    }
+
+    private String dialectId() {
+        return languageDialect.getIdentifier().name().toLowerCase(Locale.ROOT);
     }
 
 

@@ -16,11 +16,21 @@
 
 package com.dbn.common.task;
 
-public enum TaskStatus {
+import com.dbn.common.constant.Constant;
+
+import static com.dbn.nls.NlsResources.txt;
+
+public enum TaskStatus implements Constant<TaskStatus> {
     NEW,
     DONE,
     RUNNING,
+    PAUSED,
     CANCELLED,
     SKIPPED,
-    FAILED
+    BYPASSED,
+    FAILED;
+
+    public String getName() {
+        return txt("app.shared.const.TaskStatus_" + name());
+    }
 }

@@ -35,7 +35,7 @@ val bundledJdbcPostgres: Configuration by configurations.creating
 val bundledJdbcSqlite: Configuration by configurations.creating
 
 group = "com.dbn"
-version = "4.0.0.6"
+version = "4.1.0.0"
 
 java {
     toolchain {
@@ -67,18 +67,19 @@ dependencies {
             "com.intellij.java",
             "com.intellij.modules.json",
             "com.intellij.copyright",
+            "com.intellij.diagram",
             "org.jetbrains.idea.maven"
         )
     }
 
     // ********** DEPENDENCY TREE MODEL **********
 /*
-    implementation("com.fasterxml.jackson.core:jackson-annotations:2.21")
-    implementation("com.fasterxml.jackson.core:jackson-core:2.21.4")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.21.4")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.21.4")
-    implementation("com.fasterxml.jackson.module:jackson-modules-base:2.21.4")
-    implementation("com.fasterxml.jackson.module:jackson-modules-java8:2.21.4")
+    implementation("com.fasterxml.jackson.core:jackson-annotations:2.22")
+    implementation("com.fasterxml.jackson.core:jackson-core:2.22.2")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.22.2")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.22.2")
+    implementation("com.fasterxml.jackson.module:jackson-modules-base:2.22.2")
+    implementation("com.fasterxml.jackson.module:jackson-modules-java8:2.22.")
     implementation("com.oracle.oci.sdk:oci-java-sdk-circuitbreaker:3.76.1")
     implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient-jersey:3.76.1")
     implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient:3.76.1")
@@ -98,9 +99,9 @@ dependencies {
     implementation("org.apache.commons:commons-collections4:4.4")
     implementation("org.apache.commons:commons-compress:1.27.1")
     implementation("org.apache.commons:commons-lang3:3.18.0")
-    implementation("org.apache.logging.log4j:log4j-api:2.24.3")
-    implementation("org.apache.maven.resolver:maven-resolver-connector-basic:1.9.22")
-    implementation("org.apache.maven:maven-resolver-provider:3.9.9")
+    implementation("org.apache.logging.log4j:log4j-api:2.26.1")
+    implementation("org.apache.maven.resolver:maven-resolver-connector-basic:1.9.27")
+    implementation("org.apache.maven:maven-resolver-provider:3.9.16")
     implementation("org.apache.poi:poi-ooxml-lite:5.4.1")
     implementation("org.apache.poi:poi-ooxml:5.4.1")
     implementation("org.apache.poi:poi:5.4.1")
@@ -114,20 +115,23 @@ dependencies {
 
     // ********** DEPENDENCY FLAT MODEL **********
     implementation("joda-time:joda-time:2.14.2@jar")
-    implementation("com.fasterxml.jackson.core:jackson-annotations:2.21@jar")
-    implementation("com.fasterxml.jackson.core:jackson-core:2.21.4@jar")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.21.4@jar")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.21.4@jar")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-joda:2.21.4@jar")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.21.4@jar")
-    implementation("com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.21.4@jar")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.21.4@jar")
+    implementation("com.fasterxml.jackson.core:jackson-annotations:2.22@jar")
+    implementation("com.fasterxml.jackson.core:jackson-core:2.22.2@jar")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.22.2@jar")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.22.2@jar")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-joda:2.22.2@jar")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.22.2@jar")
+    implementation("com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.22.2@jar")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.22.2@jar")
     implementation("com.oracle.oci.sdk:oci-java-sdk-circuitbreaker:3.76.1@jar")
+    implementation("com.oracle.oci.sdk:oci-java-sdk-databasetools:3.76.1@jar")
     implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient-jersey:3.76.1@jar")
     implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient:3.76.1@jar")
     implementation("com.oracle.oci.sdk:oci-java-sdk-common:3.76.1@jar")
+    implementation("com.oracle.oci.sdk:oci-java-sdk-generativeai:3.76.1@jar")
     implementation("com.oracle.oci.sdk:oci-java-sdk-generativeaiinference:3.76.1@jar")
     implementation("com.oracle.oci.sdk:oci-java-sdk-identity:3.76.1@jar")
+    implementation("com.opencsv:opencsv:5.12.0@jar")
     implementation("commons-io:commons-io:2.18.0@jar")
     implementation("dev.langchain4j:langchain4j-anthropic:1.16.2@jar")
     implementation("dev.langchain4j:langchain4j-community-oci-genai:1.16.0-beta26@jar")
@@ -147,20 +151,20 @@ dependencies {
     implementation("org.apache.commons:commons-collections4:4.4@jar")
     implementation("org.apache.commons:commons-compress:1.27.1@jar")
     implementation("org.apache.commons:commons-lang3:3.18.0@jar")
-    implementation("org.apache.logging.log4j:log4j-api:2.24.3@jar")
-    implementation("org.apache.maven.resolver:maven-resolver-api:1.9.22@jar")
-    implementation("org.apache.maven.resolver:maven-resolver-connector-basic:1.9.22@jar")
-    implementation("org.apache.maven.resolver:maven-resolver-impl:1.9.22@jar")
-    implementation("org.apache.maven.resolver:maven-resolver-named-locks:1.9.22@jar")
-    implementation("org.apache.maven.resolver:maven-resolver-spi:1.9.22@jar")
-    implementation("org.apache.maven.resolver:maven-resolver-util:1.9.22@jar")
+    implementation("org.apache.logging.log4j:log4j-api:2.26.1@jar")
+    implementation("org.apache.maven.resolver:maven-resolver-api:1.9.27@jar")
+    implementation("org.apache.maven.resolver:maven-resolver-connector-basic:1.9.27@jar")
+    implementation("org.apache.maven.resolver:maven-resolver-impl:1.9.27@jar")
+    implementation("org.apache.maven.resolver:maven-resolver-named-locks:1.9.27@jar")
+    implementation("org.apache.maven.resolver:maven-resolver-spi:1.9.27@jar")
+    implementation("org.apache.maven.resolver:maven-resolver-util:1.9.27@jar")
     implementation("org.apache.maven.shared:maven-shared-utils:3.4.2@jar")
-    implementation("org.apache.maven:maven-artifact:3.9.9@jar")
-    implementation("org.apache.maven:maven-builder-support:3.9.9@jar")
-    implementation("org.apache.maven:maven-model-builder:3.9.9@jar")
-    implementation("org.apache.maven:maven-model:3.9.9@jar")
-    implementation("org.apache.maven:maven-repository-metadata:3.9.9@jar")
-    implementation("org.apache.maven:maven-resolver-provider:3.9.9@jar")
+    implementation("org.apache.maven:maven-artifact:3.9.16@jar")
+    implementation("org.apache.maven:maven-builder-support:3.9.16@jar")
+    implementation("org.apache.maven:maven-model-builder:3.9.16@jar")
+    implementation("org.apache.maven:maven-model:3.9.16@jar")
+    implementation("org.apache.maven:maven-repository-metadata:3.9.16@jar")
+    implementation("org.apache.maven:maven-resolver-provider:3.9.16@jar")
     implementation("org.apache.poi:poi-ooxml-lite:5.4.1@jar")
     implementation("org.apache.poi:poi-ooxml:5.4.1@jar")
     implementation("org.apache.poi:poi:5.4.1@jar")
@@ -179,6 +183,7 @@ dependencies {
     implementation("org.glassfish.jersey.inject:jersey-hk2:2.48@jar")
     implementation("org.glassfish.jersey.media:jersey-media-json-jackson:2.48@jar")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:2.2.21@jar")
+    implementation("org.liquibase:liquibase-core:4.33.0@jar")
     implementation("org.projectlombok:lombok:1.18.46@jar")
 
     implementation(project(":modules:dbn-api"))
@@ -190,10 +195,10 @@ dependencies {
     bundledJdbcOracle("org.glassfish.hk2:hk2-api:2.6.1@jar")
     bundledJdbcOracle("org.glassfish.hk2:hk2-locator:2.6.1@jar")
     bundledJdbcOracle("org.glassfish.hk2:hk2-utils:2.6.1@jar")
-    bundledJdbcOracle("com.fasterxml.jackson.core:jackson-annotations:2.21@jar")
-    bundledJdbcOracle("com.fasterxml.jackson.core:jackson-core:2.21.4@jar")
-    bundledJdbcOracle("com.fasterxml.jackson.core:jackson-databind:2.21.4@jar")
-    bundledJdbcOracle("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.21.4@jar")
+    bundledJdbcOracle("com.fasterxml.jackson.core:jackson-annotations:2.22@jar")
+    bundledJdbcOracle("com.fasterxml.jackson.core:jackson-core:2.22.2@jar")
+    bundledJdbcOracle("com.fasterxml.jackson.core:jackson-databind:2.22.2@jar")
+    bundledJdbcOracle("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.22.2@jar")
     bundledJdbcOracle("org.glassfish.hk2.external:jakarta.inject:2.6.1@jar")
     bundledJdbcOracle("jakarta.ws.rs:jakarta.ws.rs-api:2.1.6@jar")
     bundledJdbcOracle("org.glassfish.jersey.core:jersey-client:2.47@jar")

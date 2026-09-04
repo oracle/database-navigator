@@ -18,6 +18,7 @@ package com.dbn.language.common;
 
 import com.dbn.common.action.UserDataKeys;
 import com.dbn.common.dispose.Failsafe;
+import com.dbn.common.latent.Latent;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.mapping.FileConnectionContextManager;
 import com.dbn.language.common.element.ChameleonElementType;
@@ -39,6 +40,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.common.latent.Latent.basic;
 
 @Getter
 public abstract class DBLanguageDialect extends Language implements DBFileElementTypeProvider {
@@ -48,9 +50,9 @@ public abstract class DBLanguageDialect extends Language implements DBFileElemen
 
     private final DBLanguageDialectIdentifier identifier;
 
-    private final @Getter(lazy = true) DBLanguageSyntaxHighlighter syntaxHighlighter = createSyntaxHighlighter();
-    private final @Getter(lazy = true) DBLanguageParserDefinition parserDefinition = createParserDefinition();
-    private final @Getter(lazy = true) IFileElementType fileElementType = createFileElementType();
+    private final Latent<DBLanguageSyntaxHighlighter> syntaxHighlighter = basic(() -> createSyntaxHighlighter());
+    private final Latent<DBLanguageParserDefinition> parserDefinition = basic(() -> createParserDefinition());
+    private final Latent<IFileElementType> fileElementType = basic(() -> createFileElementType());
 
     private Set<ChameleonTokenType> chameleonTokens;
 
@@ -58,6 +60,25 @@ public abstract class DBLanguageDialect extends Language implements DBFileElemen
         super(baseLanguage, identifier.getValue());
         this.identifier = identifier;
         REGISTRY.put(identifier, this);
+    }
+
+    public boolean isInitialized() {
+        if (!syntaxHighlighter.loaded()) return false;
+        if (!parserDefinition.loaded()) return false;
+
+        return getParserDefinition().isInitialized();
+    }
+
+    public DBLanguageSyntaxHighlighter getSyntaxHighlighter() {
+        return syntaxHighlighter.get();
+    }
+
+    public DBLanguageParserDefinition getParserDefinition() {
+        return parserDefinition.get();
+    }
+
+    public IFileElementType getFileElementType() {
+        return fileElementType.get();
     }
 
     protected abstract Set<ChameleonTokenType> createChameleonTokenTypes();

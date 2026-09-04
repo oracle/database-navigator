@@ -20,8 +20,10 @@ import com.dbn.common.dispose.Disposer;
 import com.dbn.common.editor.WrappingTextEditor;
 import com.dbn.common.environment.options.listener.EnvironmentManagerListener;
 import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.icon.Icons;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Json;
@@ -33,33 +35,38 @@ import com.dbn.object.DBJsonView;
 import com.dbn.vfs.file.DBContentVirtualFile;
 import com.intellij.openapi.command.undo.UndoUtil;
 import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ex.EditorEx;
-import com.intellij.openapi.editor.ex.FocusChangeListener;
 import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
 
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import java.awt.Component;
 import java.awt.KeyboardFocusManager;
 
+import static com.dbn.common.ui.form.field.JComponentFilter.array;
+import static com.dbn.common.ui.util.Buttons.onButtonClick;
 import static com.dbn.common.ui.util.UserInterface.updateScrollPanes;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Documents.resetText;
 import static com.dbn.common.util.Editors.enableSelectionOccurrenceHighlights;
 import static com.dbn.nls.NlsResources.txt;
+import static com.intellij.openapi.util.IconLoader.getDisabledIcon;
 
 public class JsonDataContentEditorForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel editorPanel;
     private JPanel headerPanel;
+    private JPanel actionsPanel;
+    private JPanel buttonsPanel;
+    private JButton acceptButton;
+    private JButton revertButton;
 
 
     private WeakRef<JsonDataEditorModelCell> selectedCell;
@@ -73,6 +80,22 @@ public class JsonDataContentEditorForm extends DBNFormBase {
 
         ProjectEvents.subscribe(EnvironmentManagerListener.TOPIC, environmentManagerListener());
         initJsonContentEditor();
+        initButtonsPanel();
+    }
+
+    private void initButtonsPanel() {
+        acceptButton.setIcon(Icons.ACTION_APPROVE);
+        revertButton.setIcon(Icons.ACTION_REJECT);
+        acceptButton.setDisabledIcon(getDisabledIcon(Icons.ACTION_CHECK));
+        revertButton.setDisabledIcon(getDisabledIcon(Icons.ACTION_REJECT));
+        onButtonClick(acceptButton, e -> applyChanges());
+        onButtonClick(revertButton, e -> revertChanges());
+    }
+
+    @Override
+    protected void initFieldAvailability() {
+        DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
+        fieldAdapter.initFieldsAvailability(() -> isEditorContentChanged(), array(acceptButton, revertButton));
     }
 
     private EnvironmentManagerListener environmentManagerListener() {
@@ -124,13 +147,7 @@ public class JsonDataContentEditorForm extends DBNFormBase {
         settings.setCaretRowShown(false);
         settings.setVirtualSpace(true);
 
-        editor.addFocusListener(new FocusChangeListener() {
-            @Override
-            public void focusLost(@NotNull Editor editor) {
-                updateCellValue();
-            }
-        });
-
+        Documents.onDocumentChanged(document, this, event -> updateFieldAvailability());
 
         editorPanel.add(editor.getComponent());
         updateScrollPanes(editorPanel);
@@ -153,6 +170,7 @@ public class JsonDataContentEditorForm extends DBNFormBase {
         }
 
         updateEditorState();
+        updateFieldAvailability();
     }
 
     public void focusEditor() {
@@ -177,6 +195,10 @@ public class JsonDataContentEditorForm extends DBNFormBase {
     }
 
     public void updateCellValue() {
+        applyChanges();
+    }
+
+    private void applyChanges() {
         JsonDataEditorModelCell selectedCell = getSelectedCell();
         if (selectedCell == null) return;
         if (!isEditorContentChanged()) return;
@@ -184,7 +206,15 @@ public class JsonDataContentEditorForm extends DBNFormBase {
         String editorContent = editor.getDocument().getText();
         JsonValue userValue = new JsonValue(editorContent);
         selectedCell.updateUserValue(userValue, false);
+        originalContent = editorContent;
+        updateFieldAvailability();
     }
+
+    private void revertChanges() {
+        resetText(editor, nvl(originalContent, ""), true);
+        updateFieldAvailability();
+    }
+
 
     public JsonDataEditorModelCell getSelectedCell() {
         return WeakRef.get(selectedCell);

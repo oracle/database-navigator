@@ -16,6 +16,7 @@
 
 package com.dbn.database.postgres;
 
+import com.dbn.common.util.Chars;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectorProperties;
 import com.dbn.connection.config.ConnectionSettings;
@@ -26,10 +27,16 @@ import com.dbn.database.common.DatabaseCompatibilityInterfaceImpl;
 import com.dbn.editor.session.SessionStatus;
 import com.dbn.language.common.quotes.QuoteDefinition;
 import com.dbn.language.common.quotes.QuotePair;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.dbn.database.DatabaseFeature.CHANGE_PASSWORD;
 import static com.dbn.database.DatabaseFeature.CONSTRAINT_MANIPULATION;
 import static com.dbn.database.DatabaseFeature.CURRENT_SCHEMA;
 import static com.dbn.database.DatabaseFeature.OBJECT_SOURCE_EDITING;
@@ -73,6 +80,7 @@ public class PostgresCompatibilityInterface extends DatabaseCompatibilityInterfa
                 UPDATABLE_RESULT_SETS,
                 OBJECT_SOURCE_EDITING,
                 CURRENT_SCHEMA,
+                CHANGE_PASSWORD,
                 CONSTRAINT_MANIPULATION,
                 READONLY_CONNECTIVITY);
     }
@@ -93,6 +101,16 @@ public class PostgresCompatibilityInterface extends DatabaseCompatibilityInterfa
     @Override
     public String getDefaultAlternativeStatementDelimiter() {
         return null;
+    }
+
+    @Override
+    public void completeConnectorPasswordChange(@NotNull Connection connection, @Nullable char[] newPassword) throws SQLException {
+        if (newPassword == null) return;
+        try (Statement statement = connection.createStatement()) {
+            String password = Chars.toStringAcceptEmpty(newPassword);
+            String passwordLiteral = statement.enquoteLiteral(password);
+            statement.execute("ALTER ROLE CURRENT_USER PASSWORD " + passwordLiteral);
+        }
     }
 
     @Override

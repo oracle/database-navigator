@@ -27,7 +27,6 @@ import com.dbn.common.util.Commons;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
-import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
 import com.dbn.common.util.Titles;
 import com.dbn.connection.ConnectionHandler;
@@ -41,7 +40,6 @@ import com.dbn.connection.session.DatabaseSessionBundle;
 import com.dbn.connection.session.SessionManagerListener;
 import com.dbn.editor.code.options.CodeEditorChangesOption;
 import com.dbn.editor.code.options.CodeEditorConfirmationSettings;
-import com.dbn.editor.code.options.CodeEditorSettings;
 import com.dbn.object.DBConsole;
 import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.common.list.DBObjectList;
@@ -84,7 +82,10 @@ import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.options.setting.Settings.writeCdata;
 import static com.dbn.common.util.Commons.array;
-import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Messages.OPTIONS_YES_NO;
+import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.common.util.Messages.showQuestionDialog;
+import static com.dbn.common.util.Messages.whenOk;
 import static com.dbn.common.util.Naming.nextNumberedIdentifier;
 import static com.dbn.common.util.Strings.isOneOf;
 import static com.dbn.connection.config.ConnectionConfigListener.whenNameChanged;
@@ -134,9 +135,8 @@ public class DatabaseConsoleManager extends ProjectComponentBase implements Pers
 
                 Project project = source.getProject();
 
-                CodeEditorSettings editorSettings = CodeEditorSettings.getInstance(project);
-                CodeEditorConfirmationSettings confirmationSettings = editorSettings.getConfirmationSettings();
-                confirmationSettings.getTemporaryConsole().resolve(project,
+                CodeEditorConfirmationSettings settings = CodeEditorConfirmationSettings.get(project);
+                settings.getTemporaryConsole().resolve(project,
                         array(console.getName(), console.getSource()),
                         option -> processCodeChangeOption(consoleFile, option));
 
@@ -225,12 +225,12 @@ public class DatabaseConsoleManager extends ProjectComponentBase implements Pers
     }
 
     public void deleteConsole(DBConsole console) {
-        Messages.showQuestionDialog(
+        showQuestionDialog(
                 getProject(),
                 txt("msg.consoles.title.DeleteConsole"),
                 txt("msg.consoles.question.DeleteConsole"),
-                Messages.OPTIONS_YES_NO, 0,
-                option -> when(option == 0, () -> removeConsole(console)));
+                OPTIONS_YES_NO, 0,
+                whenOk(() -> removeConsole(console)));
 
     }
 
@@ -283,7 +283,7 @@ public class DatabaseConsoleManager extends ProjectComponentBase implements Pers
             } catch (IOException e) {
                 conditionallyLog(e);
                 String fileName = fileWrapper.getFile().getName();
-                Messages.showErrorDialog(project,
+                showErrorDialog(project,
                         txt("msg.consoles.title.CouldNotSaveToFile"),
                         txt("msg.consoles.error.CouldNotSaveToFile", fileName), e);
             }

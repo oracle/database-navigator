@@ -31,6 +31,8 @@ public interface DatabaseInterfaces {
 
     DatabaseNativeDataTypes getNativeDataTypes();
 
+    DatabaseDriverInterface getDriverInterface();
+
     DatabaseMessageParserInterface getMessageParserInterface();
 
     DatabaseEnvironmentInterface getEnvironmentInterface();
@@ -48,6 +50,10 @@ public interface DatabaseInterfaces {
     DatabaseAssistantInterface getAssistantInterface();
 
     DatabaseVectorInterface getVectorInterface();
+
+    DatabaseDatasourceConfigInterface getDatasourceConfigInterface();
+
+    DatabaseSchedulerInterface getSchedulerInterface();
 
     DatabaseJavaInterface getJavaInterface();
 

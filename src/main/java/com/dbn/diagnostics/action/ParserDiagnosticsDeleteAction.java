@@ -17,7 +17,6 @@
 package com.dbn.diagnostics.action;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.common.util.Messages;
 import com.dbn.diagnostics.ParserDiagnosticsManager;
 import com.dbn.diagnostics.data.ParserDiagnosticsResult;
 import com.dbn.diagnostics.ui.ParserDiagnosticsForm;
@@ -27,7 +26,9 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Messages.OPTIONS_YES_NO;
+import static com.dbn.common.util.Messages.showQuestionDialog;
+import static com.dbn.common.util.Messages.whenOk;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ParserDiagnosticsDeleteAction extends AbstractParserDiagnosticsAction {
@@ -40,11 +41,11 @@ public class ParserDiagnosticsDeleteAction extends AbstractParserDiagnosticsActi
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull ParserDiagnosticsForm form) {
         ParserDiagnosticsResult result = form.getSelectedResult();
         if (result != null) {
-            Messages.showQuestionDialog(project,
+            showQuestionDialog(project,
                     txt("msg.diagnostics.title.DeleteResult"),
                     txt("msg.diagnostics.message.DeleteResultConfirmation",result.getName()),
-                    Messages.OPTIONS_YES_NO, 0,
-                    option -> when(option == 0, () -> {
+                    OPTIONS_YES_NO, 0,
+                    whenOk(() -> {
                         ParserDiagnosticsManager manager = getManager(project);
                         manager.deleteResult(result);
                         ParserDiagnosticsResult latestResult = manager.getLatestResult();

@@ -19,7 +19,6 @@ package com.dbn.language.common.element.parser;
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.SharedTokenTypeBundle;
 import com.dbn.language.common.element.cache.ElementLookupContext;
-import com.dbn.language.common.element.impl.LeafElementType;
 import com.intellij.lang.PsiBuilder;
 
 public class ParserContext extends ElementLookupContext {
@@ -34,7 +33,4 @@ public class ParserContext extends ElementLookupContext {
         this.sharedTokenTypes = languageDialect.getSharedTokenTypes();
     }
 
-    public boolean isSurrogateFor(LeafElementType leafElementType) {
-        return builder.tokenMonitor.isSurrogateFor(leafElementType);
-    }
 }

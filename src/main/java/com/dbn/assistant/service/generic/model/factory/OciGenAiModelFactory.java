@@ -20,12 +20,8 @@ import com.dbn.assistant.AssistantComponent;
 import com.dbn.assistant.credential.AssistantCredential;
 import com.dbn.assistant.service.generic.model.AssistantModelInput;
 import com.dbn.oci.config.OciConfig;
-import com.dbn.oci.config.OciConfigType;
 import com.oracle.bmc.Region;
 import com.oracle.bmc.auth.AuthenticationDetailsProvider;
-import com.oracle.bmc.auth.ConfigFileAuthenticationDetailsProvider;
-import com.oracle.bmc.auth.SimpleAuthenticationDetailsProvider;
-import com.oracle.bmc.auth.SimplePrivateKeySupplier;
 import dev.langchain4j.community.model.oracle.oci.genai.OciGenAiChatModel;
 import dev.langchain4j.community.model.oracle.oci.genai.OciGenAiCohereChatModel;
 import dev.langchain4j.community.model.oracle.oci.genai.OciGenAiCohereStreamingChatModel;
@@ -35,13 +31,11 @@ import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.language.LanguageModel;
 import lombok.SneakyThrows;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.io.IOException;
 
 import static com.dbn.assistant.provider.AIProviderId.COHERE;
 import static com.dbn.assistant.provider.AIProviderId.OCI_GEN_AI;
+import static com.dbn.oci.config.OciConfigUtil.createAuthProvider;
 
 
 public class OciGenAiModelFactory extends AbstractModelFactory implements AssistantComponent {
@@ -59,9 +53,12 @@ public class OciGenAiModelFactory extends AbstractModelFactory implements Assist
         String modelName = input.getModelName();
         Double temperature = input.getTemperature();
         Integer maxTokens = input.getMaxTokens();
-        String compartmentId = credential.getOciConfig().getCompartmentId();
-        Region region = getRegion(input);
-        AuthenticationDetailsProvider authProvider = createAuthProvider(credential);
+
+        OciConfig ociConfig = credential.getOciConfig();
+        String compartmentId = ociConfig.getCompartmentId();
+        String regionId = ociConfig.getRegionId();
+        Region region = Region.fromRegionCodeOrId(regionId);
+        AuthenticationDetailsProvider authProvider = createAuthProvider(ociConfig);
 
         if (input.getBaseProviderId() == COHERE) {
             return wrapped(() -> OciGenAiCohereChatModel.builder()
@@ -98,9 +95,12 @@ public class OciGenAiModelFactory extends AbstractModelFactory implements Assist
         String modelName = input.getModelName();
         Double temperature = input.getTemperature();
         Integer maxTokens = input.getMaxTokens();
-        String compartmentId = credential.getOciConfig().getCompartmentId();
-        Region region = getRegion(input);
-        AuthenticationDetailsProvider authProvider = createAuthProvider(credential);
+
+        OciConfig ociConfig = credential.getOciConfig();
+        String compartmentId = ociConfig.getCompartmentId();
+        String regionId = ociConfig.getRegionId();
+        Region region = Region.fromRegionCodeOrId(regionId);
+        AuthenticationDetailsProvider authProvider = createAuthProvider(ociConfig);
 
         if (input.getBaseProviderId() == COHERE) {
             return wrapped(() -> OciGenAiCohereStreamingChatModel.builder()
@@ -123,31 +123,6 @@ public class OciGenAiModelFactory extends AbstractModelFactory implements Assist
         }
     }
 
-    private static @NotNull AuthenticationDetailsProvider createAuthProvider(AssistantCredential credential) throws IOException {
-        OciConfig config = credential.getOciConfig();
-
-        OciConfigType configType = config.getType();
-        if (configType == OciConfigType.FILE) {
-            String configFile = credential.getOciConfig().getConfigFile();
-            String configProfile = credential.getOciConfig().getConfigProfile();
-
-            return new ConfigFileAuthenticationDetailsProvider(configFile, configProfile);
-        }
-
-        if (configType == OciConfigType.CUSTOM) {
-            return SimpleAuthenticationDetailsProvider
-                    .builder()
-                    .userId(config.getUserId())
-                    .tenantId(config.getTenancyId())
-                    .fingerprint(config.getFingerprint())
-                    //.region(Region.fromRegionCodeOrId(config.getRegion()))
-                    .privateKeySupplier(new SimplePrivateKeySupplier(config.getPrivateKeyFile()))
-                    .build();
-
-        }
-
-        throw new IllegalArgumentException("Unsupported config type: " + configType);
-    }
 
     @Nullable
     @Override

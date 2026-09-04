@@ -18,7 +18,6 @@ package com.dbn.assistant.chat.ui;
 
 import com.dbn.assistant.chat.Chat;
 import com.dbn.common.ui.dialog.DBNDialog;
-import com.dbn.common.util.Messages;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,8 +26,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Messages.OPTIONS_YES_NO;
 import static com.dbn.common.util.Messages.showQuestionDialog;
+import static com.dbn.common.util.Messages.whenOk;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ChatHistoryDialog extends DBNDialog<ChatHistoryForm> {
@@ -99,9 +99,9 @@ public class ChatHistoryDialog extends DBNDialog<ChatHistoryForm> {
                 getProject(),
                 txt("msg.assistant.title.DeleteChats"),
                 confirmMessage,
-                Messages.OPTIONS_YES_NO,
+                OPTIONS_YES_NO,
                 0,
-                option -> when(option == 0, () -> deleteChats(selectedIds))
+                whenOk(() -> deleteChats(selectedIds))
         );
     }
 

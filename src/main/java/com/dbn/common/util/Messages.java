@@ -168,7 +168,6 @@ public class Messages {
         showDialog(project, message, title, options, defaultOptionIndex, Icons.DIALOG_QUESTION, callback, rememberOption);
     }
 
-
     public static void showWarningDialog(@Nullable Project project,  @DialogTitle String title, @DialogMessage String message) {
         showWarningDialog(project, title, message, OPTIONS_OK, 0, null);
     }
@@ -195,6 +194,17 @@ public class Messages {
 
     public static int showConfirmationDialog(@Nullable Project project, @DialogTitle String title, @DialogMessage String message, @Button String[] options, int defaultOptionIndex) {
         return Dispatch.call(() -> showDialog(project, message, Titles.signed(title), options, defaultOptionIndex, Icons.DIALOG_QUESTION, null));
+    }
+
+    public static int showConfirmationDialog(@Nullable Project project, @DialogTitle String title, @DialogMessage String message, @Button String[] options, int defaultOptionIndex,  MessageCallback callback) {
+        return Dispatch.call(() -> {
+            int option = showDialog(project, message, Titles.signed(title), options, defaultOptionIndex, Icons.DIALOG_QUESTION, null);
+            if (callback != null) {
+                callback.accept(option);
+            }
+
+            return option;
+        });
     }
 
     public static int showAcknowledgementDialog(@Nullable Project project, @DialogTitle String title, @DialogMessage String message, @Button String[] options, int defaultOptionIndex,  MessageCallback callback) {
@@ -273,4 +283,9 @@ public class Messages {
         return ModalityState.any();
     }
 
+    public static MessageCallback whenOk(@NotNull Runnable runnable) {
+        return option -> {
+            if (option == 0) runnable.run();
+        };
+    }
 }

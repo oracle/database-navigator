@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.dbn.common.exception.Exceptions.unwrap;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Unsafe.cast;
 
@@ -64,11 +65,15 @@ public class Reflection {
 
     @SneakyThrows
     public static <T> T invokeMethod(Object object, Method method, Object... args) {
-        return cast(method.invoke(object, args));
+        try {
+            return cast(method.invoke(object, args));
+        } catch (Throwable e) {
+            throw unwrap(e);
+        }
     }
 
     @SneakyThrows
-    public static <T> T invokeMethod(Object object, String methodName, Object... args) {
+    public static <T> T invokeMethod(Object object, @NonNls String methodName, Object... args) {
         args = nvl(args, () -> new Object[0]);
         Class[] parameterTypes = Arrays.stream(args).map(Object::getClass).toArray(Class[]::new);
         Class<?> objectClass = object instanceof Class ? (Class) object : object.getClass();
@@ -79,7 +84,7 @@ public class Reflection {
     }
 
     @SneakyThrows
-    public static <T> T invokeMethod(String className, String methodName, Object... args) {
+    public static <T> T invokeMethod(String className, @NonNls String methodName, Object... args) {
         args = nvl(args, () -> new Object[0]);
         Class[] parameterTypes = Arrays.stream(args).map(Object::getClass).toArray(Class[]::new);
         Class<?> objectClass = findClass(className);
@@ -92,13 +97,17 @@ public class Reflection {
     }
 
     @Nullable
-    public static Method findMethod(Class<?> objectClass, String methodName, Class... parameterTypes) {
+    public static Method findMethod(Class<?> objectClass, @NonNls String methodName, Class... parameterTypes) {
+        Method match = null;
         for (Method method : objectClass.getMethods()) {
             if (!method.getName().equals(methodName)) continue;
-            if (matchesParameterTypes(method, parameterTypes)) return method;
+            if (!matchesParameterTypes(method, parameterTypes)) continue;
+            if (match == null || isMoreSpecific(method, match, parameterTypes)) {
+                match = method;
+            }
         }
 
-        return null;
+        return match;
     }
 
     private static boolean matchesParameterTypes(Method method, Class[] parameterTypes) {
@@ -114,6 +123,31 @@ public class Reflection {
         }
 
         return true;
+    }
+
+    private static boolean isMoreSpecific(Method candidate, Method current, Class[] parameterTypes) {
+        Class<?>[] candidateTypes = candidate.getParameterTypes();
+        Class<?>[] currentTypes = current.getParameterTypes();
+        int candidateExactMatches = 0;
+        int currentExactMatches = 0;
+
+        for (int i = 0; i < parameterTypes.length; i++) {
+            Class<?> parameterType = parameterTypes[i];
+            if (candidateTypes[i].equals(parameterType)) candidateExactMatches++;
+            if (currentTypes[i].equals(parameterType)) currentExactMatches++;
+        }
+        if (candidateExactMatches != currentExactMatches) {
+            return candidateExactMatches > currentExactMatches;
+        }
+
+        for (int i = 0; i < parameterTypes.length; i++) {
+            Class<?> candidateType = candidateTypes[i];
+            Class<?> currentType = currentTypes[i];
+            if (!candidateType.equals(currentType) && currentType.isAssignableFrom(candidateType)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Nullable

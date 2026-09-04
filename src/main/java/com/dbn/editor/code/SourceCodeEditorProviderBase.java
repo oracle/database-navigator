@@ -40,7 +40,6 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.Icon;
 
 import static com.dbn.common.compatibility.CompatibilityUtil.isStructureViewAccess;
-import static com.dbn.vfs.file.status.DBFileStatus.LOADING;
 
 abstract class SourceCodeEditorProviderBase extends BasicTextEditorProvider implements DumbAware {
     public boolean accept(@NotNull Project project, @NotNull VirtualFile virtualFile) {
@@ -58,12 +57,11 @@ abstract class SourceCodeEditorProviderBase extends BasicTextEditorProvider impl
     @NotNull
     public FileEditor createEditor(@NotNull Project project, @NotNull VirtualFile file) {
         DBEditableObjectVirtualFile databaseFile;
-        boolean temporary = false;
 
         if (file instanceof DBSourceCodeVirtualFile sourceCodeFile) {
             databaseFile = sourceCodeFile.getMainDatabaseFile();
 
-            temporary = isStructureViewAccess();
+            boolean temporary = isStructureViewAccess();
             if (temporary) return createBasicEditor(project, sourceCodeFile);
 
             // trigger main file editor and cancel the original request
@@ -74,7 +72,6 @@ abstract class SourceCodeEditorProviderBase extends BasicTextEditorProvider impl
         }
 
         DBSourceCodeVirtualFile sourceCodeFile = databaseFile.ensureContentFile(getContentType());
-        if (sourceCodeFile.is(LOADING)) sourceCodeFile.set(LOADING, false); // TODO verify incomplete "LOADING" status management
 
         SourceCodeEditor sourceCodeEditor = createCodeEditor(project, sourceCodeFile);
         return prepareEditor(project, sourceCodeEditor, sourceCodeFile);

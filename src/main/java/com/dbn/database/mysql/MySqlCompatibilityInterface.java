@@ -16,6 +16,7 @@
 
 package com.dbn.database.mysql;
 
+import com.dbn.common.util.Chars;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectorProperties;
 import com.dbn.connection.config.ConnectionSettings;
@@ -27,24 +28,46 @@ import com.dbn.database.common.DatabaseCompatibilityInterfaceImpl;
 import com.dbn.editor.session.SessionStatus;
 import com.dbn.language.common.quotes.QuoteDefinition;
 import com.dbn.language.common.quotes.QuotePair;
+import com.dbn.object.DBConstraint;
+import com.dbn.object.common.DBObject;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.dbn.database.DatabaseFeature.CHANGE_EXPIRED_PASSWORD;
+import static com.dbn.database.DatabaseFeature.CHANGE_PASSWORD;
 import static com.dbn.database.DatabaseFeature.CONSTRAINT_MANIPULATION;
 import static com.dbn.database.DatabaseFeature.CURRENT_SCHEMA;
 import static com.dbn.database.DatabaseFeature.OBJECT_CHANGE_MONITORING;
 import static com.dbn.database.DatabaseFeature.OBJECT_DDL_EXTRACTION;
+import static com.dbn.database.DatabaseFeature.OBJECT_DISABLING;
 import static com.dbn.database.DatabaseFeature.OBJECT_SOURCE_EDITING;
 import static com.dbn.database.DatabaseFeature.READONLY_CONNECTIVITY;
 import static com.dbn.database.DatabaseFeature.SESSION_BROWSING;
 import static com.dbn.database.DatabaseFeature.SESSION_KILL;
 import static com.dbn.database.DatabaseFeature.UPDATABLE_RESULT_SETS;
+import static com.dbn.object.type.DBConstraintType.CHECK;
 
 @NonNls
 public class MySqlCompatibilityInterface extends DatabaseCompatibilityInterfaceImpl {
     private static final QuoteDefinition IDENTIFIER_QUOTE_DEFINITION = new QuoteDefinition(new QuotePair('`', '`'));
+
+    private interface Property {
+        String DISCONNECT_ON_EXPIRED_PASSWORDS = "disconnectOnExpiredPasswords";
+    }
+
+    @Override
+    public void initializeTransactionIsolation(@NotNull Connection connection) throws SQLException {
+        if (connection.getTransactionIsolation() != Connection.TRANSACTION_READ_COMMITTED) {
+            connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+        }
+    }
 
     @Override
     public List<DatabaseObjectTypeId> getSupportedObjectTypes() {
@@ -55,6 +78,7 @@ public class MySqlCompatibilityInterface extends DatabaseCompatibilityInterfaceI
                 DatabaseObjectTypeId.SCHEMA,
                 DatabaseObjectTypeId.TABLE,
                 DatabaseObjectTypeId.VIEW,
+                DatabaseObjectTypeId.JSON_VIEW,
                 DatabaseObjectTypeId.COLUMN,
                 DatabaseObjectTypeId.CONSTRAINT,
                 DatabaseObjectTypeId.INDEX,
@@ -67,17 +91,36 @@ public class MySqlCompatibilityInterface extends DatabaseCompatibilityInterfaceI
     }
 
     @Override
+    public boolean supportsObjectType(DatabaseObjectTypeId objectTypeId, double databaseVersion) {
+        return switch (objectTypeId) {
+            case JSON_VIEW -> databaseVersion >= 9.0;
+            default -> supportsObjectType(objectTypeId);
+        };
+    }
+
+    @Override
     public List<DatabaseFeature> getSupportedFeatures() {
         return Arrays.asList(
                 SESSION_BROWSING,
                 SESSION_KILL,
                 OBJECT_CHANGE_MONITORING,
+                OBJECT_DISABLING,
                 OBJECT_SOURCE_EDITING,
                 OBJECT_DDL_EXTRACTION,
                 UPDATABLE_RESULT_SETS,
                 CURRENT_SCHEMA,
+                CHANGE_PASSWORD,
+                CHANGE_EXPIRED_PASSWORD,
                 CONSTRAINT_MANIPULATION,
                 READONLY_CONNECTIVITY);
+    }
+
+    @Override
+    public boolean supportsFeature(DatabaseFeature feature, DBObject object) {
+        if (feature == OBJECT_DISABLING) {
+            return object instanceof DBConstraint constraint && constraint.getConstraintType() == CHECK;
+        }
+        return super.supportsFeature(feature, object);
     }
 
     @Override
@@ -129,6 +172,21 @@ public class MySqlCompatibilityInterface extends DatabaseCompatibilityInterfaceI
     }
 
     @Override
+    public void initConnectorPasswordChange(@NotNull ConnectorProperties properties, @Nullable char[] newPassword) {
+        if (newPassword == null) return;
+        properties.add(Property.DISCONNECT_ON_EXPIRED_PASSWORDS, "false");
+    }
+
+    @Override
+    public void completeConnectorPasswordChange(@NotNull Connection connection, @Nullable char[] newPassword) throws SQLException {
+        if (newPassword == null) return;
+        try (PreparedStatement statement = connection.prepareStatement("SET PASSWORD = ?")) {
+            statement.setString(1, Chars.toStringAcceptEmpty(newPassword));
+            statement.execute();
+        }
+    }
+
+    @Override
     public void initConnectorSslConnection(ConnectorProperties properties, ConnectionSettings settings) {
         ConnectionSslSettings sslSettings = settings.getSslSettings();
         if (!sslSettings.isActive()) return;
@@ -140,5 +198,10 @@ public class MySqlCompatibilityInterface extends DatabaseCompatibilityInterfaceI
         properties.add("useSSL", "true");
         properties.add("requireSSL", "true");
         properties.add("verifyServerCertificate", "true");
+    }
+
+    @Override
+    public String getLiquibaseCatalogName(@NotNull String schemaName) {
+        return schemaName;
     }
 }

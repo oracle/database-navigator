@@ -97,6 +97,79 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="json-views">
+        <statement>
+            select
+                TABLE_NAME as VIEW_NAME,
+                null as VIEW_TYPE_OWNER,
+                null as VIEW_TYPE,
+                TABLE_COMMENT as COMMENTS,
+                TABLE_SCHEMA as ROOT_TABLE_OWNER,
+                TABLE_NAME as ROOT_TABLE_NAME,
+                null as JSON_COLUMN_NAME,
+                'N' as IS_SYSTEM_VIEW,
+                'N' as IS_EDITIONABLE,
+                'Y' as IS_VALID,
+                'N' as IS_READONLY,
+                'Y' as IS_INSERT_ALLOWED,
+                'Y' as IS_UPDATE_ALLOWED,
+                'Y' as IS_DELETE_ALLOWED,
+                null as JSON_SCHEMA,
+                null as KEY_ATTRIBUTE_NAMES
+            from information_schema.TABLES
+            where
+                TABLE_SCHEMA = {#0} and
+                TABLE_TYPE in ('JSON DUALITY VIEW', 'JSON RELATIONAL DUALITY VIEW')
+            order by TABLE_NAME asc
+        </statement>
+        <statement>
+            select
+                null as VIEW_NAME,
+                null as VIEW_TYPE_OWNER,
+                null as VIEW_TYPE,
+                null as COMMENTS,
+                null as ROOT_TABLE_OWNER,
+                null as ROOT_TABLE_NAME,
+                null as JSON_COLUMN_NAME,
+                'N' as IS_SYSTEM_VIEW,
+                'N' as IS_EDITIONABLE,
+                'Y' as IS_VALID,
+                'N' as IS_READONLY,
+                'N' as IS_INSERT_ALLOWED,
+                'N' as IS_UPDATE_ALLOWED,
+                'N' as IS_DELETE_ALLOWED,
+                null as JSON_SCHEMA,
+                null as KEY_ATTRIBUTE_NAMES
+            where 1 = 2
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="json-view-table-relations">
+        <statement>
+            select
+                null as JSON_VIEW_NAME,
+                null as TABLE_OWNER_NAME,
+                null as TABLE_NAME,
+                null as `POSITION`,
+                'N' as IS_ROOT_TABLE,
+                'N' as IS_READONLY
+            where 1 = 2
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="all-json-view-table-relations">
+        <statement>
+            select
+                null as JSON_VIEW_NAME,
+                null as TABLE_OWNER_NAME,
+                null as TABLE_NAME,
+                null as `POSITION`,
+                'N' as IS_ROOT_TABLE,
+                'N' as IS_READONLY
+            where 1 = 2
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="dataset-columns">
         <!--<statement>
             select
@@ -267,14 +340,17 @@
                     when rc.UNIQUE_CONSTRAINT_NAME = 'name' then concat('unq_', rc.REFERENCED_TABLE_NAME)
                     else rc.UNIQUE_CONSTRAINT_NAME
                 end as FK_CONSTRAINT_NAME,
-                'Y' as IS_ENABLED,
-                null as CHECK_CONDITION
+                if(tc.CONSTRAINT_TYPE != 'CHECK' or tc.ENFORCED = 'YES', 'Y', 'N') as IS_ENABLED,
+                cc.CHECK_CLAUSE as CHECK_CONDITION
             from
                 information_schema.TABLE_CONSTRAINTS tc left join
                 information_schema.REFERENTIAL_CONSTRAINTS rc on
                     rc.CONSTRAINT_SCHEMA = tc.CONSTRAINT_SCHEMA and
                     rc.CONSTRAINT_NAME = tc.CONSTRAINT_NAME and
-                    rc.TABLE_NAME = tc.TABLE_NAME
+                    rc.TABLE_NAME = tc.TABLE_NAME left join
+                information_schema.CHECK_CONSTRAINTS cc on
+                    cc.CONSTRAINT_SCHEMA = tc.CONSTRAINT_SCHEMA and
+                    cc.CONSTRAINT_NAME = tc.CONSTRAINT_NAME
             where
                 tc.TABLE_SCHEMA = {#0}
             order by
@@ -292,10 +368,13 @@
                 tc.CONSTRAINT_TYPE,
                 null as FK_CONSTRAINT_OWNER,
                 null as FK_CONSTRAINT_NAME,
-                'Y' as IS_ENABLED,
-                null as CHECK_CONDITION
+                if(tc.CONSTRAINT_TYPE != 'CHECK' or tc.ENFORCED = 'YES', 'Y', 'N') as IS_ENABLED,
+                cc.CHECK_CLAUSE as CHECK_CONDITION
             from
-                information_schema.TABLE_CONSTRAINTS tc
+                information_schema.TABLE_CONSTRAINTS tc left join
+                information_schema.CHECK_CONSTRAINTS cc on
+                    cc.CONSTRAINT_SCHEMA = tc.CONSTRAINT_SCHEMA and
+                    cc.CONSTRAINT_NAME = tc.CONSTRAINT_NAME
             where
                 tc.TABLE_SCHEMA = {#0}
             order by
@@ -320,14 +399,17 @@
                     when rc.UNIQUE_CONSTRAINT_NAME = 'name' then concat('unq_', rc.REFERENCED_TABLE_NAME)
                     else rc.UNIQUE_CONSTRAINT_NAME
                 end as FK_CONSTRAINT_NAME,
-                'Y' as IS_ENABLED,
-                null as CHECK_CONDITION
+                if(tc.CONSTRAINT_TYPE != 'CHECK' or tc.ENFORCED = 'YES', 'Y', 'N') as IS_ENABLED,
+                cc.CHECK_CLAUSE as CHECK_CONDITION
             from
                 information_schema.TABLE_CONSTRAINTS tc left join
                 information_schema.REFERENTIAL_CONSTRAINTS rc on
                     rc.CONSTRAINT_SCHEMA = tc.CONSTRAINT_SCHEMA and
                     rc.CONSTRAINT_NAME = tc.CONSTRAINT_NAME and
-                    rc.TABLE_NAME = tc.TABLE_NAME
+                    rc.TABLE_NAME = tc.TABLE_NAME left join
+                information_schema.CHECK_CONSTRAINTS cc on
+                    cc.CONSTRAINT_SCHEMA = tc.CONSTRAINT_SCHEMA and
+                    cc.CONSTRAINT_NAME = tc.CONSTRAINT_NAME
             where
                 tc.TABLE_SCHEMA = {#0} and
                 tc.TABLE_NAME = {#1}
@@ -346,16 +428,31 @@
                 tc.CONSTRAINT_TYPE,
                 null as FK_CONSTRAINT_OWNER,
                 null as FK_CONSTRAINT_NAME,
-                'Y' as IS_ENABLED,
-                null as CHECK_CONDITION
+                if(tc.CONSTRAINT_TYPE != 'CHECK' or tc.ENFORCED = 'YES', 'Y', 'N') as IS_ENABLED,
+                cc.CHECK_CLAUSE as CHECK_CONDITION
             from
-                information_schema.TABLE_CONSTRAINTS tc
+                information_schema.TABLE_CONSTRAINTS tc left join
+                information_schema.CHECK_CONSTRAINTS cc on
+                    cc.CONSTRAINT_SCHEMA = tc.CONSTRAINT_SCHEMA and
+                    cc.CONSTRAINT_NAME = tc.CONSTRAINT_NAME
             where
                 tc.TABLE_SCHEMA = {#0} and
                 tc.TABLE_NAME = {#1}
             order by
                 tc.TABLE_NAME,
                 tc.CONSTRAINT_NAME asc
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="enable-constraint">
+        <statement>
+            alter table {0}.{1} alter check {2} enforced
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="disable-constraint">
+        <statement>
+            alter table {0}.{1} alter check {2} not enforced
         </statement>
     </statement-execution-processor>
 
@@ -391,6 +488,36 @@
             from information_schema.KEY_COLUMN_USAGE
             where TABLE_SCHEMA = {#0}
             order by TABLE_NAME asc
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="all-column-relations">
+        <statement>
+            select
+                TABLE_SCHEMA as SOURCE_SCHEMA_NAME,
+                TABLE_NAME as SOURCE_DATASET_NAME,
+                COLUMN_NAME as SOURCE_COLUMN_NAME,
+                REFERENCED_TABLE_SCHEMA as TARGET_SCHEMA_NAME,
+                REFERENCED_TABLE_NAME as TARGET_DATASET_NAME,
+                REFERENCED_COLUMN_NAME as TARGET_COLUMN_NAME
+            from information_schema.KEY_COLUMN_USAGE
+            where REFERENCED_TABLE_SCHEMA = {#0} and REFERENCED_TABLE_NAME is not null
+            order by TABLE_NAME asc
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="column-relations">
+        <statement>
+            select
+                TABLE_SCHEMA as SOURCE_SCHEMA_NAME,
+                TABLE_NAME as SOURCE_DATASET_NAME,
+                COLUMN_NAME as SOURCE_COLUMN_NAME,
+                REFERENCED_TABLE_SCHEMA as TARGET_SCHEMA_NAME,
+                REFERENCED_TABLE_NAME as TARGET_DATASET_NAME,
+                REFERENCED_COLUMN_NAME as TARGET_COLUMN_NAME
+            from information_schema.KEY_COLUMN_USAGE
+            where REFERENCED_TABLE_SCHEMA = {#0} and REFERENCED_TABLE_NAME = {#1}
+            order by COLUMN_NAME asc
         </statement>
     </statement-execution-processor>
 

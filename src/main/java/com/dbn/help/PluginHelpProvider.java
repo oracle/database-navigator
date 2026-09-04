@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 @Getter
 @Setter
 public class PluginHelpProvider extends WebHelpProvider {
-    private static final String BASE_URL = "https://docs.oracle.com/en/database/oracle/database-navigator/3.7/dbnug/";
+    private static final String BASE_URL = "https://docs.oracle.com/en/database/oracle/database-navigator/4.0/dbnug/";
 
     @Nullable
     @Override
@@ -33,6 +33,9 @@ public class PluginHelpProvider extends WebHelpProvider {
         HelpTopic helpTopic = HelpTopic.get(helpTopicId);
         if (helpTopic == null) return null;
 
-        return BASE_URL + helpTopic.getPath();
+        String path = helpTopic.getPath();
+        if (path == null) return null;
+
+        return BASE_URL + path;
     }
 }

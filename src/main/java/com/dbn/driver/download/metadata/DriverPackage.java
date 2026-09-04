@@ -16,12 +16,15 @@
 
 package com.dbn.driver.download.metadata;
 
+import com.dbn.common.index.Identifiable;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.connection.DatabaseType;
+import com.dbn.connection.config.provider.CloudConfigProviderFamily;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +48,7 @@ import static com.dbn.common.util.Lists.convert;
  * {@code
  * <driver-package id="oracle-23.3-standard" name="Oracle 23.3" database-type="ORACLE">
  *     <library group-id="javax.resource" artifact-id="connector-api" version="1.5"/>
- *     <library group-id="oracle.jdbc" artifact-id="ojdbc8" version="23.3.0.23.09"/>
+ *     <library group-id="oracle.jdbc" artifact-id="ojdbc17" version="23.3.0.23.09"/>
  * </driver-package>
  * }
  * </pre>
@@ -54,13 +57,19 @@ import static com.dbn.common.util.Lists.convert;
  */
 @Getter
 @Setter
-public class DriverPackage implements PersistentStateElement, Comparable<DriverPackage> {
+public class DriverPackage implements PersistentStateElement, Comparable<DriverPackage>, Identifiable<String> {
     private String id;
     private String name;
     private DatabaseType databaseType;
+    private CloudConfigProviderFamily cloudConfigProviderFamily = CloudConfigProviderFamily.GENERIC;
     private List<Library> libraries = new ArrayList<>();
     private boolean obsolete;
     private boolean latest;
+    private transient volatile boolean detailsResolved = true;
+    private transient volatile boolean detailsResolving;
+    private transient String sourceId;
+    private transient String sourceName;
+    private transient List<Element> sourceLibraryElements = new ArrayList<>();
 
     public DriverPackage(String id, String name, DatabaseType databaseType, List<Library> libraries) {
         this.id = id;
@@ -81,6 +90,10 @@ public class DriverPackage implements PersistentStateElement, Comparable<DriverP
         return this.databaseType == databaseType || databaseType == DatabaseType.GENERIC;
     }
 
+    public boolean matches(@Nullable CloudConfigProviderFamily providerFamily) {
+        return providerFamily == null || cloudConfigProviderFamily == providerFamily;
+    }
+
     @Override
     public String toString() {
         return name;
@@ -90,10 +103,44 @@ public class DriverPackage implements PersistentStateElement, Comparable<DriverP
         return libraries.size();
     }
 
+    public boolean isDetailsAvailable() {
+        return detailsResolved;
+    }
+
+    public boolean hasSourceMetadata() {
+        return !sourceLibraryElements.isEmpty();
+    }
+
+    public synchronized boolean tryStartDetailsResolution() {
+        if (detailsResolved) return false;
+        if (detailsResolving) return false;
+
+        detailsResolving = true;
+        return true;
+    }
+
+    public synchronized void finishDetailsResolution() {
+        detailsResolving = false;
+    }
+
+    public synchronized void markDetailsResolved() {
+        detailsResolved = true;
+        detailsResolving = false;
+    }
+
+    public synchronized void completeDetailsResolution(String id, String name, List<Library> libraries) {
+        this.id = id;
+        this.name = name;
+        this.libraries = libraries;
+        markDetailsResolved();
+    }
+
     @Override
     public void readState(Element element) {
         this.name = stringAttribute(element, "name");
         this.databaseType = enumAttribute(element, "database-type", DatabaseType.class);
+        this.cloudConfigProviderFamily = enumAttribute(element, "cloud-config-provider-family", CloudConfigProviderFamily.class);
+        if (cloudConfigProviderFamily == null) cloudConfigProviderFamily = CloudConfigProviderFamily.GENERIC;
         this.latest = booleanAttribute(element, "latest", false);
         for (Element libraryElement : childrenOf(element, "library")) {
             Library library = new Library();
@@ -107,6 +154,9 @@ public class DriverPackage implements PersistentStateElement, Comparable<DriverP
         setStringAttribute(element, "id", id);
         setStringAttribute(element, "name", name);
         setEnumAttribute(element, "database-type", databaseType);
+        if (cloudConfigProviderFamily != CloudConfigProviderFamily.GENERIC) {
+            setEnumAttribute(element, "cloud-config-provider-family", cloudConfigProviderFamily);
+        }
         if (latest) setBooleanAttribute(element, "latest", true);
         for (Library library : libraries) {
             Element libraryElement = newElement(element, "library");

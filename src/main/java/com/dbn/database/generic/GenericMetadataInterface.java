@@ -48,6 +48,7 @@ import static com.dbn.database.generic.GenericMetadataLoaders.loadAllProcedureAr
 import static com.dbn.database.generic.GenericMetadataLoaders.loadAllPseudoColumnsRaw;
 import static com.dbn.database.generic.GenericMetadataLoaders.loadCatalogsRaw;
 import static com.dbn.database.generic.GenericMetadataLoaders.loadColumnsRaw;
+import static com.dbn.database.generic.GenericMetadataLoaders.loadExportedKeysRaw;
 import static com.dbn.database.generic.GenericMetadataLoaders.loadForeignKeysRaw;
 import static com.dbn.database.generic.GenericMetadataLoaders.loadFunctionArgumentsRaw;
 import static com.dbn.database.generic.GenericMetadataLoaders.loadFunctionsRaw;
@@ -59,6 +60,7 @@ import static com.dbn.database.generic.GenericMetadataLoaders.loadPseudoColumnsR
 import static com.dbn.database.generic.GenericMetadataLoaders.loadSchemasRaw;
 import static com.dbn.database.generic.GenericMetadataLoaders.loadTablesRaw;
 import static com.dbn.database.generic.GenericMetadataLoaders.loadViewsRaw;
+import static com.dbn.database.generic.GenericMetadataTranslators.ColumnColumnRelationsResultSet;
 import static com.dbn.database.generic.GenericMetadataTranslators.ColumnsResultSet;
 import static com.dbn.database.generic.GenericMetadataTranslators.ForeignKeyRelationsResultSet;
 import static com.dbn.database.generic.GenericMetadataTranslators.ForeignKeysResultSet;
@@ -348,6 +350,24 @@ public class GenericMetadataInterface extends DatabaseMetadataInterfaceImpl {
         }
 
         return allConstraintRelationsRs;
+    }
+
+    @Override
+    public ResultSet loadAllColumnRelations(String ownerName, DBNConnection connection) throws SQLException {
+        MultipartResultSet allColumnRelationsRs = new MultipartResultSet();
+
+        List<String> tableNames = loadTablesRaw(ownerName, connection).list("TABLE_NAME", String.class);
+        for (String tableName : tableNames) {
+            CachedResultSet exportedKeysRs = loadExportedKeysRaw(ownerName, tableName, connection).open();
+            allColumnRelationsRs.add(new ColumnColumnRelationsResultSet(exportedKeysRs));
+        }
+        return allColumnRelationsRs;
+    }
+
+    @Override
+    public ResultSet loadColumnRelations(String ownerName, String datasetName, DBNConnection connection) throws SQLException {
+        CachedResultSet exportedKeysRs = loadExportedKeysRaw(ownerName, datasetName, connection).open();
+        return new ColumnColumnRelationsResultSet(exportedKeysRs);
     }
 
     @Override

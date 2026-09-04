@@ -56,6 +56,7 @@ class Connector {
     private final ConnectionSettings connectionSettings;
     private final ConnectionHandlerStatusHolder connectionStatus;
     private final boolean autoCommit;
+    private final char[] newPassword;
     private SQLException exception;
 
     Connector(
@@ -63,12 +64,14 @@ class Connector {
             AuthenticationInfo authenticationInfo,
             ConnectionSettings connectionSettings,
             ConnectionHandlerStatusHolder connectionStatus,
-            boolean autoCommit) {
+            boolean autoCommit,
+            @Nullable char[] newPassword) {
         this.sessionId = sessionId;
         this.authenticationInfo = authenticationInfo;
         this.connectionSettings = connectionSettings;
         this.connectionStatus = connectionStatus;
         this.autoCommit = autoCommit;
+        this.newPassword = newPassword;
     }
 
 
@@ -114,7 +117,10 @@ class Connector {
             if (!authenticationInfo.isProvided() && this.authenticationInfo != null) {
                 authenticationInfo = this.authenticationInfo;
             }
-            compatibility.initConnectorAuthentication(properties, authenticationInfo);
+            if (!databaseSettings.isConfigHttps()) {
+                compatibility.initConnectorAuthentication(properties, authenticationInfo);
+            }
+            compatibility.initConnectorPasswordChange(properties, newPassword);
 
             // SESSION INFO
             compatibility.initConnectorSession(properties, connectionSettings, sessionId);
@@ -137,10 +143,13 @@ class Connector {
             compatibility.initConnectorSslConnection(properties, connectionSettings);
 
             String connectionUrl = databaseSettings.getConnectionUrl();
+            if (databaseSettings.isConfigFile()) {
+                connectionUrl = databaseSettings.getConnectionUrlForConnect();
+            }
 
             // SSH Tunnel
             ConnectionSshTunnelSettings sshTunnelSettings = connectionSettings.getSshTunnelSettings();
-            if (sshTunnelSettings.isActive()) {
+            if (sshTunnelSettings.isActive() && !databaseSettings.isConfigFile()) {
                 SshTunnelManager sshTunnelManager = SshTunnelManager.getInstance();
                 SshTunnelConnector sshTunnelConnector = sshTunnelManager.ensureSshConnection(connectionSettings);
                 if (sshTunnelConnector != null) {
@@ -156,6 +165,9 @@ class Connector {
             if (connection == null) {
                 throw new SQLException("Driver failed to create connection. No failure information provided by jdbc vendor.");
             }
+
+            compatibility.completeConnectorPasswordChange(connection, newPassword);
+            compatibility.initializeTransactionIsolation(connection);
 
             if (connectionStatus != null) {
                 connectionStatus.setConnectionException(null);

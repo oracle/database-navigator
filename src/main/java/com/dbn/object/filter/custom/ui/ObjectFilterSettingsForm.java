@@ -22,7 +22,6 @@ import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.options.SettingsChangeNotifier;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.ui.ValueSelector;
-import com.dbn.common.ui.ValueSelectorOption;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Dialogs;
@@ -118,7 +117,7 @@ public class ObjectFilterSettingsForm extends ConfigurationEditorForm<ObjectFilt
 
     private class ObjectTypeSelector extends ValueSelector<DBObjectType> {
         ObjectTypeSelector() {
-            super(PlatformIcons.ADD_ICON, txt("app.objects.action.AddFilter"), null, ValueSelectorOption.HIDE_DESCRIPTION);
+            super(PlatformIcons.ADD_ICON, txt("app.objects.action.AddFilter"), null);
             addListener((oldValue, newValue) -> {
                 createFilter(newValue);
                 resetValues();
