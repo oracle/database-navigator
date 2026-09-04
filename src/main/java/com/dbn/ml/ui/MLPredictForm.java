@@ -31,11 +31,11 @@ import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNResultSet;
-import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
-import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
 import com.dbn.data.grid.ui.table.resultSet.ResultSetTable;
 import com.dbn.data.model.resultSet.ResultSetDataModel;
 import com.dbn.data.record.RecordViewInfo;
+import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.language.sql.SQLFileType;
@@ -58,7 +58,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.List;
@@ -289,8 +288,8 @@ public class MLPredictForm extends DBNFormBase {
             boolean withProbability) throws Exception {
 
         return DatabaseInterfaceInvoker.load(Priority.HIGH,
-                "Predicting",
-                "Running prediction",
+                txt("prc.machineLearning.title.MakingPrediction"),
+                txt("prc.machineLearning.text.ExecutingPredictionQuery"),
                 project,
                 connection.getConnectionId(),
                 conn -> {
