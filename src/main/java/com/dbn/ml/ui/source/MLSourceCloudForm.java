@@ -18,7 +18,6 @@ package com.dbn.ml.ui.source;
 
 import com.dbn.common.cloud.CloudSourceConfig;
 import com.dbn.common.thread.Background;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.info.DBNInfoLabel;
@@ -50,8 +49,8 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.dbn.common.Priority.HIGH;
-import static com.dbn.common.text.TextContent.html;
 import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.common.text.TextContent.html;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ClientProperty.LOADING;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
@@ -340,7 +339,7 @@ public class MLSourceCloudForm extends MLToolboxFormBase {
                         headerPresent,
                         MLCSVParser.CLOUD_SAMPLE_ROWS);
 
-                Dispatch.run(loadColumnsButton, () -> {
+                dispatch(() -> {
                     if (!matchesColumnLoadSignature(signature)) return;
 
                     discoveredColumns = new ArrayList<>(profile.getColumns());
@@ -350,7 +349,7 @@ public class MLSourceCloudForm extends MLToolboxFormBase {
                 });
             } catch (Exception ex) {
                 log.error("Failed to load columns from cloud source", ex);
-                Dispatch.run(loadColumnsButton, () -> {
+                dispatch(() -> {
                     if (!matchesColumnLoadSignature(signature)) return;
 
                     resetLoadColumnsButton();

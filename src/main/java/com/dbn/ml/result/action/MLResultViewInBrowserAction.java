@@ -17,9 +17,7 @@
 package com.dbn.ml.result.action;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.ml.backend.dbms.DBMSModelHandle;
@@ -35,6 +33,7 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.common.util.Messages.showWarningDialog;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
@@ -56,7 +55,7 @@ public class MLResultViewInBrowserAction extends AbstractMLExecutionResultAction
         // Get the user schema where the model is stored
         DBSchema schema = connection.getUserSchema();
         if (schema == null) {
-            Messages.showWarningDialog(project, txt("msg.machineLearning.title.SchemaNotFound"), txt("msg.machineLearning.error.SchemaNotFound"));
+            showWarningDialog(project, txt("msg.machineLearning.title.SchemaNotFound"), txt("msg.machineLearning.error.SchemaNotFound"));
             return;
         }
 
@@ -101,9 +100,9 @@ public class MLResultViewInBrowserAction extends AbstractMLExecutionResultAction
                             if (aiModel != null) {
                                 aiModel.navigate(true);
                             } else {
-                                Dispatch.run(() -> Messages.showWarningDialog(project,
+                                showWarningDialog(project,
                                         txt("msg.machineLearning.title.ModelNotFound"),
-                                        txt("msg.machineLearning.error.ModelNotFound", modelName)));
+                                        txt("msg.machineLearning.error.ModelNotFound", modelName));
                             }
                         }));
     }

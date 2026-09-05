@@ -18,9 +18,7 @@ package com.dbn.ml.result.action;
 
 import com.dbn.common.icon.Icons;
 import com.dbn.common.thread.Background;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Dialogs;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.ml.backend.dbms.DBMSBackend;
 import com.dbn.ml.backend.dbms.DBMSModelHandle;
@@ -40,6 +38,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
 
+import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.common.util.Messages.showInfoDialog;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
@@ -77,19 +77,17 @@ public class MLResultRenameAction extends AbstractMLExecutionResultAction {
                 reloadModelDetailViews(result, backend, newName);
                 invalidateModelObjects(connection);
 
-                Dispatch.run(() -> {
-                    MLExecutionResultForm form = executionResult.getForm();
-                    if (form != null) {
-                        form.refreshModelPresentation();
-                    }
-                    Messages.showInfoDialog(project,
-                            txt("msg.machineLearning.title.RenameComplete"),
-                            txt("msg.machineLearning.info.ModelRenamed", oldName, newName));
-                });
+                MLExecutionResultForm form = executionResult.getForm();
+                if (form != null) {
+                    form.refreshModelPresentation();
+                }
+                showInfoDialog(project,
+                        txt("msg.machineLearning.title.RenameComplete"),
+                        txt("msg.machineLearning.info.ModelRenamed", oldName, newName));
             } catch (Exception ex) {
-                Dispatch.run(() -> Messages.showErrorDialog(project,
+                showErrorDialog(project,
                         txt("msg.machineLearning.title.RenameFailed"),
-                        txt("msg.machineLearning.error.RenameModelFailed", ex)));
+                        txt("msg.machineLearning.error.RenameModelFailed", ex));
             }
         });
     }
