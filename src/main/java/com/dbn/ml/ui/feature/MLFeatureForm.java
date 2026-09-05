@@ -28,6 +28,7 @@ import com.dbn.common.ui.select.DBNComboBoxRenderer;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.common.util.Lists;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.data.type.GenericDataType;
 import com.dbn.ml.model.feature.MLFeatureConfig;
 import com.dbn.ml.model.source.MLSourceType;
 import com.dbn.ml.model.trainer.MLTrainerConfig;
@@ -101,6 +102,7 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
     private HyperlinkLabel selectAllFeaturesLink;
     private HyperlinkLabel clearFeaturesLink;
 
+    private List<Presentable> columnOptions = Collections.emptyList();
     private boolean restoreConfiguredSelection;
 
     public MLFeatureForm(Disposable parent, ConnectionHandler connection) {
@@ -188,7 +190,11 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
         partitionsList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) validateInput(partitionsList);
         });
-        onSelectionChange(labelComboBox, value -> updateFeatureSelectionState());
+        onSelectionChange(labelComboBox, value -> {
+            populateFeatureColumns(getSelectedFeatures());
+            updateFeatureSelectionState();
+            validateInput(featuresList);
+        });
         partitionEnabledCheckBox.addActionListener(e -> {
             updatePartitionVisibility();
             validateInput(partitionsList);
@@ -196,14 +202,9 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
     }
 
     private void selectAllFeatures() {
-        String targetColumn = getSelectedLabel();
-        if (targetColumn == null) return;
-
-        List<Integer> indices = new ArrayList<>();
-        for (int i = 0; i < featuresListModel.size(); i++) {
-            if (!featuresListModel.get(i).getName().equals(targetColumn)) indices.add(i);
-        }
-        featuresList.setSelectedIndices(indices.stream().mapToInt(Integer::intValue).toArray());
+        int[] indices = new int[featuresListModel.size()];
+        for (int i = 0; i < indices.length; i++) indices[i] = i;
+        featuresList.setSelectedIndices(indices);
     }
 
     private void updateFeatureSelectionState() {
@@ -216,12 +217,8 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
     }
 
     private boolean hasUnselectedFeature() {
-        String targetColumn = getSelectedLabel();
-        if (targetColumn == null) return false;
-
         for (int i = 0; i < featuresListModel.size(); i++) {
-            Presentable column = featuresListModel.get(i);
-            if (!column.getName().equals(targetColumn) && !featuresList.isSelectedIndex(i)) return true;
+            if (!featuresList.isSelectedIndex(i)) return true;
         }
         return false;
     }
@@ -277,7 +274,9 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
             DBTable table = sourceForm.getSelectedTable();
             return () -> table == null ?
                     Collections.emptyList() :
-                    toColumnOptions(Lists.convert(table.getColumns(), DBColumn::getName));
+                    toColumnOptions(Lists.convert(table.getColumns().stream()
+                            .filter(this::isSupportedTrainingColumn)
+                            .toList(), DBColumn::getName));
         }
 
         if (sourceType == MLSourceType.OBJECT_STORAGE) {
@@ -286,6 +285,10 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
         }
 
         return Collections::emptyList;
+    }
+
+    private boolean isSupportedTrainingColumn(DBColumn column) {
+        return column.getDataType().getGenericDataType() != GenericDataType.DATE_TIME;
     }
 
     private List<Presentable> loadFileColumns(String filePath, String delimiter, boolean hasHeader) {
@@ -332,13 +335,12 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
                 getTrainerConfig().getPartitionColumns() :
                 getSelectedPartitionColumns();
 
-        featuresListModel.clear();
+        columnOptions = columns;
         partitionsListModel.clear();
-        featuresListModel.addAll(columns);
         partitionsListModel.addAll(columns);
+        populateFeatureColumns(selectedFeatures);
 
         updateFieldAvailability();
-        restoreListSelections(featuresList, featuresListModel, selectedFeatures);
         restoreListSelections(partitionsList, partitionsListModel, selectedPartitions);
 
         if (restoreSelection && !columns.isEmpty()) {
@@ -348,6 +350,17 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
 
         updateFeatureSelectionState();
         validateFormFields();
+    }
+
+    private void populateFeatureColumns(List<String> selectedFeatures) {
+        String targetColumn = getSelectedLabel();
+        featuresListModel.clear();
+        for (Presentable column : columnOptions) {
+            if (!column.getName().equals(targetColumn)) {
+                featuresListModel.addElement(column);
+            }
+        }
+        restoreListSelections(featuresList, featuresListModel, selectedFeatures);
     }
 
     private boolean isConfiguredSourceSelected() {
