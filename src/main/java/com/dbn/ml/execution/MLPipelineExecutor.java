@@ -92,6 +92,10 @@ public class MLPipelineExecutor {
         }
     }
 
+    public void cleanup(MLTrainingJobSubmission submission, ConnectionHandler connectionHandler) throws Exception {
+        new DBMSBackend(connectionHandler).cleanup(submission.getContext());
+    }
+
     private void replaceModel(
             MLResult result,
             DBMSBackend backend) throws SQLException {

@@ -50,6 +50,7 @@ import com.dbn.ml.ui.MLToolboxDialog;
 import com.dbn.scheduler.DatabaseSchedulerManager;
 import com.dbn.scheduler.model.SchedulerJob;
 import com.dbn.scheduler.model.SchedulerJobCancellationPolicy;
+import com.dbn.scheduler.model.SchedulerJobCompletion;
 import com.dbn.scheduler.model.SchedulerJobCompletionPolicy;
 import com.dbn.scheduler.model.SchedulerJobMonitor;
 import com.intellij.openapi.components.State;
@@ -292,6 +293,14 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
         outcomeHandlers.addHandler(OutcomeType.SUCCESS,
                 (OutcomeHandler.HighPriority) outcome -> completeTrainingJob(executor, submission, connection));
         outcomeHandlers.addHandler(OutcomeType.FAILURE, (OutcomeHandler.HighPriority) outcome -> {
+            SchedulerJobCompletion completion = outcome.getData();
+            if (completion != null && completion.getSnapshot().getStatus().isTerminal()) {
+                try {
+                    executor.cleanup(submission, connection);
+                } catch (Exception e) {
+                    log.warn("Failed to cleanup resources for model {}", modelName, e);
+                }
+            }
             log.warn("Async training monitor failed for model {}", modelName, outcome.getException());
             showRetryableTrainingFailure(
                     txt("msg.machineLearning.title.TrainingMonitoringFailed"),

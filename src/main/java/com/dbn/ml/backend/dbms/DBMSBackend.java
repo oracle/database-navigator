@@ -86,40 +86,51 @@ public class DBMSBackend {
 
         String timestamp = MLObjectNames.timestamp();
 
-        // Data prep — fast, requires connection
-        String sourceTableName = prepareDataSource(context);
-        String sourceSchemaName = getSourceSchemaName(context);
-        validateDataSource(sourceSchemaName, sourceTableName);
-        String trainTableName = MLObjectNames.trainTable(timestamp);
-        String testTableName = MLObjectNames.testTable(timestamp);
-        splitData(context, sourceSchemaName, sourceTableName, selectedColumns(context), trainTableName, testTableName);
-        String settingsTableName = createSettingsTable(context, timestamp);
-        String modelName = generateModelName(context, timestamp);
+        try {
+            // Data prep — fast, requires connection
+            String sourceTableName = prepareDataSource(context);
+            String sourceSchemaName = getSourceSchemaName(context);
+            validateDataSource(sourceSchemaName, sourceTableName);
+            String trainTableName = MLObjectNames.trainTable(timestamp);
+            String testTableName = MLObjectNames.testTable(timestamp);
+            context.setTrainTableName(trainTableName);
+            context.setTestTableName(testTableName);
+            splitData(context, sourceSchemaName, sourceTableName, selectedColumns(context), trainTableName, testTableName);
+            String settingsTableName = createSettingsTable(context, timestamp);
+            String modelName = generateModelName(context, timestamp);
 
-        String miningFunction = DBMSAlgorithmType.getMiningFunction(context.getTaskType());
-        //todo for now we predict just one label ...
-        String targetColumn = context.getFeatureConfig().getLabelColumns().get(0);
+            String miningFunction = DBMSAlgorithmType.getMiningFunction(context.getTaskType());
+            //todo for now we predict just one label ...
+            String targetColumn = context.getFeatureConfig().getLabelColumns().get(0);
 
-        // Pre-training validation
-        DBMSAlgorithmType algorithmType = DBMSAlgorithmType.fromTrainerType(context.getTrainerType());
-        if (context.getTaskType() == MLTaskType.CLASSIFICATION && algorithmType == DBMSAlgorithmType.LOGISTIC_REGRESSION) {
-            int classCount = getDistinctClassCount(trainTableName, targetColumn);
-            if (classCount > 2) {
-                throw new IllegalArgumentException(txt("msg.machineLearning.exception.LogisticRegressionBinaryOnly", targetColumn, classCount));
+            // Pre-training validation
+            DBMSAlgorithmType algorithmType = DBMSAlgorithmType.fromTrainerType(context.getTrainerType());
+            if (context.getTaskType() == MLTaskType.CLASSIFICATION && algorithmType == DBMSAlgorithmType.LOGISTIC_REGRESSION) {
+                int classCount = getDistinctClassCount(trainTableName, targetColumn);
+                if (classCount > 2) {
+                    throw new IllegalArgumentException(txt("msg.machineLearning.exception.LogisticRegressionBinaryOnly", targetColumn, classCount));
+                }
             }
+
+            // render the training action from the ML statement definitions (never assembled in java)
+            String jobAction = DatabaseInterfaceInvoker.load(Priority.HIGH,
+                    getProject(),
+                    connection.getConnectionId(),
+                    conn -> connection.getInterfaces().getMachineLearningInterface().buildCreateModelAction(
+                            conn, modelName, miningFunction, trainTableName, targetColumn, settingsTableName));
+
+            context.setModelName(modelName);
+
+            log.info("Training job action prepared for model: {}", modelName);
+            return new SchedulerJobRequest(MLObjectNames.SCHEDULER_JOB_PREFIX, jobAction);
+        } catch (Exception e) {
+            try {
+                cleanup(context);
+            } catch (Exception cleanupError) {
+                e.addSuppressed(cleanupError);
+            }
+            throw e;
         }
-
-        // render the training action from the ML statement definitions (never assembled in java)
-        String jobAction = DatabaseInterfaceInvoker.load(Priority.HIGH,
-                getProject(),
-                connection.getConnectionId(),
-                conn -> connection.getInterfaces().getMachineLearningInterface().buildCreateModelAction(
-                        conn, modelName, miningFunction, trainTableName, targetColumn, settingsTableName));
-
-        context.setModelName(modelName);
-
-        log.info("Training job action prepared for model: {}", modelName);
-        return new SchedulerJobRequest(MLObjectNames.SCHEDULER_JOB_PREFIX, jobAction);
     }
 
 
@@ -317,9 +328,6 @@ public class DBMSBackend {
                     log.info("Data split complete: {} training rows, {} test rows", trainCount, testCount);
                 });
 
-        // Store table names in context for cleanup
-        context.setTrainTableName(trainTableName);
-        context.setTestTableName(testTableName);
     }
 
     // ==================== Proper Evaluation (Oracle DBMS_DATA_MINING procedures) ====================
@@ -574,6 +582,8 @@ public class DBMSBackend {
                 connection.getDatabaseVersion()
         );
 
+        context.setSettingsTableName(settingsTableName);
+
         DatabaseInterfaceInvoker.execute(Priority.HIGH,
                 txt("prc.machineLearning.title.CreatingSettings"),
                 txt("prc.machineLearning.text.CreatingModelSettingsTable"),
@@ -589,7 +599,6 @@ public class DBMSBackend {
 
         log.info("Created settings table: {} with {} settings", settingsTableName, settings.size());
 
-        context.setSettingsTableName(settingsTableName);
         return settingsTableName;
     }
 
