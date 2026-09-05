@@ -141,7 +141,7 @@ public class PluginConflictManager extends ApplicationComponentBase implements P
         // prompt again if needed on reinstall
         conflictPrompted = false;
 
-        boolean disabled = Plugins.disablePlugin(DatabaseNavigator.DBN_PLUGIN_ID);
+        boolean disabled = Plugins.disablePlugin(Plugins.DBN_PLUGIN_ID);
         if (disabled) ApplicationManagerEx.getApplicationEx().restart(true);
     }
 

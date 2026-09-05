@@ -20,6 +20,7 @@ package com.dbn.database.interfaces;
  * Identifies the database interface contract implemented by a database-specific interface instance.
  */
 public enum DatabaseInterfaceType {
+    DRIVER,
     ENVIRONMENT,
     COMPATIBILITY,
     MESSAGE_PARSER,

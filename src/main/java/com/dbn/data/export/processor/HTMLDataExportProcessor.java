@@ -30,6 +30,8 @@ import org.jetbrains.annotations.NonNls;
 
 import java.awt.datatransfer.Transferable;
 
+import static com.intellij.openapi.util.text.StringUtil.escapeXmlEntities;
+
 
 public class HTMLDataExportProcessor extends DataExportProcessor{
     @Override
@@ -86,7 +88,7 @@ public class HTMLDataExportProcessor extends DataExportProcessor{
         if (instructions.isCreateHeader()) {
             for (int columnIndex = 0; columnIndex < model.getColumnCount(); columnIndex++){
                 String columnName = getColumnName(model, instructions, columnIndex);
-                buffer.append("                <th><b>").append(columnName).append("</b></th>\n");
+                buffer.append("                <th><b>").append(escapeHtml(columnName)).append("</b></th>\n");
             }
         }
 
@@ -130,5 +132,9 @@ public class HTMLDataExportProcessor extends DataExportProcessor{
 
 
         writeContent(instructions, buffer.toString());
+    }
+
+    static String escapeHtml(String value) {
+        return escapeXmlEntities(value);
     }
 }

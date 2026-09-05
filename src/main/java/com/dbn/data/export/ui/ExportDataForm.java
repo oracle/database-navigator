@@ -17,6 +17,7 @@
 package com.dbn.data.export.ui;
 
 import com.dbn.common.color.Colors;
+import com.dbn.common.export.ExportDestination;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
@@ -166,10 +167,10 @@ public class ExportDataForm extends DBNFormBase {
         createHeaderCheckBox.setSelected(instructions.isCreateHeader());
         friendlyHeadersCheckBox.setSelected(instructions.isFriendlyHeaders());
 
-        DataExportInstructions.Destination destination = instructions.getDestination();
+        ExportDestination destination = instructions.getDestination();
         if (destinationClipboardRadioButton.isEnabled()) {
-            destinationClipboardRadioButton.setSelected(destination == DataExportInstructions.Destination.CLIPBOARD);
-            destinationFileRadioButton.setSelected(destination == DataExportInstructions.Destination.FILE);
+            destinationClipboardRadioButton.setSelected(destination == ExportDestination.CLIPBOARD);
+            destinationFileRadioButton.setSelected(destination == ExportDestination.FILE);
         } else {
             destinationFileRadioButton.setSelected(true);
         }
@@ -241,8 +242,8 @@ public class ExportDataForm extends DBNFormBase {
         }
 
         instructions.setDestination(destinationClipboardRadioButton.isSelected() ?
-                DataExportInstructions.Destination.CLIPBOARD :
-                DataExportInstructions.Destination.FILE);
+                ExportDestination.CLIPBOARD :
+                ExportDestination.FILE);
 
         instructions.setFormat(getFormat());
 

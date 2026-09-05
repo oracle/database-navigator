@@ -36,10 +36,13 @@ import static com.intellij.ui.SimpleTextAttributes.STYLE_PLAIN;
 
 @Getter
 public class VectorEmbeddingResultsTableModel extends DBNDynamicTableModel<EmbeddingResult> implements DBNTableWithGutterModel<EmbeddingResult> {
+    private final VectorEmbeddingResult result;
+
     public VectorEmbeddingResultsTableModel(VectorEmbeddingResult result) {
         super(EmbeddingResult.class, result.getResults());
-        EmbeddingSourceType sourceType = result.getSourceType();
+        this.result = result;
 
+        EmbeddingSourceType sourceType = result.getSourceType();
         String sourceName = switch (sourceType) {
             case FILE_SYSTEM -> txt("msg.vector.column.FileSources");
             case DATABASE_TABLE -> txt("msg.vector.column.TableSources");
@@ -81,5 +84,9 @@ public class VectorEmbeddingResultsTableModel extends DBNDynamicTableModel<Embed
             case DONE -> new SimpleTextAttributes(STYLE_PLAIN, Colors.getLabelSuccessForeground());
             default -> REGULAR_ATTRIBUTES;
         };
+    }
+
+    public void refresh() {
+        setData(result.getResults());
     }
 }

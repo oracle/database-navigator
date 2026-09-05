@@ -42,7 +42,7 @@
     </statement-execution-processor>
 
     <statement-execution-processor id="drop-trigger">
-        <statement>drop trigger {2} on {0}.{1}</statement>
+        <statement>drop trigger {@2} on {@0}.{@1}</statement>
     </statement-execution-processor>
 
     <statement-execution-processor id="get-session-sql-mode">

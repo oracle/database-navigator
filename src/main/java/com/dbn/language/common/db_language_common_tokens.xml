@@ -52,6 +52,7 @@
         <token category="character" index="28" id="CHRS_UTF_16" value="UTF-16"/>
         <token category="character" index="29" id="CHRS_UTF_16LE" value="UTF-16le"/>
         <token category="character" index="30" id="CHRS_UTF_16BE" value="UTF-16be"/>
+        <token category="character" index="31" id="CHR_DOLLAR" value="$"/>
 
 
         <token category="operator" index="0" id="OPR_EQUAL_EQUAL" value="==" formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>

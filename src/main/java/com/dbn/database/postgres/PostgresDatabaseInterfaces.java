@@ -44,6 +44,7 @@ public class PostgresDatabaseInterfaces extends DatabaseInterfacesBase {
     @Override
     protected DatabaseInterface createInterface(DatabaseInterfaceType interfaceType) {
         return switch (interfaceType) {
+            case DRIVER -> new PostgresDriverInterface();
             case MESSAGE_PARSER -> new PostgresMessageParserInterface();
             case ENVIRONMENT -> new DatabaseEnvironmentInterfaceImpl();
             case COMPATIBILITY -> new PostgresCompatibilityInterface();

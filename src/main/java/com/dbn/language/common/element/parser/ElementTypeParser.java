@@ -36,6 +36,7 @@ import static com.dbn.language.common.element.parser.ParseResult.match;
 import static com.dbn.language.common.element.parser.ParseResultType.BORROWED_MATCH;
 import static com.dbn.language.common.element.parser.ParseResultType.NO_MATCH;
 import static com.dbn.language.common.element.parser.ParseResultType.PARTIAL_MATCH;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.IDENTIFIER_LEAD;
 
 public abstract class ElementTypeParser<T extends ElementTypeBase> {
     public final T elementType;
@@ -116,16 +117,23 @@ public abstract class ElementTypeParser<T extends ElementTypeBase> {
         SimpleTokenType dot = context.sharedTokenTypes.chrDot;
         SimpleTokenType leftParenthesis = sharedTokenTypes.chrLeftParenthesis;
         ParserBuilder builder = context.builder;
-        if (builder.getPreviousToken() == dot) return true;
-        if (builder.getNextToken() == dot) return true;
 
-        if (tokenType.isFunction() && builder.getNextToken() != leftParenthesis) {
+        TokenType previousToken = builder.getPreviousToken();
+        if (previousToken == dot) return true;
+
+        TokenType nextToken = builder.getNextToken();
+        if (nextToken == dot) return true;
+
+        LeafElementType lastResolvedLeaf = builder.tokenMonitor.lastLeaf;
+        if (lastResolvedLeaf != null && lastResolvedLeaf.is(IDENTIFIER_LEAD)) return true;
+
+        if (tokenType.isFunction()) {
+            if (nextToken == leftParenthesis) return false;
+
             if (elementType instanceof LeafElementType leafElementType) {
                 return !leafElementType.isNextRequiredToken(leftParenthesis, node);
             }
         }
-
-        LeafElementType lastResolvedLeaf = builder.tokenMonitor.lastLeaf;
 
         ElementTypeBase namedElementType = ElementTypeUtil.getEnclosingNamedElementType(node);
         if (namedElementType != null && namedElementType.cache.containsToken(tokenType)) {

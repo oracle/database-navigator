@@ -268,6 +268,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
      */
     private void adjustAuthenticationType() {
         AuthenticationType[] supportedAuthTypes = ensureParent().getDatabaseType().getAuthTypes();
+
         if (!Constants.isOneOf(type, supportedAuthTypes)) {
             type = supportedAuthTypes[0];
         }

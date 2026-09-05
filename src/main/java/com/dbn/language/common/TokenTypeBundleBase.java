@@ -238,6 +238,10 @@ public abstract class TokenTypeBundleBase {
         return operators[index];
     }
 
+    public SimpleTokenType objtt(int index) {
+        return objects[index];
+    }
+
     private Map<String, Set<String>> parseTokenSets(Element tokenSetDefs) {
         Map<String, Set<String>> tokenSetDef = new HashMap<>();
         for (Element o : tokenSetDefs.getChildren()) {

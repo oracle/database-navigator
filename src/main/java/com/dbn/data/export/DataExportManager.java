@@ -19,6 +19,7 @@ package com.dbn.data.export;
 import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
+import com.dbn.common.export.ExportDestination;
 import com.dbn.common.message.InteractiveMessage;
 import com.dbn.common.notification.NotificationCategory;
 import com.dbn.common.util.Dialogs;
@@ -86,11 +87,11 @@ public class DataExportManager extends ProjectComponentBase implements Persisten
             if (processor == null) return;
 
             processor.export(exportModel, instructions, connection);
-            DataExportInstructions.Destination destination = instructions.getDestination();
+            ExportDestination destination = instructions.getDestination();
             List<String> warnings = exportModel.getWarnings();
 
             String warningsBlock = warnings.isEmpty() ? null : String.join("\n", warnings);
-            if (destination == DataExportInstructions.Destination.CLIPBOARD) {
+            if (destination == ExportDestination.CLIPBOARD) {
                 if (warningsBlock == null) {
                     Messages.showInfoDialog(
                             project,
@@ -106,7 +107,7 @@ public class DataExportManager extends ProjectComponentBase implements Persisten
 
                 }
 
-            } else if (destination == DataExportInstructions.Destination.FILE) {
+            } else if (destination == ExportDestination.FILE) {
                 File file = instructions.getFile();
                 String filePath = file.getPath();
                 if (Desktop.isDesktopSupported()) {

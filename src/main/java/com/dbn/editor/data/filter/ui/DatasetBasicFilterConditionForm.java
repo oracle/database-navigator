@@ -52,6 +52,7 @@ import java.awt.BorderLayout;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.ui.util.Accessibility.announceEvent;
 import static com.dbn.common.ui.util.Accessibility.attachSelectionAnnouncer;
 import static com.dbn.common.util.Lists.filter;
@@ -196,15 +197,15 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
 
     @Nullable
     public DBColumn getSelectedColumn() {
-        return columnSelector.getSelectedValue();
+        return nn(columnSelector).getSelectedValue();
     }
 
     public ConditionOperator getSelectedOperator() {
-        return operatorSelector.getSelectedValue();
+        return nn(operatorSelector).getSelectedValue();
     }
 
     public String getValue() {
-        return editorComponent.getText();
+        return nn(editorComponent).getText();
     }
 
     public DatasetBasicFilterCondition getCondition() {

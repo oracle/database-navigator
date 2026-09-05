@@ -17,6 +17,7 @@
 package com.dbn.browser.action;
 
 import com.dbn.browser.DatabaseBrowserManager;
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.action.ToggleAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -27,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
 
+@BackgroundUpdate
 public class AutoscrollFromEditorAction extends ToggleAction implements DumbAware {
 
     public AutoscrollFromEditorAction() {

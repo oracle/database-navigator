@@ -22,6 +22,7 @@ import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.file.util.FileSearchRequest;
 import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.state.StateContainer;
+import com.dbn.common.thread.Progress;
 import com.dbn.common.thread.Read;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Dialogs;
@@ -98,8 +99,16 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
         return projectService(project, ParserDiagnosticsManager.class);
     }
 
-    @SneakyThrows
     public void submitParserIssueReport(DBLanguagePsiFile psiFile) {
+        Project project = getProject();
+        Progress.prompt(project, null, true,
+                txt("prc.reporting.title.PreparingIssueReport"),
+                txt("prc.reporting.text.PreparingSyntaxErrorReport"),
+                progress -> prepareParserIssueReport(psiFile));
+    }
+
+    @SneakyThrows
+    private void prepareParserIssueReport(DBLanguagePsiFile psiFile) {
         File attachmentFile = File.createTempFile("dbn-parser-issue-", "." + psiFile.getVirtualFile().getExtension());
         attachmentFile.deleteOnExit();
 
@@ -114,10 +123,10 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
         ParserIssueReportInput input = new ParserIssueReportInput(
                 scrambledCode, fileType, psiFile.getLanguageDialect(), attachment);
         Dialogs.show(() -> new ParserIssueReportDialog(getProject(), input),
-                whenOk(d -> submitParserIssueReport(input)));
+                whenOk(d -> sendParserIssueReport(input)));
     }
 
-    private void submitParserIssueReport(ParserIssueReportInput input) {
+    private void sendParserIssueReport(ParserIssueReportInput input) {
         IdeaLoggingEvent event = new IdeaLoggingEvent("Parser issue",
                 new IllegalArgumentException("Parser error"),
                 input);

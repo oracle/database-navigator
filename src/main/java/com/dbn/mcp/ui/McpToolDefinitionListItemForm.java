@@ -89,7 +89,7 @@ public class McpToolDefinitionListItemForm extends DBNFormBase {
     }
 
     @NotNull
-    private ConnectionHandler getConnection() {
+    public ConnectionHandler getConnection() {
         return getParentForm().getConnection();
     }
 

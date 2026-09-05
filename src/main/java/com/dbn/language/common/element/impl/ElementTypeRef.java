@@ -26,17 +26,19 @@ public class ElementTypeRef extends Linked<ElementTypeRef> {
     public final ElementTypeBase elementType;
     public final double version;
     public boolean optional;
+    public final Branch branch;
     public final Set<BranchCheck> branchChecks;
 
     public ElementTypeRef(ElementTypeBase elementType) {
-        this(elementType, false, 0, null);
+        this(elementType, false, 0, null, null);
     }
 
-    public ElementTypeRef(ElementTypeBase elementType, boolean optional, double version, Set<BranchCheck> branchChecks) {
+    public ElementTypeRef(ElementTypeBase elementType, boolean optional, double version, Branch branch, Set<BranchCheck> branchChecks) {
         super(null);
         this.elementType = elementType;
         this.optional = optional;
         this.version = version;
+        this.branch = branch;
         this.branchChecks = branchChecks;
     }
 

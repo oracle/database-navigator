@@ -20,13 +20,13 @@ Stellen Sie vor der Verwendung von DB Assistant sicher, dass die folgenden Vorau
     <li><b>API-Anmeldedaten</b> - Geben Sie Ihre API-Schlüssel für den ausgewählten LLM-Anbieter ein (z. B. OpenAI, Cohere, Anthropic oder andere unterstützte öffentliche APIs).</li>
     <li><b>AI-Profile</b> - Erstellen Sie benutzerdefinierte AI-Profile, um das Verhalten des Sprachmodells anzupassen, z. B. das Verhältnis zwischen Objektivität und Kreativität einzustellen oder spezielle Anweisungen hinzuzufügen.</li>
 </ul>
-Ausführliche Einrichtungsanweisungen finden Sie in der Dokumentation zu Oracle® Database Navigator.
+Ausführliche Einrichtungsanweisungen finden Sie in der Dokumentation zu Oracle Database Navigator.
 
 <br>
 <br>
 <br>
 <b>Hinweis</b><br>
 Dies ist eine experimentelle Funktion. Die Genauigkeit der Ausgaben kann je nach ausgewähltem Sprachmodell, Ihren Datenbankzugriffsberechtigungen und anderen Faktoren variieren.
-Prüfen Sie Ausgaben sorgfältig und melden Sie Probleme an das Entwicklungsteam von Oracle® Database Navigator, um diese Funktion zu verbessern.
+Prüfen Sie Ausgaben sorgfältig und melden Sie Probleme an das Entwicklungsteam von Oracle Database Navigator, um diese Funktion zu verbessern.
 </body>
 </html>

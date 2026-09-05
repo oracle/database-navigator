@@ -131,7 +131,6 @@ public class ElementTypeBundle {
             notifyMissingDefinitions();
             registerLeafElements();
             loadElementExtensions();
-            initializeRootElements();
 
 /*            if (builder.dirty) {
                 Unsafe.warned(() -> {
@@ -194,10 +193,6 @@ public class ElementTypeBundle {
 
     private void registerLeafElements() {
         forEach(builder.leafElementTypes, e -> e.registerLeaf());
-    }
-
-    private void initializeRootElements() {
-        forEach(builder.rootElementTypes, e -> e.initialize());
     }
 
     public short nextIndex() {

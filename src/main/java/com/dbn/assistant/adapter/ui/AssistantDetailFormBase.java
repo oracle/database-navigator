@@ -33,7 +33,7 @@ public abstract class AssistantDetailFormBase extends DBNFormBase {
         return ensureParentComponent();
     }
 
-    protected ConnectionId getConnectionId() {
+    public ConnectionId getConnectionId() {
         ChatBoxForm form = getChatBoxForm();
         return form.getConnectionId();
     }

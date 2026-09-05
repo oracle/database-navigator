@@ -16,9 +16,9 @@
 
 package com.dbn.help;
 
-import com.dbn.DatabaseNavigator;
 import com.dbn.common.constant.Constant;
 import com.dbn.common.constant.Constants;
+import com.dbn.common.util.Plugins;
 import lombok.Getter;
 import org.jetbrains.annotations.NonNls;
 
@@ -70,10 +70,11 @@ public enum HelpTopic implements Constant<HelpTopic> {
     SCRIPT_EXECUTION_SETUP("creating-command-line-interfaces-databases.html"),
     DATABASE_ASSISTANT_AI_PROFILES("creating-ai-profiles-oracle-select-ai.html"),
     DATABASE_ASSISTANT_CREDENTIALS("creating-credentials-oracle-select-ai.html"),
+    MCP_SERVER_BUILDER("building-mcp-server.html"),
     //...
     ;
 
-    public static final String ID_PREFIX = DatabaseNavigator.DBN_PLUGIN_ID + ".";
+    public static final String ID_PREFIX = Plugins.DBN_PLUGIN_ID + ".";
     private final String path;
 
     HelpTopic(@NonNls String path) {

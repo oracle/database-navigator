@@ -21,6 +21,7 @@ import com.dbn.common.util.Strings;
 import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.cache.OneOfElementTypeCache;
 import com.dbn.language.common.element.extension.OneOfElementTypeExtension;
+import com.dbn.language.common.element.parser.Branch;
 import com.dbn.language.common.element.parser.BranchCheck;
 import com.dbn.language.common.element.parser.impl.OneOfElementTypeParser;
 import com.dbn.language.common.element.util.ElementTypeDefinitionException;
@@ -35,11 +36,13 @@ import java.util.Set;
 
 import static com.dbn.common.Linked.linkElements;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.SYNTHETIC;
 
 @Slf4j
 public class OneOfElementType extends ElementTypeBase {
     public ElementTypeRef[] children;
     public boolean basic;
+    public boolean unbounded;
 
     public OneOfElementTypeExtension extension;
 
@@ -54,6 +57,7 @@ public class OneOfElementType extends ElementTypeBase {
     @Override
     protected void loadDefinition(Element def) throws ElementTypeDefinitionException {
         super.loadDefinition(def);
+        unbounded = getBooleanAttribute(def, "unbounded");
         String tokenIds = stringAttribute(def, "tokens");
         if (Strings.isNotEmptyOrSpaces(tokenIds)) {
             basic = true;
@@ -64,12 +68,13 @@ public class OneOfElementType extends ElementTypeBase {
                 String tokenTypeId = tokens[i].trim();
 
                 TokenElementType tokenElementType = new TokenElementType(this, tokenTypeId);
+                tokenElementType.set(SYNTHETIC, false);
                 children[i] = new ElementTypeRef(tokenElementType);
             }
         } else {
             List<Element> children = def.getChildren();
             this.children = new ElementTypeRef[children.size()];
-            String languageId = getLanguage().getID();
+            String languageId = getLanguageDialect().getID();
             if (this.children.length == 0) {
                 log.warn("DBN - [{}] empty one-of element (one-of = {})", languageId, getId());
             } else if  (this.children.length == 1) {
@@ -84,11 +89,16 @@ public class OneOfElementType extends ElementTypeBase {
                 }
 
                 String type = child.getName();
+                if ("one-of".equals(type)) {
+                    log.warn("DBN - [{}] nested one-of element (one-of = {})", languageId, getId());
+                }
                 ElementTypeBase elementType = bundle.resolveElementDefinition(child, type, this);
                 double version = Double.parseDouble(Commons.nvl(stringAttribute(child, "version"), "0"));
                 Set<BranchCheck> branchChecks = parseBranchChecks(stringAttribute(child, "branch-check"));
+                String branchName = stringAttribute(child, "branch");
+                Branch branch = branchName == null ? null : new Branch(branchName);
 
-                this.children[i] = new ElementTypeRef(elementType, false, version, branchChecks);
+                this.children[i] = new ElementTypeRef(elementType, false, version, branch, branchChecks);
             }
         }
 
@@ -146,19 +156,5 @@ public class OneOfElementType extends ElementTypeBase {
         for (ElementTypeRef child : children) {
             bucket.add((LeafElementType) child.elementType);
         }
-    }
-
-    private void initChildren() {
-        for (ElementTypeRef child : children) {
-            child.elementType.initialize();
-        }
-    }
-
-    public void initialize() {
-        if (initialized) return;
-        initialized = true;
-
-        // initialize children before this
-        initChildren();
     }
 }

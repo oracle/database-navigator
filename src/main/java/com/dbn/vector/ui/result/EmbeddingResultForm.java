@@ -17,6 +17,7 @@
 package com.dbn.vector.ui.result;
 
 import com.dbn.common.action.DataKeys;
+import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.util.Actions;
 import com.dbn.execution.common.result.ui.ExecutionResultFormBase;
@@ -37,6 +38,9 @@ public class EmbeddingResultForm extends ExecutionResultFormBase<VectorEmbedding
     private DBNScrollPane sourceDataScrollPane;
     private JPanel actionsPanel;
     private JPanel summaryPanel;
+    private VectorEmbeddingResultsTableModel sourceDataModel;
+    private EmbeddingResultSummaryForm summaryForm;
+    private Runnable resultListener;
 
     public EmbeddingResultForm(@NotNull VectorEmbeddingExecutionResult executionResult) {
         super(executionResult);
@@ -51,11 +55,12 @@ public class EmbeddingResultForm extends ExecutionResultFormBase<VectorEmbedding
         initializeTable();
         initializeSummary();
         createActionsPanel();
+        initResultListeners();
     }
 
     private void initializeSummary() {
         VectorEmbeddingResult result = getEmbeddingResult();
-        EmbeddingResultSummaryForm summaryForm = new EmbeddingResultSummaryForm(this, result);
+        summaryForm = new EmbeddingResultSummaryForm(this, result);
         summaryPanel.add(summaryForm.getComponent());
     }
 
@@ -67,9 +72,24 @@ public class EmbeddingResultForm extends ExecutionResultFormBase<VectorEmbedding
 
     private void initializeTable() {
         VectorEmbeddingResult result = getEmbeddingResult();
-        VectorEmbeddingResultsTableModel sourceDataModel = new VectorEmbeddingResultsTableModel(result);
+        sourceDataModel = new VectorEmbeddingResultsTableModel(result);
         VectorEmbeddingResultsTable sourceDataTable = new VectorEmbeddingResultsTable(this, sourceDataModel);
         sourceDataScrollPane.setViewportView(sourceDataTable);
+    }
+
+    private void initResultListeners() {
+        VectorEmbeddingResult result = getEmbeddingResult();
+        resultListener = () -> Dispatch.run(false, () -> {
+            sourceDataModel.refresh();
+            summaryForm.refresh();
+        });
+        result.addListener(resultListener);
+    }
+
+    @Override
+    public void disposeInner() {
+        getEmbeddingResult().removeListener(resultListener);
+        super.disposeInner();
     }
 
     @Override

@@ -394,8 +394,8 @@ public class Icons {
 
 
 
-    public static final Icon DBO_AI_MODEL                        = load("/img/object/model/AIModel.svg");
-    public static final Icon DBO_AI_MODELS                       = load("/img/object/model/AIModels.svg");
+    public static final Icon DBO_MINING_MODEL                    = load("/img/object/model/MiningModel.svg");
+    public static final Icon DBO_MINING_MODELS                   = load("/img/object/model/MiningModels.svg");
     public static final Icon DBO_AI_PROFILE                      = load("/img/object/profile/AIProfile.svg");
     public static final Icon DBO_AI_PROFILE_CONVERSATION         = load("/img/object/profile/AIProfileConversation.svg");
     public static final Icon DBO_AI_PROFILE_DISABLED             = load("/img/object/profile/AIProfileDisabled.svg");

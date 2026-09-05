@@ -31,8 +31,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.dbn.assistant.tool.AssistantToolCategory.USER_INTERACTION;
 import static com.dbn.assistant.tool.AssistantToolData.getToolCategory;
 import static com.dbn.assistant.tool.AssistantToolData.getToolTypes;
+import static com.dbn.assistant.tool.AssistantToolType.USER_PROMPTS;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.APPROVED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.BLOCKED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.PROMPTED;
@@ -53,6 +55,7 @@ public class AssistantToolApprovals implements PersistentStateElement, Signed {
     private final AtomicInteger signature = new AtomicInteger(0);
 
     public boolean isApproved(AssistantTool tool) {
+        if (tool.isInteractive()) return false;
         if (isBlocked(tool.getCategory())) return false;
         if (isApproved(tool.getType())) return true;
 
@@ -104,12 +107,12 @@ public class AssistantToolApprovals implements PersistentStateElement, Signed {
     }
 
     public void setStatus(AssistantToolCategory category, AssistantToolApprovalStatus status) {
-        categories.put(category, status);
+        categories.put(category, normalizeStatus(category, status));
         updateSignature();
     }
 
     public void setStatus(AssistantToolType type, AssistantToolApprovalStatus status) {
-        types.put(type, status);
+        types.put(type, normalizeStatus(type, status));
 
         updateCategoryStatus(type);
         updateSignature();
@@ -134,6 +137,20 @@ public class AssistantToolApprovals implements PersistentStateElement, Signed {
         }
     }
 
+    private static AssistantToolApprovalStatus normalizeStatus(
+            AssistantToolCategory category,
+            AssistantToolApprovalStatus status) {
+        if (category == USER_INTERACTION && status == APPROVED) return PROMPTED;
+        return status;
+    }
+
+    private static AssistantToolApprovalStatus normalizeStatus(
+            AssistantToolType type,
+            AssistantToolApprovalStatus status) {
+        if (type == USER_PROMPTS && status == APPROVED) return PROMPTED;
+        return status;
+    }
+
     @Override
     public void readState(Element element) {
         if (element == null) return;
@@ -148,7 +165,9 @@ public class AssistantToolApprovals implements PersistentStateElement, Signed {
             if (toolCategory == null) continue; // ignore renamed tool categories
 
             AssistantToolApprovalStatus approvalStatus = enumAttribute(categoryElement, "status", AssistantToolApprovalStatus.class);
-            categories.put(toolCategory, approvalStatus);
+            if (approvalStatus == null) continue;
+
+            categories.put(toolCategory, normalizeStatus(toolCategory, approvalStatus));
         }
 
         Element typesElement = element.getChild("types");
@@ -161,7 +180,9 @@ public class AssistantToolApprovals implements PersistentStateElement, Signed {
             if (toolType == null) continue; // ignore renamed tool types
 
             AssistantToolApprovalStatus approvalStatus = enumAttribute(typeElement, "status", AssistantToolApprovalStatus.class);
-            types.put(toolType, approvalStatus);
+            if (approvalStatus == null) continue;
+
+            types.put(toolType, normalizeStatus(toolType, approvalStatus));
         }
     }
 

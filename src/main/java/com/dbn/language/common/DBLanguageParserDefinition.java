@@ -41,6 +41,10 @@ public abstract class DBLanguageParserDefinition implements ParserDefinition {
         this.sharedTokenTypes = parser.getTokenTypes().getSharedTokenTypes();
     }
 
+    public boolean isInitialized() {
+        return parser.isInitialized();
+    }
+
     @Override
     public PsiElement createElement(ASTNode astNode) {
         IElementType et = astNode.getElementType();

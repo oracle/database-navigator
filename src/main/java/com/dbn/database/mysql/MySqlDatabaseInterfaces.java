@@ -43,6 +43,7 @@ public final class MySqlDatabaseInterfaces extends DatabaseInterfacesBase {
     @Override
     protected DatabaseInterface createInterface(DatabaseInterfaceType interfaceType) {
         return switch (interfaceType) {
+            case DRIVER -> new MySqlDriverInterface();
             case MESSAGE_PARSER -> new MySqlMessageParserInterface();
             case ENVIRONMENT -> new DatabaseEnvironmentInterfaceImpl();
             case COMPATIBILITY -> new MySqlCompatibilityInterface();

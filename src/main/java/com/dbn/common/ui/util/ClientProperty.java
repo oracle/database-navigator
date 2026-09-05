@@ -64,6 +64,7 @@ public enum ClientProperty {
     PASSWORD_FIELD_STATE,
     NON_DISABLEABLE,
     FORM,
+    CONFIRMING_CHANGE,
 
     // addons
     COLUMN_DRAG_SCROLL_ADDON,

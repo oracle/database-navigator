@@ -25,12 +25,18 @@ import com.intellij.openapi.progress.ProcessCanceledException;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static com.dbn.common.checksum.Checksum.fromStringContent;
+import static com.dbn.common.checksum.ChecksumType.SHA_256;
 import static com.dbn.common.util.Classes.simpleClassName;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
 @UtilityClass
 public final class Unsafe {
+    private static final Set<String> LOGGED_SIGNATURES = ConcurrentHashMap.newKeySet();
 
     public static <T> T cast(Object o) {
         return (T) o;
@@ -105,6 +111,48 @@ public final class Unsafe {
             log.error(message == null ? simpleClassName(e) : message);
         }
         return defaultValue;
+    }
+
+    /**
+     * Executes a runnable and logs each distinct exception stack trace only once.
+     * The runnable is executed on every invocation; only duplicate logging is suppressed.
+     */
+    public static void loggedOnce(ThrowableRunnable<Throwable> runnable) {
+        logged(() -> {
+            try {
+                runnable.run();
+            } catch (Throwable e) {
+                if (isLoggedOnce(e)) return;
+                throw e;
+            }
+        });
+    }
+
+    public static <T> T loggedOnce(T defaultValue, ThrowableCallable<T, Throwable> callable) {
+        return logged(defaultValue, () -> {
+            try {
+                return callable.call();
+            } catch (Throwable e) {
+                if (isLoggedOnce(e)) return defaultValue;
+                throw e;
+            }
+        });
+    }
+
+    private static boolean isLoggedOnce(Throwable exception) {
+        return !LOGGED_SIGNATURES.add(exceptionSignature(exception));
+    }
+
+    private static String exceptionSignature(Throwable exception) {
+        StringBuilder content = new StringBuilder();
+        for (Throwable current = exception; current != null; current = current.getCause()) {
+            content.append(current.getClass().getName()).append('\n');
+            for (StackTraceElement element : current.getStackTrace()) {
+                content.append(element).append('\n');
+            }
+            content.append("---\n");
+        }
+        return fromStringContent(content.toString(), SHA_256);
     }
 
     /**

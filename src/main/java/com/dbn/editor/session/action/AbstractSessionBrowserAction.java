@@ -16,6 +16,7 @@
 
 package com.dbn.editor.session.action;
 
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.action.Lookups;
@@ -24,6 +25,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.fileEditor.FileEditor;
 import org.jetbrains.annotations.Nullable;
 
+@BackgroundUpdate
 public abstract class AbstractSessionBrowserAction extends BasicAction {
 
     protected AbstractSessionBrowserAction(String text) {

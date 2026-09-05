@@ -88,7 +88,7 @@ public class EasyConnectParameters {
      * Common validator for properties where we don't want double quotes in the value.
      */
     public final static CheckForInvalidCharactersValidator NO_DQUOTES_ALLOWED_IN_PROPERTY =
-            new CheckForInvalidCharactersValidator(Set.of(Character.valueOf('"')),
+            new CheckForInvalidCharactersValidator(Set.of('"'),
                     Optional.of(QuotePair.DEFAULT_IDENTIFIER_QUOTE_PAIR::unquote));
 
     /**
@@ -108,7 +108,7 @@ public class EasyConnectParameters {
         copyOfParameters.putAll(parameters);
         // if not TCPS, remove any key/value pairs that aren't appropriate in the copy.
         if (protocol!= DatabaseProtocol.TCPS) {
-            TCPS_ONLY_PARAMETER_NAMES.forEach((key) -> parameters.remove(key));
+            TCPS_ONLY_PARAMETER_NAMES.forEach((key) -> copyOfParameters.remove(key));
         }
         return copyOfParameters;
     }
