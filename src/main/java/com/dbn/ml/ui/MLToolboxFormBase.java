@@ -33,8 +33,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public abstract class MLToolboxFormBase extends DBNFormBase {
+    private static final Pattern INTERNAL_SOURCE_TABLE_NAME = Pattern.compile(
+            "(?:DM\\$.*|VECTOR\\$.*|ML_(?:STAGING|EXT|TRAIN|TEST|SETTINGS|APPLY|CM|ROC|LIFT|AI)_\\d{8}_\\d{6}(?:_(?:ACC|AUC))?)",
+            Pattern.CASE_INSENSITIVE);
+
     private final ConnectionRef connection;
 
     public MLToolboxFormBase(@Nullable Disposable parent, ConnectionHandler connection) {
@@ -77,7 +82,9 @@ public abstract class MLToolboxFormBase extends DBNFormBase {
     protected List<DBTable> loadTables(DBSchema schema) {
         return schema == null ?
                 Collections.emptyList() :
-                schema.getTables();
+                schema.getTables().stream()
+                        .filter(table -> !INTERNAL_SOURCE_TABLE_NAME.matcher(table.getName()).matches())
+                        .toList();
     }
 
     public DBSchema getSelectedSchema() {
