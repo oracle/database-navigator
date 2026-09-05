@@ -21,7 +21,6 @@ import com.dbn.mcp.model.McpServerDefinition;
 import com.dbn.mcp.model.McpToolDefinition;
 import com.intellij.openapi.project.Project;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
 
 import java.io.IOException;
@@ -33,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Slf4j
 @RequiredArgsConstructor
 final class McpReadmeWriter {
     private static final @NonNls String STANDARD_TEMPLATE = "DBN - MCP Server README";
@@ -42,34 +40,30 @@ final class McpReadmeWriter {
     private final Project project;
     private final McpServerDefinition definition;
 
-    void write(Path dir) {
-        try {
-            String serverName = definition.getServerName();
-            String httpPort = definition.getHttpPort();
+    void write(Path dir) throws IOException {
+        String serverName = definition.getServerName();
+        String httpPort = definition.getHttpPort();
 
-            List<McpToolDefinition> tools = definition.getTools();
-            List<Map<String, String>> toolList = tools.stream()
-                    .map(t -> Map.of(
-                            "name", t.getName(),
-                            "description", safe(t.getDescription(), "SQL tool")))
-                    .collect(Collectors.toList());
+        List<McpToolDefinition> tools = definition.getTools();
+        List<Map<String, String>> toolList = tools.stream()
+                .map(t -> Map.of(
+                        "name", t.getName(),
+                        "description", safe(t.getDescription(), "SQL tool")))
+                .collect(Collectors.toList());
 
-            @NonNls Map<String, Object> context = new LinkedHashMap<>();
-            context.put("SERVER_NAME", serverName);
-            context.put("JAR_NAME", serverName + ".jar");
-            context.put("EXECUTABLE_NAME", serverName);
-            context.put("HTTP_PORT", httpPort);
-            context.put("TOOLS", toolList);
-            context.put("IMAGE_NAME", serverName + ":latest");
-            context.put("IS_CONTAINER", definition.getImplementation().isContainer());
-            context.put("MOUNT_DIR", McpBuildTask.CONTAINER_MOUNT_DIR);
+        @NonNls Map<String, Object> context = new LinkedHashMap<>();
+        context.put("SERVER_NAME", serverName);
+        context.put("JAR_NAME", serverName + ".jar");
+        context.put("EXECUTABLE_NAME", serverName);
+        context.put("HTTP_PORT", httpPort);
+        context.put("TOOLS", toolList);
+        context.put("IMAGE_NAME", serverName + ":latest");
+        context.put("IS_CONTAINER", definition.getImplementation().isContainer());
+        context.put("MOUNT_DIR", McpBuildTask.CONTAINER_MOUNT_DIR);
 
-            String template = definition.getImplementation().isNative() ? MICRONAUT_TEMPLATE : STANDARD_TEMPLATE;
-            String content = TemplateUtilities.generateCode(project, template, context);
-            Files.writeString(dir.resolve("README.md"), content, StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            log.error("Failed to write README", e);
-        }
+        String template = definition.getImplementation().isNative() ? MICRONAUT_TEMPLATE : STANDARD_TEMPLATE;
+        String content = TemplateUtilities.generateCode(project, template, context);
+        Files.writeString(dir.resolve("README.md"), content, StandardCharsets.UTF_8);
     }
 
     private static String safe(String value, String defaultValue) {

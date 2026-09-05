@@ -17,6 +17,7 @@
 package com.dbn.mcp.build;
 
 import com.dbn.common.database.DatabaseInfo;
+import com.dbn.common.util.Json;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.DatabaseUrlType;
@@ -119,7 +120,8 @@ public final class McpServerConfigBuilder {
                 if (walletDirectory == null) {
                     throw new IllegalArgumentException("Wallet directory is required for a Micronaut Native server");
                 }
-                appendYamlField(sb, "  ", "wallet-dir", walletDirectory.toAbsolutePath().toString());
+                // Resolve relative to the external config file so the generated distribution can be moved.
+                appendYamlField(sb, "  ", "wallet-dir", "wallet");
             }
         }
         appendYamlField(sb, "  ", "url", redactSensitiveParameters(connectionUrl));
@@ -129,18 +131,6 @@ public final class McpServerConfigBuilder {
 
         appendTools(sb, definition);
 
-        return sb.toString();
-    }
-
-    /**
-     * Configuration for a server deployed as a Graal application: tool definitions only.
-     * Deliberately carries no datasource section - no connection URL, wallet path, username
-     * or password - because the Graal runtime injects the connection string and a refreshed
-     * database token for an application-specific database user instead.
-     */
-    public static String buildGraalDeploymentConfig(McpServerDefinition definition) {
-        @NonNls StringBuilder sb = new StringBuilder();
-        appendTools(sb, definition);
         return sb.toString();
     }
 
@@ -185,12 +175,7 @@ public final class McpServerConfigBuilder {
     }
 
     private static String yamlValue(String v) {
-        if (v == null || v.isEmpty()) return "\"\"";
-        boolean needsQuotes = v.contains(":") || v.contains("#") || v.contains("\"")
-                || v.contains("'") || v.contains("{") || v.contains("}")
-                || v.contains("[") || v.contains("]") || v.startsWith(" ") || v.endsWith(" ");
-        if (!needsQuotes) return v;
-        return "\"" + v.replace("\\", "\\\\").replace("\"", "\\\"") + "\"";
+        return Json.writeAsString(v);
     }
 
     private static String safe(String value) {

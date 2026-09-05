@@ -16,6 +16,7 @@ final class McpConfigLoader {
 
     static PropertySource load(String[] args) {
         Path configFile = configFile(args).toAbsolutePath();
+        System.setProperty("mcp.config.dir", configFile.getParent().toString());
         try (InputStream input = Files.newInputStream(configFile)) {
             return PropertySource.of("mcp-config", new YamlPropertySourceLoader().read(CONFIG_YML, input));
         } catch (Exception e) {
@@ -31,8 +32,8 @@ final class McpConfigLoader {
         }
 
         Path directory = isNativeImage() ? executableDirectory() : Path.of("");
-        Path yml = directory.resolve(CONFIG_YML);
-        return Files.isRegularFile(yml) ? yml : directory.resolve(CONFIG_YAML);
+        Path yaml = directory.resolve(CONFIG_YAML);
+        return Files.isRegularFile(yaml) ? yaml : directory.resolve(CONFIG_YML);
     }
 
     private static boolean isNativeImage() {

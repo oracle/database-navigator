@@ -3,6 +3,7 @@ package com.dbn.mcp.build;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.mcp.model.McpServerDefinition;
 import com.dbn.mcp.model.McpTransportType;
+import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.ui.components.JBScrollPane;
@@ -91,16 +92,20 @@ public class McpBuildResultForm extends DBNFormBase {
         return tabs;
     }
 
-    /**
-     * Mirrors the docker run command shown in the README (section 2) so it's copy-pasteable
-     * straight from the result dialog too, without having to go open the file.
-     */
+    /** Builds a copy-pasteable command using the generated config directory. */
     private @NonNls String buildContainerRunCommand() {
-        return "docker run -d --name " + definition.getServerName() + " \\\n" +
-                "    -p " + definition.getHttpPort() + ":" + definition.getHttpPort() + " \\\n" +
-                "    -e MICRONAUT_SERVER_HOST=0.0.0.0 \\\n" +
-                "    -v ./" + McpBuildTask.CONTAINER_MOUNT_DIR + ":/config:ro \\\n" +
-                "    " + result.getImageName() + " --config=/config/mcp-config.yaml";
+        String configDirectory = result.getConfigFile().getParent().toAbsolutePath().normalize().toString();
+        GeneralCommandLine commandLine = new GeneralCommandLine();
+        commandLine.setExePath("docker");
+        commandLine.addParameters(
+                "run", "-d",
+                "--name", definition.getServerName(),
+                "-p", "127.0.0.1:" + definition.getHttpPort() + ":" + definition.getHttpPort(),
+                "-e", "MICRONAUT_SERVER_HOST=0.0.0.0",
+                "-v", configDirectory + ":/config:ro",
+                result.getImageName(),
+                "--config=/config/mcp-config.yaml");
+        return commandLine.getCommandLineString();
     }
 
     private JComponent createConfigTab(String content) {

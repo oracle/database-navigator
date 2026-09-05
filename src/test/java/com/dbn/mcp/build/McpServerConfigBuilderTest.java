@@ -52,6 +52,23 @@ public class McpServerConfigBuilderTest {
         assertFalse(yaml.contains("\n  password:"));
     }
 
+    @Test
+    public void buildYamlQuotesStringScalars() {
+        McpServerDefinition definition = new McpServerDefinition();
+        definition.setTransportType(McpTransportType.STDIO);
+        definition.setHttpPort("8080");
+
+        McpToolDefinition tool = createTool();
+        tool.setDescription("true");
+        tool.getParameters().get(0).setDescription("Value with \"quotes\" and \\slashes");
+        definition.setTools(List.of(tool));
+
+        String yaml = McpServerConfigBuilder.build(definition, "jdbc:oracle:thin:@localhost:1521/orclpdb");
+
+        assertTrue(yaml.contains("description: \"true\""));
+        assertTrue(yaml.contains("description: \"Value with \\\"quotes\\\" and \\\\slashes\""));
+    }
+
     private static McpToolDefinition createTool() {
         McpToolDefinition tool = new McpToolDefinition();
         tool.setName("find_employee");

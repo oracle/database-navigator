@@ -37,6 +37,8 @@ import static com.dbn.nls.NlsResources.txt;
 final class McpWalletBuilder {
     private static final @NonNls String DEFAULT_SEPS_USERNAME = "oracle.security.client.default_username";
     private static final @NonNls String DEFAULT_SEPS_PASSWORD = "oracle.security.client.default_password";
+    private static final @NonNls String AUTO_LOGIN_WALLET = "cwallet.sso";
+    private static final @NonNls String PASSWORD_WALLET = "ewallet.p12";
 
     private final ConnectionHandler connection;
 
@@ -65,6 +67,7 @@ final class McpWalletBuilder {
 
             wallet.save();
             wallet.saveSSO();
+            deleteIntermediateWalletFiles(walletDir);
         } catch (Exception e) {
             Throwable root = Exceptions.rootCauseOf(Exceptions.unwrap(e));
             String message = root != null && root.getMessage() != null && !root.getMessage().isBlank()
@@ -72,10 +75,16 @@ final class McpWalletBuilder {
                     : e.getClass().getSimpleName();
             throw new IOException(txt("msg.mcp.exception.OracleSepsWalletCreationFailed", message), e);
         } finally {
-            clearPassword(user); // TODO do we need this?
+            clearPassword(user);
             clearPassword(password);
             clearPassword(walletPassword);
         }
+    }
+
+    private static void deleteIntermediateWalletFiles(Path walletDir) throws IOException {
+        Files.deleteIfExists(walletDir.resolve(PASSWORD_WALLET));
+        Files.deleteIfExists(walletDir.resolve(PASSWORD_WALLET + ".lck"));
+        Files.deleteIfExists(walletDir.resolve(AUTO_LOGIN_WALLET + ".lck"));
     }
 
     private ClassLoader getWalletClassLoader() throws Exception {

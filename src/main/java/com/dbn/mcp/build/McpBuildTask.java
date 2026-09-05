@@ -4,7 +4,6 @@ import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.mcp.model.McpServerDefinition;
 import com.dbn.mcp.model.McpServerImplementation;
 import com.dbn.mcp.model.McpTransportType;
@@ -15,13 +14,11 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 
 import static com.dbn.common.util.Messages.options;
 import static com.dbn.common.util.Messages.showErrorDialog;
@@ -39,9 +36,6 @@ public class McpBuildTask {
     static final @NonNls String CONTAINER_MOUNT_DIR = "config";
 
     private final Project project;
-    // retained so the build result can offer deployment actions that need to talk to the
-    // originating database (deliberately not stored on McpBuilderResult, which stays build-output data)
-    private final ConnectionRef connection;
     private final McpServerDefinition definition;
     private final McpBuilderResult result = new McpBuilderResult();
     private final McpServerConfigBuilder serverConfigBuilder;
@@ -50,10 +44,10 @@ public class McpBuildTask {
     private final McpClientConfiguration clientConfiguration;
 
     private McpServerGenerator generator;
+    private String serverConfig;
 
     public McpBuildTask(Project project, ConnectionHandler connection, McpServerDefinition definition) {
         this.project = project;
-        this.connection = ConnectionRef.of(connection);
         this.definition = definition;
         this.serverConfigBuilder = new McpServerConfigBuilder(connection, definition);
         this.walletBuilder = new McpWalletBuilder(connection);
@@ -145,7 +139,8 @@ public class McpBuildTask {
 
     private void verifyServerDefinition() {
         String serverName = definition.getServerName();
-        String serverNameError = McpServerName.validationError(serverName);
+        String serverNameError = McpServerName.validationError(
+                serverName, definition.getImplementation().isContainer());
         if (serverNameError != null) {
             showErrorDialog(project, txt("msg.mcp.title.McpBuildError"), serverNameError);
             cancelProcess();
@@ -188,19 +183,12 @@ public class McpBuildTask {
         }
     }
 
-    @Nullable
     private void initServerConfig() {
         try {
             Path baseDirectory = resolveBasePath();
             Path walletDirectory = result.getOutputDirectory().resolve("wallet");
-            String yaml = serverConfigBuilder.build(walletDirectory);
-            Path configFile = baseDirectory.resolve(CONFIG);
-
-            Files.createDirectories(baseDirectory);
-            Files.writeString(configFile, yaml, StandardCharsets.UTF_8);
-
+            serverConfig = serverConfigBuilder.build(walletDirectory);
             result.setBaseDirectory(baseDirectory);
-            result.setConfigFile(configFile);
         } catch (Exception e) {
             conditionallyLog(e);
             showErrorDialog(project, txt("msg.mcp.title.McpBuildError"), txt("msg.mcp.error.ConfigFileWriteFailed"), e);
@@ -256,7 +244,7 @@ public class McpBuildTask {
                 Files.createDirectories(payloadDirectory);
 
                 Path outputConfigFile = payloadDirectory.resolve(CONFIG).toAbsolutePath().normalize();
-                Files.copy(result.getConfigFile(), outputConfigFile, StandardCopyOption.REPLACE_EXISTING);
+                Files.writeString(outputConfigFile, serverConfig, StandardCharsets.UTF_8);
                 result.setConfigFile(outputConfigFile);
 
                 Files.deleteIfExists(outputDirectory.resolve("Main.java"));
@@ -291,7 +279,7 @@ public class McpBuildTask {
         String serverArtifact = result.getServerJar() == null ? result.getImageName() : result.getServerJar().toString();
         result.setClaudeSnippetJson(clientConfiguration.buildClaudeJson(serverArtifact));
         result.setClineSnippetJson(transportType.isHttp() ? clientConfiguration.buildClineJson() : null);
-        Dialogs.show(() -> new McpBuildResultDialog(project, connection, definition, result));
+        Dialogs.show(() -> new McpBuildResultDialog(project, definition, result));
     }
 
     private static void cancelProcess() {

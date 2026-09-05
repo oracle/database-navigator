@@ -33,6 +33,7 @@ Parameter fields:
 - `name`: bind variable name (without `:`)
 - `type`: JSON schema type (`string`, `integer`, `number`, `boolean`)
 - `format`: optional metadata for string types (for example `date`)
+- `description`: optional parameter description shown to the MCP client
 - `required`: whether this parameter is required
 
 Example:
