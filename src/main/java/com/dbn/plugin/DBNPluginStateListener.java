@@ -26,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-import static com.dbn.DatabaseNavigator.DBN_PLUGIN_ID;
+import static com.dbn.common.util.Plugins.DBN_PLUGIN_ID;
 
 public class DBNPluginStateListener implements PluginStateListener {
     @Override

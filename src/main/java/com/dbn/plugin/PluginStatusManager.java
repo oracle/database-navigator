@@ -108,7 +108,7 @@ public class PluginStatusManager extends ApplicationComponentBase implements Per
 
     private static DBPluginStatus evaluateSqlPluginStatus(Project project) {
         try {
-            IdeaPluginDescriptor pluginDescriptor = Plugins.getPlugin(DatabaseNavigator.SQL_PLUGIN_ID);
+            IdeaPluginDescriptor pluginDescriptor = Plugins.getPlugin(Plugins.SQL_PLUGIN_ID);
             if (pluginDescriptor == null) return MISSING; // not installed
 
             ClassLoader pluginClassLoader = pluginDescriptor.getPluginClassLoader();
