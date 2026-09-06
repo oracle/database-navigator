@@ -19,8 +19,8 @@ package com.dbn.common.thread;
 import com.dbn.common.property.Property;
 
 public enum ThreadProperty implements Property.IntBase {
-    CODE_COMPLETION (true),
-    CODE_ANNOTATING (true),
+    CODE_COMPLETION(true),
+    CODE_ANNOTATION(true),
     EDITOR_LOAD(true),
     CODE_LOAD(true),
     CODE_SAVE(true),
@@ -55,5 +55,9 @@ public enum ThreadProperty implements Property.IntBase {
 
     public boolean propagatable() {
         return propagatable;
+    }
+
+    public boolean isCurrent() {
+        return ThreadInfo.current().is(this);
     }
 }
