@@ -91,7 +91,7 @@ public abstract class DBLanguageAnnotator implements Annotator {
 
         ThreadMonitor.surround(
                 null,
-                ThreadProperty.CODE_ANNOTATING,
+                ThreadProperty.CODE_ANNOTATION,
                 () -> annotateElement(psiElement, holder));
     }
 
