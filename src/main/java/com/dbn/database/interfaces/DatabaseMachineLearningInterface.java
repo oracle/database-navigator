@@ -69,6 +69,7 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
      * @param trainTableName Name for the training table
      * @param sourceSchemaName Schema containing the source table
      * @param sourceTableName Source data table
+     * @param columnNames Columns to retain in the training data
      * @param samplePercent Percentage of data for training (e.g., 80)
      * @param seed Random seed for reproducibility
      */
@@ -77,6 +78,7 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
             String trainTableName,
             String sourceSchemaName,
             String sourceTableName,
+            List<String> columnNames,
             int samplePercent,
             long seed
     ) throws SQLException;
@@ -90,13 +92,15 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
      * @param sourceSchemaName Schema containing the source table
      * @param sourceTableName Source data table
      * @param trainTableName Training table (to exclude)
+     * @param columnNames Columns to retain in the test data
      */
     void createTestTable(
             DBNConnection conn,
             String testTableName,
             String sourceSchemaName,
             String sourceTableName,
-            String trainTableName
+            String trainTableName,
+            List<String> columnNames
     ) throws SQLException;
 
     /**
@@ -109,6 +113,11 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
      * Gets the row count from a table.
      */
     int getRowCount(DBNConnection conn, String tableName) throws SQLException;
+
+    /**
+     * Checks whether a source table contains at least one row.
+     */
+    boolean hasTableRows(DBNConnection conn, String schemaName, String tableName) throws SQLException;
 
     // ==================== MODEL APPLICATION ====================
 

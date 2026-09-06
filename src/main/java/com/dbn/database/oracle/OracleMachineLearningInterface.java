@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.StringJoiner;
 
 import static com.dbn.language.common.quotes.QuoteEscaping.DATABASE;
+import static java.util.stream.Collectors.joining;
 
 /**
  * Oracle implementation of DatabaseMLInterface.
@@ -97,13 +98,14 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
             String trainTableName,
             String sourceSchemaName,
             String sourceTableName,
+            List<String> columnNames,
             int samplePercent,
             long seed
     ) throws SQLException {
         log.debug("Creating training table: {} from {}.{} ({}% with seed {})",
                 trainTableName, sourceSchemaName, sourceTableName, samplePercent, seed);
         executeUpdate(conn, "create-training-table",
-                trainTableName, sourceSchemaName, sourceTableName, samplePercent, seed);
+                trainTableName, sourceSchemaName, sourceTableName, quotedColumnList(conn, columnNames), samplePercent, seed);
     }
 
     @Override
@@ -112,11 +114,19 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
             String testTableName,
             String sourceSchemaName,
             String sourceTableName,
-            String trainTableName
+            String trainTableName,
+            List<String> columnNames
     ) throws SQLException {
         log.debug("Creating test table: {} (source {}.{} MINUS training {})",
                 testTableName, sourceSchemaName, sourceTableName, trainTableName);
-        executeUpdate(conn, "create-test-table", testTableName, sourceSchemaName, sourceTableName, trainTableName);
+        executeUpdate(conn, "create-test-table", testTableName, sourceSchemaName, sourceTableName,
+                trainTableName, quotedColumnList(conn, columnNames));
+    }
+
+    private String quotedColumnList(DBNConnection conn, List<String> columnNames) {
+        return columnNames.stream()
+                .map(columnName -> getIdentifierEnquoter(conn).quote(columnName, DATABASE))
+                .collect(joining(", "));
     }
 
     @Override
@@ -132,6 +142,13 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
                 return rs.getInt("ROW_COUNT");
             }
             return 0;
+        }
+    }
+
+    @Override
+    public boolean hasTableRows(DBNConnection conn, String schemaName, String tableName) throws SQLException {
+        try (ResultSet rs = executeQuery(conn, "check-table-has-rows", schemaName, tableName)) {
+            return rs.next();
         }
     }
 
