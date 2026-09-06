@@ -18,14 +18,15 @@ package com.dbn.ml.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.ml.model.MLResult;
+import com.dbn.ml.backend.model.MLPredictionAttribute;
 import com.dbn.ml.model.MLTaskType;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.NonNls;
 
-import javax.swing.AbstractAction;
 import javax.swing.Action;
-import java.awt.event.ActionEvent;
 import java.util.List;
+
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Dialog for entering feature values for ad-hoc prediction.
@@ -37,57 +38,37 @@ public class MLPredictDialog extends DBNDialog<MLPredictForm> {
     private final String modelName;
     private final ConnectionHandler connection;
     private final MLTaskType taskType;
-    private final List<String> featureColumns;
+    private final List<MLPredictionAttribute> attributes;
+    private final @NonNls String predictionStatement;
 
-    /** Open predict dialog from a training result. */
-    public MLPredictDialog(MLResult mlResult, List<String> featureColumns) {
-        this(mlResult.getConnection(),
-             mlResult.getModelHandle() != null ? mlResult.getModelHandle().getModelName() : mlResult.getAlgorithmName(),
-             mlResult.getTaskType(),
-             featureColumns);
-    }
+    public MLPredictDialog(
+            ConnectionHandler connection,
+            String modelName,
+            MLTaskType taskType,
+            List<MLPredictionAttribute> attributes,
+            @NonNls String predictionStatement) {
 
-    /** Open predict dialog for an existing database model. */
-    public MLPredictDialog(ConnectionHandler connection, String modelName, MLTaskType taskType, List<String> featureColumns) {
-        super(connection.getProject(), "Ad-hoc Prediction", true);
+        super(connection.getProject(), txt("msg.machineLearning.title.AdHocPrediction"), true);
         this.connection = connection;
         this.modelName = modelName;
         this.taskType = taskType;
-        this.featureColumns = featureColumns;
+        this.attributes = attributes;
+        this.predictionStatement = predictionStatement;
         setModal(false);
+        setDefaultSize(1200, 800);
         init();
     }
 
     @NotNull
     @Override
     protected MLPredictForm createForm() {
-        return new MLPredictForm(this, modelName, connection, taskType, featureColumns);
+        return new MLPredictForm(this, modelName, connection, taskType, attributes, predictionStatement);
     }
 
     @Override
     @NotNull
     protected final Action[] initializeActions() {
-        return actions(
-                new PredictAction(),
-                getCancelAction());
-    }
-
-    public List<String> getFeatureValues() {
-        return getForm().getFeatureValues();
-    }
-
-    /**
-     * Custom action that runs prediction without closing the dialog.
-     */
-    private class PredictAction extends AbstractAction {
-        PredictAction() {
-            super("Predict");
-            putValue(DEFAULT_ACTION, Boolean.TRUE);
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            getForm().runPrediction();
-        }
+        renameAction(getCancelAction(), txt("msg.shared.button.Close"));
+        return actions(getCancelAction());
     }
 }

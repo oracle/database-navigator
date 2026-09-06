@@ -17,21 +17,22 @@
 package com.dbn.ml.execution;
 
 import com.dbn.ml.backend.model.MLTrainingContext;
+import com.dbn.scheduler.model.SchedulerJobRequest;
 import lombok.Getter;
 
 /**
- * Holds async training submission data required to monitor completion
- * and build the final dashboard result.
+ * Holds the prepared training job data required to submit the scheduler job,
+ * monitor its completion and build the final dashboard result.
  */
 @Getter
 public class MLTrainingJobSubmission {
     private final String modelName;
-    private final String jobName;
+    private final SchedulerJobRequest jobRequest;
     private final MLTrainingContext context;
 
-    public MLTrainingJobSubmission(String modelName, String jobName, MLTrainingContext context) {
+    public MLTrainingJobSubmission(String modelName, SchedulerJobRequest jobRequest, MLTrainingContext context) {
         this.modelName = modelName;
-        this.jobName = jobName;
+        this.jobRequest = jobRequest;
         this.context = context;
     }
 }

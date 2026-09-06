@@ -56,45 +56,21 @@
         </statement>
     </statement-execution-processor>
 
-    <!-- Submit CREATE_MODEL as DBMS_SCHEDULER job (fire-and-forget async training) -->
-    <statement-execution-processor id="submit-training-job" timeout="10000">
+    <!--
+      Model training action, rendered (not executed) and submitted through the scheduler framework.
+      {$N} render as escaped VARCHAR2 literals, {1} carries the trusted DBMS_DATA_MINING mining function constant.
+    -->
+    <statement-execution-processor id="create-model-job-action">
         <statement>
             BEGIN
-                DBMS_SCHEDULER.CREATE_JOB(
-                    job_name   => {#0},
-                    job_type   => 'PLSQL_BLOCK',
-                    job_action => {#1},
-                    start_date => SYSTIMESTAMP,
-                    enabled    => TRUE,
-                    auto_drop  => FALSE
+                DBMS_DATA_MINING.CREATE_MODEL(
+                    model_name          => {$0},
+                    mining_function     => DBMS_DATA_MINING.{1},
+                    data_table_name     => {$2},
+                    case_id_column_name => 'CASE_ID',
+                    target_column_name  => {$3},
+                    settings_table_name => {$4}
                 );
-            END;
-        </statement>
-    </statement-execution-processor>
-
-    <!-- Check if a DBMS_SCHEDULER job is still scheduled/running -->
-    <statement-execution-processor id="get-scheduler-job-state" timeout="5000">
-        <statement>
-            SELECT state FROM USER_SCHEDULER_JOBS WHERE job_name = UPPER({#0})
-        </statement>
-    </statement-execution-processor>
-
-    <!-- Get the final run status of a completed DBMS_SCHEDULER job -->
-    <statement-execution-processor id="get-scheduler-job-run-status" timeout="5000">
-        <statement>
-            SELECT status, TO_CHAR(error#) AS error_num, additional_info
-            FROM USER_SCHEDULER_JOB_RUN_DETAILS
-            WHERE job_name = UPPER({#0})
-            ORDER BY log_date DESC
-            FETCH FIRST 1 ROWS ONLY
-        </statement>
-    </statement-execution-processor>
-
-    <!-- Drop a DBMS_SCHEDULER job after it has completed -->
-    <statement-execution-processor id="drop-scheduler-job" timeout="5000">
-        <statement>
-            BEGIN
-                DBMS_SCHEDULER.DROP_JOB(job_name => {#0}, force => FALSE);
             END;
         </statement>
     </statement-execution-processor>
@@ -111,18 +87,18 @@
     <!-- ==================== DATA SPLITTING ==================== -->
 
     <!-- Create Training Data Table using SAMPLE with SEED (80% by default) -->
-    <!-- Parameters: 0=train_table, 1=source_table, 2=sample_percent, 3=seed -->
+    <!-- Parameters: 0=train_table, 1=source_schema, 2=source_table, 3=column_list, 4=sample_percent, 5=seed -->
     <statement-execution-processor id="create-training-table" timeout="60000">
         <statement>
-            CREATE TABLE {0} AS SELECT * FROM {1} SAMPLE ({2}) SEED ({3})
+            CREATE TABLE {@0} AS SELECT {3} FROM {@1}.{@2} SAMPLE ({$4}) SEED ({$5})
         </statement>
     </statement-execution-processor>
 
     <!-- Create Test Data Table (remaining data not in training) -->
-    <!-- Parameters: 0=test_table, 1=source_table, 2=train_table -->
+    <!-- Parameters: 0=test_table, 1=source_schema, 2=source_table, 3=train_table, 4=column_list -->
     <statement-execution-processor id="create-test-table" timeout="60000">
         <statement>
-            CREATE TABLE {0} AS SELECT * FROM {1} MINUS SELECT * FROM {2}
+            CREATE TABLE {@0} AS SELECT {4} FROM {@1}.{@2} MINUS SELECT {4} FROM {@3}
         </statement>
     </statement-execution-processor>
 
@@ -138,6 +114,13 @@
     <statement-execution-processor id="get-row-count" timeout="10000">
         <statement>
             SELECT COUNT(*) AS ROW_COUNT FROM {0}
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Parameters: 0=schema_name, 1=table_name -->
+    <statement-execution-processor id="check-table-has-rows" timeout="10000">
+        <statement>
+            SELECT 1 FROM {@0}.{@1} WHERE ROWNUM = 1
         </statement>
     </statement-execution-processor>
 
@@ -168,29 +151,11 @@
         </statement>
     </statement-execution-processor>
 
-    <!-- Ad-hoc prediction (regression or classification without probability) -->
-    <!-- Parameters: 0=model_name, 1=feature_clause (e.g., "1.5 AS col1, 'A' AS col2") -->
-    <statement-execution-processor id="predict-adhoc" timeout="30000">
-        <statement>
-            SELECT PREDICTION({0} USING *) AS PREDICTION FROM (SELECT {1} FROM DUAL)
-        </statement>
-    </statement-execution-processor>
-
-    <!-- Ad-hoc prediction with probability (classification only) -->
-    <!-- Parameters: 0=model_name, 1=feature_clause -->
-    <statement-execution-processor id="predict-adhoc-with-probability" timeout="30000">
-        <statement>
-            SELECT
-                PREDICTION({0} USING *) AS PREDICTION,
-                PREDICTION_PROBABILITY({0} USING *) AS PROBABILITY
-            FROM (SELECT {1} FROM DUAL)
-        </statement>
-    </statement-execution-processor>
-
     <!-- ==================== EVALUATION PROCEDURES ==================== -->
 
     <!-- Compute Confusion Matrix using DBMS_DATA_MINING.COMPUTE_CONFUSION_MATRIX -->
-    <!-- Parameters: 0=apply_result_table, 1=target_table, 2=target_column, 3=confusion_matrix_table -->
+    <!-- Parameters: 0=apply_result_table, 1=target_table, 2=target_column,
+         3=confusion_matrix_table, 4=accuracy_table -->
     <!-- Returns: accuracy as OUT parameter -->
     <statement-execution-processor id="compute-confusion-matrix" timeout="120000">
         <statement>
@@ -213,8 +178,8 @@
                     score_criterion_type        => 'PROBABILITY'
                 );
                 -- Store accuracy in a temp table so we can retrieve it
-                EXECUTE IMMEDIATE 'CREATE TABLE {3}_ACC (ACCURACY NUMBER)';
-                EXECUTE IMMEDIATE 'INSERT INTO {3}_ACC VALUES (' || v_accuracy || ')';
+                EXECUTE IMMEDIATE 'CREATE TABLE {4} (ACCURACY NUMBER)';
+                EXECUTE IMMEDIATE 'INSERT INTO {4} VALUES (' || v_accuracy || ')';
             END;
         </statement>
     </statement-execution-processor>
@@ -222,7 +187,7 @@
     <!-- Get accuracy from temp table created by compute-confusion-matrix -->
     <statement-execution-processor id="get-accuracy" timeout="5000">
         <statement>
-            SELECT ACCURACY FROM {0}_ACC
+            SELECT ACCURACY FROM {0}
         </statement>
     </statement-execution-processor>
 
@@ -236,7 +201,8 @@
     </statement-execution-processor>
 
     <!-- Compute ROC (for binary classification) -->
-    <!-- Parameters: 0=apply_result_table, 1=target_table, 2=target_column, 3=roc_table, 4=positive_target_value -->
+    <!-- Parameters: 0=apply_result_table, 1=target_table, 2=target_column,
+         3=roc_table, 4=auc_table, 5=positive_target_value -->
     <statement-execution-processor id="compute-roc" timeout="120000">
         <statement>
             DECLARE
@@ -249,15 +215,15 @@
                     case_id_column_name         => 'CASE_ID',
                     target_column_name          => {#2},
                     roc_table_name              => {#3},
-                    positive_target_value       => {#4},
+                    positive_target_value       => {#5},
                     score_column_name           => 'PREDICTION',
                     score_criterion_column_name => 'PROBABILITY',
                     apply_result_schema_name    => NULL,
                     target_schema_name          => NULL
                 );
                 -- Store AUC in a temp table
-                EXECUTE IMMEDIATE 'CREATE TABLE {3}_AUC (AUC NUMBER)';
-                EXECUTE IMMEDIATE 'INSERT INTO {3}_AUC VALUES (' || v_auc || ')';
+                EXECUTE IMMEDIATE 'CREATE TABLE {4} (AUC NUMBER)';
+                EXECUTE IMMEDIATE 'INSERT INTO {4} VALUES (' || v_auc || ')';
             END;
         </statement>
     </statement-execution-processor>
@@ -265,7 +231,7 @@
     <!-- Get AUC from temp table -->
     <statement-execution-processor id="get-auc" timeout="5000">
         <statement>
-            SELECT AUC FROM {0}_AUC
+            SELECT AUC FROM {0}
         </statement>
     </statement-execution-processor>
 
@@ -361,21 +327,15 @@
         </statement>
     </statement-execution-processor>
 
-    <!-- Read CSV header line from cloud object storage using DBMS_CLOUD.GET_OBJECT -->
-    <!-- Returns a single row with HEADER_LINE containing the first line of the CSV file -->
+    <!-- Read a CSV sample from cloud object storage using DBMS_CLOUD.GET_OBJECT -->
+    <!-- Returns the object as a BLOB; the Java interface reads a bounded prefix -->
     <!-- Parameters: 0=credential_name, 1=file_uri -->
-    <statement-execution-processor id="get-cloud-csv-header" timeout="30000">
+    <statement-execution-processor id="get-cloud-csv-sample" timeout="30000">
         <statement>
-            SELECT UTL_RAW.CAST_TO_VARCHAR2(
-                       DBMS_LOB.SUBSTR(
-                           DBMS_CLOUD.GET_OBJECT(
-                               credential_name => {#0},
-                               object_uri      => {#1}
-                           ),
-                           4000,
-                           1
-                       )
-                   ) AS FILE_HEAD
+            SELECT DBMS_CLOUD.GET_OBJECT(
+                       credential_name => {#0},
+                       object_uri      => {#1}
+                   ) AS FILE_CONTENT
             FROM DUAL
         </statement>
     </statement-execution-processor>
@@ -401,16 +361,6 @@
         </statement>
     </statement-execution-processor>
 
-    <!-- Query variable importance from DM$VA (Random Forest, EM, MDL algorithms) -->
-    <!-- Parameters: 0=model_name -->
-    <statement-execution-processor id="get-model-variable-importance" timeout="10000">
-        <statement>
-            SELECT ATTRIBUTE_NAME, ATTRIBUTE_IMPORTANCE
-            FROM DM$VA{0}
-            ORDER BY ATTRIBUTE_IMPORTANCE DESC NULLS LAST
-        </statement>
-    </statement-execution-processor>
-
     <!-- Query Computed Settings view (DM$VS) for a model -->
     <!-- Parameters: 0=model_name -->
     <statement-execution-processor id="get-model-computed-settings" timeout="10000">
@@ -426,6 +376,17 @@
     <statement-execution-processor id="get-model-alerts" timeout="10000">
         <statement>
             SELECT ERROR_NUMBER, ERROR_TEXT FROM DM$VW{0} ORDER BY ERROR_NUMBER
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Query the authoritative list of detail views created for a model -->
+    <!-- Parameters: 0=model_name -->
+    <statement-execution-processor id="get-model-detail-views" timeout="10000">
+        <statement>
+            SELECT VIEW_NAME, VIEW_TYPE
+            FROM USER_MINING_MODEL_VIEWS
+            WHERE MODEL_NAME = UPPER({#0})
+            ORDER BY VIEW_NAME
         </statement>
     </statement-execution-processor>
 
@@ -499,21 +460,36 @@
         </statement>
     </statement-execution-processor>
 
+    <!-- Validate all external rows against the declared CSV column types -->
+    <!-- Parameters: 0=table_name -->
+    <statement-execution-processor id="validate-cloud-external-table" timeout="120000">
+        <statement>
+            BEGIN
+                DBMS_CLOUD.VALIDATE_EXTERNAL_TABLE(
+                    table_name    => {#0},
+                    stop_on_error => TRUE
+                );
+            END;
+        </statement>
+    </statement-execution-processor>
+
     <!-- ==================== UTILITY OPERATIONS ==================== -->
 
+    <!-- Parameters: 0=schema, 1=table, 2=column definitions -->
     <!-- Create Staging Table -->
     <statement-execution-processor id="create-staging-table" timeout="10000">
         <statement>
-            CREATE TABLE {0} (
-                {1}
+            CREATE TABLE {@0}.{@1} (
+                {2}
             )
         </statement>
     </statement-execution-processor>
 
+    <!-- Parameters: 0=schema, 1=table -->
     <!-- Drop Staging Table -->
     <statement-execution-processor id="drop-staging-table" timeout="10000">
         <statement>
-            DROP TABLE {0} PURGE
+            DROP TABLE {@0}.{@1} PURGE
         </statement>
     </statement-execution-processor>
 
@@ -560,7 +536,7 @@
     <!-- Parameters: 0=model_name -->
     <statement-execution-processor id="get-model-input-attributes" timeout="10000">
         <statement>
-            SELECT ATTRIBUTE_NAME
+            SELECT ATTRIBUTE_NAME, ATTRIBUTE_TYPE, DATA_TYPE
             FROM USER_MINING_MODEL_ATTRIBUTES
             WHERE MODEL_NAME = {#0}
               AND TARGET = 'NO'
@@ -576,6 +552,90 @@
             SELECT MINING_FUNCTION
             FROM USER_MINING_MODELS
             WHERE MODEL_NAME = {#0}
+        </statement>
+    </statement-execution-processor>
+
+    <!-- ==================== FEATURE ANALYSIS ==================== -->
+
+    <!-- Rank the input columns by how well they explain the target (attribute importance, MDL). -->
+    <!-- Creates the result table; it must be dropped by the caller. -->
+    <!-- Parameters: 0=data_table, 1=target_column, 2=result_table -->
+    <statement-execution-processor id="compute-attribute-importance" timeout="300000">
+        <statement>
+            BEGIN
+                DBMS_PREDICTIVE_ANALYTICS.EXPLAIN(
+                    data_table_name     => {#0},
+                    explain_column_name => {#1},
+                    result_table_name   => {#2});
+            END;
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Read the attribute importance ranking produced by compute-attribute-importance -->
+    <!-- Parameters: 0=result_table -->
+    <statement-execution-processor id="get-attribute-importance" timeout="30000">
+        <statement>
+            SELECT ATTRIBUTE_NAME, EXPLANATORY_VALUE, RANK
+            FROM {@0}
+            ORDER BY RANK
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Empty result set used to read column names and types off the result set metadata -->
+    <!-- Parameters: 0=table_name -->
+    <statement-execution-processor id="get-table-column-types" timeout="30000">
+        <statement>
+            SELECT *
+            FROM {@0}
+            WHERE 1 = 0
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Statistics for a numeric column -->
+    <!-- Parameters: 0=column_name, 1=table_name -->
+    <statement-execution-processor id="get-column-statistics" timeout="120000">
+        <statement>
+            SELECT COUNT(DISTINCT {@0}) AS DISTINCT_VALUES,
+                   TO_CHAR(MIN({@0})) AS MIN_VALUE,
+                   TO_CHAR(MAX({@0})) AS MAX_VALUE,
+                   AVG({@0}) AS MEAN_VALUE,
+                   STDDEV({@0}) AS STD_DEV
+            FROM {@1}
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Statistics for a non numeric column (mean and standard deviation do not apply) -->
+    <!-- Parameters: 0=column_name, 1=table_name -->
+    <statement-execution-processor id="get-column-cardinality" timeout="120000">
+        <statement>
+            SELECT COUNT(DISTINCT {@0}) AS DISTINCT_VALUES,
+                   TO_CHAR(MIN({@0})) AS MIN_VALUE,
+                   TO_CHAR(MAX({@0})) AS MAX_VALUE
+            FROM {@1}
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Aggregate the per row attribute weights returned by PREDICTION_DETAILS into a -->
+    <!-- model specific ranking. This is our own aggregation of a row level explanation -->
+    <!-- function, not a value Oracle computes or documents as a global measure - see -->
+    <!-- https://docs.oracle.com/en/database/oracle/machine-learning/oml4sql/23/dmprg/prediction-details.html -->
+    <!-- topN is set to the model's full feature count so every feature is scored on every row -->
+    <!-- (PREDICTION_DETAILS defaults to the top 5 only); ABS ranks by contribution magnitude, -->
+    <!-- otherwise DESC would favour positively-weighted attributes over negative ones. -->
+    <!-- Model name sits in an identifier position (like the DM$V views). -->
+    <!-- Parameters: 0=model_name, 1=test_table, 2=top_n (feature count) -->
+    <statement-execution-processor id="get-attribute-contribution" timeout="300000">
+        <statement>
+            SELECT d.ATTRIBUTE_NAME,
+                   AVG(ABS(d.WEIGHT)) AS CONTRIBUTION,
+                   COUNT(*) AS OCCURRENCES
+            FROM (SELECT PREDICTION_DETAILS({0}, NULL, {$2} ABS USING *) AS DETAILS FROM {@1}) t,
+                 XMLTABLE('/Details/Attribute'
+                     PASSING t.DETAILS
+                     COLUMNS ATTRIBUTE_NAME VARCHAR2(128) PATH '@name',
+                             WEIGHT         NUMBER        PATH '@weight') d
+            GROUP BY d.ATTRIBUTE_NAME
+            ORDER BY CONTRIBUTION DESC NULLS LAST
         </statement>
     </statement-execution-processor>
 

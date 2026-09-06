@@ -30,15 +30,19 @@ import com.dbn.ml.model.MLTaskType;
 import com.dbn.ml.model.source.MLSourceNames;
 import com.dbn.ml.model.source.MLSourceType;
 import com.dbn.ml.model.trainer.MLTrainerConfig;
+import com.dbn.ml.util.MLCSVParser;
+import com.dbn.scheduler.model.SchedulerJobRequest;
 import com.intellij.openapi.project.Project;
+import com.opencsv.exceptions.CsvValidationException;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -60,7 +64,6 @@ import static com.dbn.nls.NlsResources.txt;
  */
 @Slf4j
 public class DBMSBackend {
-
     private final ConnectionHandler connection;
     private final DBMSDataManager dataManager;
     private final DBMSSettingsBuilder settingsBuilder;
@@ -72,26 +75,29 @@ public class DBMSBackend {
     }
 
     /**
-     * Prepares training data and submits CREATE_MODEL as a DBMS_SCHEDULER job.
-     * Returns immediately — Oracle trains the model server-side.
+     * Prepares the training data (staging, train/test split, settings table) and renders the
+     * CREATE_MODEL action to be scheduled through {@link com.dbn.scheduler.DatabaseSchedulerManager}.
      *
-     * @return the model name that will be created by Oracle
+     * @return the scheduler job request carrying the rendered training action
      */
-    public String submitAsync(MLTrainingContext context) throws Exception {
-        log.info("Submitting async training job for task: {}", context.getTaskType());
+    public SchedulerJobRequest prepareTrainingJob(MLTrainingContext context) throws Exception {
+        log.info("Preparing async training job for task: {}", context.getTaskType());
         context.setTrainingStartTime(System.currentTimeMillis());
 
-        String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String timestamp = MLObjectNames.timestamp();
 
         // Data prep — fast, requires connection
         String sourceTableName = prepareDataSource(context);
-        String trainTableName = "ML_TRAIN_" + timestamp;
-        String testTableName = "ML_TEST_" + timestamp;
-        splitData(context, sourceTableName, trainTableName, testTableName);
+        String sourceSchemaName = getSourceSchemaName(context);
+        validateDataSource(sourceSchemaName, sourceTableName);
+        String trainTableName = MLObjectNames.trainTable(timestamp);
+        String testTableName = MLObjectNames.testTable(timestamp);
+        splitData(context, sourceSchemaName, sourceTableName, selectedColumns(context), trainTableName, testTableName);
         String settingsTableName = createSettingsTable(context, timestamp);
         String modelName = generateModelName(context, timestamp);
 
         String miningFunction = DBMSAlgorithmType.getMiningFunction(context.getTaskType());
+        //todo for now we predict just one label ...
         String targetColumn = context.getFeatureConfig().getLabelColumns().get(0);
 
         // Pre-training validation
@@ -103,52 +109,19 @@ public class DBMSBackend {
             }
         }
 
-        // Build scheduler job name and PL/SQL action
-        String jobName = "ML_JOB_" + timestamp;
-        String jobAction = "BEGIN DBMS_DATA_MINING.CREATE_MODEL(" +
-                "model_name=>'" + modelName + "'," +
-                "mining_function=>DBMS_DATA_MINING." + miningFunction + "," +
-                "data_table_name=>'" + trainTableName + "'," +
-                "case_id_column_name=>'CASE_ID'," +
-                "target_column_name=>'" + targetColumn + "'," +
-                "settings_table_name=>'" + settingsTableName + "'" +
-                "); END;";
-
-        // Submit the scheduler job — returns immediately
-        DatabaseInterfaceInvoker.execute(Priority.HIGH,
-                txt("prc.machineLearning.title.SubmittingTrainingJob"),
-                txt("prc.machineLearning.text.SubmittingTrainingJob", modelName),
+        // render the training action from the ML statement definitions (never assembled in java)
+        String jobAction = DatabaseInterfaceInvoker.load(Priority.HIGH,
                 getProject(),
                 connection.getConnectionId(),
-                conn -> connection.getInterfaces().getMachineLearningInterface().submitTrainingJob(conn, jobName, jobAction));
+                conn -> connection.getInterfaces().getMachineLearningInterface().buildCreateModelAction(
+                        conn, modelName, miningFunction, trainTableName, targetColumn, settingsTableName));
 
-        context.setSchedulerJobName(jobName);
         context.setModelName(modelName);
 
-        log.info("Training job {} submitted for model: {}", jobName, modelName);
-        return modelName;
+        log.info("Training job action prepared for model: {}", modelName);
+        return new SchedulerJobRequest(MLObjectNames.SCHEDULER_JOB_PREFIX, jobAction);
     }
 
-    public String getSchedulerJobState(String jobName) throws SQLException {
-        return DatabaseInterfaceInvoker.load(Priority.LOW,
-                getProject(),
-                connection.getConnectionId(),
-                conn -> connection.getInterfaces().getMachineLearningInterface().getSchedulerJobState(conn, jobName));
-    }
-
-    public String getSchedulerJobRunStatus(String jobName) throws SQLException {
-        return DatabaseInterfaceInvoker.load(Priority.LOW,
-                getProject(),
-                connection.getConnectionId(),
-                conn -> connection.getInterfaces().getMachineLearningInterface().getSchedulerJobRunStatus(conn, jobName));
-    }
-
-    public void dropSchedulerJob(String jobName) throws SQLException {
-        DatabaseInterfaceInvoker.execute(Priority.LOW,
-                getProject(),
-                connection.getConnectionId(),
-                conn -> connection.getInterfaces().getMachineLearningInterface().dropSchedulerJob(conn, jobName));
-    }
 
     public DBMSModelHandle loadModelHandle(MLTrainingContext context, String modelName) throws SQLException {
         String trainTableName = context.getTrainTableName();
@@ -172,8 +145,8 @@ public class DBMSBackend {
         }
 
         MLModelMetadata metadata = MLModelMetadata.builder()
-                .featureNames(context.getFeatureConfig().getFeatureColumns())
-                .labelNames(context.getFeatureConfig().getLabelColumns())
+                .featureNames(new ArrayList<>(context.getFeatureConfig().getFeatureColumns()))
+                .labelNames(new ArrayList<>(context.getFeatureConfig().getLabelColumns()))
                 .algorithmName(context.getAlgorithmName())
                 .classCount(classCount)
                 .outputDimensions(outputDimensions)
@@ -209,6 +182,36 @@ public class DBMSBackend {
                         return evaluateRegressionProper(mlInterface, conn, modelHandle, context);
                     }
                 });
+    }
+
+    public Map<String, String> loadModelDetailViews(String modelName) throws SQLException {
+        return DatabaseInterfaceInvoker.load(Priority.LOW,
+                getProject(),
+                connection.getConnectionId(),
+                conn -> {
+                    Map<String, String> views = new LinkedHashMap<>();
+                    DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
+                    try (ResultSet resultSet = mlInterface.getModelDetailViews(conn, modelName)) {
+                        while (resultSet.next()) {
+                            views.put(resultSet.getString("VIEW_NAME"), resultSet.getString("VIEW_TYPE"));
+                        }
+                    }
+                    return views;
+                });
+    }
+
+    public void dropModel(String modelName) throws SQLException {
+        DatabaseInterfaceInvoker.execute(Priority.HIGH,
+                getProject(),
+                connection.getConnectionId(),
+                conn -> connection.getInterfaces().getMachineLearningInterface().dropModel(conn, modelName));
+    }
+
+    public void renameModel(String oldModelName, String newModelName) throws SQLException {
+        DatabaseInterfaceInvoker.execute(Priority.HIGH,
+                getProject(),
+                connection.getConnectionId(),
+                conn -> connection.getInterfaces().getMachineLearningInterface().renameModel(conn, oldModelName, newModelName));
     }
 
     public void cleanup(MLTrainingContext context) throws Exception {
@@ -248,14 +251,20 @@ public class DBMSBackend {
                     }
                     if (context.getConfusionMatrixTableName() != null) {
                         dropTableSafe(mlInterface, conn, context.getConfusionMatrixTableName());
-                        dropTableSafe(mlInterface, conn, context.getConfusionMatrixTableName() + "_ACC");
+                        String accuracyTable = MLObjectNames.accuracyTable(context.getConfusionMatrixTableName());
+                        dropTableSafe(mlInterface, conn, accuracyTable);
                     }
                     if (context.getRocTableName() != null) {
                         dropTableSafe(mlInterface, conn, context.getRocTableName());
-                        dropTableSafe(mlInterface, conn, context.getRocTableName() + "_AUC");
+                        String aucTable = MLObjectNames.aucTable(context.getRocTableName());
+                        dropTableSafe(mlInterface, conn, aucTable);
                     }
                     if (context.getLiftTableName() != null) {
                         dropTableSafe(mlInterface, conn, context.getLiftTableName());
+                    }
+
+                    if (context.getImportanceTableName() != null) {
+                        dropTableSafe(mlInterface, conn, context.getImportanceTableName());
                     }
                 });
     }
@@ -266,12 +275,14 @@ public class DBMSBackend {
      * Splits data into training and test sets using Oracle's SAMPLE SEED.
      * This follows Oracle's recommended approach for ML model evaluation.
      */
-    private void splitData(MLTrainingContext context, String sourceTableName,
+    private void splitData(MLTrainingContext context, String sourceSchemaName, String sourceTableName, List<String> columnNames,
                           String trainTableName, String testTableName) throws SQLException {
 
         MLTrainerConfig trainerConfig = context.getTrainerConfig();
         int trainPercent = (int) (trainerConfig.getTrainTestSplitRatio() * 100);
-        long seed = trainerConfig.isUseFixedSeed() ? trainerConfig.getRandomSeed() : System.currentTimeMillis();
+        long seed = trainerConfig.isUseFixedSeed()
+                ? MLTrainerConfig.normalizeRandomSeed(trainerConfig.getRandomSeed())
+                : Math.floorMod(System.currentTimeMillis(), MLTrainerConfig.MAX_RANDOM_SEED + 1);
 
         log.info("Creating training table: {} ({}% of data, seed={})", trainTableName, trainPercent, seed);
 
@@ -284,11 +295,13 @@ public class DBMSBackend {
                     DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
 
                     // Create training table with SAMPLE SEED
-                    mlInterface.createTrainingTable(conn, trainTableName, sourceTableName, trainPercent, seed);
+                    mlInterface.createTrainingTable(
+                            conn, trainTableName, sourceSchemaName, sourceTableName, columnNames, trainPercent, seed);
 
                     // Create test table (source MINUS training)
                     log.info("Creating test table: {} (remaining data)", testTableName);
-                    mlInterface.createTestTable(conn, testTableName, sourceTableName, trainTableName);
+                    mlInterface.createTestTable(
+                            conn, testTableName, sourceSchemaName, sourceTableName, trainTableName, columnNames);
 
                     // Add CASE_ID columns for evaluation procedures
                     mlInterface.addCaseIdColumn(conn, trainTableName);
@@ -324,11 +337,12 @@ public class DBMSBackend {
         String modelName = modelHandle.getModelName();
         String testTableName = modelHandle.getTestTableName();
         String targetColumn = context.getFeatureConfig().getLabelColumns().get(0);
-        String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String timestamp = MLObjectNames.timestamp();
 
         // Table names for evaluation artifacts
-        String applyResultTable = "ML_APPLY_" + timestamp;
-        String confusionMatrixTable = "ML_CM_" + timestamp;
+        String applyResultTable = MLObjectNames.applyResultTable(timestamp);
+        String confusionMatrixTable = MLObjectNames.confusionMatrixTable(timestamp);
+        String accuracyTable = MLObjectNames.accuracyTable(confusionMatrixTable);
 
         // Store for cleanup
         context.setApplyResultTableName(applyResultTable);
@@ -341,10 +355,11 @@ public class DBMSBackend {
 
         // Step 2: Compute confusion matrix using Oracle's COMPUTE_CONFUSION_MATRIX
         log.info("Computing confusion matrix using DBMS_DATA_MINING.COMPUTE_CONFUSION_MATRIX");
-        mlInterface.computeConfusionMatrix(conn, applyResultTable, testTableName, targetColumn, confusionMatrixTable);
+        mlInterface.computeConfusionMatrix(
+                conn, applyResultTable, testTableName, targetColumn, confusionMatrixTable, accuracyTable);
 
         // Step 3: Get accuracy
-        double accuracy = mlInterface.getAccuracy(conn, confusionMatrixTable);
+        double accuracy = mlInterface.getAccuracy(conn, accuracyTable);
         log.info("Test accuracy: {}%", accuracy);
 
         // Step 5: For binary classification, compute AUC and Lift
@@ -352,8 +367,9 @@ public class DBMSBackend {
         ResultSet liftRs = null;
         List<String> classValues = modelHandle.getClassValues();
         if (classValues != null && classValues.size() == 2) {
-            String rocTable = "ML_ROC_" + timestamp;
-            String liftTable = "ML_LIFT_" + timestamp;
+            String rocTable = MLObjectNames.rocTable(timestamp);
+            String aucTable = MLObjectNames.aucTable(rocTable);
+            String liftTable = MLObjectNames.liftTable(timestamp);
             context.setRocTableName(rocTable);
             context.setLiftTableName(liftTable);
 
@@ -362,8 +378,9 @@ public class DBMSBackend {
             // Compute ROC/AUC
             try {
                 log.info("Computing ROC/AUC for binary classification (positive class: {})", positiveClass);
-                mlInterface.computeROC(conn, applyResultTable, testTableName, targetColumn, rocTable, positiveClass);
-                auc = mlInterface.getAUC(conn, rocTable);
+                mlInterface.computeROC(
+                        conn, applyResultTable, testTableName, targetColumn, rocTable, aucTable, positiveClass);
+                auc = mlInterface.getAUC(conn, aucTable);
                 log.info("AUC: {}", auc);
             } catch (Exception e) {
                 log.warn("Failed to compute ROC/AUC: {}", e.getMessage());
@@ -427,6 +444,23 @@ public class DBMSBackend {
 
     // ==================== Private Helper Methods ====================
 
+    private void validateDataSource(String schemaName, String tableName) throws SQLException {
+        boolean hasRows = DatabaseInterfaceInvoker.load(Priority.HIGH,
+                getProject(),
+                connection.getConnectionId(),
+                conn -> connection.getInterfaces().getMachineLearningInterface().hasTableRows(conn, schemaName, tableName));
+        if (!hasRows) {
+            throw new IllegalArgumentException(txt("msg.machineLearning.exception.SourceDataRowsMissing"));
+        }
+    }
+
+    private List<String> selectedColumns(MLTrainingContext context) {
+        Set<String> columns = new java.util.LinkedHashSet<>(context.getFeatureConfig().getFeatureColumns());
+        columns.addAll(context.getFeatureConfig().getLabelColumns());
+        columns.addAll(context.getTrainerConfig().getPartitionColumns());
+        return new ArrayList<>(columns);
+    }
+
     private String prepareDataSource(MLTrainingContext context) throws Exception {
         MLSourceType sourceType = context.getSourceConfig().getSourceType();
         switch (sourceType) {
@@ -441,19 +475,46 @@ public class DBMSBackend {
         }
     }
 
+    private String getSourceSchemaName(MLTrainingContext context) {
+        String schemaName = switch (context.getSourceConfig().getSourceType()) {
+            case DATABASE_TABLE -> context.getSourceConfig().getTableSourceConfig().getSchemaName();
+            case FILE_SYSTEM -> context.getStagingTableSchema();
+            case OBJECT_STORAGE -> connection.getUserName();
+        };
+        return Strings.isEmpty(schemaName) ? connection.getUserName() : schemaName;
+    }
+
     private String createCloudExternalTable(MLTrainingContext context) throws Exception {
-        String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String extTableName = "ML_EXT_" + timestamp;
+        // TODO Support source-specific prerequisite checks for DBMS_CLOUD access.
+        String extTableName = MLObjectNames.externalTable(MLObjectNames.timestamp());
         CloudSourceConfig cloudConfig = context.getSourceConfig().getCloudSourceConfig();
 
         List<String> columns = cloudConfig.getDiscoveredColumns();
         if (columns == null || columns.isEmpty())
             throw new IllegalStateException(txt("msg.machineLearning.exception.CloudColumnsMissing"));
+        MLCSVParser.validateColumnNames(columns);
 
-        Set<String> numericCols = cloudConfig.getNumericColumns();
+        MLCSVParser.Profile profile = loadCloudProfile(cloudConfig);
+        if (!columns.equals(profile.getColumns())) {
+            throw new IllegalStateException(txt("msg.machineLearning.exception.CloudColumnsChanged"));
+        }
+
+        Set<String> numericCols = profile.getNumericColumns();
+        if (context.getTaskType() == MLTaskType.REGRESSION) {
+            for (String labelColumn : context.getFeatureConfig().getLabelColumns()) {
+                if (!numericCols.contains(labelColumn)) {
+                    throw new IllegalArgumentException(txt(
+                            "msg.machineLearning.exception.CsvRegressionTargetNotNumeric",
+                            labelColumn));
+                }
+            }
+        }
         String columnList = columns.stream()
                 .map(col -> col + (numericCols.contains(col) ? " NUMBER" : " VARCHAR2(4000)"))
                 .collect(Collectors.joining(", "));
+
+        context.setStagingTableName(extTableName);
+        context.setShouldCleanupStagingTable(true);
 
         DatabaseInterfaceInvoker.execute(Priority.HIGH,
                 txt("prc.machineLearning.title.CreatingExternalTable"),
@@ -471,22 +532,46 @@ public class DBMSBackend {
                             cloudConfig.isHasHeader() ? "1" : "0",
                             columnList
                     );
+                    mlInterface.validateCloudExternalTable(conn, extTableName);
                 });
 
-        context.setStagingTableName(extTableName);
-        context.setShouldCleanupStagingTable(true);
-        log.info("Created cloud external table: {}", extTableName);
+        log.info("Created and validated cloud external table: {}", extTableName);
         return extTableName;
     }
 
+    private MLCSVParser.Profile loadCloudProfile(CloudSourceConfig cloudConfig) throws SQLException {
+        return DatabaseInterfaceInvoker.load(Priority.HIGH,
+                txt("prc.machineLearning.title.LoadingColumns"),
+                txt("prc.machineLearning.text.ReadingCloudCsvSample"),
+                getProject(),
+                connection.getConnectionId(),
+                conn -> {
+                    DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
+                    String sample = mlInterface.getCloudCsvSample(
+                            conn,
+                            cloudConfig.getCredentialName(),
+                            cloudConfig.getFileUri());
+                    try {
+                        return MLCSVParser.profile(
+                                new StringReader(sample == null ? "" : sample),
+                                cloudConfig.getDelimiter(),
+                                cloudConfig.isHasHeader(),
+                                MLCSVParser.CLOUD_SAMPLE_ROWS);
+                    } catch (IOException | CsvValidationException e) {
+                        throw new SQLException(e.getMessage(), e);
+                    }
+                });
+    }
+
     private String createSettingsTable(MLTrainingContext context, String timestamp) throws SQLException {
-        String settingsTableName = "ML_SETTINGS_" + timestamp;
+        String settingsTableName = MLObjectNames.settingsTable(timestamp);
         DBMSAlgorithmType algorithmType = DBMSAlgorithmType.fromTrainerType(context.getTrainerType());
 
         Map<String, String> settings = settingsBuilder.buildSettings(
                 context.getTaskType(),
                 algorithmType.getId(),
-                context.getTrainerConfig()
+                context.getTrainerConfig(),
+                connection.getDatabaseVersion()
         );
 
         DatabaseInterfaceInvoker.execute(Priority.HIGH,
@@ -520,13 +605,10 @@ public class DBMSBackend {
             return modelName;
         }
 
-        String baseName;
         String sourceName = extractSourceName(context);
-        if (sourceName != null && !sourceName.isEmpty()) {
-            baseName = sourceName.toUpperCase() + "_MODEL";
-        } else {
-            String taskPrefix = context.getTaskType() == MLTaskType.CLASSIFICATION ? "CLS" : "REG";
-            baseName = "ML_MODEL_" + taskPrefix + "_" + timestamp;
+        String baseName = MLSourceNames.getModelBaseName(sourceName);
+        if (baseName == null) {
+            baseName = MLObjectNames.fallbackModel(context.getTaskType(), timestamp);
         }
 
         // Use Naming utility to generate unique name

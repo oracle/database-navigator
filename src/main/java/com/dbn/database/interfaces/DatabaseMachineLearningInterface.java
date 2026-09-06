@@ -17,9 +17,12 @@
 package com.dbn.database.interfaces;
 
 import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.connection.jdbc.DBNResultSet;
+import com.dbn.ml.backend.model.MLPredictionAttribute;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * Database interface for Oracle DBMS_DATA_MINING operations.
@@ -64,14 +67,18 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
      *
      * @param conn Database connection
      * @param trainTableName Name for the training table
+     * @param sourceSchemaName Schema containing the source table
      * @param sourceTableName Source data table
+     * @param columnNames Columns to retain in the training data
      * @param samplePercent Percentage of data for training (e.g., 80)
      * @param seed Random seed for reproducibility
      */
     void createTrainingTable(
             DBNConnection conn,
             String trainTableName,
+            String sourceSchemaName,
             String sourceTableName,
+            List<String> columnNames,
             int samplePercent,
             long seed
     ) throws SQLException;
@@ -82,14 +89,18 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
      *
      * @param conn Database connection
      * @param testTableName Name for the test table
+     * @param sourceSchemaName Schema containing the source table
      * @param sourceTableName Source data table
      * @param trainTableName Training table (to exclude)
+     * @param columnNames Columns to retain in the test data
      */
     void createTestTable(
             DBNConnection conn,
             String testTableName,
+            String sourceSchemaName,
             String sourceTableName,
-            String trainTableName
+            String trainTableName,
+            List<String> columnNames
     ) throws SQLException;
 
     /**
@@ -103,28 +114,31 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
      */
     int getRowCount(DBNConnection conn, String tableName) throws SQLException;
 
+    /**
+     * Checks whether a source table contains at least one row.
+     */
+    boolean hasTableRows(DBNConnection conn, String schemaName, String tableName) throws SQLException;
+
     // ==================== MODEL APPLICATION ====================
 
     /**
-     * Makes an ad-hoc prediction using a trained model.
-     *
-     * @param conn Database connection
-     * @param modelName The trained model name
-     * @param featureClause SQL clause with feature values (e.g., "1.5 AS col1, 'A' AS col2")
-     * @return The predicted value as a string
+     * Builds the parameterized SQL used to score one row with a trained model.
      */
-    String predict(DBNConnection conn, String modelName, String featureClause) throws SQLException;
+    String buildPredictionStatement(
+            DBNConnection conn,
+            String modelName,
+            List<MLPredictionAttribute> attributes,
+            boolean withProbability) throws SQLException;
 
     /**
-     * Makes an ad-hoc prediction with probability using a trained model.
-     * For classification models only.
-     *
-     * @param conn Database connection
-     * @param modelName The trained model name
-     * @param featureClause SQL clause with feature values (e.g., "1.5 AS col1, 'A' AS col2")
-     * @return ResultSet with PREDICTION and PROBABILITY columns
+     * Scores one typed row with a trained model and returns Oracle's result set.
      */
-    ResultSet predictWithProbability(DBNConnection conn, String modelName, String featureClause) throws SQLException;
+    DBNResultSet predict(
+            DBNConnection conn,
+            String modelName,
+            List<MLPredictionAttribute> attributes,
+            List<Object> values,
+            boolean withProbability) throws SQLException;
 
     /**
      * Creates an apply results table with predictions for classification.
@@ -159,19 +173,21 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
      * @param targetTableName Table with actual values (test data)
      * @param targetColumn Target column name
      * @param confusionMatrixTableName Name for the confusion matrix output table
+     * @param accuracyTableName Name for the accuracy output table
      */
     void computeConfusionMatrix(
             DBNConnection conn,
             String applyResultTableName,
             String targetTableName,
             String targetColumn,
-            String confusionMatrixTableName
+            String confusionMatrixTableName,
+            String accuracyTableName
     ) throws SQLException;
 
     /**
      * Gets the accuracy value computed by computeConfusionMatrix.
      */
-    double getAccuracy(DBNConnection conn, String confusionMatrixTableName) throws SQLException;
+    double getAccuracy(DBNConnection conn, String accuracyTableName) throws SQLException;
 
     /**
      * Gets the confusion matrix results.
@@ -184,6 +200,7 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
      * Computes ROC curve and AUC using DBMS_DATA_MINING.COMPUTE_ROC.
      * Only for binary classification.
      *
+     * @param aucTableName Name for the AUC output table
      * @param positiveTargetValue The value representing the positive class
      */
     void computeROC(
@@ -192,13 +209,14 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
             String targetTableName,
             String targetColumn,
             String rocTableName,
+            String aucTableName,
             String positiveTargetValue
     ) throws SQLException;
 
     /**
      * Gets the AUC (Area Under Curve) computed by computeROC.
      */
-    double getAUC(DBNConnection conn, String rocTableName) throws SQLException;
+    double getAUC(DBNConnection conn, String aucTableName) throws SQLException;
 
     /**
      * Computes Lift using DBMS_DATA_MINING.COMPUTE_LIFT.
@@ -274,15 +292,6 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
     ResultSet getModelAttributeDetails(DBNConnection conn, String modelName) throws SQLException;
 
     /**
-     * Queries variable importance from DM$VA (ATTRIBUTE_NAME, ATTRIBUTE_IMPORTANCE).
-     * Supported by Random Forest, MDL/Attribute Importance, and EM algorithms.
-     * Throws SQLException for algorithms that don't support this view structure.
-     *
-     * @return ResultSet with columns: ATTRIBUTE_NAME, ATTRIBUTE_IMPORTANCE
-     */
-    ResultSet getModelVariableImportance(DBNConnection conn, String modelName) throws SQLException;
-
-    /**
      * Queries the computed settings view (DM$VS) for a model.
      * Returns the actual settings used to build the model.
      *
@@ -296,6 +305,13 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
      * @return ResultSet with columns: ERROR_NUMBER, ERROR_TEXT
      */
     ResultSet getModelAlerts(DBNConnection conn, String modelName) throws SQLException;
+
+    /**
+     * Gets the detail views created for a model from USER_MINING_MODEL_VIEWS.
+     *
+     * @return ResultSet with columns: VIEW_NAME, VIEW_TYPE
+     */
+    ResultSet getModelDetailViews(DBNConnection conn, String modelName) throws SQLException;
 
     /**
      * Queries GLM coefficients (DM$VD) — Logistic Regression and Linear Regression.
@@ -356,16 +372,19 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
     ) throws SQLException;
 
     /**
-     * Reads the first bytes of a cloud CSV file using DBMS_CLOUD.GET_OBJECT
-     * and returns the raw text head (up to 4000 chars).
-     * The caller is responsible for extracting the first line and splitting by delimiter.
+     * Reads a bounded sample of a cloud CSV file using DBMS_CLOUD.GET_OBJECT.
      *
      * @param conn Database connection
      * @param credentialName DB credential name
      * @param fileUri Cloud file URI (https://)
-     * @return The first portion of the file as a string
+     * @return The first portion of the file as UTF-8 text
      */
-    String getCloudCsvHeader(DBNConnection conn, String credentialName, String fileUri) throws SQLException;
+    String getCloudCsvSample(DBNConnection conn, String credentialName, String fileUri) throws SQLException;
+
+    /**
+     * Validates all rows of a DBMS_CLOUD external table against its declared column types.
+     */
+    void validateCloudExternalTable(DBNConnection conn, String tableName) throws SQLException;
 
     // ==================== UTILITY OPERATIONS ====================
 
@@ -428,30 +447,81 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
      */
     String getModelFunction(DBNConnection conn, String modelName) throws SQLException;
 
-    // ==================== ASYNC TRAINING (DBMS_SCHEDULER) ====================
+    // ==================== ASYNC TRAINING ====================
 
     /**
-     * Submits a CREATE_MODEL call as a DBMS_SCHEDULER job so training
-     * continues on the DB server even after the client disconnects.
+     * Renders the model training PL/SQL block to be submitted as a scheduler job action.
+     * The statement is rendered, not executed - training is scheduled through
+     * {@link com.dbn.scheduler.DatabaseSchedulerManager}, which runs it on the database server.
      *
-     * @param jobName   Unique scheduler job name (max 30 chars)
-     * @param jobAction PL/SQL anonymous block: "BEGIN DBMS_DATA_MINING.CREATE_MODEL(...); END;"
+     * @param miningFunction the DBMS_DATA_MINING mining function constant name (e.g. CLASSIFICATION)
      */
-    void submitTrainingJob(DBNConnection conn, String jobName, String jobAction) throws SQLException;
+    String buildCreateModelAction(
+            DBNConnection conn,
+            String modelName,
+            String miningFunction,
+            String trainTableName,
+            String targetColumn,
+            String settingsTableName) throws SQLException;
+
+    // ==================== FEATURE ANALYSIS ====================
 
     /**
-     * Returns the STATE of a scheduler job: SCHEDULED, RUNNING, SUCCEEDED, FAILED, or null if not found.
+     * Ranks the columns of a table by how well they explain the target column.
+     * This is a property of the data, not of any trained model - the ranking is the same
+     * whichever algorithm is later trained on it.
+     * <p>
+     * Creates {@code resultTableName}; the caller is responsible for dropping it.
      */
-    String getSchedulerJobState(DBNConnection conn, String jobName) throws SQLException;
+    void computeAttributeImportance(
+            DBNConnection conn,
+            String dataTableName,
+            String targetColumn,
+            String resultTableName) throws SQLException;
 
     /**
-     * Returns the final run STATUS from USER_SCHEDULER_JOB_RUN_DETAILS: SUCCEEDED or FAILED.
-     * Returns null if the job has not run yet or the log entry is unavailable.
+     * Reads the ranking produced by {@link #computeAttributeImportance}.
+     *
+     * @return ResultSet with columns: ATTRIBUTE_NAME, EXPLANATORY_VALUE, RANK
      */
-    String getSchedulerJobRunStatus(DBNConnection conn, String jobName) throws SQLException;
+    ResultSet getAttributeImportance(DBNConnection conn, String resultTableName) throws SQLException;
 
     /**
-     * Drops a completed DBMS_SCHEDULER job to clean up the job registry.
+     * Returns an empty result set for the given table, to read column names and types
+     * off the result set metadata.
+     *
+     * @return ResultSet with no rows and the full column list of the table
      */
-    void dropSchedulerJob(DBNConnection conn, String jobName) throws SQLException;
+    ResultSet getTableColumnTypes(DBNConnection conn, String tableName) throws SQLException;
+
+    /**
+     * Statistics for a numeric column.
+     *
+     * @return ResultSet with columns: DISTINCT_VALUES, MIN_VALUE, MAX_VALUE, MEAN_VALUE, STD_DEV
+     */
+    ResultSet getColumnStatistics(DBNConnection conn, String tableName, String columnName) throws SQLException;
+
+    /**
+     * Statistics for a non numeric column, where mean and standard deviation do not apply.
+     *
+     * @return ResultSet with columns: DISTINCT_VALUES, MIN_VALUE, MAX_VALUE
+     */
+    ResultSet getColumnCardinality(DBNConnection conn, String tableName, String columnName) throws SQLException;
+
+    /**
+     * Ranks the columns by how much they contributed to the predictions of one specific model.
+     * Aggregates the per row attribute weights returned by PREDICTION_DETAILS (mean absolute
+     * weight across the test set) - the same technique used to derive global SHAP importance
+     * from local explanations. This is our own aggregation, not a value Oracle computes or
+     * documents as a global measure; PREDICTION_DETAILS is documented as a per row explanation.
+     * See https://docs.oracle.com/en/database/oracle/machine-learning/oml4sql/23/dmprg/prediction-details.html
+     * <p>
+     * Unlike {@link #computeAttributeImportance} this describes the model, not the data.
+     *
+     * @param topN number of attributes PREDICTION_DETAILS scores per row - pass the model's full
+     *             feature count, otherwise the default of 5 silently drops features from rows
+     *             where they were not among the top contributors, biasing the average
+     * @return ResultSet with columns: ATTRIBUTE_NAME, CONTRIBUTION, OCCURRENCES
+     */
+    ResultSet getAttributeContribution(DBNConnection conn, String modelName, String testTableName, int topN) throws SQLException;
 }

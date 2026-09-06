@@ -19,16 +19,7 @@ package com.dbn.ml.backend.dbms;
 import com.dbn.ml.model.MLTaskType;
 import com.dbn.ml.model.trainer.MLTrainerType;
 import lombok.Getter;
-import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.dbn.ml.model.MLTaskType.CLASSIFICATION;
-import static com.dbn.ml.model.MLTaskType.REGRESSION;
-import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Oracle DBMS_DATA_MINING algorithm types.
@@ -42,103 +33,55 @@ public enum DBMSAlgorithmType {
     // ==================== Classification Algorithms ====================
 
     DECISION_TREE(
-            "ALGO_DECISION_TREE",
-            CLASSIFICATION,
-            txt("app.machineLearning.const.DBMSAlgorithmType_DECISION_TREE"),
-            txt("app.machineLearning.text.DBMSAlgorithmType_DECISION_TREE")
+            "ALGO_DECISION_TREE"
     ),
 
     NAIVE_BAYES(
-            "ALGO_NAIVE_BAYES",
-            CLASSIFICATION,
-            txt("app.machineLearning.const.DBMSAlgorithmType_NAIVE_BAYES"),
-            txt("app.machineLearning.text.DBMSAlgorithmType_NAIVE_BAYES")
+            "ALGO_NAIVE_BAYES"
     ),
 
     RANDOM_FOREST(
-            "ALGO_RANDOM_FOREST",
-            CLASSIFICATION,
-            txt("app.machineLearning.const.DBMSAlgorithmType_RANDOM_FOREST"),
-            txt("app.machineLearning.text.DBMSAlgorithmType_RANDOM_FOREST")
+            "ALGO_RANDOM_FOREST"
     ),
 
     SVM_CLASSIFICATION(
-            "ALGO_SUPPORT_VECTOR_MACHINES",
-            CLASSIFICATION,
-            txt("app.machineLearning.const.DBMSAlgorithmType_SVM_CLASSIFICATION"),
-            txt("app.machineLearning.text.DBMSAlgorithmType_SVM_CLASSIFICATION")
+            "ALGO_SUPPORT_VECTOR_MACHINES"
     ),
 
     LOGISTIC_REGRESSION(
-            "ALGO_GENERALIZED_LINEAR_MODEL",
-            CLASSIFICATION,
-            txt("app.machineLearning.const.DBMSAlgorithmType_LOGISTIC_REGRESSION"),
-            txt("app.machineLearning.text.DBMSAlgorithmType_LOGISTIC_REGRESSION")
+            "ALGO_GENERALIZED_LINEAR_MODEL"
     ),
 
     NEURAL_NETWORK_CLASSIFICATION(
-            "ALGO_NEURAL_NETWORK",
-            CLASSIFICATION,
-            txt("app.machineLearning.const.DBMSAlgorithmType_NEURAL_NETWORK_CLASSIFICATION"),
-            txt("app.machineLearning.text.DBMSAlgorithmType_NEURAL_NETWORK_CLASSIFICATION")
+            "ALGO_NEURAL_NETWORK"
     ),
 
     XGBOOST_CLASSIFICATION(
-            "ALGO_XGBOOST",
-            CLASSIFICATION,
-            txt("app.machineLearning.const.DBMSAlgorithmType_XGBOOST_CLASSIFICATION"),
-            txt("app.machineLearning.text.DBMSAlgorithmType_XGBOOST_CLASSIFICATION")
+            "ALGO_XGBOOST"
     ),
 
     // ==================== Regression Algorithms ====================
 
     LINEAR_REGRESSION(
-            "ALGO_GENERALIZED_LINEAR_MODEL",
-            REGRESSION,
-            txt("app.machineLearning.const.DBMSAlgorithmType_LINEAR_REGRESSION"),
-            txt("app.machineLearning.text.DBMSAlgorithmType_LINEAR_REGRESSION")
+            "ALGO_GENERALIZED_LINEAR_MODEL"
     ),
 
     SVM_REGRESSION(
-            "ALGO_SUPPORT_VECTOR_MACHINES",
-            REGRESSION,
-            txt("app.machineLearning.const.DBMSAlgorithmType_SVM_REGRESSION"),
-            txt("app.machineLearning.text.DBMSAlgorithmType_SVM_REGRESSION")
+            "ALGO_SUPPORT_VECTOR_MACHINES"
     ),
 
     NEURAL_NETWORK_REGRESSION(
-            "ALGO_NEURAL_NETWORK",
-            REGRESSION,
-            txt("app.machineLearning.const.DBMSAlgorithmType_NEURAL_NETWORK_REGRESSION"),
-            txt("app.machineLearning.text.DBMSAlgorithmType_NEURAL_NETWORK_REGRESSION")
+            "ALGO_NEURAL_NETWORK"
     ),
 
     XGBOOST_REGRESSION(
-            "ALGO_XGBOOST",
-            REGRESSION,
-            txt("app.machineLearning.const.DBMSAlgorithmType_XGBOOST_REGRESSION"),
-            txt("app.machineLearning.text.DBMSAlgorithmType_XGBOOST_REGRESSION")
+            "ALGO_XGBOOST"
     );
 
-    private final MLTaskType taskType;
     private final @NonNls String id;
-    private final @Nls String displayName;
-    private final @Nls String description;
 
-    DBMSAlgorithmType(@NonNls String id, MLTaskType taskType, @Nls String displayName, @Nls String description) {
+    DBMSAlgorithmType(@NonNls String id) {
         this.id = id;
-        this.taskType = taskType;
-        this.displayName = displayName;
-        this.description = description;
-    }
-
-    /**
-     * Returns algorithms for a specific task type.
-     */
-    public static List<DBMSAlgorithmType> getAlgorithmsForTask(MLTaskType taskType) {
-        return Arrays.stream(values())
-                .filter(alg -> alg.getTaskType() == taskType)
-                .collect(Collectors.toList());
     }
 
     /**

@@ -16,6 +16,7 @@
 
 package com.dbn.ml.model;
 
+import com.dbn.common.cloud.CloudSourceConfig;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.Cloneable;
 import com.dbn.connection.ConnectionHandler;
@@ -29,6 +30,9 @@ import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
@@ -39,6 +43,7 @@ import static com.dbn.common.state.PersistentStateElement.cloneElement;
 public class MLRequest implements PersistentStateElement, Cloneable<MLRequest> {
     private final ConnectionId connectionId;
     private transient boolean template;
+    private transient String modelToReplace;
 
     private MLMiningFunction miningFunction = MLMiningFunction.CLASSIFICATION;
 
@@ -63,12 +68,21 @@ public class MLRequest implements PersistentStateElement, Cloneable<MLRequest> {
     }
 
     public void reset(SchemaId userSchema) {
+        modelToReplace = null;
         miningFunction = MLMiningFunction.CLASSIFICATION;
         sourceConfig = new MLSourceConfig();
         featureConfig = new MLFeatureConfig();
         trainerConfig = new MLTrainerConfig();
 
         initialize(userSchema);
+    }
+
+    /**
+     * Clears the value that belongs to a single training run while retaining the user's
+     * reusable training configuration.
+     */
+    public void resetSoft() {
+        trainerConfig.setModelName(null);
     }
 
     @Override
@@ -99,6 +113,18 @@ public class MLRequest implements PersistentStateElement, Cloneable<MLRequest> {
 
     @Override
     public MLRequest clone() {
-        return cloneElement(this, new MLRequest(connectionId));
+        MLRequest clone = cloneElement(this, new MLRequest(connectionId));
+        clone.template = template;
+        clone.modelToReplace = modelToReplace;
+
+        CloudSourceConfig sourceCloudConfig = sourceConfig.getCloudSourceConfig();
+        CloudSourceConfig targetCloudConfig = clone.sourceConfig.getCloudSourceConfig();
+        targetCloudConfig.setDiscoveredColumns(new ArrayList<>(sourceCloudConfig.getDiscoveredColumns()));
+        targetCloudConfig.setNumericColumns(new HashSet<>(sourceCloudConfig.getNumericColumns()));
+        return clone;
+    }
+
+    public boolean isModelReplacement() {
+        return modelToReplace != null;
     }
 }

@@ -17,14 +17,16 @@
 package com.dbn.ml.model;
 
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.ml.backend.dbms.DBMSAlgorithmType;
 import com.dbn.ml.backend.dbms.DBMSEvaluationResult;
 import com.dbn.ml.backend.dbms.DBMSModelHandle;
+import com.dbn.ml.model.analysis.MLAttributeContribution;
+import com.dbn.ml.model.analysis.MLFeatureImportance;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nls;
 
 import java.util.List;
+import java.util.Map;
 
 import static com.dbn.nls.NlsResources.txt;
 
@@ -37,13 +39,18 @@ import static com.dbn.nls.NlsResources.txt;
 @Setter
 public class MLResult {
 
+    /**
+     * Snapshot of the configuration used to create this result. The request is kept separate
+     * from the connection's editable template so a retrain form can be modified safely.
+     */
+    private final MLRequest request;
+
     private MLTaskType taskType;
     private DBMSModelHandle modelHandle;
     private DBMSEvaluationResult evaluationResult;
 
     private ConnectionHandler connection;
     private @Nls String algorithmName;
-    private DBMSAlgorithmType algorithmType;
 
     private int trainingDataSize;
     private int testingDataSize;
@@ -53,17 +60,31 @@ public class MLResult {
 
     private long trainingTimeMs;
 
-    // Column names for prediction UI
-    private List<String> featureColumns;
     private String labelColumn;
     private List<String> labelColumns;
+
+    // Model detail metadata - null when the database lookup was unavailable
+    private Map<String, String> modelDetailViews;
 
     // Source name for default model naming (table name or CSV file name)
     private String sourceName;
 
-    /**
-     * Returns the database model name.
-     */
+    // Supplementary analysis - absent when the database could not produce it
+    private List<MLFeatureImportance> featureImportance;
+    private List<MLAttributeContribution> attributeContributions;
+
+    public MLResult(MLRequest request) {
+        this.request = request;
+    }
+
+    public boolean hasFeatureImportance() {
+        return featureImportance != null && !featureImportance.isEmpty();
+    }
+
+    public boolean hasAttributeContribution() {
+        return attributeContributions != null && !attributeContributions.isEmpty();
+    }
+
     public String getModelName() {
         return modelHandle != null ? modelHandle.getModelName() : null;
     }

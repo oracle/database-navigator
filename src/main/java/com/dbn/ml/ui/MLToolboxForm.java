@@ -21,6 +21,7 @@ import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.link.HyperLinkForm;
+import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.panel.DBNCollapsiblePanel;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
@@ -41,7 +42,10 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
+
+import static com.dbn.common.ui.util.ClientProperty.HORIZONTAL_SCROLL_POLICY;
+import static com.dbn.nls.NlsResources.txt;
+import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
 
 public class MLToolboxForm extends MLToolboxFormBase {
     private JPanel mainPanel;
@@ -52,8 +56,9 @@ public class MLToolboxForm extends MLToolboxFormBase {
     private JPanel featurePanel;
     private JPanel trainerPanel;
     private JPanel hyperlinkPanel;
+    private DBNScrollPane contentScrollPane;
 
-  private MLSourceForm sourceForm;
+    private MLSourceForm sourceForm;
     private MLFeatureForm featureForm;
     private MLTrainerForm trainerForm;
 
@@ -63,6 +68,7 @@ public class MLToolboxForm extends MLToolboxFormBase {
         super(parent, connection);
         this.request = request;
 
+        HORIZONTAL_SCROLL_POLICY.set(contentScrollPane, HORIZONTAL_SCROLLBAR_NEVER);
         initHeaderPanel();
         initHintPanel();
         initTaskTypePanel();
@@ -75,6 +81,12 @@ public class MLToolboxForm extends MLToolboxFormBase {
     protected void initFieldAlignment() {
         FieldAlignerData alignerData = getFieldAlignerData();
         alignerData.registerForms(sourceForm, featureForm, trainerForm);
+    }
+
+    @Override
+    protected void initValidation() {
+        addValidation(sourcePanel, panel -> sourceForm.validateSourceSelection());
+        addValidation(featurePanel, panel -> featureForm.validateColumnSelection());
     }
 
     private void initForms() {
@@ -91,7 +103,10 @@ public class MLToolboxForm extends MLToolboxFormBase {
         MLFeatureConfig featureConfig = request.getFeatureConfig();
         featureForm = new MLFeatureForm(this, connection);
         DBNCollapsiblePanel featureCollapsiblePanel = new DBNCollapsiblePanel(this, featureForm, true);
-        featureCollapsiblePanel.addToggleListener(expanded -> featureConfig.setExpanded(expanded));
+        featureCollapsiblePanel.addToggleListener(expanded -> {
+            featureConfig.setExpanded(expanded);
+            validateFormFields();
+        });
         featurePanel.add(featureCollapsiblePanel.getComponent());
 
         // Trainer configuration panel
@@ -125,8 +140,7 @@ public class MLToolboxForm extends MLToolboxFormBase {
     public void saveRequestTemplate(boolean reset) {
         MLRequest requestTemplate = request.clone();
         if (reset) {
-            SchemaId userSchema = getConnection().getUserSchemaId();
-            requestTemplate.reset(userSchema);
+            requestTemplate.resetSoft();
         }
 
         ConnectionId connectionId = getConnectionId();
@@ -143,15 +157,12 @@ public class MLToolboxForm extends MLToolboxFormBase {
 
     private void initTaskTypePanel() {
         ButtonGroup group = new ButtonGroup();
-        taskTypePanel.setLayout(new FlowLayout(FlowLayout.LEFT, 8, 6));
 
         for (MLMiningFunction function : MLMiningFunction.values()) {
+            if (!function.isSupported()) continue;
+
             JRadioButton button = new JRadioButton(function.getName());
             button.setSelected(request.getMiningFunction() == function);
-            button.setEnabled(function.isSupported());
-            if (!function.isSupported()) {
-                button.setToolTipText("Coming soon");
-            }
             button.addActionListener(e -> onMiningFunctionChanged(function));
             group.add(button);
             taskTypePanel.add(button);
@@ -169,18 +180,13 @@ public class MLToolboxForm extends MLToolboxFormBase {
     }
 
     private void initHintPanel() {
-        TextContent hintText = TextContent.plain(
-                "Machine Learning Toolbox\n\n" +
-                "Use this interface to build and train machine learning models using Oracle DBMS_DATA_MINING. " +
-                "Select your data source, choose features and a label column, " +
-                "configure the training algorithm, and train your model.\n\n" +
-                "The trained model will be stored in the database and can be evaluated and used for predictions.");
+        TextContent hintText = TextContent.plain(txt("cfg.machineLearning.hint.MLToolbox"));
         DBNHintForm hintForm = new DBNHintForm(null, hintText, null, true);
         hintPanel.add(hintForm.getComponent());
 
         HyperLinkForm hyperLinkForm = HyperLinkForm.create(
-                "Powered by",
-                "Oracle DBMS_DATA_MINING",
+                txt("cfg.machineLearning.label.PoweredBy"),
+                txt("cfg.machineLearning.link.OracleDBMSDataMining"),
                 "https://docs.oracle.com/en/database/oracle/machine-learning/oml4sql/23/dmapi/DBMS_DATA_MINING.html");
         hyperlinkPanel.add(hyperLinkForm.getComponent(), BorderLayout.EAST);
     }
@@ -190,10 +196,18 @@ public class MLToolboxForm extends MLToolboxFormBase {
         return mainPanel;
     }
     
-    // Called when source table changes - refresh available columns
     public void onSourceChanged() {
-        if (featureForm != null) {
-            featureForm.refreshColumns();
-        }
+        featureForm.sourceChanged();
+        trainerForm.refreshGeneratedModelName();
+    }
+
+    public void onSourceInvalidated() {
+        featureForm.sourceInvalidated();
+        trainerForm.invalidateGeneratedModelName();
+    }
+
+    public void onSourceLoaded() {
+        featureForm.sourceLoaded();
+        trainerForm.refreshGeneratedModelName();
     }
 }

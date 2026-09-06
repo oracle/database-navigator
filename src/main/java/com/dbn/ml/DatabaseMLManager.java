@@ -17,46 +17,69 @@
 package com.dbn.ml;
 
 import com.dbn.DatabaseNavigator;
+import com.dbn.common.Priority;
 import com.dbn.common.component.Components;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
-import com.dbn.common.thread.Dispatch;
+import com.dbn.common.message.InteractiveMessage;
+import com.dbn.common.outcome.OutcomeHandler;
+import com.dbn.common.outcome.OutcomeHandlers;
+import com.dbn.common.outcome.OutcomeHandlersImpl;
+import com.dbn.common.outcome.OutcomeType;
 import com.dbn.common.thread.Progress;
-import com.dbn.common.thread.Threads;
+import com.dbn.common.util.Conditional;
 import com.dbn.common.util.Dialogs;
-import com.dbn.common.util.Messages;
 import com.dbn.common.util.Naming;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ConnectionConfigListener;
+import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
 import com.dbn.execution.ExecutionManager;
+import com.dbn.ml.backend.model.MLPredictionAttribute;
 import com.dbn.ml.execution.MLPipelineExecutor;
 import com.dbn.ml.execution.MLTrainingJobSubmission;
 import com.dbn.ml.model.MLRequest;
 import com.dbn.ml.model.MLResult;
+import com.dbn.ml.model.MLTaskType;
 import com.dbn.ml.model.source.MLSourceNames;
 import com.dbn.ml.result.MLExecutionResult;
+import com.dbn.ml.ui.MLPredictDialog;
 import com.dbn.ml.ui.MLToolboxDialog;
+import com.dbn.scheduler.DatabaseSchedulerManager;
+import com.dbn.scheduler.model.SchedulerJob;
+import com.dbn.scheduler.model.SchedulerJobCancellationPolicy;
+import com.dbn.scheduler.model.SchedulerJobCompletionPolicy;
+import com.dbn.scheduler.model.SchedulerJobMonitor;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
-import com.intellij.openapi.progress.ProcessCanceledException;
-import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.NlsContexts.DialogMessage;
+import com.intellij.openapi.util.NlsContexts.DialogTitle;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
+import static com.dbn.common.notification.NotificationCategory.EXECUTION;
+import static com.dbn.common.operation.DatabaseOperation.TRAIN_MACHINE_LEARNING_MODEL;
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.constantAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setConstantAttribute;
+import static com.dbn.common.util.Messages.OPTIONS_RETRY_CANCEL;
+import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.common.util.Messages.showMessageDialog;
+import static com.dbn.common.util.Messages.showWarningDialog;
 import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
@@ -91,17 +114,99 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
     }
 
     public void openToolbox(ConnectionHandler connection) {
+        MLRequest request = getRequestTemplate(connection).clone();
+        request.setTemplate(true);
+        TRAIN_MACHINE_LEARNING_MODEL.start(connection, () -> doOpenToolbox(connection, request));
+    }
+
+    public void openToolbox(ConnectionHandler connection, MLRequest request) {
+        doOpenToolbox(connection, request);
+    }
+
+    private void doOpenToolbox(ConnectionHandler connection, MLRequest request) {
         try {
-            MLRequest request = getRequestTemplate(connection);
             Dialogs.show(() -> new MLToolboxDialog(connection, request));
         } catch (Exception e) {
-            Messages.showErrorDialog(
+            showErrorDialog(
                 getProject(),
                 txt("msg.machineLearning.title.MLToolboxError"),
                 txt("msg.machineLearning.error.MLToolboxOpenFailed", e.getMessage())
             );
             log.warn("Failed to open ML Toolbox", e);
         }
+    }
+
+    /**
+     * Loads the current model signature and opens a typed ad-hoc prediction dialog.
+     */
+    public void openPredictionDialog(
+            @NotNull ConnectionHandler connection,
+            @NotNull String modelName,
+            @Nullable MLTaskType taskType) {
+
+        String title = txt("prc.machineLearning.title.LoadingModelMetadata");
+        String text = txt("prc.machineLearning.text.LoadingModelMetadata", modelName);
+        Progress.modal(getProject(), connection, true, title, text, progress -> {
+            try {
+                DatabaseInterfaceInvoker.execute(Priority.HIGH,
+                        title,
+                        text,
+                        getProject(),
+                        connection.getConnectionId(),
+                        conn -> {
+                            DatabaseMachineLearningInterface ml = connection.getInterfaces().getMachineLearningInterface();
+                            MLTaskType resolvedTaskType = taskType;
+                            if (resolvedTaskType == null) {
+                                String miningFunction = ml.getModelFunction(conn, modelName);
+                                if (miningFunction == null) {
+                                    showWarningDialog(getProject(),
+                                            txt("msg.machineLearning.title.ModelNotFound"),
+                                            txt("msg.machineLearning.error.ModelNotFound", modelName));
+                                    return;
+                                }
+                                resolvedTaskType = "CLASSIFICATION".equalsIgnoreCase(miningFunction) ?
+                                        MLTaskType.CLASSIFICATION : MLTaskType.REGRESSION;
+                            }
+
+                            List<MLPredictionAttribute> attributes = new ArrayList<>();
+                            try (ResultSet resultSet = ml.getModelInputAttributes(conn, modelName)) {
+                                while (resultSet.next()) {
+                                    attributes.add(new MLPredictionAttribute(
+                                            resultSet.getString("ATTRIBUTE_NAME"),
+                                            resultSet.getString("ATTRIBUTE_TYPE"),
+                                            resultSet.getString("DATA_TYPE")));
+                                }
+                            }
+
+                            if (attributes.isEmpty()) {
+                                showWarningDialog(getProject(),
+                                        txt("msg.machineLearning.title.CannotPredict"),
+                                        txt("msg.machineLearning.error.NoFeatureColumns"));
+                                return;
+                            }
+
+                            for (MLPredictionAttribute attribute : attributes) {
+                                if (!attribute.isSupportedForPrediction()) {
+                                    showWarningDialog(getProject(),
+                                            txt("msg.machineLearning.title.CannotPredict"),
+                                            txt("msg.machineLearning.error.PredictionAttributeTypeUnsupported",
+                                                    attribute.getName(), attribute.getDisplayDataType()));
+                                    return;
+                                }
+                            }
+
+                            boolean withProbability = resolvedTaskType == MLTaskType.CLASSIFICATION;
+                            String statement = ml.buildPredictionStatement(conn, modelName, attributes, withProbability);
+                            MLTaskType finalTaskType = resolvedTaskType;
+                            Dialogs.show(() -> new MLPredictDialog(connection, modelName, finalTaskType, attributes, statement));
+                        });
+            } catch (Exception e) {
+                log.warn("Failed to load prediction metadata for model {}", modelName, e);
+                showErrorDialog(getProject(),
+                        txt("msg.machineLearning.title.CannotPredict"),
+                        txt("msg.machineLearning.error.ModelMetadataLoadFailed", e.getMessage()));
+            }
+        });
     }
 
     @NotNull
@@ -140,138 +245,100 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
                 progress -> {
                     try {
                         MLPipelineExecutor executor = new MLPipelineExecutor();
-                        MLTrainingJobSubmission submission = executor.submitAsync(requestSnapshot, connection);
-                        String modelName = submission.getModelName();
-                        log.info("Training job submitted for model: {}", modelName);
-                        Dispatch.run(() -> Messages.showInfoDialog(
-                                getProject(),
-                                txt("msg.machineLearning.title.TrainingJobSubmitted"),
-                                txt("msg.machineLearning.info.TrainingJobSubmitted", modelName)
-                        ));
-                        monitorTrainingJob(executor, submission, connection);
+                        MLTrainingJobSubmission submission = executor.prepareTrainingJob(requestSnapshot, connection);
+                        String modelName = getResultModelName(submission);
+
+                        DatabaseSchedulerManager schedulerManager = DatabaseSchedulerManager.getInstance(getProject());
+                        SchedulerJob job = schedulerManager.submitJob(connection, submission.getJobRequest());
+                        log.info("Training job {} submitted for model: {}", job.getName(), submission.getModelName());
+                        sendInfoNotification(EXECUTION,
+                                txt("ntf.machineLearning.info.TrainingSubmitted", modelName));
+
+                        schedulerManager.monitorJob(job,
+                                createTrainingJobMonitor(modelName),
+                                createTrainingOutcomeHandlers(executor, submission, connection));
                     } catch (Exception e) {
                         log.warn("Failed to submit training job", e);
-                        Dispatch.run(() -> Messages.showErrorDialog(
-                                getProject(),
+                        showRetryableTrainingFailure(
                                 txt("msg.machineLearning.title.TrainingJobSubmitFailed"),
-                                txt("msg.machineLearning.error.ModelTrainingFailed", e.getMessage())
-                        ));
+                                txt("msg.machineLearning.error.ModelTrainingFailed", e.getMessage()),
+                                connection,
+                                requestSnapshot);
                     }
                 });
     }
 
-    private void monitorTrainingJob(
+    @NotNull
+    private SchedulerJobMonitor createTrainingJobMonitor(String modelName) {
+        return new SchedulerJobMonitor(
+                txt("prc.machineLearning.title.MonitoringTrainingJob"),
+                txt("prc.machineLearning.text.MonitoringTrainingJob", modelName),
+                snapshot -> txt("prc.machineLearning.text.TrainingJobStatus", modelName, snapshot.getStatus().getName()),
+                JOB_POLL_INTERVAL_MILLIS,
+                JOB_POLL_TIMEOUT_MILLIS,
+                SchedulerJobCompletionPolicy.DROP,
+                // cancelling the monitor must not abort training - it continues on the database server
+                SchedulerJobCancellationPolicy.DETACH);
+    }
+
+    @NotNull
+    private OutcomeHandlers createTrainingOutcomeHandlers(
             MLPipelineExecutor executor,
             MLTrainingJobSubmission submission,
             ConnectionHandler connection) {
 
-        String modelName = submission.getModelName();
-        String jobName = submission.getJobName();
-
-        Progress.background(
-                getProject(),
-                connection,
-                true,
-                txt("prc.machineLearning.title.MonitoringTrainingJob"),
-                txt("prc.machineLearning.text.MonitoringTrainingJob", modelName),
-                progress -> {
-                    boolean cancelled = false;
-                    try {
-                        waitForTrainingCompletion(executor, connection, jobName, progress);
-                        MLResult result = executor.completeAsync(submission, connection);
-                        Dispatch.run(() -> {
-                            showResultInExecutionManager(result);
-                            Messages.showInfoDialog(
-                                    getProject(),
-                                    txt("msg.machineLearning.title.TrainingCompleted"),
-                                    txt("msg.machineLearning.info.TrainingCompleted", modelName)
-                            );
-                        });
-                    } catch (ProcessCanceledException e) {
-                        cancelled = true;
-                        log.info("Training monitor cancelled for model: {}", modelName);
-                    } catch (Exception e) {
-                        log.warn("Async training monitor failed for model {}", modelName, e);
-                        Dispatch.run(() -> Messages.showErrorDialog(
-                                getProject(),
-                                txt("msg.machineLearning.title.TrainingMonitoringFailed"),
-                                txt("msg.machineLearning.error.TrainingMonitoringFailed", modelName, e.getMessage())
-                        ));
-                    } finally {
-                        if (!cancelled) {
-                            dropSchedulerJobQuietly(executor, connection, jobName);
-                        }
-                    }
-                });
+        String modelName = getResultModelName(submission);
+        OutcomeHandlers outcomeHandlers = new OutcomeHandlersImpl();
+        outcomeHandlers.addHandler(OutcomeType.SUCCESS,
+                (OutcomeHandler.HighPriority) outcome -> completeTrainingJob(executor, submission, connection));
+        outcomeHandlers.addHandler(OutcomeType.FAILURE, (OutcomeHandler.HighPriority) outcome -> {
+            log.warn("Async training monitor failed for model {}", modelName, outcome.getException());
+            showRetryableTrainingFailure(
+                    txt("msg.machineLearning.title.TrainingMonitoringFailed"),
+                    txt("msg.machineLearning.error.TrainingMonitoringFailed", modelName, outcome.getMessage()),
+                    connection,
+                    submission.getContext().getRequest());
+        });
+        return outcomeHandlers;
     }
 
-    private void waitForTrainingCompletion(
+    private void completeTrainingJob(
             MLPipelineExecutor executor,
-            ConnectionHandler connection,
-            String jobName,
-            ProgressIndicator progress) throws Exception {
+            MLTrainingJobSubmission submission,
+            ConnectionHandler connection) {
 
-        if (jobName == null || jobName.isBlank()) {
-            throw new IllegalStateException("Missing scheduler job name for async training");
-        }
-
-        long startTime = System.currentTimeMillis();
-        while (true) {
-            progress.checkCanceled();
-
-            String state = normalizeStatus(executor.getSchedulerJobState(connection, jobName));
-            String runStatus = normalizeStatus(executor.getSchedulerJobRunStatus(connection, jobName));
-            String statusText = statusText(state, runStatus);
-
-            progress.setText(txt("prc.machineLearning.text.TrainingJobStatus", jobName, statusText));
-
-            if (isJobSucceeded(state, runStatus)) {
-                return;
-            }
-            if (isJobFailed(state, runStatus)) {
-                throw new IllegalStateException("Scheduler job failed with status: " + statusText);
-            }
-
-            if (System.currentTimeMillis() - startTime > JOB_POLL_TIMEOUT_MILLIS) {
-                throw new IllegalStateException("Timed out while waiting for scheduler job completion");
-            }
-
-            Threads.sleep(JOB_POLL_INTERVAL_MILLIS);
-        }
-    }
-
-    private static String normalizeStatus(String value) {
-        return value == null ? null : value.trim().toUpperCase();
-    }
-
-    private static String statusText(String state, String runStatus) {
-        if (runStatus != null && !runStatus.isEmpty()) return runStatus;
-        if (state != null && !state.isEmpty()) return state;
-        return "PENDING";
-    }
-
-    private static boolean isJobSucceeded(String state, String runStatus) {
-        return "SUCCEEDED".equals(runStatus) || "SUCCEEDED".equals(state);
-    }
-
-    private static boolean isJobFailed(String state, String runStatus) {
-        return "FAILED".equals(runStatus)
-                || "FAILED".equals(state)
-                || "BROKEN".equals(state)
-                || "STOPPED".equals(state);
-    }
-
-    private void dropSchedulerJobQuietly(
-            MLPipelineExecutor executor,
-            ConnectionHandler connection,
-            String jobName) {
-
-        if (jobName == null || jobName.isBlank()) return;
+        String modelName = getResultModelName(submission);
         try {
-            executor.dropSchedulerJob(connection, jobName);
+            MLResult result = executor.completeAsync(submission, connection);
+            showResultInExecutionManager(result);
+            sendInfoNotification(EXECUTION, txt("ntf.machineLearning.info.TrainingCompleted", modelName));
         } catch (Exception e) {
-            log.debug("Could not drop scheduler job {}", jobName, e);
+            log.warn("Failed to finalize training result for model {}", modelName, e);
+            showRetryableTrainingFailure(
+                    txt("msg.machineLearning.title.TrainingMonitoringFailed"),
+                    txt("msg.machineLearning.error.TrainingMonitoringFailed", modelName, e.getMessage()),
+                    connection,
+                    submission.getContext().getRequest());
         }
+    }
+
+    private void showRetryableTrainingFailure(
+            @DialogTitle String title,
+            @DialogMessage String message,
+            ConnectionHandler connection,
+            MLRequest request) {
+
+        MLRequest preservedRequest = request.clone();
+        InteractiveMessage failure = InteractiveMessage.error(title, message)
+                .withOptions(OPTIONS_RETRY_CANCEL, 0)
+                .withCallback(option -> Conditional.when(option == 0,
+                        () -> doOpenToolbox(connection, preservedRequest)));
+        showMessageDialog(getProject(), failure);
+    }
+
+    private String getResultModelName(MLTrainingJobSubmission submission) {
+        MLRequest request = submission.getContext().getRequest();
+        return request.isModelReplacement() ? request.getModelToReplace() : submission.getModelName();
     }
 
     private String getSourceDisplayName(MLRequest request) {

@@ -19,10 +19,14 @@ package com.dbn.ml.model.trainer;
 import com.dbn.common.ui.Presentable;
 import com.dbn.ml.model.MLTaskType;
 import lombok.Getter;
+import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Supported ML trainer types for Oracle DBMS_DATA_MINING.
@@ -33,116 +37,103 @@ public enum MLTrainerType implements Presentable {
     // ========== CLASSIFICATION TRAINERS ==========
 
     LOGISTIC_REGRESSION(
-            "Logistic Regression",
+            txt("app.machineLearning.const.MLTrainerType_LOGISTIC_REGRESSION"),
             "https://docs.oracle.com/en/database/oracle/machine-learning/oml4sql/23/dmcon/generalized-linear-model.html",
             MLTaskType.CLASSIFICATION
     ),
 
     SVM_CLASSIFICATION(
-            "Support Vector Machine",
+            txt("app.machineLearning.const.MLTrainerType_SVM_CLASSIFICATION"),
             "https://docs.oracle.com/en/database/oracle/machine-learning/oml4sql/23/dmcon/support-vector-machine.html",
             MLTaskType.CLASSIFICATION
     ),
 
     DECISION_TREE(
-            "Decision Tree",
+            txt("app.machineLearning.const.MLTrainerType_DECISION_TREE"),
             "https://docs.oracle.com/en/database/oracle/machine-learning/oml4sql/23/dmcon/decision-tree.html",
             MLTaskType.CLASSIFICATION
     ),
 
     NAIVE_BAYES(
-            "Naive Bayes",
+            txt("app.machineLearning.const.MLTrainerType_NAIVE_BAYES"),
             "https://docs.oracle.com/en/database/oracle/machine-learning/oml4sql/23/dmcon/naive-bayes.html",
             MLTaskType.CLASSIFICATION
     ),
 
     RANDOM_FOREST(
-            "Random Forest",
+            txt("app.machineLearning.const.MLTrainerType_RANDOM_FOREST"),
             "https://docs.oracle.com/en/database/oracle/machine-learning/oml4sql/23/dmcon/random-forest.html",
             MLTaskType.CLASSIFICATION
     ),
 
     NEURAL_NETWORK_CLASSIFICATION(
-            "Neural Network",
+            txt("app.machineLearning.const.MLTrainerType_NEURAL_NETWORK_CLASSIFICATION"),
             "https://docs.oracle.com/en/database/oracle/machine-learning/oml4sql/23/dmcon/neural-network.html",
             MLTaskType.CLASSIFICATION
     ),
 
     XGBOOST_CLASSIFICATION(
-            "XGBoost",
+            txt("app.machineLearning.const.MLTrainerType_XGBOOST_CLASSIFICATION"),
             "https://docs.oracle.com/en/database/oracle/machine-learning/oml4sql/23/dmcon/xgboost.html",
-            MLTaskType.CLASSIFICATION
+            MLTaskType.CLASSIFICATION,
+            21.0
     ),
 
     // ========== REGRESSION TRAINERS ==========
 
     LINEAR_REGRESSION(
-            "Linear Regression",
+            txt("app.machineLearning.const.MLTrainerType_LINEAR_REGRESSION"),
             "https://docs.oracle.com/en/database/oracle/machine-learning/oml4sql/23/dmcon/generalized-linear-model.html",
             MLTaskType.REGRESSION
     ),
 
     SVM_REGRESSION(
-            "SVM Regression",
+            txt("app.machineLearning.const.MLTrainerType_SVM_REGRESSION"),
             "https://docs.oracle.com/en/database/oracle/machine-learning/oml4sql/23/dmcon/support-vector-machine.html",
             MLTaskType.REGRESSION
     ),
 
     NEURAL_NETWORK_REGRESSION(
-            "Neural Network Regression",
+            txt("app.machineLearning.const.MLTrainerType_NEURAL_NETWORK_REGRESSION"),
             "https://docs.oracle.com/en/database/oracle/machine-learning/oml4sql/23/dmcon/neural-network.html",
             MLTaskType.REGRESSION
     ),
 
     XGBOOST_REGRESSION(
-            "XGBoost Regression",
+            txt("app.machineLearning.const.MLTrainerType_XGBOOST_REGRESSION"),
             "https://docs.oracle.com/en/database/oracle/machine-learning/oml4sql/23/dmcon/xgboost.html",
-            MLTaskType.REGRESSION
+            MLTaskType.REGRESSION,
+            21.0
     );
 
-    private final String name;
-    private final String docUrl;
+    private final @Nls String name;
+    private final @NonNls String docUrl;
     private final MLTaskType taskType;
+    private final double minimumDatabaseVersion;
 
-    MLTrainerType(String name, String docUrl, MLTaskType taskType) {
+    MLTrainerType(@Nls String name, @NonNls String docUrl, MLTaskType taskType) {
+        this(name, docUrl, taskType, 0.0);
+    }
+
+    MLTrainerType(@Nls String name, @NonNls String docUrl, MLTaskType taskType, double minimumDatabaseVersion) {
         this.name = name;
         this.docUrl = docUrl;
         this.taskType = taskType;
-    }
-
-    /**
-     * Returns the algorithm name for the DBMS backend.
-     */
-    public String getDBMSAlgorithmName() {
-        return switch (this) {
-            case LOGISTIC_REGRESSION -> "Logistic Regression";
-            case SVM_CLASSIFICATION -> "Support Vector Machine";
-            case DECISION_TREE -> "Decision Tree";
-            case NAIVE_BAYES -> "Naive Bayes";
-            case RANDOM_FOREST -> "Random Forest";
-            case NEURAL_NETWORK_CLASSIFICATION -> "Neural Network";
-            case XGBOOST_CLASSIFICATION -> "XGBoost";
-            case LINEAR_REGRESSION -> "Linear Regression";
-            case SVM_REGRESSION -> "SVM Regression";
-            case NEURAL_NETWORK_REGRESSION -> "Neural Network Regression";
-            case XGBOOST_REGRESSION -> "XGBoost Regression";
-        };
+        this.minimumDatabaseVersion = minimumDatabaseVersion;
     }
 
     /**
      * Returns all trainers for a specific task type.
      */
-    public static List<MLTrainerType> getTrainersForTask(MLTaskType taskType) {
+    public static List<MLTrainerType> getTrainersForTask(MLTaskType taskType, double databaseVersion) {
         return Arrays.stream(values())
                 .filter(t -> t.getTaskType() == taskType)
+                .filter(t -> t.supportsDatabaseVersion(databaseVersion))
                 .collect(Collectors.toList());
     }
 
-    public static List<MLTrainerType> getClassificationTrainers() {
-        return getTrainersForTask(MLTaskType.CLASSIFICATION);
+    public boolean supportsDatabaseVersion(double databaseVersion) {
+        return databaseVersion >= minimumDatabaseVersion;
     }
 
-    public static List<MLTrainerType> getRegressionTrainers() {
-        return getTrainersForTask(MLTaskType.REGRESSION);
-    }
 }

@@ -29,7 +29,7 @@
     <depends optional="true" config-file="dbn-diagram-support.xml">com.intellij.diagram</depends>
     <depends optional="true" config-file="dbn-oci-toolkit-support.xml">com.oracle.ocidbtest</depends>
     <vendor email="dan.cioca@oracle.com" url="https://www.oracle.com">Dan Cioca (Oracle)</vendor>
-    <idea-version since-build="231.9423.9" until-build="262.*"/>   <!--2023.1.7 - 2026.2.*-->
+    <idea-version since-build="231.9423.9" until-build="263.*"/>   <!--2023.1.7 - 2026.2.*-->
     <resource-bundle>messages.DBNResources</resource-bundle>
     <description><![CDATA[
         <h3>Database Navigator</h3>
@@ -397,10 +397,12 @@
 
         <!--shared prerequisites-->
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_TABLE"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_VIEW"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_JOB"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_PROCEDURE"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_TYPE"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_ANY_TABLE"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_ANY_VIEW"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_ANY_PROCEDURE"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_ANY_TYPE"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_UNLIMITED_TABLESPACE"/>
@@ -428,6 +430,14 @@
         <prerequisiteDefinitionProvider implementation="com.dbn.vector.prerequisite.ObjectPrivilege_EXECUTE_DBMS_VECTOR"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.vector.prerequisite.ObjectPrivilege_EXECUTE_DBMS_VECTOR_CHAIN"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.vector.prerequisite.DatabaseVersion_VECTOR_SUPPORT"/>
+
+        <!--machine learning prerequisites-->
+        <prerequisiteRequirementEvaluator implementation="com.dbn.ml.prerequisite.MLTrainingPrerequisitesEvaluator"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.ml.prerequisite.SystemPrivilege_CREATE_MINING_MODEL"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.ml.prerequisite.SystemPrivilege_CREATE_ANY_MINING_MODEL"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.ml.prerequisite.ObjectPrivilege_EXECUTE_DBMS_DATA_MINING"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.ml.prerequisite.ObjectPrivilege_EXECUTE_DBMS_PREDICTIVE_ANALYTICS"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.ml.prerequisite.ObjectPrivilege_EXECUTE_DBMS_SCHEDULER"/>
 
         <!--data source configuration prerequisites-->
         <prerequisiteRequirementEvaluator implementation="com.dbn.object.datasource.prerequisite.DatasourceConfigPrerequisitesEvaluator"/>
@@ -491,7 +501,7 @@
             <action id="DBN.Assistant.Generate.SQLWithExplanation" class="com.dbn.assistant.service.selectai.editor.action.SelectAiExplainSqlAction"/>
         </group>
         <group id="DBN.ProjectView.Context">
-            <group id="DBN.ProjectView.Popup" popup="true" keep-content="true">
+            <group id="DBN.ProjectView.Popup" popup="true">
                 <action id="DBN.File.ExecuteScript" class="com.dbn.execution.script.action.ExecuteScriptFileAction" icon="com.dbn.common.icon.Icons.EXECUTE_SQL_SCRIPT"/>
                 <action id="DBN.Connection.Context.LinkConnection" class="com.dbn.connection.context.action.FolderConnectionLinkAction" icon="com.dbn.common.icon.Icons.FOLDER_CONNECTION_ASSOCIATION"/>
                 <action id="DBN.Connection.Context.LinkSchema" class="com.dbn.connection.context.action.FolderSchemaLinkAction" icon="com.dbn.common.icon.Icons.FOLDER_SCHEMA_ASSOCIATION"/>
@@ -792,10 +802,9 @@
             <action id="DBN.Vector.Embedding.Result.Toolbox" class="com.dbn.vector.action.VectorEmbeddingToolboxAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_INPUT_FORM"/>
         </group>
         <group id="DBN.MachineLearning.Result">
-            <action id="DBN.MachineLearning.Result.Toolbox" class="com.dbn.ml.result.action.MLResultOpenToolboxAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_INPUT_FORM"/>
+            <action id="DBN.MachineLearning.Result.Toolbox" class="com.dbn.ml.result.action.MLResultTrainAgainAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_INPUT_FORM"/>
             <action id="DBN.MachineLearning.Result.Predict" class="com.dbn.ml.result.action.MLResultPredictAction" icon="com.dbn.common.icon.Icons.ACTION_EXECUTE"/>
             <action id="DBN.MachineLearning.Result.ViewInDatabase" class="com.dbn.ml.result.action.MLResultViewInBrowserAction" icon="com.dbn.common.icon.Icons.DBO_AI_MODEL"/>
-            <action id="DBN.MachineLearning.Result.RenameModel" class="com.dbn.ml.result.action.MLResultRenameAction" icon="com.dbn.common.icon.Icons.ACTION_EDIT"/>
             <separator/>
             <action id="DBN.MachineLearning.Result.Close" class="com.dbn.ml.result.action.MLResultCloseAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_CLOSE"/>
         </group>

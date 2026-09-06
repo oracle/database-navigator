@@ -19,21 +19,20 @@ package com.dbn.ml.execution;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.ml.backend.dbms.DBMSBackend;
 import com.dbn.ml.backend.dbms.DBMSEvaluationResult;
+import com.dbn.ml.backend.dbms.DBMSFeatureAnalyzer;
 import com.dbn.ml.backend.dbms.DBMSModelHandle;
 import com.dbn.ml.backend.model.MLTrainingContext;
 import com.dbn.ml.model.MLRequest;
 import com.dbn.ml.model.MLResult;
 import com.dbn.ml.model.MLTaskType;
 import com.dbn.ml.model.source.MLSourceNames;
-import com.dbn.object.DBSchema;
-import com.dbn.object.DBView;
 import com.dbn.object.common.DBObjectUtil;
-import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.type.DBObjectType;
+import com.dbn.scheduler.model.SchedulerJobRequest;
 import lombok.extern.slf4j.Slf4j;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Objects;
 
 /**
  * Executes ML training pipeline using Oracle DBMS_DATA_MINING.
@@ -44,28 +43,46 @@ import java.util.Objects;
 public class MLPipelineExecutor {
 
     /**
-     * Prepares training data and submits CREATE_MODEL as an Oracle Scheduler job.
-     * Returns immediately with a pending job descriptor — training continues server-side.
+     * Prepares training data and renders the CREATE_MODEL action to be scheduled.
+     * Training itself is submitted and monitored through the scheduler framework.
      */
-    public MLTrainingJobSubmission submitAsync(MLRequest request, ConnectionHandler connectionHandler) throws Exception {
+    public MLTrainingJobSubmission prepareTrainingJob(MLRequest request, ConnectionHandler connectionHandler) throws Exception {
         MLTrainingContext context = buildContext(request);
         DBMSBackend backend = new DBMSBackend(connectionHandler);
-        String modelName = backend.submitAsync(context);
-        String jobName = Objects.requireNonNullElse(context.getSchedulerJobName(), "");
-        return new MLTrainingJobSubmission(modelName, jobName, context);
+        SchedulerJobRequest jobRequest = backend.prepareTrainingJob(context);
+        return new MLTrainingJobSubmission(context.getModelName(), jobRequest, context);
     }
 
     public MLResult completeAsync(MLTrainingJobSubmission submission, ConnectionHandler connectionHandler) throws Exception {
         MLTrainingContext context = submission.getContext();
         DBMSBackend backend = new DBMSBackend(connectionHandler);
+        MLRequest request = context.getRequest();
 
         long startTime = context.getTrainingStartTime() > 0
                 ? context.getTrainingStartTime()
                 : System.currentTimeMillis();
+        boolean replacementReady = false;
 
         try {
             DBMSModelHandle modelHandle = backend.loadModelHandle(context, submission.getModelName());
-            return buildResult(context.getRequest(), connectionHandler, context, backend, modelHandle, startTime);
+            MLResult result = buildResult(request, connectionHandler, context, backend, modelHandle, startTime);
+            replacementReady = true;
+            if (request.isModelReplacement()) {
+                replaceModel(result, backend);
+            }
+
+            loadModelDetailViews(result, backend);
+            refreshModelObjects(connectionHandler);
+            return result;
+        } catch (Exception e) {
+            if (request.isModelReplacement() && !replacementReady) {
+                try {
+                    backend.dropModel(submission.getModelName());
+                } catch (Exception cleanupError) {
+                    e.addSuppressed(cleanupError);
+                }
+            }
+            throw e;
         } finally {
             try {
                 backend.cleanup(context);
@@ -75,19 +92,33 @@ public class MLPipelineExecutor {
         }
     }
 
-    public String getSchedulerJobState(ConnectionHandler connectionHandler, String jobName) throws Exception {
-        DBMSBackend backend = new DBMSBackend(connectionHandler);
-        return backend.getSchedulerJobState(jobName);
+    private void replaceModel(
+            MLResult result,
+            DBMSBackend backend) throws SQLException {
+
+        MLRequest request = result.getRequest();
+        DBMSModelHandle modelHandle = result.getModelHandle();
+        String modelToReplace = request.getModelToReplace();
+
+        backend.dropModel(modelToReplace);
+        backend.renameModel(modelHandle.getModelName(), modelToReplace);
+
+        modelHandle.setModelName(modelToReplace);
+        request.setModelToReplace(null);
+        request.getTrainerConfig().setModelName(modelToReplace);
     }
 
-    public String getSchedulerJobRunStatus(ConnectionHandler connectionHandler, String jobName) throws Exception {
-        DBMSBackend backend = new DBMSBackend(connectionHandler);
-        return backend.getSchedulerJobRunStatus(jobName);
+    private void refreshModelObjects(ConnectionHandler connectionHandler) {
+        DBObjectUtil.refreshUserObjects(connectionHandler.getConnectionId(), DBObjectType.MINING_MODEL);
+        DBObjectUtil.refreshUserObjects(connectionHandler.getConnectionId(), DBObjectType.VIEW);
     }
 
-    public void dropSchedulerJob(ConnectionHandler connectionHandler, String jobName) throws Exception {
-        DBMSBackend backend = new DBMSBackend(connectionHandler);
-        backend.dropSchedulerJob(jobName);
+    private void loadModelDetailViews(MLResult result, DBMSBackend backend) {
+        try {
+            result.setModelDetailViews(backend.loadModelDetailViews(result.getModelName()));
+        } catch (SQLException e) {
+            log.warn("Failed to load model detail views", e);
+        }
     }
 
     private MLResult buildResult(
@@ -98,24 +129,16 @@ public class MLPipelineExecutor {
             DBMSModelHandle modelHandle,
             long startTime) throws Exception {
 
-        MLResult result = new MLResult();
+        MLResult result = new MLResult(request.clone());
         result.setTaskType(context.getTaskType());
         result.setConnection(context.getConnection());
         result.setAlgorithmName(context.getAlgorithmName());
         result.setModelHandle(modelHandle);
 
-        // Notify browser to refresh AI models
-        DBObjectUtil.refreshUserObjects(connectionHandler.getConnectionId(), DBObjectType.MINING_MODEL);
-
-        // Oracle creates DM$V* views when a model is trained - reload schema views so they appear in the browser.
-        DBSchema schema = connectionHandler.getUserSchema();
-        if (schema != null) {
-            DBObjectList<DBView> viewList = schema.getChildObjectList(DBObjectType.VIEW);
-            if (viewList != null) viewList.reloadInBackground();
-        }
-
         DBMSEvaluationResult evaluation = backend.evaluate(modelHandle, context);
         result.setEvaluationResult(evaluation);
+
+        analyzeFeatures(connectionHandler, context, modelHandle, result);
 
         result.setTrainingDataSize(context.getTrainingDataSize());
         result.setTestingDataSize(context.getTestingDataSize());
@@ -127,8 +150,6 @@ public class MLPipelineExecutor {
             result.setOutputDimensions(modelHandle.getMetadata().getOutputDimensions());
         }
 
-        result.setFeatureColumns(new ArrayList<>(request.getFeatureConfig().getFeatureColumns()));
-
         if (context.getTaskType() == MLTaskType.CLASSIFICATION) {
             result.setLabelColumn(request.getFeatureConfig().getLabelColumn());
         } else {
@@ -138,6 +159,30 @@ public class MLPipelineExecutor {
         result.setSourceName(extractSourceName(request));
         result.setTrainingTimeMs(System.currentTimeMillis() - startTime);
         return result;
+    }
+
+    /**
+     * Column analysis is supplementary - a database that cannot produce it (missing privileges,
+     * an algorithm without prediction details) must not fail an otherwise successful training.
+     */
+    private void analyzeFeatures(
+            ConnectionHandler connectionHandler,
+            MLTrainingContext context,
+            DBMSModelHandle modelHandle,
+            MLResult result) {
+
+        DBMSFeatureAnalyzer analyzer = new DBMSFeatureAnalyzer(connectionHandler);
+        try {
+            result.setFeatureImportance(analyzer.computeFeatureImportance(context));
+        } catch (Exception e) {
+            log.warn("Failed to compute feature importance - result will omit the table", e);
+        }
+
+        try {
+            result.setAttributeContributions(analyzer.computeAttributeContribution(modelHandle));
+        } catch (Exception e) {
+            log.warn("Failed to compute attribute contribution - result will omit the table", e);
+        }
     }
 
     private MLTrainingContext buildContext(MLRequest request) {

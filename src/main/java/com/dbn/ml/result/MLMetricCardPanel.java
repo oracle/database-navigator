@@ -16,15 +16,20 @@
 
 package com.dbn.ml.result;
 
+import com.dbn.common.ui.info.DBNInfoLabel;
 import com.intellij.ui.JBColor;
 import com.intellij.util.ui.JBUI;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Font;
+
+import static com.dbn.common.text.TextContent.html;
 
 /**
  * A card-style panel that displays a single ML metric.
@@ -39,11 +44,21 @@ public class MLMetricCardPanel extends JPanel {
     private JLabel nameLabel;
     private JLabel valueLabel;
     private JPanel progressBarContainer;
+    private JPanel infoPanel;
 
     public MLMetricCardPanel(@Nls String name, double value, boolean isRatio) {
+        this(name, value, isRatio, null);
+    }
+
+    /**
+     * @param infoResourceName name of the html template explaining the metric, relative to this class
+     */
+    public MLMetricCardPanel(@Nls String name, double value, boolean isRatio, @Nullable @NonNls String infoResourceName) {
         super(new BorderLayout());
         // $$$setupUI$$$() is injected here by IntelliJ's form compiler
         add(mainPanel);
+
+        initInfoLabel(infoResourceName);
 
         setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(JBColor.border(), 1),
@@ -61,5 +76,17 @@ public class MLMetricCardPanel extends JPanel {
         } else {
             progressBarContainer.setVisible(false);
         }
+    }
+
+    private void initInfoLabel(@Nullable @NonNls String infoResourceName) {
+        if (infoResourceName == null) {
+            infoPanel.setVisible(false);
+            return;
+        }
+
+        DBNInfoLabel infoLabel = new DBNInfoLabel();
+        infoLabel.setContent(html(this, infoResourceName));
+        infoPanel.setOpaque(false);
+        infoPanel.add(infoLabel, BorderLayout.CENTER);
     }
 }

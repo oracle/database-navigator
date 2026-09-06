@@ -41,7 +41,8 @@ public class DBMSSettingsBuilder {
     public Map<String, String> buildSettings(
             MLTaskType taskType,
             String algorithmName,
-            MLTrainerConfig trainerConfig) {
+            MLTrainerConfig trainerConfig,
+            double databaseVersion) {
 
         Map<String, String> settings = new HashMap<>();
 
@@ -64,7 +65,7 @@ public class DBMSSettingsBuilder {
             case "ALGO_RANDOM_FOREST" -> addRandomForestSettings(settings, trainerConfig);
             case "ALGO_SUPPORT_VECTOR_MACHINES" -> addSVMSettings(settings, taskType);
             case "ALGO_GENERALIZED_LINEAR_MODEL" -> addGLMSettings(settings, taskType);
-            case "ALGO_NEURAL_NETWORK" -> addNeuralNetworkSettings(settings, taskType);
+            case "ALGO_NEURAL_NETWORK" -> addNeuralNetworkSettings(settings, databaseVersion);
             case "ALGO_XGBOOST" -> {} // Uses Oracle default XGBoost settings
         }
 
@@ -113,10 +114,12 @@ public class DBMSSettingsBuilder {
         }
     }
 
-    private void addNeuralNetworkSettings(Map<String, String> settings, MLTaskType taskType) {
+    private void addNeuralNetworkSettings(Map<String, String> settings, double databaseVersion) {
         // Neural Network settings
         settings.put("NNET_NODES_PER_LAYER", "10,10");
-        settings.put("NNET_ACTIVATIONS", "NNET_ACTIVATIONS_RELU");
+        settings.put("NNET_ACTIVATIONS", databaseVersion >= 21.0
+                ? "NNET_ACTIVATIONS_RELU"
+                : "NNET_ACTIVATIONS_LOG_SIG");
         settings.put("NNET_REGULARIZER", "NNET_REGULARIZER_NONE");
         settings.put("NNET_TOLERANCE", "0.001");
     }

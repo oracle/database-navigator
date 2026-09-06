@@ -37,11 +37,19 @@ public final class MLSourceNames {
         if (sourceType == MLSourceType.DATABASE_TABLE) {
             return config.getTableSourceConfig().getTableName();
         } else if (sourceType == MLSourceType.FILE_SYSTEM) {
-            return extractFileName(config.getFileSourceConfig().getFilePath());
+            return extractFileBaseName(config.getFileSourceConfig().getFilePath());
         } else if (sourceType == MLSourceType.OBJECT_STORAGE) {
-            return extractObjectName(config.getCloudSourceConfig().getFileUri());
+            return extractObjectBaseName(config.getCloudSourceConfig().getFileUri());
         }
         return null;
+    }
+
+    public static @Nullable String getModelBaseName(@Nullable String sourceName) {
+        if (sourceName == null || sourceName.isBlank()) return null;
+
+        String baseName = sourceName.trim().toUpperCase().replaceAll("[^\\p{L}\\p{N}_]", "_");
+        if (!Character.isLetter(baseName.charAt(0))) baseName = "ML_" + baseName;
+        return baseName + "_MODEL";
     }
 
     /**
@@ -73,7 +81,7 @@ public final class MLSourceNames {
         }
     }
 
-    private static @Nullable String extractFileName(String path) {
+    public static @Nullable String extractFileBaseName(String path) {
         if (path == null || path.isEmpty()) return null;
         int lastSep = Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'));
         String fileName = lastSep >= 0 ? path.substring(lastSep + 1) : path;
@@ -81,7 +89,7 @@ public final class MLSourceNames {
         return dot > 0 ? fileName.substring(0, dot) : fileName;
     }
 
-    private static @Nullable String extractObjectName(String uri) {
+    public static @Nullable String extractObjectBaseName(String uri) {
         if (uri == null || uri.isEmpty()) return null;
         int lastSlash = uri.lastIndexOf('/');
         String objectName = lastSlash >= 0 ? uri.substring(lastSlash + 1) : uri;

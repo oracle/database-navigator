@@ -38,7 +38,7 @@ public class MLToolboxDialog extends DBNDialog<MLToolboxForm> {
         this.connection = connection.ref();
         this.request = request;
 
-        setDefaultSize(600, 800);
+        setDefaultSize(520, 800);
         init();
     }
 
@@ -55,10 +55,14 @@ public class MLToolboxDialog extends DBNDialog<MLToolboxForm> {
     protected Action[] initializeActions() {
         renameAction(getOKAction(), txt("msg.machineLearning.button.TrainModel"));
         renameAction(getCancelAction(), txt("msg.shared.button.Close"));
-        return actions(
-                getOKAction(),
-                getResetAction(),
-                getCancelAction());
+        return request.isTemplate() ?
+                actions(
+                        getOKAction(),
+                        getResetAction(),
+                        getCancelAction()) :
+                actions(
+                        getOKAction(),
+                        getCancelAction());
     }
 
     @NotNull

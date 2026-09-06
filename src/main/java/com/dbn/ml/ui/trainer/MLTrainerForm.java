@@ -16,17 +16,26 @@
 
 package com.dbn.ml.ui.trainer;
 
+import com.dbn.common.Priority;
+import com.dbn.common.thread.Background;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.misc.DBNComboBox;
+import com.dbn.common.util.Naming;
+import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
 import com.dbn.ml.model.MLMiningFunction;
 import com.dbn.ml.model.MLTaskType;
+import com.dbn.ml.model.source.MLSourceNames;
 import com.dbn.ml.model.trainer.MLTrainerConfig;
 import com.dbn.ml.model.trainer.MLTrainerType;
 import com.dbn.ml.ui.MLToolboxForm;
 import com.dbn.ml.ui.MLToolboxFormBase;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.util.NlsContexts.DialogMessage;
 import com.intellij.ui.HyperlinkLabel;
 import com.intellij.ui.components.JBTextField;
 
@@ -37,10 +46,19 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
-import java.awt.FlowLayout;
+import javax.swing.text.JTextComponent;
+import java.awt.Dimension;
+import java.sql.ResultSet;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import static com.dbn.common.ui.link.Hyperlinks.initHyperlink;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
+import static com.dbn.common.ui.util.Focus.onFocusLost;
+import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.common.ui.util.TextFields.setTextSilently;
+import static com.dbn.nls.NlsResources.txt;
 
 public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleForm {
     private JPanel mainPanel;
@@ -48,7 +66,7 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
     private JBTextField modelNameField;
     private JLabel algorithmLabel;
     private DBNComboBox<MLTrainerType> algorithmComboBox;
-    private JPanel algorithmLinkPanel;
+    private HyperlinkLabel algorithmDocLink;
     private JLabel splitLabel;
     private JSlider splitSlider;
     private JLabel splitValueLabel;
@@ -56,23 +74,77 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
     private JLabel seedLabel;
     private JSpinner seedSpinner;
 
-    private final HyperlinkLabel algorithmDocLink = new HyperlinkLabel("Oracle Documentation");
+    // Loaded once in the background - null until the load completes, at which point the
+    // model name field is re-validated. Empty result and "not loaded yet" are indistinguishable
+    // on purpose: while unknown, a typed name is assumed available rather than blocking Train.
+    private volatile Set<String> existingModelNames;
+    private String generatedModelName;
+    private String generatedSourceName;
 
     public MLTrainerForm(Disposable parent, ConnectionHandler connection) {
         super(parent, connection);
         initComponents();
+        loadExistingModelNames();
     }
 
     private void initComponents() {
-        modelNameField.getEmptyText().setText("Auto-generated if empty");
         splitSlider.setMinimum(10);
         splitSlider.setMaximum(90);
-        seedSpinner.setModel(new SpinnerNumberModel(1L, 0L, Long.MAX_VALUE, 1L));
+        seedSpinner.setModel(new SpinnerNumberModel(1L, 0L, MLTrainerConfig.MAX_RANDOM_SEED, 1L));
+        setPreferredWidth(splitSlider, 200);
+        setPreferredWidth(seedSpinner, 200);
+    }
 
-        algorithmLinkPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        algorithmLinkPanel.setOpaque(false);
-        algorithmLinkPanel.add(algorithmDocLink);
+    private static void setPreferredWidth(JComponent component, int width) {
+        Dimension size = component.getPreferredSize();
+        component.setPreferredSize(new Dimension(width, size.height));
+    }
 
+    /**
+     * Fetches the model names already present in the schema, so the name field can warn about a
+     * collision before the training job is submitted instead of after it fails on the server.
+     */
+    private void loadExistingModelNames() {
+        Background.run(() -> {
+            Set<String> names = new HashSet<>();
+            ConnectionHandler connection = getConnection();
+            DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
+
+            DatabaseInterfaceInvoker.execute(Priority.LOW,
+                    connection.getProject(),
+                    getConnectionId(),
+                    (DBNConnection conn) -> {
+                        try (ResultSet rs = mlInterface.getExistingModelNames(conn)) {
+                            while (rs.next()) {
+                                names.add(rs.getString("MODEL_NAME").toUpperCase());
+                            }
+                        }
+                    });
+
+            existingModelNames = names;
+            dispatch(() -> {
+                updateGeneratedModelName(generatedSourceName);
+                validateInput(modelNameField);
+            });
+        });
+    }
+
+    @Override
+    protected void initValidation() {
+        addTextValidation(modelNameField, this::validateModelName);
+    }
+
+    private @DialogMessage String validateModelName(JTextComponent field) {
+        String name = getText(field).trim();
+        if (name.isEmpty()) return null; // blank means auto-generate, always valid
+
+        String upperName = name.toUpperCase();
+        if (!Strings.isAlphanumericWithUnderscore(upperName)) return txt("msg.machineLearning.error.ModelNameInvalid");
+
+        Set<String> names = existingModelNames;
+        if (names != null && names.contains(upperName)) return txt("msg.machineLearning.error.ModelNameExists");
+
+        return null;
     }
 
     @Override
@@ -80,8 +152,8 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
         FieldAlignerData alignerData = getFieldAlignerData();
         alignerData.registerFieldGroup(modelNameLabel, modelNameField);
         alignerData.registerFieldGroup(algorithmLabel, algorithmComboBox);
-        alignerData.registerFieldGroup(splitLabel, splitSlider);
-        alignerData.registerFieldGroup(seedLabel, seedSpinner);
+        alignerData.registerFieldGroup(splitLabel);
+        alignerData.registerFieldGroup(seedLabel);
     }
 
     @Override
@@ -89,11 +161,15 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
         onSelectionChange(algorithmComboBox, t -> onAlgorithmChanged());
         splitSlider.addChangeListener(e -> updateSplitLabel());
         useFixedSeedCheckBox.addActionListener(e -> updateSeedEnabled());
+        onFocusLost(modelNameField, e -> {
+            if (getText(modelNameField).isBlank()) updateGeneratedModelName(generatedSourceName);
+        });
     }
 
     public void refreshTrainers(MLMiningFunction miningFunction) {
         MLTaskType taskType = miningFunction != null ? miningFunction.getTaskType() : null;
-        List<MLTrainerType> availableTrainers = MLTrainerType.getTrainersForTask(taskType);
+        List<MLTrainerType> availableTrainers = MLTrainerType.getTrainersForTask(
+                taskType, getConnection().getDatabaseVersion());
 
         MLTrainerType currentSelection = algorithmComboBox.getSelectedValue();
         algorithmComboBox.setValues(availableTrainers.toArray(new MLTrainerType[0]));
@@ -110,14 +186,20 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
     private void onAlgorithmChanged() {
         MLTrainerType trainerType = algorithmComboBox.getSelectedValue();
         if (trainerType != null) {
-            algorithmDocLink.setHyperlinkTarget(trainerType.getDocUrl());
+            initHyperlink(
+                    algorithmDocLink,
+                    txt("cfg.machineLearning.link.OracleDocumentation"),
+                    trainerType.getDocUrl());
         }
     }
 
     private void updateSplitLabel() {
         int trainPercent = splitSlider.getValue();
         int testPercent = 100 - trainPercent;
-        splitValueLabel.setText(String.format("%d%% Train / %d%% Test", trainPercent, testPercent));
+        splitValueLabel.setText(txt(
+                "cfg.machineLearning.label.TrainTestSplitValue",
+                trainPercent,
+                testPercent));
     }
 
     private void updateSeedEnabled() {
@@ -132,11 +214,44 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
         return toolboxForm.getMLRequest().getTrainerConfig();
     }
 
+    public void refreshGeneratedModelName() {
+        updateGeneratedModelName(getToolboxForm().getSourceForm().getSelectedSourceBaseName());
+    }
+
+    public void invalidateGeneratedModelName() {
+        generatedSourceName = null;
+        String currentName = getText(modelNameField).trim();
+        if (!currentName.isEmpty() && !currentName.equals(generatedModelName)) return;
+
+        generatedModelName = null;
+        setTextSilently(modelNameField, "");
+        validateInput(modelNameField);
+    }
+
+    private void updateGeneratedModelName(String sourceName) {
+        generatedSourceName = sourceName;
+        String currentName = getText(modelNameField).trim();
+        if (!currentName.isEmpty() && !currentName.equals(generatedModelName)) return;
+
+        String baseName = MLSourceNames.getModelBaseName(sourceName);
+        Set<String> names = existingModelNames;
+        generatedModelName = baseName == null ? null :
+                Naming.nextNumberedIdentifier(baseName, false, name -> names != null && names.contains(name));
+
+        setTextSilently(modelNameField, generatedModelName == null ? "" : generatedModelName);
+        validateInput(modelNameField);
+    }
+
     @Override
     public void resetFormChanges() {
         MLTrainerConfig config = getConfig();
 
+        generatedModelName = null;
+        generatedSourceName = MLSourceNames.extractBaseName(getMLRequest().getSourceConfig());
         modelNameField.setText(config.getModelName() != null ? config.getModelName() : "");
+        if (config.getModelName() == null) {
+            updateGeneratedModelName(generatedSourceName);
+        }
 
         MLTrainerType trainerType = config.getTrainerType();
         if (trainerType == null) trainerType = MLTrainerType.SVM_CLASSIFICATION;
@@ -144,7 +259,9 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
         MLToolboxForm toolboxForm = getParentFrom(MLToolboxForm.class);
         MLMiningFunction miningFunction = toolboxForm != null ? toolboxForm.getMLRequest().getMiningFunction() : MLMiningFunction.CLASSIFICATION;
         refreshTrainers(miningFunction);
-        algorithmComboBox.setSelectedValue(trainerType);
+        if (trainerType.supportsDatabaseVersion(getConnection().getDatabaseVersion())) {
+            algorithmComboBox.setSelectedValue(trainerType);
+        }
 
         splitSlider.setValue((int) (config.getTrainTestSplitRatio() * 100));
         useFixedSeedCheckBox.setSelected(config.isUseFixedSeed());
@@ -173,7 +290,7 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
 
     @Override
     public String getFormTitle() {
-        return "Training Configuration";
+        return txt("cfg.machineLearning.title.TrainingConfiguration");
     }
 
     @Override
@@ -182,6 +299,10 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
         if (trainerType == null) return null;
 
         int trainPercent = splitSlider.getValue();
-        return trainerType.getName() + ", " + trainPercent + "/" + (100 - trainPercent) + " split";
+        return txt(
+                "cfg.machineLearning.text.TrainingConfigurationDetail",
+                trainerType.getName(),
+                trainPercent,
+                100 - trainPercent);
     }
 }

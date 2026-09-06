@@ -17,21 +17,22 @@
 package com.dbn.ml.result;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
+import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.util.Actions;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.execution.common.result.ui.ExecutionResultFormBase;
 import com.dbn.ml.backend.dbms.DBMSEvaluationResult;
 import com.dbn.ml.backend.dbms.DBMSModelHandle;
 import com.dbn.ml.model.MLResult;
+import com.dbn.ml.result.action.MLResultRenameAction;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBView;
 import com.dbn.object.common.list.DBObjectList;
+import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
@@ -40,6 +41,7 @@ import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Box;
@@ -56,6 +58,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -65,6 +68,8 @@ import java.util.Map;
 import java.util.TreeSet;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.common.util.TimeUtil.presentableDuration;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
@@ -74,25 +79,21 @@ import static com.dbn.nls.NlsResources.txt;
  */
 @Slf4j
 public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionResult> {
+    private static final int MAX_ANALYSIS_TABLE_ROWS = 12;
 
     // Form bindings
     private JPanel mainPanel;
     private JPanel actionsPanel;
     private JPanel headerPanel;
-    private JPanel titleBar;
-    private JLabel titleLabel;
-    private JLabel taskTypeLabel;
-    private JLabel scoreLabel;
+    private JPanel objectHeaderPanel;
     private com.intellij.ui.SimpleColoredComponent metricsSummary;
     private DBNScrollPane contentScrollPane;
     private JPanel contentPanel;
-    private JPanel alertsPanel;
     private JPanel metricsCardsPanel;
     private JPanel confusionMatrixPanel;
     private JPanel perClassPanel;
     private JPanel modelDetailsPanel;
     private JPanel variableImportancePanel;
-    private JPanel algorithmDetailsPanel;
     private JPanel modelInsightsPanel;
     private JPanel modelViewsPanel;
 
@@ -111,16 +112,10 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         initializeConfusionMatrix();
         initializePerClassMetrics();
         initializeModelDetails();
-        hideDetailedModelPanels();
+        initializeFeatureImportance();
+        initializeAttributeContribution();
         initializeModelViews();
         createActionsPanel();
-    }
-
-    private void hideDetailedModelPanels() {
-        alertsPanel.setVisible(false);
-        variableImportancePanel.setVisible(false);
-        algorithmDetailsPanel.setVisible(false);
-        modelInsightsPanel.setVisible(false);
     }
 
     private void createActionsPanel() {
@@ -130,45 +125,61 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
     }
 
     private void initializeHeader() {
-        titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 16f));
+        initializeObjectHeader();
 
-        // Set title with model name
-        String modelName = result.getModelName();
-        titleLabel.setText(modelName != null ? modelName : txt("app.machineLearning.title.MLTrainingResult"));
+        // Summary line - training context only, the metrics are shown as cards below
+        metricsSummary.append(result.isClassification() ?
+                        txt("app.machineLearning.const.MLTaskType_CLASSIFICATION") :
+                        txt("app.machineLearning.const.MLTaskType_REGRESSION"),
+                SimpleTextAttributes.REGULAR_ATTRIBUTES);
+        metricsSummary.append(" | ", SimpleTextAttributes.GRAYED_ATTRIBUTES);
 
-        // Task type
-        String taskType = result.isClassification() ? "Classification" : "Regression";
-        taskTypeLabel.setText(taskType);
-        taskTypeLabel.setForeground(JBColor.gray);
-
-        // Overall score
-        double score = calculateOverallScore();
-        scoreLabel.setText(String.format("Score: %.0f", score));
-        scoreLabel.setFont(scoreLabel.getFont().deriveFont(Font.BOLD));
-
-        // Metrics summary line
-        DBMSEvaluationResult evalResult = result.getEvaluationResult();
-        if (evalResult != null) {
-            if (result.isClassification()) {
-                metricsSummary.append("Accuracy: ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                metricsSummary.append(String.format("%.1f%%", evalResult.getAccuracy() * 100), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
-                metricsSummary.append(" | ", SimpleTextAttributes.GRAYED_ATTRIBUTES);
-                metricsSummary.append("F1: ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                metricsSummary.append(String.format("%.1f%%", evalResult.getF1Score() * 100), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
-            } else {
-                metricsSummary.append("R\u00B2: ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                metricsSummary.append(String.format("%.4f", evalResult.getR2Score()), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
-                metricsSummary.append(" | ", SimpleTextAttributes.GRAYED_ATTRIBUTES);
-                metricsSummary.append("RMSE: ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                metricsSummary.append(String.format("%.4f", evalResult.getRMSE()), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
-            }
+        String algorithmName = result.getAlgorithmName();
+        if (algorithmName != null) {
+            metricsSummary.append(txt("app.machineLearning.label.Algorithm") + ": ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
+            metricsSummary.append(algorithmName, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
             metricsSummary.append(" | ", SimpleTextAttributes.GRAYED_ATTRIBUTES);
-            metricsSummary.append("Algorithm: ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
-            metricsSummary.append(result.getAlgorithmName(), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
-            metricsSummary.append(" | ", SimpleTextAttributes.GRAYED_ATTRIBUTES);
-            metricsSummary.append("Time: ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
-            metricsSummary.append(result.getTrainingTimeMs() + "ms", SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
         }
+        metricsSummary.append(txt("app.machineLearning.label.Time") + ": ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
+        metricsSummary.append(presentableDuration(result.getTrainingTimeMs(), true), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+    }
+
+    private void initializeObjectHeader() {
+        objectHeaderPanel.removeAll();
+        DBNHeaderForm headerForm = new DBNHeaderForm(this, getHeaderContext());
+        if (result.getModelHandle() != null) {
+            headerForm.setActions(Actions.createActionGroup(new MLResultRenameAction()));
+        }
+        objectHeaderPanel.setBackground(headerForm.getBackground());
+        objectHeaderPanel.add(headerForm.getComponent(), BorderLayout.WEST);
+    }
+
+    public void refreshModelPresentation() {
+        initializeObjectHeader();
+
+        modelViewsPanel.removeAll();
+        modelViewsPanel.setVisible(true);
+        initializeModelViews();
+
+        mainPanel.revalidate();
+        mainPanel.repaint();
+    }
+
+    /**
+     * Context for the header form - a reference to the trained model, which renders as
+     * "connection - schema.model". Object references resolve their name lazily, so this does
+     * not trigger a load of the AI model object list. Falls back to the plain connection when
+     * the model is not identifiable (e.g. training failed before the model was created).
+     */
+    private Object getHeaderContext() {
+        ConnectionHandler connection = result.getConnection();
+        String modelName = result.getModelName();
+        if (modelName == null) return connection;
+
+        DBSchema schema = connection.getUserSchema();
+        if (schema == null) return connection;
+
+        return new DBObjectRef<>(schema.ref(), DBObjectType.MINING_MODEL, modelName);
     }
 
     private void initializeMetricsCards() {
@@ -179,18 +190,18 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         if (evalResult == null) return;
 
         if (result.isClassification()) {
-            metricsCardsPanel.add(new MLMetricCardPanel("Accuracy", evalResult.getAccuracy(), true));
-            metricsCardsPanel.add(new MLMetricCardPanel("Precision", evalResult.getPrecision(), true));
-            metricsCardsPanel.add(new MLMetricCardPanel("Recall", evalResult.getRecall(), true));
-            metricsCardsPanel.add(new MLMetricCardPanel("F1 Score", evalResult.getF1Score(), true));
+            metricsCardsPanel.add(new MLMetricCardPanel(txt("app.machineLearning.label.Accuracy"), evalResult.getAccuracy(), true, "info/accuracy_info.html.ft"));
+            metricsCardsPanel.add(new MLMetricCardPanel(txt("app.machineLearning.label.Precision"), evalResult.getPrecision(), true, "info/precision_info.html.ft"));
+            metricsCardsPanel.add(new MLMetricCardPanel(txt("app.machineLearning.label.Recall"), evalResult.getRecall(), true, "info/recall_info.html.ft"));
+            metricsCardsPanel.add(new MLMetricCardPanel(txt("app.machineLearning.label.F1Score"), evalResult.getF1Score(), true, "info/f1_score_info.html.ft"));
 
             if (evalResult.getAucRoc() > 0) {
-                metricsCardsPanel.add(new MLMetricCardPanel("AUC-ROC", evalResult.getAucRoc(), true));
+                metricsCardsPanel.add(new MLMetricCardPanel(txt("app.machineLearning.label.AucRoc"), evalResult.getAucRoc(), true, "info/auc_roc_info.html.ft"));
             }
         } else {
-            metricsCardsPanel.add(new MLMetricCardPanel("R\u00B2 Score", evalResult.getR2Score(), true));
-            metricsCardsPanel.add(new MLMetricCardPanel("RMSE", evalResult.getRMSE(), false));
-            metricsCardsPanel.add(new MLMetricCardPanel("MAE", evalResult.getMAE(), false));
+            metricsCardsPanel.add(new MLMetricCardPanel(txt("app.machineLearning.label.R2Score"), evalResult.getR2Score(), true, "info/r2_score_info.html.ft"));
+            metricsCardsPanel.add(new MLMetricCardPanel(txt("app.machineLearning.label.RMSE"), evalResult.getRMSE(), false, "info/rmse_info.html.ft"));
+            metricsCardsPanel.add(new MLMetricCardPanel(txt("app.machineLearning.label.MAE"), evalResult.getMAE(), false, "info/mae_info.html.ft"));
         }
     }
 
@@ -200,7 +211,7 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
             return;
         }
 
-        MLResultPanelHelper.initSection(confusionMatrixPanel, "Confusion Matrix");
+        MLResultPanelHelper.initSection(confusionMatrixPanel, txt("app.machineLearning.title.ConfusionMatrix"), "info/confusion_matrix_info.html.ft");
 
         // Try to get confusion matrix data
         Map<String, Integer> confusionData = null;
@@ -212,14 +223,15 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         if (confusionData != null && !confusionData.isEmpty()) {
             confusionMatrixPanel.add(createHeatmapTable(confusionData), BorderLayout.CENTER);
         } else {
+            // getConfusionMatrix() falls back to the localized "not applicable" placeholder
             String matrixText = result.getConfusionMatrix();
-            if (matrixText != null && !matrixText.equals("N/A")) {
+            if (matrixText != null && !matrixText.equals(txt("app.machineLearning.placeholder.NotApplicable"))) {
                 JTextArea textArea = new JTextArea(matrixText);
                 textArea.setEditable(false);
                 textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
                 confusionMatrixPanel.add(new JScrollPane(textArea), BorderLayout.CENTER);
             } else {
-                confusionMatrixPanel.add(new JLabel("Confusion matrix not available"), BorderLayout.CENTER);
+                confusionMatrixPanel.add(new JLabel(txt("app.machineLearning.text.ConfusionMatrixNotAvailable")), BorderLayout.CENTER);
             }
         }
     }
@@ -240,7 +252,7 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         int size = labels.size();
 
         String[] columns = new String[size + 1];
-        columns[0] = "Actual / Predicted";
+        columns[0] = txt("app.machineLearning.column.ActualPredicted");
         for (int i = 0; i < size; i++) {
             columns[i + 1] = labels.get(i);
         }
@@ -298,11 +310,7 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
             table.getColumnModel().getColumn(i).setCellRenderer(renderer);
         }
 
-        // Don't wrap in JScrollPane - let parent scroll pane handle scrolling
-        JPanel tablePanel = new JPanel(new BorderLayout());
-        tablePanel.add(table.getTableHeader(), BorderLayout.NORTH);
-        tablePanel.add(table, BorderLayout.CENTER);
-        return tablePanel;
+        return createTablePanel(table);
     }
 
     private void initializePerClassMetrics() {
@@ -311,7 +319,7 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
             return;
         }
 
-        MLResultPanelHelper.initSection(perClassPanel, "Per-Class Performance");
+        MLResultPanelHelper.initSection(perClassPanel, txt("app.machineLearning.title.PerClassPerformance"));
 
         JPanel chartPanel = new JPanel();
         chartPanel.setLayout(new BoxLayout(chartPanel, BoxLayout.Y_AXIS));
@@ -329,34 +337,87 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         }
 
         if (chartPanel.getComponentCount() == 0) {
-            chartPanel.add(new JLabel("Per-class metrics not available"));
+            chartPanel.add(new JLabel(txt("app.machineLearning.text.PerClassMetricsNotAvailable")));
         }
 
         perClassPanel.add(chartPanel, BorderLayout.CENTER);
     }
 
     private void initializeModelDetails() {
-        MLResultPanelHelper.initSection(modelDetailsPanel, "Model Details");
+        MLResultPanelHelper.initSection(modelDetailsPanel, txt("app.machineLearning.title.ModelDetails"));
 
         JPanel detailsGrid = new JPanel(new GridLayout(0, 4, 16, 6));
 
-        addDetailRow(detailsGrid, "Algorithm", result.getAlgorithmName());
-        addDetailRow(detailsGrid, "Features", String.valueOf(result.getFeatureCount()));
-        addDetailRow(detailsGrid, "Training Samples", String.valueOf(result.getTrainingDataSize()));
-        addDetailRow(detailsGrid, "Test Samples", String.valueOf(result.getTestingDataSize()));
-        addDetailRow(detailsGrid, "Training Time", result.getTrainingTimeMs() + " ms");
+        addDetailRow(detailsGrid, txt("app.machineLearning.label.Algorithm"), result.getAlgorithmName());
+        addDetailRow(detailsGrid, txt("app.machineLearning.label.Features"), String.valueOf(result.getFeatureCount()));
+        addDetailRow(detailsGrid, txt("app.machineLearning.label.TrainingSamples"), String.valueOf(result.getTrainingDataSize()));
+        addDetailRow(detailsGrid, txt("app.machineLearning.label.TestSamples"), String.valueOf(result.getTestingDataSize()));
+        addDetailRow(detailsGrid, txt("app.machineLearning.label.TrainingTime"), presentableDuration(result.getTrainingTimeMs(), false));
 
         if (result.isClassification()) {
-            addDetailRow(detailsGrid, "Classes", String.valueOf(result.getClassCount()));
+            addDetailRow(detailsGrid, txt("app.machineLearning.label.Classes"), String.valueOf(result.getClassCount()));
         } else {
-            addDetailRow(detailsGrid, "Output Dimensions", String.valueOf(result.getOutputDimensions()));
+            addDetailRow(detailsGrid, txt("app.machineLearning.label.OutputDimensions"), String.valueOf(result.getOutputDimensions()));
         }
 
         modelDetailsPanel.add(detailsGrid, BorderLayout.CENTER);
     }
 
+    private void initializeFeatureImportance() {
+        if (!result.hasFeatureImportance()) {
+            variableImportancePanel.setVisible(false);
+            return;
+        }
+
+        MLResultPanelHelper.initSection(variableImportancePanel,
+                txt("app.machineLearning.title.FeatureImportance"),
+                "info/feature_importance_info.html.ft");
+
+        MLFeatureImportanceTableModel model = new MLFeatureImportanceTableModel(result.getFeatureImportance());
+        variableImportancePanel.add(createAnalysisTablePanel(new MLAnalysisTable<>(this, model,
+                txt("app.machineLearning.aria.FeatureImportanceTable"))), BorderLayout.CENTER);
+    }
+
+    private void initializeAttributeContribution() {
+        if (!result.hasAttributeContribution()) {
+            modelInsightsPanel.setVisible(false);
+            return;
+        }
+
+        MLResultPanelHelper.initSection(modelInsightsPanel,
+                txt("app.machineLearning.title.AttributeContribution"),
+                "info/attribute_contribution_info.html.ft");
+
+        MLAttributeContributionTableModel model = new MLAttributeContributionTableModel(result.getAttributeContributions());
+        modelInsightsPanel.add(createAnalysisTablePanel(new MLAnalysisTable<>(this, model,
+                txt("app.machineLearning.aria.AttributeContributionTable"))), BorderLayout.CENTER);
+    }
+
+    private static JPanel createTablePanel(JTable table) {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setOpaque(false);
+        panel.add(table.getTableHeader(), BorderLayout.NORTH);
+        panel.add(table, BorderLayout.CENTER);
+        return panel;
+    }
+
+    /**
+     * Caps analysis tables so a long result table cannot make the result dashboard excessively tall.
+     * The inner scrollbar is intentional: it preserves the dashboard layout while retaining access
+     * to every ranked attribute.
+     */
+    private static DBNScrollPane createAnalysisTablePanel(JTable table) {
+        DBNScrollPane scrollPane = new DBNScrollPane(table);
+        int visibleRows = Math.min(table.getRowCount(), MAX_ANALYSIS_TABLE_ROWS);
+        int height = table.getTableHeader().getPreferredSize().height + visibleRows * table.getRowHeight();
+        Dimension size = new Dimension(0, height);
+        scrollPane.setPreferredSize(size);
+        scrollPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, height));
+        return scrollPane;
+    }
+
     private void initializeModelViews() {
-        MLResultPanelHelper.initSection(modelViewsPanel, "Model Detail Views");
+        MLResultPanelHelper.initSection(modelViewsPanel, txt("app.machineLearning.title.ModelDetailViews"), "info/model_detail_views_info.html.ft");
 
         JPanel linksPanel = new JPanel();
         linksPanel.setLayout(new BoxLayout(linksPanel, BoxLayout.Y_AXIS));
@@ -372,13 +433,14 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
 
         ConnectionHandler connection = modelHandle.getConnection();
         Project project = connection.getProject();
-        List<String> modelViews = loadModelViewNames(connection, modelName);
-        if (modelViews.isEmpty()) {
-            JLabel emptyLabel = new JLabel("No model detail views found yet. Refresh the connection and try again.");
-            emptyLabel.setForeground(JBColor.gray);
-            linksPanel.add(emptyLabel);
+        Map<String, String> modelViews = result.getModelDetailViews();
+        if (modelViews == null) {
+            addMutedLabel(linksPanel, txt("app.machineLearning.text.ModelDetailViewsLookupFailed"));
+        } else if (modelViews.isEmpty()) {
+            addMutedLabel(linksPanel, txt("app.machineLearning.text.NoModelDetailViews"));
         } else {
-            for (String viewName : modelViews) {
+            for (Map.Entry<String, String> modelView : modelViews.entrySet()) {
+                String viewName = modelView.getKey();
                 JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 2));
                 row.setOpaque(false);
 
@@ -388,6 +450,12 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
                 link.addHyperlinkListener(e -> openView(project, connection, viewName));
 
                 row.add(link);
+                String viewType = modelView.getValue();
+                if (viewType != null && !viewType.isBlank()) {
+                    JLabel typeLabel = new JLabel("— " + viewType);
+                    typeLabel.setForeground(JBColor.gray);
+                    row.add(typeLabel);
+                }
                 linksPanel.add(row);
             }
         }
@@ -395,29 +463,10 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         modelViewsPanel.add(linksPanel, BorderLayout.CENTER);
     }
 
-    private List<String> loadModelViewNames(ConnectionHandler connection, String modelName) {
-        DBSchema schema = connection.getUserSchema();
-        if (schema == null || modelName == null || modelName.isBlank()) return List.of();
-
-        String normalizedModelName = modelName.toUpperCase();
-        List<String> names = new ArrayList<>();
-
-        try {
-            for (DBView view : schema.getViews()) {
-                String viewName = view.getName();
-                if (viewName == null) continue;
-
-                String normalizedViewName = viewName.toUpperCase();
-                if (normalizedViewName.startsWith("DM$V") && normalizedViewName.endsWith(normalizedModelName)) {
-                    names.add(viewName);
-                }
-            }
-            names.sort(String.CASE_INSENSITIVE_ORDER);
-        } catch (Exception e) {
-            log.debug("Failed to load model detail views for model '{}'", modelName, e);
-        }
-
-        return names;
+    private static void addMutedLabel(JPanel panel, @Nls String text) {
+        JLabel label = new JLabel(text);
+        label.setForeground(JBColor.gray);
+        panel.add(label);
     }
 
     private void openView(Project project, ConnectionHandler connection, String viewName) {
@@ -427,20 +476,24 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         DBObjectList<DBView> viewList = schema.getChildObjectList(DBObjectType.VIEW);
         if (viewList == null) return;
 
-        ConnectionAction.invoke("Opening View", true, viewList,
+        ConnectionAction.invoke(txt("msg.machineLearning.title.OpeningView"), true, viewList,
                 action -> Progress.prompt(project, viewList, true,
-                        "Opening View", "Loading view " + viewName,
+                        txt("msg.machineLearning.title.OpeningView"), txt("msg.machineLearning.text.LoadingView", viewName),
                         progress -> {
-                            // schema.getView() auto-loads lazily on a progress thread (allowSyncLoad = true)
-                            // No full reload needed - avoids the expensive refresh-all-elements cycle
                             DBView view = schema.getView(viewName);
+                            if (view == null) {
+                                // The completion-time invalidation can be ignored when the view list is
+                                // already loading. Reload once on a miss before reporting a stale cache.
+                                viewList.reload();
+                                view = schema.getView(viewName);
+                            }
+
                             if (view != null) {
                                 view.navigate(true);
                             } else {
-                                Dispatch.run(() -> Messages.showErrorDialog(project,
-                                        "Refresh Required",
-                                        "View '" + viewName + "' is not yet visible in the browser.\n" +
-                                        "Please refresh the database connection and try again."));
+                                showErrorDialog(project,
+                                        txt("msg.machineLearning.title.RefreshRequired"),
+                                        txt("msg.machineLearning.error.ViewNotVisible", viewName));
                             }
                         }));
     }
@@ -453,19 +506,6 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         JLabel valueComp = new JLabel(value);
         valueComp.setFont(valueComp.getFont().deriveFont(Font.BOLD));
         panel.add(valueComp);
-    }
-
-    private double calculateOverallScore() {
-        DBMSEvaluationResult evalResult = result.getEvaluationResult();
-        if (evalResult == null) return 0;
-
-        if (result.isClassification()) {
-            double accuracy = evalResult.getAccuracy();
-            double f1 = evalResult.getF1Score();
-            return (accuracy * 0.6 + f1 * 0.4) * 100;
-        } else {
-            return Math.max(0, evalResult.getR2Score()) * 100;
-        }
     }
 
     @Override

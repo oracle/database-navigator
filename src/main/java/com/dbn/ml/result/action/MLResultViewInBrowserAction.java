@@ -17,19 +17,23 @@
 package com.dbn.ml.result.action;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.common.util.Messages;
+import com.dbn.common.thread.Progress;
+import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.ml.backend.dbms.DBMSModelHandle;
 import com.dbn.ml.model.MLResult;
 import com.dbn.ml.result.MLExecutionResult;
 import com.dbn.object.DBMiningModel;
 import com.dbn.object.DBSchema;
+import com.dbn.object.common.list.DBObjectList;
+import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.common.util.Messages.showWarningDialog;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
@@ -51,31 +55,56 @@ public class MLResultViewInBrowserAction extends AbstractMLExecutionResultAction
         // Get the user schema where the model is stored
         DBSchema schema = connection.getUserSchema();
         if (schema == null) {
-            Messages.showWarningDialog(project, txt("msg.machineLearning.title.SchemaNotFound"), txt("msg.machineLearning.error.SchemaNotFound"));
+            showWarningDialog(project, txt("msg.machineLearning.title.SchemaNotFound"), txt("msg.machineLearning.error.SchemaNotFound"));
             return;
         }
 
-        // Find the model by name
-        DBMiningModel aiModel = findAIModel(schema, modelName);
-        if (aiModel == null) {
-            Messages.showWarningDialog(project,
-                    txt("msg.machineLearning.title.ModelNotFound"),
-                    txt("msg.machineLearning.error.ModelNotFound", modelName));
+        DBObjectList<DBMiningModel> modelList = schema.getChildObjectList(DBObjectType.MINING_MODEL);
+        if (modelList == null) return;
+
+        DBMiningModel aiModel = modelList.getObject(modelName);
+        if (aiModel != null) {
+            aiModel.navigate(true);
             return;
         }
 
-        // Navigate to the model in the browser
-        aiModel.navigate(true);
+        if (modelList.isLoading() || modelList.isLoadingInBackground()) return;
+
+        loadAndNavigateToModel(project, schema, modelList, modelName);
     }
 
-    @Nullable
-    private DBMiningModel findAIModel(DBSchema schema, String modelName) {
-        for (DBMiningModel model : schema.getMiningModels()) {
-            if (model.getName().equalsIgnoreCase(modelName)) {
-                return model;
-            }
-        }
-        return null;
+    private void loadAndNavigateToModel(
+            @NotNull Project project,
+            @NotNull DBSchema schema,
+            @NotNull DBObjectList<DBMiningModel> modelList,
+            @NotNull String modelName) {
+        String modelListName = modelList.getTitleCasedName();
+        String title = modelList.isLoaded() ?
+                txt("msg.objects.title.ReloadingObjects", modelListName) :
+                txt("msg.objects.title.LoadingObjects", modelListName);
+
+        ConnectionAction.invoke(title, true, modelList,
+                action -> Progress.prompt(project, modelList, true,
+                        txt("prc.objects.title.LoadingObjects"),
+                        txt("prc.objects.text.LoadingObjects", modelList.getContentDescription()),
+                        progress -> {
+                            if (modelList.isLoading() || modelList.isLoadingInBackground()) return;
+
+                            if (modelList.isLoaded()) {
+                                modelList.reload();
+                            } else {
+                                modelList.load();
+                            }
+
+                            DBMiningModel aiModel = modelList.getObject(modelName);
+                            if (aiModel != null) {
+                                aiModel.navigate(true);
+                            } else {
+                                showWarningDialog(project,
+                                        txt("msg.machineLearning.title.ModelNotFound"),
+                                        txt("msg.machineLearning.error.ModelNotFound", modelName));
+                            }
+                        }));
     }
 
     @Override

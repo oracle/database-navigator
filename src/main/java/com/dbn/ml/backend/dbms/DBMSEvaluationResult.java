@@ -28,6 +28,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.dbn.nls.NlsResources.txt;
+import static java.lang.String.format;
+
 /**
  * Evaluation metrics for an Oracle DBMS_DATA_MINING model.
  * Parses results from Oracle DM$ views and calculates
@@ -37,6 +40,8 @@ import java.util.Set;
  */
 @Getter
 public class DBMSEvaluationResult {
+
+    public static final String ILBR = "\n  "; // indented line break
 
     /**
      * Per-class metrics for classification.
@@ -63,7 +68,7 @@ public class DBMSEvaluationResult {
     // Classification metrics
     private double accuracy;
     private double aucRoc;
-    private Map<String, Integer> confusionMatrixData;
+    private final Map<String, Integer> confusionMatrixData;
 
     // Calculated per-class metrics (lazy initialized)
     private Map<String, ClassMetrics> perClassMetricsCache;
@@ -77,7 +82,7 @@ public class DBMSEvaluationResult {
     private double mae;
 
     // Lift analysis data (for binary classification)
-    private List<LiftData> liftAnalysis;
+    private final List<LiftData> liftAnalysis;
 
     private DBMSEvaluationResult(MLTaskType taskType, int testDataSize) {
         this.taskType = taskType;
@@ -162,17 +167,10 @@ public class DBMSEvaluationResult {
     }
 
     /**
-     * Returns the lift analysis data (for binary classification).
-     */
-    public List<LiftData> getLiftAnalysis() {
-        return liftAnalysis;
-    }
-
-    /**
      * Returns true if lift analysis data is available.
      */
     public boolean hasLiftData() {
-        return liftAnalysis != null && !liftAnalysis.isEmpty();
+        return !liftAnalysis.isEmpty();
     }
 
     /**
@@ -224,11 +222,6 @@ public class DBMSEvaluationResult {
 
     // ==================== Classification Metrics ====================
 
-    public double getAccuracy() {
-        return accuracy;
-    }
-
-
     public double getPrecision() {
         ensurePerClassMetricsCalculated();
         return macroPrecision;
@@ -249,19 +242,20 @@ public class DBMSEvaluationResult {
 
     public String getConfusionMatrix() {
         if (confusionMatrixData.isEmpty()) {
-            return "N/A";
+            return txt("app.machineLearning.placeholder.NotApplicable");
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append("Confusion Matrix:\n");
+        sb.append(txt("app.machineLearning.text.ConfusionMatrixHeader"));
 
         // Format confusion matrix data
         for (Map.Entry<String, Integer> entry : confusionMatrixData.entrySet()) {
             String[] parts = entry.getKey().split("\0");
-            sb.append(String.format("  Actual: %s, Predicted: %s, Count: %d\n",
-                    parts[0], parts[1], entry.getValue()));
+            sb.append(ILBR);
+            sb.append(txt("app.machineLearning.text.ConfusionMatrixEntry", parts[0], parts[1], entry.getValue()));
         }
 
+        sb.append('\n');
         return sb.toString();
     }
 
@@ -381,11 +375,6 @@ public class DBMSEvaluationResult {
     // ==================== Regression Metrics ====================
 
 
-    public double getR2Score() {
-        return r2Score;
-    }
-
-
     public double getRMSE() {
         return rmse;
     }
@@ -408,45 +397,51 @@ public class DBMSEvaluationResult {
         StringBuilder sb = new StringBuilder();
 
         if (taskType == MLTaskType.CLASSIFICATION) {
-            sb.append("Classification Evaluation (DBMS_DATA_MINING):\n");
-            sb.append(String.format("  Accuracy: %.4f (%.2f%%)\n", accuracy, accuracy * 100));
+            sb.append(txt("app.machineLearning.text.ClassificationEvaluationHeader"));
+            sb.append(ILBR);
+            sb.append(txt("app.machineLearning.text.AccuracySummary",
+                    format("%.4f", accuracy),
+                    format("%.2f", accuracy * 100)));
             if (aucRoc > 0) {
-                sb.append(String.format("  AUC-ROC: %.4f\n", aucRoc));
+                sb.append(ILBR);
+                sb.append(txt("app.machineLearning.text.AucRocSummary", format("%.4f", aucRoc)));
             }
 
             // Include calculated macro-averaged metrics
             ensurePerClassMetricsCalculated();
-            sb.append(String.format("  Macro Precision: %.4f\n", macroPrecision));
-            sb.append(String.format("  Macro Recall: %.4f\n", macroRecall));
-            sb.append(String.format("  Macro F1: %.4f\n", macroF1));
-            sb.append(String.format("  Test Data Size: %d\n", testDataSize));
+            sb.append(ILBR);
+            sb.append(txt("app.machineLearning.text.MacroPrecisionSummary", format("%.4f", macroPrecision))).append(ILBR);
+            sb.append(txt("app.machineLearning.text.MacroRecallSummary", format("%.4f", macroRecall))).append(ILBR);
+            sb.append(txt("app.machineLearning.text.MacroF1Summary", format("%.4f", macroF1))).append(ILBR);
+            sb.append(txt("app.machineLearning.text.TestDataSizeSummary", testDataSize));
+            sb.append('\n');
 
             // Per-class breakdown
             if (!perClassMetricsCache.isEmpty()) {
-                sb.append("\n  Per-Class Metrics:\n");
+                sb.append('\n').append("  ")
+                        .append(txt("app.machineLearning.text.PerClassMetricsHeader"))
+                        .append('\n');
                 for (Map.Entry<String, ClassMetrics> entry : perClassMetricsCache.entrySet()) {
                     ClassMetrics m = entry.getValue();
-                    sb.append(String.format("    %s: P=%.3f, R=%.3f, F1=%.3f (n=%d)\n",
-                            entry.getKey(), m.getPrecision(), m.getRecall(), m.getF1Score(), m.getSupport()));
+                    sb.append("    ");
+                    sb.append(txt("app.machineLearning.text.PerClassMetricsSummary",
+                            entry.getKey(),
+                            format("%.3f", m.getPrecision()),
+                            format("%.3f", m.getRecall()),
+                            format("%.3f", m.getF1Score()),
+                            m.getSupport()));
+                    sb.append('\n');
                 }
             }
         } else {
-            sb.append("Regression Evaluation (DBMS_DATA_MINING):\n");
-            sb.append(String.format("  R² Score: %.4f\n", r2Score));
-            sb.append(String.format("  RMSE: %.4f\n", rmse));
-            sb.append(String.format("  MAE: %.4f\n", mae));
-            sb.append(String.format("  Test Data Size: %d\n", testDataSize));
+            sb.append(txt("app.machineLearning.text.RegressionEvaluationHeader")).append(ILBR);
+            sb.append(txt("app.machineLearning.text.R2ScoreSummary", format("%.4f", r2Score))).append(ILBR);
+            sb.append(txt("app.machineLearning.text.RmseSummary", format("%.4f", rmse))).append(ILBR);
+            sb.append(txt("app.machineLearning.text.MaeSummary", format("%.4f", mae))).append(ILBR);
+            sb.append(txt("app.machineLearning.text.TestDataSizeSummary", testDataSize));
+            sb.append('\n');
         }
 
         return sb.toString();
-    }
-
-
-    public int getTestDataSize() {
-        return testDataSize;
-    }
-
-    public double getAucRoc() {
-        return aucRoc;
     }
 }
