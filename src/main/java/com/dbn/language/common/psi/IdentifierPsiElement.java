@@ -20,6 +20,7 @@ import com.dbn.code.common.style.formatting.FormattingAttributes;
 import com.dbn.common.Capture;
 import com.dbn.common.consumer.ListCollector;
 import com.dbn.common.dispose.Failsafe;
+import com.dbn.common.thread.ThreadMonitor;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.language.common.element.impl.IdentifierElementType;
@@ -56,6 +57,7 @@ import javax.swing.Icon;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import static com.dbn.common.thread.ThreadProperty.CODE_ANNOTATION;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -517,13 +519,7 @@ public abstract class IdentifierPsiElement extends LeafPsiElement<IdentifierElem
         try {
             ref.preResolve();
             CharSequence text = ref.getText();
-            if (text != null && !text.isEmpty()) {
-                if (getParent() instanceof QualifiedIdentifierPsiElement qualifiedIdentifier) {
-                    resolveWithinQualifiedIdentifierElement(qualifiedIdentifier);
-                } else {
-                    resolveWithScopeParentLookup(getObjectType(), elementType);
-                }
-            }
+            ThreadMonitor.surround(CODE_ANNOTATION, () -> resolve(text));
         } catch (ProcessCanceledException e){
             conditionallyLog(e);
             cancelled = true;
@@ -532,6 +528,17 @@ public abstract class IdentifierPsiElement extends LeafPsiElement<IdentifierElem
         }
 
         return ref.getReference();
+    }
+
+    private void resolve(CharSequence text) {
+        if (text == null) return;
+        if (text.isEmpty()) return;
+
+        if (getParent() instanceof QualifiedIdentifierPsiElement qualifiedIdentifier) {
+            resolveWithinQualifiedIdentifierElement(qualifiedIdentifier);
+        } else {
+            resolveWithScopeParentLookup(getObjectType(), elementType);
+        }
     }
 
     public void resolveAs(DBObject object) {

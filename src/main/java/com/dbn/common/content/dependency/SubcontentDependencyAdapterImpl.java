@@ -17,10 +17,13 @@
 package com.dbn.common.content.dependency;
 
 import com.dbn.common.content.DynamicContent;
+import com.dbn.common.content.DynamicContentElement;
 import com.dbn.common.content.DynamicContentType;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.connection.DatabaseEntity;
 import org.jetbrains.annotations.NotNull;
+
+import static com.dbn.common.util.Unsafe.cast;
 
 class SubcontentDependencyAdapterImpl extends BasicDependencyAdapter implements SubcontentDependencyAdapter {
     private ContentDependency contentDependency;
@@ -32,8 +35,8 @@ class SubcontentDependencyAdapterImpl extends BasicDependencyAdapter implements 
 
     @Override
     @NotNull
-    public DynamicContent getSourceContent() {
-        return contentDependency.getSourceContent();
+    public <T extends DynamicContentElement> DynamicContent<T> getSourceContent() {
+        return cast(contentDependency.getSourceContent());
     }
 
     @Override
