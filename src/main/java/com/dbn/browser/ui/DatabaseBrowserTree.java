@@ -17,7 +17,6 @@
 package com.dbn.browser.ui;
 
 import com.dbn.browser.DatabaseBrowserManager;
-import com.dbn.browser.DatabaseBrowserUtils;
 import com.dbn.browser.TreeNavigationHistory;
 import com.dbn.browser.model.BrowserTreeEventListener;
 import com.dbn.browser.model.BrowserTreeModel;
@@ -74,6 +73,7 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.browser.DatabaseBrowserUtils.createTreePath;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -121,7 +121,7 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
     public void expandConnectionManagers() {
         ConnectionManager connectionManager = ConnectionManager.getInstance(ensureProject());
         ConnectionBundle connectionBundle = connectionManager.getConnectionBundle();
-        TreePath treePath = DatabaseBrowserUtils.createTreePath(connectionBundle);
+        TreePath treePath = createTreePath(connectionBundle);
 
         Dispatch.run(() -> setExpandedState(treePath, true));
     }
@@ -149,7 +149,7 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
             targetSelection = targetSelection.getUndisposedEntity();
             if (targetSelection == null) return;
 
-            TreePath treePath = DatabaseBrowserUtils.createTreePath(targetSelection);
+            TreePath treePath = createTreePath(targetSelection);
             if (treePath == null) return;
 
             for (Object object : treePath.getPath()) {
@@ -163,8 +163,8 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
                     break;
                 }
 
-                if (!treeNode.isLeaf() && !treeNode.isTreeStructureLoaded()) {
-                    selectPath(DatabaseBrowserUtils.createTreePath(treeNode));
+                if (!treeNode.isTreeStructureLoaded() && !treeNode.isLeaf()) {
+                    selectPath(createTreePath(treeNode));
                     treeNode.getChildren();
                     return;
                 }
@@ -204,14 +204,14 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
         BrowserTreeNode treeNode = navigationHistory.previous();
         if (treeNode == null) return;
 
-        selectPathSilently(DatabaseBrowserUtils.createTreePath(treeNode));
+        selectPathSilently(createTreePath(treeNode));
     }
 
     public void navigateForward() {
         BrowserTreeNode treeNode = navigationHistory.next();
         if (treeNode == null) return;
 
-        selectPathSilently(DatabaseBrowserUtils.createTreePath(treeNode));
+        selectPathSilently(createTreePath(treeNode));
     }
 
 
@@ -232,7 +232,7 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
     public void expand(BrowserTreeNode treeNode) {
         if (!treeNode.canExpand()) return;
 
-        expandPath(DatabaseBrowserUtils.createTreePath(treeNode));
+        expandPath(createTreePath(treeNode));
         for (int i = 0; i < treeNode.getChildCount(); i++) {
             BrowserTreeNode childTreeNode = treeNode.getChildAt(i);
             expand(childTreeNode);
@@ -251,7 +251,7 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
         for (int i = 0; i < treeNode.getChildCount(); i++) {
             BrowserTreeNode childTreeNode = treeNode.getChildAt(i);
             collapse(childTreeNode);
-            collapsePath(DatabaseBrowserUtils.createTreePath(childTreeNode));
+            collapsePath(createTreePath(childTreeNode));
         }
     }
 

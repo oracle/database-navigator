@@ -76,6 +76,11 @@ public class VoidDynamicContent extends StatefulDisposableBase implements Dynami
     }
 
     @Override
+    public boolean isRefreshing() {
+        return false;
+    }
+
+    @Override
     public boolean isLoading() {
         return false;
     }
