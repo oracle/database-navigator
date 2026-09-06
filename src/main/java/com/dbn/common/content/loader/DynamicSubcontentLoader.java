@@ -92,7 +92,7 @@ public class DynamicSubcontentLoader<T extends DynamicContentElement, M extends 
         if (alternativeLoader == null) return false;
 
         DynamicContent<T> sourceContent = subcontentDependency.getSourceContent();
-        if (sourceContent.isReady()) return false;
+        if (sourceContent.isReady() && !sourceContent.isRefreshing()) return false;
 
         ConnectionHandler connection = sourceContent.getConnection();
         if (!canUseAlternativeLoader(connection)) return false;
