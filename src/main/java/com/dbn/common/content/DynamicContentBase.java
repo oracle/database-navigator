@@ -47,9 +47,20 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.dbn.common.content.DynamicContentProperty.CHANGING;
+import static com.dbn.common.content.DynamicContentProperty.DIRTY;
+import static com.dbn.common.content.DynamicContentProperty.DISPOSED;
+import static com.dbn.common.content.DynamicContentProperty.ERROR;
+import static com.dbn.common.content.DynamicContentProperty.INTERNAL;
+import static com.dbn.common.content.DynamicContentProperty.LOADED;
 import static com.dbn.common.content.DynamicContentProperty.LOADING;
+import static com.dbn.common.content.DynamicContentProperty.LOADING_IN_BACKGROUND;
+import static com.dbn.common.content.DynamicContentProperty.MASTER;
 import static com.dbn.common.content.DynamicContentProperty.REFRESHING;
+import static com.dbn.common.content.DynamicContentProperty.VALUES;
+import static com.dbn.common.content.DynamicContentProperty.VIRTUAL;
 import static com.dbn.common.notification.NotificationCategory.METADATA;
+import static com.dbn.common.thread.ThreadProperty.CODE_ANNOTATION;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -85,7 +96,7 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
 
     @Override
     protected DynamicContentProperty[] properties() {
-        return DynamicContentProperty.VALUES;
+        return VALUES;
     }
 
     @Override
@@ -125,12 +136,12 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
 
     @Override
     public boolean isMaster() {
-        return is(DynamicContentProperty.MASTER);
+        return is(MASTER);
     }
 
     @Override
     public boolean isLoaded() {
-        return is(DynamicContentProperty.LOADED);
+        return is(LOADED);
     }
 
     @Override
@@ -139,17 +150,22 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
     }
 
     @Override
+    public boolean isRefreshing() {
+        return is(REFRESHING);
+    }
+
+    @Override
     public boolean isLoading() {
         return is(LOADING);
     }
 
     public boolean isLoadingInBackground() {
-        return is(DynamicContentProperty.LOADING_IN_BACKGROUND);
+        return is(LOADING_IN_BACKGROUND);
     }
 
     @Override
     public boolean isDirty() {
-        return is(DynamicContentProperty.DIRTY) || isDependencyDirty();
+        return is(DIRTY) || isDependencyDirty();
     }
 
 
@@ -162,7 +178,7 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
         if (isDirty()) return;
         if (isLoading()) return;
 
-        set(DynamicContentProperty.DIRTY, true);
+        set(DIRTY, true);
     }
 
     private boolean shouldLoad() {
@@ -226,12 +242,12 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
     public final void loadInBackground() {
         if (!shouldLoadInBackground()) return;
 
-        set(DynamicContentProperty.LOADING_IN_BACKGROUND, true);
+        set(LOADING_IN_BACKGROUND, true);
         Background.run(() -> {
             try {
                 ensureLoaded(false);
             } finally {
-                set(DynamicContentProperty.LOADING_IN_BACKGROUND, false);
+                set(LOADING_IN_BACKGROUND, false);
             }
         });
     }
@@ -253,23 +269,23 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
 
     @Override
     public void refresh() {
-        Synchronized.on(this, o -> {
-            if (o.is(REFRESHING)) return;
+        if (isNot(LOADED)) return;
+        if (is(LOADING)) return;
+        if (is(REFRESHING)) return;
 
-            try {
-                o.set(REFRESHING, true);
-                // refresh sources even if this content itself does not need refresh
-                // (e.g. if not loaded yet or already marked dirty)
-                o.refreshSources();
+        try {
+            set(REFRESHING, true);
+            // refresh sources even if this content itself does not need refresh
+            // (e.g. if not loaded yet or already marked dirty)
+            refreshSources();
 
-                if (o.shouldRefresh()) {
-                    o.refreshElements();
-                    o.markDirty();
-                }
-            } finally {
-                o.set(REFRESHING, false);
+            if (shouldRefresh()) {
+                refreshElements();
+                markDirty();
             }
-        });
+        } finally {
+            set(REFRESHING, false);
+        }
     }
 
     private void refreshSources() {
@@ -309,8 +325,8 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
         try {
             DynamicContentLoader<T, ?> loader = getLoader();
             loader.loadContent(this);
-            set(DynamicContentProperty.DIRTY, false);
-            set(DynamicContentProperty.LOADED, true);
+            set(DIRTY, false);
+            set(LOADED, true);
 
             // refresh inner elements
             if (force) {
@@ -327,9 +343,9 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
             conditionallyLog(e);
             // unsupported feature: log in notification area
             elements = Unsafe.cast(EMPTY_CONTENT);
-            set(DynamicContentProperty.DIRTY, false);
-            set(DynamicContentProperty.LOADED, true);
-            set(DynamicContentProperty.ERROR, true);
+            set(DIRTY, false);
+            set(LOADED, true);
+            set(ERROR, true);
             sendWarningNotification(METADATA,
                     txt("ntf.objects.warning.FailedToLoadContent",
                             getContentDescription(),
@@ -365,7 +381,7 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
 
     @Override
     public void setElements(List<T> elements) {
-        conditional(DynamicContentProperty.CHANGING, () -> replaceElements(elements));
+        conditional(CHANGING, () -> replaceElements(elements));
     }
 
     private void replaceElements(List<T> elements) {
@@ -377,7 +393,7 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
             elements = CompactArrayList.from(elements);
         }
         List<T> oldElements = this.elements;
-        if (elements != EMPTY_CONTENT && isNot(DynamicContentProperty.INTERNAL) && isNot(DynamicContentProperty.VIRTUAL)) {
+        if (elements != EMPTY_CONTENT && isNot(INTERNAL) && isNot(VIRTUAL)) {
             elements = FilteredList.stateful((FilterDelegate<T>) () -> getFilter(), elements);
         }
 
@@ -417,6 +433,7 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
     }
 
     private boolean allowSyncLoad() {
+        if (CODE_ANNOTATION.isCurrent()) return false;
         if (ThreadMonitor.isDispatchThread()) return false;
         if (ThreadMonitor.isDispatcherThread()) return false;
         if (ThreadMonitor.isWriteActionThread()) return false;
@@ -472,6 +489,6 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
 
     @Override
     public DynamicContentProperty getDisposedProperty() {
-        return DynamicContentProperty.DISPOSED;
+        return DISPOSED;
     }
 }

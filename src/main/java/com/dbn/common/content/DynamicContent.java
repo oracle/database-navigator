@@ -62,6 +62,8 @@ public interface DynamicContent<T extends DynamicContentElement> extends
 
     boolean isReady();
 
+    boolean isRefreshing();
+
     /**
      * A load attempt has been made already
      */
