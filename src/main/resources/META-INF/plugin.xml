@@ -29,7 +29,7 @@
     <depends optional="true" config-file="dbn-diagram-support.xml">com.intellij.diagram</depends>
     <depends optional="true" config-file="dbn-oci-toolkit-support.xml">com.oracle.ocidbtest</depends>
     <vendor email="dan.cioca@oracle.com" url="https://www.oracle.com">Dan Cioca (Oracle)</vendor>
-    <idea-version since-build="231.9423.9" until-build="262.*"/>   <!--2023.1.7 - 2026.2.*-->
+    <idea-version since-build="231.9423.9" until-build="263.*"/>   <!--2023.1.7 - 2026.2.*-->
     <resource-bundle>messages.DBNResources</resource-bundle>
     <description><![CDATA[
         <h3>Database Navigator</h3>
@@ -490,7 +490,7 @@
             <action id="DBN.Assistant.Generate.SQLWithExplanation" class="com.dbn.assistant.service.selectai.editor.action.SelectAiExplainSqlAction"/>
         </group>
         <group id="DBN.ProjectView.Context">
-            <group id="DBN.ProjectView.Popup" popup="true" keep-content="true">
+            <group id="DBN.ProjectView.Popup" popup="true">
                 <action id="DBN.File.ExecuteScript" class="com.dbn.execution.script.action.ExecuteScriptFileAction" icon="com.dbn.common.icon.Icons.EXECUTE_SQL_SCRIPT"/>
                 <action id="DBN.Connection.Context.LinkConnection" class="com.dbn.connection.context.action.FolderConnectionLinkAction" icon="com.dbn.common.icon.Icons.FOLDER_CONNECTION_ASSOCIATION"/>
                 <action id="DBN.Connection.Context.LinkSchema" class="com.dbn.connection.context.action.FolderSchemaLinkAction" icon="com.dbn.common.icon.Icons.FOLDER_SCHEMA_ASSOCIATION"/>
