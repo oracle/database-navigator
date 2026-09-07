@@ -57,6 +57,7 @@ public interface DatabaseInterfaces {
 
     DatabaseJavaInterface getJavaInterface();
 
+    DatabaseMachineLearningInterface getMachineLearningInterface();
 
     void reset();
 }
