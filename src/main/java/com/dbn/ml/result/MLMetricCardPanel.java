@@ -1,0 +1,92 @@
+/*
+ * Copyright 2025 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dbn.ml.result;
+
+import com.dbn.common.ui.info.DBNInfoLabel;
+import com.intellij.ui.JBColor;
+import com.intellij.util.ui.JBUI;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.Nullable;
+
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
+import java.awt.Font;
+
+import static com.dbn.common.text.TextContent.html;
+
+/**
+ * A card-style panel that displays a single ML metric.
+ * Layout is declared in {@code MLMetricCardPanel.form}; data is set in the constructor.
+ */
+public class MLMetricCardPanel extends JPanel {
+
+    private static final int BAR_HEIGHT = 4;
+
+    // Form-bound fields
+    private JPanel mainPanel;
+    private JLabel nameLabel;
+    private JLabel valueLabel;
+    private JPanel progressBarContainer;
+    private JPanel infoPanel;
+
+    public MLMetricCardPanel(@Nls String name, double value, boolean isRatio) {
+        this(name, value, isRatio, null);
+    }
+
+    /**
+     * @param infoResourceName name of the html template explaining the metric, relative to this class
+     */
+    public MLMetricCardPanel(@Nls String name, double value, boolean isRatio, @Nullable @NonNls String infoResourceName) {
+        super(new BorderLayout());
+        // $$$setupUI$$$() is injected here by IntelliJ's form compiler
+        add(mainPanel);
+
+        initInfoLabel(infoResourceName);
+
+        setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(JBColor.border(), 1),
+                JBUI.Borders.empty(0)));   // inner padding comes from the form margin
+
+        nameLabel.setText(name);
+        nameLabel.setFont(nameLabel.getFont().deriveFont(11f));
+        nameLabel.setForeground(JBColor.gray);
+
+        valueLabel.setText(isRatio ? String.format("%.1f%%", value * 100) : String.format("%.4f", value));
+        valueLabel.setFont(valueLabel.getFont().deriveFont(Font.BOLD, 18f));
+
+        if (isRatio) {
+            progressBarContainer.add(new MLProgressBarPanel((int) (value * 100), BAR_HEIGHT), BorderLayout.CENTER);
+        } else {
+            progressBarContainer.setVisible(false);
+        }
+    }
+
+    private void initInfoLabel(@Nullable @NonNls String infoResourceName) {
+        if (infoResourceName == null) {
+            infoPanel.setVisible(false);
+            return;
+        }
+
+        DBNInfoLabel infoLabel = new DBNInfoLabel();
+        infoLabel.setContent(html(this, infoResourceName));
+        infoPanel.setOpaque(false);
+        infoPanel.add(infoLabel, BorderLayout.CENTER);
+    }
+}
