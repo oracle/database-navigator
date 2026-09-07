@@ -11,6 +11,8 @@ import static com.dbn.nls.NlsResources.txt;
 public class McpServerName {
     private static final int MAX_LENGTH = 63;
     private static final Pattern VALID_NAME = Pattern.compile("^[A-Za-z0-9][A-Za-z0-9._-]*$");
+    private static final Pattern VALID_CONTAINER_NAME =
+            Pattern.compile("^[a-z0-9]+(?:(?:[._]|__|-+)[a-z0-9]+)*$");
 
     public static String validationError(String value) {
         if (Strings.isEmptyOrSpaces(value)) {
@@ -30,5 +32,14 @@ public class McpServerName {
         }
 
         return null;
+    }
+
+    public static String validationError(String value, boolean container) {
+        String error = validationError(value);
+        if (error != null) return error;
+
+        return container && !VALID_CONTAINER_NAME.matcher(value).matches()
+                ? txt("msg.mcp.error.ContainerServerNameInvalid")
+                : null;
     }
 }

@@ -28,7 +28,7 @@ import java.util.List;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class McpBuildTaskTest {
+public class McpServerConfigBuilderTest {
 
     @Test
     public void buildYamlRedactsCredentials() {
@@ -37,7 +37,7 @@ public class McpBuildTaskTest {
         definition.setHttpPort("8080");
         definition.setTools(List.of(createTool()));
 
-        String yaml = McpBuildTask.buildYaml(
+        String yaml = McpServerConfigBuilder.build(
                 definition,
                 "jdbc:oracle:thin:scott/tiger@localhost:1521/orclpdb?password=Secret123&token=ApiToken");
 
@@ -50,6 +50,23 @@ public class McpBuildTaskTest {
         assertFalse(yaml.contains("ApiToken"));
         assertFalse(yaml.contains("\n  username:"));
         assertFalse(yaml.contains("\n  password:"));
+    }
+
+    @Test
+    public void buildYamlQuotesStringScalars() {
+        McpServerDefinition definition = new McpServerDefinition();
+        definition.setTransportType(McpTransportType.STDIO);
+        definition.setHttpPort("8080");
+
+        McpToolDefinition tool = createTool();
+        tool.setDescription("true");
+        tool.getParameters().get(0).setDescription("Value with \"quotes\" and \\slashes");
+        definition.setTools(List.of(tool));
+
+        String yaml = McpServerConfigBuilder.build(definition, "jdbc:oracle:thin:@localhost:1521/orclpdb");
+
+        assertTrue(yaml.contains("description: \"true\""));
+        assertTrue(yaml.contains("description: \"Value with \\\"quotes\\\" and \\\\slashes\""));
     }
 
     private static McpToolDefinition createTool() {

@@ -17,6 +17,7 @@
 package com.dbn.mcp.ui;
 
 import com.dbn.common.dispose.Disposer;
+import com.dbn.common.message.MessageType;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.thread.Write;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -31,7 +32,10 @@ import com.dbn.common.util.Strings;
 import com.dbn.common.util.Titles;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
+import com.dbn.mcp.build.McpGraalVmSupport;
+import com.dbn.mcp.build.McpMavenPluginSupport;
 import com.dbn.mcp.model.McpServerDefinition;
+import com.dbn.mcp.model.McpServerImplementation;
 import com.dbn.mcp.model.McpToolDefinition;
 import com.dbn.mcp.model.McpTransportType;
 import com.dbn.mcp.util.McpServerName;
@@ -75,6 +79,7 @@ public class McpServerDefinitionForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel headerPanel;
     private JPanel hintPanel;
+    private JPanel implementationHintPanel;
     private JPanel toolDefinitionsPanel;
     private JLabel configFileLabel;
     private JLabel httpPortLabel;
@@ -83,6 +88,7 @@ public class McpServerDefinitionForm extends DBNFormBase {
     private JBTextField httpPortField;
 
     private McpToolDefinitionListForm toolDefinitionListForm;
+    private ComboBox<McpServerImplementation> implementationComboBox;
     private ComboBox<McpTransportType> transportTypeComboBox;
     private DBNCommentLabel nameInfoLabel;
     private DBNHyperlinkLabel loadConfigHyperlink;
@@ -102,12 +108,14 @@ public class McpServerDefinitionForm extends DBNFormBase {
 
         initHeaderPanel();
         initHintPanel();
+        initImplementationHintPanel();
 
         initInputFields();
         initToolDefinitionsPanel();
         initConfigHyperlinks();
 
         resetFormChanges();
+        updateTransportAvailability();
         whenFirstShown(() -> updateDialogButtons());
     }
 
@@ -127,12 +135,85 @@ public class McpServerDefinitionForm extends DBNFormBase {
         hintPanel.add(new DBNHintForm(this, hintContent, null, true).getComponent());
     }
 
+    private JComponent containerHintComponent;
+
+    /**
+     * Prerequisite hint for the container implementation, created once and swapped in based
+     * on the selected implementation (Standard Java has none). The native hint is rebuilt on
+     * every display since it reflects the live Maven runner JRE readiness (see
+     * {@link #buildNativeHintComponent()}).
+     */
+    private void initImplementationHintPanel() {
+        containerHintComponent = new DBNHintForm(this,
+                TextContent.plain(txt("msg.mcp.text.ContainerPrerequisites")), MessageType.WARNING, true).getComponent();
+        implementationHintPanel.setVisible(false);
+    }
+
+    private void updateImplementationHint() {
+        McpServerImplementation implementation = getSelection(implementationComboBox);
+        JComponent hint =
+                implementation == McpServerImplementation.MICRONAUT_CONTAINER ? containerHintComponent :
+                implementation == McpServerImplementation.MICRONAUT_NATIVE ? buildNativeHintComponent() :
+                null;
+
+        implementationHintPanel.removeAll();
+        if (hint != null) implementationHintPanel.add(hint);
+        implementationHintPanel.setVisible(hint != null);
+        implementationHintPanel.revalidate();
+        implementationHintPanel.repaint();
+    }
+
+    /**
+     * Reflects the live readiness of the configured Maven runner JRE: a "Verify" action link
+     * when not (yet) GraalVM-ready that lets the user check and, if needed, jump straight to
+     * Maven Settings to fix it; no hint at all once it is ready - nothing left to warn about.
+     */
+    @Nullable
+    private JComponent buildNativeHintComponent() {
+        Project project = getProject();
+        if (McpGraalVmSupport.isRunnerGraalVmReady(project)) return null;
+
+        DBNHintForm hintForm = new DBNHintForm(this,
+                TextContent.plain(txt("msg.mcp.text.NativePrerequisites")), MessageType.WARNING, true,
+                txt("msg.mcp.link.Verify"), this::verifyGraalVmSetup);
+        return hintForm.getComponent();
+    }
+
+    private void verifyGraalVmSetup() {
+        Project project = getProject();
+        if (!McpGraalVmSupport.isRunnerGraalVmReady(project)) {
+            McpMavenPluginSupport.openMavenRunnerSettings(project);
+        }
+        updateImplementationHint();
+    }
+
     private void initInputFields() {
+        initComboBox(implementationComboBox, McpServerImplementation.values());
         initComboBox(transportTypeComboBox, McpTransportType.values());
         onSelectionChange(transportTypeComboBox, type -> {
             updateFieldAvailability();
             validateFormFields();
         });
+        onSelectionChange(implementationComboBox, implementation -> {
+            updateTransportAvailability();
+            updateFieldAvailability();
+            validateFormFields();
+        });
+    }
+
+    /**
+     * The Micronaut Native server is HTTP-only: force the transport selection
+     * and prevent changing it while that implementation is selected.
+     */
+    private void updateTransportAvailability() {
+        McpServerImplementation implementation = getSelection(implementationComboBox);
+        boolean nativeImplementation = implementation != null && implementation.isNative();
+        if (nativeImplementation) {
+            setSelection(transportTypeComboBox, McpTransportType.HTTP);
+        }
+        transportTypeComboBox.setEnabled(!nativeImplementation);
+
+        updateImplementationHint();
     }
 
     private void initToolDefinitionsPanel() {
@@ -245,14 +326,17 @@ public class McpServerDefinitionForm extends DBNFormBase {
     public void resetFormChanges() {
         McpServerDefinition serverDefinition = getServerDefinition();
         setText(serverNameTextField, serverDefinition.getServerName());
+        setSelection(implementationComboBox, serverDefinition.getImplementation());
         setSelection(transportTypeComboBox, serverDefinition.getTransportType());
         setText(httpPortField, serverDefinition.getHttpPort());
+        updateTransportAvailability();
     }
 
     @Override
     public void applyFormChanges() {
         McpServerDefinition serverDefinition = getServerDefinition();
         serverDefinition.setServerName(getText(serverNameTextField));
+        serverDefinition.setImplementation(getSelection(implementationComboBox));
         serverDefinition.setTransportType(getSelection(transportTypeComboBox));
         serverDefinition.setHttpPort(getText(httpPortField));
     }
@@ -268,7 +352,11 @@ public class McpServerDefinitionForm extends DBNFormBase {
 
     @Override
     protected void initValidation() {
-        addTextValidation(serverNameTextField, field -> McpServerName.validationError(field.getText()));
+        addTextValidation(serverNameTextField, field -> {
+            McpServerImplementation implementation = getSelection(implementationComboBox);
+            boolean container = implementation != null && implementation.isContainer();
+            return McpServerName.validationError(field.getText(), container);
+        });
         addTextValidation(httpPortField, field -> validateHttpPort(field.getText()));
     }
 

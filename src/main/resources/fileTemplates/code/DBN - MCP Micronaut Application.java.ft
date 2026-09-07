@@ -1,0 +1,22 @@
+package com.dbn.mcp.server;
+
+import io.micronaut.runtime.Micronaut;
+
+import java.util.Locale;
+
+public class Application {
+    public static void main(String[] args) {
+        // GraalVM native images can derive an invalid locale (e.g. language "utf-8")
+        // from a malformed LC_CTYPE env var; ojdbc then fails at logon (ORA-00604/01756).
+        // Repair only clearly-invalid derivations; leave real locales untouched.
+        Locale format = Locale.getDefault(Locale.Category.FORMAT);
+        if (!format.getLanguage().matches("[a-z]{2,3}")) {
+            Locale.setDefault(Locale.Category.FORMAT, Locale.US);
+        }
+
+        Micronaut.build(args)
+                .mainClass(Application.class)
+                .propertySources(McpConfigLoader.load(args))
+                .start();
+    }
+}
