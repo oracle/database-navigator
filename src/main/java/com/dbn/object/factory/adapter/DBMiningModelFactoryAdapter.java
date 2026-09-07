@@ -94,8 +94,9 @@ public class DBMiningModelFactoryAdapter implements ObjectFactoryAdapter {
                 connectionId,
                 conn -> {
                     DatabaseVectorInterface dataDefinition = schema.getVectorInterface();
+                    String modelLocation = MINING_MODEL_SOURCE_LOCATION.of(input);
                     if (modelSourceType == DBMiningModelSourceType.OBJECT_STORAGE) {
-                        String modelLocation = MINING_MODEL_SOURCE_LOCATION.of(input);
+
                         String credentialName = getCredentialName(input);
                         dataDefinition.createModelFromStorage(conn,
                                 input.getSchemaName(true),
@@ -104,11 +105,14 @@ public class DBMiningModelFactoryAdapter implements ObjectFactoryAdapter {
                                 credentialName);
 
                     } else if (modelSourceType == DBMiningModelSourceType.MODEL_FILE) {
+                        File modelFile = new File(modelLocation);
                         Blob modelBlob = uploadOnnxModel(conn, input, progress);
+                        // TODO: support Oracle metadata sidecar JSON file (e.g. model.json next to model.onnx)
                         dataDefinition.createModelFromFile(conn,
                                 input.getSchemaName(true),
                                 input.getAdjustedObjectName(),
-                                modelBlob);
+                                modelBlob,
+                                null);
 
                     } else {
                         throw new IllegalArgumentException("Unsupported model source type: " + modelSourceType);
