@@ -1,0 +1,76 @@
+/*
+ * Copyright 2025 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dbn.ml.result.action;
+
+import com.dbn.common.icon.Icons;
+import com.dbn.common.util.Messages;
+import com.dbn.ml.DatabaseMLManager;
+import com.dbn.ml.model.MLRequest;
+import com.dbn.ml.model.MLResult;
+import com.dbn.ml.result.MLExecutionResult;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import static com.dbn.common.util.Naming.nextNumberedIdentifier;
+import static com.dbn.common.util.Messages.options;
+import static com.dbn.nls.NlsResources.txt;
+
+/**
+ * Action to train a model again from an existing result.
+ *
+ * @author ayoub allali
+ */
+public class MLResultTrainAgainAction extends AbstractMLExecutionResultAction {
+
+    @Override
+    protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull MLExecutionResult executionResult) {
+        MLResult result = executionResult.getMlResult();
+        String modelName = result.getModelName();
+        if (modelName == null || modelName.isBlank()) return;
+
+        Messages.showQuestionDialog(
+                project,
+                txt("msg.machineLearning.title.TrainAgain"),
+                txt("msg.machineLearning.question.TrainAgainMode", modelName),
+                options(
+                        txt("msg.machineLearning.button.CreateNewModel"),
+                        txt("msg.machineLearning.button.ReplaceExistingModel"),
+                        txt("msg.shared.button.Cancel")),
+                0,
+                option -> openTrainAgainToolbox(project, result, modelName, option));
+    }
+
+    private void openTrainAgainToolbox(Project project, MLResult result, String modelName, int option) {
+        if (option < 0 || option > 1) return;
+
+        MLRequest retrainRequest = result.getRequest().clone();
+        retrainRequest.setModelToReplace(option == 1 ? modelName : null);
+        retrainRequest.getTrainerConfig().setModelName(
+                nextNumberedIdentifier(modelName, false, modelName::equalsIgnoreCase));
+
+        DatabaseMLManager.getInstance(project).openToolbox(result.getConnection(), retrainRequest);
+    }
+
+    @Override
+    protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable MLExecutionResult target) {
+        presentation.setText(txt("app.machineLearning.action.TrainAgain"));
+        presentation.setIcon(Icons.EXEC_RESULT_INPUT_FORM);
+    }
+}

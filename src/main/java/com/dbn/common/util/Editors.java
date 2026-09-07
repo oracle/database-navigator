@@ -108,6 +108,7 @@ import static com.dbn.browser.DatabaseBrowserUtils.unmarkSkipBrowserAutoscroll;
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.ui.util.Components.onComponentResized;
 import static com.dbn.common.util.Documents.onDocumentChanged;
+import static com.dbn.common.util.Documents.onDocumentChanged;
 import static com.intellij.openapi.editor.EditorModificationUtil.setReadOnlyHint;
 
 @Slf4j

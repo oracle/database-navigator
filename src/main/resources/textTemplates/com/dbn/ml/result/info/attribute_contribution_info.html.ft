@@ -1,0 +1,36 @@
+<!--
+  ~ Copyright 2025 Oracle and/or its affiliates
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<html lang="en">
+<head>
+    <title>Attribute Contribution</title>
+    <style>
+        h3 { ${REGULAR_LARGE_FONT_STYLE} }
+        body { ${REGULAR_FONT_STYLE} }
+        code { ${MONOSPACE_FONT_STYLE} }
+        h3 code { font-size: inherit; }
+        p { margin-top: 0; }
+    </style>
+</head>
+<body style="width: 300px">
+    <h3>Attribute Contribution</h3>
+    <p><strong>DBN calculation · model-level</strong></p>
+    <p>Oracle's <code>PREDICTION_DETAILS</code> returns a signed influence weight for each attribute in each test-row prediction of <em>this trained model</em>. DBN averages the absolute weights for each attribute across the test set.</p>
+    <p>Higher values mean stronger influence, whether an attribute supported or opposed the predicted outcome. This is not a percentage, has no fixed maximum, and does not mean that an attribute is positive or desirable.</p>
+    <p><strong>Rows with contribution</strong> is the number of test rows where Oracle returned a non-zero weight for that attribute. All test rows are scored; zero-weight attributes are omitted from Oracle's prediction details.</p>
+    <p>Unlike Attribute Importance, this is DBN's summary of Oracle's per-row explanations for this model. Oracle does not return this average directly.</p>
+</body>
+</html>

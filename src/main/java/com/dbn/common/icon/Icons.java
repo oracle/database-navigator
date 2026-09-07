@@ -148,6 +148,7 @@ public class Icons {
     public static final Icon VECTOR_TOOLBOX = load("/img/tools/VectorToolbox.svg");
     public static final Icon ASSISTANT_TOOL = load("/img/tools/AssistantTool.svg");
     public static final Icon ASSISTANT_QUESTION = load("/img/tools/AssistantQuestion.svg");
+    public static final Icon ML_TARGET_COLUMN = load("/img/ml/TargetColumn.svg");
 
     // generated MCP server artifacts, by implementation type
     public static final Icon MCP_SERVER_JAR = load("/img/mcp/ServerJar.svg");

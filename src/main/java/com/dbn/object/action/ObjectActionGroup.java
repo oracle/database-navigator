@@ -33,12 +33,14 @@ import com.dbn.execution.method.action.ProgramMethodDebugAction;
 import com.dbn.execution.method.action.ProgramMethodExecuteAction;
 import com.dbn.generator.statement.action.GenerateStatementActionGroup;
 import com.dbn.liquibase.action.LiquibaseSchemaActions;
+import com.dbn.ml.action.AIModelPredictAction;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBConsole;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaResource;
 import com.dbn.object.DBMethod;
+import com.dbn.object.DBMiningModel;
 import com.dbn.object.DBProgram;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
@@ -94,6 +96,7 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
         addProgramActions(object);
         addTableActions(object);
         addJavaActions(object);
+        addAIModelActions(object);
         addDependencyActions(object);
         addNavigationActions(object);
         addConsoleActions(object);
@@ -193,6 +196,13 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
 
         if (object instanceof DBJavaResource) {
             add(new JavaResourceDownloadAction(object));
+        }
+    }
+
+    private void addAIModelActions(DBObject object) {
+        if (object instanceof DBMiningModel aiModel) {
+            addSeparator();
+            add(new AIModelPredictAction(aiModel));
         }
     }
 
