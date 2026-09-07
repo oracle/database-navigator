@@ -34,14 +34,12 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class McpServerDefinitionDialog extends DBNDialog<McpServerDefinitionForm> {
 
-    private final ConnectionHandler connection;
     private McpServerDefinition definition;
 
     private Action saveAsAction;
 
     public McpServerDefinitionDialog(@NotNull ConnectionHandler connection, McpServerDefinition definition) {
         super(connection, txt("msg.mcp.title.McpServerBuilder"), true);
-        this.connection = connection;
         this.definition = definition;
         setDefaultSize(600, 600);
 
@@ -50,7 +48,7 @@ public class McpServerDefinitionDialog extends DBNDialog<McpServerDefinitionForm
 
     @NotNull @Override
     protected McpServerDefinitionForm createForm() {
-        return new McpServerDefinitionForm(this, connection, definition);
+        return new McpServerDefinitionForm(this, ensureConnection(), definition);
     }
 
     @Nullable
@@ -95,14 +93,14 @@ public class McpServerDefinitionDialog extends DBNDialog<McpServerDefinitionForm
     protected void doOKAction() {
         snapshotServerDefinition();
 
-        McpBuildTask buildTask = new McpBuildTask(getProject(), connection, definition);
+        McpBuildTask buildTask = new McpBuildTask(getProject(), ensureConnection(), definition);
         buildTask.execute(
                 () -> closeDialog(),
                 () -> reopenDialog());
     }
 
     private void reopenDialog() {
-        dispatch(() -> Dialogs.show(()-> new McpServerDefinitionDialog(connection, definition)));
+        dispatch(() -> Dialogs.show(()-> new McpServerDefinitionDialog(ensureConnection(), definition)));
     }
 
     private void closeDialog() {
@@ -115,6 +113,6 @@ public class McpServerDefinitionDialog extends DBNDialog<McpServerDefinitionForm
         definition = form.getServerDefinition();
 
         McpServerBuilderManager builderManager = McpServerBuilderManager.getInstance(getProject());
-        builderManager.setServerDefinition(connection.getConnectionId(), definition);
+        builderManager.setServerDefinition(ensureConnectionId(), definition);
     }
 }

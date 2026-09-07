@@ -9,9 +9,11 @@ import oracle.jdbc.OracleConnection;
 import oracle.jdbc.OraclePreparedStatement;
 import org.apache.catalina.Context;
 import org.apache.catalina.startup.Tomcat;
+import org.apache.coyote.AbstractProtocol;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.Reader;
+import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,6 +39,7 @@ public class Main {
     private static final String TRANSPORT_STDIO = "stdio";
     private static final String TRANSPORT_HTTP = "http";
     private static final String MCP_ENDPOINT = "/mcp";
+    private static final String HTTP_HOST = "127.0.0.1";
     private static final int DEFAULT_HTTP_PORT = 8080;
     private static final int CONNECTION_VALIDATION_TIMEOUT_SECONDS = 2;
 
@@ -50,7 +53,9 @@ public class Main {
         Path configFile = resolveConfigFile(args, jarDir);
         McpConfig config = loadConfig(configFile);
 
-        sepsWalletDir = resolveWalletDir(jarDir);
+        if (!config.dataSource.usesExplicitCredentials()) {
+            sepsWalletDir = resolveWalletDir(jarDir);
+        }
 
         List<McpServerFeatures.SyncToolSpecification> toolSpecifications = buildToolSpecifications(config);
         startServer(config, toolSpecifications);
@@ -166,21 +171,37 @@ public class Main {
         Tomcat tomcat = new Tomcat();
         tomcat.setBaseDir(tomcatBaseDir.toString());
         tomcat.setPort(port);
-        tomcat.getConnector();
+        AbstractProtocol<?> protocol = (AbstractProtocol<?>) tomcat.getConnector().getProtocolHandler();
+        protocol.setAddress(InetAddress.getByName(HTTP_HOST));
 
         Context context = tomcat.addContext("", tomcatBaseDir.toString());
         Tomcat.addServlet(context, "mcpServlet", transport);
         context.addServletMappingDecoded(MCP_ENDPOINT + "/*", "mcpServlet");
 
         tomcat.start();
+        if (tomcat.getConnector().getLocalPort() < 0) {
+            throw new IllegalStateException("Could not start HTTP server on " + HTTP_HOST + ":" + port);
+        }
         tomcat.getServer().await();
     }
 
     private static synchronized Connection getConnection(DataSourceConfig dataSource) throws SQLException {
         if (connection == null || !connection.isValid(CONNECTION_VALIDATION_TIMEOUT_SECONDS)) {
+            closeConnection();
             connection = dataSource.connect(sepsWalletDir);
         }
         return connection;
+    }
+
+    private static void closeConnection() {
+        if (connection == null) return;
+
+        try {
+            connection.close();
+        } catch (SQLException ignored) {
+        } finally {
+            connection = null;
+        }
     }
 
     @FunctionalInterface
@@ -188,11 +209,11 @@ public class Main {
         McpSchema.CallToolResult call() throws Exception;
     }
 
-    private static McpSchema.CallToolResult tryCall(McpCallable callable) {
+    private static synchronized McpSchema.CallToolResult tryCall(McpCallable callable) {
         try {
             return callable.call();
         } catch (Exception ex) {
-            connection = null;
+            closeConnection();
             String message = ex.getMessage() != null ? ex.getMessage() : ex.getClass().getSimpleName();
             return McpSchema.CallToolResult.builder()
                     .isError(true)
@@ -269,9 +290,18 @@ public class Main {
         public String username; // optional — overrides wallet if set
         public String password; // optional — overrides wallet if set
 
+        public boolean usesExplicitCredentials() {
+            boolean hasUsername = username != null && !username.isBlank();
+            boolean hasPassword = password != null && !password.isBlank();
+            if (hasUsername != hasPassword) {
+                throw new IllegalStateException("Both username and password must be set for direct database authentication.");
+            }
+            return hasUsername;
+        }
+
         public Connection connect(Path walletDir) throws SQLException {
             try {
-                if (username != null && !username.isBlank()) {
+                if (usesExplicitCredentials()) {
                     return DriverManager.getConnection(url, username, password);
                 }
 
@@ -320,6 +350,7 @@ public class Main {
             }
 
             schema.put("properties", properties);
+            schema.put("additionalProperties", false);
             if (!required.isEmpty()) {
                 schema.put("required", required);
             }

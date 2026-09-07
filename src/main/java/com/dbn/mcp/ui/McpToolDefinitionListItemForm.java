@@ -115,7 +115,6 @@ public class McpToolDefinitionListItemForm extends DBNFormBase {
         public void actionPerformed(@NotNull AnActionEvent e) {
             McpToolDefinitionListForm parent = getParentForm();
             Dialogs.show(() -> new McpToolDefinitionDialog(
-                            getProject(),
                             parent.getConnection(),
                             parent.getServerDefinition(),
                             toolDefinition),
