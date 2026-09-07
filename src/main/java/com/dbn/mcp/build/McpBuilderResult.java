@@ -13,9 +13,9 @@ public class McpBuilderResult {
     private Path outputDirectory;     // Final MCP server distribution directory.
     private Path walletDirectory;     // Oracle wallet directory created for runtime credentials.
     private Path configFile;          // Generated mcp-config.yaml file in the output directory.
-    private Path serverJar;           // Built server JAR in the output directory.
+    private Path serverJar;           // Built server JAR in the output directory (null for container builds).
 
+    private String imageName;         // Container image reference (<serverName>:latest), for container builds.
     private String claudeSnippetJson; // Claude Desktop MCP server configuration snippet.
     private String clineSnippetJson;  // Cline MCP server configuration snippet, when applicable.
-    private String mainClassContent;  // Generated Java main class source used for the Maven build.
 }

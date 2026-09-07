@@ -22,6 +22,7 @@ import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.util.Buttons;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionRef;
 import com.dbn.mcp.model.McpServerDefinition;
 import com.dbn.mcp.model.McpToolDefinition;
 import com.intellij.openapi.Disposable;
@@ -52,12 +53,12 @@ public class McpToolDefinitionListForm extends DBNFormBase {
     private JBScrollPane toolListScrollPane;
 
     private final List<McpToolDefinitionListItemForm> toolDefinitionForms = DisposableContainers.list(this);
-    private final @Getter ConnectionHandler connection;
+    private final ConnectionRef connection;
     private final @Getter McpServerDefinition serverDefinition;
 
     public McpToolDefinitionListForm(@Nullable Disposable parent, @NotNull ConnectionHandler connection, @NotNull McpServerDefinition serverDefinition) {
         super(parent);
-        this.connection = connection;
+        this.connection = connection.ref();
         this.serverDefinition = serverDefinition;
 
         verticalBoxLayout(toolListPanel);
@@ -90,7 +91,7 @@ public class McpToolDefinitionListForm extends DBNFormBase {
     }
 
     private void openToolDefinitionEditor() {
-        Dialogs.show(() -> new McpToolDefinitionDialog(getProject(), connection, serverDefinition, null),
+        Dialogs.show(() -> new McpToolDefinitionDialog(getConnection(), serverDefinition, null),
                 (dialog, exitCode) -> {
                     if (exitCode != DialogWrapper.OK_EXIT_CODE) return;
                     McpToolDefinitionForm form = dialog.getForm();
@@ -133,5 +134,10 @@ public class McpToolDefinitionListForm extends DBNFormBase {
         return toolDefinitionForms.stream()
                 .map(McpToolDefinitionListItemForm::getToolDefinition)
                 .collect(Collectors.toList());
+    }
+
+    @NotNull
+    public ConnectionHandler getConnection() {
+        return connection.ensure();
     }
 }

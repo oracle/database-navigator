@@ -3,11 +3,13 @@ package com.dbn.mcp.build;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.mcp.model.McpServerDefinition;
 import com.dbn.mcp.model.McpTransportType;
+import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTabbedPane;
 import com.intellij.ui.components.JBTextArea;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JButton;
@@ -46,15 +48,30 @@ public class McpBuildResultForm extends DBNFormBase {
     }
 
     private JLabel createHeaderLabel() {
-        boolean httpTransport = isHttpTransport();
-        String headerHtml = txt(httpTransport ?
-                        "msg.mcp.text.BuildResultHttp" :
-                        "msg.mcp.text.BuildResultStdio",
-                escapeHtml(result.getServerJar().toString()),
-                escapeHtml(result.getConfigFile().toString()),
-                escapeHtml(result.getWalletDirectory().toString()),
-                escapeHtml(result.getSourceDirectory().toString()));
+        String headerHtml;
+        if (definition.getImplementation().isContainer()) {
+            headerHtml = txt("msg.mcp.text.BuildResultContainer",
+                    escapeHtml(result.getImageName()),
+                    escapeHtml(result.getConfigFile().toString()),
+                    escapeHtml(result.getWalletDirectory().toString()),
+                    escapeHtml(result.getSourceDirectory().toString()),
+                    txt("msg.mcp.text.ContainerBuilderPlatform"));
+        } else {
+            headerHtml = txt(resolveSummaryKey(),
+                    escapeHtml(result.getServerJar().toString()),
+                    escapeHtml(result.getConfigFile().toString()),
+                    escapeHtml(result.getWalletDirectory().toString()),
+                    escapeHtml(result.getSourceDirectory().toString()));
+        }
         return new JLabel(headerHtml);
+    }
+
+    private @NonNls String resolveSummaryKey() {
+        boolean httpTransport = isHttpTransport();
+        if (definition.getImplementation().isNative()) {
+            return httpTransport ? "msg.mcp.text.BuildResultNativeHttp" : "msg.mcp.text.BuildResultNativeStdio";
+        }
+        return httpTransport ? "msg.mcp.text.BuildResultHttp" : "msg.mcp.text.BuildResultStdio";
     }
 
     private boolean isHttpTransport() {
@@ -69,7 +86,26 @@ public class McpBuildResultForm extends DBNFormBase {
         if (httpTransport && clineSnippetJson != null) {
             tabs.addTab(txt("app.mcp.title.Cline"), createConfigTab(clineSnippetJson));
         }
+        if (definition.getImplementation().isContainer()) {
+            tabs.addTab(txt("app.mcp.title.RunCommand"), createConfigTab(buildContainerRunCommand()));
+        }
         return tabs;
+    }
+
+    /** Builds a copy-pasteable command using the generated config directory. */
+    private @NonNls String buildContainerRunCommand() {
+        String configDirectory = result.getConfigFile().getParent().toAbsolutePath().normalize().toString();
+        GeneralCommandLine commandLine = new GeneralCommandLine();
+        commandLine.setExePath("docker");
+        commandLine.addParameters(
+                "run", "-d",
+                "--name", definition.getServerName(),
+                "-p", "127.0.0.1:" + definition.getHttpPort() + ":" + definition.getHttpPort(),
+                "-e", "MICRONAUT_SERVER_HOST=0.0.0.0",
+                "-v", configDirectory + ":/config:ro",
+                result.getImageName(),
+                "--config=/config/mcp-config.yaml");
+        return commandLine.getCommandLineString();
     }
 
     private JComponent createConfigTab(String content) {
