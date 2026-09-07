@@ -17,14 +17,16 @@
 package com.dbn.mcp.build;
 
 import com.dbn.common.component.ProjectComponentBase;
-import com.dbn.common.thread.Read;
+import com.dbn.mcp.model.McpServerImplementation;
+import com.intellij.openapi.externalSystem.service.execution.ExternalSystemJdkUtil;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.roots.ProjectRootManager;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.idea.maven.execution.MavenRunner;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,20 +35,27 @@ import static com.dbn.common.component.Components.optionalProjectService;
 
 @Slf4j
 public class McpJavaVersionManager extends ProjectComponentBase {
-    public static final int MIN_JAVA_VERSION = 17;
+    // Standard Java only needs what the plain MCP Java SDK itself requires (mcp-core:1.1.1 is
+    // built at Java 17). Micronaut Native/Container are Micronaut 5.x applications, which raised
+    // its own baseline to Java 25 (https://micronaut.io/2026/04/27/micronaut-framework-5-0-with-java-25-baseline/) -
+    // there is no released Micronaut MCP integration compatible with an older Micronaut/JDK pairing.
+    public static final int MIN_JAVA_VERSION_STANDARD = 17;
+    public static final int MIN_JAVA_VERSION_MICRONAUT = 25;
 
     private static final String COMPONENT_NAME = "DBNavigator.Project.McpJavaVersionManager";
-    private static final String FALLBACK_JAVA_VERSION = String.valueOf(MIN_JAVA_VERSION);
     private static final Pattern JAVA_FEATURE = Pattern.compile("(?<!\\d)(?:1\\.)?(\\d{1,2})(?=\\D|$)");
 
     private McpJavaVersionManager(@NotNull Project project) {
         super(project, COMPONENT_NAME);
     }
 
+    public static int minJavaVersion(@NotNull McpServerImplementation implementation) {
+        return implementation.isNative() ? MIN_JAVA_VERSION_MICRONAUT : MIN_JAVA_VERSION_STANDARD;
+    }
+
     @NotNull
-    public static String resolveJavaVersion(@NotNull Project project) {
-        McpJavaVersionManager manager = getInstance(project);
-        return manager == null ? FALLBACK_JAVA_VERSION : manager.getProjectJavaVersion();
+    public static String resolveJavaVersion(@NotNull McpServerImplementation implementation) {
+        return String.valueOf(minJavaVersion(implementation));
     }
 
     @Nullable
@@ -54,15 +63,17 @@ public class McpJavaVersionManager extends ProjectComponentBase {
         return optionalProjectService(project, McpJavaVersionManager.class);
     }
 
-    @NotNull
-    public String getProjectJavaVersion() {
-        return normalizeJavaVersion(getConfiguredProjectJavaVersion());
-    }
-
+    /**
+     * Every implementation is actually compiled and run by the Maven runner JRE, not by the
+     * IDE's Project Structure SDK - that JDK plays no part in this build pipeline. Resolving
+     * the runner JRE the same way {@link McpGraalVmSupport} does keeps both checks consistent
+     * with what Maven will really execute with.
+     */
     @Nullable
-    public String getConfiguredProjectJavaVersion() {
+    public String getConfiguredRunnerJavaVersion() {
         try {
-            Sdk sdk = Read.call(() -> ProjectRootManager.getInstance(getProject()).getProjectSdk());
+            @NonNls String jreName = MavenRunner.getInstance(getProject()).getSettings().getJreName();
+            Sdk sdk = ExternalSystemJdkUtil.getJdk(getProject(), jreName);
             if (sdk == null) return null;
 
             String javaVersion = extractJavaFeature(sdk.getVersionString());
@@ -72,7 +83,7 @@ public class McpJavaVersionManager extends ProjectComponentBase {
         } catch (ProcessCanceledException e) {
             throw e;
         } catch (Exception e) {
-            log.warn("Could not resolve project Java version", e);
+            log.warn("Could not resolve Maven runner Java version", e);
             return null;
         }
     }
@@ -89,11 +100,4 @@ public class McpJavaVersionManager extends ProjectComponentBase {
         return null;
     }
 
-    @NotNull
-    private static String normalizeJavaVersion(@Nullable String javaVersion) {
-        if (javaVersion == null) return FALLBACK_JAVA_VERSION;
-
-        int feature = Integer.parseInt(javaVersion);
-        return String.valueOf(Math.max(feature, MIN_JAVA_VERSION));
-    }
 }

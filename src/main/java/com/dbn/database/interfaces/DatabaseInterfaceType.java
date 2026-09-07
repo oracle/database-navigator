@@ -30,6 +30,7 @@ public enum DatabaseInterfaceType {
     DEBUGGER,
     ASSISTANT,
     VECTOR,
+    MACHINE_LEARNING,
     SCHEDULER,
     DATA_SOURCE_CONFIG,
     JAVA

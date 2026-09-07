@@ -16,17 +16,24 @@
 
 package com.dbn.common.util;
 
-import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.attribute.AclEntry;
+import java.nio.file.attribute.AclEntryPermission;
+import java.nio.file.attribute.AclEntryType;
+import java.nio.file.attribute.AclFileAttributeView;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFileAttributeView;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.nio.file.attribute.UserPrincipal;
+import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 
 import static java.nio.file.Files.createTempDirectory;
@@ -45,46 +52,108 @@ public class FilePermissions {
 
 
     public static void restrictToOwner(File file) {
-        if (!file.exists()) return;
-
         try {
-            restrictToOwnerPosix(file);
-        } catch (UnsupportedOperationException e) {
-            restrictToOwnerLegacy(file);
+            restrictToOwner(file.toPath());
+        } catch (IOException e) {
+            throw new IllegalStateException("Could not restrict file permissions: " + file, e);
         }
     }
 
-    @SneakyThrows
-    private static void restrictToOwnerPosix(File file) {
-        if (!file.exists()) return;
+    /**
+     * Restricts a local path to its owner. POSIX permissions are used where available,
+     * Windows ACLs are reduced to one owner allow entry, and the legacy File API is the
+     * final fallback for providers that expose neither attribute view.
+     *
+     * @throws IOException when the path cannot be secured
+     */
+    public static void restrictToOwner(Path path) throws IOException {
+        if (path == null) return;
+        if (Files.isSymbolicLink(path)) {
+            throw new IOException("Refusing to change permissions through a symbolic link: " + path);
+        }
+        if (!Files.exists(path, LinkOption.NOFOLLOW_LINKS)) {
+            if (Files.notExists(path, LinkOption.NOFOLLOW_LINKS)) return;
+            throw new IOException("Could not access path while changing permissions: " + path);
+        }
 
-        Path filePath = file.toPath();
-        PosixFileAttributeView view = Files.getFileAttributeView(filePath, PosixFileAttributeView.class);
-        if (view == null) throw new UnsupportedOperationException("File attribute view not supported");
-
-        FileAttribute<Set<PosixFilePermission>> permissions = file.isDirectory() ?
-                ownDirectoryPermissions() :
-                ownFilePermissions();
-
-        view.setPermissions(permissions.value());
+        if (restrictToOwnerPosix(path) || restrictToOwnerAcl(path)) return;
+        if (!restrictToOwnerLegacyInternal(path.toFile())) {
+            throw new IOException("File permission provider could not restrict path to its owner: " + path);
+        }
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    public static void restrictToOwnerLegacy(File file) {
-        if (!file.exists()) return;
+    private static boolean restrictToOwnerPosix(Path path) throws IOException {
+        PosixFileAttributeView view = Files.getFileAttributeView(
+                path, PosixFileAttributeView.class, LinkOption.NOFOLLOW_LINKS);
+        if (view == null) return false;
 
-        file.setReadable(false, false);
-        file.setReadable(true, true);
+        try {
+            view.setPermissions(Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS) ?
+                    OWN_DIRECTORY_PERMISSIONS : OWN_FILE_PERMISSIONS);
+            return true;
+        } catch (UnsupportedOperationException e) {
+            return false;
+        }
+    }
 
-        file.setWritable(false, false);
-        file.setWritable(true, true);
+    private static boolean restrictToOwnerAcl(Path path) throws IOException {
+        AclFileAttributeView view = Files.getFileAttributeView(
+                path, AclFileAttributeView.class, LinkOption.NOFOLLOW_LINKS);
+        if (view == null) return false;
+
+        UserPrincipal owner = view.getOwner();
+        Set<AclEntryPermission> permissions = EnumSet.of(
+                AclEntryPermission.READ_DATA,
+                AclEntryPermission.WRITE_DATA,
+                AclEntryPermission.APPEND_DATA,
+                AclEntryPermission.READ_ATTRIBUTES,
+                AclEntryPermission.WRITE_ATTRIBUTES,
+                AclEntryPermission.READ_NAMED_ATTRS,
+                AclEntryPermission.WRITE_NAMED_ATTRS,
+                AclEntryPermission.DELETE,
+                AclEntryPermission.READ_ACL,
+                AclEntryPermission.SYNCHRONIZE);
+        if (Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {
+            permissions = EnumSet.copyOf(permissions);
+            permissions.add(AclEntryPermission.EXECUTE);
+            permissions.add(AclEntryPermission.DELETE_CHILD);
+        }
+
+        AclEntry entry = AclEntry.newBuilder()
+                .setType(AclEntryType.ALLOW)
+                .setPrincipal(owner)
+                .setPermissions(permissions)
+                .build();
+        try {
+            view.setAcl(List.of(entry));
+            return true;
+        } catch (UnsupportedOperationException e) {
+            return false;
+        }
+    }
+
+    private static boolean restrictToOwnerLegacyInternal(File file) {
+        if (!file.exists()) return true;
+
+        boolean success = true;
+        success &= file.setReadable(false, false);
+        success &= file.setReadable(true, true);
+        success &= file.setWritable(false, false);
+        success &= file.setWritable(true, true);
 
         if (file.isDirectory()) {
-            file.setExecutable(false, false);
-            file.setExecutable(true, true);
+            success &= file.setExecutable(false, false);
+            success &= file.setExecutable(true, true);
         } else {
-            file.setExecutable(false, false);
-            file.setExecutable(false, true);
+            success &= file.setExecutable(false, false);
+            success &= file.setExecutable(false, true);
+        }
+        return success;
+    }
+
+    public static void restrictToOwnerLegacy(File file) {
+        if (!restrictToOwnerLegacyInternal(file)) {
+            throw new IllegalStateException("Could not restrict file permissions: " + file);
         }
     }
 
@@ -101,7 +170,7 @@ public class FilePermissions {
             return createTempDirectory(prefix, ownDirectoryPermissions());
         } catch (UnsupportedOperationException e) {
             Path tempDirectory = createTempDirectory(prefix);
-            restrictToOwner(tempDirectory.toFile());
+            restrictToOwner(tempDirectory);
             return tempDirectory;
         }
     }
@@ -111,7 +180,7 @@ public class FilePermissions {
             return createTempDirectory(parentDirectory, prefix, ownDirectoryPermissions());
         } catch (UnsupportedOperationException e) {
             Path tempDirectory = createTempDirectory(parentDirectory, prefix);
-            restrictToOwner(tempDirectory.toFile());
+            restrictToOwner(tempDirectory);
             return tempDirectory;
         }
     }
@@ -121,7 +190,7 @@ public class FilePermissions {
             return createTempFile(directory, prefix, suffix, ownFilePermissions());
         } catch (UnsupportedOperationException e) {
             Path tempFile = createTempFile(directory, prefix, suffix);
-            restrictToOwner(tempFile.toFile());
+            restrictToOwner(tempFile);
             return tempFile;
         }
     }
