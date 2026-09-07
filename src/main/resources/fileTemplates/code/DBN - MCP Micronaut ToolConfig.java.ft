@@ -1,0 +1,92 @@
+package com.dbn.mcp.server;
+
+import io.micronaut.context.annotation.EachProperty;
+import io.micronaut.context.annotation.Parameter;
+import io.micronaut.core.annotation.Introspected;
+import io.modelcontextprotocol.json.McpJsonMapper;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * A single MCP tool definition, bound from its entry under the tools section of
+ * the external mcp-config.yaml.
+ */
+@EachProperty("tools")
+@Introspected
+public class ToolConfig {
+    private final String name;
+    private String description;
+    private String statement;
+    private List<ToolParameterConfig> parameters = new ArrayList<>();
+
+    public ToolConfig(@Parameter String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getStatement() {
+        return statement;
+    }
+
+    public void setStatement(String statement) {
+        this.statement = statement;
+    }
+
+    public List<ToolParameterConfig> getParameters() {
+        return parameters;
+    }
+
+    public void setParameters(List<ToolParameterConfig> parameters) {
+        this.parameters = parameters == null ? new ArrayList<>() : parameters;
+    }
+
+    public String buildInputSchemaJson(McpJsonMapper mapper) {
+        Map<String, Object> schema = new LinkedHashMap<>();
+        schema.put("type", "object");
+
+        Map<String, Object> properties = new LinkedHashMap<>();
+        List<String> required = new ArrayList<>();
+
+        for (ToolParameterConfig param : parameters) {
+            Map<String, Object> property = new LinkedHashMap<>();
+            property.put("type", param.getType());
+            if (param.getFormat() != null && !param.getFormat().isBlank()) {
+                property.put("format", param.getFormat());
+            }
+            if (param.getDescription() != null && !param.getDescription().isBlank()) {
+                property.put("description", param.getDescription());
+            }
+            properties.put(param.getName(), property);
+
+            if (param.isRequired()) {
+                required.add(param.getName());
+            }
+        }
+
+        schema.put("properties", properties);
+        schema.put("additionalProperties", false);
+        if (!required.isEmpty()) {
+            schema.put("required", required);
+        }
+
+        try {
+            return mapper.writeValueAsString(schema);
+        } catch (Exception e) {
+            throw new IllegalStateException("Could not build tool input schema", e);
+        }
+    }
+}

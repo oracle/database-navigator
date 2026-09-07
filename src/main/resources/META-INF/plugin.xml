@@ -202,6 +202,7 @@
         <projectService serviceImplementation="com.dbn.event.registration.EventRegistrationManager"/>
         <projectService serviceImplementation="com.dbn.editor.DatabaseEditorStateManager"/>
         <projectService serviceImplementation="com.dbn.vector.DatabaseVectorManager"/>
+        <projectService serviceImplementation="com.dbn.ml.DatabaseMLManager"/>
         <projectService serviceImplementation="com.dbn.liquibase.DatabaseLiquibaseManager"/>
         <projectService serviceImplementation="com.dbn.scheduler.DatabaseSchedulerManager"/>
         <projectService serviceImplementation="com.dbn.editor.code.SourceCodeManager"/>
@@ -396,10 +397,12 @@
 
         <!--shared prerequisites-->
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_TABLE"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_VIEW"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_JOB"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_PROCEDURE"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_TYPE"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_ANY_TABLE"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_ANY_VIEW"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_ANY_PROCEDURE"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_ANY_TYPE"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_UNLIMITED_TABLESPACE"/>
@@ -427,6 +430,14 @@
         <prerequisiteDefinitionProvider implementation="com.dbn.vector.prerequisite.ObjectPrivilege_EXECUTE_DBMS_VECTOR"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.vector.prerequisite.ObjectPrivilege_EXECUTE_DBMS_VECTOR_CHAIN"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.vector.prerequisite.DatabaseVersion_VECTOR_SUPPORT"/>
+
+        <!--machine learning prerequisites-->
+        <prerequisiteRequirementEvaluator implementation="com.dbn.ml.prerequisite.MLTrainingPrerequisitesEvaluator"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.ml.prerequisite.SystemPrivilege_CREATE_MINING_MODEL"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.ml.prerequisite.SystemPrivilege_CREATE_ANY_MINING_MODEL"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.ml.prerequisite.ObjectPrivilege_EXECUTE_DBMS_DATA_MINING"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.ml.prerequisite.ObjectPrivilege_EXECUTE_DBMS_PREDICTIVE_ANALYTICS"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.ml.prerequisite.ObjectPrivilege_EXECUTE_DBMS_SCHEDULER"/>
 
         <!--data source configuration prerequisites-->
         <prerequisiteRequirementEvaluator implementation="com.dbn.object.datasource.prerequisite.DatasourceConfigPrerequisitesEvaluator"/>
@@ -610,6 +621,7 @@
             </action>
             <action class="com.dbn.menu.action.VectorToolboxOpenAction" id="DBN.MainMenu.VectorToolbox" icon="com.dbn.common.icon.Icons.VECTOR_TOOLBOX"/>
             <action class="com.dbn.menu.action.McpBuilderOpenAction" id="DBN.MainMenu.McpBuilder"/>
+            <action class="com.dbn.menu.action.MLToolboxOpenAction" id="DBN.MainMenu.MLToolbox"/>
             <separator/>
             <action class="com.dbn.menu.action.FileConnectionMappingsOpenAction" id="DBN.MainMenu.FileConnectionMappings"/>
             <group id="DBN.MainMenu.Execution" popup="true">
@@ -788,6 +800,13 @@
             <action id="DBN.Vector.Embedding.Result.Close" class="com.dbn.vector.action.VectorEmbeddingCloseAction" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
             <action id="DBN.Vector.Embedding.Result.Stop" class="com.dbn.vector.action.VectorEmbeddingStopAction" icon="com.dbn.common.icon.Icons.ACTION_STOP"/>
             <action id="DBN.Vector.Embedding.Result.Toolbox" class="com.dbn.vector.action.VectorEmbeddingToolboxAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_INPUT_FORM"/>
+        </group>
+        <group id="DBN.MachineLearning.Result">
+            <action id="DBN.MachineLearning.Result.Toolbox" class="com.dbn.ml.result.action.MLResultTrainAgainAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_INPUT_FORM"/>
+            <action id="DBN.MachineLearning.Result.Predict" class="com.dbn.ml.result.action.MLResultPredictAction" icon="com.dbn.common.icon.Icons.ACTION_EXECUTE"/>
+            <action id="DBN.MachineLearning.Result.ViewInDatabase" class="com.dbn.ml.result.action.MLResultViewInBrowserAction" icon="com.dbn.common.icon.Icons.DBO_AI_MODEL"/>
+            <separator/>
+            <action id="DBN.MachineLearning.Result.Close" class="com.dbn.ml.result.action.MLResultCloseAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_CLOSE"/>
         </group>
         <group id="DBN.Execution.Method.CursorResult">
             <action id="DBN.Execution.Method.CursorResult.Find" class="com.dbn.execution.method.result.action.CursorResultFindAction" icon="AllIcons.Actions.Find">

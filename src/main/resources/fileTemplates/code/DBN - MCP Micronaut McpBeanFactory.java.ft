@@ -1,0 +1,70 @@
+package com.dbn.mcp.server;
+
+import io.micronaut.context.annotation.Context;
+import io.micronaut.context.annotation.EachBean;
+import io.micronaut.context.annotation.Factory;
+import io.modelcontextprotocol.json.McpJsonDefaults;
+import io.modelcontextprotocol.json.McpJsonMapper;
+import io.modelcontextprotocol.server.McpStatelessServerFeatures;
+import io.modelcontextprotocol.spec.McpSchema;
+import jakarta.inject.Singleton;
+import oracle.jdbc.OracleConnection;
+import oracle.ucp.jdbc.PoolDataSource;
+import oracle.ucp.jdbc.PoolDataSourceFactory;
+
+import java.nio.file.Path;
+import java.sql.SQLException;
+
+/** Produces the UCP datasource and MCP tools configured in mcp-config.yaml. */
+@Factory
+public class McpBeanFactory {
+    private static final McpJsonMapper MAPPER = McpJsonDefaults.getMapper();
+
+    @Singleton
+    PoolDataSource dataSource(DataSourceConfig config) throws SQLException {
+        PoolDataSource pool = PoolDataSourceFactory.getPoolDataSource();
+        pool.setConnectionFactoryClassName("oracle.jdbc.pool.OracleDataSource");
+
+        pool.setURL(config.getUrl());
+        if (config.usesExplicitCredentials()) {
+            pool.setUser(config.getUsername());
+            pool.setPassword(config.getPassword());
+        } else {
+            String walletDir = config.getWalletDir();
+            if (walletDir == null || walletDir.isBlank()) {
+                throw new IllegalStateException(
+                        "No database configuration found: provide explicit credentials or a wallet directory in mcp-config.yaml.");
+            }
+            pool.setConnectionProperty(
+                    OracleConnection.CONNECTION_PROPERTY_SEPS_WALLET_LOCATION,
+                    resolveWalletDirectory(walletDir));
+        }
+        return pool;
+    }
+
+    private static String resolveWalletDirectory(String walletDir) {
+        Path path = Path.of(walletDir);
+        if (path.isAbsolute()) return path.normalize().toString();
+
+        String configDirectory = System.getProperty("mcp.config.dir");
+        Path base = configDirectory == null ? Path.of("").toAbsolutePath() : Path.of(configDirectory);
+        return base.resolve(path).normalize().toString();
+    }
+
+    @Singleton
+    @Context
+    @EachBean(ToolConfig.class)
+    McpStatelessServerFeatures.SyncToolSpecification toolSpecification(
+            ToolConfig toolConfig, SqlToolExecutor toolExecutor) {
+
+        McpSchema.Tool tool = McpSchema.Tool.builder()
+                .name(toolConfig.getName())
+                .description(toolConfig.getDescription())
+                .inputSchema(MAPPER, toolConfig.buildInputSchemaJson(MAPPER))
+                .build();
+        return McpStatelessServerFeatures.SyncToolSpecification.builder()
+                .tool(tool)
+                .callHandler((context, request) -> toolExecutor.execute(toolConfig, request.arguments()))
+                .build();
+    }
+}

@@ -29,6 +29,7 @@ import static com.dbn.database.DatabaseFeature.DATASOURCE_CONFIG;
 import static com.dbn.database.DatabaseFeature.DATA_CHANGE_NOTIFICATION;
 import static com.dbn.database.DatabaseFeature.DEBUGGING;
 import static com.dbn.database.DatabaseFeature.JAVA_VIRTUAL_MACHINE;
+import static com.dbn.database.DatabaseFeature.MACHINE_LEARNING;
 import static com.dbn.database.DatabaseFeature.VECTOR_EMBEDDING;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -83,6 +84,11 @@ public enum DatabaseOperation implements Constant<DatabaseOperation> {
             DATASOURCE_CONFIG,
             txt("app.shared.const.Operation_MANAGE_DATASOURCE_CONFIGS"),
             txt("msg.prerequisites.warning.MissingPrerequisites_MANAGE_DATASOURCE_CONFIGS")),
+
+    TRAIN_MACHINE_LEARNING_MODEL(
+            MACHINE_LEARNING,
+            txt("app.shared.const.Operation_TRAIN_MACHINE_LEARNING_MODEL"),
+            txt("msg.prerequisites.warning.MissingPrerequisites_TRAIN_MACHINE_LEARNING_MODEL")),
 
     ;
 

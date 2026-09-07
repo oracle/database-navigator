@@ -178,6 +178,7 @@ public class DatabaseSchedulerManager extends ProjectComponentBase {
                         connection.getMessageParserInterface().formatErrorCode(errorCode));
         return Outcome.failure()
                 .withException(new IllegalStateException(message))
+                .withMessage(snapshot.getAdditionalInfo())
                 .withData(completion);
     }
 }
