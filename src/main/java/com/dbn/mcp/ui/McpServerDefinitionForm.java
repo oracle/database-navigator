@@ -352,7 +352,11 @@ public class McpServerDefinitionForm extends DBNFormBase {
 
     @Override
     protected void initValidation() {
-        addTextValidation(serverNameTextField, field -> McpServerName.validationError(field.getText()));
+        addTextValidation(serverNameTextField, field -> {
+            McpServerImplementation implementation = getSelection(implementationComboBox);
+            boolean container = implementation != null && implementation.isContainer();
+            return McpServerName.validationError(field.getText(), container);
+        });
         addTextValidation(httpPortField, field -> validateHttpPort(field.getText()));
     }
 

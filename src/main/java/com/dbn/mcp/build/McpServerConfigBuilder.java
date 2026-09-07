@@ -16,7 +16,9 @@
 
 package com.dbn.mcp.build;
 
+import com.dbn.common.component.ConnectionComponent;
 import com.dbn.common.database.DatabaseInfo;
+import com.dbn.common.util.Json;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.DatabaseUrlType;
@@ -27,7 +29,6 @@ import com.dbn.mcp.model.McpServerDefinition;
 import com.dbn.mcp.model.McpToolDefinition;
 import com.dbn.mcp.model.McpToolParam;
 import com.dbn.mcp.util.SqlParameterParser;
-import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NonNls;
 
 import java.io.File;
@@ -38,16 +39,20 @@ import java.util.List;
 import static com.dbn.common.util.JdbcUrls.redactSensitiveParameters;
 import static com.dbn.nls.NlsResources.txt;
 
-@RequiredArgsConstructor
-public final class McpServerConfigBuilder {
-    private final ConnectionHandler connection;
+public final class McpServerConfigBuilder extends ConnectionComponent {
     private final McpServerDefinition definition;
+
+    public McpServerConfigBuilder(ConnectionHandler connection, McpServerDefinition definition) {
+        super(connection);
+        this.definition = definition;
+    }
 
     String build(Path walletDirectory) {
         return build(definition, getRedactedConnectionUrl(), walletDirectory);
     }
 
     String getRedactedConnectionUrl() {
+        ConnectionHandler connection = getConnection();
         ConnectionDatabaseSettings databaseSettings = connection.getSettings().getDatabaseSettings();
         DatabaseInfo info = connection.getDatabaseInfo();
         DatabaseUrlType urlType = info.getUrlType();
@@ -119,7 +124,8 @@ public final class McpServerConfigBuilder {
                 if (walletDirectory == null) {
                     throw new IllegalArgumentException("Wallet directory is required for a Micronaut Native server");
                 }
-                appendYamlField(sb, "  ", "wallet-dir", walletDirectory.toAbsolutePath().toString());
+                // Resolve relative to the external config file so the generated distribution can be moved.
+                appendYamlField(sb, "  ", "wallet-dir", "wallet");
             }
         }
         appendYamlField(sb, "  ", "url", redactSensitiveParameters(connectionUrl));
@@ -129,18 +135,6 @@ public final class McpServerConfigBuilder {
 
         appendTools(sb, definition);
 
-        return sb.toString();
-    }
-
-    /**
-     * Configuration for a server deployed as a Graal application: tool definitions only.
-     * Deliberately carries no datasource section - no connection URL, wallet path, username
-     * or password - because the Graal runtime injects the connection string and a refreshed
-     * database token for an application-specific database user instead.
-     */
-    public static String buildGraalDeploymentConfig(McpServerDefinition definition) {
-        @NonNls StringBuilder sb = new StringBuilder();
-        appendTools(sb, definition);
         return sb.toString();
     }
 
@@ -185,12 +179,7 @@ public final class McpServerConfigBuilder {
     }
 
     private static String yamlValue(String v) {
-        if (v == null || v.isEmpty()) return "\"\"";
-        boolean needsQuotes = v.contains(":") || v.contains("#") || v.contains("\"")
-                || v.contains("'") || v.contains("{") || v.contains("}")
-                || v.contains("[") || v.contains("]") || v.startsWith(" ") || v.endsWith(" ");
-        if (!needsQuotes) return v;
-        return "\"" + v.replace("\\", "\\\\").replace("\"", "\\\"") + "\"";
+        return Json.writeAsString(v);
     }
 
     private static String safe(String value) {

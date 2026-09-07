@@ -9,7 +9,7 @@
 # Run (mount a directory containing mcp-config.yaml and the wallet/ folder; the
 # wallet is mounted at run time and never baked into the image):
 #
-#   docker run -d -p ${HTTP_PORT}:${HTTP_PORT} \
+#   docker run -d -p 127.0.0.1:${HTTP_PORT}:${HTTP_PORT} \
 #       -v /path/to/config:/config:ro \
 #       ${SERVER_NAME}:latest --config=/config/mcp-config.yaml
 #

@@ -54,20 +54,13 @@ public class McpJavaVersionManager extends ProjectComponentBase {
     }
 
     @NotNull
-    public static String resolveJavaVersion(@NotNull Project project, @NotNull McpServerImplementation implementation) {
-        McpJavaVersionManager manager = getInstance(project);
-        int minVersion = minJavaVersion(implementation);
-        return manager == null ? String.valueOf(minVersion) : manager.getProjectJavaVersion(minVersion);
+    public static String resolveJavaVersion(@NotNull McpServerImplementation implementation) {
+        return String.valueOf(minJavaVersion(implementation));
     }
 
     @Nullable
     public static McpJavaVersionManager getInstance(@NotNull Project project) {
         return optionalProjectService(project, McpJavaVersionManager.class);
-    }
-
-    @NotNull
-    public String getProjectJavaVersion(int minVersion) {
-        return normalizeJavaVersion(getConfiguredRunnerJavaVersion(), minVersion);
     }
 
     /**
@@ -107,11 +100,4 @@ public class McpJavaVersionManager extends ProjectComponentBase {
         return null;
     }
 
-    @NotNull
-    private static String normalizeJavaVersion(@Nullable String javaVersion, int minVersion) {
-        if (javaVersion == null) return String.valueOf(minVersion);
-
-        int feature = Integer.parseInt(javaVersion);
-        return String.valueOf(Math.max(feature, minVersion));
-    }
 }

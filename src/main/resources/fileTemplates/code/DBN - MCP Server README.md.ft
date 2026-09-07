@@ -33,6 +33,7 @@ Parameter fields:
 - `name`: bind variable name (without `:`)
 - `type`: JSON schema type (`string`, `integer`, `number`, `boolean`)
 - `format`: optional metadata for string types (for example `date`)
+- `description`: optional parameter description shown to the MCP client
 - `required`: whether this parameter is required
 
 Example:
@@ -195,4 +196,5 @@ You can customize and rebuild that project independently.
 $h2 7. Security
 
 - Do not commit `wallet/` to version control
+- The builder creates the wallet directory and files with owner-only permissions; keep them private.
 - If you add credentials to `mcp-config.yaml`, treat the file as sensitive

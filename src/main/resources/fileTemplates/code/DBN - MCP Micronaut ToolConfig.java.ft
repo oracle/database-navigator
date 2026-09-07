@@ -12,7 +12,7 @@ import java.util.Map;
 
 /**
  * A single MCP tool definition, bound from its entry under the tools section of
- * the external mcp-config.yml.
+ * the external mcp-config.yaml.
  */
 @EachProperty("tools")
 @Introspected
@@ -51,7 +51,7 @@ public class ToolConfig {
     }
 
     public void setParameters(List<ToolParameterConfig> parameters) {
-        this.parameters = parameters;
+        this.parameters = parameters == null ? new ArrayList<>() : parameters;
     }
 
     public String buildInputSchemaJson(McpJsonMapper mapper) {

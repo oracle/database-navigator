@@ -2,7 +2,7 @@ package com.dbn.mcp.server;
 
 import io.micronaut.context.annotation.ConfigurationProperties;
 
-/** Database settings under datasource in the external mcp-config.yml. */
+/** Database settings under datasource in the external mcp-config.yaml. */
 @ConfigurationProperties("datasource")
 public class DataSourceConfig {
     private String walletDir;
@@ -43,6 +43,11 @@ public class DataSourceConfig {
     }
 
     public boolean usesExplicitCredentials() {
-        return username != null && !username.isBlank();
+        boolean hasUsername = username != null && !username.isBlank();
+        boolean hasPassword = password != null && !password.isBlank();
+        if (hasUsername != hasPassword) {
+            throw new IllegalStateException("Both username and password must be set for direct database authentication.");
+        }
+        return hasUsername;
     }
 }

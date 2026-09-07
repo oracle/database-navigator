@@ -92,8 +92,7 @@ class McpMicronautNativeGenerator implements McpServerGenerator {
     // the source-project export renames it to "Dockerfile"
     private static final @NonNls String DOCKERFILE_FILE = "Dockerfile.ci";
 
-    // logs go to standard error: that is what the Graal runtime collects for deployed
-    // applications, and it keeps application output separate from anything on stdout
+    // Logs go to standard error so they do not interfere with the STDIO MCP transport.
     private static final @NonNls String LOGBACK_XML = """
             <configuration>
                 <appender name="STDERR" class="ch.qos.logback.core.ConsoleAppender">
@@ -142,7 +141,7 @@ class McpMicronautNativeGenerator implements McpServerGenerator {
         applicationYmlContent = TemplateUtilities.generateCode(project, APPLICATION_YML_TEMPLATE, attributes);
 
         // standalone multi-stage build usable on a CI runner of any target architecture
-        attributes.put("GRAALVM_IMAGE_TAG", resolveJavaVersion(project, definition.getImplementation()));
+        attributes.put("GRAALVM_IMAGE_TAG", resolveJavaVersion(definition.getImplementation()));
         dockerfileContent = TemplateUtilities.generateCode(project, DOCKERFILE_TEMPLATE, attributes);
         graalDockerfileContent = TemplateUtilities.generateCode(project, DOCKERFILE_GRAAL_TEMPLATE, attributes);
     }
@@ -179,7 +178,7 @@ class McpMicronautNativeGenerator implements McpServerGenerator {
     public Properties getPomProperties() {
         Properties properties = new Properties();
         properties.setProperty("SERVER_NAME", definition.getServerName());
-        properties.setProperty("PROJECT_JAVA_VERSION", resolveJavaVersion(project, definition.getImplementation()));
+        properties.setProperty("PROJECT_JAVA_VERSION", resolveJavaVersion(definition.getImplementation()));
         properties.setProperty("MICRONAUT_PLATFORM_VERSION", MICRONAUT_PLATFORM_VERSION);
         properties.setProperty("MICRONAUT_MCP_VERSION", MICRONAUT_MCP_VERSION);
         properties.setProperty("JDBC_VERSION", JDBC_VERSION);

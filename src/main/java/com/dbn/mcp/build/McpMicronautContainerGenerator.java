@@ -18,7 +18,6 @@ package com.dbn.mcp.build;
 
 import com.dbn.mcp.model.McpServerDefinition;
 import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
