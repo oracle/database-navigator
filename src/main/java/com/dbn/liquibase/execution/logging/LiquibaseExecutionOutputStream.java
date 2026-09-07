@@ -46,7 +46,7 @@ public class LiquibaseExecutionOutputStream extends OutputStream {
     }
 
     @Override
-    public synchronized void write(byte @NotNull [] bytes, int offset, int length) {
+    public synchronized void write(byte[] bytes, int offset, int length) {
         buffer.write(bytes, offset, length);
         flushLines();
     }
