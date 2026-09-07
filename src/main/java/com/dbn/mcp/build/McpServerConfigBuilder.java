@@ -138,6 +138,18 @@ public final class McpServerConfigBuilder extends ConnectionComponent {
         return sb.toString();
     }
 
+    /**
+     * Configuration for a server deployed as a Graal application: tool definitions only.
+     * Deliberately carries no datasource section - no connection URL, wallet path, username
+     * or password - because the Graal runtime injects the connection string and a refreshed
+     * database token for an application-specific database user instead.
+     */
+    public static String buildGraalDeploymentConfig(McpServerDefinition definition) {
+        @NonNls StringBuilder sb = new StringBuilder();
+        appendTools(sb, definition);
+        return sb.toString();
+    }
+
     private static void appendTools(@NonNls StringBuilder sb, McpServerDefinition definition) {
         sb.append("tools:\n");
         for (McpToolDefinition t : definition.getTools()) {

@@ -1,0 +1,168 @@
+/*
+ * Copyright 2026 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dbn.mcp.deploy;
+
+import com.dbn.connection.ConnectionContext;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionRef;
+import com.dbn.connection.PooledConnection;
+import com.dbn.connection.Resources;
+import com.dbn.connection.jdbc.DBNCallableStatement;
+import com.dbn.connection.jdbc.DBNPreparedStatement;
+import com.dbn.connection.jdbc.DBNResultSet;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.sql.SQLException;
+
+import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+
+/**
+ * Creates the Graal application through the same database connection the MCP server was built
+ * from. The application name and container image OCID are always bound as parameters - never
+ * concatenated into the PL/SQL text.
+ */
+@Slf4j
+@RequiredArgsConstructor
+final class McpGraalApplicationManager {
+
+    /**
+     * POC resource shape, per the documented Graal demo: a long-running HTTP SERVER application
+     * on the transaction-processing service, with the platform supplying DATABASE_URL and
+     * OCI_GRAAL_DB_TOKEN itself (hence the empty environment).
+     */
+    /**
+     * The environment is left empty on purpose: the platform injects DATABASE_URL and
+     * OCI_GRAAL_DB_TOKEN itself, and the server's bind address is generated correctly in
+     * application.yml rather than being overridden here.
+     */
+    private static final @NonNls String CREATE_APPLICATION_STATEMENT =
+            "DECLARE\n" +
+            "    l_application graalos.application_t;\n" +
+            "BEGIN\n" +
+            "    l_application := graalos.graalos_api_pkg.create_application(\n" +
+            "        name                  => ?,\n" +
+            "        container_image_id    => ?,\n" +
+            "        type                  => 'SERVER',\n" +
+            "        db_service_selector   => 'tp',\n" +
+            "        ecpus                 => 1,\n" +
+            "        memory_in_mbs         => 256,\n" +
+            "        tmpfs_max_size_in_mbs => 10,\n" +
+            "        max_concurrency       => NULL,\n" +
+            "        environment           => NULL\n" +
+            "    ).item;\n" +
+            "END;";
+
+    /**
+     * Reads the current lifecycle state and endpoint of an application by name. The column names
+     * match the list_all_applications result set (NAME, LIFECYCLE_STATE, ENDPOINT).
+     */
+    private static final @NonNls String GET_STATUS_STATEMENT =
+            "SELECT lifecycle_state, endpoint\n" +
+            "FROM TABLE(graalos.graalos_api_pkg.list_all_applications())\n" +
+            "WHERE name = ?";
+
+    /**
+     * POC convenience: grant public read access to every table on the connection, so the
+     * application's own GRAAL_ database user can query the tool tables with no manual grant. Each
+     * table gets SELECT to PUBLIC and a public synonym; per-table failures are swallowed.
+     */
+    private static final @NonNls String GRANT_PUBLIC_ACCESS_BLOCK =
+            "BEGIN\n" +
+            "  FOR t IN (SELECT table_name FROM user_tables) LOOP\n" +
+            "    BEGIN\n" +
+            "      EXECUTE IMMEDIATE 'GRANT SELECT ON \"' || t.table_name || '\" TO PUBLIC';\n" +
+            "      EXECUTE IMMEDIATE 'CREATE OR REPLACE PUBLIC SYNONYM \"' || t.table_name ||\n" +
+            "                        '\" FOR \"' || USER || '\".\"' || t.table_name || '\"';\n" +
+            "    EXCEPTION WHEN OTHERS THEN NULL;\n" +
+            "    END;\n" +
+            "  END LOOP;\n" +
+            "END;";
+
+    private final ConnectionRef connection;
+
+    /** A point-in-time snapshot of an application's provisioning state. */
+    record ApplicationStatus(@Nullable String lifecycleState, @Nullable String endpoint) {}
+
+    void createApplication(@NotNull McpGraalDeploymentInput input) throws SQLException {
+        ConnectionHandler connectionHandler = ConnectionRef.ensure(connection);
+        ConnectionContext context = new ConnectionContext(
+                connectionHandler.getProject(), connectionHandler.getConnectionId(), null);
+
+        PooledConnection.run(context, conn -> {
+            DBNCallableStatement statement = null;
+            try {
+                statement = conn.prepareCall(CREATE_APPLICATION_STATEMENT);
+                statement.setString(1, input.getApplicationName());
+                statement.setString(2, input.getContainerImageOcid());
+                statement.execute();
+            } finally {
+                Resources.close(statement);
+            }
+        });
+    }
+
+    /** Returns the application's current status, or null when it is not (yet) listed. */
+    @Nullable
+    ApplicationStatus getApplicationStatus(@NotNull String applicationName) throws SQLException {
+        ConnectionHandler connectionHandler = ConnectionRef.ensure(connection);
+        ConnectionContext context = new ConnectionContext(
+                connectionHandler.getProject(), connectionHandler.getConnectionId(), null);
+
+        return PooledConnection.call(context, conn -> {
+            DBNPreparedStatement<?> statement = null;
+            DBNResultSet resultSet = null;
+            try {
+                statement = conn.prepareStatement(GET_STATUS_STATEMENT);
+                statement.setString(1, applicationName);
+                resultSet = statement.executeQuery();
+                if (resultSet.next()) {
+                    return new ApplicationStatus(resultSet.getString(1), resultSet.getString(2));
+                }
+                return null;
+            } finally {
+                Resources.close(resultSet);
+                Resources.close(statement);
+            }
+        });
+    }
+
+    /** POC convenience - see {@link #GRANT_PUBLIC_ACCESS_BLOCK}. Best-effort; never fails the deploy. */
+    void grantPublicTableAccess() {
+        try {
+            ConnectionHandler connectionHandler = ConnectionRef.ensure(connection);
+            ConnectionContext context = new ConnectionContext(
+                    connectionHandler.getProject(), connectionHandler.getConnectionId(), null);
+
+            PooledConnection.run(context, conn -> {
+                DBNCallableStatement statement = null;
+                try {
+                    statement = conn.prepareCall(GRANT_PUBLIC_ACCESS_BLOCK);
+                    statement.execute();
+                } finally {
+                    Resources.close(statement);
+                }
+            });
+        } catch (SQLException e) {
+            conditionallyLog(e);
+            log.warn("Could not grant public table access: {}", e.getMessage());
+        }
+    }
+}
