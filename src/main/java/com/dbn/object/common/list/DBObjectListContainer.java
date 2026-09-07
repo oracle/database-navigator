@@ -364,6 +364,7 @@ public final class DBObjectListContainer implements StatefulDisposable, Unlisted
     public <T extends DBObjectRelation> DBObjectRelationList<T> getRelations(DBObjectRelationType relationType) {
         if (relations == null) return null;
         for (DBObjectRelationList objectRelations : relations) {
+            if (objectRelations == null) continue;
             if (objectRelations.getRelationType() == relationType) {
                 return cast(objectRelations);
             }
