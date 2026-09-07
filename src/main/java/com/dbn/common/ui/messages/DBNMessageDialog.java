@@ -107,7 +107,7 @@ public class DBNMessageDialog extends DBNDialog<DBNMessageForm> {
         return actions;
     }
 
-    @Override
+    //@Override
     protected void sortActionsOnMac(@NotNull List<Action> actions) {
         Collections.reverse(actions);
     }
