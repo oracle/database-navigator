@@ -16,44 +16,54 @@
 
 package com.dbn.mcp.build;
 
+import com.dbn.common.component.ConnectionComponent;
 import com.dbn.common.exception.Exceptions;
+import com.dbn.common.util.FilePermissions;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionUtil;
 import com.dbn.mcp.model.OracleSecretStore;
 import com.dbn.mcp.model.OracleWallet;
-import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NonNls;
 
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.security.SecureRandom;
 import java.sql.Driver;
+import java.util.stream.Stream;
 
 import static com.dbn.common.util.Passwords.clearPassword;
 import static com.dbn.nls.NlsResources.txt;
 
-@RequiredArgsConstructor
-final class McpWalletBuilder {
+final class McpWalletBuilder extends ConnectionComponent {
     private static final @NonNls String DEFAULT_SEPS_USERNAME = "oracle.security.client.default_username";
     private static final @NonNls String DEFAULT_SEPS_PASSWORD = "oracle.security.client.default_password";
     private static final @NonNls String AUTO_LOGIN_WALLET = "cwallet.sso";
     private static final @NonNls String PASSWORD_WALLET = "ewallet.p12";
 
-    private final ConnectionHandler connection;
+    McpWalletBuilder(ConnectionHandler connection) {
+        super(connection);
+    }
 
     void build(Path dir) throws IOException {
-        Path walletDir = dir.resolve("wallet");
-        Files.createDirectories(walletDir);
+        Path walletDir = dir.resolve("wallet").toAbsolutePath().normalize();
+        boolean walletDirectoryExisted = prepareWalletDirectory(walletDir);
 
-        char[] user = safe(connection.getUserName()).toCharArray();
-        char[] password = getPassword(connection);
-
-        // Random password - used only to create ewallet.p12, never stored or shown.
-        // cwallet.sso (used at runtime) needs no password.
-        char[] walletPassword = generateWalletPassword();
+        char[] user = new char[0];
+        char[] password = new char[0];
+        char[] walletPassword = new char[0];
 
         try {
+            ConnectionHandler connection = getConnection();
+            user = safe(connection.getUserName()).toCharArray();
+            password = getPassword(connection);
+
+            // Random password - used only to create ewallet.p12, never stored or shown.
+            // cwallet.sso (used at runtime) needs no password.
+            walletPassword = generateWalletPassword();
+
             ClassLoader classLoader = getWalletClassLoader();
             OracleWallet wallet = OracleWallet.newInstance(classLoader);
             wallet.create(walletPassword);
@@ -67,8 +77,16 @@ final class McpWalletBuilder {
 
             wallet.save();
             wallet.saveSSO();
+            secureWalletContents(walletDir);
             deleteIntermediateWalletFiles(walletDir);
         } catch (Exception e) {
+            if (!walletDirectoryExisted) {
+                try {
+                    deleteDirectory(walletDir);
+                } catch (IOException cleanupFailure) {
+                    e.addSuppressed(cleanupFailure);
+                }
+            }
             Throwable root = Exceptions.rootCauseOf(Exceptions.unwrap(e));
             String message = root != null && root.getMessage() != null && !root.getMessage().isBlank()
                     ? root.getMessage()
@@ -78,6 +96,75 @@ final class McpWalletBuilder {
             clearPassword(user);
             clearPassword(password);
             clearPassword(walletPassword);
+        }
+    }
+
+    private static boolean prepareWalletDirectory(Path walletDir) throws IOException {
+        Files.createDirectories(walletDir.getParent());
+        if (Files.isSymbolicLink(walletDir)) {
+            throw new IOException("Refusing to create an Oracle wallet through a symbolic link: " + walletDir);
+        }
+
+        boolean existed = Files.exists(walletDir, LinkOption.NOFOLLOW_LINKS);
+        try {
+            try {
+                Files.createDirectory(walletDir, FilePermissions.ownDirectoryPermissions());
+            } catch (FileAlreadyExistsException ignored) {
+                // The output directory may already contain a wallet from an earlier build.
+            } catch (UnsupportedOperationException ignored) {
+                // Non-POSIX providers are restricted through their ACL or legacy file API below.
+                try {
+                    Files.createDirectory(walletDir);
+                } catch (FileAlreadyExistsException ignoredAgain) {
+                    // Another process may have created the directory between the checks.
+                }
+            }
+
+            if (!Files.isDirectory(walletDir, LinkOption.NOFOLLOW_LINKS)) {
+                throw new IOException("Oracle wallet path is not a directory: " + walletDir);
+            }
+            secureWalletContents(walletDir);
+            return existed;
+        } catch (IOException | RuntimeException e) {
+            if (!existed) {
+                try {
+                    deleteDirectory(walletDir);
+                } catch (IOException cleanupFailure) {
+                    e.addSuppressed(cleanupFailure);
+                }
+            }
+            throw e;
+        }
+    }
+
+    private static void secureWalletContents(Path walletDir) throws IOException {
+        try (Stream<Path> stream = Files.walk(walletDir)) {
+            for (Path path : stream.toList()) {
+                if (Files.isSymbolicLink(path)) {
+                    throw new IOException("Refusing to use a symbolic link in the Oracle wallet: " + path);
+                }
+
+                if (Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS) ||
+                        Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS)) {
+                    FilePermissions.restrictToOwner(path);
+                }
+            }
+        }
+    }
+
+    private static void deleteDirectory(Path directory) throws IOException {
+        if (!Files.exists(directory, LinkOption.NOFOLLOW_LINKS)) return;
+        if (Files.isSymbolicLink(directory)) {
+            throw new IOException("Refusing to delete a symbolic link as an Oracle wallet: " + directory);
+        }
+
+        try (Stream<Path> stream = Files.walk(directory)) {
+            for (Path path : stream.sorted(java.util.Comparator.reverseOrder()).toList()) {
+                if (Files.isSymbolicLink(path)) {
+                    throw new IOException("Refusing to delete a symbolic link in the Oracle wallet: " + path);
+                }
+                Files.deleteIfExists(path);
+            }
         }
     }
 
@@ -106,7 +193,7 @@ final class McpWalletBuilder {
     }
 
     private ClassLoader getDriverClassLoader() throws Exception {
-        Driver driver = ConnectionUtil.resolveDriver(connection.getSettings().getDatabaseSettings());
+        Driver driver = ConnectionUtil.resolveDriver(getConnection().getSettings().getDatabaseSettings());
         return driver == null ? null : driver.getClass().getClassLoader();
     }
 

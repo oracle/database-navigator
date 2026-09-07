@@ -247,12 +247,11 @@ public class McpBuildTask {
                 Files.writeString(outputConfigFile, serverConfig, StandardCharsets.UTF_8);
                 result.setConfigFile(outputConfigFile);
 
+                indicator.setText2(txt("prc.mcp.text.WritingReadme"));
+                readmeWriter.write(outputDirectory);
                 Files.deleteIfExists(outputDirectory.resolve("Main.java"));
                 indicator.setText2(txt("prc.mcp.text.CreatingWallet"));
                 walletBuilder.build(payloadDirectory);
-
-                indicator.setText2(txt("prc.mcp.text.WritingReadme"));
-                readmeWriter.write(outputDirectory);
                 indicator.setText2(txt("prc.mcp.text.Done"));
                 showResult();
             } catch (Throwable e) {

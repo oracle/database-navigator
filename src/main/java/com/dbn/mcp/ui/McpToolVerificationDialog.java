@@ -11,7 +11,6 @@ import java.util.List;
 import static com.dbn.nls.NlsResources.txt;
 
 public class McpToolVerificationDialog extends DBNDialog<McpToolVerificationForm> {
-    private final ConnectionHandler connection;
     private final String statement;
     private final List<McpToolParam> params;
 
@@ -19,7 +18,6 @@ public class McpToolVerificationDialog extends DBNDialog<McpToolVerificationForm
                                      @NotNull String statement,
                                      @NotNull List<McpToolParam> params) {
         super(connection, txt("msg.mcp.title.TestSqlQuery"), true);
-        this.connection = connection;
         this.statement = statement;
         this.params = params;
         setDefaultSize(920, 600);
@@ -28,7 +26,7 @@ public class McpToolVerificationDialog extends DBNDialog<McpToolVerificationForm
 
     @Override
     protected @NotNull McpToolVerificationForm createForm() {
-        return new McpToolVerificationForm(this, connection, statement, params);
+        return new McpToolVerificationForm(this, ensureConnection(), statement, params);
     }
 
     @Override

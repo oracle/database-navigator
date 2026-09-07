@@ -16,6 +16,7 @@
 
 package com.dbn.mcp.build;
 
+import com.dbn.common.component.ConnectionComponent;
 import com.dbn.common.database.DatabaseInfo;
 import com.dbn.common.util.Json;
 import com.dbn.common.util.Strings;
@@ -28,7 +29,6 @@ import com.dbn.mcp.model.McpServerDefinition;
 import com.dbn.mcp.model.McpToolDefinition;
 import com.dbn.mcp.model.McpToolParam;
 import com.dbn.mcp.util.SqlParameterParser;
-import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NonNls;
 
 import java.io.File;
@@ -39,16 +39,20 @@ import java.util.List;
 import static com.dbn.common.util.JdbcUrls.redactSensitiveParameters;
 import static com.dbn.nls.NlsResources.txt;
 
-@RequiredArgsConstructor
-public final class McpServerConfigBuilder {
-    private final ConnectionHandler connection;
+public final class McpServerConfigBuilder extends ConnectionComponent {
     private final McpServerDefinition definition;
+
+    public McpServerConfigBuilder(ConnectionHandler connection, McpServerDefinition definition) {
+        super(connection);
+        this.definition = definition;
+    }
 
     String build(Path walletDirectory) {
         return build(definition, getRedactedConnectionUrl(), walletDirectory);
     }
 
     String getRedactedConnectionUrl() {
+        ConnectionHandler connection = getConnection();
         ConnectionDatabaseSettings databaseSettings = connection.getSettings().getDatabaseSettings();
         DatabaseInfo info = connection.getDatabaseInfo();
         DatabaseUrlType urlType = info.getUrlType();

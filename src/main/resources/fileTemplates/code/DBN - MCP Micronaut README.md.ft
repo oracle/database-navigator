@@ -123,7 +123,7 @@ $h3 3.1. Generated tools
 $h2 4. Credentials and Security
 
 Database credentials are stored in the `wallet/` directory (Oracle auto-login wallet, `cwallet.sso`).
-- Keep the `wallet/` directory private; it is protected only by file-system permissions.
+- The builder creates the wallet directory and files with owner-only permissions; keep the directory private and do not commit it.
 - To use different credentials without the wallet, uncomment `username`/`password` under `datasource`
   in `mcp-config.yaml`. Values placed there take precedence over the wallet.
 
