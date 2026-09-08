@@ -45,12 +45,12 @@ public class Icons {
     public static final Icon DONATE = load("/img/Donate.png");
     public static final Icon DONATE_DISABLED = load("/img/DonateDisabled.png");
 
-    public static final Icon COMMON_EMPTY              = load("/img/common/Empty.svg");
+    public static final Icon COMMON_EMPTY             = load("/img/common/Empty.svg");
     public static final Icon COMMON_INFO              = load("/img/common/Information.svg");
     public static final Icon COMMON_ERROR             = load("/img/common/Error.svg");
     public static final Icon COMMON_WARNING           = load("/img/common/Warning.svg");
     public static final Icon COMMON_PAUSED            = AllIcons.RunConfigurations.TestPaused;
-    public static final Icon COMMON_SUCCES            = AllIcons.Status.Success;
+    public static final Icon COMMON_SUCCES            = load("/img/common/Success.svg");
     public static final Icon COMMON_INFO_INACTIVE     = load("/img/common/InformationInactive.svg");
     public static final Icon COMMON_INFO_OUTLINE      = AllIcons.General.ShowInfos;
     public static final Icon COMMON_ERROR_INACTIVE    = load("/img/common/ErrorInactive.svg");
