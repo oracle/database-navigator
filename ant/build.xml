@@ -185,6 +185,9 @@
             <zipfileset dir="${root.dir}/lib" prefix="DBNavigator/lib">
                 <include name="**/*.jar"/>
             </zipfileset>
+            <zipfileset dir="${root.dir}/libs" prefix="DBNavigator/lib">
+                <include name="**/*.jar"/>
+            </zipfileset>
             <zipfileset dir="${resource.dir}/lib" prefix="DBNavigator/lib">
                 <include name="**/*.jar"/>
             </zipfileset>
