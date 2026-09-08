@@ -29,7 +29,3 @@ tasks {
         targetCompatibility = "17"
     }
 }
-
-tasks.test {
-    useJUnitPlatform()
-}
