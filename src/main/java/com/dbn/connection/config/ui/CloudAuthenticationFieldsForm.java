@@ -21,7 +21,6 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.misc.DBNComboBox;
-import com.dbn.common.util.Commons;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.provider.CloudAuthenticationType;
@@ -56,6 +55,7 @@ import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.Commons.match;
 import static com.dbn.common.util.Commons.matchArrays;
+import static com.dbn.common.util.Commons.nvln;
 import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.connection.config.provider.CloudAuthenticationType.AZURE_INTERACTIVE;
@@ -226,11 +226,10 @@ public class CloudAuthenticationFieldsForm extends DBNFormBase {
 
     public void resetFormChanges() {
         ConfigProviderInfo configProvider = getConfigProviderInfo();
-        configProvider.reloadSecrets();
         setCloudProviderType(configProvider.getCloudProviderType());
 
         if (isAuthenticationProvider()) {
-            setSelection(authenticationComboBox, Commons.nvl(
+            setSelection(authenticationComboBox, nvln(
                     configProvider.getCloudAuthenticationType(),
                     getDefault(cloudProviderType)));
         }
@@ -276,7 +275,7 @@ public class CloudAuthenticationFieldsForm extends DBNFormBase {
         String configFile = isOciDefaultAuthentication() ? getOciConfigProviderConfigFile() : null;
         String profile = isOciDefaultAuthentication() ? getOciConfigProviderProfile() : null;
         boolean authenticationChanged = !match(
-                Commons.nvl(configProvider.getCloudAuthenticationType(), getDefault(cloudProviderType)),
+                nvln(configProvider.getCloudAuthenticationType(), getDefault(cloudProviderType)),
                 getCloudConfigProviderAuthentication());
         if (isAzureProvider()) {
             return authenticationChanged ||
