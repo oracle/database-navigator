@@ -16,9 +16,8 @@
 
 package com.dbn.language.common.element.cache;
 
-import com.dbn.common.index.BackedIndexContainer;
-import com.dbn.common.index.IndexContainer;
 import com.dbn.common.index.IndexContainer.IndexResolver;
+import com.dbn.common.index.StagingIndexContainer;
 import com.dbn.language.common.SharedTokenTypeBundle;
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.TokenTypeCategory;
@@ -34,13 +33,14 @@ public abstract class ElementTypeIndexedCache<T extends ElementTypeBase> extends
     private final IndexResolver<TokenType> tokenTypeResolver = index -> elementType.bundle.tokenTypeBundle.getTokenType(index);
     private final IndexResolver<LeafElementType> elementTypeResolver = index -> elementType.bundle.getElement(index);
 
-    private transient final IndexContainer<LeafElementType> allPossibleLeafs = new IndexContainer<>(); // only used during initialization
-    public final BackedIndexContainer<LeafElementType> firstPossibleLeafs = new BackedIndexContainer<>(elementTypeResolver);
-    public final BackedIndexContainer<LeafElementType> firstRequiredLeafs = new BackedIndexContainer<>(elementTypeResolver);
+    private transient StagingIndexContainer<LeafElementType> allPossibleLeafs = new StagingIndexContainer<>(elementTypeResolver); // only used during init
 
-    public final BackedIndexContainer<TokenType> allPossibleTokens = new BackedIndexContainer<>(tokenTypeResolver);
-    public final BackedIndexContainer<TokenType> firstPossibleTokens = new BackedIndexContainer<>(tokenTypeResolver);
-    public final BackedIndexContainer<TokenType> firstRequiredTokens = new BackedIndexContainer<>(tokenTypeResolver);
+    public final StagingIndexContainer<LeafElementType> firstPossibleLeafs = new StagingIndexContainer<>(elementTypeResolver);
+    public final StagingIndexContainer<LeafElementType> firstRequiredLeafs = new StagingIndexContainer<>(elementTypeResolver);
+
+    public final StagingIndexContainer<TokenType> allPossibleTokens = new StagingIndexContainer<>(tokenTypeResolver);
+    public final StagingIndexContainer<TokenType> firstPossibleTokens = new StagingIndexContainer<>(tokenTypeResolver);
+    public final StagingIndexContainer<TokenType> firstRequiredTokens = new StagingIndexContainer<>(tokenTypeResolver);
 
     private final Map<TokenTypeCategory, Boolean> startsWithTokenCategory = new ConcurrentHashMap<>();
 
@@ -52,17 +52,17 @@ public abstract class ElementTypeIndexedCache<T extends ElementTypeBase> extends
 
     @Override
     public boolean isFirstPossibleToken(TokenType tokenType) {
-        return firstPossibleTokens.contains(tokenType);
+        return firstPossibleTokens.contains(tokenType.index());
     }
 
     @Override
     public boolean isFirstRequiredToken(TokenType tokenType) {
-        return firstRequiredTokens.contains(tokenType);
+        return firstRequiredTokens.contains(tokenType.index());
     }
 
     @Override
     public boolean containsToken(TokenType tokenType) {
-        return allPossibleTokens.contains(tokenType);
+        return allPossibleTokens.contains(tokenType.index());
     }
 
     @Override
@@ -92,41 +92,42 @@ public abstract class ElementTypeIndexedCache<T extends ElementTypeBase> extends
 
     @Override
     public boolean couldStartWithLeaf(LeafElementType elementType) {
-        return firstPossibleLeafs.contains(elementType);
+        return firstPossibleLeafs.contains(elementType.index());
     }
 
     @Override
     public boolean couldStartWithToken(TokenType tokenType) {
-        return firstPossibleTokens.contains(tokenType);
+        return firstPossibleTokens.contains(tokenType.index());
     }
 
     @Override
     public boolean shouldStartWithLeaf(LeafElementType elementType) {
-        return firstRequiredLeafs.contains(elementType);
+        return firstRequiredLeafs.contains(elementType.index());
     }
 
     @Override
     public void registerLeaf(LeafElementType leaf, ElementTypeBase source) {
-        boolean initAllElements = initAllElements(leaf);
+        int leafIndex = leaf.index();
+        boolean initAllElements = initAllElements(leaf, leafIndex);
         boolean initAsFirstPossibleLeaf = initAsFirstPossibleLeaf(leaf, source);
         boolean initAsFirstRequiredLeaf = initAsFirstRequiredLeaf(leaf, source);
 
         // register first possible leafs
-        if (initAsFirstPossibleLeaf) {
-            firstPossibleLeafs.add(leaf);
+        boolean registeredFirstPossibleLeaf = initAsFirstPossibleLeaf &&
+                firstPossibleLeafs.addIfAbsent(leafIndex);
+        if (registeredFirstPossibleLeaf) {
             leaf.cache.captureFirstPossibleTokens(firstPossibleTokens);
         }
 
         // register first required leafs
-        if (initAsFirstRequiredLeaf) {
-            firstRequiredLeafs.add(leaf);
+        boolean registeredFirstRequiredLeaf = initAsFirstRequiredLeaf &&
+                firstRequiredLeafs.addIfAbsent(leafIndex);
+        if (registeredFirstRequiredLeaf) {
             leaf.cache.captureFirstPossibleTokens(firstRequiredTokens);
         }
 
         if (initAllElements) {
             // register all possible leafs
-            allPossibleLeafs.add(leaf);
-
             // register all possible tokens
             if (leaf instanceof IdentifierElementType) {
                 SharedTokenTypeBundle sharedTokenTypes = getSharedTokenTypes();
@@ -136,7 +137,7 @@ public abstract class ElementTypeIndexedCache<T extends ElementTypeBase> extends
             }
         }
 
-        if (initAsFirstPossibleLeaf || initAsFirstRequiredLeaf || initAllElements) {
+        if (registeredFirstPossibleLeaf || registeredFirstRequiredLeaf || initAllElements) {
             // walk the tree up
             registerLeafInParent(leaf);
         }
@@ -144,8 +145,22 @@ public abstract class ElementTypeIndexedCache<T extends ElementTypeBase> extends
 
     abstract boolean initAsFirstPossibleLeaf(LeafElementType leaf, ElementTypeBase source);
     abstract boolean initAsFirstRequiredLeaf(LeafElementType leaf, ElementTypeBase source);
-    private boolean initAllElements(LeafElementType leafElementType) {
-        return leafElementType != elementType && !allPossibleLeafs.contains(leafElementType);
+    private boolean initAllElements(LeafElementType leafElementType, int leafIndex) {
+        if (allPossibleLeafs == null) return false;
+        if (leafElementType == elementType) return false;
+        return allPossibleLeafs.addIfAbsent(leafIndex);
+    }
+
+    public void releaseInitState() {
+        if (allPossibleLeafs == null) return;
+
+        firstPossibleLeafs.freeze();
+        firstRequiredLeafs.freeze();
+        allPossibleTokens.freeze();
+        firstPossibleTokens.freeze();
+        firstRequiredTokens.freeze();
+        allPossibleLeafs.discard();
+        allPossibleLeafs = null;
     }
 
     protected void registerLeafInParent(LeafElementType leaf) {

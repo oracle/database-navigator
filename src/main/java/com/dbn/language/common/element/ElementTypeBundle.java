@@ -193,6 +193,7 @@ public class ElementTypeBundle {
 
     private void registerLeafElements() {
         forEach(builder.leafElementTypes, e -> e.registerLeaf());
+        forEach(builder.elementTypes.values(), e -> e.cache.releaseInitState());
     }
 
     public short nextIndex() {

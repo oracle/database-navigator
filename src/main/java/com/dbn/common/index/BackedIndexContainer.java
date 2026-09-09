@@ -21,7 +21,7 @@ import java.util.Set;
 import static java.util.Collections.emptySet;
 
 public class BackedIndexContainer<T extends Indexable> extends IndexContainer<T> {
-    private final IndexResolver<T> resolver;
+    protected final IndexResolver<T> resolver;
     private Set<T> elements;
 
     public BackedIndexContainer(IndexResolver<T> resolver) {
@@ -29,7 +29,7 @@ public class BackedIndexContainer<T extends Indexable> extends IndexContainer<T>
     }
 
     public synchronized Set<T> elements() {
-        if (INDEX.isEmpty()) return emptySet();
+        if (indices.isEmpty()) return emptySet();
         if (elements != null) return elements;
 
 

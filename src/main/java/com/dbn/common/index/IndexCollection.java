@@ -41,6 +41,12 @@ public class IndexCollection{
         this.values = Arrays.copyOf(values, values.length);
     }
 
+    static IndexCollection fromSortedArray(int[] values) {
+        IndexCollection indexCollection = new IndexCollection();
+        indexCollection.values = values;
+        return indexCollection;
+    }
+
     int[] values() {
         return values;
     }
