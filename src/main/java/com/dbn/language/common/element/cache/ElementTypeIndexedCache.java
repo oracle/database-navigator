@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,9 @@
 
 package com.dbn.language.common.element.cache;
 
+import com.dbn.common.index.BackedIndexContainer;
+import com.dbn.common.index.BitmapIndexCollection;
 import com.dbn.common.index.IndexContainer.IndexResolver;
-import com.dbn.common.index.StagingIndexContainer;
 import com.dbn.language.common.SharedTokenTypeBundle;
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.TokenTypeCategory;
@@ -33,14 +34,14 @@ public abstract class ElementTypeIndexedCache<T extends ElementTypeBase> extends
     private final IndexResolver<TokenType> tokenTypeResolver = index -> elementType.bundle.tokenTypeBundle.getTokenType(index);
     private final IndexResolver<LeafElementType> elementTypeResolver = index -> elementType.bundle.getElement(index);
 
-    private transient StagingIndexContainer<LeafElementType> allPossibleLeafs = new StagingIndexContainer<>(elementTypeResolver); // only used during init
+    private transient BackedIndexContainer<LeafElementType> allPossibleLeafs = new BackedIndexContainer<>(elementTypeResolver, new BitmapIndexCollection()); // only used during init
 
-    public final StagingIndexContainer<LeafElementType> firstPossibleLeafs = new StagingIndexContainer<>(elementTypeResolver);
-    public final StagingIndexContainer<LeafElementType> firstRequiredLeafs = new StagingIndexContainer<>(elementTypeResolver);
+    public final BackedIndexContainer<LeafElementType> firstPossibleLeafs = new BackedIndexContainer<>(elementTypeResolver, new BitmapIndexCollection());
+    public final BackedIndexContainer<LeafElementType> firstRequiredLeafs = new BackedIndexContainer<>(elementTypeResolver, new BitmapIndexCollection());
 
-    public final StagingIndexContainer<TokenType> allPossibleTokens = new StagingIndexContainer<>(tokenTypeResolver);
-    public final StagingIndexContainer<TokenType> firstPossibleTokens = new StagingIndexContainer<>(tokenTypeResolver);
-    public final StagingIndexContainer<TokenType> firstRequiredTokens = new StagingIndexContainer<>(tokenTypeResolver);
+    public final BackedIndexContainer<TokenType> allPossibleTokens = new BackedIndexContainer<>(tokenTypeResolver, new BitmapIndexCollection());
+    public final BackedIndexContainer<TokenType> firstPossibleTokens = new BackedIndexContainer<>(tokenTypeResolver, new BitmapIndexCollection());
+    public final BackedIndexContainer<TokenType> firstRequiredTokens = new BackedIndexContainer<>(tokenTypeResolver, new BitmapIndexCollection());
 
     private final Map<TokenTypeCategory, Boolean> startsWithTokenCategory = new ConcurrentHashMap<>();
 
@@ -159,7 +160,6 @@ public abstract class ElementTypeIndexedCache<T extends ElementTypeBase> extends
         allPossibleTokens.freeze();
         firstPossibleTokens.freeze();
         firstRequiredTokens.freeze();
-        allPossibleLeafs.discard();
         allPossibleLeafs = null;
     }
 

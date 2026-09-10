@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,21 +20,33 @@ import java.util.Set;
 
 import static java.util.Collections.emptySet;
 
-public class BackedIndexContainer<T extends Indexable> extends IndexContainer<T> {
-    protected final IndexResolver<T> resolver;
-    private Set<T> elements;
+public final class BackedIndexContainer<T extends Indexable> extends IndexContainer<T> {
+    private final IndexResolver<T> resolver;
+    private volatile Set<T> elements;
 
-    public BackedIndexContainer(IndexResolver<T> resolver) {
+    public BackedIndexContainer(IndexResolver<T> resolver, IndexCollection indices) {
         this.resolver = resolver;
+        this.indices = indices;
     }
 
-    public synchronized Set<T> elements() {
-        if (indices.isEmpty()) return emptySet();
+    public Set<T> elements() {
+        Set<T> elements = this.elements;
         if (elements != null) return elements;
 
-
-        elements = buildElements(resolver);
+        synchronized (this) {
+            elements = this.elements;
+            if (elements == null) {
+                elements = indices.isEmpty() ? emptySet() : buildElements(resolver);
+                this.elements = elements;
+            }
+        }
         return elements;
+    }
+
+    public synchronized void freeze() {
+        if (indices instanceof BitmapIndexCollection bitmap) {
+            indices = bitmap.freeze();
+        }
     }
 
 }

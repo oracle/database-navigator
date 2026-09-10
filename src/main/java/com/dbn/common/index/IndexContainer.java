@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,22 @@ import static java.util.Collections.emptySet;
 
 @Slf4j
 public class IndexContainer<T extends Indexable> {
-    protected volatile IndexCollection indices = new IndexCollection();
+    protected IndexCollection indices = new ArrayIndexCollection();
 
     public void add(T element) {
         indices.add(element.index());
+    }
+
+    public void add(int index) {
+        indices.add(index);
+    }
+
+    public boolean addIfAbsent(T element) {
+        return indices.addIfAbsent(element.index());
+    }
+
+    public boolean addIfAbsent(int index) {
+        return indices.addIfAbsent(index);
     }
 
     public int size() {
@@ -42,6 +54,10 @@ public class IndexContainer<T extends Indexable> {
 
     public boolean contains(T indexable) {
         return indices.contains(indexable.index());
+    }
+
+    public final boolean contains(int index) {
+        return indices.contains(index);
     }
 
     public Set<T> elements(IndexResolver<T> resolver) {
@@ -69,10 +85,6 @@ public class IndexContainer<T extends Indexable> {
         for (T element : elements) {
             indices.add(element.index());
         }
-    }
-
-    protected void replace(int[] values) {
-        this.indices = IndexCollection.fromSortedArray(values);
     }
 
     @FunctionalInterface
