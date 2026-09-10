@@ -90,7 +90,8 @@ public final class Secret {
 
     @NotNull
     public synchronized Secret snapshot() {
-        return new Secret(type, null, this::getUser, token, loaded);
+        String secretUser = getUser();
+        return new Secret(type, null, () -> secretUser, token, loaded);
     }
 
     public synchronized void ensureLoaded() {
