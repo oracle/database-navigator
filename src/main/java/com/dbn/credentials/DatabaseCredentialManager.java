@@ -78,7 +78,6 @@ public class DatabaseCredentialManager extends ApplicationComponentBase {
         boolean updateSucceeded = true;
         for (int i = 0; i < newSecrets.length; i++) {
             Secret oldSecret = oldSecrets[i];
-            if (oldSecret == null) continue;
             Secret newSecret = newSecrets[i];
             updateSucceeded &= updateSecret(ownerId, oldSecret, newSecret);
         }
@@ -109,7 +108,7 @@ public class DatabaseCredentialManager extends ApplicationComponentBase {
         }
     }
 
-    public boolean updateSecret(@NotNull Object ownerId, Secret oldSecret, Secret newSecret) {
+    public boolean updateSecret(@NotNull Object ownerId, @NotNull Secret oldSecret, @NotNull Secret newSecret) {
         boolean updateSucceeded = true;
         String oldUser = oldSecret.getUser();
         String newUser = newSecret.getUser();
