@@ -20,7 +20,6 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
-import com.dbn.common.util.GuardedBlocks;
 import com.dbn.common.util.Strings;
 import com.dbn.editor.data.filter.DatasetCustomFilter;
 import com.dbn.language.sql.SQLFileType;
@@ -46,6 +45,7 @@ import java.util.Objects;
 import static com.dbn.common.ui.util.ClientProperty.COMPONENT_GROUP_QUALIFIER;
 import static com.dbn.common.ui.util.ClientProperty.NO_INDENT;
 import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.common.util.GuardedBlocks.createGuardedBlock;
 import static com.dbn.editor.code.content.GuardedBlockType.READONLY_DOCUMENT_SECTION;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -104,10 +104,10 @@ public class DatasetCustomFilterForm extends ConfigurationEditorForm<DatasetCust
         PsiFile selectStatementFile = filterFile.initializePsiFile(viewProvider, SQLLanguage.INSTANCE);
 
         document = Documents.ensureDocument(selectStatementFile);
-        GuardedBlocks.createGuardedBlock(document, READONLY_DOCUMENT_SECTION, 0, conditionOffset,
-                txt("app.dataEditor.hint.ReadonlyFilterQueryPrefix"));
         editor = Editors.createEditor(document, project, filterFile, SQLFileType.INSTANCE);
         Editors.initEditorHighlighter(editor, SQLLanguage.INSTANCE, dataset);
+        createGuardedBlock(document, READONLY_DOCUMENT_SECTION, 0, conditionOffset,
+                txt("app.dataEditor.hint.ReadonlyFilterQueryPrefix"));
 
         editor.setEmbeddedIntoDialogWrapper(true);
         editor.getCaretModel().moveToOffset(conditionOffset);

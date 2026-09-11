@@ -17,6 +17,7 @@
 package com.dbn.common.util;
 
 import com.dbn.common.action.UserDataKeys;
+import com.dbn.common.thread.Write;
 import com.dbn.editor.code.content.GuardedBlockMarkers;
 import com.dbn.editor.code.content.GuardedBlockType;
 import com.intellij.openapi.editor.Document;
@@ -25,34 +26,38 @@ import com.intellij.openapi.editor.RangeMarker;
 import com.intellij.openapi.editor.colors.EditorColors;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.editor.ex.DocumentEx;
-import com.intellij.util.Range;
+import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@UtilityClass
 public class GuardedBlocks {
-    private GuardedBlocks(){}
 
     public static void createGuardedBlock(Document document, GuardedBlockType type, @Nullable @Nls String reason, boolean highlight) {
-        createGuardedBlock(document, type, 0, document.getTextLength(), reason);
-        if (highlight) return;
+        Write.run(() -> {
+            doCreateGuardedBlock(document, type, 0, document.getTextLength(), reason);
+            if (highlight) return;
 
-        Editor[] editors = Documents.getEditors(document);
-        for (Editor editor : editors) {
-            EditorColorsScheme scheme = editor.getColorsScheme();
-            scheme.setColor(EditorColors.READONLY_FRAGMENT_BACKGROUND_COLOR, scheme.getDefaultBackground());
-        }
+            Editor[] editors = Documents.getEditors(document);
+            for (Editor editor : editors) {
+                EditorColorsScheme scheme = editor.getColorsScheme();
+                scheme.setColor(EditorColors.READONLY_FRAGMENT_BACKGROUND_COLOR, scheme.getDefaultBackground());
+            }
+        });
     }
 
     public static void createGuardedBlocks(Document document, GuardedBlockType type, GuardedBlockMarkers ranges, @Nullable @Nls String reason) {
-        for (Range<Integer> range : ranges.getRanges()) {
-            createGuardedBlock(document, type, range.getFrom(), range.getTo(), reason);
-        }
+        Write.run(() -> ranges.getRanges().forEach(r -> doCreateGuardedBlock(document, type, r.getFrom(), r.getTo(), reason)));
     }
 
     public static void createGuardedBlock(Document document, GuardedBlockType type, int startOffset, int endOffset, @Nullable @Nls String reason) {
+        Write.run(() -> doCreateGuardedBlock(document, type, startOffset, endOffset, reason));
+    }
+
+    private static void doCreateGuardedBlock(Document document, GuardedBlockType type, int startOffset, int endOffset, @Nullable @Nls String reason) {
         int textLength = document.getTextLength();
         endOffset = Math.min(endOffset, textLength);
 
@@ -66,6 +71,10 @@ public class GuardedBlocks {
     }
 
     public static void removeGuardedBlocks(Document document, GuardedBlockType type) {
+        Write.run(() -> doRemoveGuardedBlocks(document, type));
+    }
+
+    private static void doRemoveGuardedBlocks(Document document, GuardedBlockType type) {
         if (document instanceof DocumentEx documentEx) {
             List<RangeMarker> guardedBlocks = new ArrayList<>(documentEx.getGuardedBlocks());
             for (RangeMarker block : guardedBlocks) {
