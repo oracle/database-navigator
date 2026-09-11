@@ -82,30 +82,25 @@ public class DatabaseCredentialManager extends ApplicationComponentBase {
             updateSucceeded &= updateSecret(ownerId, oldSecret, newSecret);
         }
 
-        if (updateSucceeded) {
-            cleanupPreviousSecrets(ownerId, oldSecrets, newSecrets);
+        if (updateSucceeded && !cleanupPreviousSecrets(ownerId, oldSecrets)) {
+            log.warn("Failed to remove previous secret entries for owner {}", ownerId);
         }
     }
 
-    private void cleanupPreviousSecrets(
+    private boolean cleanupPreviousSecrets(
             @NotNull Object ownerId,
-            @NotNull Secret[] oldSecrets,
-            @NotNull Secret[] newSecrets) {
-        if (!(ownerId instanceof SecretOwnerId secretOwnerId)) {
-            return;
-        }
+            @NotNull Secret[] oldSecrets) {
+        if (!(ownerId instanceof SecretOwnerId secretOwnerId)) return true;
 
         SecretOwnerId previousOwnerId = secretOwnerId.getPrevious();
-        if (previousOwnerId == null) return;
-        if (Objects.equals(ownerId.toString(), previousOwnerId.toString())) return;
+        if (previousOwnerId == null) return true;
+        if (Objects.equals(ownerId.toString(), previousOwnerId.toString())) return true;
 
-        for (int i = 0; i < oldSecrets.length; i++) {
-            Secret oldSecret = oldSecrets[i];
-            Secret newSecret = newSecrets[i];
-            if (oldSecret.isLoaded() || newSecret.isProvided()) {
-                removeSecret(previousOwnerId, oldSecret);
-            }
+        boolean cleanupSucceeded = true;
+        for (Secret oldSecret : oldSecrets) {
+            cleanupSucceeded &= removeSecret(previousOwnerId, oldSecret);
         }
+        return cleanupSucceeded;
     }
 
     public boolean updateSecret(@NotNull Object ownerId, @NotNull Secret oldSecret, @NotNull Secret newSecret) {
