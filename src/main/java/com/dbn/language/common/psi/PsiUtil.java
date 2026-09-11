@@ -30,6 +30,7 @@ import com.dbn.language.common.psi.lookup.LookupAdapters;
 import com.dbn.language.common.psi.lookup.PsiLookupAdapter;
 import com.dbn.object.DBSchema;
 import com.dbn.object.type.DBObjectType;
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.lang.Language;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -416,5 +417,17 @@ public class PsiUtil {
     public static FileManager getFileManager(Project project) {
         PsiManagerEx psiManager = (PsiManagerEx) PsiManager.getInstance(project);
         return psiManager.getFileManager();
+    }
+
+    public static void setHighlightingEnabled(@Nullable PsiFile psiFile, boolean enabled) {
+        if (psiFile == null) return;
+        if (!psiFile.isValid()) return;
+
+        Project project = psiFile.getProject();
+        DaemonCodeAnalyzer codeAnalyzer = DaemonCodeAnalyzer.getInstance(project);
+        codeAnalyzer.setHighlightingEnabled(psiFile, enabled);
+        if (enabled) {
+            codeAnalyzer.restart(psiFile);
+        }
     }
 }
