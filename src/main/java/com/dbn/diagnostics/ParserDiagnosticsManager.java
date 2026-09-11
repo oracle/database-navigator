@@ -121,12 +121,15 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
         String scrambledCode = new String(scrambled, charset);
 
         ParserIssueReportInput input = new ParserIssueReportInput(
-                scrambledCode, fileType, psiFile.getLanguageDialect(), attachment);
+                scrambledCode, charset, fileType, psiFile.getLanguageDialect(), attachment);
         Dialogs.show(() -> new ParserIssueReportDialog(getProject(), input),
                 whenOk(d -> sendParserIssueReport(input)));
     }
 
+    @SneakyThrows
     private void sendParserIssueReport(ParserIssueReportInput input) {
+        FileUtil.writeToFile(input.getFile(), input.getCodeBytes());
+
         IdeaLoggingEvent event = new IdeaLoggingEvent("Parser issue",
                 new IllegalArgumentException("Parser error"),
                 input);

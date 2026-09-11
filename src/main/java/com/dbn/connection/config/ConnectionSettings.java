@@ -21,13 +21,15 @@ import com.dbn.common.options.Configuration;
 import com.dbn.common.property.PropertyHolder;
 import com.dbn.common.util.Cloneable;
 import com.dbn.connection.ConnectionId;
-import com.dbn.connection.ConnectionSecretOwnerId;
+import com.dbn.connection.ConnectionSecretOwner;
 import com.dbn.connection.DatabaseInterfacesBundle;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.ui.ConnectionSettingsForm;
+import com.dbn.credentials.SecretOwnerId;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguageDialect;
+import com.intellij.openapi.options.ConfigurationException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -57,6 +59,7 @@ public class ConnectionSettings extends CompositeProjectConfiguration<Connection
 
 
     private final PropertyHolder<ConnectionSettingsStatus> status = intBase(ConnectionSettingsStatus.VALUES).with(ACTIVE, SIGNED);
+    private transient SecretOwnerId previousSecretOwnerId;
 
     private final ConnectionDatabaseSettings databaseSettings;
     private final @Getter(lazy = true) ConnectionPropertiesSettings propertiesSettings = new ConnectionPropertiesSettings(this);
@@ -134,12 +137,22 @@ public class ConnectionSettings extends CompositeProjectConfiguration<Connection
 
     @NotNull
     public Object getSecretOwnerId() {
-        return ConnectionSecretOwnerId.create(getProject(), getConnectionId(), getSecretOwnerName());
+        return  ConnectionSecretOwner.create(this, previousSecretOwnerId);
     }
 
     @NotNull
     public String getSecretOwnerName() {
         return getDatabaseSettings().getName();
+    }
+
+    @Override
+    public void apply() throws ConfigurationException {
+        previousSecretOwnerId = ConnectionSecretOwner.create(this, null);
+        try {
+            super.apply();
+        } finally {
+            previousSecretOwnerId = null;
+        }
     }
 
     @Override

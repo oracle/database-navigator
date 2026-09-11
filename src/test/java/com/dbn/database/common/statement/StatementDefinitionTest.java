@@ -21,13 +21,18 @@ import com.dbn.database.postgres.PostgresDataDefinitionInterface;
 import com.dbn.language.common.quotes.QuoteDefinition;
 import com.dbn.language.common.quotes.QuotePair;
 import org.jdom.Element;
+import org.jdom.input.SAXBuilder;
 import org.junit.Test;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
+import java.io.InputStream;
+import java.net.URL;
 import java.sql.SQLException;
 
-import static com.dbn.common.util.XmlContents.fileToElement;
 import static com.dbn.language.common.quotes.QuoteEscaping.DATABASE;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class StatementDefinitionTest {
@@ -166,7 +171,10 @@ public class StatementDefinitionTest {
 
     @Test
     public void prepareStatementTextQuotesPostgresDropTriggerIdentifiers() throws Exception {
-        Element dataDictionary = fileToElement(PostgresDataDefinitionInterface.class, "postgres_ddl_interface.xml");
+        assertNotNull(PostgresDataDefinitionInterface.class
+                .getResource("../statement-interface.dtd"));
+
+        Element dataDictionary = loadDefinition(PostgresDataDefinitionInterface.class, "postgres_ddl_interface.xml");
         StatementDefinition definition = statementDefinition(dataDictionary, "drop-trigger");
 
         String statementText = definition.prepareStatementText(
@@ -182,7 +190,7 @@ public class StatementDefinitionTest {
 
     @Test
     public void prepareStatementTextEscapesProgramBreakpointObjectNames() throws Exception {
-        Element dataDictionary = fileToElement(OracleDebuggerInterface.class, "oracle_debug_interface.xml");
+        Element dataDictionary = loadDefinition(OracleDebuggerInterface.class, "oracle_debug_interface.xml");
         Element processor = dataDictionary.getChildren("statement-execution-processor").stream()
                 .filter(element -> "add-program-breakpoint".equals(element.getAttributeValue("id")))
                 .findFirst()
@@ -203,7 +211,7 @@ public class StatementDefinitionTest {
 
     @Test
     public void prepareStatementTextBindsDebuggerArgumentsAndEscapesAssignmentText() throws Exception {
-        Element dataDictionary = fileToElement(OracleDebuggerInterface.class, "oracle_debug_interface.xml");
+        Element dataDictionary = loadDefinition(OracleDebuggerInterface.class, "oracle_debug_interface.xml");
 
         StatementDefinition jdwpDefinition = statementDefinition(dataDictionary, "connect-jdwp-session");
         String jdwpStatementText = jdwpDefinition.prepareStatementText(
@@ -236,6 +244,27 @@ public class StatementDefinitionTest {
                 "text'; injected");
 
         assertTrue(assignmentStatementText.contains("v_assignment_statement := 'VALUE''; injected' || ' := ' || 'text''; injected' || ';';"));
+    }
+
+    private static Element loadDefinition(Class<?> owner, String fileName) throws Exception {
+        URL xmlUrl = owner.getResource(fileName);
+        URL dtdUrl = owner.getResource("../statement-interface.dtd");
+        assertNotNull(xmlUrl);
+        assertNotNull(dtdUrl);
+
+        SAXBuilder builder = new SAXBuilder();
+        builder.setEntityResolver((publicId, systemId) -> {
+            if (systemId != null && systemId.endsWith("/statement-interface.dtd")) {
+                InputSource source = new InputSource(dtdUrl.openStream());
+                source.setSystemId(dtdUrl.toExternalForm());
+                return source;
+            }
+            throw new SAXException("Unexpected external resource: " + systemId);
+        });
+
+        try (InputStream input = xmlUrl.openStream()) {
+            return builder.build(input, xmlUrl.toExternalForm()).getRootElement();
+        }
     }
 
     private static StatementDefinition statementDefinition(Element dataDictionary, String id) {

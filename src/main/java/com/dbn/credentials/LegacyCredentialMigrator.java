@@ -27,6 +27,7 @@ import com.dbn.common.util.Modality;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.ConnectionSettings;
+import com.dbn.connection.config.ConnectionSshTunnelSettings;
 import com.dbn.connection.config.ReverseSshTunnelConfiguration;
 import com.dbn.options.ProjectSettingsManager;
 import com.intellij.credentialStore.CredentialAttributes;
@@ -42,6 +43,9 @@ import static com.dbn.common.notification.NotificationCategory.CONNECTION;
 import static com.dbn.common.notification.NotificationSupport.sendInfoNotification;
 import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Messages.options;
+import static com.dbn.common.util.Strings.isEmptyOrSpaces;
+import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
+import static com.dbn.common.util.Strings.truncateWithMiddleEllipsis;
 import static com.dbn.credentials.DatabaseCredentialManager.createAttributes;
 import static com.dbn.credentials.Secrets.initialize;
 import static com.dbn.nls.NlsResources.txt;
@@ -59,6 +63,7 @@ import static com.dbn.nls.NlsResources.txt;
  * This class should disappear once legacy credential keys are no longer supported.
  */
 public class LegacyCredentialMigrator {
+    private static final int ENDPOINT_MAX_LENGTH = 80;
     private static final StateCategory SECRET_STORAGE_MIGRATION = StateCategory.get("SECRET_STORAGE_MIGRATION");
 
     private final ProjectSettingsManager settingsManager;
@@ -168,7 +173,10 @@ public class LegacyCredentialMigrator {
             int option = Messages.showConfirmationDialog(
                     connection.getProject(),
                     txt("msg.credentials.title.CredentialRestore"),
-                    txt("msg.credentials.question.ConnectionCredentialRestore", connection.getName()),
+                    txt(
+                            "msg.credentials.question.ConnectionCredentialRestore",
+                            connection.getName(),
+                            preview(candidates)),
                     options(
                             txt("msg.credentials.button.RestoreAndConnect"),
                             txt("msg.credentials.button.RestoreAllCredentials"),
@@ -218,7 +226,7 @@ public class LegacyCredentialMigrator {
                         .getCredentialSettings()
                         .getCredentials()
                         .getElements()) {
-            add(candidates, credential);
+            add(candidates, credential, null);
         }
         return candidates;
     }
@@ -226,23 +234,43 @@ public class LegacyCredentialMigrator {
     private static List<Candidate> candidates(ConnectionSettings connection) {
         List<Candidate> candidates = new ArrayList<>();
         ConnectionDatabaseSettings databaseSettings = connection.getDatabaseSettings();
-        add(candidates, databaseSettings.getAuthenticationInfo());
-        add(candidates, connection.getSshTunnelSettings());
+        add(candidates, databaseSettings.getAuthenticationInfo(), getDatabaseEndpoint(databaseSettings));
+
+        ConnectionSshTunnelSettings sshTunnelSettings = connection.getSshTunnelSettings();
+        add(candidates, sshTunnelSettings, getEndpoint(sshTunnelSettings.getHost(), sshTunnelSettings.getPort()));
+
         ReverseSshTunnelConfiguration reverseSshTunnelConfig =
                 connection.getDebuggerSettings().getReverseSshTunnelConfig();
-        add(candidates, reverseSshTunnelConfig);
+        add(candidates, reverseSshTunnelConfig, getEndpoint(reverseSshTunnelConfig.getHost(), reverseSshTunnelConfig.getPort()));
         return candidates;
     }
 
-    private static void add(List<Candidate> candidates, SecretsOwner owner) {
+    private static void add(List<Candidate> candidates, SecretsOwner owner, String endpoint) {
         for (Secret secret : owner.getSecrets()) {
             candidates.add(new Candidate(
                     owner,
                     secret.getType(),
                     owner.getSecretOwnerId(),
                     owner.getSecretOwnerName(),
+                    endpoint,
                     secret.getUser()));
         }
+    }
+
+    private static String getDatabaseEndpoint(ConnectionDatabaseSettings settings) {
+        String connectionUrl = settings.getConnectionUrl();
+        if (isNotEmptyOrSpaces(connectionUrl)) {
+            return truncateWithMiddleEllipsis(connectionUrl, ENDPOINT_MAX_LENGTH);
+        }
+
+        return getEndpoint(
+                settings.getDatabaseInfo().getHost(),
+                settings.getDatabaseInfo().getPort());
+    }
+
+    private static String getEndpoint(String host, String port) {
+        if (isEmptyOrSpaces(host)) return "";
+        return isEmptyOrSpaces(port) ? host : host + ":" + port;
     }
 
     private static int migrate(List<Candidate> candidates) {
@@ -314,18 +342,36 @@ public class LegacyCredentialMigrator {
         int limit = Math.min(candidates.size(), 8);
         for (int i = 0; i < limit; i++) {
             Candidate candidate = candidates.get(i);
-            builder.append("\n - ")
-                    .append(candidate.type().getName())
-                    .append(": ")
-                    .append(candidate.user())
-                    .append("@")
-                    .append(candidate.legacyOwnerId());
+            builder.append("\n - ");
+            String endpoint = candidate.endpoint();
+            String typeName = candidate.type().getName();
+            String legacyOwnerId = candidate.legacyOwnerId();
+            String displayIdentifier = displayIdentifier(candidate.user());
+
+            if (isEmptyOrSpaces(endpoint)) {
+                builder.append(txt(
+                        "msg.credentials.text.CredentialRestoreEntry",
+                        typeName,
+                        legacyOwnerId,
+                        displayIdentifier));
+            } else {
+                builder.append(txt(
+                        "msg.credentials.text.CredentialRestoreConnectionEntry",
+                        typeName,
+                        legacyOwnerId,
+                        endpoint,
+                        displayIdentifier));
+            }
         }
         if (candidates.size() > limit) {
-            builder.append("\n - ")
-                    .append(txt("msg.credentials.text.CredentialRestoreMore", candidates.size() - limit));
+            builder.append("\n - ");
+            builder.append(txt("msg.credentials.text.CredentialRestoreMore", candidates.size() - limit));
         }
         return builder.toString();
+    }
+
+    private static String displayIdentifier(String identifier) {
+        return isEmptyOrSpaces(identifier) ? "default" : identifier;
     }
 
     private record Candidate(
@@ -333,6 +379,7 @@ public class LegacyCredentialMigrator {
             SecretType type,
             Object ownerId,
             String legacyOwnerId,
+            String endpoint,
             String user) {}
 
 }

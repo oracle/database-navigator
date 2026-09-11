@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,7 +72,7 @@ public class ConnectionBundle extends StatefulDisposableBase implements BrowserT
                         ConnectionId.VIRTUAL_ORACLE,
                         "Virtual - Oracle 26.0",
                         DatabaseType.ORACLE,
-                        10.1,
+                        26.0,
                         this));
 
         virtualConnections.put(
@@ -81,7 +81,7 @@ public class ConnectionBundle extends StatefulDisposableBase implements BrowserT
                         ConnectionId.VIRTUAL_MYSQL,
                         "Virtual - MySQL 7.9",
                         DatabaseType.MYSQL,
-                        5.0,
+                        7.9,
                         this));
 
         virtualConnections.put(ConnectionId.VIRTUAL_POSTGRES,
@@ -97,7 +97,7 @@ public class ConnectionBundle extends StatefulDisposableBase implements BrowserT
                         ConnectionId.VIRTUAL_SQLITE,
                         "Virtual - SQLite 3.53.3",
                         DatabaseType.SQLITE,
-                        3.10,
+                        3.53,
                         this));
 
         virtualConnections.put(

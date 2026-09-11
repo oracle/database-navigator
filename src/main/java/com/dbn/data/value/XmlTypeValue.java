@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,62 +16,52 @@
 
 package com.dbn.data.value;
 
-import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.connection.jdbc.DBNResultSet;
+import com.dbn.common.reflection.ObjectProxies;
+import com.dbn.common.reflection.ProxyObject;
+import com.dbn.common.util.Safe;
 import com.dbn.data.type.GenericDataType;
+import com.dbn.database.oracle.jdbc.OracleCallableStatement;
+import com.dbn.database.oracle.jdbc.OracleResultSet;
+import com.dbn.database.oracle.jdbc.OracleXmlType;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class XmlTypeValue extends LargeObjectValue{
-    //private XMLType xmlType;
-    private Object xmlType;
+import static com.dbn.common.util.Commons.fallback;
+import static com.dbn.connection.jdbc.DBNResource.unwrap;
+import static com.dbn.database.oracle.jdbc.OracleXmlType.createXML;
+
+public class XmlTypeValue extends LargeObjectValue {
+    private OracleXmlType xmlType;
 
     public XmlTypeValue() {
     }
 
     public XmlTypeValue(CallableStatement callableStatement, int parameterIndex) throws SQLException {
-/*
-        OracleCallableStatement oracleCallableStatement = (OracleCallableStatement) callableStatement;
-        OPAQUE opaque = oracleCallableStatement.getOPAQUE(parameterIndex);
-        if (opaque instanceof XMLType) {
-            xmlType = (XMLType) opaque;
-        } else {
-            xmlType = opaque == null ? null : XMLType.createXML(opaque);
-        }
-*/
-
-        XmlTypeDelegate d = XmlTypeDelegate.get(callableStatement);
-        Object opaque = d.getOpaque(callableStatement, parameterIndex);
+        callableStatement = unwrap(callableStatement);
+        OracleCallableStatement oracleCallableStatement = ObjectProxies.create(callableStatement, OracleCallableStatement.class);
+        Object opaque = oracleCallableStatement.getOPAQUE(parameterIndex);
         if (opaque == null) return;
 
-        xmlType = d.isXmlType(opaque) ? opaque : d.createXml(opaque);
+        xmlType = createXML(opaque);
     }
 
     public XmlTypeValue(ResultSet resultSet, int columnIndex) throws SQLException {
-/*
-        resultSet = DBNResultSet.getInner(resultSet);
+        resultSet = unwrap(resultSet);
 
-        OracleResultSet oracleResultSet = (OracleResultSet) resultSet;
-        OPAQUE opaque = oracleResultSet.getOPAQUE(columnIndex);
-        if (opaque instanceof XMLType) {
-            xmlType = (XMLType) opaque;
-        } else {
-            xmlType = opaque == null ? null : XMLType.createXML(opaque);
-        }
-*/
-
-        XmlTypeDelegate d = XmlTypeDelegate.get(resultSet);
-        resultSet = DBNResultSet.getInner(resultSet);
-
-        Object opaque = d.getOpaque(resultSet, columnIndex);
+        OracleResultSet oracleResultSet = ObjectProxies.create(resultSet, OracleResultSet.class);
+        Object opaque = oracleResultSet.getOPAQUE(columnIndex);
         if (opaque == null) return;
 
-        xmlType = d.isXmlType(opaque) ? opaque : d.createXml(opaque);
+        xmlType = createXML(opaque);
     }
 
 
@@ -97,49 +87,33 @@ public class XmlTypeValue extends LargeObjectValue{
     @Nullable
     public String read(int maxSize) throws SQLException {
         if (xmlType == null) return null;
-        XmlTypeDelegate d = XmlTypeDelegate.get(xmlType);
-        String value = d.getStringValue(xmlType);
-        if (value == null || maxSize <= 0 || value.length() <= maxSize) {
-            setTruncated(false);
-            return value;
-        }
 
-        setTruncated(true);
-        return value.substring(0, maxSize);
+        Reader reader = fallback(
+                () -> Safe.call(xmlType.getClobVal(), c -> c.getCharacterStream()),
+                () -> Safe.call(xmlType.getInputStream(), s -> new InputStreamReader(s, StandardCharsets.UTF_8)),
+                () -> Safe.call(xmlType.getStringVal(), StringReader::new));
+
+        return readCharacterStream(reader, maxSize);
     }
 
 
     @Override
     public void write(Connection connection, PreparedStatement preparedStatement, int parameterIndex, @Nullable String value) throws SQLException {
-/*
-        connection = DBNConnection.getInner(connection);
-        xmlType = XMLType.createXML(connection, value);
-        preparedStatement.setObject(parameterIndex, xmlType);
-*/
+        connection = unwrap(connection);
+        preparedStatement = unwrap(preparedStatement);
 
-        XmlTypeDelegate d = XmlTypeDelegate.get(preparedStatement);
-        connection = DBNConnection.getInner(connection);
-        xmlType = d.createXml(connection, value);
-        preparedStatement.setObject(parameterIndex, xmlType);
+        xmlType = createXML(preparedStatement, connection, value);
+        preparedStatement.setObject(parameterIndex, ProxyObject.unwrap(xmlType));
     }
 
     @Override
     public void write(Connection connection, ResultSet resultSet, int columnIndex, @Nullable String value) throws SQLException {
-/*
-        connection = DBNConnection.getInner(connection);
-        resultSet = DBNResultSet.getInner(resultSet);
+        connection = unwrap(connection);
+        resultSet = unwrap(resultSet);
 
-        OracleResultSet oracleResultSet = (OracleResultSet) resultSet;
-        xmlType = value == null ? null : XMLType.createXML(connection, value);
+        xmlType = value == null ? null : createXML(resultSet, connection, value);
+        OracleResultSet oracleResultSet = ObjectProxies.create(resultSet, OracleResultSet.class);
         oracleResultSet.updateOracleObject(columnIndex, xmlType);
-*/
-
-        XmlTypeDelegate d = XmlTypeDelegate.get(resultSet);
-        connection = DBNConnection.getInner(connection);
-        resultSet = DBNResultSet.getInner(resultSet);
-
-        xmlType = value == null ? null : d.createXml(connection, value);
-        d.updateResultSetObject(resultSet, columnIndex, xmlType);
     }
 
     @Override
