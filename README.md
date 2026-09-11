@@ -1,3 +1,5 @@
+TEST OGHO template checks, do not merge
+
 # Oracle® Database Navigator for IntelliJ IDEA
 
 [![JetBrains Plugin](https://img.shields.io/jetbrains/plugin/v/1800-database-navigator.svg)](https://plugins.jetbrains.com/plugin/1800-database-navigator)
