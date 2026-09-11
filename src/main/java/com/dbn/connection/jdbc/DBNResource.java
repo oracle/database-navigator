@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,12 +29,13 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.connection.jdbc.ResourceStatus.INITIALIZED;
 import static com.dbn.diagnostics.Diagnostics.isDatabaseResourceDebug;
 
 @Getter
 @Slf4j
-public abstract class DBNResource<T> extends ResourceStatusHolder implements Resource{
+public abstract class DBNResource<T extends AutoCloseable> extends ResourceStatusHolder implements Resource{
     private final long initTimestamp = System.currentTimeMillis();
     private final ResourceType resourceType;
     private final ConnectionId connectionId;
@@ -172,4 +173,11 @@ public abstract class DBNResource<T> extends ResourceStatusHolder implements Res
 
     @Nullable
     public abstract DBNConnection getConnection();
+
+    public static <R extends AutoCloseable> R unwrap(R resource) {
+        if (resource instanceof DBNResource dbnResource) {
+            return cast(dbnResource.getInner());
+        }
+        return resource;
+    }
 }

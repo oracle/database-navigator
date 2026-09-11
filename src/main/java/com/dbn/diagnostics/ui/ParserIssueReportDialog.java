@@ -37,4 +37,10 @@ public class ParserIssueReportDialog extends DBNDialog<ParserIssueReportForm> {
         renameAction(getCancelAction(), txt("msg.shared.button.Cancel"));
         return actions(getOKAction(), getCancelAction());
     }
+
+    @Override
+    protected void doOKAction() {
+        getForm().applyFormChanges();
+        super.doOKAction();
+    }
 }

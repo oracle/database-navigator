@@ -29,6 +29,10 @@ import com.dbn.language.common.psi.PsiUtil;
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.codeInsight.folding.CodeFoldingManager;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.command.impl.UndoManagerImpl;
+import com.intellij.openapi.command.undo.DocumentReference;
+import com.intellij.openapi.command.undo.DocumentReferenceManager;
+import com.intellij.openapi.command.undo.UndoManager;
 import com.intellij.openapi.command.undo.UndoUtil;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -297,6 +301,7 @@ public class Documents {
 
         UndoUtil.enableUndoFor(document);
         UndoUtil.disableUndoIn(document, () -> setText(editor, text, format));
+        clearUndoHistory(editor.getProject(),  document);
     }
 
     public static String getText(@NotNull Document document) {
@@ -338,5 +343,19 @@ public class Documents {
                 consumer.accept(event);
             }
         }, parentDisposable);
+    }
+
+    public static void clearUndoHistory(Project project, Document document) {
+        Write.run(() -> {
+            DocumentReference reference = DocumentReferenceManager.getInstance().create(document);
+            invalidateUndoActions(UndoManager.getInstance(project), reference);
+            invalidateUndoActions(UndoManager.getGlobalInstance(), reference);
+        });
+    }
+
+    private static void invalidateUndoActions(UndoManager undoManager, DocumentReference reference) {
+        if (undoManager instanceof UndoManagerImpl undoManagerImpl) {
+            undoManagerImpl.invalidateActionsFor(reference);
+        }
     }
 }

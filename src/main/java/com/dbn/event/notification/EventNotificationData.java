@@ -28,28 +28,37 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import static java.util.Collections.emptyList;
 
 public class EventNotificationData extends StatefulDisposableBase {
-    private final Map<ConnectionId, List<DataChangeNotification>> notifications = new ConcurrentHashMap<>();
+    // Keep the UI history bounded while retaining a separate change watermark for stale-data detection.
+    static final int MAX_NOTIFICATIONS_PER_CONNECTION = 10_000;
+
+    private final Map<ConnectionId, EventNotificationBuffer> notifications = new ConcurrentHashMap<>();
     private final Listeners<DataChangeNotificationListener> listeners = Listeners.create(this);
 
     public void pushEvent(ConnectionId connectionId, DataChangeNotification event) {
-        List<DataChangeNotification> notifications = ensureNotifications(connectionId);
-        notifications.add(event);
+        EventNotificationBuffer notifications = ensureNotifications(connectionId);
+        notifications.push(event);
         listeners.notify(l -> l.accept(event));
     }
 
     @NotNull
-    private List<DataChangeNotification> ensureNotifications(ConnectionId connectionId) {
-        return notifications.computeIfAbsent(connectionId, k -> new CopyOnWriteArrayList<>());
+    private EventNotificationBuffer ensureNotifications(ConnectionId connectionId) {
+        return notifications.computeIfAbsent(connectionId, k -> new EventNotificationBuffer());
     }
 
     public List<DataChangeNotification> getNotifications(ConnectionId connectionId) {
-        List<DataChangeNotification> notifications = this.notifications.get(connectionId);
-        return notifications == null ? emptyList() : notifications;
+        EventNotificationBuffer notifications = this.notifications.get(connectionId);
+        return notifications == null ? emptyList() : notifications.snapshot();
+    }
+
+    public void removeNotifications(ConnectionId connectionId) {
+        EventNotificationBuffer notifications = this.notifications.remove(connectionId);
+        if (notifications != null) {
+            notifications.clear();
+        }
     }
 
     public void registerListener(ConnectionId connectionId, DataChangeNotificationListener listener) {
@@ -58,22 +67,14 @@ public class EventNotificationData extends StatefulDisposableBase {
 
     @Override
     public void disposeInner() {
+        notifications.values().forEach(b -> b.clear());
         Disposer.disposeMap(notifications);
     }
 
     public int countEventsSince(DBDataset dataset, long loadTimestamp) {
-        int count = 0;
-
         ConnectionId connectionId = dataset.getConnectionId();
-        List<DataChangeNotification> notifications = getNotifications(connectionId);
-        for (DataChangeNotification notification : notifications) {
-            if (!notification.matches(dataset)) continue;
-            if (!notification.isAfter(loadTimestamp)) continue;
-
-            count++;
-        }
-
-        return count;
+        EventNotificationBuffer notifications = this.notifications.get(connectionId);
+        return notifications == null ? 0 : notifications.countEventsSince(dataset, loadTimestamp);
     }
-}
 
+}

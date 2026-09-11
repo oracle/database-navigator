@@ -24,8 +24,9 @@ import static com.dbn.common.util.Documents.getDocument;
 import static com.dbn.common.util.Documents.onDocumentChanged;
 import static com.dbn.common.util.Editors.updateNotifications;
 import static com.dbn.common.util.Messages.options;
-import static com.dbn.diagnostics.ParserIssueEditorNotificationProvider.VALIDATION_PENDING;
+import static com.dbn.diagnostics.ParserIssueEditorNotificationProvider.NOTIFICATION_UPDATE_PENDING;
 import static com.dbn.diagnostics.ParserIssueEditorNotificationProvider.markDismissed;
+import static com.dbn.diagnostics.ParserIssueEditorNotificationProvider.mute;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ParserIssueEditorNotificationPanel extends EditorNotificationPanel {
@@ -49,13 +50,14 @@ public class ParserIssueEditorNotificationPanel extends EditorNotificationPanel 
     }
 
     private void refreshWhenValid(@NotNull Project project) {
-        if (contentFile.getUserData(VALIDATION_PENDING) != null) return;
-        contentFile.putUserData(VALIDATION_PENDING, true);
+        if (contentFile.getUserData(NOTIFICATION_UPDATE_PENDING) != null) return;
+        contentFile.putUserData(NOTIFICATION_UPDATE_PENDING, true);
 
         PsiDocumentManager.getInstance(project).performWhenAllCommitted(() -> {
-            contentFile.putUserData(VALIDATION_PENDING, null);
+            contentFile.putUserData(NOTIFICATION_UPDATE_PENDING, null);
             if (isDisposed() || PsiUtil.hasErrors(psiFile)) return;
 
+            mute(contentFile);
             updateNotifications(project, getFile());
         });
     }

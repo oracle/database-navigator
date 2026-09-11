@@ -98,6 +98,7 @@ import static com.dbn.common.util.Modality.nonModal;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.common.util.TimeUtil.presentableDuration;
+import static com.dbn.connection.jdbc.DBNResource.unwrap;
 import static com.dbn.liquibase.execution.LiquibaseDatabaseObjects.isLiquibaseTrackingObject;
 import static com.dbn.liquibase.execution.LiquibaseDatabaseObjects.resolveObjectType;
 import static com.dbn.liquibase.operation.LiquibaseOperationConfirmations.ensureConfirmed;
@@ -425,7 +426,7 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
         ConnectionHandler connection = schema.getConnection();
 
         withPoolConnection(context, readonly, connection, schema.getSchemaId(), c -> {
-            Connection dbConnection = DBNConnection.getInner(c);
+            Connection dbConnection = unwrap(c);
             DatabaseCompatibilityInterface compatibilityInterface = connection.getCompatibilityInterface();
             compatibilityInterface.initializeLiquibaseConnection(dbConnection);
 
