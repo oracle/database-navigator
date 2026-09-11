@@ -78,6 +78,11 @@ public class TextEditorDialog extends DBNDialog<TextEditorForm> {
                 getCancelAction());
     }
 
+    void resetActions() {
+        getOKAction().setEnabled(false);
+        renameAction(getCancelAction(), txt("msg.shared.button.Close"));
+    }
+
     @Override
     protected void doOKAction() {
         String text = getForm().getText();
