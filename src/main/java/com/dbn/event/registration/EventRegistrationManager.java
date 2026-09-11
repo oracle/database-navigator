@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,6 +72,7 @@ import static com.dbn.common.notification.NotificationCategory.DCN;
 import static com.dbn.common.operation.DatabaseOperation.ENABLE_CHANGE_NOTIFICATIONS;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Lists.toCsv;
+import static com.dbn.connection.jdbc.DBNResource.unwrap;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.event.registration.EventRegistrationManager.COMPONENT_NAME;
 import static com.dbn.language.common.quotes.QuoteEscaping.DATABASE;
@@ -319,7 +320,7 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
     }
 
     private static OracleConnection createProxy(Connection connection) {
-        Connection rawConnection = DBNConnection.getInner(connection);
+        Connection rawConnection = unwrap(connection);
         return ObjectProxies.create(rawConnection, OracleConnection.class);
     }
 

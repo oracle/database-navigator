@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,33 +26,52 @@ import static java.util.Collections.emptySet;
 
 @Slf4j
 public class IndexContainer<T extends Indexable> {
-    protected final IndexCollection INDEX = new IndexCollection();
+    protected IndexCollection indices = new ArrayIndexCollection();
 
     public void add(T element) {
-        INDEX.add(element.index());
+        indices.add(element.index());
+    }
+
+    public void add(int index) {
+        indices.add(index);
+    }
+
+    public boolean addIfAbsent(T element) {
+        return indices.addIfAbsent(element.index());
+    }
+
+    public boolean addIfAbsent(int index) {
+        return indices.addIfAbsent(index);
     }
 
     public int size() {
-        return INDEX.size();
+        return indices.size();
     }
 
     public boolean isEmpty() {
-        return INDEX.isEmpty();
+        return indices.isEmpty();
     }
 
     public boolean contains(T indexable) {
-        return INDEX.contains(indexable.index());
+        return indices.contains(indexable.index());
+    }
+
+    public final boolean contains(int index) {
+        return indices.contains(index);
     }
 
     public Set<T> elements(IndexResolver<T> resolver) {
-        if (INDEX.isEmpty()) return emptySet();
+        if (indices.isEmpty()) return emptySet();
 
         return buildElements(resolver);
     }
 
     protected Set<T> buildElements(IndexResolver<T> resolver) {
-        Set<T> elements = new LinkedHashSet<>(INDEX.size(), 0.75f);
-        int[] values = INDEX.values();
+        return buildElements(indices.values(), resolver);
+    }
+
+    protected Set<T> buildElements(int[] values, IndexResolver<T> resolver) {
+        Set<T> elements = new LinkedHashSet<>(values.length, 0.75f);
         for (int value : values) {
             T element = resolver.apply(value);
             if (element != null) {
@@ -64,7 +83,7 @@ public class IndexContainer<T extends Indexable> {
 
     public void addAll(Collection<T> elements) {
         for (T element : elements) {
-            INDEX.add(element.index());
+            indices.add(element.index());
         }
     }
 

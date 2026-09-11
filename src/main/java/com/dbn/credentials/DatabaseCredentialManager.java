@@ -75,33 +75,55 @@ public class DatabaseCredentialManager extends ApplicationComponentBase {
             return;
         }
 
+        boolean updateSucceeded = true;
         for (int i = 0; i < newSecrets.length; i++) {
             Secret oldSecret = oldSecrets[i];
             Secret newSecret = newSecrets[i];
-            updateSecret(ownerId, oldSecret, newSecret);
+            updateSucceeded &= updateSecret(ownerId, oldSecret, newSecret);
+        }
+
+        if (updateSucceeded && !cleanupPreviousSecrets(ownerId, oldSecrets)) {
+            log.warn("Failed to remove previous secret entries for owner {}", ownerId);
         }
     }
 
-    public void updateSecret(@NotNull Object ownerId, Secret oldSecret, Secret newSecret) {
+    private boolean cleanupPreviousSecrets(
+            @NotNull Object ownerId,
+            @NotNull Secret[] oldSecrets) {
+        if (!(ownerId instanceof SecretOwnerId secretOwnerId)) return true;
+
+        SecretOwnerId previousOwnerId = secretOwnerId.getPrevious();
+        if (previousOwnerId == null) return true;
+        if (Objects.equals(ownerId.toString(), previousOwnerId.toString())) return true;
+
+        boolean cleanupSucceeded = true;
+        for (Secret oldSecret : oldSecrets) {
+            cleanupSucceeded &= removeSecret(previousOwnerId, oldSecret);
+        }
+        return cleanupSucceeded;
+    }
+
+    public boolean updateSecret(@NotNull Object ownerId, @NotNull Secret oldSecret, @NotNull Secret newSecret) {
+        boolean updateSucceeded = true;
         String oldUser = oldSecret.getUser();
         String newUser = newSecret.getUser();
         if (!match(oldUser, newUser)) {
             // username has changed. remove the secret
-            removeSecret(ownerId, oldSecret);
+            updateSucceeded = removeSecret(ownerId, oldSecret);
         }
 
         if (!oldSecret.isLoaded() && !newSecret.isProvided()) {
             log.info("Skipped empty update for unloaded secret {}", oldSecret.safePresentation());
-            return;
+            return updateSucceeded;
         }
 
-        storeSecret(ownerId, newSecret);
+        return storeSecret(ownerId, newSecret) && updateSucceeded;
     }
 
-    public void storeSecret(@NotNull Object ownerId, @NotNull Secret secret) {
+    public boolean storeSecret(@NotNull Object ownerId, @NotNull Secret secret) {
         if (!secret.isLoaded()) {
             log.info("Skipped unloaded secret {}", secret.safePresentation());
-            return;
+            return false;
         }
 
         try {
@@ -116,15 +138,17 @@ public class DatabaseCredentialManager extends ApplicationComponentBase {
             passwordSafe.set(credentialAttributes, credentials, false);
 
             log.info("Saved secret {}", secret.safePresentation());
+            return true;
         } catch (Throwable e) {
             log.error("Failed to save secret {}", secret.safePresentation(), e);
+            return false;
         }
     }
 
-    public void removeSecret(@NotNull Object ownerId, @NotNull Secret secret) {
+    public boolean removeSecret(@NotNull Object ownerId, @NotNull Secret secret) {
         // store empty secret
         Secret emptySecret = new Secret(secret.getType(), secret.getUser(), EMPTY);
-        storeSecret(ownerId, emptySecret);
+        return storeSecret(ownerId, emptySecret);
     }
 
     @NotNull

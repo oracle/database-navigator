@@ -18,6 +18,7 @@ package com.dbn.common.state;
 
 import com.dbn.common.options.setting.Settings;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.newElement;
@@ -31,11 +32,11 @@ import static com.dbn.common.options.setting.Settings.setStringAttribute;
  * @author Dan Cioca (Oracle)
  */
 public class StateAttributes extends AttributeHolderBase implements PersistentStateElement {
-    public boolean getBooleanAttribute(String name) {
+    public boolean getBooleanAttribute(@NonNls String name) {
         return Boolean.parseBoolean(getAttribute(name));
     }
 
-    public void setBooleanAttribute(String name, boolean value) {
+    public void setBooleanAttribute(@NonNls String name, boolean value) {
         setAttribute(name, String.valueOf(value));
     }
 

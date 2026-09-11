@@ -159,6 +159,10 @@ public abstract class ElementTypeCacheBase<T extends ElementTypeBase> implements
     }
 
     @Override
+    public void releaseInitState() {
+    }
+
+    @Override
     public String toString() {
         return elementType.getId();
     }
