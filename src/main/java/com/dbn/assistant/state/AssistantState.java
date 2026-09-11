@@ -86,6 +86,7 @@ import static com.dbn.common.util.Strings.isNotEmpty;
 @Getter
 @NoArgsConstructor
 public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus> implements PersistentStateElement, UserDataHolder {
+    static final int MAX_CHAT_COUNT = 512;
 
     private FeatureAvailability availability = FeatureAvailability.UNCERTAIN;
     private FeatureAcknowledgement acknowledgement = FeatureAcknowledgement.NONE;
@@ -314,7 +315,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
         acknowledgement = enumAttribute(element, "acknowledgement", acknowledgement);
 
         Element chatsElement = element.getChild("chats");
-        List<Element> chatElements = childrenOf(chatsElement);
+        List<Element> chatElements = childrenOf(chatsElement, "chat", MAX_CHAT_COUNT);
 
         for (Element chatElement : chatElements) {
             ChatContext chatContext = new ChatContextImpl(assistantType);
