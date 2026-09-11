@@ -14,26 +14,17 @@
  * limitations under the License.
  */
 
-package com.dbn.common.reflection;
+package com.dbn.database.oracle.jdbc;
 
-import org.jetbrains.annotations.Nullable;
+import com.dbn.common.reflection.ProxyObject;
+import com.dbn.common.reflection.ProxyObjectInfo;
 
-import java.lang.reflect.Method;
+import java.sql.SQLException;
 
-import static com.dbn.common.util.Unsafe.cast;
-
-public interface ProxyObject {
-    default Object getDelegate() {
-        return null;
-    }
-
-    static boolean isDelegateMethod(Method method) {
-        return method.getName().equals("getDelegate") && method.getParameterCount() == 0;
-    }
-
-    static <T> T unwrap(@Nullable ProxyObject proxy) {
-        return proxy == null ? null : cast(proxy.getDelegate());
-    }
+/**
+ * Proxy of {@code oracle.jdbc.OracleCallableStatement}.
+ */
+@ProxyObjectInfo(delegateClass = "oracle.jdbc.OracleCallableStatement")
+public interface OracleCallableStatement extends ProxyObject {
+    Object getOPAQUE(int parameterIndex) throws SQLException;
 }
-
-

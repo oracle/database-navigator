@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,13 @@
 
 package com.dbn.data.value;
 
+import com.dbn.connection.jdbc.ValueReaders;
 import com.dbn.data.type.GenericDataType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.Reader;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -39,11 +41,13 @@ public class JsonValue extends LargeObjectValue{
     }
 
     public JsonValue(CallableStatement callableStatement, int parameterIndex) throws SQLException {
-        data = callableStatement.getString(parameterIndex);
+        Reader reader = ValueReaders.getReader(callableStatement, parameterIndex);
+        data = readCharacterStream(reader, MAX_READ_SIZE);
     }
 
     public JsonValue(ResultSet resultSet, int columnIndex) throws SQLException {
-        data = resultSet.getString(columnIndex);
+        Reader reader = ValueReaders.getReader(resultSet, columnIndex);
+        data = readCharacterStream(reader, MAX_READ_SIZE);
     }
 
     @Override
@@ -67,25 +71,27 @@ public class JsonValue extends LargeObjectValue{
     @Nullable
     public String read(int maxSize) throws SQLException {
         if (data == null) return null;
-        if (maxSize <= 0 || data.length() <= maxSize) {
-            setTruncated(false);
+        int size = maxSize <= 0 ? MAX_READ_SIZE : Math.min(maxSize, MAX_READ_SIZE);
+        if (data.length() <= size) {
             return data;
         }
 
         setTruncated(true);
-        return data.substring(0, maxSize);
+        return data.substring(0, size);
     }
 
 
     @Override
     public void write(Connection connection, PreparedStatement preparedStatement, int parameterIndex, @Nullable String value) throws SQLException {
         this.data = value;
+        setTruncated(false);
         preparedStatement.setString(parameterIndex, value);
     }
 
     @Override
     public void write(Connection connection, ResultSet resultSet, int columnIndex, @Nullable String value) throws SQLException {
         this.data = value;
+        setTruncated(false);
         resultSet.updateString(columnIndex, value);
     }
 

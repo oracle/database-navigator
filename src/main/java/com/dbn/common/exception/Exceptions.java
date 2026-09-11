@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,23 +49,24 @@ public class Exceptions {
 
     @NotNull
     public static SQLException toSqlException(@NotNull Throwable e) {
-        if (e instanceof SQLException) return (SQLException) e;
-
         e = unwrap(e);
+        if (e instanceof SQLException se) return se;
+
         return new SQLException(throwableMessage(e), e);
     }
 
     @NotNull
     public static SQLException toSqlException(@NotNull Throwable e, @Nls String s) {
-        if (e instanceof SQLException) return (SQLException) e;
-
         e = unwrap(e);
+        if (e instanceof SQLException se) return se;
+
         String reason = normalizeMessage(e, s);
         return new SQLException(reason, e);
     }
 
     @NotNull
     public static SQLTimeoutException toSqlTimeoutException(@NotNull Throwable e, @Nls String s) {
+        e = unwrap(e);
         if (e instanceof SQLTimeoutException) return (SQLTimeoutException) e;
         String reason = normalizeMessage(e, s);
         return new SQLTimeoutException(reason, e);

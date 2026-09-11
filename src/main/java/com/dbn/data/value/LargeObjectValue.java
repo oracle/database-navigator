@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ package com.dbn.data.value;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.IOException;
+import java.io.Reader;
 import java.sql.SQLException;
 
 @Getter
@@ -31,5 +33,35 @@ public abstract class LargeObjectValue extends ValueAdapter<String> {
     public abstract String read(int maxSize) throws SQLException;
     public abstract long size() throws SQLException;
     public abstract void release();
+
+    protected final String readCharacterStream(Reader reader, int maxSize) throws SQLException {
+        if (reader == null) {
+            setTruncated(false);
+            return null;
+        }
+
+        int size = maxSize <= 0 ? MAX_READ_SIZE : Math.min(maxSize, MAX_READ_SIZE);
+        char[] buffer = new char[size + 1];
+        int length = 0;
+        try (Reader valueReader = reader) {
+            while (length < buffer.length) {
+                int count = valueReader.read(buffer, length, buffer.length - length);
+                if (count < 0) break;
+
+                if (count == 0) {
+                    int character = valueReader.read();
+                    if (character < 0) break;
+                    buffer[length++] = (char) character;
+                } else {
+                    length += count;
+                }
+            }
+        } catch (IOException e) {
+            throw new SQLException("Could not read large value.", e);
+        }
+
+        setTruncated(length > size);
+        return new String(buffer, 0, Math.min(length, size));
+    }
 
 }
