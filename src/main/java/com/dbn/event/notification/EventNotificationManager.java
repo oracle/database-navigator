@@ -25,6 +25,8 @@ import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.window.ToolWindows;
 import com.dbn.common.util.Conditional;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.config.ConnectionConfigAdapter;
+import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.event.registration.EventRegistrationListener;
 import com.dbn.event.ui.EventMonitorForm;
 import com.dbn.object.DBTable;
@@ -58,7 +60,13 @@ public class EventNotificationManager extends ProjectComponentBase {
     public EventNotificationManager(@NotNull Project project) {
         super(project, COMPONENT_NAME);
 
+        Disposer.register(this, notificationData);
         ProjectEvents.subscribe(project, this, EventRegistrationListener.TOPIC, createEventRegistrationListener());
+        ProjectEvents.subscribe(project, this, ConnectionConfigListener.TOPIC, createConnectionConfigListener());
+    }
+
+    private @NotNull ConnectionConfigAdapter createConnectionConfigListener() {
+        return ConnectionConfigListener.whenRemoved(id -> notificationData.removeNotifications(id));
     }
 
     private EventRegistrationListener createEventRegistrationListener() {
@@ -137,4 +145,3 @@ public class EventNotificationManager extends ProjectComponentBase {
         return contents.length > 0 ? contents[0] : null;
     }
 }
-
