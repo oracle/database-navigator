@@ -21,6 +21,7 @@ import com.dbn.common.locale.Formatter;
 import com.dbn.common.options.BasicConfiguration;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.security.DatabaseIdentifierCache;
 import com.dbn.data.type.DBDataType;
 import com.dbn.data.type.GenericDataType;
 import com.dbn.database.common.statement.SqlLiterals;
@@ -41,6 +42,7 @@ import java.util.StringTokenizer;
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Getter
@@ -106,7 +108,7 @@ public class DatasetBasicFilterCondition extends BasicConfiguration<DatasetBasic
                     StringTokenizer tokenizer = new StringTokenizer(value, ",");
                     StringBuilder valueBuilder = new StringBuilder();
                     while (tokenizer.hasMoreTokens()) {
-                        if (valueBuilder.length() > 0) valueBuilder.append(", ");
+                        if (!valueBuilder.isEmpty()) valueBuilder.append(", ");
                         String quotedValue = quoteValue(tokenizer.nextToken().trim());
                         valueBuilder.append(quotedValue);
                     }
@@ -114,7 +116,7 @@ public class DatasetBasicFilterCondition extends BasicConfiguration<DatasetBasic
                 }
                 value = "(" + value + ")";
             }
-            else if (Strings.isNotEmptyOrSpaces(value)) {
+            else if (isNotEmptyOrSpaces(value)) {
                 ConnectionHandler connection = Failsafe.nn(dataset.getConnection());
                 if (genericDataType == GenericDataType.LITERAL || genericDataType == GenericDataType.CLOB) {
                     value = quoteValue(value);
@@ -146,7 +148,10 @@ public class DatasetBasicFilterCondition extends BasicConfiguration<DatasetBasic
             }
         }
 
-        buffer.append(column == null ? columnName : column.getName(true));
+        DatabaseIdentifierCache identifierCache = dataset.getConnection().getIdentifierCache();
+        buffer.append(column == null
+                ? identifierCache.getQuotedIdentifier(Strings.nvle(columnName))
+                : column.getName(true));
         buffer.append(" ");
         buffer.append(operator == null ? " " : operator.getText());
         buffer.append(" ");
