@@ -27,6 +27,8 @@ import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.readCdata;
 import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.writeCdata;
+import static com.dbn.common.state.StateEncryption.isUnencryptedStateApproved;
+import static com.dbn.common.state.StateEncryption.requestUnencryptedStateApproval;
 import static com.dbn.common.util.Commons.nvl;
 
 public final class ProtectedContent implements PersistentStateElement {
@@ -92,8 +94,9 @@ public final class ProtectedContent implements PersistentStateElement {
                 StateEncryption.encrypt(encryptionScope, value) :
                 encryptionCache.encrypt(encryptionScope, value);
 
-        if (!storedValue.encrypted()) {
-            StateEncryption.requestUnencryptedStateApproval();
+        if (!storedValue.encrypted() && !isUnencryptedStateApproved()) {
+            requestUnencryptedStateApproval();
+            return;
         }
 
         setBooleanAttribute(element, "encrypted", storedValue.encrypted());
