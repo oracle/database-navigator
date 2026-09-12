@@ -101,6 +101,14 @@ public class UserApprovalManager extends ApplicationComponentBase implements Per
         obtainUserApproval(action, approvable, data);
     }
 
+    /**
+     * Checks whether the supplied object is already approved without opening a dialog.
+     */
+    public <T extends UserApprovable> boolean isApproved(UserApprovalAction action, T approvable) {
+        updateApprovalSignature(action, approvable);
+        return getApprovalData(getApprovalKey(action, approvable)).isApproved();
+    }
+
     private <T extends UserApprovable> void obtainUserApproval(UserApprovalAction action, T approvable, UserApprovalData data) {
         UserApprovalAdapter<T> adapter = UserApprovalAdapters.get(action, approvable);
         data.setPending(true);
