@@ -31,7 +31,6 @@ import com.dbn.common.util.Lists;
 import com.dbn.connection.config.ConnectionBundleSettings;
 import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.connection.config.ConnectionSettings;
-import com.dbn.connection.console.DatabaseConsoleManager;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.type.DBObjectType;
@@ -146,7 +145,7 @@ public class ConnectionBundle extends StatefulDisposableBase implements BrowserT
 
         this.connections = newConnections;
 
-        listChanged = listChanged || oldConnections.size() > 0;
+        listChanged = listChanged || !oldConnections.isEmpty();
         if (listChanged) {
             Project project = configuration.getProject();
             SettingsChangeNotifier.register(() -> {
@@ -167,9 +166,6 @@ public class ConnectionBundle extends StatefulDisposableBase implements BrowserT
         }
 
         rebuildIndex();
-
-        // ensure console state loaded
-        DatabaseConsoleManager.getInstance(getProject());
     }
 
     private boolean sizeChanged(FilteredList<ConnectionHandler> newConnections) {

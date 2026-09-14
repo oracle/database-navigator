@@ -1,3 +1,43 @@
+**4.1.0 - September 2026**
+- Machine Learning Toolbox
+  - Model training and prediction workflows
+  - Feature importance and attribute contribution analysis
+- Connection Config Providers
+  - OCI, AWS, Azure, GCP, and HashiCorp providers
+  - Configuration export with secret-provider support
+- Datasource Config support
+  - Browse and edit datasource configurations
+  - Create, update, and delete workflows
+- Password change / reset workflows
+  - User-initiated password changes
+  - Expired-password handling
+- MCP Server Builder enhancements
+  - Micronaut MCP server generation
+  - Build and deployment workflows
+- Liquibase integration
+  - Workspace and environment profiles
+  - Changelog, schema comparison, update, and rollback workflows
+- Data model diagrams
+  - Table relationship diagrams
+  - Database role diagrams
+- Dynamic driver downloads
+  - Metadata-driven JDBC packages
+  - On-demand download and integrity verification
+
+**4.0.0 - August 2026**
+- Vector Toolbox enhancements
+  - Additional content sources (multiple tables, user defined queries)
+  - Similarity search console
+  - DB Assistant integration (RAG)
+- Oracle OJVM module enhancements
+  - Support for java expressions as inputs to execution engine
+  - DB Assistant integration (tools)
+- DB Assistant enhancements
+  - MCP server support
+  - IDE MCP server integration
+- MCP Server Builder
+- Security fixes and performance improvements
+
 **3.7.0 - December 2025**
 - DB assistant (an AI-powered assistant with database and workspace integration)
 - Vector toolbox (a tool for vector chain embedding using Oracle DBMS_VECTOR_CHAIN)

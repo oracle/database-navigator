@@ -198,7 +198,7 @@ public class DatabaseConsoleManager extends ProjectComponentBase implements Pers
                 txt("prc.consoles.title.CreatingConsole"),
                 txt("prc.consoles.text.CreatingConsole", type.getName(), name),
                 indicator -> {
-                    DBConsole console = connection.getConsoleBundle().createConsole(name, type);
+                    DBConsole console = connection.getConsoleBundle().createConsole(name, type, true);
                     DBConsoleVirtualFile consoleFile = console.getVirtualFile();
                     consoleFile.setContent(content);
 
@@ -379,7 +379,7 @@ public class DatabaseConsoleManager extends ProjectComponentBase implements Pers
                         sessionBundle.getSession(session);
                 // type
                 DBConsoleType consoleType = enumAttribute(consoleElement, "type", DBConsoleType.STANDARD);
-                DBConsole console = consoleBundle.getConsole(consoleName, consoleType, true);
+                DBConsole console = consoleBundle.restoreConsole(consoleName, consoleType);
                 DBConsoleVirtualFile file = console.getVirtualFile();
 
                 // attributes

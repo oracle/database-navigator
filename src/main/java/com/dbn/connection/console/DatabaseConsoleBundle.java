@@ -46,7 +46,7 @@ public class DatabaseConsoleBundle extends ConnectionComponentBase {
     public synchronized List<DBConsole> getConsoles() {
         if (consoles.isEmpty()) {
             String consoleName = getConnection().getName();
-            createConsole(consoleName, DBConsoleType.STANDARD);
+            createConsole(consoleName, DBConsoleType.STANDARD, true);
         }
         return consoles;
     }
@@ -89,19 +89,26 @@ public class DatabaseConsoleBundle extends ConnectionComponentBase {
     public synchronized DBConsole getConsole(String name, DBConsoleType type, boolean create) {
         DBConsole console = getConsole(name);
         if (console == null && create) {
-            return createConsole(name, type);
+            return createConsole(name, type, true);
         }
         return console;
     }
 
-    DBConsole createConsole(String name, DBConsoleType type) {
+    synchronized DBConsole restoreConsole(String name, DBConsoleType type) {
+        DBConsole console = getConsole(name);
+        return console == null ? createConsole(name, type, false) : console;
+    }
+
+    DBConsole createConsole(String name, DBConsoleType type, boolean initialize) {
         ConnectionHandler connection = getConnection();
         DBConsole console = new DBConsoleImpl(connection, name, type);
         consoles.add(console);
         Collections.sort(consoles);
 
         DBConsoleVirtualFile virtualFile = console.getVirtualFile();
-        virtualFile.setDatabaseSchema(connection.getDefaultSchemaId());
+        if (initialize) {
+            virtualFile.setDatabaseSchema(connection.getDefaultSchemaId());
+        }
 
         return console;
     }
