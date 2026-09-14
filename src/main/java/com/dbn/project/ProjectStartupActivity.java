@@ -22,6 +22,7 @@ import com.dbn.browser.DatabaseBrowserManager;
 import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.state.StateEncryption;
 import com.dbn.connection.config.ConnectionBundleSettings;
+import com.dbn.connection.console.DatabaseConsoleManager;
 import com.dbn.options.ProjectWorkspaceSettingsManager;
 import com.dbn.plugin.PluginConflictManager;
 import com.dbn.plugin.PluginStatusManager;
@@ -41,6 +42,7 @@ public class ProjectStartupActivity implements ProjectActivity {
     public Object execute(@NotNull Project project, @NotNull Continuation<? super Unit> continuation) {
         DatabaseNavigator.getInstance();
         ConnectionBundleSettings.getInstance(project);
+        DatabaseConsoleManager.getInstance(project);
         DatabaseBrowserManager.getInstance(project);
         DatabaseAssistantManager.getInstance(project);
         ProjectComponentsInitializer.getInstance(project);

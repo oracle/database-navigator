@@ -52,6 +52,43 @@
     ]]></description>
     <change-notes><![CDATA[
         <ul>
+            <li><b>4.1.0</b>
+            <ul>
+                <li>Machine Learning Toolbox<ul>
+                    <li>Model training and prediction workflows
+                    <li>Feature importance and attribute contribution analysis
+                </ul>
+                <li>Connection Config Providers<ul>
+                    <li>OCI, AWS, Azure, GCP, and HashiCorp providers
+                    <li>Configuration export with secret-provider support
+                </ul>
+                <li>Datasource Config support<ul>
+                    <li>Browse and edit datasource configurations
+                    <li>Create, update, and delete workflows
+                </ul>
+                <li>Password change / reset workflows<ul>
+                    <li>User-initiated password changes
+                    <li>Expired-password handling
+                </ul>
+                <li>MCP Builder Micronaut server support<ul>
+                    <li>Micronaut MCP server generation
+                    <li>Build and deployment workflows
+                </ul>
+                <li>Liquibase integration<ul>
+                    <li>Workspace and environment profiles
+                    <li>Changelog, schema comparison, update, and rollback workflows
+                </ul>
+                <li>Data model diagrams<ul>
+                    <li>Table relationship diagrams
+                    <li>Database role diagrams
+                </ul>
+                <li>Dynamic driver downloads<ul>
+                    <li>Metadata-driven JDBC packages
+                    <li>On-demand download and integrity verification
+                </ul>
+                <li>Support for latest IDE versions
+                <li>Bug fixes
+            </ul>
             <li><b>4.0.0</b>
             <ul>
                 <li>Vector Toolbox enhancements<ul>
