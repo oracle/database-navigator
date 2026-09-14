@@ -35,6 +35,7 @@ import com.intellij.credentialStore.Credentials;
 import com.intellij.credentialStore.OneTimeString;
 import com.intellij.ide.passwordSafe.PasswordSafe;
 import com.intellij.openapi.project.Project;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,12 +57,12 @@ import static com.dbn.nls.NlsResources.txt;
  * <p>
  * Migration is intentionally user supervised: legacy entries are detected and
  * copied only after the user confirms either the project-wide restore prompt or
- * the single-connection restore prompt. Legacy PasswordSafe entries are left in
- * place so users can still roll back to an older plugin version during the
- * transition period.
+ * the single-connection restore prompt. Legacy PasswordSafe entries are removed
+ * after the new project-scoped entry has been verified.
  * <p>
  * This class should disappear once legacy credential keys are no longer supported.
  */
+@Slf4j
 public class LegacyCredentialMigrator {
     private static final int ENDPOINT_MAX_LENGTH = 80;
     private static final StateCategory SECRET_STORAGE_MIGRATION = StateCategory.get("SECRET_STORAGE_MIGRATION");
@@ -116,7 +117,10 @@ public class LegacyCredentialMigrator {
 
     private void prompt(Runnable callback, boolean requireMigration) {
         if (isMigrationComplete()) {
-            callback.run();
+            Background.run(() -> {
+                cleanupMigratedLegacySecrets(candidates(settingsManager));
+                callback.run();
+            });
             return;
         }
 
@@ -124,7 +128,9 @@ public class LegacyCredentialMigrator {
 
         Background.run(() -> {
             Project project = settingsManager.getProject();
-            List<Candidate> candidates = pending(candidates(settingsManager));
+            List<Candidate> allCandidates = candidates(settingsManager);
+            cleanupMigratedLegacySecrets(allCandidates);
+            List<Candidate> candidates = pending(allCandidates);
             if (candidates.isEmpty()) {
                 setMigrationComplete();
                 completeCallbacks();
@@ -138,11 +144,12 @@ public class LegacyCredentialMigrator {
                     options(
                             txt("msg.credentials.button.RestoreCredentials"),
                             txt("msg.credentials.button.RestoreLater")),
-                    0,
+                    1,
                     null);
 
             if (option == 0) {
                 int migrated = migrate(candidates);
+                cleanupMigratedLegacySecrets(candidates);
                 sendInfoNotification(
                         project,
                         CONNECTION,
@@ -158,13 +165,15 @@ public class LegacyCredentialMigrator {
             Runnable callback,
             Runnable noMigration,
             Runnable cancel) {
-        if (isMigrationComplete()) {
-            noMigration.run();
-            return;
-        }
-
         Background.run(() -> {
-            List<Candidate> candidates = pending(candidates(connection.getSettings()));
+            List<Candidate> allCandidates = candidates(connection.getSettings());
+            cleanupMigratedLegacySecrets(allCandidates);
+            if (isMigrationComplete()) {
+                noMigration.run();
+                return;
+            }
+
+            List<Candidate> candidates = pending(allCandidates);
             if (candidates.isEmpty()) {
                 noMigration.run();
                 return;
@@ -181,10 +190,11 @@ public class LegacyCredentialMigrator {
                             txt("msg.credentials.button.RestoreAndConnect"),
                             txt("msg.credentials.button.RestoreAllCredentials"),
                             txt("msg.shared.button.Cancel")),
-                    0);
+                    2);
 
             if (option == 0) {
                 int migrated = migrate(candidates);
+                cleanupMigratedLegacySecrets(candidates);
                 sendInfoNotification(
                         connection.getProject(),
                         CONNECTION,
@@ -209,6 +219,16 @@ public class LegacyCredentialMigrator {
     private void setMigrationComplete() {
         StateAttributes attributes = settingsManager.getStates().ensureAttributes(SECRET_STORAGE_MIGRATION);
         attributes.setBooleanAttribute("migrated", true);
+    }
+
+    private boolean isCleanupComplete() {
+        StateAttributes attributes = settingsManager.getStates().getAttributes(SECRET_STORAGE_MIGRATION);
+        return attributes != null && attributes.getBooleanAttribute("cleaned");
+    }
+
+    private void setCleanupComplete() {
+        StateAttributes attributes = settingsManager.getStates().ensureAttributes(SECRET_STORAGE_MIGRATION);
+        attributes.setBooleanAttribute("cleaned", true);
     }
 
     private void completeCallbacks() {
@@ -298,12 +318,58 @@ public class LegacyCredentialMigrator {
             return false;
         }
 
-        // migrate legacy credentials
-        PasswordSafe passwordSafe = PasswordSafe.getInstance();
-        Credentials legacyCredentials = passwordSafe.get(legacyAttributes);
-        passwordSafe.set(attributes, legacyCredentials, false);
-        candidate.owner().reloadSecrets();
-        return true;
+        try {
+            // migrate legacy credentials
+            PasswordSafe passwordSafe = PasswordSafe.getInstance();
+            Credentials legacyCredentials = passwordSafe.get(legacyAttributes);
+            if (legacyCredentials == null) return false;
+            passwordSafe.set(attributes, legacyCredentials, false);
+            if (!isSecretAvailable(attributes)) {
+                log.warn("Failed to verify migrated credential for {}", candidate.legacyOwnerId());
+                return false;
+            }
+
+            clearLegacySecret(candidate);
+            candidate.owner().reloadSecrets();
+            return true;
+        } catch (Throwable e) {
+            log.error("Failed to migrate legacy credential for {}", candidate.legacyOwnerId(), e);
+            return false;
+        }
+    }
+
+    private void cleanupMigratedLegacySecrets(List<Candidate> candidates) {
+        if (isCleanupComplete()) return;
+
+        boolean cleanupComplete = true;
+        for (Candidate candidate : candidates) {
+            if (isSecretAvailable(candidate.type(), candidate.ownerId(), candidate.user())) {
+                cleanupComplete &= clearLegacySecret(candidate);
+            } else if (isSecretAvailable(candidate.type(), candidate.legacyOwnerId(), candidate.user())) {
+                cleanupComplete = false;
+            }
+        }
+        if (cleanupComplete) {
+            setCleanupComplete();
+        }
+    }
+
+    private static boolean clearLegacySecret(Candidate candidate) {
+        CredentialAttributes attributes = createAttributes(
+                candidate.type(),
+                candidate.legacyOwnerId(),
+                candidate.user());
+        try {
+            PasswordSafe.getInstance().set(attributes, null, false);
+            boolean cleared = !isSecretAvailable(attributes);
+            if (!cleared) {
+                log.warn("Failed to clear legacy credential for {}", candidate.legacyOwnerId());
+            }
+            return cleared;
+        } catch (Throwable e) {
+            log.warn("Failed to clear legacy credential for {}", candidate.legacyOwnerId(), e);
+            return false;
+        }
     }
 
     private static List<Candidate> pending(List<Candidate> candidates) {
