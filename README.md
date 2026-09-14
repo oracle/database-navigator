@@ -121,10 +121,29 @@ https://plugins.jetbrains.com/plugin/1800-database-navigator
 
 ---
 
-## Support
+## Documentation
 
-- Report issues: https://github.com/oracle/database-navigator/issues  
-- Discussions: https://github.com/oracle/database-navigator/discussions  
+- [DBN documentation](./docs/index.md): repository guides for connections, browsing, editors, execution, debugging, and configuration
+- [Official Oracle product documentation](https://docs.oracle.com/en/database/oracle/database-navigator/4.0/dbnug/introduction-oracle-database-navigator.html): the guide available through the plugin's Help topic
+
+---
+
+## Examples
+
+### Common Use Cases
+
+The following examples illustrate common ways to use DBN:
+
+- **Explore data:** Browse database objects and table data from the DB Browser
+- **Run SQL:** Open a database console and execute queries
+- **Edit data:** Modify table data directly in the grid
+- **Work with database code:** Execute or debug stored procedures and functions
+
+---
+
+## Help
+
+We welcome your feedback. If you find a bug, encounter unexpected behavior, or have an idea for improving DBN, please [submit an issue](https://github.com/oracle/database-navigator/issues). Include the DBN and IDE versions, database type, and steps to reproduce whenever possible.
 
 ---
 
