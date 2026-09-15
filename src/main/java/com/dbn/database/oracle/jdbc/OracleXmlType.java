@@ -23,6 +23,7 @@ import com.dbn.common.reflection.ProxyObjectInfo;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.InputStream;
+import java.io.Reader;
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -35,11 +36,11 @@ import static com.dbn.common.Reflection.invokeMethod;
 @ProxyObjectInfo(delegateClass = "oracle.xdb.XMLType")
 public interface OracleXmlType extends ProxyObject {
 
+    Reader getCharacterStream() throws SQLException;
+
     Clob getClobVal() throws SQLException;
 
     InputStream getInputStream() throws SQLException;
-
-    String getStringVal() throws SQLException;
 
 
     @Nullable

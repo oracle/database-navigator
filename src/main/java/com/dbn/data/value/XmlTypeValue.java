@@ -27,7 +27,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -89,9 +88,9 @@ public class XmlTypeValue extends LargeObjectValue {
         if (xmlType == null) return null;
 
         Reader reader = fallback(
+                () -> xmlType.getCharacterStream(),
                 () -> Safe.call(xmlType.getClobVal(), c -> c.getCharacterStream()),
-                () -> Safe.call(xmlType.getInputStream(), s -> new InputStreamReader(s, StandardCharsets.UTF_8)),
-                () -> Safe.call(xmlType.getStringVal(), StringReader::new));
+                () -> Safe.call(xmlType.getInputStream(), s -> new InputStreamReader(s, StandardCharsets.UTF_8)));
 
         return readCharacterStream(reader, maxSize);
     }

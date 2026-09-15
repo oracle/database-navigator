@@ -21,6 +21,7 @@ import org.junit.Test;
 
 import javax.sql.rowset.serial.SerialClob;
 import java.io.ByteArrayInputStream;
+import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Proxy;
 import java.nio.charset.StandardCharsets;
@@ -31,15 +32,16 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 public class XmlTypeValueTest {
     @Test
-    public void readsXmlTypeThroughBoundedClob() throws Exception {
+    public void readsXmlTypeThroughBoundedCharacterStream() throws Exception {
         String content = "x".repeat(LargeObjectValue.MAX_READ_SIZE + 1);
         XmlTypeValue value = valueWithProxy(xmlType((proxy, method, arguments) -> switch (method.getName()) {
-            case "getClobVal" -> new SerialClob(content.toCharArray());
-            case "getInputStream", "getStringVal" -> throw new AssertionError("Unexpected fallback");
+            case "getCharacterStream" -> new StringReader(content);
+            case "getClobVal", "getInputStream" -> throw new AssertionError("Unexpected fallback");
             default -> null;
         }));
 
@@ -50,12 +52,12 @@ public class XmlTypeValueTest {
     }
 
     @Test
-    public void fallsBackFromClobToInputStream() throws Exception {
-        String content = "<root>stream</root>";
+    public void fallsBackFromCharacterStreamToClob() throws Exception {
+        String content = "<root>clob</root>";
         XmlTypeValue value = valueWithProxy(xmlType((proxy, method, arguments) -> switch (method.getName()) {
-            case "getClobVal" -> throw new SQLException("CLOB unavailable");
-            case "getInputStream" -> new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
-            case "getStringVal" -> throw new AssertionError("Unexpected fallback");
+            case "getCharacterStream" -> throw new SQLException("Character stream unavailable");
+            case "getClobVal" -> new SerialClob(content.toCharArray());
+            case "getInputStream" -> throw new AssertionError("Unexpected fallback");
             default -> null;
         }));
 
@@ -63,15 +65,42 @@ public class XmlTypeValueTest {
     }
 
     @Test
-    public void fallsBackFromStreamToString() throws Exception {
-        String content = "<root>string</root>";
+    public void fallsBackFromClobToInputStream() throws Exception {
+        String content = "<root>stream</root>";
         XmlTypeValue value = valueWithProxy(xmlType((proxy, method, arguments) -> switch (method.getName()) {
-            case "getClobVal", "getInputStream" -> throw new SQLException("Reader unavailable");
-            case "getStringVal" -> content;
+            case "getCharacterStream" -> throw new SQLException("Character stream unavailable");
+            case "getClobVal" -> throw new SQLException("CLOB unavailable");
+            case "getInputStream" -> new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
             default -> null;
         }));
 
         assertEquals(content, value.read());
+    }
+
+    @Test
+    public void propagatesStreamingFailureWithoutStringMaterialization() throws Exception {
+        SQLException characterStreamFailure = new SQLException("Character stream unavailable");
+        SQLException clobFailure = new SQLException("CLOB unavailable");
+        SQLException streamFailure = new SQLException("Input stream unavailable");
+        XmlTypeValue value = valueWithProxy(xmlType((proxy, method, arguments) -> switch (method.getName()) {
+            case "getCharacterStream" -> throw characterStreamFailure;
+            case "getClobVal" -> throw clobFailure;
+            case "getInputStream" -> throw streamFailure;
+            default -> null;
+        }));
+
+        try {
+            value.read();
+        } catch (SQLException failure) {
+            assertSame(streamFailure, failure);
+            assertEquals(1, failure.getSuppressed().length);
+            assertSame(clobFailure, failure.getSuppressed()[0]);
+            assertEquals(1, clobFailure.getSuppressed().length);
+            assertSame(characterStreamFailure, clobFailure.getSuppressed()[0]);
+            return;
+        }
+
+        throw new AssertionError("Expected XMLTYPE read failure");
     }
 
     @Test
