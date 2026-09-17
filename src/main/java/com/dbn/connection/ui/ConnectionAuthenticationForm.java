@@ -31,12 +31,12 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
 import static com.dbn.common.text.TextContent.plain;
-import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.connection.AuthenticationType.NONE;
 import static com.dbn.connection.AuthenticationType.OS_CREDENTIALS;
 import static com.dbn.connection.AuthenticationType.TOKEN;
 import static com.dbn.connection.AuthenticationType.USER;
 import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
+import static com.dbn.nls.NlsResources.txt;
 
 
 /**
@@ -52,6 +52,7 @@ public class ConnectionAuthenticationForm extends DBNFormBase {
 
     ConnectionAuthenticationForm(@NotNull ConnectionAuthenticationDialog parentComponent, @Nullable ConnectionHandler connection) {
         super(parentComponent);
+        fieldsForm.setDatabaseType(connection == null ? null : connection.getDatabaseType());
 
         initHeaders(connection);
         initFields(parentComponent, connection);

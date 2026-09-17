@@ -41,9 +41,6 @@ import static java.lang.Character.isWhitespace;
 
 @NonNls
 public class OracleScriptClientCommand extends DatabaseScriptClientCommand {
-    private static final Pattern PRIVILEGED_ROLE_PATTERN = Pattern.compile(
-            "^(.+?)\\s+AS\\s+(SYSDBA|SYSOPER|SYSASM|SYSBACKUP|SYSDG|SYSKM|SYSRAC)$",
-            Pattern.CASE_INSENSITIVE);
     private static final Pattern ORACLE_JDBC_URL_PATTERN = Pattern.compile(
             "^jdbc:oracle:(?:thin|oci):@",
             Pattern.CASE_INSENSITIVE);
@@ -134,7 +131,7 @@ public class OracleScriptClientCommand extends DatabaseScriptClientCommand {
                 replace("[TNS_PROFILE]", nvl(databaseInfo.getTnsProfile(),     "")).
                 replace("[CUSTOM_URL]",  getCustomConnectIdentifier(databaseInfo));
 
-        return connectionParameter + login.roleClause();
+        return connectionParameter + login.adminPrivilegeClause();
     }
 
     private static String getCustomConnectIdentifier(DatabaseInfo databaseInfo) {
@@ -145,15 +142,19 @@ public class OracleScriptClientCommand extends DatabaseScriptClientCommand {
 
     private static SqlPlusLogin resolveSqlPlusLogin(AuthenticationInfo authenticationInfo) {
         String user = nvl(authenticationInfo.getUser(), "");
-        Matcher privilegedRoleMatcher = PRIVILEGED_ROLE_PATTERN.matcher(user.trim());
-        if (!privilegedRoleMatcher.matches()) {
-            return new SqlPlusLogin(user, "");
+        String privilege = nvl(authenticationInfo.getAdminPrivilege(), "");
+        Matcher matcher = AuthenticationInfo.USER_AS_ADMIN_PRIVILEGE.matcher(user.trim());
+        if (matcher.matches()) {
+            user = matcher.group(1).trim();
+            if (Strings.isEmptyOrSpaces(privilege)) {
+                privilege = matcher.group(2);
+            }
         }
 
-        String name = privilegedRoleMatcher.group(1).trim();
-        String role = privilegedRoleMatcher.group(2).toUpperCase(Locale.ENGLISH);
-        return new SqlPlusLogin(name, " AS " + role);
+        String privilegeClause = Strings.isEmptyOrSpaces(privilege) ? "" :
+                " AS " + privilege.trim().toUpperCase(Locale.ENGLISH);
+        return new SqlPlusLogin(user, privilegeClause);
     }
 
-    private record SqlPlusLogin(String user, String roleClause) {}
+    private record SqlPlusLogin(String user, String adminPrivilegeClause) {}
 }

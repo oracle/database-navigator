@@ -30,6 +30,9 @@ import com.dbn.common.util.Commons;
 import com.dbn.common.util.Sockets;
 import com.dbn.connection.AuthenticationTokenType;
 import com.dbn.connection.AuthenticationType;
+import com.dbn.connection.DatabaseInterfacesBundle;
+import com.dbn.connection.DatabaseType;
+import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
 import com.dbn.oci.config.OciConfigUtil;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import org.jetbrains.annotations.Nls;
@@ -71,6 +74,7 @@ import static com.dbn.connection.AuthenticationTokenType.OCI_INTERACTIVE;
 import static com.dbn.connection.AuthenticationType.USER;
 import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 import static com.dbn.connection.ui.ConnectionAuthenticationFieldsForm.FieldCategory.CACHEABLE_FIELDS;
+import static com.dbn.database.DatabaseFeature.CONNECT_WITH_PRIVILEGE;
 import static com.dbn.database.oracle.OracleCompatibilityInterface.ProviderErrorHandlingConstants.OCI_INTERACTIVE_TOKEN_RESPONSE_HTTP_PORT;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -83,12 +87,14 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
     private static final boolean IS_PROXY_MAYBE_SET = checkIfHttpProxy();
     private JComboBox<AuthenticationType> authTypeComboBox;
     private JComboBox<AuthenticationTokenType> tokenTypeComboBox;
+    private JComboBox<String> privilegeComboBox;
     private DBNComboBox<String> tokenProfileComboBox;
     private TextFieldWithBrowseButton tokenConfigFileTextField;
     private JTextField userTextField;
     private JPasswordField passwordField;
     private JPanel mainPanel;
     private JLabel userLabel;
+    private JLabel privilegeLabel;
     private JLabel passwordLabel;
     private JLabel tokenTypeLabel;
     private JLabel tokenConfigFileLabel;
@@ -116,6 +122,7 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
     private JPasswordField azureClientCertificateFilePasswordField;
     private DBNHintForm warningHintForm;
 
+    private DatabaseType databaseType;
 
     public ConnectionAuthenticationFieldsForm(@NotNull DBNForm parentComponent) {
         super(parentComponent);
@@ -134,6 +141,7 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
                 AZURE_SERVICE_PRINCIPAL_CERTIFICATE,
                 AZURE_SERVICE_PRINCIPAL_TOKEN,
                 AZURE_INTERACTIVE);
+        initPrivilegeComboBox();
 
         onSelectionChange(authTypeComboBox, v -> updateFieldAvailability());
         onSelectionChange(tokenTypeComboBox, v -> updateFieldAvailability());
@@ -150,12 +158,20 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
 
     }
 
+    public void setDatabaseType(@Nullable DatabaseType databaseType) {
+        if (this.databaseType == databaseType) return;
+        this.databaseType = databaseType;
+        initPrivilegeComboBox();
+        updateFieldAvailability();
+    }
+
     protected void initFieldAvailability() {
         DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
 
         // init visibility conditions
         fieldAdapter.initFieldsVisibility(() -> isUserAuth(), array(userLabel, userTextField));
         fieldAdapter.initFieldsVisibility(() -> isPasswordAuth(), array(passwordLabel, passwordField));
+        fieldAdapter.initFieldsVisibility(() -> isConnectWithPrivilege(), array(privilegeLabel, privilegeComboBox));
 
         fieldAdapter.initFieldsVisibility(() -> isTokenAuth(), array(
                 tokenTypeLabel,
@@ -201,6 +217,7 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         fieldAdapter.classifyFields(CACHEABLE_FIELDS, array(
                 userTextField,
                 passwordField,
+                privilegeComboBox,
                 tokenTypeComboBox,
                 tokenConfigFileTextField,
                 tokenProfileComboBox,
@@ -248,6 +265,7 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         } else if (authenticationTypes.length > 0) {
             setSelection(authTypeComboBox, authenticationTypes[0]);
         }
+        initPrivilegeComboBox();
         updateFieldAvailability();
     }
 
@@ -265,9 +283,10 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         onTextChange(azureClientCertificateFilePasswordField, e -> runnable.run());
         onTextChange(azureClientSecretPasswordField, e->runnable.run());
 
-        tokenTypeComboBox.addActionListener(e -> runnable.run());
-        tokenProfileComboBox.addActionListener(e -> runnable.run());
-        authTypeComboBox.addActionListener(e -> runnable.run());
+        onSelectionChange(privilegeComboBox, v -> runnable.run());
+        onSelectionChange(tokenTypeComboBox, e -> runnable.run());
+        onSelectionChange(tokenProfileComboBox, e -> runnable.run());
+        onSelectionChange(authTypeComboBox, e -> runnable.run());
     }
 
     public void applyFormChanges(AuthenticationInfo authenticationInfo){
@@ -276,6 +295,7 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         authenticationInfo.setType(getSelection(authTypeComboBox));
         authenticationInfo.setUser(getText(userTextField));
         authenticationInfo.setPassword(getPassword(passwordField, authenticationInfo.getPassword()));
+        authenticationInfo.setAdminPrivilege(getSelection(privilegeComboBox));
 
         authenticationInfo.setTokenType(getSelection(tokenTypeComboBox));
         authenticationInfo.setTokenProfile(getSelection(tokenProfileComboBox));
@@ -294,6 +314,7 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
     public void resetFormChanges(AuthenticationInfo authenticationInfo) {
         setText(userTextField, authenticationInfo.getUser());
         setPassword(passwordField, authenticationInfo.getPassword());
+        setSelection(privilegeComboBox, authenticationInfo.getAdminPrivilege());
         setSelection(authTypeComboBox, authenticationInfo.getType());
 
         setText(tokenConfigFileTextField, authenticationInfo.getTokenConfigFile());
@@ -332,6 +353,7 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
 
                 // basic auth
                 !Commons.match(authenticationInfo.getUser(), getText(userTextField)) ||
+                !Commons.match(authenticationInfo.getAdminPrivilege(), getSelection(privilegeComboBox)) ||
                 isPasswordChanged(passwordField, authenticationInfo.getPassword()) ||
 
                 // oci token auth
@@ -377,6 +399,21 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
 
     private boolean isUserAuth() {
         return Commons.isOneOf(getAuthenticationType(), USER, USER_PASSWORD);
+    }
+
+    private boolean isConnectWithPrivilege() {
+        DatabaseCompatibilityInterface compatibility = getCompatibilityInterface();
+        return isUserAuth() && compatibility != null && compatibility.supportsFeature(CONNECT_WITH_PRIVILEGE);
+    }
+
+    private void initPrivilegeComboBox() {
+        DatabaseCompatibilityInterface compatibility = getCompatibilityInterface();
+        List<String> roles = compatibility == null ? List.of() : compatibility.getAdministrativePrivileges();
+        initComboBox(privilegeComboBox, true, roles.toArray(new String[0]));
+    }
+
+    private @Nullable DatabaseCompatibilityInterface getCompatibilityInterface() {
+        return databaseType == null ? null : DatabaseInterfacesBundle.get(databaseType).getCompatibilityInterface();
     }
 
     private boolean isPasswordAuth() {

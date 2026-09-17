@@ -63,6 +63,17 @@ public interface DatabaseCompatibilityInterface extends DatabaseInterface {
 
     List<DatabaseFeature> getSupportedFeatures();
 
+    @NonNls
+    @NotNull
+    default List<String> getAdministrativePrivileges() {
+        return List.of();
+    }
+
+    default boolean isAdministrativePrivilege(@NonNls String privilege) {
+        return getAdministrativePrivileges().stream()
+                .anyMatch(value -> privilege.equalsIgnoreCase(value));
+    }
+
     boolean supportsObjectType(DatabaseObjectTypeId objectTypeId);
 
     default boolean supportsObjectType(DatabaseObjectTypeId objectTypeId, double databaseVersion) {

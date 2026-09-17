@@ -33,20 +33,11 @@ import com.dbn.credentials.TransientSecretStore;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
+import java.util.regex.Pattern;
 
-import static com.dbn.common.database.AuthenticationInfo.Attributes.ADB_COMPARTMENT_OCID;
-import static com.dbn.common.database.AuthenticationInfo.Attributes.ADB_DATABASE_OCID;
-import static com.dbn.common.database.AuthenticationInfo.Attributes.AZURE_TOKEN_CLIENT_CERTIFICATE_FILE;
-import static com.dbn.common.database.AuthenticationInfo.Attributes.AZURE_TOKEN_CLIENT_ID;
-import static com.dbn.common.database.AuthenticationInfo.Attributes.AZURE_TOKEN_DATABASE_ID_URI;
-import static com.dbn.common.database.AuthenticationInfo.Attributes.AZURE_TOKEN_TENANT_ID;
-import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_CONFIG_FILE;
-import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_PROFILE;
-import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_TYPE;
 import static com.dbn.common.options.setting.Settings.getEnum;
 import static com.dbn.common.options.setting.Settings.getString;
 import static com.dbn.common.options.setting.Settings.setEnum;
@@ -66,23 +57,15 @@ import static com.dbn.credentials.SecretType.CONNECTION_PASSWORD;
 @Setter
 public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSettings, ConfigurationEditorForm> implements Cloneable<AuthenticationInfo>, TimeAware, SecretsOwner {
 
-    interface Attributes {
-        @NonNls String TOKEN_TYPE = "token-type";
-        @NonNls String TOKEN_CONFIG_FILE = "token-config-file";
-        @NonNls String TOKEN_PROFILE = "token-profile";
-        @NonNls String ADB_COMPARTMENT_OCID = "adb-compartment-ocid";
-        @NonNls String ADB_DATABASE_OCID = "adb-database-ocid";
-        @NonNls String AZURE_TOKEN_CLIENT_ID = "azure-token-client-id";
-        @NonNls String AZURE_TOKEN_TENANT_ID = "azure-token-tenant-id";
-        @NonNls String AZURE_TOKEN_DATABASE_ID_URI = "azure-token-database-id-uri";
-        @NonNls String AZURE_TOKEN_CLIENT_CERTIFICATE_FILE = "azure-token-client-certificate-file";
-    }
+    public static final Pattern USER_AS_ADMIN_PRIVILEGE = Pattern.compile(
+            "^(.+?)\\s+AS\\s+(\\S+)$", Pattern.CASE_INSENSITIVE);
 
     private final long timestamp = System.currentTimeMillis();
     private boolean temporary;
 
     private AuthenticationType type = USER_PASSWORD;
     private String user;
+    private String adminPrivilege;
     private final Secret password = new Secret(CONNECTION_PASSWORD, () -> getSecretOwnerId(), () -> user);
 
     // token auth
@@ -196,8 +179,9 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
     		case NONE:
     		case USER:
     		case USER_PASSWORD:
-    		case OS_CREDENTIALS:
-    			return match(this.user, that.user) &&
+            case OS_CREDENTIALS:
+                return match(this.user, that.user) &&
+                       match(this.adminPrivilege, that.adminPrivilege) &&
                        Secrets.match(this.password, that.password);
     		case TOKEN:
                 if (!match(this.tokenType, that.tokenType)) return false;
@@ -240,6 +224,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
     public void readConfiguration(Element element) {
         type = getEnum(element, "type", type);
         user = getString(element, "user", user);
+        adminPrivilege = getString(element, "admin-privilege", adminPrivilege);
         adjustAuthenticationType();
 
         if (isTransientContext()) {
@@ -250,17 +235,17 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         }
 
         // token auth attributes
-        tokenType = getEnum(element, TOKEN_TYPE, AuthenticationTokenType.class);
-        tokenConfigFile = getString(element, TOKEN_CONFIG_FILE, tokenConfigFile);
-        tokenProfile = getString(element, TOKEN_PROFILE, tokenProfile);
-        compartmentOcid = getString(element, ADB_COMPARTMENT_OCID, compartmentOcid);
-        databaseOcid = getString(element, ADB_DATABASE_OCID, databaseOcid);
+        tokenType = getEnum(element, "token-type", AuthenticationTokenType.class);
+        tokenConfigFile = getString(element, "token-config-file", tokenConfigFile);
+        tokenProfile = getString(element, "token-profile", tokenProfile);
+        compartmentOcid = getString(element, "adb-compartment-ocid", compartmentOcid);
+        databaseOcid = getString(element, "adb-database-ocid", databaseOcid);
 
         // azure auth attributes
-        azureClientId = getString(element, AZURE_TOKEN_CLIENT_ID, azureClientId);
-        azureTenantId = getString(element, AZURE_TOKEN_TENANT_ID, azureTenantId);
-        azureClientCertificateFile = getString(element, AZURE_TOKEN_CLIENT_CERTIFICATE_FILE, azureClientCertificateFile);
-        azureDatabaseApplicationIdUri = getString(element, AZURE_TOKEN_DATABASE_ID_URI, azureDatabaseApplicationIdUri);
+        azureClientId = getString(element, "azure-token-client-id", azureClientId);
+        azureTenantId = getString(element, "azure-token-tenant-id", azureTenantId);
+        azureClientCertificateFile = getString(element, "azure-token-client-certificate-file", azureClientCertificateFile);
+        azureDatabaseApplicationIdUri = getString(element, "azure-token-database-id-uri", azureDatabaseApplicationIdUri);
     }
 
     /**
@@ -278,6 +263,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
     public void writeConfiguration(Element element) {
         setEnum(element, "type", type);
         setString(element, "user", nvle(user));
+        setString(element, "admin-privilege", nvle(adminPrivilege));
 
         if (isTransientContext()) {
             // transfer secrets outside transient config xml
@@ -286,16 +272,16 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
             TransientSecretStore.store(azureClientCertificatePassword, getSecretOwnerId(), CONNECTION_AZURE_TOKEN_CERTIFICATE_PASSWORD, user);
         }
 
-        setEnum(element, TOKEN_TYPE, tokenType);
-        setSensitiveString(element, TOKEN_CONFIG_FILE, tokenConfigFile);
-        setString(element, TOKEN_PROFILE, tokenProfile);
-        setString(element, ADB_COMPARTMENT_OCID, compartmentOcid);
-        setString(element, ADB_DATABASE_OCID, databaseOcid);
+        setEnum(element, "token-type", tokenType);
+        setSensitiveString(element, "token-config-file", tokenConfigFile);
+        setString(element, "token-profile", tokenProfile);
+        setString(element, "adb-compartment-ocid", compartmentOcid);
+        setString(element, "adb-database-ocid", databaseOcid);
 
-        setString(element, AZURE_TOKEN_DATABASE_ID_URI, azureDatabaseApplicationIdUri);
-        setString(element, AZURE_TOKEN_TENANT_ID, azureTenantId);
-        setString(element, AZURE_TOKEN_CLIENT_ID, azureClientId);
-        setSensitiveString(element, AZURE_TOKEN_CLIENT_CERTIFICATE_FILE, azureClientCertificateFile);
+        setString(element, "azure-token-database-id-uri", azureDatabaseApplicationIdUri);
+        setString(element, "azure-token-tenant-id", azureTenantId);
+        setString(element, "azure-token-client-id", azureClientId);
+        setSensitiveString(element, "azure-token-client-certificate-file", azureClientCertificateFile);
     }
 
     @Override
@@ -309,6 +295,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         this.type = that.type;
         this.user = that.user;
         this.password.setToken(that.password);
+        this.adminPrivilege = that.adminPrivilege;
 
         this.tokenType = that.tokenType;
         this.tokenConfigFile = that.tokenConfigFile;
@@ -332,6 +319,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         return type == that.type &&
                 tokenType == that.tokenType &&
                 Objects.equals(user, that.user) &&
+                Objects.equals(adminPrivilege, that.adminPrivilege) &&
                 Secrets.match(password, that.password) &&
                 Objects.equals(tokenConfigFile, that.tokenConfigFile) &&
                 Objects.equals(tokenProfile, that.tokenProfile) &&
@@ -351,6 +339,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         return Objects.hash(
                 type,
                 user,
+                adminPrivilege,
                 Secrets.hash(password),
                 tokenType,
                 tokenConfigFile,
