@@ -14,14 +14,23 @@
  * limitations under the License.
  */
 
-package com.dbn.liquibase.task;
+package com.dbn.migration.operation;
 
-import com.dbn.migration.task.DatabaseMigrationTaskInput;
-import com.intellij.openapi.project.Project;
+import com.dbn.migration.task.DatabaseMigrationTask;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class LiquibaseTaskInput extends DatabaseMigrationTaskInput {
-    public LiquibaseTaskInput(@NotNull Project project) {
-        super(project);
-    }
+/**
+ * Engine-neutral metadata and safety contract for a database migration operation.
+ *
+ * <p>The operation still owns its engine-specific execution inputs and capabilities.
+ * This contract only exposes the metadata required by shared migration orchestration:
+ * dashboard presentation, grouping, and safety classification.</p>
+ */
+public interface DatabaseMigrationOperation extends DatabaseMigrationTask {
+    @NotNull
+    DatabaseMigrationOperationCategory getCategory();
+
+    boolean isMutating();
+
+    boolean isDestructive();
 }

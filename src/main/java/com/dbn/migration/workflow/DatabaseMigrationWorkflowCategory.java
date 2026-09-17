@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package com.dbn.liquibase.task;
+package com.dbn.migration.workflow;
 
-import com.dbn.migration.task.DatabaseMigrationTaskInput;
-import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
+import com.dbn.common.util.Named;
 
-public abstract class LiquibaseTaskInput extends DatabaseMigrationTaskInput {
-    public LiquibaseTaskInput(@NotNull Project project) {
-        super(project);
-    }
+/**
+ * Neutral category contract for grouping database migration workflows.
+ *
+ * <p>Categories remain engine-defined values. The common contract exposes only the
+ * presentation metadata required by shared workflow views.</p>
+ */
+public interface DatabaseMigrationWorkflowCategory extends Named {
 }

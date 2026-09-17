@@ -14,14 +14,18 @@
  * limitations under the License.
  */
 
-package com.dbn.liquibase.task;
+package com.dbn.migration.operation;
 
-import com.dbn.migration.task.DatabaseMigrationTaskInput;
-import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class LiquibaseTaskInput extends DatabaseMigrationTaskInput {
-    public LiquibaseTaskInput(@NotNull Project project) {
-        super(project);
-    }
+/**
+ * Neutral category contract for grouping database migration operations.
+ *
+ * <p>Categories remain engine-defined values. The common contract exposes only the
+ * presentation needed by shared migration dashboards and does not require Liquibase
+ * and Flyway to use the same category taxonomy.</p>
+ */
+public interface DatabaseMigrationOperationCategory {
+    @NotNull
+    String getName();
 }

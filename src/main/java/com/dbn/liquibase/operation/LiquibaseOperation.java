@@ -19,6 +19,7 @@ package com.dbn.liquibase.operation;
 import com.dbn.common.constant.Constant;
 import com.dbn.common.icon.Icons;
 import com.dbn.liquibase.task.LiquibaseTask;
+import com.dbn.migration.operation.DatabaseMigrationOperation;
 import com.intellij.icons.AllIcons;
 import lombok.Getter;
 import lombok.experimental.Delegate;
@@ -34,9 +35,14 @@ import static com.dbn.liquibase.operation.LiquibaseOperationCategory.MORE;
 import static com.dbn.liquibase.operation.LiquibaseOperationCategory.PREVIEW_SQL;
 import static com.dbn.nls.NlsResources.txt;
 
-/** Liquibase operation represented in the DBN execution console. */
+/**
+ * Liquibase operation represented in the DBN execution console.
+ *
+ * <p>Each operation defines its category, input requirements, safety classification, and
+ * presentation metadata.</p>
+ */
 @Getter
-public enum LiquibaseOperation implements Constant<LiquibaseOperation>, LiquibaseTask {
+public enum LiquibaseOperation implements Constant<LiquibaseOperation>, LiquibaseTask, DatabaseMigrationOperation {
     GENERATE_CHANGELOG(CHANGELOG),
     GENERATE_DATABASE_DOCUMENTATION(INSPECT),
     SNAPSHOT_DATABASE(INSPECT),
@@ -111,7 +117,7 @@ public enum LiquibaseOperation implements Constant<LiquibaseOperation>, Liquibas
     }
 
     public String getHint() {
-        return /*txt("app.liquibase.title.Operation_" + name()) + "\n\n" +*/ txt("app.liquibase.hint.Operation_" + name());
+        return txt("app.liquibase.hint.Operation_" + name());
     }
 
     @Override

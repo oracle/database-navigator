@@ -43,6 +43,7 @@ import com.dbn.liquibase.workflow.LiquibaseWorkflowResult;
 import com.dbn.liquibase.workflow.ui.LiquibaseWorkflowResultForm;
 import com.dbn.liquibase.workspace.LiquibaseEnvironmentProfile;
 import com.dbn.liquibase.workspace.LiquibaseWorkspacePaths;
+import com.dbn.migration.execution.DatabaseMigrationOperationExecutor;
 import com.dbn.object.DBSchema;
 import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.type.DBObjectType;
@@ -120,7 +121,13 @@ import static liquibase.Scope.child;
  * and failures into {@link com.dbn.common.task.TaskStatus} values, and provides the common database
  * connection helpers used by specialized processors.</p>
  */
-public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
+public abstract class LiquibaseExecutionProcessor implements
+        ExtensionPoint,
+        DatabaseMigrationOperationExecutor<
+                LiquibaseOperation,
+                LiquibaseOperationInput,
+                LiquibaseOperationContext,
+                LiquibaseOperationResult> {
     public static final ExtensionPointName<LiquibaseExecutionProcessor> EP =
             ExtensionPointName.create("com.dbn.liquibaseExecutionProcessor");
     protected LiquibaseExecutionProcessor() {
@@ -315,9 +322,12 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
         }
     }
 
+    @Override
     public abstract LiquibaseOperation getOperation();
 
-    /** Executes the SQL-preview processor against the current context without creating a second result. */
+    /**
+     * Executes the SQL-preview processor against the current context without creating a second result.
+     */
     public final void executePreview(@NotNull LiquibaseOperationContext context) throws Exception {
         if (!context.requiresSqlPreview()) return;
 
@@ -339,6 +349,7 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
     }
 
     @NotNull
+    @Override
     public final LiquibaseOperationResult execute(@NotNull LiquibaseOperationContext context) {
         LiquibaseOperationResult result = context.getResult();
         context.setExecutionThread(Thread.currentThread());

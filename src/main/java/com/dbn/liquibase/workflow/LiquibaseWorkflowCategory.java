@@ -10,10 +10,14 @@
 
 package com.dbn.liquibase.workflow;
 
+import com.dbn.migration.workflow.DatabaseMigrationWorkflowCategory;
+
 import static com.dbn.nls.NlsResources.txt;
 
-/** Groups Liquibase workflows by their primary user intent. */
-public enum LiquibaseWorkflowCategory {
+/**
+ * Groups Liquibase workflows by their primary user intent.
+ */
+public enum LiquibaseWorkflowCategory implements DatabaseMigrationWorkflowCategory {
     PREPARE,
     REVIEW,
     DEPLOY,

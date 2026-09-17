@@ -16,19 +16,10 @@
 
 package com.dbn.liquibase.task;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import com.dbn.migration.task.DatabaseMigrationTask;
 
-/** Presentational contract for an item displayed by a Liquibase dashboard. */
-public interface LiquibaseTask {
-    @NotNull
-    String getDashboardName();
-
-    @NotNull
-    String getDashboardDescription();
-
-    @Nullable
-    default String getDashboardDocumentationUrl() {
-        return null;
-    }
+/**
+ * Marker interface for Liquibase operations and workflows shown in DBN dashboards.
+ */
+public interface LiquibaseTask extends DatabaseMigrationTask {
 }

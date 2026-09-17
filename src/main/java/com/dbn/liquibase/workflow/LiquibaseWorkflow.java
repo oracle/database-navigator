@@ -18,6 +18,7 @@ package com.dbn.liquibase.workflow;
 
 import com.dbn.liquibase.operation.LiquibaseOperation;
 import com.dbn.liquibase.task.LiquibaseTask;
+import com.dbn.migration.workflow.DatabaseMigrationWorkflow;
 import lombok.Getter;
 
 import java.util.List;
@@ -42,9 +43,11 @@ import static com.dbn.liquibase.workflow.LiquibaseWorkflowCategory.RECOVER;
 import static com.dbn.liquibase.workflow.LiquibaseWorkflowCategory.REVIEW;
 import static com.dbn.nls.NlsResources.txt;
 
-/** Defines a reusable sequence of Liquibase operations. */
+/**
+ * Defines a reusable sequence of Liquibase operations.
+ */
 @Getter
-public enum LiquibaseWorkflow implements LiquibaseTask {
+public enum LiquibaseWorkflow implements LiquibaseTask, DatabaseMigrationWorkflow {
     DIAGNOSE_DATABASE(REVIEW,
             VALIDATE_CHANGELOG,
             SHOW_CHANGELOG_STATUS,
@@ -104,14 +107,22 @@ public enum LiquibaseWorkflow implements LiquibaseTask {
         return operations.contains(operation);
     }
 
+    @Override
+    public String getName() {
+        return txt("app.liquibase.const.Workflow_" + name());
+    }
+
+    @Override
     public String getTitle() {
         return txt("app.liquibase.title.Workflow_" + name());
     }
 
+    @Override
     public String getDescription() {
         return txt("app.liquibase.text.WorkflowDescription_" + name());
     }
 
+    @Override
     public String getHint() {
         return txt("app.liquibase.hint.Workflow_" + name());
     }

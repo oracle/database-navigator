@@ -10,10 +10,14 @@
 
 package com.dbn.liquibase.operation;
 
+import com.dbn.migration.operation.DatabaseMigrationOperationCategory;
+
 import static com.dbn.nls.NlsResources.txt;
 
-/** Groups Liquibase operations by their primary user intent. */
-public enum LiquibaseOperationCategory {
+/**
+ * Groups Liquibase operations by their primary user intent.
+ */
+public enum LiquibaseOperationCategory implements DatabaseMigrationOperationCategory {
     CHANGELOG,
     DEPLOY,
     INSPECT,

@@ -18,41 +18,26 @@ package com.dbn.liquibase.task;
 
 import com.dbn.common.icon.Icons;
 import com.dbn.common.task.TaskStatus;
-import com.dbn.common.ui.util.Listeners;
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionId;
 import com.dbn.execution.ExecutionCancellationAdapter;
-import com.dbn.execution.ExecutionResultBase;
 import com.dbn.execution.common.result.ui.ExecutionResultForm;
-import com.dbn.language.common.DBLanguagePsiFile;
-import com.intellij.openapi.project.Project;
-import lombok.Getter;
+import com.dbn.migration.task.DatabaseMigrationTaskResult;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
 
-/** Base execution result shared by Liquibase operation and workflow tasks. */
-@Getter
+/**
+ * Base execution result for a Liquibase task.
+ *
+ * <p>Provides Liquibase icons and cancellation handling for active tasks.</p>
+ */
 public abstract class LiquibaseTaskResult<
         I extends LiquibaseTaskInput,
         C extends LiquibaseTaskContext<I>,
         F extends ExecutionResultForm>
-        extends ExecutionResultBase<F> {
-
-    private final C context;
-    private final Listeners<Runnable> listeners = Listeners.create(this);
+        extends DatabaseMigrationTaskResult<I, C, F> {
 
     protected LiquibaseTaskResult(@NotNull C context) {
-        this.context = context;
-    }
-
-    @NotNull
-    public I getInput() {
-        return context.getInput();
-    }
-
-    public final TaskStatus getStatus() {
-        return context.getStatus();
+        super(context);
     }
 
     @Override
@@ -64,40 +49,8 @@ public abstract class LiquibaseTaskResult<
 
     public abstract boolean canRerun();
 
-    public void addListener(@NotNull Runnable listener) {
-        listeners.add(listener);
-    }
-
-    public void removeListener(@NotNull Runnable listener) {
-        listeners.remove(listener);
-    }
-
-    public void notifyChanged() {
-        listeners.notify(Runnable::run);
-    }
-
-    public Project getProject(){
-        return getInput().getProject();
-    }
-
     @Override
     public Icon getIcon() {
         return Icons.DB_LIQUIBASE;
-    }
-
-    @Override
-    public ConnectionId getConnectionId() {
-        return getConnection().getConnectionId();
-    }
-
-    @NotNull
-    @Override
-    public ConnectionHandler getConnection() {
-        return getInput().getRelevantConnection();
-    }
-
-    @Override
-    public DBLanguagePsiFile createPreviewFile() {
-        return null;
     }
 }

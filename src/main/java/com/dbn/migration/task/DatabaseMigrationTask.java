@@ -14,14 +14,28 @@
  * limitations under the License.
  */
 
-package com.dbn.liquibase.task;
+package com.dbn.migration.task;
 
-import com.dbn.migration.task.DatabaseMigrationTaskInput;
-import com.intellij.openapi.project.Project;
+import com.dbn.common.util.Named;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public abstract class LiquibaseTaskInput extends DatabaseMigrationTaskInput {
-    public LiquibaseTaskInput(@NotNull Project project) {
-        super(project);
+/**
+ * Presentational contract for an item displayed by a database migration dashboard.
+ *
+ * <p>The contract is shared by operations and workflows. It deliberately contains only
+ * dashboard metadata so that each migration engine can keep its execution model and
+ * engine-specific capabilities separate.</p>
+ */
+public interface DatabaseMigrationTask extends Named {
+    @NotNull
+    String getDashboardName();
+
+    @NotNull
+    String getDashboardDescription();
+
+    @Nullable
+    default String getDashboardDocumentationUrl() {
+        return null;
     }
 }

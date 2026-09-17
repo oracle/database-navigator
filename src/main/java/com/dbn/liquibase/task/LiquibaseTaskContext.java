@@ -16,49 +16,24 @@
 
 package com.dbn.liquibase.task;
 
-import com.dbn.common.task.TaskStatus;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
-import com.intellij.openapi.project.Project;
-import lombok.Getter;
+import com.dbn.migration.task.DatabaseMigrationTaskContext;
 import org.jetbrains.annotations.NotNull;
 
-/** Per-run context shared by Liquibase operation and workflow tasks. */
-@Getter
-public abstract class LiquibaseTaskContext<I extends LiquibaseTaskInput> {
-    private final I input;
-    private volatile TaskStatus status = TaskStatus.NEW;
-    private volatile boolean cancellationRequested;
+/**
+ * Execution context for a Liquibase task.
+ *
+ * <p>Provides the project-scoped manager used by Liquibase execution and rerun flows.</p>
+ */
+public abstract class LiquibaseTaskContext<I extends LiquibaseTaskInput>
+        extends DatabaseMigrationTaskContext<I> {
 
     protected LiquibaseTaskContext(@NotNull I input) {
-        this.input = input;
-    }
-
-    public Project getProject() {
-        return input.getProject();
+        super(input);
     }
 
     @NotNull
     public DatabaseLiquibaseManager getLiquibaseManager() {
-        return DatabaseLiquibaseManager.getInstance(input.getProject());
-    }
-
-    public void cancel() {
-        cancellationRequested = true;
-    }
-
-    public boolean isCancellationRequested() {
-        return cancellationRequested || Thread.currentThread().isInterrupted();
-    }
-
-    public void start() {
-        status = TaskStatus.RUNNING;
-    }
-
-    public void pause() {
-        status = TaskStatus.PAUSED;
-    }
-
-    public void finish(@NotNull TaskStatus status) {
-        this.status = status;
+        return DatabaseLiquibaseManager.getInstance(getProject());
     }
 }
