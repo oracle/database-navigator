@@ -104,6 +104,7 @@ public class Documents {
     }
 
     public static void whenDocumentsCommitted(Project project, Runnable runnable) {
+        if (!isValid(project)) return;
         PsiDocumentManager documentManager = PsiDocumentManager.getInstance(project);
         documentManager.performWhenAllCommitted(runnable);
     }
