@@ -56,6 +56,7 @@ import java.util.function.Consumer;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.util.Editors.updateEditorNotifications;
@@ -133,6 +134,14 @@ public class Documents {
     public static Document createDocument(CharSequence text) {
         EditorFactory editorFactory = EditorFactory.getInstance();
         return editorFactory.createDocument(text);
+    }
+
+    public static boolean performWhenAllCommitted(@NotNull Project project, @NotNull Runnable runnable) {
+        return guarded(false, () -> {
+            PsiDocumentManager documentManager = PsiDocumentManager.getInstance(nd(project));
+            documentManager.performWhenAllCommitted(() -> guarded(() -> runnable.run()));
+            return true;
+        });
     }
 
     public static Document ensureDocument(@NotNull PsiFile file) {

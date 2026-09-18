@@ -69,6 +69,10 @@ public class ParserIssueEditorNotificationPanel extends EditorNotificationPanel 
             setNotificationMuted(contentFile, true);
             updateEditorNotifications(project, getFile());
         });
+
+        if (!scheduled) {
+            contentFile.putUserData(NOTIFICATION_UPDATE_PENDING, null);
+        }
     }
 
     private void submitReport() {
