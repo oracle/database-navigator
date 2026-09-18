@@ -145,7 +145,7 @@ public abstract class DBLanguagePsiFile extends PsiFileImpl implements DatabaseC
     }
 
     public DBObject getUnderlyingObject() {
-        VirtualFile virtualFile = getVirtualFile();
+        VirtualFile virtualFile = getOriginalFile().getVirtualFile();
         if (virtualFile != null) {
             if (virtualFile instanceof DBObjectVirtualFile<?> databaseObjectFile) {
                 return databaseObjectFile.getObject();
@@ -201,7 +201,7 @@ public abstract class DBLanguagePsiFile extends PsiFileImpl implements DatabaseC
 
     @Nullable
     public DBLanguageDialect getLanguageDialect() {
-        VirtualFile virtualFile = getVirtualFile();
+        VirtualFile virtualFile = getOriginalFile().getVirtualFile();
         if (virtualFile instanceof DBContentVirtualFile contentFile) {
             return contentFile.getLanguageDialect();
         }
@@ -383,16 +383,16 @@ public abstract class DBLanguagePsiFile extends PsiFileImpl implements DatabaseC
     }
 
     public String getParseRootId() {
-        VirtualFile virtualFile = getVirtualFile();
-        if (virtualFile == null) return null;
+        VirtualFile file = getVirtualFile();
+        if (isNotValid(file)) return null;
 
-        virtualFile = getUnderlyingFile(virtualFile);
-        String parseRootId = virtualFile.getUserData(PARSE_ROOT_ID_KEY);
+        file = getUnderlyingFile(file);
+        String parseRootId = file.getUserData(PARSE_ROOT_ID_KEY);
 
-        if (parseRootId == null && virtualFile instanceof DBSourceCodeVirtualFile sourceCodeFile) {
+        if (parseRootId == null && file instanceof DBSourceCodeVirtualFile sourceCodeFile) {
             parseRootId = sourceCodeFile.getParseRootId();
             if (parseRootId != null) {
-                virtualFile.putUserData(PARSE_ROOT_ID_KEY, parseRootId);
+                file.putUserData(PARSE_ROOT_ID_KEY, parseRootId);
             }
         }
 
