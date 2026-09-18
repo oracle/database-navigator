@@ -76,10 +76,10 @@ public class DBLLanguageFileScrambler {
                 String text = child.getText();
                 if (tokenType.getCategory() == TokenTypeCategory.LITERAL) {
                     if (text.startsWith("'")) {
-                        builder.append(text.replaceAll("[a-zA-Z0-9]", "#"));
+                        builder.append(scrambleText(text));
                     } else {
                         builder.append(text, 0, 3);
-                        builder.append(text.substring(3, text.length() - 2).replaceAll("[a-zA-Z0-9]", "#"));
+                        builder.append(scrambleText(text.substring(3, text.length() - 2)));
                         builder.append(text, text.length() - 2, text.length());
                     }
 
@@ -113,7 +113,7 @@ public class DBLLanguageFileScrambler {
             if (elementType instanceof TokenType tokenType) {
                 TokenTypeCategory category = tokenType.getCategory();
                 if (category == TokenTypeCategory.LITERAL) {
-                    builder.append(text.replaceAll("[a-zA-Z0-9]", "#"));
+                    builder.append(scrambleText(text));
                 } else if (category == TokenTypeCategory.IDENTIFIER || category == TokenTypeCategory.UNKNOWN) {
                     builder.append(getObjectName(DBObjectType.ANY, text));
                 } else {
@@ -132,6 +132,10 @@ public class DBLLanguageFileScrambler {
         }
     }
 
+    static String scrambleText(String text) {
+        return text.replaceAll("[\\p{L}\\p{N}]", "#");
+    }
+
     private String scrambleSubstitutionVariable(String text) {
         int prefixLength = text.startsWith("&&") ? 2 :
                 text.startsWith("&") || text.startsWith(":") ? 1 : 0;
@@ -140,7 +144,7 @@ public class DBLLanguageFileScrambler {
         return prefix + getObjectName(DBObjectType.VARIABLE, variableName);
     }
 
-    private String scrambleComment(String text) {
+    static String scrambleComment(String text) {
         int prefixEnd = 0;
         while (prefixEnd < text.length() && Character.isWhitespace(text.charAt(prefixEnd))) {
             prefixEnd++;
@@ -148,9 +152,9 @@ public class DBLLanguageFileScrambler {
         if (text.regionMatches(true, prefixEnd, "rem", 0, 3) &&
                 (prefixEnd + 3 == text.length() || Character.isWhitespace(text.charAt(prefixEnd + 3)))) {
             prefixEnd += 3;
-            return text.substring(0, prefixEnd) + text.substring(prefixEnd).replaceAll("[a-zA-Z0-9]", "#");
+            return text.substring(0, prefixEnd) + scrambleText(text.substring(prefixEnd));
         }
-        return text.replaceAll("[a-zA-Z0-9]", "#");
+        return scrambleText(text);
     }
 
     public String scrambleName(VirtualFile file) {
