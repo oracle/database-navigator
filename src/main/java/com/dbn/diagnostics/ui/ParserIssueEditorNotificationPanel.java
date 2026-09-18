@@ -17,11 +17,11 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiDocumentManager;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.util.Documents.getDocument;
 import static com.dbn.common.util.Documents.onDocumentChanged;
+import static com.dbn.common.util.Documents.performWhenAllCommitted;
 import static com.dbn.common.util.Editors.updateNotifications;
 import static com.dbn.common.util.Messages.options;
 import static com.dbn.diagnostics.ParserIssueEditorNotificationProvider.NOTIFICATION_UPDATE_PENDING;
@@ -53,13 +53,17 @@ public class ParserIssueEditorNotificationPanel extends EditorNotificationPanel 
         if (contentFile.getUserData(NOTIFICATION_UPDATE_PENDING) != null) return;
         contentFile.putUserData(NOTIFICATION_UPDATE_PENDING, true);
 
-        PsiDocumentManager.getInstance(project).performWhenAllCommitted(() -> {
+        boolean scheduled = performWhenAllCommitted(project, () -> {
             contentFile.putUserData(NOTIFICATION_UPDATE_PENDING, null);
             if (isDisposed() || PsiUtil.hasErrors(psiFile)) return;
 
             mute(contentFile);
             updateNotifications(project, getFile());
         });
+
+        if (!scheduled) {
+            contentFile.putUserData(NOTIFICATION_UPDATE_PENDING, null);
+        }
     }
 
     private void submitReport() {

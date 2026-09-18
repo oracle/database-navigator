@@ -22,12 +22,13 @@ import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
+
+import static com.dbn.common.util.Documents.performWhenAllCommitted;
 
 public class ParserIssueEditorNotificationProvider extends EditorNotificationProvider<ParserIssueEditorNotificationPanel> {
     public static final Key<String> DISMISSED_CONTENT = Key.create("DBNavigator.ParserIssueNotificationDismissedContent");
@@ -87,7 +88,7 @@ public class ParserIssueEditorNotificationProvider extends EditorNotificationPro
         DBLanguagePsiFile databasePsiFile = getDatabasePsiFile(project, newFile, fileEditor);
         if (databasePsiFile == null) return;
 
-        PsiDocumentManager.getInstance(project).performWhenAllCommitted(() -> {
+        performWhenAllCommitted(project, () -> {
             if (!fileEditor.isValid()) return;
             if (event.getManager().getSelectedEditor(newFile) != fileEditor) return;
             if (!PsiUtil.hasErrors(databasePsiFile)) return;
