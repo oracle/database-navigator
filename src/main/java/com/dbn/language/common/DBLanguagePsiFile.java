@@ -80,10 +80,12 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.file.util.VirtualFiles.getUnderlyingFile;
 import static com.dbn.common.util.Documents.getDocument;
 import static com.dbn.common.util.Documents.getEditors;
+import static com.dbn.language.common.DBLanguageDialectResolver.getSuggestedDialect;
 import static com.dbn.language.common.element.util.ElementTypeAttribute.SCOPE_DEMARCATION;
 import static com.dbn.language.common.element.util.ElementTypeAttribute.SCOPE_ISOLATION;
 import static com.dbn.language.common.psi.PsiUtil.SUPPORTED_VISITORS;
@@ -207,12 +209,13 @@ public abstract class DBLanguagePsiFile extends PsiFileImpl implements DatabaseC
         if (language instanceof DBLanguage<?> dbLanguage) {
             ConnectionHandler connection = getConnection();
             if (connection != null) {
-
                 DBLanguageDialect languageDialect = connection.getLanguageDialect(dbLanguage);
-                if (languageDialect != null){
-                    return languageDialect;
-                }
+                if (languageDialect != null) return languageDialect;
+
             } else {
+                DBLanguageDialect suggestedDialect = getSuggestedDialect(this);
+                if (suggestedDialect != null) return suggestedDialect;
+
                 return dbLanguage.getLanguageDialects()[0];
             }
         } else if (language instanceof DBLanguageDialect) {
@@ -245,56 +248,56 @@ public abstract class DBLanguagePsiFile extends PsiFileImpl implements DatabaseC
     @Nullable
     public ConnectionHandler getConnection() {
         VirtualFile file = getVirtualFile();
-        if (file != null && !getProject().isDisposed()) {
-            FileConnectionContextManager contextManager = getContextManager();
-            return contextManager.getConnection(file);
-        }
-        return null;
+        if (isNotValid(file)) return null;
+        if (isNotValid(getProject())) return null;
+
+        FileConnectionContextManager contextManager = getContextManager();
+        return contextManager.getConnection(file);
     }
 
     public void setConnection(ConnectionHandler connection) {
         VirtualFile file = getVirtualFile();
-        if (file != null) {
-            FileConnectionContextManager contextManager = getContextManager();
-            contextManager.setConnection(file, connection);
-        }
+        if (isNotValid(file)) return;
+
+        FileConnectionContextManager contextManager = getContextManager();
+        contextManager.setConnection(file, connection);
     }
 
     @Override
     @Nullable
     public SchemaId getSchemaId() {
         VirtualFile file = getVirtualFile();
-        if (file != null) {
-            FileConnectionContextManager contextManager = getContextManager();
-            return contextManager.getDatabaseSchema(file);
-        }
-        return null;
+        if (isNotValid(file)) return null;
+
+        FileConnectionContextManager contextManager = getContextManager();
+        return contextManager.getDatabaseSchema(file);
     }
 
     public void setDatabaseSchema(SchemaId schema) {
         VirtualFile file = getVirtualFile();
-        if (file != null) {
-            FileConnectionContextManager contextManager = getContextManager();
-            contextManager.setDatabaseSchema(file, schema);
-        }
+        if (isNotValid(file)) return;
+
+        FileConnectionContextManager contextManager = getContextManager();
+        contextManager.setDatabaseSchema(file, schema);
     }
 
     @Override
     public DatabaseSession getSession() {
         VirtualFile file = getVirtualFile();
-        if (file != null && !getProject().isDisposed()) {
-            FileConnectionContextManager contextManager = getContextManager();
-            return contextManager.getDatabaseSession(file);
-        }
-        return null;
+        if (isNotValid(file)) return null;
+        if (isNotValid(getProject())) return null;
+
+
+        FileConnectionContextManager contextManager = getContextManager();
+        return contextManager.getDatabaseSession(file);
     }
 
     public void setDatabaseSession(DatabaseSession session) {
         VirtualFile file = getVirtualFile();
-        if (file != null) {
-            FileConnectionContextManager contextManager = getContextManager();
-            contextManager.setDatabaseSession(file, session);
-        }
+        if (isNotValid(file)) return;
+
+        FileConnectionContextManager contextManager = getContextManager();
+        contextManager.setDatabaseSession(file, session);
     }
 
     @Override

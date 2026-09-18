@@ -9,9 +9,13 @@ import com.dbn.common.editor.EditorNotificationProvider;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.listener.DBNFileEditorManagerListener;
 import com.dbn.common.util.Editors;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.mapping.FileConnectionContextListener;
+import com.dbn.diagnostics.ui.DialectSuggestionEditorNotificationPanel;
 import com.dbn.diagnostics.ui.ParserIssueEditorNotificationPanel;
 import com.dbn.editor.code.options.CodeEditorGeneralSettings;
 import com.dbn.language.common.DBLanguageDialect;
+import com.dbn.language.common.DBLanguageDialectResolver;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.language.common.psi.PsiUtil;
 import com.intellij.openapi.editor.Editor;
@@ -22,21 +26,43 @@ import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.JComponent;
 import java.util.Objects;
 
-public class ParserIssueEditorNotificationProvider extends EditorNotificationProvider<ParserIssueEditorNotificationPanel> {
-    public static final Key<String> DISMISSED_CONTENT = Key.create("DBNavigator.ParserIssueNotificationDismissedContent");
-    public static final Key<Boolean> NOTIFICATION_UPDATE_PENDING = Key.create("DBNavigator.ParserIssueNotificationUpdatePending");
-    public static final Key<Boolean> NOTIFICATION_MUTED = Key.create("DBNavigator.ParserIssueNotificationMuted");
-    private static final Key<ParserIssueEditorNotificationPanel> KEY = Key.create("DBNavigator.ParserIssueEditorNotificationPanel");
+import static com.dbn.common.util.Documents.whenDocumentsCommitted;
+import static com.dbn.common.util.Editors.updateEditorNotifications;
+
+public class ParserIssueEditorNotificationProvider extends EditorNotificationProvider<JComponent> {
+    private static final Key<String> REPORTING_NOTIFICATION_DISMISSED_VERSION = Key.create("DBNavigator.ReportingNotificationDismissedVersion");
+    private static final Key<Boolean> REPORTING_NOTIFICATION_UPDATE_PENDING = Key.create("DBNavigator.ReportingNotificationUpdatePending");
+
+    private static final Key<String> DIALECT_NOTIFICATION_DISMISSED_VERSION = Key.create("DBNavigator.DialectNotificationDismissedVersion");
+    private static final Key<Boolean> DIALECT_NOTIFICATION_UPDATE_PENDING = Key.create("DBNavigator.DialectNotificationUpdatePending");
+    private static final Key<Boolean> NOTIFICATION_MUTED = Key.create("DBNavigator.NotificationMuted");
+
+    private static final Key<JComponent> KEY = Key.create("DBNavigator.ParserIssueEditorNotificationPanel");
 
     public ParserIssueEditorNotificationProvider() {
         ProjectEvents.subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, fileEditorManagerListener());
+        ProjectEvents.subscribe(FileConnectionContextListener.TOPIC, fileConnectionContextListener());
+    }
+
+    @NotNull
+    private FileConnectionContextListener fileConnectionContextListener() {
+        return new FileConnectionContextListener() {
+            @Override
+            public void connectionChanged(
+                    @NotNull Project project,
+                    @NotNull VirtualFile file,
+                    @Nullable ConnectionHandler connection) {
+                setNotificationMuted(file, false);
+                updateEditorNotifications(project, file);
+            }
+        };
     }
 
     @NotNull
@@ -66,15 +92,14 @@ public class ParserIssueEditorNotificationProvider extends EditorNotificationPro
             @NotNull VirtualFile file,
             @NotNull FileEditor fileEditor) {
         DBLanguagePsiFile databasePsiFile = getDatabasePsiFile(project, file, fileEditor);
+        resetNotificationMuteState(databasePsiFile);
+    }
+
+    private static void resetNotificationMuteState(@Nullable DBLanguagePsiFile databasePsiFile) {
         if (databasePsiFile == null) return;
 
         VirtualFile contentFile = databasePsiFile.getVirtualFile();
-        DBLanguageDialect languageDialect = databasePsiFile.getLanguageDialect();
-        if (languageDialect == null || !languageDialect.isInitialized() || !PsiUtil.hasErrors(databasePsiFile)) {
-            mute(contentFile);
-        } else {
-            unmute(contentFile);
-        }
+        setNotificationMuted(contentFile, false);
     }
 
     private static void revealNotification(
@@ -87,14 +112,24 @@ public class ParserIssueEditorNotificationProvider extends EditorNotificationPro
         DBLanguagePsiFile databasePsiFile = getDatabasePsiFile(project, newFile, fileEditor);
         if (databasePsiFile == null) return;
 
-        PsiDocumentManager.getInstance(project).performWhenAllCommitted(() -> {
+        whenDocumentsCommitted(project, () -> {
             if (!fileEditor.isValid()) return;
             if (event.getManager().getSelectedEditor(newFile) != fileEditor) return;
-            if (!PsiUtil.hasErrors(databasePsiFile)) return;
 
-            unmute(databasePsiFile.getVirtualFile());
-            Editors.updateNotifications(project, newFile);
+            resetNotificationMuteState(databasePsiFile);
+            updateEditorNotifications(project, newFile);
         });
+    }
+
+    private static boolean canReportParserIssue(@NotNull DBLanguagePsiFile psiFile) {
+        DBLanguageDialect languageDialect = psiFile.getLanguageDialect();
+        return languageDialect != null && languageDialect.isInitialized() && PsiUtil.hasErrors(psiFile);
+    }
+
+    private static boolean canSuggestDialect(@NotNull DBLanguagePsiFile psiFile) {
+        ConnectionHandler connection = psiFile.getConnection();
+        if (connection != null && !connection.isVirtual()) return false;
+        return canReportParserIssue(psiFile);
     }
 
     @Nullable
@@ -108,49 +143,122 @@ public class ParserIssueEditorNotificationProvider extends EditorNotificationPro
     }
 
     @Override
-    public @NotNull Key<ParserIssueEditorNotificationPanel> getKey() {
+    public @NotNull Key<JComponent> getKey() {
         return KEY;
     }
 
     @Override
-    public @Nullable ParserIssueEditorNotificationPanel createComponent(@NotNull VirtualFile file, @NotNull FileEditor fileEditor, @NotNull Project project) {
+    public @Nullable JComponent createComponent(@NotNull VirtualFile file, @NotNull FileEditor fileEditor, @NotNull Project project) {
+        DBLanguagePsiFile psiFile = getDatabasePsiFile(project, file, fileEditor);
+        if (psiFile == null) return null;
+
         CodeEditorGeneralSettings settings = CodeEditorGeneralSettings.get(project);
+
+        // A dialect suggestion owns the notification slot while it is available or being resolved.
+        JComponent notificationPanel = createDialectNotificationPanel(settings, fileEditor, file, psiFile);
+        if (notificationPanel != null) return notificationPanel;
+
+        if (isDialectNotificationPending(settings, psiFile)) return null;
+        return createReportingNotificationPanel(settings, fileEditor, file, psiFile);
+    }
+
+    @Nullable
+    private static JComponent createDialectNotificationPanel(
+            @NotNull CodeEditorGeneralSettings settings,
+            @NotNull FileEditor fileEditor,
+            @NotNull VirtualFile file,
+            @NotNull DBLanguagePsiFile psiFile) {
+
+        Project project = psiFile.getProject();
+        VirtualFile contentFile = psiFile.getVirtualFile();
+
+        if (!settings.isShowDialectSuggestionNotifications()) return null;
+        if (isNotificationMuted(contentFile)) return null;
+        if (isDialectNotificationDismissed(contentFile)) return null;
+        if (!canSuggestDialect(psiFile)) return null;
+
+        DBLanguageDialect suggestedDialect = DBLanguageDialectResolver.getSuggestedDialect(psiFile);
+        if (suggestedDialect == null) return null;
+        if (suggestedDialect == psiFile.getLanguageDialect()) return null;
+
+        return new DialectSuggestionEditorNotificationPanel(project, file, fileEditor, psiFile, suggestedDialect);
+    }
+
+    private static boolean isDialectNotificationPending(
+            @NotNull CodeEditorGeneralSettings settings,
+            @NotNull DBLanguagePsiFile psiFile) {
+        VirtualFile contentFile = psiFile.getVirtualFile();
+
+        if (!settings.isShowDialectSuggestionNotifications()) return false;
+        if (isNotificationMuted(contentFile)) return false;
+        if (isDialectNotificationDismissed(contentFile)) return false;
+        if (!canSuggestDialect(psiFile)) return false;
+
+        return DBLanguageDialectResolver.isPending(psiFile);
+    }
+
+    @Nullable
+    private static JComponent createReportingNotificationPanel(
+            @NotNull CodeEditorGeneralSettings settings,
+            @NotNull FileEditor fileEditor,
+            @NotNull VirtualFile file,
+            @NotNull DBLanguagePsiFile psiFile) {
+
+        Project project = psiFile.getProject();
+        VirtualFile contentFile = psiFile.getVirtualFile();
+
         if (!settings.isShowParserIssueNotifications()) return null;
+        if (isReportingNotificationDismissed(contentFile)) return null;
+        if (isNotificationMuted(contentFile)) return null;
+        if (!canReportParserIssue(psiFile)) {
+            setNotificationMuted(contentFile, true);
+            return null;
+        }
 
-        DBLanguagePsiFile databasePsiFile = getDatabasePsiFile(project, file, fileEditor);
-        if (databasePsiFile == null) return null;
-
-        VirtualFile contentFile = databasePsiFile.getVirtualFile();
-        if (isDismissed(contentFile)) return null;
-        if (isMuted(contentFile)) return null;
-
-        DBLanguageDialect languageDialect = databasePsiFile.getLanguageDialect();
+        DBLanguageDialect languageDialect = psiFile.getLanguageDialect();
         if (languageDialect == null) return null;
-        if (!languageDialect.isInitialized()) return null;
 
-        if (!PsiUtil.hasErrors(databasePsiFile)) return null;
-
-        return new ParserIssueEditorNotificationPanel(project, file, fileEditor, databasePsiFile);
+        return new ParserIssueEditorNotificationPanel(project, file, fileEditor, psiFile, languageDialect);
     }
 
-    public static boolean isDismissed(@NotNull VirtualFile file) {
-        return contentVersion(file).equals(file.getUserData(DISMISSED_CONTENT));
+    private static boolean isReportingNotificationDismissed(@NotNull VirtualFile file) {
+        return contentVersion(file).equals(file.getUserData(REPORTING_NOTIFICATION_DISMISSED_VERSION));
     }
 
-    public static void markDismissed(@NotNull VirtualFile file) {
-        file.putUserData(DISMISSED_CONTENT, contentVersion(file));
+    private static boolean isDialectNotificationDismissed(@NotNull VirtualFile file) {
+        return contentVersion(file).equals(file.getUserData(DIALECT_NOTIFICATION_DISMISSED_VERSION));
     }
 
-    public static boolean isMuted(@NotNull VirtualFile file) {
+    private static boolean isNotificationMuted(@NotNull VirtualFile file) {
         return Boolean.TRUE.equals(file.getUserData(NOTIFICATION_MUTED));
     }
 
-    public static void mute(@NotNull VirtualFile file) {
-        file.putUserData(NOTIFICATION_MUTED, true);
+    public static void dismissDialectNotification(@NotNull VirtualFile file) {
+        file.putUserData(DIALECT_NOTIFICATION_DISMISSED_VERSION, contentVersion(file));
     }
 
-    public static void unmute(@NotNull VirtualFile file) {
-        file.putUserData(NOTIFICATION_MUTED, null);
+    public static void dismissReportingNotification(@NotNull VirtualFile file) {
+        file.putUserData(REPORTING_NOTIFICATION_DISMISSED_VERSION, contentVersion(file));
+    }
+
+    public static boolean isReportingNotificationUpdatePending(@NotNull VirtualFile file) {
+        return Boolean.TRUE.equals(file.getUserData(REPORTING_NOTIFICATION_UPDATE_PENDING));
+    }
+
+    public static void setReportingNotificationUpdatePending(@NotNull VirtualFile file, boolean pending) {
+        file.putUserData(REPORTING_NOTIFICATION_UPDATE_PENDING, pending ? Boolean.TRUE : null);
+    }
+
+    public static boolean isDialectNotificationUpdatePending(@NotNull VirtualFile file) {
+        return Boolean.TRUE.equals(file.getUserData(DIALECT_NOTIFICATION_UPDATE_PENDING));
+    }
+
+    public static void setDialectNotificationUpdatePending(@NotNull VirtualFile file, boolean pending) {
+        file.putUserData(DIALECT_NOTIFICATION_UPDATE_PENDING, pending ? Boolean.TRUE : null);
+    }
+
+    public static void setNotificationMuted(@NotNull VirtualFile file, boolean muted) {
+        file.putUserData(NOTIFICATION_MUTED, muted ? Boolean.TRUE : null);
     }
 
     private static String contentVersion(@NotNull VirtualFile file) {

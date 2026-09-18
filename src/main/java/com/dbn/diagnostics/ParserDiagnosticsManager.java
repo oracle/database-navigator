@@ -36,6 +36,7 @@ import com.dbn.diagnostics.data.ParserDiagnosticsUtil;
 import com.dbn.diagnostics.ui.ParserDiagnosticsForm;
 import com.dbn.diagnostics.ui.ParserIssueReportDialog;
 import com.dbn.error.jira.JiraParserIssueReportSubmitter;
+import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.DBLanguageFileType;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.language.common.psi.PsiUtil;
@@ -99,16 +100,16 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
         return projectService(project, ParserDiagnosticsManager.class);
     }
 
-    public void submitParserIssueReport(DBLanguagePsiFile psiFile) {
+    public void submitParserIssueReport(@NotNull DBLanguagePsiFile psiFile, @NotNull DBLanguageDialect languageDialect) {
         Project project = getProject();
         Progress.prompt(project, null, true,
                 txt("prc.reporting.title.PreparingIssueReport"),
                 txt("prc.reporting.text.PreparingSyntaxErrorReport"),
-                progress -> prepareParserIssueReport(psiFile));
+                progress -> prepareParserIssueReport(psiFile, languageDialect));
     }
 
     @SneakyThrows
-    private void prepareParserIssueReport(DBLanguagePsiFile psiFile) {
+    private void prepareParserIssueReport(DBLanguagePsiFile psiFile, DBLanguageDialect languageDialect) {
         File attachmentFile = File.createTempFile("dbn-parser-issue-", "." + psiFile.getVirtualFile().getExtension());
         attachmentFile.deleteOnExit();
 
@@ -121,7 +122,7 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
         String scrambledCode = new String(scrambled, charset);
 
         ParserIssueReportInput input = new ParserIssueReportInput(
-                scrambledCode, charset, fileType, psiFile.getLanguageDialect(), attachment);
+                scrambledCode, charset, fileType, languageDialect, attachment);
         Dialogs.show(() -> new ParserIssueReportDialog(getProject(), input),
                 whenOk(d -> sendParserIssueReport(input)));
     }

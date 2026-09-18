@@ -42,6 +42,7 @@ public class CodeEditorGeneralSettings
     private boolean enableSpellchecking = true;
     private boolean enableReferenceSpellchecking = false;
     private boolean showParserIssueNotifications = true;
+    private boolean showDialectSuggestionNotifications = true;
 
     CodeEditorGeneralSettings(CodeEditorSettings parent) {
         super(parent);
@@ -82,6 +83,7 @@ public class CodeEditorGeneralSettings
         enableSpellchecking = getBoolean(element, "enable-spellchecking", enableSpellchecking);
         enableReferenceSpellchecking = getBoolean(element, "enable-reference-spellchecking", enableReferenceSpellchecking);
         showParserIssueNotifications = getBoolean(element, "show-parser-issue-notifications", showParserIssueNotifications);
+        showDialectSuggestionNotifications = getBoolean(element, "show-dialect-suggestion-notifications", showDialectSuggestionNotifications);
     }
 
     @Override
@@ -91,5 +93,6 @@ public class CodeEditorGeneralSettings
         setBoolean(element, "enable-spellchecking", enableSpellchecking);
         setBoolean(element, "enable-reference-spellchecking", enableReferenceSpellchecking);
         setBoolean(element, "show-parser-issue-notifications", showParserIssueNotifications);
+        setBoolean(element, "show-dialect-suggestion-notifications", showDialectSuggestionNotifications);
     }
 }

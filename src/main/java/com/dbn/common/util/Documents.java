@@ -18,7 +18,6 @@ package com.dbn.common.util;
 
 import com.dbn.common.action.UserDataKeys;
 import com.dbn.common.event.ProjectEvents;
-import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Read;
 import com.dbn.common.thread.Write;
 import com.dbn.connection.ConnectionHandler;
@@ -27,7 +26,6 @@ import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.language.common.psi.PsiUtil;
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
-import com.intellij.codeInsight.folding.CodeFoldingManager;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.command.impl.UndoManagerImpl;
 import com.intellij.openapi.command.undo.DocumentReference;
@@ -60,6 +58,7 @@ import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.dispose.Failsafe.nn;
+import static com.dbn.common.util.Editors.updateEditorNotifications;
 import static com.dbn.common.util.GuardedBlocks.createGuardedBlock;
 import static com.dbn.common.util.GuardedBlocks.removeGuardedBlocks;
 import static com.dbn.common.util.Lists.forEach;
@@ -72,9 +71,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 @UtilityClass
 public class Documents {
 
-    public static void touchDocument(Editor editor, boolean reparse) {
-        Document document = editor.getDocument();
-
+    public static void touchDocument(Editor editor, boolean reparse) {Document document = editor.getDocument();
         // restart highlighting
         Project project = editor.getProject();
         if (!isValid(project)) return;
@@ -96,12 +93,18 @@ public class Documents {
             List<VirtualFile> files = Collections.singletonList(file.getVirtualFile());
             FileContentUtil.reparseFiles(project, files, true);
 
-            Background.run(() -> Read.run(() -> {
+/*            Background.run(() -> Read.run(() -> {
                 CodeFoldingManager codeFoldingManager = CodeFoldingManager.getInstance(project);
                 codeFoldingManager.updateFoldRegionsAsync(editor, false);
-            }));
+            }));*/
         }
         refreshEditorAnnotations(file);
+        updateEditorNotifications(file);
+    }
+
+    public static void whenDocumentsCommitted(Project project, Runnable runnable) {
+        PsiDocumentManager documentManager = PsiDocumentManager.getInstance(project);
+        documentManager.performWhenAllCommitted(runnable);
     }
 
     public static void refreshEditorAnnotations(@Nullable List<Editor> editor) {

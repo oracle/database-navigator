@@ -17,7 +17,6 @@
 package com.dbn.common.editor;
 
 import com.dbn.common.thread.Dispatch;
-import com.dbn.common.util.Editors;
 import com.dbn.vfs.file.DBContentVirtualFile;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.intellij.openapi.Disposable;
@@ -32,6 +31,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JComponent;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
+import static com.dbn.common.util.Editors.updateEditorNotifications;
 import static com.dbn.common.util.Modality.nonModal;
 
 public abstract class EditorNotificationProvider<T extends JComponent>
@@ -39,7 +39,7 @@ public abstract class EditorNotificationProvider<T extends JComponent>
         implements NonProjectFileWritingAccessExtension, Disposable {
 
     public void updateEditorNotification(@NotNull Project project, @Nullable DBContentVirtualFile databaseContentFile) {
-        Dispatch.run(nonModal(), () -> Editors.updateNotifications(project, DBEditableObjectVirtualFile.of(databaseContentFile)));
+        Dispatch.run(nonModal(), () -> updateEditorNotifications(project, DBEditableObjectVirtualFile.of(databaseContentFile)));
     }
 
     @Override

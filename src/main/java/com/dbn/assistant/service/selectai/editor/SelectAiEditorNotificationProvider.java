@@ -23,7 +23,6 @@ import com.dbn.assistant.state.AssistantStateListener;
 import com.dbn.common.editor.EditorNotificationProvider;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.feature.FeatureAcknowledgement;
-import com.dbn.common.util.Editors;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.mapping.FileConnectionContextManager;
@@ -36,6 +35,7 @@ import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.common.util.Editors.updateEditorNotifications;
 import static com.dbn.database.DatabaseFeature.AI_ASSISTANT;
 
 public class SelectAiEditorNotificationProvider extends EditorNotificationProvider<SelectAiEditorNotificationPanel> {
@@ -47,7 +47,7 @@ public class SelectAiEditorNotificationProvider extends EditorNotificationProvid
 
     @NotNull
     private static AssistantStateListener assistantStateListener() {
-        return (Project p, ConnectionId id) -> Editors.updateNotifications(p, null);
+        return (Project p, ConnectionId id) -> updateEditorNotifications(p, null);
     }
 
     @NotNull
