@@ -12,7 +12,6 @@ import com.dbn.diagnostics.ParserDiagnosticsManager;
 import com.dbn.editor.code.options.CodeEditorGeneralSettings;
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.DBLanguagePsiFile;
-import com.dbn.language.common.psi.PsiUtil;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileEditor;
@@ -27,7 +26,6 @@ import static com.dbn.common.util.Editors.updateEditorNotifications;
 import static com.dbn.common.util.Messages.options;
 import static com.dbn.diagnostics.ParserIssueEditorNotificationProvider.dismissReportingNotification;
 import static com.dbn.diagnostics.ParserIssueEditorNotificationProvider.isReportingNotificationUpdatePending;
-import static com.dbn.diagnostics.ParserIssueEditorNotificationProvider.setNotificationMuted;
 import static com.dbn.diagnostics.ParserIssueEditorNotificationProvider.setReportingNotificationUpdatePending;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -64,19 +62,14 @@ public class ParserIssueEditorNotificationPanel extends EditorNotificationPanel 
 
         whenDocumentsCommitted(project, () -> {
             setReportingNotificationUpdatePending(contentFile, false);
-            if (isDisposed() || PsiUtil.hasErrors(psiFile)) return;
-
-            setNotificationMuted(contentFile, true);
             updateEditorNotifications(project, getFile());
         });
-
-        if (!scheduled) {
-            contentFile.putUserData(NOTIFICATION_UPDATE_PENDING, null);
-        }
     }
 
     private void submitReport() {
-        ParserDiagnosticsManager.get(getProject()).submitParserIssueReport(psiFile, languageDialect);
+        Project project = getProject();
+        ParserDiagnosticsManager diagnosticsManager = ParserDiagnosticsManager.get(project);
+        diagnosticsManager.submitParserIssueReport(psiFile, languageDialect);
     }
 
     private void dismiss() {
