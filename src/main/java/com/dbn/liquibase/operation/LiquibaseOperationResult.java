@@ -31,6 +31,7 @@ import com.dbn.liquibase.operation.ui.LiquibaseOperationResultForm;
 import com.dbn.liquibase.task.LiquibaseTaskResult;
 import com.dbn.liquibase.workflow.LiquibaseWorkflowContext;
 import com.dbn.liquibase.workflow.LiquibaseWorkflowResult;
+import com.dbn.migration.operation.DatabaseMigrationOperationResult;
 import liquibase.changelog.ChangeSet;
 import liquibase.diff.ObjectDifferences;
 import liquibase.structure.DatabaseObject;
@@ -55,7 +56,9 @@ import static com.dbn.liquibase.operation.LiquibaseFeature.RERUN_ON_SUCCESS;
 @Getter
 @Setter
 public class LiquibaseOperationResult extends LiquibaseTaskResult<
-        LiquibaseOperationInput, LiquibaseOperationContext, LiquibaseOperationResultForm> {
+        LiquibaseOperationInput, LiquibaseOperationContext, LiquibaseOperationResultForm>
+        implements DatabaseMigrationOperationResult<
+        LiquibaseOperation, LiquibaseOperationInput, LiquibaseOperationContext> {
 
     private Path changelogPath;
     private Path documentationPath;

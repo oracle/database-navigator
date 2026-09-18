@@ -19,16 +19,24 @@ package com.dbn.liquibase.operation;
 import com.dbn.liquibase.task.LiquibaseTaskContext;
 import com.dbn.liquibase.workflow.LiquibaseWorkflowContext;
 import com.dbn.liquibase.workspace.LiquibaseEnvironmentProfile;
+import com.dbn.migration.operation.DatabaseMigrationOperationContext;
 import com.dbn.object.DBSchema;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/** Per-run state shared by a Liquibase processor and its execution result. */
+/**
+ * Per-run state shared by a Liquibase processor and its execution result.
+ *
+ * <p>In addition to the common task state, the context tracks workflow participation and
+ * the execution thread used to interrupt an active Liquibase operation.</p>
+ */
 @Getter
 @Setter
-public class LiquibaseOperationContext extends LiquibaseTaskContext<LiquibaseOperationInput> {
+public class LiquibaseOperationContext
+        extends LiquibaseTaskContext<LiquibaseOperationInput>
+        implements DatabaseMigrationOperationContext<LiquibaseOperation, LiquibaseOperationInput> {
     private final LiquibaseWorkflowContext workflowContext;
     private final LiquibaseOperationResult result = new LiquibaseOperationResult(this);
     private volatile Thread executionThread;

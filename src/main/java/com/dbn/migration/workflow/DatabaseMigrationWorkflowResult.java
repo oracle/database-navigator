@@ -1,0 +1,41 @@
+/*
+ * Copyright 2026 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dbn.migration.workflow;
+
+import com.dbn.migration.task.DatabaseMigrationTaskContext;
+import com.dbn.migration.task.DatabaseMigrationTaskInput;
+import org.jetbrains.annotations.NotNull;
+
+/**
+ * Common result contract for one database migration workflow.
+ *
+ * <p>The result keeps the workflow context typed at the workflow boundary while allowing each
+ * migration engine to provide its own result form, operation aggregation, and rerun behavior.</p>
+ */
+public interface DatabaseMigrationWorkflowResult<
+        W extends DatabaseMigrationWorkflow,
+        I extends DatabaseMigrationTaskInput & DatabaseMigrationWorkflowInput<W>,
+        C extends DatabaseMigrationTaskContext<I> & DatabaseMigrationWorkflowContext<W, I>> {
+
+    @NotNull
+    C getContext();
+
+    @NotNull
+    default W getWorkflow() {
+        return getContext().getWorkflow();
+    }
+}

@@ -12,6 +12,7 @@ package com.dbn.liquibase.workflow;
 
 import com.dbn.liquibase.operation.LiquibaseOperation;
 import com.dbn.liquibase.operation.LiquibaseOperationInput;
+import com.dbn.migration.workflow.DatabaseMigrationWorkflowInput;
 import com.dbn.object.DBSchema;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
@@ -20,9 +21,16 @@ import org.jetbrains.annotations.NotNull;
 import static com.dbn.liquibase.operation.LiquibaseFeature.DISTINCT_SCHEMAS;
 import static com.dbn.liquibase.operation.LiquibaseFeature.SOURCE_SCHEMA;
 
-/** Shared context used to initialize the inputs of operations in a workflow. */
+/**
+ * Shared context used to initialize the inputs of operations in a Liquibase workflow.
+ *
+ * <p>The input carries the common schema and workspace settings that are copied into each
+ * operation input created by the workflow.</p>
+ */
 @Getter
-public class LiquibaseWorkflowInput extends LiquibaseOperationInput {
+public class LiquibaseWorkflowInput
+        extends LiquibaseOperationInput
+        implements DatabaseMigrationWorkflowInput<LiquibaseWorkflow> {
     private final LiquibaseWorkflow workflow;
 
     public LiquibaseWorkflowInput(@NotNull Project project, @NotNull LiquibaseWorkflow workflow) {

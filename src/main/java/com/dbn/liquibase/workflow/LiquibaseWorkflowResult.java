@@ -22,6 +22,7 @@ import com.dbn.common.task.TaskStatus;
 import com.dbn.liquibase.operation.LiquibaseOperationResult;
 import com.dbn.liquibase.task.LiquibaseTaskResult;
 import com.dbn.liquibase.workflow.ui.LiquibaseWorkflowResultForm;
+import com.dbn.migration.workflow.DatabaseMigrationWorkflowResult;
 import lombok.Getter;
 import lombok.experimental.Delegate;
 import org.jetbrains.annotations.NotNull;
@@ -32,12 +33,19 @@ import java.util.List;
 
 import static com.dbn.liquibase.operation.LiquibaseFeature.RERUN_ON_SUCCESS;
 
-/** Execution-console result aggregating the operation results produced by a Liquibase workflow. */
+/**
+ * Execution-console result aggregating the operation results produced by a Liquibase workflow.
+ *
+ * <p>The result owns the workflow-level form and lifecycle while retaining the individual
+ * operation results for inspection and rerun decisions.</p>
+ */
 @Getter
 public class LiquibaseWorkflowResult extends LiquibaseTaskResult<
         LiquibaseWorkflowInput,
         LiquibaseWorkflowContext,
-        LiquibaseWorkflowResultForm> {
+        LiquibaseWorkflowResultForm>
+        implements DatabaseMigrationWorkflowResult<
+        LiquibaseWorkflow, LiquibaseWorkflowInput, LiquibaseWorkflowContext> {
 
     private final List<LiquibaseOperationResult> operationResults = new ArrayList<>();
 

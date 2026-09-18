@@ -25,6 +25,7 @@ import com.dbn.liquibase.workspace.LiquibaseEnvironmentProfileBundle;
 import com.dbn.liquibase.workspace.LiquibaseWorkspace;
 import com.dbn.liquibase.workspace.LiquibaseWorkspaceBundle;
 import com.dbn.liquibase.workspace.LiquibaseWorkspacePaths;
+import com.dbn.migration.operation.DatabaseMigrationOperationInput;
 import com.dbn.object.DBSchema;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
@@ -40,7 +41,9 @@ import static com.dbn.liquibase.operation.LiquibaseFeature.SOURCE_SCHEMA;
 /** Input describing a Liquibase operation and its optional source and target schemas. */
 @Getter
 @Setter
-public class LiquibaseOperationInput extends LiquibaseTaskInput {
+public class LiquibaseOperationInput
+        extends LiquibaseTaskInput
+        implements DatabaseMigrationOperationInput<LiquibaseOperation> {
     private final LiquibaseWorkspaceBundle workspaces;
     private final LiquibaseEnvironmentProfileBundle environmentProfiles;
     private final LiquibaseOperation operation;

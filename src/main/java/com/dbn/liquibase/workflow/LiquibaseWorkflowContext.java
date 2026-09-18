@@ -18,15 +18,23 @@ package com.dbn.liquibase.workflow;
 
 import com.dbn.liquibase.operation.LiquibaseOperation;
 import com.dbn.liquibase.task.LiquibaseTaskContext;
+import com.dbn.migration.workflow.DatabaseMigrationWorkflowContext;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-/** Per-run state shared by a workflow and its operation results. */
+/**
+ * Per-run state shared by a Liquibase workflow and its operation results.
+ *
+ * <p>The context tracks the ordered operations and delegates their orchestration to the
+ * Liquibase workflow executor.</p>
+ */
 @Getter
-public class LiquibaseWorkflowContext extends LiquibaseTaskContext<LiquibaseWorkflowInput> {
+public class LiquibaseWorkflowContext
+        extends LiquibaseTaskContext<LiquibaseWorkflowInput>
+        implements DatabaseMigrationWorkflowContext<LiquibaseWorkflow, LiquibaseWorkflowInput> {
     private final LiquibaseWorkflowResult result = new  LiquibaseWorkflowResult(this);
     private final LiquibaseWorkflowExecutor executor = new LiquibaseWorkflowExecutor(result);
     private final List<LiquibaseOperation> operations;

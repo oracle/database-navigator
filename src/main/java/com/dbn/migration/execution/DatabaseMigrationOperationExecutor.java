@@ -17,6 +17,9 @@
 package com.dbn.migration.execution;
 
 import com.dbn.migration.operation.DatabaseMigrationOperation;
+import com.dbn.migration.operation.DatabaseMigrationOperationContext;
+import com.dbn.migration.operation.DatabaseMigrationOperationInput;
+import com.dbn.migration.operation.DatabaseMigrationOperationResult;
 import com.dbn.migration.task.DatabaseMigrationTaskContext;
 import com.dbn.migration.task.DatabaseMigrationTaskInput;
 import com.dbn.migration.task.DatabaseMigrationTaskResult;
@@ -29,6 +32,9 @@ import org.jetbrains.annotations.NotNull;
  * handling, preview behavior, confirmation, logging, cancellation translation, and result
  * details remain responsibilities of the concrete migration engine.</p>
  *
+ * <p>The generic bounds keep the operation, input, context, and result types aligned so an
+ * executor cannot accidentally combine state belonging to different operation models.</p>
+ *
  * @param <O> the concrete operation type handled by the executor
  * @param <I> the concrete input type carried by the execution context
  * @param <C> the concrete execution context type
@@ -36,9 +42,9 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface DatabaseMigrationOperationExecutor<
         O extends DatabaseMigrationOperation,
-        I extends DatabaseMigrationTaskInput,
-        C extends DatabaseMigrationTaskContext<I>,
-        R extends DatabaseMigrationTaskResult<I, C, ?>> {
+        I extends DatabaseMigrationTaskInput & DatabaseMigrationOperationInput<O>,
+        C extends DatabaseMigrationTaskContext<I> & DatabaseMigrationOperationContext<O, I>,
+        R extends DatabaseMigrationTaskResult<I, C, ?> & DatabaseMigrationOperationResult<O, I, C>> {
     @NotNull
     O getOperation();
 
