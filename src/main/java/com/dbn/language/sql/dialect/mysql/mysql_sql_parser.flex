@@ -47,7 +47,7 @@ CHARSET ="armscii8"|"ascii"|"big5"|"binary"|"cp1250"|"cp1251"|"cp1256"|"cp1257"|
 string_simple_quoted      = "'"([^\']|"''"|{WHITE_SPACE})*"'"?
 string_double_quoted      = \"([^\"]|"\"\""|{WHITE_SPACE})*\"?
 string_dollar_quoted      = "$$"([^$]|"$"[^$])*"$$"?
-STRING = ("n"|"_"{CHARSET})?{wso}({string_simple_quoted}|{string_double_quoted}|{string_dollar_quoted})
+STRING = ("n"|"_"{CHARSET}{wso})?({string_simple_quoted}|{string_double_quoted}|{string_dollar_quoted})
 
 sign = "+"|"-"
 digit = [0-9]
