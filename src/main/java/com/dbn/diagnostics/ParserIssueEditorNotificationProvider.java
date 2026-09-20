@@ -8,6 +8,7 @@ package com.dbn.diagnostics;
 import com.dbn.common.editor.EditorNotificationProvider;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.listener.DBNFileEditorManagerListener;
+import com.dbn.common.thread.Read;
 import com.dbn.common.util.Editors;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.mapping.FileConnectionContextListener;
@@ -15,8 +16,8 @@ import com.dbn.diagnostics.ui.DialectSuggestionEditorNotificationPanel;
 import com.dbn.diagnostics.ui.ParserIssueEditorNotificationPanel;
 import com.dbn.editor.code.options.CodeEditorGeneralSettings;
 import com.dbn.language.common.DBLanguageDialect;
-import com.dbn.language.common.DBLanguageDialectResolver;
 import com.dbn.language.common.DBLanguagePsiFile;
+import com.dbn.language.common.dialect.DBLanguageDialectCache;
 import com.dbn.language.common.psi.PsiUtil;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditor;
@@ -35,6 +36,8 @@ import java.util.Objects;
 
 import static com.dbn.common.util.Documents.whenDocumentsCommitted;
 import static com.dbn.common.util.Editors.updateEditorNotifications;
+import static com.dbn.diagnostics.data.ParserDiagnosticsUtil.hasIssues;
+import static com.dbn.language.common.dialect.DBLanguageDialectCache.getSuggestedDialect;
 
 public class ParserIssueEditorNotificationProvider extends EditorNotificationProvider<JComponent> {
     private static final Key<String> REPORTING_NOTIFICATION_DISMISSED_VERSION = Key.create("DBNavigator.ReportingNotificationDismissedVersion");
@@ -129,7 +132,10 @@ public class ParserIssueEditorNotificationProvider extends EditorNotificationPro
     private static boolean canSuggestDialect(@NotNull DBLanguagePsiFile psiFile) {
         ConnectionHandler connection = psiFile.getConnection();
         if (connection != null && !connection.isVirtual()) return false;
-        return canReportParserIssue(psiFile);
+
+        DBLanguageDialect languageDialect = psiFile.getLanguageDialect();
+        return languageDialect != null && languageDialect.isInitialized() &&
+                Read.call(psiFile, f -> hasIssues(f));
     }
 
     @Nullable
@@ -177,7 +183,7 @@ public class ParserIssueEditorNotificationProvider extends EditorNotificationPro
         if (isDialectNotificationDismissed(contentFile)) return null;
         if (!canSuggestDialect(psiFile)) return null;
 
-        DBLanguageDialect suggestedDialect = DBLanguageDialectResolver.getSuggestedDialect(psiFile);
+        DBLanguageDialect suggestedDialect = getSuggestedDialect(psiFile);
         if (suggestedDialect == null) return null;
         if (suggestedDialect == psiFile.getLanguageDialect()) return null;
 
@@ -194,7 +200,7 @@ public class ParserIssueEditorNotificationProvider extends EditorNotificationPro
         if (isDialectNotificationDismissed(contentFile)) return false;
         if (!canSuggestDialect(psiFile)) return false;
 
-        return DBLanguageDialectResolver.isPending(psiFile);
+        return DBLanguageDialectCache.isPending(psiFile);
     }
 
     @Nullable

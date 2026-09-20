@@ -85,7 +85,7 @@ import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.file.util.VirtualFiles.getUnderlyingFile;
 import static com.dbn.common.util.Documents.getDocument;
 import static com.dbn.common.util.Documents.getEditors;
-import static com.dbn.language.common.DBLanguageDialectResolver.getSuggestedDialect;
+import static com.dbn.language.common.dialect.DBLanguageDialectCache.getSuggestedDialect;
 import static com.dbn.language.common.element.util.ElementTypeAttribute.SCOPE_DEMARCATION;
 import static com.dbn.language.common.element.util.ElementTypeAttribute.SCOPE_ISOLATION;
 import static com.dbn.language.common.psi.PsiUtil.SUPPORTED_VISITORS;

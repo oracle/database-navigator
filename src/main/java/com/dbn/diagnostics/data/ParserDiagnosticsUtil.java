@@ -16,12 +16,10 @@
 
 package com.dbn.diagnostics.data;
 
-import com.dbn.common.util.Lists;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.language.common.TokenType;
 import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiRecursiveElementVisitor;
@@ -32,8 +30,10 @@ import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @UtilityClass
@@ -65,47 +65,68 @@ public final class ParserDiagnosticsUtil {
         return StateTransition.UNCHANGED;
     }
 
+    /** Returns as soon as the file contains one parser error or warning. */
+    public static boolean hasIssues(PsiFile file) {
+        Deque<PsiElement> elements = new ArrayDeque<>();
+        elements.push(file);
+        while (!elements.isEmpty()) {
+            PsiElement element = elements.pop();
+            if (element instanceof PsiWhiteSpace) continue;
+            if (element instanceof PsiComment) continue;
+            if (element instanceof PsiErrorElement) return true;
+
+            if (isWarningToken(element)) return true;
+            if (element instanceof LeafPsiElement) continue;
+
+            for (PsiElement child = element.getFirstChild(); child != null; child = child.getNextSibling()) {
+                elements.push(child);
+            }
+        }
+        return false;
+    }
+
     public static int countErrors(PsiFile file) {
-        List<PsiErrorElement> errors = new ArrayList<>();
-        PsiElementVisitor visitor = new PsiRecursiveElementVisitor() {
+        Set<Integer> errorOffsets = new HashSet<>();
+        PsiRecursiveElementVisitor visitor = new PsiRecursiveElementVisitor() {
             @Override
             public void visitElement(@NotNull PsiElement element) {
                 if (element instanceof PsiErrorElement) {
-                    if (Lists.noneMatch(errors, error -> error.getTextOffset() == element.getTextOffset())) {
-                        errors.add((PsiErrorElement) element);
-                    }
-
+                    errorOffsets.add(element.getTextOffset());
                 }
                 super.visitElement(element);
-
             }
-        };;
+        };
         visitor.visitFile(file);
-        return errors.size();
+        return errorOffsets.size();
+    }
+
+    /** Returns the same combined issue count used by parser diagnostics results. */
+    public static int countIssues(PsiFile file) {
+        return countErrors(file) + countWarnings(file);
     }
 
     public static int countWarnings(PsiFile file) {
         AtomicInteger count = new AtomicInteger();
-        PsiElementVisitor visitor = new PsiRecursiveElementVisitor() {
+        PsiRecursiveElementVisitor visitor = new PsiRecursiveElementVisitor() {
             @Override
             public void visitElement(@NotNull PsiElement element) {
-                if (element instanceof PsiWhiteSpace || element instanceof PsiComment) {
-                    // ignore
-                } else if (element instanceof LeafPsiElement leafPsiElement && element.getParent() instanceof DBLanguagePsiFile) {
-                    IElementType elementType = leafPsiElement.getElementType();
-                    if (elementType instanceof TokenType tokenType) {
+                if (element instanceof PsiWhiteSpace) return;
+                if (element instanceof PsiComment) return;
 
-                        if (!tokenType.isCharacter() && !tokenType.isChameleon()) {
-                            count.incrementAndGet();
-                        }
-                    }
-
-                } else{
-                    super.visitElement(element);
-                }
+                if (isWarningToken(element)) count.incrementAndGet();
+                if (!(element instanceof LeafPsiElement)) super.visitElement(element);
             }
-        };;
+        };
         visitor.visitFile(file);
         return count.get();
+    }
+
+    private static boolean isWarningToken(PsiElement element) {
+        if (!(element instanceof LeafPsiElement leafPsiElement)) return false;
+        if (!(element.getParent() instanceof DBLanguagePsiFile)) return false;
+
+        IElementType elementType = leafPsiElement.getElementType();
+        return elementType instanceof TokenType tokenType &&
+                !tokenType.isCharacter() && !tokenType.isChameleon();
     }
 }
