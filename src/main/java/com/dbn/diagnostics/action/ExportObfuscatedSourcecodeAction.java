@@ -35,10 +35,10 @@ import java.io.File;
 import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
-public class ExportScrambledSourcecodeAction extends ProjectAction {
+public class ExportObfuscatedSourcecodeAction extends ProjectAction {
 
-    public ExportScrambledSourcecodeAction() {
-        super(txt("app.diagnostics.action.ScrambleProjectCode"));
+    public ExportObfuscatedSourcecodeAction() {
+        super(txt("app.diagnostics.action.ObfuscateProjectCode"));
     }
 
     @Override
@@ -46,12 +46,12 @@ public class ExportScrambledSourcecodeAction extends ProjectAction {
         VirtualFile[] virtualFiles = FileChooser.chooseFiles(codeDestinationDirectory(), project, null);
         if (virtualFiles.length == 1) {
             Progress.modal(project, null, true,
-                    txt("prc.diagnostics.title.ScramblingCode"),
-                    txt("prc.diagnostics.text.RunningCodeScrambler"),
+                    txt("prc.diagnostics.title.ObfuscatingCode"),
+                    txt("prc.diagnostics.text.RunningCodeObfuscator"),
                     progress -> {
                         progress.setIndeterminate(false);
                         ParserDiagnosticsManager manager = ParserDiagnosticsManager.get(project);
-                        manager.scrambleProjectFiles(progress, new File(virtualFiles[0].getPath()));
+                        manager.obfuscateProjectFiles(progress, new File(virtualFiles[0].getPath()));
                     });
         }
     }
@@ -59,14 +59,14 @@ public class ExportScrambledSourcecodeAction extends ProjectAction {
     private @NotNull FileChooserDescriptor codeDestinationDirectory() {
         return FileChoosers.singleFolder().
                 withTitle(txt("msg.diagnostics.title.SelectDestinationDirectory")).
-                withDescription(txt("msg.diagnostics.text.ScrambledSourcesDestinationDirectory"));
+                withDescription(txt("msg.diagnostics.text.ObfuscatedSourcesDestinationDirectory"));
     }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
         presentation.setVisible(Diagnostics.isBulkActionsEnabled());
-        presentation.setText(txt("app.diagnostics.action.ExportScrambledSourceCode"));
+        presentation.setText(txt("app.diagnostics.action.ExportObfuscatedSourceCode"));
     }
 
 

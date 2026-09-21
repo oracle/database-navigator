@@ -40,7 +40,7 @@ import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.DBLanguageFileType;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.language.common.psi.PsiUtil;
-import com.dbn.language.common.psi.scrambler.DBLLanguageFileScrambler;
+import com.dbn.language.common.psi.obfuscator.DBLLanguageFileObfuscator;
 import com.dbn.language.psql.PSQLFileType;
 import com.dbn.language.sql.SQLFileType;
 import com.intellij.openapi.components.State;
@@ -114,15 +114,15 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
         attachmentFile.deleteOnExit();
 
         Charset charset = psiFile.getVirtualFile().getCharset();
-        byte[] scrambled = ParserDiagnosticsManager.scrambleFile(psiFile, charset);
-        FileUtil.writeToFile(attachmentFile, scrambled);
+        byte[] obfuscated = ParserDiagnosticsManager.obfuscateFile(psiFile, charset);
+        FileUtil.writeToFile(attachmentFile, obfuscated);
 
         Attachment attachment = new Attachment(attachmentFile.getPath(), attachmentFile, attachmentFile.getName());
         FileType fileType = psiFile.getFileType();
-        String scrambledCode = new String(scrambled, charset);
+        String obfuscatedCode = new String(obfuscated, charset);
 
         ParserIssueReportInput input = new ParserIssueReportInput(
-                scrambledCode, charset, fileType, languageDialect, attachment);
+                obfuscatedCode, charset, fileType, languageDialect, attachment);
         Dialogs.show(() -> new ParserIssueReportDialog(getProject(), input),
                 whenOk(d -> sendParserIssueReport(input)));
     }
@@ -184,12 +184,12 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
         }
     }
 
-    public void scrambleProjectFiles(ProgressIndicator progress, File rootDir) {
+    public void obfuscateProjectFiles(ProgressIndicator progress, File rootDir) {
         String[] extensions = getFileExtensions();
         FileSearchRequest searchRequest = FileSearchRequest.forExtensions(extensions);
         VirtualFile[] files = findFiles(getProject(), searchRequest);
 
-        DBLLanguageFileScrambler scrambler = new DBLLanguageFileScrambler();
+        DBLLanguageFileObfuscator obfuscator = new DBLLanguageFileObfuscator();
         progress.setIndeterminate(true);
 
         for (int i = 0, filesLength = files.length; i < filesLength; i++) {
@@ -203,29 +203,29 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
             progress.checkCanceled();
             if (psiFile != null) {
 
-                String scrambled = scrambleFile(psiFile, scrambler);
-                String newFileName = scrambler.scrambleName(file);
-                File scrambledFile = new File(rootDir, newFileName);
+                String obfuscated = obfuscateFile(psiFile, obfuscator);
+                String newFileName = obfuscator.obfuscateName(file);
+                File obfuscatedFile = new File(rootDir, newFileName);
                 try {
                     Charset charset = file.getCharset();
-                    byte[] bytes = scrambled.getBytes(charset);
-                    FileUtil.writeToFile(scrambledFile, bytes);
+                    byte[] bytes = obfuscated.getBytes(charset);
+                    FileUtil.writeToFile(obfuscatedFile, bytes);
                 } catch (IOException e) {
                     conditionallyLog(e);
                     NotificationSupport.sendWarningNotification(getProject(), DEVELOPER,
-                            txt("ntf.diagnostics.warning.FailedToWriteFile", scrambledFile.getPath(), e));
+                            txt("ntf.diagnostics.warning.FailedToWriteFile", obfuscatedFile.getPath(), e));
                 }
             }
         }
     }
 
-    public static byte[] scrambleFile(@NotNull DBLanguagePsiFile psiFile, @NotNull Charset charset) {
-        String scrambled = scrambleFile(psiFile, new DBLLanguageFileScrambler());
-        return scrambled.getBytes(charset);
+    public static byte[] obfuscateFile(@NotNull DBLanguagePsiFile psiFile, @NotNull Charset charset) {
+        String obfuscated = obfuscateFile(psiFile, new DBLLanguageFileObfuscator());
+        return obfuscated.getBytes(charset);
     }
 
-    private static String scrambleFile(DBLanguagePsiFile psiFile, DBLLanguageFileScrambler scrambler) {
-        return scrambler.scramble(psiFile);
+    private static String obfuscateFile(DBLanguagePsiFile psiFile, DBLLanguageFileObfuscator obfuscator) {
+        return obfuscator.obfuscate(psiFile);
     }
 
     public String[] getFileExtensions() {

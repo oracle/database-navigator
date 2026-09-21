@@ -695,7 +695,7 @@
                 <action id="DBN.MainMenu.Diagnostics.Parser" class="com.dbn.diagnostics.action.ParserDiagnosticsOpenAction"/>
                 <action id="DBN.MainMenu.Diagnostics.Connection" class="com.dbn.menu.action.DiagnosticsMonitorOpenAction"/>
                 <action id="DBN.MainMenu.Diagnostics.ReloadMetadataDefinitions" class="com.dbn.menu.action.MetaDataDefinitionReloadAction"/>
-                <action id="DBN.MainMenu.Diagnostics.ScrambleProjectCode" class="com.dbn.diagnostics.action.ExportScrambledSourcecodeAction"/>
+                <action id="DBN.MainMenu.Diagnostics.ObfuscateProjectCode" class="com.dbn.diagnostics.action.ExportObfuscatedSourcecodeAction"/>
                 <separator/>
                 <action id="DBN.MainMenu.Diagnostics.Settings" class="com.dbn.menu.action.DiagnosticsSettingsOpenAction"/>
             </group>
