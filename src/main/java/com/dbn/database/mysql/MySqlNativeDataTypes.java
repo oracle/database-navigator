@@ -29,6 +29,7 @@ class MySqlNativeDataTypes extends DatabaseNativeDataTypes {
     {
         createBasicDefinition("CHAR", String.class, Types.CHAR, GenericDataType.LITERAL);
         createBasicDefinition("VARCHAR", String.class, Types.VARCHAR, GenericDataType.LITERAL);
+        createBasicDefinition("CHARACTER VARYING", String.class, Types.VARCHAR, GenericDataType.LITERAL);
         createBasicDefinition("BINARY", String.class, Types.BINARY, GenericDataType.LITERAL);
         createBasicDefinition("VARBINARY", String.class, Types.VARBINARY, GenericDataType.LITERAL);
         createBasicDefinition("NATIONAL CHAR", String.class, Types.CHAR, GenericDataType.LITERAL);
@@ -40,23 +41,35 @@ class MySqlNativeDataTypes extends DatabaseNativeDataTypes {
         createBasicDefinition("TEXT", String.class, Types.VARCHAR, GenericDataType.LITERAL);
         createBasicDefinition("MEDIUMTEXT", String.class, Types.VARCHAR, GenericDataType.LITERAL);
         createBasicDefinition("LONGTEXT", String.class, Types.VARCHAR, GenericDataType.LITERAL);
+        createBasicDefinition("LONG", String.class, Types.VARCHAR, GenericDataType.LITERAL);
+        createBasicDefinition("LONG VARCHAR", String.class, Types.VARCHAR, GenericDataType.LITERAL);
 
 
         createNumericDefinition("BIT", Short.class, Types.BIT);
         createNumericDefinition("TINYINT", Short.class, Types.TINYINT);
+        createNumericDefinition("INT1", Short.class, Types.TINYINT);
         createNumericDefinition("BOOL", Boolean.class, Types.BOOLEAN);
         createNumericDefinition("BOOLEAN", Boolean.class, Types.BOOLEAN);
         createNumericDefinition("SMALLINT", Integer.class, Types.SMALLINT);
+        createNumericDefinition("INT2", Integer.class, Types.SMALLINT);
         createNumericDefinition("MEDIUMINT", Integer.class, Types.INTEGER);
+        createNumericDefinition("INT3", Integer.class, Types.INTEGER);
+        createNumericDefinition("MIDDLEINT", Integer.class, Types.INTEGER);
         createNumericDefinition("INT", Long.class, Types.INTEGER);
+        createNumericDefinition("INT4", Long.class, Types.INTEGER);
         createNumericDefinition("INT UNSIGNED", Long.class, Types.INTEGER);
         createNumericDefinition("INTEGER", Long.class, Types.INTEGER);
         createNumericDefinition("BIGINT", BigInteger.class, Types.BIGINT);
+        createNumericDefinition("INT8", BigInteger.class, Types.BIGINT);
         createNumericDefinition("FLOAT", Float.class, Types.FLOAT);
+        createNumericDefinition("FLOAT4", Float.class, Types.FLOAT);
         createNumericDefinition("DOUBLE", Double.class, Types.DOUBLE);
+        createNumericDefinition("FLOAT8", Double.class, Types.DOUBLE);
         createNumericDefinition("DOUBLE PRECISION", Double.class, Types.DOUBLE);
         createNumericDefinition("DECIMAL", BigDecimal.class, Types.DECIMAL);
         createNumericDefinition("DEC", BigDecimal.class, Types.DECIMAL);
+        createNumericDefinition("FIXED", BigDecimal.class, Types.DECIMAL);
+        createNumericDefinition("NUMERIC", BigDecimal.class, Types.DECIMAL);
 
         createDateTimeDefinition("DATE", Timestamp.class, Types.DATE);
         createDateTimeDefinition("DATETIME", Timestamp.class, Types.TIMESTAMP);
@@ -68,5 +81,6 @@ class MySqlNativeDataTypes extends DatabaseNativeDataTypes {
         createLargeValueDefinition("BLOB", Blob.class, Types.BLOB, GenericDataType.BLOB);
         createLargeValueDefinition("MEDIUMBLOB", Blob.class, Types.BLOB, GenericDataType.BLOB);
         createLargeValueDefinition("LONGBLOB", Blob.class, Types.BLOB, GenericDataType.BLOB);
+        createLargeValueDefinition("LONG VARBINARY", Blob.class, Types.BLOB, GenericDataType.BLOB);
     }
 }
