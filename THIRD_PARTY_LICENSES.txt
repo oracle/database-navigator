@@ -1,5 +1,5 @@
 
-Dependency License Report for dbn-plugin 4.1.0.0
+Dependency License Report for dbn-plugin 4.1.0.1
 
 1. Group: com.fasterxml.jackson.core  Name: jackson-annotations  Version: 2.22
 
