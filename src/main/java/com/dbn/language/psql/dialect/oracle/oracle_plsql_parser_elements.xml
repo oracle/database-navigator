@@ -1059,7 +1059,7 @@
     <element-def description="Program BODY" id="program_body" original-name="body">
         <element optional="true" ref-id="label" />
         <wrapper formatting-indent="NONE" id="00524" template="BEGIN_END">
-            <sequence id="00525">
+            <sequence id="00525" optional="true">
                 <element ref-id="statement" />
                 <iteration id="00526" optional="true">
                     <element ref-id="statement" />
