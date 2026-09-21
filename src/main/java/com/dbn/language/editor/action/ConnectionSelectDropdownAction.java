@@ -43,7 +43,7 @@ import static com.dbn.nls.NlsResources.txt;
 public class ConnectionSelectDropdownAction extends ComboBoxAction implements DumbAware {
 
     public ConnectionSelectDropdownAction() {
-        super(txt("app.codeEditor.action.ScriptEditorDbConnections"));
+        super(txt("app.codeEditor.action.ScriptEditorConnection"));
     }
 
     @Override
@@ -56,7 +56,7 @@ public class ConnectionSelectDropdownAction extends ComboBoxAction implements Du
     @Override
     public void update(@NotNull AnActionEvent e) {
         Presentation presentation = e.getPresentation();
-        String text = txt("app.codeEditor.action.DbConnections");
+        String text = txt("app.codeEditor.action.Connection");
         Icon icon = null;
 
         Project project = Lookups.getProject(e);

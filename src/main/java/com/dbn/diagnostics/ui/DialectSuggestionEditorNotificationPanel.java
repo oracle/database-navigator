@@ -19,11 +19,13 @@ import com.dbn.common.editor.EditorNotificationPanel;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Messages;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.mapping.FileConnectionContextManager;
 import com.dbn.editor.code.options.CodeEditorGeneralSettings;
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.DBLanguagePsiFile;
+import com.dbn.language.common.dialect.DBLanguageDialectCache;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -35,6 +37,7 @@ import org.jetbrains.annotations.NotNull;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.util.Documents.getDocument;
 import static com.dbn.common.util.Documents.onDocumentChanged;
+import static com.dbn.common.util.Documents.touchDocument;
 import static com.dbn.common.util.Documents.whenDocumentsCommitted;
 import static com.dbn.common.util.Editors.updateEditorNotifications;
 import static com.dbn.common.util.Messages.options;
@@ -64,6 +67,13 @@ public class DialectSuggestionEditorNotificationPanel extends EditorNotification
         setIcon(AllIcons.Actions.IntentionBulb);
         setText(txt("ntf.diagnostics.text.DialectSuggestion", suggestedDialect.getDisplayName()));
         createActionLabel(txt("ntf.diagnostics.action.UseSuggestedDialect", suggestedDialect.getDisplayName()), this::applySuggestion);
+        DBLanguageDialect currentDialect = DBLanguageDialectCache.getSelectedDialect(psiFile);
+        if (currentDialect == null) {
+            currentDialect = DBLanguageDialectCache.getCurrentDialect(psiFile);
+        }
+        if (currentDialect != null) {
+            createActionLabel(txt("ntf.diagnostics.action.KeepDialect", currentDialect.getDisplayName()), this::keepDialect);
+        }
         createActionLabel(txt("app.shared.action.Dismiss"), this::dismiss);
 
         Document document = getDocument(psiFile);
@@ -87,13 +97,24 @@ public class DialectSuggestionEditorNotificationPanel extends EditorNotification
         if (isNotValid(editor)) return;
 
         Project project = getProject();
-        FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
-        contextManager.setVirtualConnection(editor, databaseType(suggestedDialect));
+        ConnectionHandler connection = psiFile.getConnection();
+        if (connection == null) {
+            DBLanguageDialectCache.setSelectedDialect(psiFile, suggestedDialect);
+        } else {
+            FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
+            contextManager.setVirtualConnection(contentFile, databaseType(suggestedDialect));
+        }
 
+        touchDocument(editor, true);
         whenDocumentsCommitted(project, () -> {
             if (isNotValid(psiFile)) return;
             updateEditorNotifications(project, contentFile);
         });
+    }
+
+    private void keepDialect() {
+        DBLanguageDialectCache.keepDialect(psiFile);
+        updateEditorNotifications(getProject(), contentFile);
     }
 
     private void dismiss() {

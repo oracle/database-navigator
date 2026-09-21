@@ -564,6 +564,7 @@
         <group id="DBN.Editor">
             <action id="DBN.Editor.DatabaseLogging" class="com.dbn.execution.logging.action.DatabaseLoggingToggleAction" icon="com.dbn.common.icon.Icons.EXEC_LOG_OUTPUT_CONSOLE"/>
             <action id="DBN.Editor.Connection" class="com.dbn.language.editor.action.ConnectionSelectDropdownAction"/>
+            <action id="DBN.Editor.Dialect" class="com.dbn.language.editor.action.DialectSelectDropdownAction"/>
             <action id="DBN.Editor.Schema" class="com.dbn.language.editor.action.SchemaSelectDropdownAction"/>
             <action id="DBN.Editor.Session" class="com.dbn.language.editor.action.DatabaseSessionSelectDropdownAction"/>
             <action id="DBN.Transaction.Commit" class="com.dbn.language.editor.action.TransactionCommitAction" icon="com.dbn.common.icon.Icons.CONNECTION_COMMIT"/>

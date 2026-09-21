@@ -37,7 +37,8 @@ import java.util.Objects;
 import static com.dbn.common.util.Documents.whenDocumentsCommitted;
 import static com.dbn.common.util.Editors.updateEditorNotifications;
 import static com.dbn.diagnostics.data.ParserDiagnosticsUtil.hasIssues;
-import static com.dbn.language.common.dialect.DBLanguageDialectCache.getSuggestedDialect;
+import static com.dbn.language.common.dialect.DBLanguageDialectCache.getDetectedDialect;
+import static com.dbn.language.common.dialect.DBLanguageDialectCache.getSelectedDialect;
 
 public class ParserIssueEditorNotificationProvider extends EditorNotificationProvider<JComponent> {
     private static final Key<String> REPORTING_NOTIFICATION_DISMISSED_VERSION = Key.create("DBNavigator.ReportingNotificationDismissedVersion");
@@ -181,13 +182,14 @@ public class ParserIssueEditorNotificationProvider extends EditorNotificationPro
         if (!settings.isShowDialectSuggestionNotifications()) return null;
         if (isNotificationMuted(contentFile)) return null;
         if (isDialectNotificationDismissed(contentFile)) return null;
+        if (getSelectedDialect(psiFile) != null) return null;
         if (!canSuggestDialect(psiFile)) return null;
 
-        DBLanguageDialect suggestedDialect = getSuggestedDialect(psiFile);
-        if (suggestedDialect == null) return null;
-        if (suggestedDialect == psiFile.getLanguageDialect()) return null;
+        DBLanguageDialect detectedDialect = getDetectedDialect(psiFile);
+        if (detectedDialect == null) return null;
+        if (detectedDialect == psiFile.getLanguageDialect()) return null;
 
-        return new DialectSuggestionEditorNotificationPanel(project, file, fileEditor, psiFile, suggestedDialect);
+        return new DialectSuggestionEditorNotificationPanel(project, file, fileEditor, psiFile, detectedDialect);
     }
 
     private static boolean isDialectNotificationPending(

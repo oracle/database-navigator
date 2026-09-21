@@ -18,6 +18,8 @@ package com.dbn.diagnostics.data;
 
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.language.common.TokenType;
+import com.dbn.language.common.psi.BasePsiElement;
+import com.dbn.language.common.psi.ChameleonPsiElement;
 import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
@@ -35,6 +37,8 @@ import java.util.Deque;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.dbn.language.common.element.util.ElementTypeAttribute.STATEMENT;
 
 @UtilityClass
 public final class ParserDiagnosticsUtil {
@@ -63,6 +67,23 @@ public final class ParserDiagnosticsUtil {
         }
 
         return StateTransition.UNCHANGED;
+    }
+
+    public static boolean hasErrors(PsiFile file) {
+        Deque<PsiElement> elements = new ArrayDeque<>();
+        elements.push(file);
+        while (!elements.isEmpty()) {
+            PsiElement element = elements.pop();
+            if (element instanceof PsiWhiteSpace) continue;
+            if (element instanceof PsiComment) continue;
+            if (element instanceof LeafPsiElement) continue;
+            if (element instanceof PsiErrorElement) return true;
+
+            for (PsiElement child = element.getFirstChild(); child != null; child = child.getNextSibling()) {
+                elements.push(child);
+            }
+        }
+        return false;
     }
 
     /** Returns as soon as the file contains one parser error or warning. */
@@ -128,5 +149,40 @@ public final class ParserDiagnosticsUtil {
         IElementType elementType = leafPsiElement.getElementType();
         return elementType instanceof TokenType tokenType &&
                 !tokenType.isCharacter() && !tokenType.isChameleon();
+    }
+
+    /**
+     * Counts parser errors by their enclosing statement. Multiple recovery
+     * errors produced inside one statement are treated as a single issue
+     * region. Errors outside a statement are grouped by their enclosing
+     * chameleon or file.
+     */
+    public static int countErrorRegions(PsiFile file) {
+        Set<PsiElement> regions = new HashSet<>();
+        PsiRecursiveElementVisitor visitor = new PsiRecursiveElementVisitor() {
+            @Override
+            public void visitElement(@NotNull PsiElement element) {
+                if (element instanceof PsiErrorElement) {
+                    regions.add(findErrorRegion(element));
+                }
+                super.visitElement(element);
+            }
+        };
+        visitor.visitFile(file);
+        return regions.size();
+    }
+
+    @NotNull
+    private static PsiElement findErrorRegion(@NotNull PsiElement error) {
+        PsiElement element = error;
+        while (element != null) {
+            if (element instanceof ChameleonPsiElement) return element;
+            if (element instanceof PsiFile) return element;
+            if (element instanceof BasePsiElement basePsiElement && basePsiElement.is(STATEMENT)) return basePsiElement;
+
+            element = element.getParent();
+        }
+        PsiFile containingFile = error.getContainingFile();
+        return containingFile == null ? error : containingFile;
     }
 }
