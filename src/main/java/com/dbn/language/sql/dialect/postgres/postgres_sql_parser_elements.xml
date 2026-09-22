@@ -10467,13 +10467,18 @@
                 <object-ref type="TYPE" id="06457" />
             </variant>
         </qualified-identifier>
+        <wrapper template="PARENTHESES" optional="true" id="06458">
+            <iteration separator="CHR_COMMA" optional="true" id="06459">
+                <element ref-id="expr" />
+            </iteration>
+        </wrapper>
     </element-def>
     <element-def description="Data type parameter list" id="data_type_parameter_list">
-        <wrapper id="06458" template="PARENTHESES">
-            <iteration id="06459" separator="CHR_COMMA">
-                <one-of id="06460">
+        <wrapper id="06460" template="PARENTHESES">
+            <iteration id="06461" separator="CHR_COMMA">
+                <one-of id="06462">
                     <element ref-id="number" />
-                    <token id="06461" type-id="STRING" />
+                    <token id="06463" type-id="STRING" />
                 </one-of>
             </iteration>
         </wrapper>
@@ -10481,51 +10486,51 @@
 
 
     <element-def description="Operator name" id="operator_name">
-        <one-of id="06462">
+        <one-of id="06464">
             <element ref-id="comparison_operator" />
-            <token type-id="OPR_GENERIC" id="06463" />
-            <token id="06464" type-id="OPR_AT_AT" />
-            <token id="06465" type-id="OPR_AND_AND" />
-            <token id="06466" type-id="CHR_MINUS" />
-            <token id="06467" type-id="CHR_EXCLAMATION" />
-            <token id="06468" type-id="CHR_HASH" />
-            <token id="06469" type-id="CHR_PERCENT" />
-            <token id="06470" type-id="CHR_PLUS" />
-            <token id="06471" type-id="CHR_SLASH" />
-            <token id="06472" type-id="CHR_STAR" />
-            <token id="06473" type-id="CHR_VERTICAL_BAR" />
-            <token id="06474" type-id="CHR_CARET" />
-            <token id="06475" type-id="CHR_QUESTION_MARK" />
-            <token id="06476" type-id="CHR_BACKTICK" />
-            <token id="06477" type-id="IDENTIFIER" />
+            <token type-id="OPR_GENERIC" id="06465" />
+            <token id="06466" type-id="OPR_AT_AT" />
+            <token id="06467" type-id="OPR_AND_AND" />
+            <token id="06468" type-id="CHR_MINUS" />
+            <token id="06469" type-id="CHR_EXCLAMATION" />
+            <token id="06470" type-id="CHR_HASH" />
+            <token id="06471" type-id="CHR_PERCENT" />
+            <token id="06472" type-id="CHR_PLUS" />
+            <token id="06473" type-id="CHR_SLASH" />
+            <token id="06474" type-id="CHR_STAR" />
+            <token id="06475" type-id="CHR_VERTICAL_BAR" />
+            <token id="06476" type-id="CHR_CARET" />
+            <token id="06477" type-id="CHR_QUESTION_MARK" />
+            <token id="06478" type-id="CHR_BACKTICK" />
+            <token id="06479" type-id="IDENTIFIER" />
         </one-of>
     </element-def>
 
     <element-def description="COMPARISON operator" id="comparison_operator">
-        <one-of id="06478">
-            <token type-id="OPR_GENERIC" id="06479" />
-            <token id="06480" type-id="CHR_EQUAL" />
-            <token id="06481" type-id="CHR_LESS" />
-            <token id="06482" type-id="CHR_GREATER" />
-            <token id="06483" type-id="OPR_NOT_EQUAL" />
-            <token id="06484" type-id="OPR_LESS_GREATER" />
-            <token id="06485" type-id="OPR_LESS_EQUAL" />
-            <token id="06486" type-id="OPR_GREATER_EQUAL" />
-            <token id="06487" type-id="OPR_LIKE" />
-            <token id="06488" type-id="OPR_NOT_LIKE" />
-            <token id="06489" type-id="OPR_MATCH" />
-            <token id="06490" type-id="OPR_MATCH_CI" />
-            <token id="06491" type-id="OPR_NO_MATCH" />
-            <token id="06492" type-id="OPR_NO_MATCH_CI" />
+        <one-of id="06480">
+            <token type-id="OPR_GENERIC" id="06481" />
+            <token id="06482" type-id="CHR_EQUAL" />
+            <token id="06483" type-id="CHR_LESS" />
+            <token id="06484" type-id="CHR_GREATER" />
+            <token id="06485" type-id="OPR_NOT_EQUAL" />
+            <token id="06486" type-id="OPR_LESS_GREATER" />
+            <token id="06487" type-id="OPR_LESS_EQUAL" />
+            <token id="06488" type-id="OPR_GREATER_EQUAL" />
+            <token id="06489" type-id="OPR_LIKE" />
+            <token id="06490" type-id="OPR_NOT_LIKE" />
+            <token id="06491" type-id="OPR_MATCH" />
+            <token id="06492" type-id="OPR_MATCH_CI" />
+            <token id="06493" type-id="OPR_NO_MATCH" />
+            <token id="06494" type-id="OPR_NO_MATCH_CI" />
         </one-of>
     </element-def>
 
     <element-def description="Qualified operator invocation" id="qualified_operator">
-        <token type-id="KW_OPERATOR" id="06493" />
-        <wrapper template="PARENTHESES" id="06494">
-            <sequence id="06495">
-                <object-ref type="SCHEMA" id="06496" />
-                <token type-id="CHR_DOT" id="06497" />
+        <token type-id="KW_OPERATOR" id="06495" />
+        <wrapper template="PARENTHESES" id="06496">
+            <sequence id="06497">
+                <object-ref type="SCHEMA" id="06498" />
+                <token type-id="CHR_DOT" id="06499" />
                 <element ref-id="operator_name" />
             </sequence>
         </wrapper>
@@ -10533,50 +10538,50 @@
 
 
     <element-def description="Integer" id="integer">
-        <one-of id="06498" optional="true">
-            <token id="06499" type-id="CHR_MINUS" />
-            <token id="06500" type-id="CHR_PLUS" />
+        <one-of id="06500" optional="true">
+            <token id="06501" type-id="CHR_MINUS" />
+            <token id="06502" type-id="CHR_PLUS" />
         </one-of>
-        <token id="06501" type-id="INTEGER" />
+        <token id="06503" type-id="INTEGER" />
     </element-def>
 
     <element-def description="Number" id="number">
-        <one-of id="06502" optional="true">
-            <token id="06503" type-id="CHR_MINUS" />
-            <token id="06504" type-id="CHR_PLUS" />
+        <one-of id="06504" optional="true">
+            <token id="06505" type-id="CHR_MINUS" />
+            <token id="06506" type-id="CHR_PLUS" />
         </one-of>
-        <one-of id="06505">
-            <token id="06506" type-id="NUMBER" />
-            <token id="06507" type-id="INTEGER" />
+        <one-of id="06507">
+            <token id="06508" type-id="NUMBER" />
+            <token id="06509" type-id="INTEGER" />
         </one-of>
     </element-def>
 
     <element-def description="Boolean" id="boolean">
-        <one-of id="06508">
-            <token id="06509" type-id="KW_TRUE" />
-            <token id="06510" type-id="KW_FALSE" />
-            <token id="06511" type-id="KW_ON" />
-            <token id="06512" type-id="KW_OFF" />
-            <token id="06513" type-id="INTEGER" />
+        <one-of id="06510">
+            <token id="06511" type-id="KW_TRUE" />
+            <token id="06512" type-id="KW_FALSE" />
+            <token id="06513" type-id="KW_ON" />
+            <token id="06514" type-id="KW_OFF" />
+            <token id="06515" type-id="INTEGER" />
         </one-of>
     </element-def>
 
 
     <element-def description="IF EXISTS clause" id="if_exists_clause">
-        <token id="06514" type-id="KW_IF" />
-        <token id="06515" type-id="KW_EXISTS" />
+        <token id="06516" type-id="KW_IF" />
+        <token id="06517" type-id="KW_EXISTS" />
     </element-def>
     <element-def description="IF NOT EXISTS clause" id="if_not_exists_clause">
-        <token id="06516" type-id="KW_IF" />
-        <token id="06517" type-id="KW_NOT" />
-        <token id="06518" type-id="KW_EXISTS" />
+        <token id="06518" type-id="KW_IF" />
+        <token id="06519" type-id="KW_NOT" />
+        <token id="06520" type-id="KW_EXISTS" />
     </element-def>
 
     <element-def description="Unknown identifier" id="custom_undefined">
-        <token id="06519" type-id="IDENTIFIER" />
+        <token id="06521" type-id="IDENTIFIER" />
     </element-def>
 
     <element-def description="Statement end" formatting-spacing-before="NO_SPACE" id="end" truncate-on-execution="true">
-        <token id="06520" type-id="CHR_SEMICOLON" />
+        <token id="06522" type-id="CHR_SEMICOLON" />
     </element-def>
 </element-defs>

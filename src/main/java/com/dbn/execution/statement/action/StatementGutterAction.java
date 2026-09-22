@@ -19,6 +19,7 @@ package com.dbn.execution.statement.action;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.thread.Read;
+import com.dbn.common.thread.ThreadMonitor;
 import com.dbn.execution.ExecutionStatus;
 import com.dbn.execution.statement.StatementExecutionContext;
 import com.dbn.execution.statement.StatementExecutionManager;
@@ -42,6 +43,7 @@ import javax.swing.Icon;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.common.thread.ThreadMonitor.isDispatchThread;
 import static com.dbn.nls.NlsResources.txt;
 
 public class StatementGutterAction extends BasicAction {
@@ -61,6 +63,7 @@ public class StatementGutterAction extends BasicAction {
     @Nullable
     public ExecutablePsiElement getPsiElement() {
         if (isValid(psiElement)) return psiElement;
+        if (isDispatchThread()) return null;
 
         // try to restore orphaned gutter actions
         psiElement = Read.call(() -> resolvePsiElement());
