@@ -62,6 +62,19 @@ public abstract class LatentCache<K, V> {
     }
 
     /**
+     * Returns the stored value without checking the stamp or starting a load.
+     * During evaluation, this is the value from the previous completed load.
+     */
+    @Nullable
+    public V peek(@NotNull K key) {
+        Object cacheKey = key(key);
+        synchronized (cache) {
+            CacheEntry<V> entry = cache.get(cacheKey);
+            return entry == null ? null : entry.value;
+        }
+    }
+
+    /**
      * Returns whether a load for the key's current stamp is still running.
      * Calling {@link #get(Object)} first ensures that the load has been scheduled.
      */

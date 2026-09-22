@@ -37,8 +37,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static com.dbn.common.util.Commons.coalesce;
 import static com.dbn.common.util.Documents.touchDocument;
 import static com.dbn.common.util.Editors.updateEditorNotifications;
+import static com.dbn.language.common.dialect.DBLanguageDialectResolver.resolve;
 
 /**
  * Caches detected dialects and explicit per-file selections, refreshing
@@ -54,8 +56,11 @@ public final class DBLanguageDialectCache {
     private static final LatentCache<DBLanguagePsiFile, DBLanguageDialect> suggestedDialects = new LatentCache<>() {
         @Override
         protected DBLanguageDialect load(@NotNull DBLanguagePsiFile psiFile) {
-            DBLanguageDialect languageDialect = DBLanguageDialectResolver.resolve(psiFile);
-            return languageDialect == null ? getCurrentDialect(psiFile) : languageDialect;
+            // An inconclusive prediction keeps the last dialect until stronger evidence is available.
+            return coalesce(
+                    () -> resolve(psiFile),
+                    () -> peek(psiFile),
+                    () -> getCurrentDialect(psiFile));
         }
 
         @Override
