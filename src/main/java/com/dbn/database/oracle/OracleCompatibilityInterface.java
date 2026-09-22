@@ -204,7 +204,7 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
             case JSON_VIEW -> databaseVersion >= 23.0;
             case AI_PROFILE -> databaseVersion >= 19.0;
             case MINING_MODEL -> databaseVersion >= 19.0;
-            case DATASOURCE_CONFIG -> databaseVersion >= 26.0;
+            case DATASOURCE_CONFIG -> databaseVersion >= 23.26;
             default -> supportsObjectType(objectTypeId);
         };
     }
