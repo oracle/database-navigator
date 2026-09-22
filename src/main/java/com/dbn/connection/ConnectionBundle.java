@@ -69,9 +69,9 @@ public class ConnectionBundle extends StatefulDisposableBase implements BrowserT
                 ConnectionId.VIRTUAL_ORACLE,
                 new VirtualConnectionHandler(
                         ConnectionId.VIRTUAL_ORACLE,
-                        "Virtual - Oracle 26.0",
+                        "Virtual - Oracle 23.26",
                         DatabaseType.ORACLE,
-                        26.0,
+                        23.26,
                         this));
 
         virtualConnections.put(

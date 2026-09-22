@@ -221,12 +221,10 @@ public class Documents {
     @Nullable
     public static PsiFile getPsiFile(Project project, VirtualFile virtualFile) {
         Document document = getDocument(virtualFile);
-        if (document != null) {
-            PsiDocumentManager psiDocumentManager = PsiDocumentManager.getInstance(project);
-            return psiDocumentManager.getPsiFile(document);
-        } else {
-            return null;
-        }
+        if (document == null) return null;
+
+        PsiDocumentManager psiDocumentManager = PsiDocumentManager.getInstance(project);
+        return psiDocumentManager.getPsiFile(document);
     }
 
     public static void setReadonly(Document document, Project project, boolean readonly) {
