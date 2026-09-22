@@ -19,7 +19,6 @@ package com.dbn.execution.statement.action;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.thread.Read;
-import com.dbn.common.util.Editors;
 import com.dbn.execution.ExecutionStatus;
 import com.dbn.execution.statement.StatementExecutionContext;
 import com.dbn.execution.statement.StatementExecutionManager;
@@ -33,18 +32,13 @@ import com.dbn.language.common.psi.BasePsiElement;
 import com.dbn.language.common.psi.ExecutablePsiElement;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.fileEditor.FileEditor;
-import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
-import java.util.Objects;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Checks.isValid;
@@ -167,20 +161,8 @@ public class StatementGutterAction extends BasicAction {
         if (psiElement == null) return null;
 
         Project project = psiFile.getProject();
-        FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
-        FileEditor[] selectedEditors = fileEditorManager.getSelectedEditors();
-        for (FileEditor fileEditor : selectedEditors) {
-            Editor editor = Editors.getEditor(fileEditor);
-            if (editor == null) continue;
-
-            VirtualFile editorFile = editor.getVirtualFile();
-            VirtualFile processorFile = psiFile.getVirtualFile();
-            if (!Objects.equals(editorFile, processorFile)) continue;
-
-            StatementExecutionManager executionManager = StatementExecutionManager.getInstance(project);
-            return executionManager.getExecutionProcessor(fileEditor, psiElement, create);
-        }
-        return null;
+        StatementExecutionManager executionManager = StatementExecutionManager.getInstance(project);
+        return executionManager.getExecutionProcessor(psiElement, create);
     }
 
 

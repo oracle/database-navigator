@@ -21,7 +21,6 @@ import com.dbn.common.action.Lookups;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Documents;
-import com.dbn.common.util.Editors;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.mapping.FileConnectionContextManager;
 import com.dbn.database.DatabaseFeature;
@@ -37,7 +36,6 @@ import com.dbn.vfs.file.DBConsoleVirtualFile;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
@@ -75,14 +73,11 @@ public class DebugStatementEditorAction extends ProjectAction {
             }
 
             if (executablePsiElement != null && executablePsiElement.is(ElementTypeAttribute.DEBUGGABLE)) {
-                FileEditor fileEditor = Editors.getFileEditor(editor);
-                if (fileEditor != null) {
-                    StatementExecutionManager statementExecutionManager = StatementExecutionManager.getInstance(project);
-                    StatementExecutionProcessor executionProcessor = statementExecutionManager.getExecutionProcessor(fileEditor, executablePsiElement, true);
-                    if (executionProcessor != null) {
-                        DatabaseDebuggerManager debuggerManager = DatabaseDebuggerManager.getInstance(project);
-                        debuggerManager.startStatementDebugger(executionProcessor);
-                    }
+                StatementExecutionManager statementExecutionManager = StatementExecutionManager.getInstance(project);
+                StatementExecutionProcessor executionProcessor = statementExecutionManager.getExecutionProcessor(executablePsiElement, true);
+                if (executionProcessor != null) {
+                    DatabaseDebuggerManager debuggerManager = DatabaseDebuggerManager.getInstance(project);
+                    debuggerManager.startStatementDebugger(executionProcessor);
                 }
             }
         }

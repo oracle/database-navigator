@@ -96,7 +96,7 @@ public class DBDatasourceConfigFactoryInputForm extends DBSchemaObjectFactoryInp
         VirtualFile virtualFile = new LightVirtualFile("data_source_config_store.json", jsonFileType, "");
         Document document = Documents.createDocument(OBJECT_DETAIL.of(getInput()));
 
-        jsonEditor = Editors.createEditor(document, null, virtualFile, jsonFileType);
+        jsonEditor = Editors.createEditor(document, ensureProject(), virtualFile, jsonFileType);
         jsonEditor.setEmbeddedIntoDialogWrapper(true);
         jsonEditor.setPlaceholder(OBJECT_DETAIL.of(getInput()));
         EditorSettings settings = jsonEditor.getSettings();
