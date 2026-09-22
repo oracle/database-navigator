@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.dbn.vfs.file;
 
 import com.dbn.common.compatibility.Workaround;
+import com.dbn.common.ref.WeakRegistration;
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.ThreadContext;
 import com.dbn.common.thread.ThreadMonitor;
@@ -82,6 +83,9 @@ public class DBSourceCodeVirtualFile extends DBContentVirtualFile implements DBP
     private ChangeTimestamp databaseTimestamp = new ChangeTimestamp();
 
     private Exception sourceLoadException;
+    private final transient WeakRegistration<Document> documentRegistration = new WeakRegistration<>(
+            d -> d.addDocumentListener(this, getObject()),
+            d -> d.removeDocumentListener(this));
 
     public DBSourceCodeVirtualFile(final DBEditableObjectVirtualFile databaseFile, DBContentType contentType) {
         super(databaseFile, contentType);
@@ -321,8 +325,13 @@ public class DBSourceCodeVirtualFile extends DBContentVirtualFile implements DBP
         localContent.setText(newContent);
     }
 
+    public void registerDocument(@NotNull Document document) {
+        documentRegistration.register(document);
+    }
+
     @Override
     public void invalidate() {
+        documentRegistration.unregister();
         super.invalidate();
         originalContent = new SourceCodeContent();
         localContent = new SourceCodeContent();
