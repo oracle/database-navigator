@@ -43,7 +43,7 @@ import com.dbn.editor.code.options.CodeEditorConfirmationSettings;
 import com.dbn.object.DBConsole;
 import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.common.list.DBObjectList;
-import com.dbn.object.type.DBObjectType;
+import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.vfs.DBConsoleType;
 import com.dbn.vfs.DatabaseFileManager;
 import com.dbn.vfs.file.DBConsoleVirtualFile;
@@ -75,7 +75,6 @@ import static com.dbn.common.file.util.VirtualFiles.createFileDeleteEvent;
 import static com.dbn.common.file.util.VirtualFiles.createFileRenameEvent;
 import static com.dbn.common.file.util.VirtualFiles.notifiedFileChange;
 import static com.dbn.common.options.setting.Settings.connectionIdAttribute;
-import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.readCdata;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
@@ -94,6 +93,8 @@ import static com.dbn.editor.code.options.CodeEditorChangesOption.CANCEL;
 import static com.dbn.editor.code.options.CodeEditorChangesOption.DISCARD;
 import static com.dbn.editor.code.options.CodeEditorChangesOption.SAVE;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.object.event.ObjectChangeAction.UPDATE;
+import static com.dbn.object.type.DBObjectType.CONSOLE;
 
 @State(
     name = DatabaseConsoleManager.COMPONENT_NAME,
@@ -252,7 +253,7 @@ public class DatabaseConsoleManager extends ProjectComponentBase implements Pers
 
     private void reloadConsoles(@NotNull ConnectionHandler connection) {
         DBObjectBundle objectBundle = connection.getObjectBundle();
-        DBObjectList<?> objectList = objectBundle.getObjectList(DBObjectType.CONSOLE);
+        DBObjectList<?> objectList = objectBundle.getObjectList(CONSOLE);
         if (objectList == null) return;
 
         objectList.markDirty();
@@ -398,6 +399,8 @@ public class DatabaseConsoleManager extends ProjectComponentBase implements Pers
                 file.setDatabaseSchemaName(schema);
                 file.setDatabaseSession(databaseSession);
             }
+
+            ObjectChangeEvent.notify(UPDATE, CONSOLE, connectionId, null);
         }
     }
 }
