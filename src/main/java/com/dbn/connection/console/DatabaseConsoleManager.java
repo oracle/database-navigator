@@ -75,6 +75,7 @@ import static com.dbn.common.file.util.VirtualFiles.createFileDeleteEvent;
 import static com.dbn.common.file.util.VirtualFiles.createFileRenameEvent;
 import static com.dbn.common.file.util.VirtualFiles.notifiedFileChange;
 import static com.dbn.common.options.setting.Settings.connectionIdAttribute;
+import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.readCdata;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
