@@ -374,12 +374,12 @@ public abstract class DBLanguagePsiFile extends PsiFileImpl implements DatabaseC
         if (virtualFile.getFileSystem() instanceof DatabaseFileSystem) {
             return virtualFile.isValid();
         } else {
-            return Read.call(() -> SlowOps.checkValid(this, f -> f.isSuperValid()));
+            return SlowOps.checkValid(this, f -> f.isSuperValid());
         }
     }
 
     private boolean isSuperValid() {
-        return super.isValid();
+        return Read.call(() -> super.isValid());
     }
 
     public String getParseRootId() {

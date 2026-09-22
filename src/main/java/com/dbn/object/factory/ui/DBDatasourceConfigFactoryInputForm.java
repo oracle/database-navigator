@@ -67,9 +67,10 @@ public class DBDatasourceConfigFactoryInputForm extends DBSchemaObjectFactoryInp
         initHeaderForm();
         initFeatureInfo();
         initContextComponents();
-        initEditor();
         initPreserveCaseFields();
         resetFormChanges();
+
+        whenFirstShown(() -> initEditor());
     }
 
     private void initFeatureInfo() {
@@ -94,6 +95,7 @@ public class DBDatasourceConfigFactoryInputForm extends DBSchemaObjectFactoryInp
         FileType jsonFileType = getJsonFileType();
         VirtualFile virtualFile = new LightVirtualFile("data_source_config_store.json", jsonFileType, "");
         Document document = Documents.createDocument(OBJECT_DETAIL.of(getInput()));
+
         jsonEditor = Editors.createEditor(document, ensureProject(), virtualFile, jsonFileType);
         jsonEditor.setEmbeddedIntoDialogWrapper(true);
         jsonEditor.setPlaceholder(OBJECT_DETAIL.of(getInput()));
@@ -106,12 +108,6 @@ public class DBDatasourceConfigFactoryInputForm extends DBSchemaObjectFactoryInp
         settings.setRightMarginShown(false);
         Editors.updateEditorScrollPane(jsonEditor);
         editorPanel.add(jsonEditor.getComponent(), BorderLayout.CENTER);
-    }
-
-    @Override
-    public void resetFormChanges() {
-        super.resetFormChanges();
-        Documents.setText(getProject(), jsonEditor.getDocument(), OBJECT_DETAIL.of(getInput()));
     }
 
     @Override

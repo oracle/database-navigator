@@ -25,7 +25,6 @@ import com.dbn.execution.statement.result.StatementExecutionResult;
 import com.dbn.execution.statement.result.StatementExecutionStatus;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.language.common.psi.ExecutablePsiElement;
-import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,12 +34,12 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class StatementExecutionCursorProcessor extends StatementExecutionBasicProcessor {
 
-    public StatementExecutionCursorProcessor(@NotNull Project project, @NotNull FileEditor fileEditor, @NotNull ExecutablePsiElement psiElement, int index) {
-        super(project, fileEditor, psiElement, index);
+    public StatementExecutionCursorProcessor(@NotNull Project project, @NotNull ExecutablePsiElement psiElement, int index) {
+        super(project, psiElement, index);
     }
 
-    public StatementExecutionCursorProcessor(@NotNull Project project, @NotNull FileEditor fileEditor, @NotNull DBLanguagePsiFile file, String sqlStatement, int index) {
-        super(project, fileEditor, file, sqlStatement,  index);
+    public StatementExecutionCursorProcessor(@NotNull Project project, @NotNull DBLanguagePsiFile file, String sqlStatement, int index) {
+        super(project, file, sqlStatement,  index);
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.dbn.vfs.file;
 
 import com.dbn.code.common.style.DBLCodeStyleManager;
 import com.dbn.code.common.style.options.CodeStyleCaseSettings;
+import com.dbn.common.ref.WeakRegistration;
 import com.dbn.common.state.AttributeHolder;
 import com.dbn.common.state.AttributeHolderBase;
 import com.dbn.common.util.Documents;
@@ -73,6 +74,9 @@ public class DBConsoleVirtualFile extends DBObjectVirtualFile<DBConsole> impleme
         Comparable<DBConsoleVirtualFile>  {
     private final SourceCodeContent content = new SourceCodeContent();
     private final transient FileConnectionContext connectionContext;
+    private final transient WeakRegistration<Document> documentRegistration = new WeakRegistration<>(
+            d -> d.addDocumentListener(this, getObject()),
+            d -> d.removeDocumentListener(this));
 
     @Delegate
     private final AttributeHolder attributes = new AttributeHolderBase();
@@ -103,6 +107,10 @@ public class DBConsoleVirtualFile extends DBObjectVirtualFile<DBConsole> impleme
         setContent(text);
         Document document = Documents.ensureDocument(this);
         Documents.setText(getProject(), document, text);
+    }
+
+    public void registerDocument(@NotNull Document document) {
+        documentRegistration.register(document);
     }
 
     @Override
@@ -266,5 +274,11 @@ public class DBConsoleVirtualFile extends DBObjectVirtualFile<DBConsole> impleme
 
     public String getContentText() {
         return content.getText().toString();
+    }
+
+    @Override
+    public void invalidate() {
+        documentRegistration.unregister();
+        super.invalidate();
     }
 }

@@ -18,14 +18,12 @@ package com.dbn.code.common.intention;
 
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ref.WeakRef;
-import com.dbn.common.util.Editors;
 import com.dbn.execution.statement.StatementExecutionManager;
 import com.dbn.execution.statement.processor.StatementExecutionProcessor;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.language.common.psi.ExecutablePsiElement;
 import com.dbn.language.common.psi.PsiUtil;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -82,10 +80,9 @@ public class JumpToExecutionResultIntentionAction extends EditorIntentionAction 
         PsiFile psiFile = psiElement.getContainingFile();
         if (psiFile instanceof DBLanguagePsiFile) {
             ExecutablePsiElement executable = PsiUtil.lookupExecutableAtCaret(editor, true);
-            FileEditor fileEditor = Editors.getFileEditor(editor);
-            if (executable != null && fileEditor != null) {
+            if (executable != null) {
                 StatementExecutionManager executionManager = StatementExecutionManager.getInstance(project);
-                StatementExecutionProcessor executionProcessor = executionManager.getExecutionProcessor(fileEditor, executable, false);
+                StatementExecutionProcessor executionProcessor = executionManager.getExecutionProcessor(executable, false);
                 if (executionProcessor != null && executionProcessor.getExecutionResult() != null) {
                     cachedExecutionProcessor = WeakRef.of(executionProcessor);
                     return true;
@@ -99,13 +96,12 @@ public class JumpToExecutionResultIntentionAction extends EditorIntentionAction 
     @Override
     public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) throws IncorrectOperationException {
         ExecutablePsiElement executable = PsiUtil.lookupExecutableAtCaret(editor, true);
-        FileEditor fileEditor = Editors.getFileEditor(editor);
-        if (executable != null && fileEditor != null) {
-            StatementExecutionManager executionManager = StatementExecutionManager.getInstance(project);
-            StatementExecutionProcessor executionProcessor = executionManager.getExecutionProcessor(fileEditor, executable, false);
-            if (executionProcessor != null) {
-                executionProcessor.navigateToResult();
-            }
-        }
+        if (executable == null) return;
+
+        StatementExecutionManager executionManager = StatementExecutionManager.getInstance(project);
+        StatementExecutionProcessor executionProcessor = executionManager.getExecutionProcessor(executable, false);
+        if (executionProcessor == null) return;
+
+        executionProcessor.navigateToResult();
     }
 }
