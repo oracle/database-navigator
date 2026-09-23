@@ -16,6 +16,11 @@
 
 package com.dbn.database.common.statement;
 
+import java.sql.Blob;
+import java.sql.CallableStatement;
+import java.sql.Clob;
+import java.sql.SQLException;
+
 public abstract class CallableStatementOutputBase implements CallableStatementOutput{
     private int parameterIndexOffset;
 
@@ -26,5 +31,33 @@ public abstract class CallableStatementOutputBase implements CallableStatementOu
     @Override
     public void shiftParameterIndex(int shift) {
         parameterIndexOffset = shift;
+    }
+
+    /*************************************************************
+     *         shifted parameter statement utilities             *
+     *************************************************************/
+
+    protected void registerOutParameter(CallableStatement statement, int parameterIndex, int sqlType) throws SQLException {
+        statement.registerOutParameter(shifted(parameterIndex), sqlType);
+    }
+
+    protected String getString(CallableStatement statement, int parameterIndex) throws SQLException {
+        return statement.getString(shifted(parameterIndex));
+    }
+
+    protected int getInt(CallableStatement statement, int parameterIndex) throws SQLException {
+        return statement.getInt(shifted(parameterIndex));
+    }
+
+    protected Object getObject(CallableStatement statement, int parameterIndex) throws SQLException {
+        return statement.getObject(shifted(parameterIndex));
+    }
+
+    protected Blob getBlob(CallableStatement statement, int parameterIndex) throws SQLException {
+        return statement.getBlob(shifted(parameterIndex));
+    }
+
+    protected Clob getClob(CallableStatement statement, int parameterIndex) throws SQLException {
+        return statement.getClob(shifted(parameterIndex));
     }
 }

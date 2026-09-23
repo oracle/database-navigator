@@ -16,28 +16,25 @@
 
 package com.dbn.database.common.debug;
 
-import com.dbn.database.common.statement.CallableStatementOutput;
+import com.dbn.database.common.statement.CallableStatementOutputBase;
+import lombok.Getter;
 
 import java.sql.CallableStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 
 
-public class DebuggerVersionInfo implements CallableStatementOutput {
+@Getter
+public class DebuggerVersionInfo extends CallableStatementOutputBase {
     private String version;
-
-
-    public String getVersion() {
-        return version;
-    }
 
     @Override
     public void registerParameters(CallableStatement statement) throws SQLException {
-        statement.registerOutParameter(1, Types.VARCHAR);
+        registerOutParameter(statement, 1, Types.VARCHAR);
     }
 
     @Override
     public void read(CallableStatement statement) throws SQLException {
-        version = statement.getString(1);
+        version = getString(statement, 1);
     }
 }

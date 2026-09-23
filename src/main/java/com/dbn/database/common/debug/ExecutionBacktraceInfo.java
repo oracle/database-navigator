@@ -16,7 +16,8 @@
 
 package com.dbn.database.common.debug;
 
-import com.dbn.database.common.statement.CallableStatementOutput;
+import com.dbn.database.common.statement.CallableStatementOutputBase;
+import lombok.Getter;
 
 import java.sql.CallableStatement;
 import java.sql.SQLException;
@@ -25,21 +26,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-public class ExecutionBacktraceInfo implements CallableStatementOutput {
+@Getter
+public class ExecutionBacktraceInfo extends CallableStatementOutputBase {
     private final List<DebuggerRuntimeInfo> frames = new ArrayList<>();
-
-    public List<DebuggerRuntimeInfo> getFrames() {
-        return frames;
-    }
 
     @Override
     public void registerParameters(CallableStatement statement) throws SQLException {
-        statement.registerOutParameter(1, Types.VARCHAR);
+        registerOutParameter(statement, 1, Types.VARCHAR);
     }
 
     @Override
     public void read(CallableStatement statement) throws SQLException {
-        String backtraceListing = statement.getString(1);
+        String backtraceListing = getString(statement, 1);
         StringTokenizer tokenizer = new StringTokenizer(backtraceListing, "\r");
         int frameNumber = 0;
         while (tokenizer.hasMoreTokens()) {
@@ -59,7 +57,7 @@ public class ExecutionBacktraceInfo implements CallableStatementOutput {
                 runtimeInfo.setFrameIndex(frameNumber);
                 frames.add(0, runtimeInfo);
 
-            } else if (frames.size() == 0){
+            } else if (frames.isEmpty()){
                 int lineNumberEndIndex = backtraceEntry.indexOf(' ');
                 Integer lineNumber = Integer.valueOf(backtraceEntry.substring(0, lineNumberEndIndex));
                 Integer namespace = Integer.valueOf(backtraceEntry.substring(lineNumberEndIndex + 1));
@@ -73,9 +71,8 @@ public class ExecutionBacktraceInfo implements CallableStatementOutput {
     }
 
     public Integer getTopFrameIndex() {
-        if (frames.size() > 0) {
-            return frames.get(frames.size()-1).getFrameIndex();
-        }
-        return 1;
+        if (frames.isEmpty()) return 1;
+
+        return frames.get(frames.size()-1).getFrameIndex();
     }
 }

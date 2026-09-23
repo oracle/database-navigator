@@ -16,6 +16,8 @@
 
 package com.dbn.debugger;
 
+import com.dbn.common.Reflection;
+import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.editor.DatabaseFileEditorManager;
 import com.dbn.editor.code.SourceCodeManager;
@@ -29,6 +31,8 @@ import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.registry.Registry;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.xdebugger.XDebugProcessStarter;
+import com.intellij.xdebugger.XDebuggerManager;
 import com.intellij.xdebugger.XSourcePosition;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Nullable;
@@ -37,6 +41,7 @@ import static com.dbn.common.util.Unsafe.cast;
 
 @UtilityClass
 public class DBDebugUtil {
+    private static final String TOOLWINDOW_SPLIT_REGISTRY_KEY = "xdebugger.toolwindow.split";
 
     public static @Nullable DBSchemaObject getObject(@Nullable XSourcePosition sourcePosition) {
         if (sourcePosition == null) return null;
@@ -112,7 +117,12 @@ public class DBDebugUtil {
         }
     }
 
+    @Compatibility
     public static boolean isToolwindowSplit() {
-        return Registry.is("xdebugger.toolwindow.split");
+        boolean splitApiAvailable = Reflection.findMethod(
+                XDebuggerManager.class,
+                "newSessionBuilder",
+                XDebugProcessStarter.class) != null;
+        return Registry.is(TOOLWINDOW_SPLIT_REGISTRY_KEY, splitApiAvailable);
     }
 }
