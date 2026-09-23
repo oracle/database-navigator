@@ -280,7 +280,7 @@ public class StatementExecutionProcessor implements Identifiable<String> {
     public int executeUpdate(DBNConnection connection, Object... arguments) throws SQLException {
         StatementExecutorContext context = createContext(connection);
         SQLException exception = NO_STATEMENT_DEFINITION_EXCEPTION;
-        for (StatementDefinition statementDefinition : statementDefinitions) {
+        for (StatementDefinition statementDefinition : getStatementDefinitions(connection)) {
             try {
                 return executeUpdate(statementDefinition, context, arguments);
             } catch (SQLException e){

@@ -50,12 +50,18 @@
     </statement-execution-processor>
 
     <statement-execution-processor id="compile-object">
+        <statement since-version="11.1">
+            alter {2} {0}.{1} compile {3} {4}
+        </statement>
         <statement>
             alter {2} {0}.{1} compile {3}
         </statement>
     </statement-execution-processor>
 
     <statement-execution-processor id="compile-object-body">
+        <statement since-version="11.1">
+            alter {2} {0}.{1} compile {3} body {4}
+        </statement>
         <statement>
             alter {2} {0}.{1} compile {3} body
         </statement>

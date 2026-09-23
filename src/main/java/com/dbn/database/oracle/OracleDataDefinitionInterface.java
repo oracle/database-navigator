@@ -70,8 +70,22 @@ import static com.dbn.object.type.DBObjectType.CONSTRAINT;
 import static com.dbn.object.type.DBObjectType.FUNCTION;
 
 public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfaceImpl {
+    private static final String DEBUG_COMPILE_PARAMETERS = "PLSCOPE_SETTINGS='IDENTIFIERS:ALL'";
+
     public OracleDataDefinitionInterface(DatabaseInterfaces provider) {
         super("oracle_ddl_interface.xml", provider);
+    }
+
+    @Override
+    public void compileObject(String ownerName, String objectName, String objectType, boolean debug, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "compile-object", ownerName, objectName, objectType,
+                debug ? "DEBUG" : "", debug ? DEBUG_COMPILE_PARAMETERS : "");
+    }
+
+    @Override
+    public void compileObjectBody(String ownerName, String objectName, String objectType, boolean debug, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "compile-object-body", ownerName, objectName, objectType,
+                debug ? "DEBUG" : "", debug ? DEBUG_COMPILE_PARAMETERS : "");
     }
 
     @Override
