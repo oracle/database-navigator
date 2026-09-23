@@ -16,13 +16,21 @@
 
 package com.dbn.database.common;
 
+import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseDebuggerInterface;
 import com.dbn.database.interfaces.DatabaseInterfaces;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public abstract class DatabaseDebuggerInterfaceImpl extends DatabaseInterfaceBase implements DatabaseDebuggerInterface {
     public DatabaseDebuggerInterfaceImpl(String fileName, DatabaseInterfaces provider) {
         super(fileName, provider);
     }
 
+    @Override
+    public ResultSet loadObjectIdentifiers(String ownerName, String objectName, String objectType, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "object-identifiers", ownerName, objectName, objectType);
+    }
 
 }

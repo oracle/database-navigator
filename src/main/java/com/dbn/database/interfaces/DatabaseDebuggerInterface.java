@@ -30,6 +30,7 @@ import com.dbn.database.common.debug.VariableInfo;
 import com.dbn.editor.DBContentType;
 import com.dbn.object.type.DBObjectType;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import static com.dbn.database.interfaces.DatabaseInterfaceType.DEBUGGER;
@@ -88,6 +89,23 @@ public interface DatabaseDebuggerInterface extends DatabaseInterface {
     ExecutionStatusInfo getExecutionStatusInfo(DBNConnection connection) throws SQLException;
 
     VariableInfo getVariableInfo(String variableName, Integer frameNumber, DBNConnection connection) throws SQLException;
+
+    /**
+     * Loads PL/Scope identifier metadata for the given object.
+     * Column names of the returned ResultSet
+     *  <li> OWNER (char)
+     *  <li> NAME (char)
+     *  <li> SIGNATURE (char)
+     *  <li> TYPE (char)
+     *  <li> OBJECT_NAME (char)
+     *  <li> OBJECT_TYPE (char)
+     *  <li> USAGE (char)
+     *  <li> USAGE_ID (number)
+     *  <li> LINE (number)
+     *  <li> COL (number)
+     *  <li> USAGE_CONTEXT_ID (number)
+     */
+    ResultSet loadObjectIdentifiers(String ownerName, String objectName, String objectType, DBNConnection connection) throws SQLException;
 
     BasicOperationInfo setVariableValue(String variableName, Integer frameNumber, String value, DBNConnection connection) throws SQLException;
 
