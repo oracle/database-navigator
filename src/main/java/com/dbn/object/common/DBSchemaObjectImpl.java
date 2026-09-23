@@ -50,9 +50,11 @@ import static com.dbn.common.content.DynamicContentProperty.DEPENDENCY;
 import static com.dbn.common.content.DynamicContentProperty.INTERNAL;
 import static com.dbn.common.util.Commons.nvln;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.object.common.property.DBObjectProperty.DEBUGGABLE;
 import static com.dbn.object.common.property.DBObjectProperty.EDITABLE;
 import static com.dbn.object.common.property.DBObjectProperty.REFERENCEABLE;
 import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
+import static com.dbn.object.type.DBObjectType.DEBUG_DEPENDENCY;
 import static com.dbn.object.type.DBObjectType.INCOMING_DEPENDENCY;
 import static com.dbn.object.type.DBObjectType.OUTGOING_DEPENDENCY;
 
@@ -82,6 +84,10 @@ public abstract class DBSchemaObjectImpl<M extends DBObjectMetadata> extends DBO
             DBObjectListContainer childObjects = ensureChildObjects();
             childObjects.createObjectList(INCOMING_DEPENDENCY, this, INTERNAL, DEPENDENCY);
             childObjects.createObjectList(OUTGOING_DEPENDENCY, this, INTERNAL, DEPENDENCY);
+        }
+        if (is(DEBUGGABLE)) {
+            DBObjectListContainer childObjects = ensureChildObjects();
+            childObjects.createObjectList(DEBUG_DEPENDENCY, this, INTERNAL, DEPENDENCY);
         }
     }
 
@@ -126,6 +132,11 @@ public abstract class DBSchemaObjectImpl<M extends DBObjectMetadata> extends DBO
     @Override
     public List<DBObject> getReferencedObjects() {
         return getChildObjects(INCOMING_DEPENDENCY);
+    }
+
+    @Override
+    public List<DBObject> getDebugDependencies() {
+        return getChildObjects(DEBUG_DEPENDENCY);
     }
 
     @Override

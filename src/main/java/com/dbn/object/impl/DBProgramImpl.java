@@ -34,7 +34,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
-import static com.dbn.object.common.property.DBObjectProperty.DEBUGABLE;
+import static com.dbn.object.common.property.DBObjectProperty.DEBUGGABLE;
 import static com.dbn.object.common.property.DBObjectProperty.INVALIDABLE;
 
 abstract class DBProgramImpl<M extends DBProgramMetadata, P extends DBProcedure, F extends DBFunction, T extends DBType>
@@ -53,7 +53,7 @@ abstract class DBProgramImpl<M extends DBProgramMetadata, P extends DBProcedure,
         super.initProperties();
         properties.set(INVALIDABLE, true);
         properties.set(COMPILABLE, true);
-        properties.set(DEBUGABLE, true);
+        properties.set(DEBUGGABLE, true);
     }
 
     @Override

@@ -52,7 +52,7 @@ import static com.dbn.common.util.Lists.filter;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.common.property.DBObjectProperty.ABSTRACT;
 import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
-import static com.dbn.object.common.property.DBObjectProperty.DEBUGABLE;
+import static com.dbn.object.common.property.DBObjectProperty.DEBUGGABLE;
 import static com.dbn.object.common.property.DBObjectProperty.EDITABLE;
 import static com.dbn.object.common.property.DBObjectProperty.FINAL;
 import static com.dbn.object.common.property.DBObjectProperty.INNER;
@@ -127,7 +127,7 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 		super.initProperties();
 		properties.set(COMPILABLE, true);
 		properties.set(INVALIDABLE, true);
-		properties.set(DEBUGABLE, true);
+		properties.set(DEBUGGABLE, true);
 		properties.set(EDITABLE, !isInner());
 	}
 

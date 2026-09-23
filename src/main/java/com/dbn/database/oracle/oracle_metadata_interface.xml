@@ -2787,6 +2787,93 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="debug-dependencies">
+        <statement prefixes="DBA, ALL" since-version="12.1">
+            select distinct * from (
+                select
+                    ro.OWNER OBJECT_OWNER,
+                    ro.OBJECT_NAME OBJECT_NAME,
+                    ro.OBJECT_TYPE OBJECT_TYPE
+                from
+                    PUBLIC_DEPENDENCY pd,
+                    [PREFIX]_OBJECTS o,
+                    [PREFIX]_OBJECTS ro
+                where
+                    ro.OBJECT_ID = pd.REFERENCED_OBJECT_ID and
+                    o.OBJECT_ID = pd.OBJECT_ID and
+                    (o.OWNER != ro.OWNER or o.OBJECT_NAME != ro.OBJECT_NAME) and
+                    ro.OWNER in (
+                        select USERNAME
+                        from [PREFIX]_USERS
+                        where ORACLE_MAINTAINED = 'N') and
+                    o.OWNER = {#0} and
+                    o.OBJECT_NAME = {#1})
+            order by
+                OBJECT_OWNER,
+                OBJECT_TYPE,
+                OBJECT_NAME asc
+        </statement>
+        <statement prefixes="DBA, ALL">
+            select distinct * from (
+                select
+                    ro.OWNER OBJECT_OWNER,
+                    ro.OBJECT_NAME OBJECT_NAME,
+                    ro.OBJECT_TYPE OBJECT_TYPE
+                from
+                    PUBLIC_DEPENDENCY pd,
+                    [PREFIX]_OBJECTS o,
+                    [PREFIX]_OBJECTS ro
+                where
+                    ro.OBJECT_ID = pd.REFERENCED_OBJECT_ID and
+                    o.OBJECT_ID = pd.OBJECT_ID and
+                    (o.OWNER != ro.OWNER or o.OBJECT_NAME != ro.OBJECT_NAME) and
+                    ro.OWNER not in ('SYS', 'SYSTEM', 'PUBLIC') and
+                    o.OWNER = {#0} and
+                    o.OBJECT_NAME = {#1})
+            order by
+                OBJECT_OWNER,
+                OBJECT_TYPE,
+                OBJECT_NAME asc
+        </statement>
+        <statement prefixes="DBA, ALL" since-version="12.1">
+            select distinct * from (
+                select
+                    REFERENCED_OWNER as OBJECT_OWNER,
+                    REFERENCED_NAME as OBJECT_NAME,
+                    decode(REFERENCED_TYPE, 'PACKAGE BODY', 'PACKAGE', 'TYPE BODY', 'TYPE', REFERENCED_TYPE) as OBJECT_TYPE
+                from [PREFIX]_DEPENDENCIES
+                where
+                    (OWNER != REFERENCED_OWNER or NAME != REFERENCED_NAME) and
+                    REFERENCED_OWNER in (
+                        select USERNAME
+                        from [PREFIX]_USERS
+                        where ORACLE_MAINTAINED = 'N') and
+                    OWNER = {#0} and
+                    NAME = {#1})
+            order by
+                OBJECT_OWNER,
+                OBJECT_TYPE,
+                OBJECT_NAME asc
+        </statement>
+        <statement prefixes="DBA, ALL">
+            select distinct * from (
+                select
+                    REFERENCED_OWNER as OBJECT_OWNER,
+                    REFERENCED_NAME as OBJECT_NAME,
+                    decode(REFERENCED_TYPE, 'PACKAGE BODY', 'PACKAGE', 'TYPE BODY', 'TYPE', REFERENCED_TYPE) as OBJECT_TYPE
+                from [PREFIX]_DEPENDENCIES
+                where
+                    (OWNER != REFERENCED_OWNER or NAME != REFERENCED_NAME) and
+                    REFERENCED_OWNER not in ('SYS', 'SYSTEM', 'PUBLIC') and
+                    OWNER = {#0} and
+                    NAME = {#1})
+            order by
+                OBJECT_OWNER,
+                OBJECT_TYPE,
+                OBJECT_NAME asc
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="referencing-objects">
         <statement prefixes="DBA, ALL">
             select distinct * from (

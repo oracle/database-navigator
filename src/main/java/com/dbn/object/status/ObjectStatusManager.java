@@ -173,7 +173,7 @@ public class ObjectStatusManager extends ProjectComponentBase implements Persist
             while (resultSet != null && resultSet.next()) {
                 String objectName = resultSet.getString("OBJECT_NAME");
                 DBSchemaObject schemaObject = schema.getChildObjectNoLoad(objectName);
-                if (schemaObject != null && schemaObject.is(DBObjectProperty.DEBUGABLE)) {
+                if (schemaObject != null && schemaObject.is(DBObjectProperty.DEBUGGABLE)) {
                     DBObjectStatusHolder objectStatus = schemaObject.getStatus();
                     boolean statusChanged;
 

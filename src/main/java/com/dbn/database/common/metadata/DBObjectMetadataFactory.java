@@ -135,6 +135,7 @@ public class DBObjectMetadataFactory {
             case JAVA_RESOURCE -> new DBJavaResourceMetadataImpl(resultSet);
             case INCOMING_DEPENDENCY -> new DBObjectDependencyMetadataImpl(resultSet);
             case OUTGOING_DEPENDENCY -> new DBObjectDependencyMetadataImpl(resultSet);
+            case DEBUG_DEPENDENCY -> new DBObjectDependencyMetadataImpl(resultSet);
             default -> throw new UnsupportedOperationException("No metadata provider defined for " + objectType);
         };
     }

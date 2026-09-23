@@ -35,7 +35,7 @@ import java.util.List;
 
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
-import static com.dbn.object.common.property.DBObjectProperty.DEBUGABLE;
+import static com.dbn.object.common.property.DBObjectProperty.DEBUGGABLE;
 import static com.dbn.object.common.property.DBObjectProperty.DISABLEABLE;
 import static com.dbn.object.common.property.DBObjectProperty.EDITABLE;
 import static com.dbn.object.common.property.DBObjectProperty.FOR_EACH_ROW;
@@ -117,7 +117,7 @@ abstract class DBTriggerImpl extends DBSchemaObjectImpl<DBTriggerMetadata> imple
         properties.set(DISABLEABLE, true);
         properties.set(REFERENCEABLE, true);
         properties.set(COMPILABLE, true);
-        properties.set(DEBUGABLE, true);
+        properties.set(DEBUGGABLE, true);
         properties.set(INVALIDABLE, true);
         properties.set(SCHEMA_OBJECT, true);
     }

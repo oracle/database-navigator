@@ -896,6 +896,18 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
     ResultSet loadReferencedObjects(String ownerName, String objectName, DBNConnection connection) throws SQLException;
 
     /**
+     * Loads the referenced objects that can be considered for debug compilation.
+     * Implementations may exclude objects from system or public schemas.
+     * Column names of the returned ResultSet
+     *  <li> OBJECT_OWNER (char)
+     *  <li> OBJECT_NAME (char)
+     *  <li> OBJECT_TYPE (char)
+     */
+    default ResultSet loadDebugDependencies(String ownerName, String objectName, DBNConnection connection) throws SQLException {
+        return loadReferencedObjects(ownerName, objectName, connection);
+    }
+
+    /**
      * Loads the referencing schemas for the given object (schemas containing objects depending on it)
      * Column names of the returned ResultSet
      *  <li> OBJECT_OWNER (char)

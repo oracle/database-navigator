@@ -146,6 +146,7 @@ import static com.dbn.object.type.DBObjectType.DATASET;
 import static com.dbn.object.type.DBObjectType.DATASET_TRIGGER;
 import static com.dbn.object.type.DBObjectType.DATASOURCE_CONFIG;
 import static com.dbn.object.type.DBObjectType.DBLINK;
+import static com.dbn.object.type.DBObjectType.DEBUG_DEPENDENCY;
 import static com.dbn.object.type.DBObjectType.DIMENSION;
 import static com.dbn.object.type.DBObjectType.FUNCTION;
 import static com.dbn.object.type.DBObjectType.GRANTED_PRIVILEGE;
@@ -829,6 +830,21 @@ public class DBObjectLoaders {
         DynamicContentResultSetLoader.<DBObject, DBObjectDependencyMetadata>create(
                 "OUTGOING_DEPENDENCIES", null, OUTGOING_DEPENDENCY, true, false,
                 (content, conn, mdi) ->  mdi.loadReferencingObjects(content.getParentSchemaName(), content.getParentObjectName(), conn),
+                (content, cache, md) -> {
+                    String objectOwner = md.getObjectOwner();
+                    String objectName = md.getObjectName();
+                    String objectTypeName = md.getObjectType();
+                    DBObjectType objectType = get(objectTypeName);
+                    if (objectType == PACKAGE_BODY) objectType = PACKAGE;
+                    if (objectType == TYPE_BODY) objectType = TYPE;
+
+                    DBSchema schema = getSchema(content, objectOwner);
+                    return schema.getChildObject(objectType, objectName, (short) 0, true);
+                });
+
+        DynamicContentResultSetLoader.<DBObject, DBObjectDependencyMetadata>create(
+                "DEBUG_DEPENDENCIES", null, DEBUG_DEPENDENCY, true, false,
+                (content, conn, mdi) -> mdi.loadDebugDependencies(content.getParentSchemaName(), content.getParentObjectName(), conn),
                 (content, cache, md) -> {
                     String objectOwner = md.getObjectOwner();
                     String objectName = md.getObjectName();

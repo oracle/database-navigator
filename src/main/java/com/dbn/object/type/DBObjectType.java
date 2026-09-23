@@ -201,7 +201,8 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     NON_EXISTENT(DatabaseObjectTypeId.NON_EXISTENT, "non-existent", null, null, null, null, true),
 
     INCOMING_DEPENDENCY(DatabaseObjectTypeId.INCOMING_DEPENDENCY, "incoming dependency", "incoming dependencies", null, null, null, true),
-    OUTGOING_DEPENDENCY(DatabaseObjectTypeId.INCOMING_DEPENDENCY, "outgoing dependency", "outgoing dependencies", null, null, null, true);
+    OUTGOING_DEPENDENCY(DatabaseObjectTypeId.INCOMING_DEPENDENCY, "outgoing dependency", "outgoing dependencies", null, null, null, true),
+    DEBUG_DEPENDENCY(DatabaseObjectTypeId.DEBUG_DEPENDENCY, "debug dependency", "debug dependencies", null, null, null, true);
 
     private final DatabaseObjectTypeId typeId;
     private final String name;

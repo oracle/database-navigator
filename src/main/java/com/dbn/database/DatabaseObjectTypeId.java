@@ -160,7 +160,8 @@ public enum DatabaseObjectTypeId implements Constant<DatabaseObjectTypeId> {
     BUNDLE,
     NON_EXISTENT,
     INCOMING_DEPENDENCY,
-    OUTGOING_DEPENDENCY;
+    OUTGOING_DEPENDENCY,
+    DEBUG_DEPENDENCY;
 
     public boolean isOneOf(DatabaseObjectTypeId ... objectTypeIds){
         return Enumerations.isOneOf(this, objectTypeIds);

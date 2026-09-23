@@ -43,7 +43,6 @@ import com.dbn.object.DBProgram;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
-import com.dbn.object.common.property.DBObjectProperty;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.vfs.DBConsoleType;
@@ -84,6 +83,7 @@ import static com.dbn.debugger.DBDebuggerType.JDBC;
 import static com.dbn.debugger.DBDebuggerType.JDWP;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.object.common.property.DBObjectProperty.DEBUGGABLE;
 
 @State(
     name = DatabaseDebuggerManager.COMPONENT_NAME,
@@ -271,26 +271,28 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
 
     public List<DBSchemaObject> loadCompileDependencies(List<DBMethod> methods) {
         // TODO improve this logic (currently only drilling one level down in the dependencies)
+        SourceCodeManager sourceCodeManager = SourceCodeManager.getInstance(getProject());
         List<DBSchemaObject> compileList = new ArrayList<>();
+
         for (DBMethod method : methods) {
             DBProgram program = method.getProgram();
             DBSchemaObject executable = program == null ? method : program;
-            SourceCodeManager sourceCodeManager = SourceCodeManager.getInstance(getProject());
             sourceCodeManager.ensureSourcesLoaded(executable, true);
 
             addToCompileList(compileList, executable);
 
-            for (DBObject object : executable.getReferencedObjects()) {
-                if (object instanceof DBSchemaObject schemaObject && object != executable) {
-                    if (!ProgressMonitor.isProgressCancelled()) {
-                        boolean added = addToCompileList(compileList, schemaObject);
-                        if (added) {
-                            String objectName = schemaObject.getQualifiedNameWithType();
-                            setProgressDetail(txt("prc.debugger.text.LoadingDependencies", objectName));
-                            schemaObject.getReferencedObjects();
-                        }
-                    }
-                }
+            for (DBObject object : executable.getDebugDependencies()) {
+                ProgressMonitor.checkCancelled();
+
+                if (object == executable) continue;
+                if (!(object instanceof DBSchemaObject schemaObject)) continue;
+
+                boolean eligible = addToCompileList(compileList, schemaObject);
+                if (!eligible) continue;
+
+                String objectName = schemaObject.getQualifiedNameWithType();
+                setProgressDetail(txt("prc.debugger.text.LoadingDependencies", objectName));
+                schemaObject.getDebugDependencies();
             }
         }
 
@@ -300,20 +302,21 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
 
     private boolean addToCompileList(List<DBSchemaObject> compileList, DBSchemaObject schemaObject) {
         DBSchema schema = schemaObject.getSchema();
-        DBObjectStatusHolder objectStatus = schemaObject.getStatus();
-        if (!schema.isPublicSchema() && !schema.isSystemSchema() && schemaObject.is(DBObjectProperty.DEBUGABLE) && !objectStatus.is(DBObjectStatus.DEBUG)) {
-            if (!compileList.contains(schemaObject)) {
-                compileList.add(schemaObject);
-            }
+        if (schema.isPublicSchema()) return false;
+        if (schema.isSystemSchema()) return false;
+        if (!schemaObject.is(DEBUGGABLE)) return false;
 
-            return true;
-        }
-        return false;
+        DBObjectStatusHolder objectStatus = schemaObject.getStatus();
+        if (objectStatus.is(DBObjectStatus.DEBUG)) return false;
+        if (compileList.contains(schemaObject)) return true;
+
+        compileList.add(schemaObject);
+        return true;
     }
 
     private static final Comparator<DBSchemaObject> DEPENDENCY_COMPARATOR = (schemaObject1, schemaObject2) -> {
-        if (schemaObject1.getReferencedObjects().contains(schemaObject2)) return 1;
-        if (schemaObject2.getReferencedObjects().contains(schemaObject1)) return -1;
+        if (schemaObject1.getDebugDependencies().contains(schemaObject2)) return 1;
+        if (schemaObject2.getDebugDependencies().contains(schemaObject1)) return -1;
         return 0;
     };
 

@@ -38,6 +38,8 @@ public interface DBSchemaObject extends DBObject {
 
     List<DBObject> getReferencingObjects();
 
+    List<DBObject> getDebugDependencies();
+
     boolean isEditable(DBContentType contentType);
 
     DBLanguage getCodeLanguage(DBContentType contentType);

@@ -87,7 +87,7 @@ import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.util.Commons.coalesce;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Unsafe.cast;
-import static com.dbn.object.common.property.DBObjectProperty.DEBUGABLE;
+import static com.dbn.object.common.property.DBObjectProperty.DEBUGGABLE;
 import static com.dbn.object.common.property.DBObjectProperty.EMPTY_SCHEMA;
 import static com.dbn.object.common.property.DBObjectProperty.INVALIDABLE;
 import static com.dbn.object.common.property.DBObjectProperty.PUBLIC_SCHEMA;
@@ -649,7 +649,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
                             refreshNodes.add(object.getParent());
                         }
                     }
-                    if (schemaObject.is(DEBUGABLE)) {
+                    if (schemaObject.is(DEBUGGABLE)) {
                         if (objectStatus.set(DBObjectStatus.DEBUG, false)) {
                             refreshNodes.add(object.getParent());
                         }
