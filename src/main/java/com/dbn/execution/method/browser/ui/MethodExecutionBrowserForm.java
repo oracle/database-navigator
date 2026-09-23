@@ -98,7 +98,7 @@ public class MethodExecutionBrowserForm extends DBNFormBase {
         if (settings.getSelectedSchema() != schema) {
             settings.setSelectedSchema(schema);
             DBNTreeNode root = (DBNTreeNode) methodsTree.getModel().getRoot();
-            root.setUserObject("Loading...");
+            root.setUserObject("Loading methods...");
             updateTree();
         }
     }

@@ -113,6 +113,25 @@ public final class Resources {
         }
     }
 
+    /**
+     * Releases a statement after an execution attempt.
+     *
+     * <p>A successfully completed cached statement is parked for reuse. An incomplete or uncached
+     * statement is closed instead, which also discards it from the statement pool. A {@code null}
+     * statement is ignored.
+     *
+     * @param statement the statement to release
+     * @param completed whether the statement execution completed successfully
+     */
+    public static void release(@Nullable DBNStatement statement, boolean completed) {
+        if (statement == null) return;
+        if (completed && statement.isCached()) {
+            statement.park();
+        } else {
+            close((DBNResource) statement);
+        }
+    }
+
     private static <T extends DBNResource<?>> void close(T resource) {
         if (resource == null || resource.isClosed()) return;
         try {
