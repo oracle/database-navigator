@@ -1970,116 +1970,128 @@
     <statement-execution-processor id="package-procedures">
         <statement prefixes="DBA, ALL">
             select
-                a.OBJECT_NAME as PROCEDURE_NAME,
+                p.PROCEDURE_NAME,
                 p.SUBPROGRAM_ID as POSITION,
-                a.OVERLOAD,
+                p.OVERLOAD,
                 'N' as IS_DETERMINISTIC,
                 'PSQL' as LANGUAGE
             from
-                [PREFIX]_ARGUMENTS a,
                 [PREFIX]_PROCEDURES p
             where
-                a.OWNER = {#0} and
-                a.PACKAGE_NAME = {#1} and
-                a.POSITION = 1 and
-                a.SEQUENCE IN (1, 0) and
-                p.OWNER = a.OWNER and
-                p.OBJECT_NAME = a.PACKAGE_NAME and
-                p.PROCEDURE_NAME = a.OBJECT_NAME and
-                nvl(p.OVERLOAD, 0) = nvl(a.OVERLOAD, 0)
+                p.OWNER = {#0} and
+                p.OBJECT_NAME = {#1} and
+                p.PROCEDURE_NAME is not null and
+                not exists (
+                    select 1
+                    from [PREFIX]_ARGUMENTS a
+                    where
+                        a.OWNER = p.OWNER and
+                        a.PACKAGE_NAME = p.OBJECT_NAME and
+                        a.OBJECT_NAME = p.PROCEDURE_NAME and
+                        nvl(a.OVERLOAD, 0) = nvl(p.OVERLOAD, 0) and
+                        a.POSITION = 0)
             order by
-                a.OBJECT_NAME,
-                a.OVERLOAD asc
+                p.PROCEDURE_NAME,
+                p.OVERLOAD asc
         </statement>
         <statement>
             select
-                a.OBJECT_NAME as PROCEDURE_NAME,
+                p.PROCEDURENAME as PROCEDURE_NAME,
                 p.PROCEDURE# as POSITION,
-                a.OVERLOAD,
+                p.OVERLOAD# as OVERLOAD,
                 'N' as IS_DETERMINISTIC,
                 'PSQL' as LANGUAGE
             from
-                ALL_ARGUMENTS a,
                 SYS.PROCEDUREINFO$ p,
                 SYS.USER$ u,
                 SYS.OBJ$ o
             where
-                a.OWNER = {#0} and
-                a.PACKAGE_NAME = {#1} and
-                a.POSITION = 1 and
-                a.SEQUENCE IN (1, 0) and
-                u.NAME = a.OWNER and
+                u.NAME = {#0} and
                 o.OWNER# = u.USER# and
-                o.NAME = a.PACKAGE_NAME and
+                o.NAME = {#1} and
                 p.OBJ# = o.OBJ# and
-                p.PROCEDURENAME = a.OBJECT_NAME and
-                nvl(p.OVERLOAD#, 0) = nvl(a.OVERLOAD, 0)
+                p.PROCEDURENAME is not null and
+                not exists (
+                    select 1
+                    from ALL_ARGUMENTS a
+                    where
+                        a.OWNER = u.NAME and
+                        a.PACKAGE_NAME = o.NAME and
+                        a.OBJECT_NAME = p.PROCEDURENAME and
+                        nvl(a.OVERLOAD, 0) = nvl(p.OVERLOAD#, 0) and
+                        a.POSITION = 0)
             order by
-                a.OBJECT_NAME,
-                a.OVERLOAD asc
+                p.PROCEDURENAME,
+                p.OVERLOAD# asc
         </statement>
     </statement-execution-processor>
 
     <statement-execution-processor id="all-package-procedures" timeout="90">
         <statement prefixes="DBA, ALL">
             select
-                a.PACKAGE_NAME,
-                a.OBJECT_NAME as PROCEDURE_NAME,
+                p.OBJECT_NAME as PACKAGE_NAME,
+                p.PROCEDURE_NAME,
                 p.SUBPROGRAM_ID as POSITION,
-                a.OVERLOAD,
+                p.OVERLOAD,
                 'N' as IS_DETERMINISTIC,
                 'PSQL' as LANGUAGE
             from
-                [PREFIX]_ARGUMENTS a,
                 [PREFIX]_PROCEDURES p
             where
-                a.OWNER = {#0} and
-                a.POSITION = 1 and
-                a.SEQUENCE IN (1, 0) and
-                a.PACKAGE_NAME in (
+                p.OWNER = {#0} and
+                p.PROCEDURE_NAME is not null and
+                p.OBJECT_NAME in (
                     select OBJECT_NAME
                     from [PREFIX]_OBJECTS
                     where OWNER = {#0} and OBJECT_TYPE = 'PACKAGE') and
-                p.OWNER = a.OWNER and
-                p.OBJECT_NAME = a.PACKAGE_NAME and
-                p.PROCEDURE_NAME = a.OBJECT_NAME and
-                nvl(p.OVERLOAD, 0) = nvl(a.OVERLOAD, 0)
+                not exists (
+                    select 1
+                    from [PREFIX]_ARGUMENTS a
+                    where
+                        a.OWNER = p.OWNER and
+                        a.PACKAGE_NAME = p.OBJECT_NAME and
+                        a.OBJECT_NAME = p.PROCEDURE_NAME and
+                        nvl(a.OVERLOAD, 0) = nvl(p.OVERLOAD, 0) and
+                        a.POSITION = 0)
             order by
-                a.PACKAGE_NAME,
-                a.OBJECT_NAME,
-                a.OVERLOAD asc
+                p.OBJECT_NAME,
+                p.PROCEDURE_NAME,
+                p.OVERLOAD asc
         </statement>
         <statement prefixes="DBA, ALL">
             select
-                a.PACKAGE_NAME,
-                a.OBJECT_NAME as PROCEDURE_NAME,
+                o.NAME as PACKAGE_NAME,
+                p.PROCEDURENAME as PROCEDURE_NAME,
                 p.PROCEDURE# as POSITION,
-                a.OVERLOAD,
+                p.OVERLOAD# as OVERLOAD,
                 'N' as IS_DETERMINISTIC,
                 'PSQL' as LANGUAGE
             from
-                ALL_ARGUMENTS a,
                 SYS.PROCEDUREINFO$ p,
                 SYS.USER$ u,
                 SYS.OBJ$ o
             where
-                a.OWNER = {#0} and
-                a.POSITION = 1 and
-                a.SEQUENCE IN (1, 0) and
-                a.PACKAGE_NAME in (
+                u.NAME = {#0} and
+                o.OWNER# = u.USER# and
+                o.NAME in (
                     select OBJECT_NAME
                     from [PREFIX]_OBJECTS
                     where OWNER = {#0} and OBJECT_TYPE = 'PACKAGE') and
-                u.NAME = a.OWNER and
-                o.OWNER# = u.USER# and
-                o.NAME = a.PACKAGE_NAME and
                 p.OBJ# = o.OBJ# and
-                p.PROCEDURENAME = a.OBJECT_NAME and
-                nvl(p.OVERLOAD#, 0) = nvl(a.OVERLOAD, 0)
+                p.PROCEDURENAME is not null and
+                not exists (
+                    select 1
+                    from ALL_ARGUMENTS a
+                    where
+                        a.OWNER = u.NAME and
+                        a.PACKAGE_NAME = o.NAME and
+                        a.OBJECT_NAME = p.PROCEDURENAME and
+                        nvl(a.OVERLOAD, 0) = nvl(p.OVERLOAD#, 0) and
+                        a.POSITION = 0)
             order by
-                a.PACKAGE_NAME,
-                a.OBJECT_NAME,
-                a.OVERLOAD asc
+                o.NAME,
+                p.PROCEDURENAME,
+                p.OVERLOAD# asc
         </statement>
     </statement-execution-processor>
 
