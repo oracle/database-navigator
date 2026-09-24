@@ -16,10 +16,17 @@
 
 package com.dbn.debugger.jdbc.frame;
 
+import com.dbn.common.icon.Icons;
 import com.dbn.debugger.common.frame.DBDebugValue;
 import com.dbn.debugger.jdbc.DBJdbcDebugProcess;
+import com.dbn.object.DBType;
+import com.dbn.object.DBTypeAttribute;
+import com.dbn.object.lookup.DBObjectRef;
+import com.intellij.xdebugger.frame.XCompositeNode;
+import com.intellij.xdebugger.frame.XValueChildrenList;
 import com.intellij.xdebugger.frame.XValueModifier;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
@@ -27,9 +34,17 @@ import java.util.List;
 
 public class DBJdbcDebugValue extends DBDebugValue<DBJdbcDebugStackFrame>{
     private DBJdbcDebugValueModifier modifier;
+    private final DBObjectRef<DBType> structuredType;
 
-    DBJdbcDebugValue(DBJdbcDebugStackFrame stackFrame, DBJdbcDebugValue parentValue, @NonNls String variableName, @Nullable List<String> childVariableNames, Icon icon) {
+    DBJdbcDebugValue(
+            DBJdbcDebugStackFrame stackFrame,
+            DBJdbcDebugValue parentValue,
+            @NonNls String variableName,
+            @Nullable List<String> childVariableNames,
+            @Nullable DBType structuredType,
+            Icon icon) {
         super(stackFrame, variableName, childVariableNames, parentValue, icon);
+        this.structuredType = DBObjectRef.of(structuredType);
     }
 
     @Override
@@ -41,5 +56,39 @@ public class DBJdbcDebugValue extends DBDebugValue<DBJdbcDebugStackFrame>{
     public XValueModifier getModifier() {
         if (modifier == null) modifier = new DBJdbcDebugValueModifier(this);
         return modifier;
+    }
+
+    public boolean isStructured() {
+        return structuredType != null;
+    }
+
+    @Override
+    public boolean hasChildren() {
+        DBType type = getStructuredType();
+        return type == null ? super.hasChildren() : !type.getAttributes().isEmpty();
+    }
+
+    @Override
+    public void computeChildren(@NotNull XCompositeNode node) {
+        DBType type = getStructuredType();
+        if (type == null) {
+            super.computeChildren(node);
+            return;
+        }
+
+        XValueChildrenList children = new XValueChildrenList();
+        for (DBTypeAttribute attribute : type.getAttributes()) {
+            DBType attributeType = attribute.getDataType().getDeclaredType();
+            Icon attributeIcon = attributeType == null ? Icons.DBO_ATTRIBUTE : Icons.DBO_TYPE;
+            DBJdbcDebugValue value = getStackFrame().createDebugValue(
+                    attribute.getName(), this, null, attributeType, attributeIcon);
+            children.add(value);
+        }
+        node.addChildren(children, true);
+    }
+
+    @Nullable
+    private DBType getStructuredType() {
+        return structuredType == null ? null : structuredType.value();
     }
 }

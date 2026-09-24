@@ -50,7 +50,6 @@ import static com.dbn.common.notification.NotificationCategory.TRANSACTION;
 import static com.dbn.common.util.Classes.className;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.connection.jdbc.ResourceStatus.ACTIVE;
-import static com.dbn.connection.jdbc.ResourceStatus.CLOSED;
 import static com.dbn.connection.jdbc.ResourceStatus.VALID;
 import static com.dbn.database.DatabaseFeature.READONLY_CONNECTIVITY;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -73,10 +72,7 @@ public final class Resources {
 
     public static void markClosed(DBNConnection connection) {
         if (connection == null) return;
-
-        connection.set(VALID, false);
-        connection.set(ACTIVE, false);
-        connection.set(CLOSED, true);
+        connection.markClosed();
     }
 
     public static void cancel(DBNStatement statement) {

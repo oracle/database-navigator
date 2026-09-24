@@ -17,11 +17,13 @@
 package com.dbn.database.common;
 
 import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.database.common.debug.DebuggerIdentifierInfo;
+import com.dbn.editor.data.model.ResultSetSupport;
 import com.dbn.database.interfaces.DatabaseDebuggerInterface;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 public abstract class DatabaseDebuggerInterfaceImpl extends DatabaseInterfaceBase implements DatabaseDebuggerInterface {
     public DatabaseDebuggerInterfaceImpl(String fileName, DatabaseInterfaces provider) {
@@ -29,8 +31,10 @@ public abstract class DatabaseDebuggerInterfaceImpl extends DatabaseInterfaceBas
     }
 
     @Override
-    public ResultSet loadObjectIdentifiers(String ownerName, String objectName, String objectType, DBNConnection connection) throws SQLException {
-        return executeQuery(connection, "object-identifiers", ownerName, objectName, objectType);
+    public List<DebuggerIdentifierInfo> loadObjectIdentifiers(String ownerName, String objectName, String objectType, DBNConnection connection) throws SQLException {
+        return ResultSetSupport.consume(
+                () -> executeQuery(connection, "object-identifiers", ownerName, objectName, objectType),
+                rs -> DebuggerIdentifierInfo.read(rs));
     }
 
 }

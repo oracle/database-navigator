@@ -80,7 +80,6 @@ import com.intellij.psi.PsiFile;
 import com.intellij.util.text.DateFormatUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.jdom.Element;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -430,7 +429,13 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
                     try {
                         String schemaName = object.getSchemaName();
                         String objectName = object.getName();
-                        String contentQualifier = getContentQualifier(object.getObjectType(), contentType);
+                        String contentQualifier;
+                        if (contentType == null) {
+                            contentQualifier = null;
+                        } else {
+                            DBObjectType objectType = object.getObjectType();
+                            contentQualifier = contentType.getContentQualifier(objectType);
+                        }
 
                         DatabaseMetadataInterface metadata = object.getMetadataInterface();
                         resultSet = metadata.loadObjectChangeTimestamp(
@@ -451,26 +456,6 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
 
 
         return ChangeTimestamp.now();
-    }
-
-    @NonNls
-    private static String getContentQualifier(DBObjectType objectType, DBContentType contentType) {
-        return switch (objectType) {
-            case JAVA_CLASS -> "JAVA SOURCE";
-            case JAVA_RESOURCE -> "JAVA RESOURCE";
-            case FUNCTION -> "FUNCTION";
-            case PROCEDURE -> "PROCEDURE";
-            case VIEW -> "VIEW";
-            case DATASET_TRIGGER -> "TRIGGER";
-            case DATABASE_TRIGGER -> "TRIGGER";
-            case PACKAGE ->
-                    contentType == DBContentType.CODE_SPEC ? "PACKAGE" :
-                    contentType == DBContentType.CODE_BODY ? "PACKAGE BODY" : null;
-            case TYPE ->
-                    contentType == DBContentType.CODE_SPEC ? "TYPE" :
-                    contentType == DBContentType.CODE_BODY ? "TYPE BODY" : null;
-            default -> null;
-        };
     }
 
     private boolean isValidObjectTypeAndName(@NotNull PsiFile psiFile, @NotNull DBSchemaObject object, DBContentType contentType) {

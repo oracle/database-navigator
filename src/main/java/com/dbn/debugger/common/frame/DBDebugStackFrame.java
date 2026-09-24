@@ -174,7 +174,7 @@ public abstract class DBDebugStackFrame<P extends DBDebugProcess, V extends DBDe
     @Override
     public void computeChildren(@NotNull XCompositeNode node) {
         valuesMap = new HashMap<>();
-        List<DBDebugValue> values = new ArrayList<>();
+        List<V> values = new ArrayList<>();
 
         V frameInfoValue = createSuspendReasonDebugValue();
         if (frameInfoValue != null) {
@@ -186,13 +186,13 @@ public abstract class DBDebugStackFrame<P extends DBDebugProcess, V extends DBDe
 
         Collections.sort(values);
         XValueChildrenList children = new XValueChildrenList();
-        for (DBDebugValue value : values) {
+        for (V value : values) {
             children.add(value.getVariableName(), value);
         }
         node.addChildren(children, true);
     }
 
-    private void computeValues(List<DBDebugValue> values) {
+    protected void computeValues(List<V> values) {
         XSourcePosition sourcePosition = getSourcePosition();
         VirtualFile virtualFile = DBDebugUtil.getSourceCodeFile(sourcePosition);
         if (virtualFile == null) return;

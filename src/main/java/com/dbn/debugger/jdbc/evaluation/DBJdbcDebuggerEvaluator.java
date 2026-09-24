@@ -21,7 +21,6 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.debug.VariableInfo;
 import com.dbn.database.interfaces.DatabaseDebuggerInterface;
 import com.dbn.debugger.common.evaluation.DBDebuggerEvaluator;
-import com.dbn.debugger.common.frame.DBDebugValue;
 import com.dbn.debugger.jdbc.DBJdbcDebugProcess;
 import com.dbn.debugger.jdbc.frame.DBJdbcDebugStackFrame;
 import com.dbn.debugger.jdbc.frame.DBJdbcDebugValue;
@@ -33,7 +32,6 @@ import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
-import java.util.List;
 
 import static com.dbn.common.util.Strings.toLowerCase;
 import static com.dbn.common.util.Strings.toUpperCase;
@@ -47,32 +45,31 @@ public class DBJdbcDebuggerEvaluator extends DBDebuggerEvaluator<DBJdbcDebugStac
 
     @Override
     public void computePresentation(@NotNull DBJdbcDebugValue debugValue, @NotNull final XValueNode node, @NotNull XValuePlace place) {
-        List<String> childVariableNames = debugValue.getChildVariableNames();
-
         try {
             DBJdbcDebugProcess debugProcess = debugValue.getDebugProcess();
-            String variableName = debugValue.getVariableName();
-            DBDebugValue parentValue = debugValue.getParentValue();
-            String dbVariableName = parentValue == null ? variableName : parentValue.getVariableName() + "." + variableName;
-            dbVariableName = toUpperCase(dbVariableName);
-            int frameIndex = debugValue.getStackFrame().getFrameIndex();
-
-            DBNConnection conn = debugProcess.getDebuggerConnection();
-            DatabaseDebuggerInterface debuggerInterface = debugProcess.getDebuggerInterface();
-
-            DBJdbcDebugStackFrame frame = getFrame();
-            VariableInfo variableInfo = frame.getVariableInfo(dbVariableName,
-                    n -> loadVariableInfo(n, debuggerInterface, frameIndex, conn));
-
-            String value = variableInfo.getValue();
-            String type = variableInfo.getError();
-
-            if (type != null) {
-                type = toLowerCase(type);
-                value = "";
-            }
-            if (childVariableNames != null) {
+            String value = "";
+            String type;
+            if (debugValue.isStructured() || debugValue.getChildVariableNames() != null) {
+                // DBMS_DEBUG.get_value() cannot scalar-resolve an object variable. Its
+                // attributes are independently resolvable as VARIABLE.ATTRIBUTE.
                 type = "record";
+            } else {
+                String variablePath = toUpperCase(debugValue.getVariablePath());
+                int frameIndex = debugValue.getStackFrame().getFrameIndex();
+
+                DBNConnection conn = debugProcess.getDebuggerConnection();
+                DatabaseDebuggerInterface debuggerInterface = debugProcess.getDebuggerInterface();
+                DBJdbcDebugStackFrame frame = getFrame();
+                VariableInfo variableInfo = frame.getVariableInfo(variablePath,
+                        n -> loadVariableInfo(n, debuggerInterface, frameIndex, conn));
+
+                value = variableInfo.getValue();
+                type = variableInfo.getError();
+
+                if (type != null) {
+                    type = toLowerCase(type);
+                    value = "";
+                }
             }
 
             debugValue.setValue(value);

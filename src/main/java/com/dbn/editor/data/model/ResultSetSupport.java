@@ -18,6 +18,7 @@ package com.dbn.editor.data.model;
 
 import com.dbn.common.dispose.StatefulDisposableBase;
 import com.dbn.common.routine.Consumer;
+import com.dbn.common.routine.ThrowableCallable;
 import com.dbn.common.routine.ThrowableFunction;
 import com.dbn.connection.Resources;
 import com.dbn.database.interfaces.DatabaseInterface.Runnable;
@@ -119,7 +120,7 @@ public class ResultSetSupport extends StatefulDisposableBase {
         }
     }
 
-    public static <T> List<T> read(ResultSet resultSet, ThrowableFunction<ResultSet, T, SQLException> converter) throws SQLException {
+    public static <T> List<T> consume(ResultSet resultSet, ThrowableFunction<ResultSet, T, SQLException> converter) throws SQLException {
         try {
             if (resultSet == null) return emptyList();
             if (Resources.isClosed(resultSet)) return emptyList();
@@ -134,6 +135,12 @@ public class ResultSetSupport extends StatefulDisposableBase {
         } finally {
             Resources.close(resultSet);
         }
+    }
+
+    public static <T> List<T> consume(
+            ThrowableCallable<ResultSet, SQLException> loader,
+            ThrowableFunction<ResultSet, T, SQLException> converter) throws SQLException {
+        return consume(loader.call(), converter);
     }
 
     public static <T> void forEachRow(ResultSet resultSet, String columnName, Class<T> columnType, Consumer<T> consumer) throws SQLException {

@@ -539,7 +539,10 @@
                 USAGE_ID,
                 LINE,
                 COL,
-                USAGE_CONTEXT_ID
+                USAGE_CONTEXT_ID,
+                DECLARED_OWNER,
+                DECLARED_OBJECT_NAME,
+                DECLARED_OBJECT_TYPE
             from [PREFIX]_IDENTIFIERS
             where
                 OWNER = {#0} and
@@ -559,7 +562,10 @@
                 USAGE_ID,
                 LINE,
                 COL,
-                USAGE_CONTEXT_ID
+                USAGE_CONTEXT_ID,
+                DECLARED_OWNER,
+                DECLARED_OBJECT_NAME,
+                DECLARED_OBJECT_TYPE
             from USER_IDENTIFIERS
             where
                 USER = {#0} and
@@ -580,7 +586,10 @@
                 null as USAGE_ID,
                 null as LINE,
                 null as COL,
-                null as USAGE_CONTEXT_ID
+                null as USAGE_CONTEXT_ID,
+                null as DECLARED_OWNER,
+                null as DECLARED_OBJECT_NAME,
+                null as DECLARED_OBJECT_TYPE
             from dual
             where 1 = 0
         </statement>

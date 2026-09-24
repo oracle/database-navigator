@@ -16,6 +16,7 @@
 
 package com.dbn.debugger.jdbc;
 
+import com.dbn.common.cache.ObjectKey;
 import com.dbn.common.dispose.AlreadyDisposedException;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.load.ProgressMonitor;
@@ -29,10 +30,13 @@ import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.Resources;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.database.common.debug.DebuggerIdentifierInfo;
+import com.dbn.database.common.debug.DebuggerIdentifierModel;
 import com.dbn.database.common.debug.DebuggerRuntimeInfo;
 import com.dbn.database.common.debug.DebuggerSessionInfo;
 import com.dbn.database.common.debug.ExecutionBacktraceInfo;
 import com.dbn.database.interfaces.DatabaseDebuggerInterface;
+import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.debugger.DBDebugConsoleLogger;
 import com.dbn.debugger.DBDebugOperation;
 import com.dbn.debugger.DBDebugTabLayouter;
@@ -50,11 +54,14 @@ import com.dbn.debugger.jdbc.frame.DBJdbcDebugSuspendContext;
 import com.dbn.editor.DBContentType;
 import com.dbn.execution.ExecutionContext;
 import com.dbn.execution.ExecutionInput;
+import com.dbn.object.DBPackage;
+import com.dbn.object.DBType;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBObjectVirtualFile;
+import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.debugger.impl.PrioritizedTask.Priority;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -75,8 +82,11 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
+import static com.dbn.common.Priority.HIGH;
 import static com.dbn.common.notification.NotificationCategory.DEBUGGER;
 import static com.dbn.common.thread.ThreadProperty.DEBUGGER_NAVIGATION;
 import static com.dbn.common.util.Strings.cachedUpperCase;
@@ -95,12 +105,15 @@ import static com.dbn.nls.NlsResources.txt;
 @Getter
 @Setter
 public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebugProcess implements DBDebugProcess, NotificationSupport {
+    private static final DebuggerIdentifierModel EMPTY_IDENTIFIER_MODEL = DebuggerIdentifierModel.empty();
+
     private DBNConnection targetConnection;
     private DBNConnection debuggerConnection;
     private final DBDebugProcessStatusHolder status = new DBDebugProcessStatusHolder();
     private final ConnectionRef connection;
     private final DBBreakpointHandler[] breakpointHandlers;
     private final DBDebugConsoleLogger console;
+    private final Map<ObjectKey, DebuggerIdentifierModel> identifierModels = new ConcurrentHashMap<>();
 
     private transient DebuggerRuntimeInfo runtimeInfo;
     private transient ExecutionBacktraceInfo backtraceInfo;
@@ -437,7 +450,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
     @NotNull
     @Override
     public XDebugTabLayouter createTabLayouter() {
-        return new DBDebugTabLayouter();
+        return new DBDebugTabLayouter(getSession());
     }
 
     @Override
@@ -489,6 +502,10 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
             } catch (SQLException e) {
                 conditionallyLog(e);
                 console.error(txt("log.debugger.error.ErrorSuspendingDebuggerSession", e.getMessage()));
+            }
+
+            if (backtraceInfo != null) {
+                preloadIdentifierModels(backtraceInfo.getFrames());
             }
 
             DBJdbcDebugSuspendContext suspendContext = new DBJdbcDebugSuspendContext(this);
@@ -627,6 +644,87 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
     @Override
     public DatabaseDebuggerInterface getDebuggerInterface() {
         return getConnection().getInterfaces().getDebuggerInterface();
+    }
+
+    /**
+     * Returns the cached PL/Scope identifier model for an object, shared by all stack frames in this debug run.
+     * Identifier models are preloaded before the suspend context is published.
+     *
+     * @param object the database object whose identifiers should be loaded
+     * @param contentType the source content type, such as {@link DBContentType#CODE_BODY}
+     */
+    public DebuggerIdentifierModel getIdentifierModel(DBSchemaObject object, DBContentType contentType) {
+        ObjectKey key = ObjectKey.create(object.getSchemaName(), object.getName(), contentType);
+        return identifierModels.getOrDefault(key, EMPTY_IDENTIFIER_MODEL);
+    }
+
+    private void preloadIdentifierModels(List<DebuggerRuntimeInfo> frames) {
+        for (DebuggerRuntimeInfo frame : frames) {
+            DBSchemaObject object = getDatabaseObject(frame);
+            if (object == null) continue;
+
+            VirtualFile sourceFile = getRuntimeInfoFile(frame);
+            DBContentType contentType = sourceFile instanceof DBSourceCodeVirtualFile sourceCodeFile
+                    ? sourceCodeFile.getContentType()
+                    : null;
+            DebuggerIdentifierModel model = preloadIdentifierModel(object, contentType);
+            model.preloadTypes(identifier -> resolveType(object, identifier));
+        }
+    }
+
+    private DebuggerIdentifierModel preloadIdentifierModel(DBSchemaObject object, DBContentType contentType) {
+        ObjectKey key = ObjectKey.create(object.getSchemaName(), object.getName(), contentType);
+        return identifierModels.computeIfAbsent(key, ignored -> loadIdentifierModel(object, contentType));
+    }
+
+    @Nullable
+    private DBType resolveType(DBSchemaObject object, DebuggerIdentifierInfo typeIdentifier) {
+        String typeName = typeIdentifier.getTypeName();
+        if (typeName == null) return null;
+
+        String typeOwner = typeIdentifier.getDeclaredOwner();
+        DBSchema schema = typeOwner == null
+                ? object.getSchema()
+                : getConnection().getObjectBundle().getSchema(typeOwner);
+        if (schema == null) return null;
+
+        String packageName = typeIdentifier.getTypePackageName();
+        return packageName == null
+                ? schema.getType(typeName)
+                : getPackageType(schema, packageName, typeName);
+    }
+
+    @Nullable
+    private DBType getPackageType(DBSchema schema, String packageName, String typeName) {
+        DBPackage packageObject = schema.getPackage(packageName);
+        return packageObject == null ? null : packageObject.getType(typeName);
+    }
+
+    public String getIdentifierObjectType(DBSchemaObject object, DBContentType contentType) {
+        String contentQualifier = contentType == null ? null : contentType.getContentQualifier(object.getObjectType());
+        return contentQualifier == null ? cachedUpperCase(object.getObjectType().getName()) : contentQualifier;
+    }
+
+    private DebuggerIdentifierModel loadIdentifierModel(DBSchemaObject object, DBContentType contentType) {
+        String objectType = getIdentifierObjectType(object, contentType);
+        try {
+            return DatabaseInterfaceInvoker.load(
+                    HIGH,
+                    getProject(),
+                    getConnection().getConnectionId(),
+                    connection -> {
+                        DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
+                        List<DebuggerIdentifierInfo> identifiers = debuggerInterface.loadObjectIdentifiers(
+                                object.getSchemaName(),
+                                object.getName(),
+                                objectType,
+                                connection);
+                        return new DebuggerIdentifierModel(identifiers);
+                    });
+        } catch (SQLException e) {
+            conditionallyLog(e);
+            return DebuggerIdentifierModel.empty();
+        }
     }
 
     @Nullable

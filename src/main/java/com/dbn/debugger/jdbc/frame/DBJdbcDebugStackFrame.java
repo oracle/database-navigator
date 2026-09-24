@@ -16,16 +16,24 @@
 
 package com.dbn.debugger.jdbc.frame;
 
+import com.dbn.common.icon.Icons;
 import com.dbn.common.latent.Latent;
+import com.dbn.database.common.debug.DebuggerIdentifierInfo;
+import com.dbn.database.common.debug.DebuggerIdentifierModel;
 import com.dbn.database.common.debug.DebuggerRuntimeInfo;
 import com.dbn.database.common.debug.VariableInfo;
+import com.dbn.debugger.DBDebugUtil;
 import com.dbn.debugger.common.frame.DBDebugSourcePosition;
 import com.dbn.debugger.common.frame.DBDebugStackFrame;
 import com.dbn.debugger.jdbc.DBJdbcDebugProcess;
 import com.dbn.debugger.jdbc.evaluation.DBJdbcDebuggerEvaluator;
+import com.dbn.editor.DBContentType;
 import com.dbn.execution.ExecutionInput;
 import com.dbn.execution.statement.StatementExecutionInput;
 import com.dbn.language.common.psi.IdentifierPsiElement;
+import com.dbn.object.DBType;
+import com.dbn.object.common.DBSchemaObject;
+import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.xdebugger.XSourcePosition;
 import lombok.SneakyThrows;
@@ -58,6 +66,60 @@ public class DBJdbcDebugStackFrame extends DBDebugStackFrame<DBJdbcDebugProcess,
     }
 
     @Override
+    protected void computeValues(List<DBJdbcDebugValue> values) {
+        IdentifierPsiElement subject = getSubject();
+        VirtualFile virtualFile = getVirtualFile();
+        DBSchemaObject object = DBDebugUtil.getObject(getSourcePosition());
+        if (object == null || virtualFile == null) {
+            super.computeValues(values);
+            return;
+        }
+
+        DebuggerRuntimeInfo runtimeInfo = this.runtimeInfo;
+        int currentLine = runtimeInfo.getLineNumber() == null ? Integer.MAX_VALUE : runtimeInfo.getLineNumber() + 1;
+        DBContentType contentType = getSourceContentType();
+        DBJdbcDebugProcess debugProcess = getDebugProcess();
+        String objectType = debugProcess.getIdentifierObjectType(object, contentType);
+        DebuggerIdentifierModel model = debugProcess.getIdentifierModel(object, contentType);
+        List<DebuggerIdentifierInfo> variables = subject == null
+                ? model.getVisibleVariables(currentLine, objectType)
+                : model.getVisibleVariables(subject.getChars().toString(), objectType, currentLine);
+        if (variables.isEmpty()) {
+            variables = model.getVisibleVariables(currentLine, objectType);
+        }
+        if (variables.isEmpty()) {
+            super.computeValues(values);
+            return;
+        }
+
+        for (DebuggerIdentifierInfo identifier : variables) {
+            values.add(createDebugValue(
+                    identifier.getName(),
+                    null,
+                    null,
+                    model.getType(identifier),
+                    getIdentifierIcon(identifier, model)));
+        }
+    }
+
+    private Icon getIdentifierIcon(DebuggerIdentifierInfo identifier, DebuggerIdentifierModel model) {
+        if (model.isTypeVariable(identifier)) return Icons.DBO_TYPE;
+        if (identifier.isFormalParameter()) return Icons.DBO_ARGUMENT;
+        if (identifier.isCursor()) return Icons.DBO_CURSOR;
+        return Icons.DBO_VARIABLE;
+    }
+
+    private DBContentType getSourceContentType() {
+        XSourcePosition sourcePosition = getSourcePosition();
+        if (sourcePosition == null) return null;
+
+        VirtualFile sourceFile = sourcePosition.getFile();
+        if (sourceFile instanceof DBSourceCodeVirtualFile sourceCodeFile) return sourceCodeFile.getContentType();
+
+        return null;
+    }
+
+    @Override
     protected XSourcePosition resolveSourcePosition() {
         DBJdbcDebugProcess debugProcess = getDebugProcess();
         VirtualFile virtualFile = debugProcess.getRuntimeInfoFile(runtimeInfo);
@@ -80,7 +142,11 @@ public class DBJdbcDebugStackFrame extends DBDebugStackFrame<DBJdbcDebugProcess,
     @NotNull
     @Override
     public DBJdbcDebugValue createDebugValue(String variableName, DBJdbcDebugValue parentValue, List<String> childVariableNames, Icon icon) {
-        return new DBJdbcDebugValue(this, parentValue, variableName, childVariableNames, icon);
+        return createDebugValue(variableName, parentValue, childVariableNames, null, icon);
+    }
+
+    DBJdbcDebugValue createDebugValue(String variableName, DBJdbcDebugValue parentValue, List<String> childVariableNames, DBType type, Icon icon) {
+        return new DBJdbcDebugValue(this, parentValue, variableName, childVariableNames, type, icon);
     }
 
     @Nullable
@@ -105,5 +171,3 @@ public class DBJdbcDebugStackFrame extends DBDebugStackFrame<DBJdbcDebugProcess,
         return runtimeInfo == null ? null : toLowerCase(runtimeInfo.getOwnerName() + "." + runtimeInfo.getProgramName() + "." + subjectString);
     }
 }
-
-

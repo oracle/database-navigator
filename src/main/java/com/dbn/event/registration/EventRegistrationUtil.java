@@ -19,6 +19,7 @@ package com.dbn.event.registration;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseMetadataInterface;
+import com.dbn.editor.data.model.ResultSetSupport;
 import com.dbn.event.registration.model.DataChangeRegistration;
 import com.intellij.openapi.project.Project;
 import lombok.experimental.UtilityClass;
@@ -29,7 +30,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import static com.dbn.common.Priority.HIGH;
-import static com.dbn.editor.data.model.ResultSetSupport.read;
+import static com.dbn.editor.data.model.ResultSetSupport.consume;
 import static com.dbn.nls.NlsResources.txt;
 
 @UtilityClass
@@ -60,7 +61,7 @@ public class EventRegistrationUtil {
                 conn -> {
                     DatabaseMetadataInterface metadataInterface = connection.getMetadataInterface();
                     ResultSet resultSet = metadataInterface.loadDataEventRegistrations(conn);
-                    return read(resultSet, rs -> createRegistration(project, rs));
+                    return consume(resultSet, rs -> createRegistration(project, rs));
                 }
         );
     }

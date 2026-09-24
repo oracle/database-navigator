@@ -21,6 +21,7 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.debug.BasicOperationInfo;
 import com.dbn.database.common.debug.BreakpointInfo;
 import com.dbn.database.common.debug.BreakpointOperationInfo;
+import com.dbn.database.common.debug.DebuggerIdentifierInfo;
 import com.dbn.database.common.debug.DebuggerRuntimeInfo;
 import com.dbn.database.common.debug.DebuggerSessionInfo;
 import com.dbn.database.common.debug.DebuggerVersionInfo;
@@ -30,8 +31,8 @@ import com.dbn.database.common.debug.VariableInfo;
 import com.dbn.editor.DBContentType;
 import com.dbn.object.type.DBObjectType;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import static com.dbn.database.interfaces.DatabaseInterfaceType.DEBUGGER;
 
@@ -92,7 +93,7 @@ public interface DatabaseDebuggerInterface extends DatabaseInterface {
 
     /**
      * Loads PL/Scope identifier metadata for the given object.
-     * Column names of the returned ResultSet
+     * Each list entry contains the following columns from the PL/Scope result
      *  <li> OWNER (char)
      *  <li> NAME (char)
      *  <li> SIGNATURE (char)
@@ -104,8 +105,11 @@ public interface DatabaseDebuggerInterface extends DatabaseInterface {
      *  <li> LINE (number)
      *  <li> COL (number)
      *  <li> USAGE_CONTEXT_ID (number)
+     *  <li> DECLARED_OWNER (char)
+     *  <li> DECLARED_OBJECT_NAME (char)
+     *  <li> DECLARED_OBJECT_TYPE (char)
      */
-    ResultSet loadObjectIdentifiers(String ownerName, String objectName, String objectType, DBNConnection connection) throws SQLException;
+    List<DebuggerIdentifierInfo> loadObjectIdentifiers(String ownerName, String objectName, String objectType, DBNConnection connection) throws SQLException;
 
     BasicOperationInfo setVariableValue(String variableName, Integer frameNumber, String value, DBNConnection connection) throws SQLException;
 

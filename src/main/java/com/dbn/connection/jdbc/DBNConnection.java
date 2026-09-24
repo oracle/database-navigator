@@ -436,6 +436,15 @@ public class DBNConnection extends DBNConnectionBase {
         Background.run(() -> Resources.close(this));
     }
 
+    public void markClosed() {
+        set(VALID, false);
+        set(ACTIVE, false);
+        boolean changed = set(CLOSED, true);
+        if (changed) {
+            statusChanged(CLOSED);
+        }
+    }
+
     @NotNull
     @Override
     public DBNConnection getConnection() {
@@ -473,9 +482,7 @@ public class DBNConnection extends DBNConnectionBase {
     public void reevaluateStatus() {
         Unsafe.warned(() -> {
             if (inner.isClosed() || !inner.isValid(5)) {
-                set(VALID, false);
-                set(CLOSED, true);
-                set(ACTIVE, false);
+                markClosed();
             }
         });
     }

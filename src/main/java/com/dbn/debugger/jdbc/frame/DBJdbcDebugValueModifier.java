@@ -50,7 +50,7 @@ public class DBJdbcDebugValueModifier extends XValueModifier {
                 }
             }
             BasicOperationInfo operationInfo = debugProcess.getDebuggerInterface().setVariableValue(
-                    value.getVariableName(),
+                    value.getVariablePath(),
                     0,
                     expression,
                     debugProcess.getDebuggerConnection());
