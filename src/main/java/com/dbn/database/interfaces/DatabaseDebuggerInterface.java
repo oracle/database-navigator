@@ -63,6 +63,8 @@ public interface DatabaseDebuggerInterface extends DatabaseInterface {
 
     DebuggerRuntimeInfo synchronizeSession(DBNConnection connection) throws SQLException;
 
+    void pingSession(DBNConnection connection) throws SQLException;
+
     BreakpointInfo addProgramBreakpoint(String programOwner, String programName, String programType, int line, DBNConnection connection) throws SQLException;
 
     BreakpointInfo addSourceBreakpoint(int line, DBNConnection connection) throws SQLException;

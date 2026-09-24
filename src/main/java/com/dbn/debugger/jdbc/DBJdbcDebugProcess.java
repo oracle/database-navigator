@@ -84,7 +84,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import static com.dbn.common.Priority.HIGH;
 import static com.dbn.common.notification.NotificationCategory.DEBUGGER;
@@ -106,6 +109,7 @@ import static com.dbn.nls.NlsResources.txt;
 @Setter
 public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebugProcess implements DBDebugProcess, NotificationSupport {
     private static final DebuggerIdentifierModel EMPTY_IDENTIFIER_MODEL = DebuggerIdentifierModel.empty();
+    private static final long DEBUGGER_PING_INTERVAL_MILLIS = TimeUnit.SECONDS.toMillis(30);
 
     private DBNConnection targetConnection;
     private DBNConnection debuggerConnection;
@@ -117,6 +121,8 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
 
     private transient DebuggerRuntimeInfo runtimeInfo;
     private transient ExecutionBacktraceInfo backtraceInfo;
+    private transient Timer debuggerPingTimer;
+    private final transient Object debuggerPingLock = new Object();
 
     public DBJdbcDebugProcess(@NotNull XDebugSession session, ConnectionHandler connection) {
         super(session);
@@ -348,6 +354,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
     }
 
     private void stopDebugger() {
+        stopDebuggerPing();
         Project project = getProject();
         ConnectionHandler connection = getConnection();
         Progress.background(project, connection, false,
@@ -383,6 +390,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
     }
 
     private void releaseDebugConnection() {
+        stopDebuggerPing();
         Resources.close(debuggerConnection);
         debuggerConnection = null;
     }
@@ -395,6 +403,8 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
     @Override
     public void startStepOver(@Nullable XSuspendContext suspendContext) {
         DBDebugOperation.run(getProject(), txt("ntf.debugger.token.Operation_STEP_OVER"), () -> {
+            console.system(txt("log.debugger.info.DebuggerSessionResumed"));
+            stopDebuggerPing();
             DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
             runtimeInfo = debuggerInterface.stepOver(debuggerConnection);
             suspendSession();
@@ -404,6 +414,8 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
     @Override
     public void startStepInto(@Nullable XSuspendContext suspendContext) {
         DBDebugOperation.run(getProject(), txt("ntf.debugger.token.Operation_STEP_INTO"), () -> {
+            console.system(txt("log.debugger.info.DebuggerSessionResumed"));
+            stopDebuggerPing();
             DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
             runtimeInfo = debuggerInterface.stepInto(debuggerConnection);
             suspendSession();
@@ -414,6 +426,8 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
     @Override
     public void startStepOut(@Nullable XSuspendContext suspendContext) {
         DBDebugOperation.run(getProject(), txt("ntf.debugger.token.Operation_STEP_OUT"), () -> {
+            console.system(txt("log.debugger.info.DebuggerSessionResumed"));
+            stopDebuggerPing();
             DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
             runtimeInfo = debuggerInterface.stepOut(debuggerConnection);
             suspendSession();
@@ -423,6 +437,8 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
     @Override
     public void resume(@Nullable XSuspendContext suspendContext) {
         DBDebugOperation.run(getProject(), txt("ntf.debugger.token.Operation_RESUME_EXECUTION"), () -> {
+            console.system(txt("log.debugger.info.DebuggerSessionResumed"));
+            stopDebuggerPing();
             DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
             runtimeInfo = debuggerInterface.resumeExecution(debuggerConnection);
             suspendSession();
@@ -432,6 +448,8 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
     @Override
     public void runToPosition(@NotNull XSourcePosition position, @Nullable XSuspendContext suspendContext) {
         DBDebugOperation.run(getProject(), txt("ntf.debugger.token.Operation_RUN_TO_POSITION"), () -> {
+            console.system(txt("log.debugger.info.DebuggerSessionResumed"));
+            stopDebuggerPing();
             DBSchemaObject object = DBDebugUtil.getObject(position);
             if (object != null) {
                 DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
@@ -457,6 +475,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
     public void startPausing() {
         // NOT SUPPORTED!!!
         DBDebugOperation.run(getProject(), txt("ntf.debugger.token.Operation_RUN_TO_POSITION"), () -> {
+            stopDebuggerPing();
             DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
             runtimeInfo = debuggerInterface.synchronizeSession(debuggerConnection);
             suspendSession();
@@ -474,6 +493,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
         XDebugSession session = getSession();
         DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
         if (isTerminated()) {
+            stopDebuggerPing();
             int reasonCode = runtimeInfo.getReason();
             String reason = debuggerInterface.getRuntimeEventReason(reasonCode);
             sendInfoNotification(DEBUGGER, txt("ntf.debugger.info.SessionTerminated", reasonCode, reason));
@@ -481,6 +501,12 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
             set(PROCESS_STOPPED, true);
             session.stop();
         } else {
+            String location = getSuspensionLocation(runtimeInfo);
+            String lineNumber = getSuspensionLineNumber(runtimeInfo);
+            String suspensionReason = debuggerInterface.getRuntimeEventReason(runtimeInfo.getReason());
+            console.system(txt("log.debugger.info.DebuggerSessionSuspendedAt", location, lineNumber, suspensionReason));
+
+            startDebuggerPing();
             VirtualFile virtualFile = getRuntimeInfoFile(runtimeInfo);
             DBDebugUtil.openEditor(virtualFile);
             try {
@@ -490,12 +516,12 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
                     DebuggerRuntimeInfo topRuntimeInfo = frames.get(0);
                     if (runtimeInfo.isTerminated()) {
                         int reasonCode = runtimeInfo.getReason();
-                        String reason = debuggerInterface.getRuntimeEventReason(reasonCode);
-                        sendInfoNotification(DEBUGGER, txt("ntf.debugger.info.SessionTerminated", reasonCode, reason));
+                        String terminationReason = debuggerInterface.getRuntimeEventReason(reasonCode);
+                        sendInfoNotification(DEBUGGER, txt("ntf.debugger.info.SessionTerminated", reasonCode, terminationReason));
                     }
                     if (!runtimeInfo.isSameLocation(topRuntimeInfo)) {
                         runtimeInfo = topRuntimeInfo;
-                        resume();
+                        resume(null);
                         return;
                     }
                 }
@@ -516,6 +542,22 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
 
     protected boolean isTerminated() {
         return runtimeInfo.isTerminated();
+    }
+
+    private static String getSuspensionLocation(DebuggerRuntimeInfo runtimeInfo) {
+        String ownerName = runtimeInfo.getOwnerName();
+        String programName = runtimeInfo.getProgramName();
+        if (Strings.isNotEmpty(ownerName) && Strings.isNotEmpty(programName)) {
+            return ownerName + "." + programName;
+        }
+        if (Strings.isNotEmpty(programName)) return programName;
+        if (Strings.isNotEmpty(ownerName)) return ownerName;
+        return "?";
+    }
+
+    private static String getSuspensionLineNumber(DebuggerRuntimeInfo runtimeInfo) {
+        Integer lineNumber = runtimeInfo.getLineNumber();
+        return lineNumber == null ? "?" : Integer.toString(lineNumber + 1);
     }
 
     protected DBBreakpointHandler<?> getBreakpointHandler() {
@@ -557,6 +599,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
     }
 
     private void rollOutDebugger() {
+        stopDebuggerPing();
         try {
             long millis = System.currentTimeMillis();
             while (isNot(TARGET_EXECUTION_THREW_EXCEPTION) && runtimeInfo != null && !runtimeInfo.isTerminated()) {
@@ -569,6 +612,54 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
         } catch (SQLException e) {
             conditionallyLog(e);
             console.error(txt("log.debugger.error.ErrorStoppingDebuggerSession", e.getMessage()));
+        }
+    }
+
+    private void startDebuggerPing() {
+        synchronized (debuggerPingLock) {
+            stopDebuggerPing();
+            if (debuggerConnection == null) return;
+            if (runtimeInfo == null) return;
+            if (runtimeInfo.isTerminated()) return;
+            if (is(PROCESS_TERMINATING)) return;
+            if (is(PROCESS_TERMINATED)) return;
+
+            debuggerPingTimer = new Timer("DBN - Debugger Session Ping", true);
+            pingDebuggerSession();
+            debuggerPingTimer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    pingDebuggerSession();
+                }
+            }, DEBUGGER_PING_INTERVAL_MILLIS, DEBUGGER_PING_INTERVAL_MILLIS);
+        }
+    }
+
+    private void stopDebuggerPing() {
+        synchronized (debuggerPingLock) {
+            if (debuggerPingTimer != null) {
+                debuggerPingTimer.cancel();
+                debuggerPingTimer = null;
+            }
+        }
+    }
+
+    private void pingDebuggerSession() {
+        synchronized (debuggerPingLock) {
+            if (debuggerPingTimer == null) return;
+            if (debuggerConnection == null) return;
+            if (is(PROCESS_TERMINATING)) return;
+            if (is(PROCESS_TERMINATED)) return;
+
+        long startTimestamp = System.currentTimeMillis();
+        try {
+            getDebuggerInterface().pingSession(debuggerConnection);
+            console.system(txt("log.debugger.info.DebuggerKeepAliveCompleted"));
+        } catch (SQLException e) {
+                conditionallyLog(e);
+                long elapsedMillis = System.currentTimeMillis() - startTimestamp;
+                console.error(txt("log.debugger.error.ErrorDebuggerKeepAlive", elapsedMillis, e.getMessage()));
+            }
         }
     }
 

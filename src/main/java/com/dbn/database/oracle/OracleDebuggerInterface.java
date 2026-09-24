@@ -99,6 +99,11 @@ public class OracleDebuggerInterface extends DatabaseDebuggerInterfaceImpl imple
     }
 
     @Override
+    public void pingSession(DBNConnection connection) throws SQLException {
+        executeCall(connection, null, "ping-session");
+    }
+
+    @Override
     public BreakpointInfo addProgramBreakpoint(String programOwner, String programName, String programType, int line, DBNConnection connection) throws SQLException {
         return executeCall(connection, new BreakpointInfo(), "add-program-breakpoint", programOwner, programName, programType, line + 1);
     }

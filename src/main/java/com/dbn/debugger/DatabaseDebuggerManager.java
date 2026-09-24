@@ -16,14 +16,15 @@
 
 package com.dbn.debugger;
 
-import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.routine.Consumer;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
+import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.database.common.debug.DebuggerVersionInfo;
 import com.dbn.database.interfaces.DatabaseDebuggerInterface;
@@ -34,6 +35,7 @@ import com.dbn.debugger.jdbc.process.DBStatementJdbcRunner;
 import com.dbn.debugger.jdwp.process.DBJavaJdwpRunner;
 import com.dbn.debugger.jdwp.process.DBMethodJdwpRunner;
 import com.dbn.debugger.jdwp.process.DBStatementJdwpRunner;
+import com.dbn.debugger.options.DebuggerTypeOption;
 import com.dbn.editor.code.SourceCodeManager;
 import com.dbn.editor.code.SourceCodeManagerListener;
 import com.dbn.execution.statement.processor.StatementExecutionProcessor;
@@ -57,6 +59,7 @@ import com.intellij.execution.runners.ProgramRunner;
 import com.intellij.openapi.application.ApplicationInfo;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.components.StoragePathMacros;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jdom.Element;
@@ -68,16 +71,26 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.load.ProgressMonitor.setProgressDetail;
 import static com.dbn.common.notification.NotificationCategory.DEBUGGER;
+import static com.dbn.common.options.setting.Settings.childrenOf;
+import static com.dbn.common.options.setting.Settings.constantAttribute;
+import static com.dbn.common.options.setting.Settings.enumAttribute;
+import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.newStateElement;
+import static com.dbn.common.options.setting.Settings.setConstantAttribute;
+import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.util.Commons.array;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.connection.config.ConnectionConfigListener.whenRemoved;
 import static com.dbn.database.DatabaseFeature.DEBUGGING;
 import static com.dbn.debugger.DBDebuggerType.JDBC;
 import static com.dbn.debugger.DBDebuggerType.JDWP;
@@ -87,18 +100,21 @@ import static com.dbn.object.common.property.DBObjectProperty.DEBUGGABLE;
 
 @State(
     name = DatabaseDebuggerManager.COMPONENT_NAME,
-    storages = @Storage(DatabaseNavigator.STORAGE_FILE)
+    storages = @Storage(StoragePathMacros.WORKSPACE_FILE)
 )
 public class DatabaseDebuggerManager extends ProjectComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Project.DebuggerManager";
 
     private final Set<ConnectionRef> activeDebugSessions = new HashSet<>();
+    private final Map<ConnectionId, DebuggerTypeOption> debuggerSelections = new ConcurrentHashMap<>();
 
     private DatabaseDebuggerManager(Project project) {
         super(project, COMPONENT_NAME);
 
         //ProjectEvents.subscribe(project, this, FileEditorManagerListener.FILE_EDITOR_MANAGER, new DBBreakpointUpdaterFileEditorListener());
         ProjectEvents.subscribe(project, this, SourceCodeManagerListener.TOPIC, new DBBreakpointUpdaterListener());
+        ProjectEvents.subscribe(project, this, ConnectionConfigListener.TOPIC,
+                whenRemoved(id -> debuggerSelections.remove(id)));
     }
 
     public static DatabaseDebuggerManager getInstance(@NotNull Project project) {
@@ -226,11 +242,15 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
 
     private void startDebugger(@NotNull ConnectionHandler connection, @NotNull Consumer<DBDebuggerType> debuggerStarter) {
         var debuggerTypeOption = connection.getSettings().getDebuggerSettings().getDebuggerType();
+        ConnectionId connectionId = connection.getConnectionId();
+        debuggerTypeOption.setLastUsedOption(this.debuggerSelections.get(connectionId));
+
         Project project = getProject();
         debuggerTypeOption.resolve(project, array(), option -> {
             DBDebuggerType debuggerType = option.getDebuggerType();
             if (debuggerType == null) return;
 
+            this.debuggerSelections.put(connectionId, option);
             if (debuggerType.isSupported()) {
                 debuggerStarter.accept(debuggerType);
             } else {
@@ -356,11 +376,26 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
     @Nullable
     @Override
     public Element getComponentState() {
-        return null;
+        Element element = newStateElement();
+        Element debuggerSelectionsElement = newElement(element, "debugger-selections");
+        for (var entry : debuggerSelections.entrySet()) {
+            Element connectionElement = newElement(debuggerSelectionsElement, "connection");
+            setConstantAttribute(connectionElement, "connection-id", entry.getKey());
+            setEnumAttribute(connectionElement, "debugger-type", entry.getValue());
+        }
+        return element;
     }
 
     @Override
     public void loadComponentState(@NotNull Element element) {
-
+        debuggerSelections.clear();
+        Element debuggerSelectionsElement = element.getChild("debugger-selections");
+        for (Element connectionElement : childrenOf(debuggerSelectionsElement, "connection")) {
+            ConnectionId connectionId = constantAttribute(connectionElement, "connection-id", ConnectionId.class);
+            DebuggerTypeOption debuggerType = enumAttribute(connectionElement, "debugger-type", DebuggerTypeOption.class);
+            if (connectionId != null && debuggerType != null && debuggerType.getDebuggerType() != null) {
+                debuggerSelections.put(connectionId, debuggerType);
+            }
+        }
     }
 }
