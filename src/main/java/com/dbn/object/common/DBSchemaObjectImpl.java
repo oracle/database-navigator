@@ -17,6 +17,7 @@
 package com.dbn.object.common;
 
 import com.dbn.common.dispose.Failsafe;
+import com.dbn.common.thread.Synchronized;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.Resources;
 import com.dbn.database.common.metadata.DBObjectMetadata;
@@ -61,7 +62,7 @@ import static com.dbn.object.type.DBObjectType.OUTGOING_DEPENDENCY;
 
 @Getter
 public abstract class DBSchemaObjectImpl<M extends DBObjectMetadata> extends DBObjectImpl<M> implements DBSchemaObject {
-    private DBObjectStatusHolder objectStatus;
+    private volatile @Nullable DBObjectStatusHolder objectStatus;
 
     public DBSchemaObjectImpl(@NotNull DBSchema schema, M metadata) throws SQLException {
         super(schema, metadata);
@@ -98,16 +99,16 @@ public abstract class DBSchemaObjectImpl<M extends DBObjectMetadata> extends DBO
     }
 
     @Override
-    public synchronized DBObjectStatusHolder getStatus() {
-        if (objectStatus == null) {
-            objectStatus = new DBObjectStatusHolder(getContentType());
-        }
-        return objectStatus;
-    }
+    public DBObjectStatusHolder getStatus() {
+        DBObjectStatusHolder status = objectStatus;
+        if (status != null) return status;
 
-    @NotNull
-    public DBObjectStatusHolder getObjectStatus() {
-        return getStatus();
+        return Synchronized.ensure(
+                this,
+                DBObjectStatusHolder.class,
+                () -> objectStatus,
+                () -> new DBObjectStatusHolder(getContentType()),
+                value -> objectStatus = value);
     }
 
     @Override

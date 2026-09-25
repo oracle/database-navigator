@@ -32,6 +32,7 @@ import com.dbn.common.environment.EnvironmentType;
 import com.dbn.common.ref.WeakRefCache;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.string.StringDeBuilder;
+import com.dbn.common.thread.Synchronized;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
@@ -322,10 +323,15 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
 
     @Nullable
     @Override
-    public synchronized DBObjectListContainer getChildObjects() {
+    public DBObjectListContainer getChildObjects() {
         if (isNot(LISTS_LOADED)) {
-            initLists(getConnection());
-            set(LISTS_LOADED, true);
+            return Synchronized.on(this, DBObjectListContainer.class, object -> {
+                if (object.isNot(LISTS_LOADED)) {
+                    object.initLists(object.getConnection());
+                    object.set(LISTS_LOADED, true);
+                }
+                return childObjects.get(object);
+            });
         }
         return childObjects.get(this);
     }
@@ -493,17 +499,19 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
     }
 
     @Override
-    public synchronized final void refresh() {
-        if (is(REFRESHING)) return;
-        try {
-            set(REFRESHING, true);
-            DBObjectListContainer childObjects = getChildObjects();
-            if (childObjects == null) return;
+    public final void refresh() {
+        Synchronized.on(this, DBObjectImpl.class, object -> {
+            if (object.is(REFRESHING)) return;
+            try {
+                object.set(REFRESHING, true);
+                DBObjectListContainer childObjects = object.getChildObjects();
+                if (childObjects == null) return;
 
-            childObjects.refreshObjects();
-        } finally {
-            set(REFRESHING, false);
-        }
+                childObjects.refreshObjects();
+            } finally {
+                object.set(REFRESHING, false);
+            }
+        });
     }
 
     public final void refresh(@NotNull DBObjectType childObjectType) {

@@ -21,6 +21,7 @@ import com.dbn.code.common.lookup.ObjectLookupItemBuilder;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.ref.WeakRefCache;
 import com.dbn.common.routine.Consumer;
+import com.dbn.common.thread.Synchronized;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Lists;
 import com.dbn.common.util.Strings;
@@ -298,16 +299,15 @@ public class DBVirtualObject extends DBRootObjectImpl implements PsiReference {
     public DBObjectList<DBObject> getChildObjectList(DBObjectType objectType) {
         if (loadingChildren) return null;
 
-        synchronized (this) {
-            if (loadingChildren) return null;
-
+        return Synchronized.on(this, DBVirtualObject.class, o -> {
+            if (o.loadingChildren) return null;
             try {
-                loadingChildren = true;
-                return loadChildObjectList(objectType);
+                o.loadingChildren = true;
+                return o.loadChildObjectList(objectType);
             } finally {
-                loadingChildren = false;
+                o.loadingChildren = false;
             }
-        }
+        });
     }
 
     private DBObjectList<DBObject> loadChildObjectList(DBObjectType objectType) {
