@@ -2984,7 +2984,7 @@
     </element-def>
 
     <!-- ========= alter ========= -->
-    <element-def attributes="SCOPE_ISOLATION" description="ALTER statement" id="alter_statement">
+    <element-def attributes="SCOPE_ISOLATION, TRANSACTIONAL" description="ALTER statement" id="alter_statement">
         <one-of id="01685">
             <element ref-id="alter_aggregate_statement" version="7.4" />
             <element ref-id="alter_collation_statement" version="9.1" />
@@ -7059,7 +7059,7 @@
     </element-def>
 
     <!-- ========= refresh materialized view ========= -->
-    <element-def attributes="DATA_MANIPULATION, SPECIFIC" description="REFRESH MATERIALIZED VIEW statement" id="refresh_materialized_view_statement">
+    <element-def attributes="DATA_MANIPULATION, TRANSACTIONAL, SPECIFIC" description="REFRESH MATERIALIZED VIEW statement" id="refresh_materialized_view_statement">
         <token type-id="KW_REFRESH" id="04362" />
         <token type-id="KW_MATERIALIZED" id="04363" />
         <token type-id="KW_VIEW" id="04364" />
@@ -7444,7 +7444,7 @@
     </element-def>
 
     <!-- ========= drop ========= -->
-    <element-def attributes="SCOPE_ISOLATION" description="DROP statement" id="drop_statement">
+    <element-def attributes="SCOPE_ISOLATION, TRANSACTIONAL" description="DROP statement" id="drop_statement">
         <one-of id="04603">
             <element ref-id="drop_access_method_statement" version="9.6" />
             <element ref-id="drop_aggregate_statement" version="7.3" />
@@ -8532,7 +8532,7 @@
 
 
     <!-- ========= truncate ========= -->
-    <element-def attributes="DATA_MANIPULATION, SCOPE_ISOLATION, SPECIFIC" description="TRUNCATE statement" id="truncate_statement">
+    <element-def attributes="DATA_MANIPULATION, TRANSACTIONAL, SCOPE_ISOLATION, SPECIFIC" description="TRUNCATE statement" id="truncate_statement">
         <token id="05102" type-id="KW_TRUNCATE" />
         <iteration id="05103" separator="CHR_COMMA">
             <sequence id="05104">

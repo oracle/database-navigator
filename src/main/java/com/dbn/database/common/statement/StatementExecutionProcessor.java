@@ -30,6 +30,7 @@ import com.dbn.connection.jdbc.DBNResultSet;
 import com.dbn.connection.jdbc.DBNStatement;
 import com.dbn.database.DatabaseActivityTrace;
 import com.dbn.database.DatabaseCompatibility;
+import com.dbn.database.DatabaseFeature;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.database.interfaces.DatabaseMessageParserInterface;
 import lombok.Getter;
@@ -46,6 +47,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.doubleAttribute;
 import static com.dbn.common.options.setting.Settings.integerAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
@@ -60,6 +62,7 @@ public class StatementExecutionProcessor implements Identifiable<String> {
     private final DatabaseInterfaces interfaces;
     private final String id;
     private final int timeout;
+    private final boolean transactional;
     private List<StatementDefinition> statementDefinitions = new ArrayList<>();
 
 
@@ -67,6 +70,7 @@ public class StatementExecutionProcessor implements Identifiable<String> {
         this.interfaces = interfaces;
         this.id = stringAttribute(element, "id");
         this.timeout =  integerAttribute(element, "timeout", 30);
+        this.transactional = booleanAttribute(element, "transactional", false);
 
         List<Element> children = element.getChildren();
         if (children.isEmpty()) {
@@ -309,6 +313,7 @@ public class StatementExecutionProcessor implements Identifiable<String> {
 
                         statement.setQueryTimeout(timeout);
                         statement.executeUpdate();
+                        commitIfRequired(connection);
                         int updateCount = statement.getUpdateCount();
                         completed = true;
                         return updateCount;
@@ -354,6 +359,7 @@ public class StatementExecutionProcessor implements Identifiable<String> {
                     try {
                         statement.setQueryTimeout(timeout);
                         statement.execute(statementText);
+                        commitIfRequired(connection);
                         int updateCount = statement.getUpdateCount();
                         completed = true;
                         return updateCount;
@@ -382,6 +388,13 @@ public class StatementExecutionProcessor implements Identifiable<String> {
     private boolean isSuccessException(SQLException e) {
         DatabaseMessageParserInterface parserInterface = interfaces.getMessageParserInterface();
         return parserInterface.isSuccessException(e);
+    }
+
+    private void commitIfRequired(@NotNull DBNConnection connection) throws SQLException {
+        if (!transactional || !connection.isPoolConnection()) return;
+        if (!interfaces.getCompatibilityInterface().supportsFeature(DatabaseFeature.TRANSACTIONAL_DDL)) return;
+
+        Resources.commit(connection);
     }
 
     @NotNull

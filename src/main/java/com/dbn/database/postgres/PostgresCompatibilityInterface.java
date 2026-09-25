@@ -45,6 +45,7 @@ import static com.dbn.database.DatabaseFeature.READONLY_CONNECTIVITY;
 import static com.dbn.database.DatabaseFeature.SESSION_BROWSING;
 import static com.dbn.database.DatabaseFeature.SESSION_CURRENT_SQL;
 import static com.dbn.database.DatabaseFeature.SESSION_KILL;
+import static com.dbn.database.DatabaseFeature.TRANSACTIONAL_DDL;
 import static com.dbn.database.DatabaseFeature.UPDATABLE_RESULT_SETS;
 import static com.dbn.database.DatabaseObjectTypeId.MATERIALIZED_VIEW;
 import static com.dbn.database.DatabaseObjectTypeId.USER;
@@ -102,6 +103,7 @@ public class PostgresCompatibilityInterface extends DatabaseCompatibilityInterfa
                 SESSION_CURRENT_SQL,
                 UPDATABLE_RESULT_SETS,
                 OBJECT_SOURCE_EDITING,
+                TRANSACTIONAL_DDL,
                 CURRENT_SCHEMA,
                 CHANGE_PASSWORD,
                 CONSTRAINT_MANIPULATION,

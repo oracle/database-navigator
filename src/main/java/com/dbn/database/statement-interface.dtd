@@ -4,10 +4,12 @@
   Statement execution processor attributes:
   - id: unique identifier used by database interface implementations to look up and execute the statement.
   - timeout: optional statement timeout in seconds; defaults are applied by StatementExecutionProcessor when omitted.
+  - transactional: whether a successful execution should be committed on a pooled connection when supported by the database.
 -->
 <!ATTLIST statement-execution-processor
           id CDATA #REQUIRED
-          timeout CDATA #IMPLIED>
+          timeout CDATA #IMPLIED
+          transactional CDATA #IMPLIED>
 <!ELEMENT statement (#PCDATA)>
 <!--
   Statement attributes:
