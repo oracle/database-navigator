@@ -390,6 +390,8 @@
         <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBColumnFactoryAdapter"/>
         <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBCredentialFactoryAdapter"/>
         <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBDatasourceConfigFactoryAdapter"/>
+        <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBViewFactoryAdapter"/>
+        <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBMaterializedViewFactoryAdapter"/>
 
         <!--object management adapters-->
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBConstraintManagementAdapter"/>
