@@ -46,6 +46,9 @@ public class DBObjectAttributeType<T> extends PseudoConstant<DBObjectAttributeTy
     public static final DBObjectAttributeType<String> SEQUENCE_MAX_VALUE = new DBObjectAttributeType<>("SEQUENCE_MAX_VALUE", String.class);
     public static final DBObjectAttributeType<String> SEQUENCE_CACHE_SIZE = new DBObjectAttributeType<>("SEQUENCE_CACHE_SIZE", String.class);
     public static final DBObjectAttributeType<Boolean> SEQUENCE_CYCLE = new DBObjectAttributeType<>("SEQUENCE_CYCLE", Boolean.class);
+    public static final DBObjectAttributeType<String> SYNONYM_TARGET_SCHEMA = new DBObjectAttributeType<>("SYNONYM_TARGET_SCHEMA", String.class);
+    public static final DBObjectAttributeType<String> SYNONYM_TARGET_OBJECT_NAME = new DBObjectAttributeType<>("SYNONYM_TARGET_OBJECT_NAME", String.class);
+    public static final DBObjectAttributeType<DBObjectType> SYNONYM_TARGET_OBJECT_TYPE = new DBObjectAttributeType<>("SYNONYM_TARGET_OBJECT_TYPE", DBObjectType.class);
 
     public static final DBObjectAttributeType<Integer> DATA_LENGTH = new DBObjectAttributeType<>("DATA_LENGTH", Integer.class);
     public static final DBObjectAttributeType<Integer> DATA_PRECISION = new DBObjectAttributeType<>("DATA_PRECISION", Integer.class);

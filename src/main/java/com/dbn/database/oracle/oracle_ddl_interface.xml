@@ -16,6 +16,10 @@
 
 <!DOCTYPE data-dictionary SYSTEM "../statement-interface.dtd">
 <data-dictionary>
+    <statement-execution-processor id="create-synonym">
+        <statement>create synonym {@0}.{@1} for {@2}.{@3}</statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="create-view">
         <statement>create view {0} as {1}</statement>
     </statement-execution-processor>

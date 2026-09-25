@@ -19,6 +19,7 @@ package com.dbn.database.postgres;
 import com.dbn.code.common.style.options.CodeStyleCaseOption;
 import com.dbn.code.common.style.options.CodeStyleCaseSettings;
 import com.dbn.code.psql.style.PSQLCodeStyle;
+import com.dbn.common.exception.Exceptions;
 import com.dbn.common.util.Lists;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.jdbc.DBNConnection;
@@ -35,6 +36,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
 
+import static com.dbn.common.exception.Exceptions.notImplemented;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.object.factory.model.DBObjectAttributeType.DATA_TYPE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.IS_INPUT;
@@ -78,7 +80,7 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
 
     @Override
     public String extractDDLStatement(String ownerName, String objectName, String objectType, DBNConnection connection) throws SQLException {
-        throw new UnsupportedOperationException("Not implemented");
+        return notImplemented();
     }
 
     /*********************************************************

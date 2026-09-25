@@ -393,6 +393,7 @@
         <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBViewFactoryAdapter"/>
         <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBMaterializedViewFactoryAdapter"/>
         <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBSequenceFactoryAdapter"/>
+        <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBSynonymFactoryAdapter"/>
 
         <!--object management adapters-->
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBConstraintManagementAdapter"/>

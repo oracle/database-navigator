@@ -70,6 +70,8 @@ import static com.dbn.object.factory.model.DBObjectAttributeType.SEQUENCE_INCREM
 import static com.dbn.object.factory.model.DBObjectAttributeType.SEQUENCE_MAX_VALUE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.SEQUENCE_MIN_VALUE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.SEQUENCE_START_WITH;
+import static com.dbn.object.factory.model.DBObjectAttributeType.SYNONYM_TARGET_OBJECT_NAME;
+import static com.dbn.object.factory.model.DBObjectAttributeType.SYNONYM_TARGET_SCHEMA;
 import static com.dbn.object.type.DBObjectType.ARGUMENT;
 import static com.dbn.object.type.DBObjectType.COLUMN;
 import static com.dbn.object.type.DBObjectType.CONSTRAINT;
@@ -222,6 +224,15 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         if (SEQUENCE_CYCLE.is(sequenceSpec)) builder.append(" cycle");
 
         createObject(builder.toString(), connection);
+    }
+
+    @Override
+    public void createSynonym(DBObjectSpec synonymSpec, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "create-synonym",
+                synonymSpec.getSchemaName(),
+                synonymSpec.getAdjustedObjectName(),
+                SYNONYM_TARGET_SCHEMA.of(synonymSpec),
+                SYNONYM_TARGET_OBJECT_NAME.of(synonymSpec));
     }
 
     @Override

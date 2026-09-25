@@ -62,6 +62,8 @@ public interface DatabaseDataDefinitionInterface extends DatabaseInterface {
 
     void createSequence(DBObjectSpec sequenceSpec, DBNConnection connection) throws SQLException;
 
+    void createSynonym(DBObjectSpec synonymSpec, DBNConnection connection) throws SQLException;
+
     /*********************************************************
      *                   UPDATE statements                   *
      *********************************************************/

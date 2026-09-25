@@ -19,6 +19,7 @@ package com.dbn.database.sqlite;
 import com.dbn.code.common.style.DBLCodeStyleManager;
 import com.dbn.code.common.style.options.CodeStyleCaseOption;
 import com.dbn.code.common.style.options.CodeStyleCaseSettings;
+import com.dbn.common.exception.Exceptions;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.DatabaseObjectTypeId;
@@ -32,6 +33,7 @@ import com.intellij.openapi.project.Project;
 
 import java.sql.SQLException;
 
+import static com.dbn.common.exception.Exceptions.notImplemented;
 import static com.dbn.common.util.Strings.cachedLowerCase;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -81,7 +83,7 @@ public class SqliteDataDefinitionInterface extends DatabaseDataDefinitionInterfa
 
     @Override
     public String extractDDLStatement(String ownerName, String objectName, String objectType, DBNConnection connection) throws SQLException {
-        throw new UnsupportedOperationException("Not implemented");
+        return notImplemented();
     }
 
     /*********************************************************

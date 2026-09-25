@@ -18,6 +18,7 @@ package com.dbn.database.common;
 
 import com.dbn.code.common.style.options.CodeStyleCaseOption;
 import com.dbn.code.common.style.options.CodeStyleCaseSettings;
+import com.dbn.common.exception.Exceptions;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
@@ -34,6 +35,7 @@ import java.text.MessageFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.dbn.common.exception.Exceptions.notImplemented;
 import static com.dbn.common.util.Strings.cachedUpperCase;
 import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -82,7 +84,12 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
 
     @Override
     public void createSequence(DBObjectSpec sequenceSpec, DBNConnection connection) throws SQLException {
-        throw new UnsupportedOperationException("Not implemented");
+        notImplemented();
+    }
+
+    @Override
+    public void createSynonym(DBObjectSpec synonymSpec, DBNConnection connection) throws SQLException {
+        notImplemented();
     }
 
     /*********************************************************
@@ -194,17 +201,17 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
      *********************************************************/
     @Override
     public void createMethod(DBObjectSpec methodSpec, DBNConnection connection) throws SQLException {
-        throw new UnsupportedOperationException("Not implemented");
+        notImplemented();
     }
 
     @Override
     public void createTable(DBObjectSpec tableSpec, DBNConnection connection) throws SQLException {
-        throw new UnsupportedOperationException("Not implemented");
+        notImplemented();
     }
 
     @Override
     public void createIndex(DBObjectSpec indexSpec, DBNConnection connection) throws SQLException {
-        throw new UnsupportedOperationException("Not implemented");
+        notImplemented();
     }
 
     /*********************************************************

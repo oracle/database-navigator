@@ -16,6 +16,7 @@
 
 package com.dbn.database.generic;
 
+import com.dbn.common.exception.Exceptions;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.common.DatabaseDataDefinitionInterfaceImpl;
@@ -24,6 +25,8 @@ import com.dbn.editor.DBContentType;
 import com.intellij.openapi.project.Project;
 
 import java.sql.SQLException;
+
+import static com.dbn.common.exception.Exceptions.notImplemented;
 
 public class GenericDataDefinitionInterface extends DatabaseDataDefinitionInterfaceImpl {
     public GenericDataDefinitionInterface(DatabaseInterfaces provider) {
@@ -41,16 +44,16 @@ public class GenericDataDefinitionInterface extends DatabaseDataDefinitionInterf
     }
 
     public String getSessionSqlMode(DBNConnection connection) throws SQLException {
-        throw new UnsupportedOperationException("Not implemented");
+        return notImplemented();
     }
 
     public void setSessionSqlMode(String sqlMode, DBNConnection connection) throws SQLException {
-        throw new UnsupportedOperationException("Not implemented");
+        notImplemented();
     }
 
     @Override
     public String extractDDLStatement(String ownerName, String objectName, String objectType, DBNConnection connection) {
-        throw new UnsupportedOperationException("Not implemented");
+        return notImplemented();
     }
 
     /*********************************************************
@@ -58,21 +61,21 @@ public class GenericDataDefinitionInterface extends DatabaseDataDefinitionInterf
      *********************************************************/
     @Override
     public void updateView(String ownerName, String viewName, String code, boolean editionable, DBNConnection connection) throws SQLException {
-        throw new UnsupportedOperationException("Not implemented");
+        notImplemented();
     }
 
     @Override
     public void updateJsonView(String ownerName, String viewName, String code, boolean editionable, DBNConnection connection) throws SQLException {
-        throw new UnsupportedOperationException("Not implemented");
+        notImplemented();
     }
 
     @Override
     public void updateTrigger(String ownerName, String tableName, String triggerName, String oldCode, String newCode, DBNConnection connection) throws SQLException {
-        throw new UnsupportedOperationException("Not implemented");
+        notImplemented();
     }
 
     @Override
     public void updateObject(String ownerName, String objectName, String objectType, String oldCode, String newCode, DBNConnection connection) throws SQLException {
-        throw new UnsupportedOperationException("Not implemented");
+        notImplemented();
     }
 }
