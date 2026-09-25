@@ -20,6 +20,7 @@ import com.dbn.common.dispose.Disposer;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.DBObjectMetadata;
 import com.dbn.object.common.list.DBObjectListContainer;
+import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.object.type.DBObjectType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -29,6 +30,7 @@ import java.sql.SQLException;
 public abstract class DBRootObjectImpl<M extends DBObjectMetadata> extends DBObjectImpl<M> implements DBRootObject {
 
     private DBObjectListContainer childObjects;
+    private DBObjectStatusHolder objectStatus;
 
     protected DBRootObjectImpl(@NotNull ConnectionHandler connection, M metadata) throws SQLException {
         super(connection, metadata);
@@ -63,6 +65,15 @@ public abstract class DBRootObjectImpl<M extends DBObjectMetadata> extends DBObj
             childObjects = new DBObjectListContainer(this);
         }
         return childObjects;
+    }
+
+    @NotNull
+    @Override
+    public synchronized DBObjectStatusHolder getStatus() {
+        if (objectStatus == null) {
+            objectStatus = new DBObjectStatusHolder(getContentType());
+        }
+        return objectStatus;
     }
 
     @Override

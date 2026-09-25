@@ -50,11 +50,11 @@ class DBDatabaseTriggerImpl extends DBTriggerImpl implements DBDatabaseTrigger {
     public Icon getIcon() {
         DBObjectStatusHolder objectStatus = getStatus();
         boolean valid = objectStatus.is(DBObjectStatus.VALID);
-        boolean enabled = objectStatus.is(DBObjectStatus.ENABLED);
+        boolean disabled = objectStatus.is(DBObjectStatus.DISABLED);
 
         if (valid) {
             boolean debug = objectStatus.is(DBObjectStatus.DEBUG);
-            if (enabled) {
+            if (!disabled) {
                 return debug ?
                         Icons.DBO_DATABASE_TRIGGER_DEBUG :
                         Icons.DBO_DATABASE_TRIGGER;
@@ -65,9 +65,9 @@ class DBDatabaseTriggerImpl extends DBTriggerImpl implements DBDatabaseTrigger {
             }
         }
 
-        return enabled ?
-                Icons.DBO_DATABASE_TRIGGER_ERR :
-                Icons.DBO_DATABASE_TRIGGER_ERR_DISABLED;
+        return disabled ?
+                Icons.DBO_DATABASE_TRIGGER_ERR_DISABLED :
+                Icons.DBO_DATABASE_TRIGGER_ERR;
     }
 
 

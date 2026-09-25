@@ -399,6 +399,7 @@
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBMiningModelManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBTriggerManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBJsonViewManagementAdapter"/>
+        <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBUserManagementAdapter"/>
 
         <!--object source code adapters-->
         <objectSourceCodeAdapter implementation="com.dbn.editor.code.source.impl.DBLegacySourceCodeAdapter"/>

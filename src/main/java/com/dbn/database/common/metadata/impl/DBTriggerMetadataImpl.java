@@ -54,8 +54,8 @@ public class DBTriggerMetadataImpl extends DBObjectMetadataBase implements DBTri
     }
 
     @Override
-    public boolean isEnabled() throws SQLException {
-        return isYesFlag("IS_ENABLED");
+    public boolean isDisabled() throws SQLException {
+        return isYesFlag("IS_DISABLED");
     }
 
     @Override

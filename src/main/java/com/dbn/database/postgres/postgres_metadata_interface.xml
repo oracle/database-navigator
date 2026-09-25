@@ -38,10 +38,22 @@
     </statement-execution-processor>
     <statement-execution-processor id="users">
         <statement>
+            select
+                ROLNAME as USER_NAME,
+                case when ROLNAME like 'pg_%' then 'Y' else 'N' end as IS_SYSTEM,
+                'N' as IS_EXPIRED,
+                'N' as IS_LOCKED,
+                case when ROLCANLOGIN then 'N' else 'Y' end as IS_DISABLED
+            from PG_CATALOG.PG_ROLES
+            order by ROLNAME asc
+        </statement>
+        <statement>
             select distinct
                 GRANTEE as USER_NAME,
+                'N' as IS_SYSTEM,
                 'N' as IS_EXPIRED,
-                'N' as IS_LOCKED
+                'N' as IS_LOCKED,
+                'N' as IS_DISABLED
             from INFORMATION_SCHEMA.USAGE_PRIVILEGES
             order by GRANTEE asc
         </statement>
@@ -228,7 +240,7 @@
                 tc.CONSTRAINT_TYPE,
                 rc.UNIQUE_CONSTRAINT_SCHEMA as FK_CONSTRAINT_OWNER,
                 rc.UNIQUE_CONSTRAINT_NAME as FK_CONSTRAINT_NAME,
-                'Y' as IS_ENABLED,
+                'N' as IS_DISABLED,
                 check_clause as CHECK_CONDITION
             from
                 INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc left join
@@ -250,7 +262,7 @@
                 tc.CONSTRAINT_TYPE,
                 rc.UNIQUE_CONSTRAINT_SCHEMA as FK_CONSTRAINT_OWNER,
                 rc.UNIQUE_CONSTRAINT_NAME as FK_CONSTRAINT_NAME,
-                'Y' as IS_ENABLED,
+                'N' as IS_DISABLED,
                 check_clause as CHECK_CONDITION
             from
                 INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc left join
@@ -410,7 +422,7 @@
                 TRIGGER_NAME as TRIGGER_NAME,
                 ACTION_TIMING as TRIGGER_TYPE,
                 string_agg(EVENT_MANIPULATION, ' or ') as TRIGGERING_EVENT,
-                'Y' as IS_ENABLED,
+                'N' as IS_DISABLED,
                 'Y' as IS_VALID,
                 'N' as IS_DEBUG,
                 'Y' as IS_FOR_EACH_ROW
@@ -433,7 +445,7 @@
                 TRIGGER_NAME as TRIGGER_NAME,
                 ACTION_TIMING as TRIGGER_TYPE,
                 string_agg(EVENT_MANIPULATION, ' or ') as TRIGGERING_EVENT,
-                'Y' as IS_ENABLED,
+                'N' as IS_DISABLED,
                 'Y' as IS_VALID,
                 'N' as IS_DEBUG,
                 'Y' as IS_FOR_EACH_ROW

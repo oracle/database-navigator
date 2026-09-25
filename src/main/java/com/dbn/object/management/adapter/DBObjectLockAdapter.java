@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,67 +24,68 @@ import com.dbn.object.event.ObjectChangeAction;
 import org.jetbrains.annotations.Nls;
 
 import static com.dbn.nls.NlsResources.txt;
-import static com.dbn.object.common.status.DBObjectStatus.DISABLED;
+import static com.dbn.object.common.status.DBObjectStatus.LOCKED;
 import static com.intellij.openapi.util.NlsContexts.DialogMessage;
 import static com.intellij.openapi.util.NlsContexts.DialogTitle;
 import static com.intellij.openapi.util.NlsContexts.ProgressText;
 import static com.intellij.openapi.util.NlsContexts.ProgressTitle;
 
 /**
- * Abstract implementation of the {@link com.dbn.object.management.ObjectManagementAdapter} for ENABLE actions, 
+ * Abstract implementation of the {@link com.dbn.object.management.ObjectManagementAdapter} for LOCK actions,
  * providing generic process titles and messages
  *
  * @author Dan Cioca (Oracle)
  */
-public final class DBObjectEnableAdapter<T extends DBObject> extends ObjectManagementAdapterBase<T> {
+public final class DBObjectLockAdapter<T extends DBObject> extends ObjectManagementAdapterBase<T> {
 
-    public DBObjectEnableAdapter(T object, InterfaceInvoker<T> invoker) {
-        super(object, ObjectChangeAction.ENABLE, invoker);
-        addOutcomeHandler(OutcomeType.SUCCESS, BasicOutcomeHandler.create(Priority.HIGH, o -> enableLocal()));
+    public DBObjectLockAdapter(T object, InterfaceInvoker<T> invoker) {
+        super(object, ObjectChangeAction.LOCK, invoker);
+        addOutcomeHandler(OutcomeType.SUCCESS, BasicOutcomeHandler.create(Priority.HIGH, o -> lockLocal()));
     }
 
-    private void enableLocal() {
-        getObject().setStatus(DISABLED, false);
+    private void lockLocal() {
+        getObject().setStatus(LOCKED, true);
     }
 
     @Nls
     @Override
     @DialogTitle
     protected String getSuccessTitle() {
-        return txt("msg.objects.title.ActionSuccess_ENABLE");
+        return txt("msg.objects.title.ActionSuccess_LOCK");
     }
 
     @Nls
+    @Override
     @DialogTitle
     protected String getFailureTitle() {
-        return txt("msg.objects.title.ActionFailure_ENABLE");
+        return txt("msg.objects.title.ActionFailure_LOCK");
     }
 
     @Nls
     @Override
     @ProgressTitle
     protected String getProcessTitle() {
-        return txt("prc.object.title.EnablingObject", getObjectTypeName());
+        return txt("prc.object.title.LockingObject", getObjectTypeName());
     }
 
     @Nls
     @Override
     @ProgressText
     protected String getProcessText() {
-        return txt("prc.object.text.EnablingObject", getObjectTypeName(), getObjectName());
+        return txt("prc.object.text.LockingObject", getObjectTypeName(), getObjectName());
     }
 
     @Nls
     @Override
     @DialogMessage
     protected String getSuccessMessage() {
-        return txt("msg.object.info.ObjectEnableSuccess", getObjectTypeName(), getObjectName());
+        return txt("msg.object.info.ObjectLockSuccess", getObjectTypeName(), getObjectName());
     }
 
     @Nls
     @Override
     @DialogMessage
     protected String getFailureMessage() {
-        return txt("msg.object.error.ObjectEnableFailure", getObjectType(), getObjectName());
+        return txt("msg.object.error.ObjectLockFailure", getObjectTypeName(), getObjectName());
     }
 }

@@ -83,6 +83,7 @@ import static com.dbn.object.common.property.DBObjectProperty.DISABLEABLE;
 import static com.dbn.object.common.property.DBObjectProperty.EDITABLE;
 import static com.dbn.object.common.property.DBObjectProperty.REFERENCEABLE;
 import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
+import static com.dbn.object.common.property.DBObjectProperty.SYSTEM_OBJECT;
 import static com.dbn.vfs.DBConsoleType.DEBUG;
 import static com.dbn.vfs.DBConsoleType.SEARCH;
 import static com.dbn.vfs.DBConsoleType.STANDARD;
@@ -151,7 +152,13 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
         } else {
             // connection-root managed objects: edit (when an editor provider is registered) + drop
             ObjectManagementService managementService = ObjectManagementService.getInstance(object.getProject());
-            if (managementService.supports(object)) {
+            if (managementService.supports(object) && !object.is(SYSTEM_OBJECT)) {
+                if (object.is(DISABLEABLE)) {
+                    add(new ObjectEnableDisableAction(object));
+                }
+                if (ObjectLockUnlockAction.isSupported(object)) {
+                    add(new ObjectLockUnlockAction(object));
+                }
                 add(new ObjectDropAction(object));
             }
         }

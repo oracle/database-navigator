@@ -26,6 +26,7 @@ public enum DBObjectProperty implements Property.LongBase {
     EDITABLE,
     COMPILABLE,
     DISABLEABLE,
+    LOCKABLE,
     DEBUGGABLE,
     INVALIDABLE,
     REFERENCEABLE,
@@ -58,8 +59,6 @@ public enum DBObjectProperty implements Property.LongBase {
     OUTPUT,
 
     // user, privileges
-    EXPIRED,
-    LOCKED,
     ADMIN_OPTION,
     DEFAULT_ROLE,
     SESSION_USER,

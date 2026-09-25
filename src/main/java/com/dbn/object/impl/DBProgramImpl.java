@@ -27,15 +27,16 @@ import com.dbn.object.DBType;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.DBSchemaObjectImpl;
 import com.dbn.object.common.status.DBObjectStatus;
-import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.object.type.DBObjectType;
 
 import java.sql.SQLException;
 import java.util.List;
 
+import static com.dbn.editor.DBContentType.*;
 import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
 import static com.dbn.object.common.property.DBObjectProperty.DEBUGGABLE;
 import static com.dbn.object.common.property.DBObjectProperty.INVALIDABLE;
+import static com.dbn.object.common.status.DBObjectStatus.*;
 
 abstract class DBProgramImpl<M extends DBProgramMetadata, P extends DBProcedure, F extends DBFunction, T extends DBType>
         extends DBSchemaObjectImpl<M> implements DBProgram<P, F, T> {
@@ -58,8 +59,6 @@ abstract class DBProgramImpl<M extends DBProgramMetadata, P extends DBProcedure,
 
     @Override
     public void initStatus(M metadata) throws SQLException {
-        DBObjectStatusHolder objectStatus = getStatus();
-
         boolean specPresent = metadata.isSpecPresent();
         boolean specValid = !specPresent || metadata.isSpecValid();
         boolean specDebug = specPresent && metadata.isSpecDebug();
@@ -68,13 +67,13 @@ abstract class DBProgramImpl<M extends DBProgramMetadata, P extends DBProcedure,
         boolean bodyValid = !bodyPresent || metadata.isBodyValid();
         boolean bodyDebug = bodyPresent && metadata.isBodyDebug();
 
-        objectStatus.set(DBContentType.CODE_SPEC, DBObjectStatus.PRESENT, specPresent);
-        objectStatus.set(DBContentType.CODE_SPEC, DBObjectStatus.VALID, specValid);
-        objectStatus.set(DBContentType.CODE_SPEC, DBObjectStatus.DEBUG, specDebug);
+        setStatus(CODE_SPEC, PRESENT, specPresent);
+        setStatus(CODE_SPEC, VALID, specValid);
+        setStatus(CODE_SPEC, DEBUG, specDebug);
 
-        objectStatus.set(DBContentType.CODE_BODY, DBObjectStatus.PRESENT, bodyPresent);
-        objectStatus.set(DBContentType.CODE_BODY, DBObjectStatus.VALID, bodyValid);
-        objectStatus.set(DBContentType.CODE_BODY, DBObjectStatus.DEBUG, bodyDebug);
+        setStatus(CODE_BODY, PRESENT, bodyPresent);
+        setStatus(CODE_BODY, VALID, bodyValid);
+        setStatus(CODE_BODY, DEBUG, bodyDebug);
     }
 
     protected abstract DBObjectType getFunctionObjectType();
@@ -125,8 +124,8 @@ abstract class DBProgramImpl<M extends DBProgramMetadata, P extends DBProcedure,
 
     @Override
     public boolean isEditable(DBContentType contentType) {
-        return getContentType() == DBContentType.CODE_SPEC_AND_BODY && (
-                contentType == DBContentType.CODE_SPEC ||
-                contentType == DBContentType.CODE_BODY);
+        return getContentType() == CODE_SPEC_AND_BODY && (
+                contentType == CODE_SPEC ||
+                contentType == CODE_BODY);
     }
 }

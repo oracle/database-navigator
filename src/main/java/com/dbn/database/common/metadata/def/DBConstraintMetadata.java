@@ -38,5 +38,5 @@ public interface DBConstraintMetadata extends DBObjectMetadata {
     @ObjectIdentifier
     String getFkConstraintName() throws SQLException;
 
-    boolean isEnabled() throws SQLException;
+    boolean isDisabled() throws SQLException;
 }

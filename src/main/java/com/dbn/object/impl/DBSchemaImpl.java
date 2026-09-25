@@ -64,8 +64,6 @@ import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.common.list.DBObjectListVisitor;
-import com.dbn.object.common.status.DBObjectStatus;
-import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.object.filter.type.ObjectTypeFilterSettings;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
@@ -95,6 +93,8 @@ import static com.dbn.object.common.property.DBObjectProperty.ROOT_OBJECT;
 import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
 import static com.dbn.object.common.property.DBObjectProperty.SYSTEM_SCHEMA;
 import static com.dbn.object.common.property.DBObjectProperty.USER_SCHEMA;
+import static com.dbn.object.common.status.DBObjectStatus.DEBUG;
+import static com.dbn.object.common.status.DBObjectStatus.VALID;
 import static com.dbn.object.type.DBObjectRelationType.COLUMN_COLUMN;
 import static com.dbn.object.type.DBObjectRelationType.CONSTRAINT_COLUMN;
 import static com.dbn.object.type.DBObjectRelationType.INDEX_COLUMN;
@@ -643,14 +643,13 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
                 ProgressMonitor.checkCancelled();
 
                 if (object instanceof DBSchemaObject schemaObject) {
-                    DBObjectStatusHolder objectStatus = schemaObject.getStatus();
                     if (schemaObject.is(INVALIDABLE)) {
-                        if (objectStatus.set(DBObjectStatus.VALID, true)) {
+                        if (schemaObject.setStatus(VALID, true)) {
                             refreshNodes.add(object.getParent());
                         }
                     }
                     if (schemaObject.is(DEBUGGABLE)) {
-                        if (objectStatus.set(DBObjectStatus.DEBUG, false)) {
+                        if (schemaObject.setStatus(DEBUG, false)) {
                             refreshNodes.add(object.getParent());
                         }
                     }

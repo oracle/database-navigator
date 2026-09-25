@@ -24,8 +24,6 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.DBTrigger;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObjectImpl;
-import com.dbn.object.common.status.DBObjectStatus;
-import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.object.type.DBTriggerEvent;
 import com.dbn.object.type.DBTriggerType;
 
@@ -42,6 +40,9 @@ import static com.dbn.object.common.property.DBObjectProperty.FOR_EACH_ROW;
 import static com.dbn.object.common.property.DBObjectProperty.INVALIDABLE;
 import static com.dbn.object.common.property.DBObjectProperty.REFERENCEABLE;
 import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
+import static com.dbn.object.common.status.DBObjectStatus.DEBUG;
+import static com.dbn.object.common.status.DBObjectStatus.DISABLED;
+import static com.dbn.object.common.status.DBObjectStatus.VALID;
 import static com.dbn.object.type.DBTriggerEvent.ALTER;
 import static com.dbn.object.type.DBTriggerEvent.CREATE;
 import static com.dbn.object.type.DBTriggerEvent.DDL;
@@ -105,10 +106,9 @@ abstract class DBTriggerImpl extends DBSchemaObjectImpl<DBTriggerMetadata> imple
 
     @Override
     public void initStatus(DBTriggerMetadata metadata) throws SQLException {
-        DBObjectStatusHolder objectStatus = getStatus();
-        objectStatus.set(DBObjectStatus.ENABLED, metadata.isEnabled());
-        objectStatus.set(DBObjectStatus.VALID, metadata.isValid());
-        objectStatus.set(DBObjectStatus.DEBUG, metadata.isDebug());
+        setStatus(DISABLED, metadata.isDisabled());
+        setStatus(VALID, metadata.isValid());
+        setStatus(DEBUG, metadata.isDebug());
     }
 
     @Override

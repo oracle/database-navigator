@@ -94,6 +94,11 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
         executeUpdate(connection, "drop-object", objectType, ownerName, objectName);
     }
 
+    @Override
+    public void dropUser(String userName, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "drop-user", userName);
+    }
+
     public void dropObjectIfExists(String objectType, String objectOwner, String objectName, DBNConnection connection) throws SQLException {
         executeUpdate(connection, "drop-object-if-exists", objectType, objectOwner, objectName);
     }
@@ -174,5 +179,29 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
     @Override
     public void createIndex(DBObjectSpec indexSpec, DBNConnection connection) throws SQLException {
         throw new UnsupportedOperationException("Not implemented");
+    }
+
+    /*********************************************************
+     *                  STATUS statements                    *
+     *********************************************************/
+
+    @Override
+    public void enableUser(String userName, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "enable-user", userName);
+    }
+
+    @Override
+    public void disableUser(String userName, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "disable-user", userName);
+    }
+
+    @Override
+    public void lockUser(String userName, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "lock-user", userName);
+    }
+
+    @Override
+    public void unlockUser(String userName, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "unlock-user", userName);
     }
 }

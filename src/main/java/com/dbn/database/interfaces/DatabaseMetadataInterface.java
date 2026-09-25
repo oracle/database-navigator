@@ -45,8 +45,10 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      * Load all database users
      * Column names of the returned ResultSet
      *  <li> USER_NAME (char)
+     *  <li> IS_SYSTEM (Y/N)
      *  <li> IS_EXPIRED (Y/N)
      *  <li> IS_LOCKED (Y/N)
+     *  <li> IS_DISABLED (Y/N)
      */
     ResultSet loadUsers(DBNConnection connection) throws SQLException;
 
@@ -434,7 +436,7 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      *  <li> TRIGGER_NAME (char)
      *  <li> TRIGGER_TYPE (char)
      *  <li> TRIGGERING_EVENT (INSERT/DELETE/UPDATE e.g. INSERT or UPDATE)
-     *  <li> IS_ENABLED (Y/N)
+     *  <li> IS_DISABLED (Y/N)
      *  <li> IS_VALID (Y/N)
      *  <li> IS_FOR_EACH_ROW (Y/N)
      */
@@ -446,7 +448,7 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      *  <li> TRIGGER_NAME (char)
      *  <li> TRIGGER_TYPE (char)
      *  <li> TRIGGERING_EVENT (INSERT/DELETE/UPDATE e.g. INSERT or UPDATE)
-     *  <li> IS_ENABLED (Y/N)
+     *  <li> IS_DISABLED (Y/N)
      *  <li> IS_VALID (Y/N)
      *  <li> IS_FOR_EACH_ROW (Y/N)
      */
@@ -459,7 +461,7 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      *  <li> TRIGGER_NAME (char)
      *  <li> TRIGGER_TYPE (char)
      *  <li> TRIGGERING_EVENT (INSERT/DELETE/UPDATE e.g. INSERT or UPDATE)
-     *  <li> IS_ENABLED (Y/N)
+     *  <li> IS_DISABLED (Y/N)
      *  <li> IS_VALID (Y/N)
      *  <li> IS_FOR_EACH_ROW (Y/N)
      *
@@ -490,7 +492,7 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      *  <li> CREDENTIAL_NAME (char)
      *  <li> USER_NAME (char)
      *  <li> COMMENTS (char)
-     *  <li> IS_ENABLED (Y/N)
+     *  <li> IS_DISABLED (Y/N)
      */
     ResultSet loadCredentials(String ownerName, DBNConnection connection) throws SQLException;
 
@@ -504,7 +506,7 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      *  <li> TEMPERATURE (number)
      *  <li> CREDENTIAL_NAME (char)
      *  <li> OBJECT_LIST (char)
-     *  <li> IS_ENABLED (Y/N)
+     *  <li> IS_DISABLED (Y/N)
      */
     ResultSet loadAiProfiles(String ownerName, DBNConnection connection) throws SQLException;
 

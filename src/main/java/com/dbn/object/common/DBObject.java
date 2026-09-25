@@ -38,6 +38,7 @@ import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.common.list.DBObjectListVisitor;
 import com.dbn.object.common.property.DBObjectProperty;
+import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
@@ -175,5 +176,22 @@ public interface DBObject extends
 
     default DBObjectStatusHolder getStatus() {
         return Exceptions.unsupported();
-    };
+    }
+
+    default boolean setStatus(DBObjectStatus status, boolean value) {
+        return getStatus().set(status, value);
+    }
+
+    default boolean setStatus(DBContentType contentType, DBObjectStatus status, boolean value) {
+        return getStatus().set(contentType, status, value);
+    }
+
+    default boolean hasStatus(DBObjectStatus status) {
+        return getStatus().is(status);
+    }
+
+    default boolean hasStatus(DBContentType contentType, DBObjectStatus status) {
+        return getStatus().is(contentType, status);
+    }
+
 }

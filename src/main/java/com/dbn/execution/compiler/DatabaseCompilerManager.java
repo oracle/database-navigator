@@ -63,6 +63,10 @@ import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.thread.Progress.progressOf;
 import static com.dbn.common.util.Strings.cachedUpperCase;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.editor.DBContentType.CODE;
+import static com.dbn.editor.DBContentType.CODE_BODY;
+import static com.dbn.editor.DBContentType.CODE_SPEC;
+import static com.dbn.editor.DBContentType.CODE_SPEC_AND_BODY;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
 import static com.dbn.object.common.status.DBObjectStatus.COMPILING;
@@ -122,7 +126,7 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
         OperationSettings operationSettings = OperationSettings.getInstance(getProject());
         CompileType compileType = operationSettings.getCompilerSettings().getCompileType();
         return switch (compileType) {
-            case KEEP -> object != null && object.getStatus().is(contentType, DBObjectStatus.DEBUG) ? CompileType.DEBUG : CompileType.NORMAL;
+            case KEEP -> object != null && object.hasStatus(contentType, DBObjectStatus.DEBUG) ? CompileType.DEBUG : CompileType.NORMAL;
             case DEBUG -> CompileType.DEBUG;
             default -> CompileType.NORMAL;
         };
@@ -188,12 +192,12 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
     private void doCompileObject(DBSchemaObject object, CompileType compileType, CompilerAction compilerAction) {
         DBContentType contentType = compilerAction.getContentType();
         DBObjectStatusHolder objectStatus = object.getStatus();
-        if (objectStatus.is(contentType, COMPILING)) return;
+        if (object.hasStatus(contentType, COMPILING)) return;
 
         CompilerResult compilerResult = null;
 
         try {
-            objectStatus.set(contentType, COMPILING, true);
+            object.setStatus(contentType, COMPILING, true);
             compilerResult = DatabaseInterfaceInvoker.load(compilerAction.isBulkCompile() ? LOW : HIGH,
                     object.getProject(),
                     object.getConnectionId(),
@@ -202,7 +206,7 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
             conditionallyLog(e);
             compilerResult = createErrorCompilerResult(compilerAction, object, contentType, e);
         }  finally{
-            objectStatus.set(contentType, COMPILING, false);
+            object.setStatus(contentType, COMPILING, false);
             if (compilerResult != null) {
                 ExecutionManager executionManager = ExecutionManager.getInstance(getProject());
                 executionManager.addCompilerResult(compilerResult);
@@ -232,7 +236,7 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
                     objectName,
                     conn);
 
-        } else if (contentType == DBContentType.CODE_SPEC || contentType == DBContentType.CODE) {
+        } else if (contentType == CODE_SPEC || contentType == CODE) {
             dataDefinitionInterface.compileObject(
                     schemaName,
                     objectName,
@@ -240,7 +244,7 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
                     debug,
                     conn);
 
-        } else if (contentType == DBContentType.CODE_BODY) {
+        } else if (contentType == CODE_BODY) {
             dataDefinitionInterface.compileObjectBody(
                     schemaName,
                     objectName,
@@ -248,7 +252,7 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
                     debug,
                     conn);
 
-        } else if (contentType == DBContentType.CODE_SPEC_AND_BODY) {
+        } else if (contentType == CODE_SPEC_AND_BODY) {
             dataDefinitionInterface.compileObject(
                     schemaName,
                     objectName,
@@ -256,7 +260,7 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
                     debug,
                     conn);
 
-            if (object.getStatus().is(DBContentType.CODE_BODY, PRESENT)) {
+            if (object.hasStatus(CODE_BODY, PRESENT)) {
                 // body is optional for packages and types (e.g. constant definitions)
                 dataDefinitionInterface.compileObjectBody(
                         schemaName,

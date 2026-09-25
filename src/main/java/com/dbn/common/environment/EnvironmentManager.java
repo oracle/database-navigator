@@ -105,7 +105,7 @@ public class EnvironmentManager extends ProjectComponentBase implements Persiste
     }
 
     public void enableEditing(@NotNull DBSchemaObject schemaObject, @NotNull DBContentType contentType) {
-        schemaObject.getStatus().set(contentType, EDITABLE, true);
+        schemaObject.setStatus(contentType, EDITABLE, true);
         DBContentVirtualFile contentFile = schemaObject.getEditableVirtualFile().getContentFile(contentType);
         if (isNotValid(contentFile)) return;
 
@@ -118,7 +118,7 @@ public class EnvironmentManager extends ProjectComponentBase implements Persiste
     }
 
     public void disableEditing(@NotNull DBSchemaObject schemaObject, @NotNull DBContentType contentType) {
-        schemaObject.getStatus().set(contentType, EDITABLE, false);
+        schemaObject.setStatus(contentType, EDITABLE, false);
 
         DBContentVirtualFile contentFile = schemaObject.getEditableVirtualFile().getContentFile(contentType);
         if (isNotValid(contentFile)) return;

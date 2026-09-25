@@ -339,7 +339,7 @@ public class GenericMetadataTranslators {
                 case "FK_CONSTRAINT_OWNER" -> null;
                 case "FK_CONSTRAINT_NAME" -> null;
                 case "CHECK_CONDITION" -> "";
-                case "IS_ENABLED" -> "Y";
+                case "IS_DISABLED" -> "N";
                 default -> null;
             };
 
@@ -403,7 +403,7 @@ public class GenericMetadataTranslators {
                                 inner.getString("PKTABLE_NAME"),
                                 inner.getString("PKCOLUMN_NAME")));
                 case "CHECK_CONDITION" -> "";
-                case "IS_ENABLED" -> literalBoolean(true);
+                case "IS_DISABLED" -> literalBoolean(false);
                 default -> null;
             };
         }

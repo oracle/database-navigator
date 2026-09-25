@@ -43,6 +43,8 @@ import static com.dbn.object.event.ObjectChangeAction.CREATE;
 import static com.dbn.object.event.ObjectChangeAction.DELETE;
 import static com.dbn.object.event.ObjectChangeAction.DISABLE;
 import static com.dbn.object.event.ObjectChangeAction.ENABLE;
+import static com.dbn.object.event.ObjectChangeAction.LOCK;
+import static com.dbn.object.event.ObjectChangeAction.UNLOCK;
 import static com.dbn.object.event.ObjectChangeAction.UPDATE;
 
 /**
@@ -111,6 +113,16 @@ final class ObjectManagementServiceImpl extends ProjectComponentBase implements 
     }
 
     @Override
+    public void lockObject(DBObject object, OutcomeHandler successHandler) {
+        invokeModal(object, LOCK, successHandler);
+    }
+
+    @Override
+    public void unlockObject(DBObject object, OutcomeHandler successHandler) {
+        invokeModal(object, UNLOCK, successHandler);
+    }
+
+    @Override
     public void changeObject(DBObject object, ObjectChangeAction action, OutcomeHandler successHandler) {
         switch (action) {
             case CREATE: createObject(object, successHandler); break;
@@ -118,6 +130,8 @@ final class ObjectManagementServiceImpl extends ProjectComponentBase implements 
             case DELETE: deleteObject(object, successHandler); break;
             case ENABLE: enableObject(object, successHandler); break;
             case DISABLE: disableObject(object, successHandler); break;
+            case LOCK: lockObject(object, successHandler); break;
+            case UNLOCK: unlockObject(object, successHandler); break;
             default: unsupported(action);
         }
     }

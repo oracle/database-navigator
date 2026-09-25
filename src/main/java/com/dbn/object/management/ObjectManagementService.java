@@ -47,5 +47,9 @@ public interface ObjectManagementService extends ProjectComponent {
 
     void disableObject(DBObject object, OutcomeHandler successHandler);
 
+    void lockObject(DBObject object, OutcomeHandler successHandler);
+
+    void unlockObject(DBObject object, OutcomeHandler successHandler);
+
     void changeObject(DBObject object, ObjectChangeAction action, OutcomeHandler successHandler);
 }

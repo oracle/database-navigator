@@ -88,7 +88,7 @@ public class DBAIProfileMetadataImpl extends DBObjectMetadataBase implements DBA
     }
 
     @Override
-    public boolean isEnabled() throws SQLException {
-        return isYesFlag("IS_ENABLED");
+    public boolean isDisabled() throws SQLException {
+        return isYesFlag("IS_DISABLED");
     }
 }

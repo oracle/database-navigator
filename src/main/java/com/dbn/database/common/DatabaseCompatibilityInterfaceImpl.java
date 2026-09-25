@@ -35,6 +35,7 @@ import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.JdbcProperty;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
 import com.dbn.language.common.quotes.QuotePair;
+import com.dbn.object.event.ObjectChangeAction;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
@@ -82,6 +83,11 @@ public abstract class DatabaseCompatibilityInterfaceImpl implements DatabaseComp
         if (!supportsObjectType(objectTypeId)) return false;
 
         return true;
+    }
+
+    @Override
+    public boolean supportsObjectAction(DatabaseObjectTypeId objectTypeId, ObjectChangeAction action) {
+        return false;
     }
 
     @Override

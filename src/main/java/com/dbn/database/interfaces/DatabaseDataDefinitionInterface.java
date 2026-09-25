@@ -76,6 +76,8 @@ public interface DatabaseDataDefinitionInterface extends DatabaseInterface {
     *********************************************************/
     void dropObject(String objectType, String ownerName, String objectName, DBNConnection connection) throws SQLException;
 
+    void dropUser(String userName, DBNConnection connection) throws SQLException;
+
     void dropConstraint(String ownerName, String tableName, String constraintName, DBConstraintType constraintType, DBNConnection connection) throws SQLException;
 
     void dropObjectBody(String objectType, String ownerName, String objectName, DBNConnection connection) throws SQLException;
@@ -88,4 +90,15 @@ public interface DatabaseDataDefinitionInterface extends DatabaseInterface {
 
     void compileObjectBody(String ownerName, String objectName, String objectType, boolean debug, DBNConnection connection) throws SQLException;
 
+    /*********************************************************
+     *                   STATUS statements                   *
+     *********************************************************/
+
+    void enableUser(String userName, DBNConnection connection) throws SQLException;
+
+    void disableUser(String userName, DBNConnection connection) throws SQLException;
+
+    void lockUser(String userName, DBNConnection connection) throws SQLException;
+
+    void unlockUser(String userName, DBNConnection connection) throws SQLException;
 }

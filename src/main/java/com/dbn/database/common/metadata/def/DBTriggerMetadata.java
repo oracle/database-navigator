@@ -35,7 +35,7 @@ public interface DBTriggerMetadata extends DBObjectMetadata {
 
     boolean isForEachRow() throws SQLException;
 
-    boolean isEnabled() throws SQLException;
+    boolean isDisabled() throws SQLException;
 
     boolean isValid() throws SQLException;
 

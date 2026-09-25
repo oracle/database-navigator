@@ -65,6 +65,7 @@ import static com.dbn.common.util.GuardedBlocks.createGuardedBlocks;
 import static com.dbn.common.util.GuardedBlocks.removeGuardedBlocks;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.object.common.status.DBObjectStatus.*;
 import static com.dbn.vfs.file.status.DBFileStatus.LATEST;
 import static com.dbn.vfs.file.status.DBFileStatus.MERGED;
 import static com.dbn.vfs.file.status.DBFileStatus.MODIFIED;
@@ -229,7 +230,7 @@ public class DBSourceCodeVirtualFile extends DBContentVirtualFile implements DBP
         updateFileContent(newContent, null);
         originalContent.setText(newContent.getText());
         originalContent.setWritable(newContent.isWritable());
-        object.getStatus().set(contentType, DBObjectStatus.PRESENT, newContent.length() > 0);
+        object.setStatus(contentType, PRESENT, newContent.length() > 0);
 
         databaseContent = null;
         sourceLoadException = null;

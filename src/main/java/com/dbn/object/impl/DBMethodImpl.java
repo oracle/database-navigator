@@ -29,8 +29,6 @@ import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.DBSchemaObjectImpl;
 import com.dbn.object.common.list.DBObjectListContainer;
-import com.dbn.object.common.status.DBObjectStatus;
-import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.object.filter.type.ObjectTypeFilterSettings;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -42,6 +40,9 @@ import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
 import static com.dbn.object.common.property.DBObjectProperty.DEBUGGABLE;
 import static com.dbn.object.common.property.DBObjectProperty.DETERMINISTIC;
 import static com.dbn.object.common.property.DBObjectProperty.INVALIDABLE;
+import static com.dbn.object.common.status.DBObjectStatus.DEBUG;
+import static com.dbn.object.common.status.DBObjectStatus.PRESENT;
+import static com.dbn.object.common.status.DBObjectStatus.VALID;
 import static com.dbn.object.type.DBObjectType.ARGUMENT;
 
 @Getter
@@ -77,12 +78,9 @@ abstract class DBMethodImpl<M extends DBMethodMetadata> extends DBSchemaObjectIm
 
     @Override
     public void initStatus(M metadata) throws SQLException {
-        boolean isValid = metadata.isValid();
-        boolean isDebug = metadata.isDebug();
-        DBObjectStatusHolder objectStatus = getStatus();
-        objectStatus.set(DBObjectStatus.VALID, isValid);
-        objectStatus.set(DBObjectStatus.DEBUG, isDebug);
-        objectStatus.set(DBObjectStatus.PRESENT, true);
+        setStatus(VALID, metadata.isValid());
+        setStatus(DEBUG, metadata.isDebug());
+        setStatus(PRESENT, true);
     }
 
     @Override

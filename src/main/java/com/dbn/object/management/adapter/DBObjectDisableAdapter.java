@@ -24,7 +24,7 @@ import com.dbn.object.event.ObjectChangeAction;
 import org.jetbrains.annotations.Nls;
 
 import static com.dbn.nls.NlsResources.txt;
-import static com.dbn.object.common.status.DBObjectStatus.ENABLED;
+import static com.dbn.object.common.status.DBObjectStatus.DISABLED;
 import static com.intellij.openapi.util.NlsContexts.DialogMessage;
 import static com.intellij.openapi.util.NlsContexts.DialogTitle;
 import static com.intellij.openapi.util.NlsContexts.ProgressText;
@@ -44,7 +44,7 @@ public final class DBObjectDisableAdapter<T extends DBObject> extends ObjectMana
     }
 
     private void disableLocal() {
-        getObject().getStatus().set(ENABLED, false);
+        getObject().setStatus(DISABLED, true);
     }
 
     @Nls

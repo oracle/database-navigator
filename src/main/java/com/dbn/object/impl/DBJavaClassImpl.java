@@ -23,7 +23,6 @@ import com.dbn.common.util.Java;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJavaClassMetadata;
-import com.dbn.editor.DBContentType;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
@@ -31,8 +30,6 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObjectImpl;
 import com.dbn.object.common.list.DBObjectListContainer;
-import com.dbn.object.common.status.DBObjectStatus;
-import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.object.filter.type.ObjectTypeFilterSettings;
 import com.dbn.object.lookup.DBJavaNameCache;
 import com.dbn.object.lookup.DBObjectRef;
@@ -49,6 +46,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import static com.dbn.common.util.Lists.filter;
+import static com.dbn.editor.DBContentType.CODE;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.common.property.DBObjectProperty.ABSTRACT;
 import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
@@ -61,6 +59,9 @@ import static com.dbn.object.common.property.DBObjectProperty.PRIMITIVE;
 import static com.dbn.object.common.property.DBObjectProperty.SCALAR;
 import static com.dbn.object.common.property.DBObjectProperty.SOURCE;
 import static com.dbn.object.common.property.DBObjectProperty.STATIC;
+import static com.dbn.object.common.status.DBObjectStatus.DEBUG;
+import static com.dbn.object.common.status.DBObjectStatus.PRESENT;
+import static com.dbn.object.common.status.DBObjectStatus.VALID;
 import static com.dbn.object.type.DBJavaClassKind.ENUM;
 import static com.dbn.object.type.DBJavaClassKind.INTERFACE;
 import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
@@ -134,10 +135,9 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 	public void initStatus(DBJavaClassMetadata metadata) throws SQLException {
 		boolean isValid = metadata.isValid();
 		boolean isDebug = metadata.isDebug();
-		DBObjectStatusHolder objectStatus = getStatus();
-		objectStatus.set(DBObjectStatus.VALID, isValid);
-		objectStatus.set(DBObjectStatus.DEBUG, isDebug);
-		objectStatus.set(DBContentType.CODE, DBObjectStatus.PRESENT, true);
+		setStatus(VALID, isValid);
+        setStatus(DEBUG, isDebug);
+        setStatus(CODE, PRESENT, true);
 	}
 
 	@Override
@@ -191,7 +191,7 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 	}
 
 	private boolean isInvalid() {
-		return getObjectStatus().isNot(DBObjectStatus.VALID);
+		return !hasStatus(VALID);
 	}
 
 	@Override

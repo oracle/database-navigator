@@ -37,6 +37,18 @@
         <statement>drop {0} {1}.{2}</statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="drop-user">
+        <statement>drop user {@0}</statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="enable-user">
+        <statement>alter role {@0} login</statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="disable-user">
+        <statement>alter role {@0} nologin</statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="drop-constraint">
         <statement>alter table {0}.{1} drop constraint {2}</statement>
     </statement-execution-processor>

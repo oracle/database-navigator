@@ -29,7 +29,6 @@ import com.dbn.language.psql.PSQLLanguage;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.common.property.DBObjectProperty;
-import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.DatabaseFileSystem;
@@ -50,10 +49,12 @@ import static com.dbn.common.content.DynamicContentProperty.DEPENDENCY;
 import static com.dbn.common.content.DynamicContentProperty.INTERNAL;
 import static com.dbn.common.util.Commons.nvln;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.object.common.property.DBObjectProperty.*;
 import static com.dbn.object.common.property.DBObjectProperty.DEBUGGABLE;
 import static com.dbn.object.common.property.DBObjectProperty.EDITABLE;
 import static com.dbn.object.common.property.DBObjectProperty.REFERENCEABLE;
 import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
+import static com.dbn.object.common.status.DBObjectStatus.DISABLED;
 import static com.dbn.object.type.DBObjectType.DEBUG_DEPENDENCY;
 import static com.dbn.object.type.DBObjectType.INCOMING_DEPENDENCY;
 import static com.dbn.object.type.DBObjectType.OUTGOING_DEPENDENCY;
@@ -61,7 +62,7 @@ import static com.dbn.object.type.DBObjectType.OUTGOING_DEPENDENCY;
 
 @Getter
 public abstract class DBSchemaObjectImpl<M extends DBObjectMetadata> extends DBObjectImpl<M> implements DBSchemaObject {
-    private volatile DBObjectStatusHolder objectStatus;
+    private DBObjectStatusHolder objectStatus;
 
     public DBSchemaObjectImpl(@NotNull DBSchema schema, M metadata) throws SQLException {
         super(schema, metadata);
@@ -98,15 +99,16 @@ public abstract class DBSchemaObjectImpl<M extends DBObjectMetadata> extends DBO
     }
 
     @Override
-    public DBObjectStatusHolder getStatus() {
+    public synchronized DBObjectStatusHolder getStatus() {
         if (objectStatus == null) {
-            synchronized (this) {
-                if (objectStatus == null) {
-                    objectStatus = new DBObjectStatusHolder(getContentType());
-                }
-            }
+            objectStatus = new DBObjectStatusHolder(getContentType());
         }
         return objectStatus;
+    }
+
+    @NotNull
+    public DBObjectStatusHolder getObjectStatus() {
+        return getStatus();
     }
 
     @Override
@@ -121,7 +123,7 @@ public abstract class DBSchemaObjectImpl<M extends DBObjectMetadata> extends DBO
 
     @Override
     public boolean isDisabled() {
-        return is(DBObjectProperty.DISABLEABLE) && !getStatus().is(DBObjectStatus.ENABLED);
+        return is(DISABLEABLE) && hasStatus(DISABLED);
     }
 
     @Override

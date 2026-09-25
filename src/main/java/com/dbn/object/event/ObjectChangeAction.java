@@ -29,6 +29,8 @@ public enum ObjectChangeAction implements Constant<ObjectChangeAction> {
     DELETE,
     ENABLE,
     DISABLE,
+    LOCK,
+    UNLOCK,
 
     UNSPECIFIED, // unspecified change
 }

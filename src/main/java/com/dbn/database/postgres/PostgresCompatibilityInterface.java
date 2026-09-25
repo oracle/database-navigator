@@ -27,6 +27,7 @@ import com.dbn.database.common.DatabaseCompatibilityInterfaceImpl;
 import com.dbn.editor.session.SessionStatus;
 import com.dbn.language.common.quotes.QuoteDefinition;
 import com.dbn.language.common.quotes.QuotePair;
+import com.dbn.object.event.ObjectChangeAction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,6 +46,9 @@ import static com.dbn.database.DatabaseFeature.SESSION_BROWSING;
 import static com.dbn.database.DatabaseFeature.SESSION_CURRENT_SQL;
 import static com.dbn.database.DatabaseFeature.SESSION_KILL;
 import static com.dbn.database.DatabaseFeature.UPDATABLE_RESULT_SETS;
+import static com.dbn.database.DatabaseObjectTypeId.USER;
+import static com.dbn.object.event.ObjectChangeAction.DISABLE;
+import static com.dbn.object.event.ObjectChangeAction.ENABLE;
 
 public class PostgresCompatibilityInterface extends DatabaseCompatibilityInterfaceImpl {
 
@@ -69,6 +73,13 @@ public class PostgresCompatibilityInterface extends DatabaseCompatibilityInterfa
                 DatabaseObjectTypeId.SEQUENCE,
                 DatabaseObjectTypeId.SYSTEM_PRIVILEGE,
                 DatabaseObjectTypeId.GRANTED_PRIVILEGE);
+    }
+
+    @Override
+    public boolean supportsObjectAction(DatabaseObjectTypeId objectTypeId, ObjectChangeAction action) {
+        if (objectTypeId == USER && action.isOneOf(ENABLE, DISABLE)) return true;
+
+        return super.supportsObjectAction(objectTypeId, action);
     }
 
     @Override

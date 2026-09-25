@@ -20,15 +20,19 @@
         <statement>
             select
                 USERNAME as USER_NAME,
+                ORACLE_MAINTAINED as IS_SYSTEM,
                 case when ACCOUNT_STATUS like '%EXPIRED%' then 'Y' else 'N' end as IS_EXPIRED,
-                case when ACCOUNT_STATUS like '%LOCKED%' then 'Y' else 'N' end as IS_LOCKED
+                case when ACCOUNT_STATUS like '%LOCKED%' then 'Y' else 'N' end as IS_LOCKED,
+                'N' as IS_DISABLED
             from DBA_USERS
         </statement>
         <statement>
             select
                 USERNAME as USER_NAME,
+                case when USERNAME in ('SYS', 'SYSTEM') then 'Y' else 'N' end as IS_SYSTEM,
                 'N' as IS_EXPIRED,
-                'N' as IS_LOCKED
+                'N' as IS_LOCKED,
+                'N' as IS_DISABLED
             from ALL_USERS
         </statement>
     </statement-execution-processor>
@@ -279,7 +283,7 @@
                 end as CREDENTIAL_TYPE,
                 USERNAME as USER_NAME,
                 JSON_VALUE(comments, '$.comments') as COMMENTS,
-                DECODE(ENABLED, 'TRUE', 'Y', 'N') as IS_ENABLED
+                DECODE(ENABLED, 'TRUE', 'N', 'Y') as IS_DISABLED
             from [PREFIX]_CREDENTIALS d
             where OWNER = {#0}
             order by CREDENTIAL_NAME asc
@@ -290,7 +294,7 @@
         <statement>
             select
                 p.PROFILE_NAME,
-                DECODE(STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                DECODE(STATUS, 'ENABLED', 'N', 'Y') as IS_DISABLED,
                 DECODE(pa.CONVERSATION, 'true', 'Y', 'N') as IS_CONVERSATION,
                 TO_CHAR(p.DESCRIPTION) AS DESCRIPTION,
                 pa.PROVIDER,
@@ -334,7 +338,7 @@
         <statement>
             select
                 p.PROFILE_NAME,
-                DECODE(STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                DECODE(STATUS, 'ENABLED', 'N', 'Y') as IS_DISABLED,
                 DECODE(pa.CONVERSATION, 'true', 'Y', 'N') as IS_CONVERSATION,
                 TO_CHAR(p.DESCRIPTION) AS DESCRIPTION,
                 pa.PROVIDER,
@@ -379,7 +383,7 @@
             <!--empty fallback for non-cloud databases-->
             select
                 null as PROFILE_NAME,
-                null as IS_ENABLED,
+                null as IS_DISABLED,
                 null as IS_CONVERSATION,
                 null as DESCRIPTION,
                 null as PROVIDER,
@@ -520,7 +524,7 @@
               and v.DUALITY_VIEW != 'YES'
             order by v.VIEW_NAME asc
         </statement>
-        <statement prefixes="DBA, ALL">
+        <statement prefixes="DBA, ALL" since-version="11.1">
             select
                 v.VIEW_NAME,
                 v.VIEW_TYPE_OWNER,
@@ -532,6 +536,18 @@
                 inner join [PREFIX]_OBJECTS o
                         on o.OWNER = v.OWNER
                        and o.OBJECT_NAME = v.VIEW_NAME
+            where v.OWNER = {#0}
+            order by v.VIEW_NAME asc
+        </statement>
+        <statement prefixes="DBA, ALL">
+            select
+                v.VIEW_NAME,
+                v.VIEW_TYPE_OWNER,
+                v.VIEW_TYPE,
+                null as COMMENTS,
+                'N' as IS_SYSTEM_VIEW,
+                'N' as IS_EDITIONABLE
+            from [PREFIX]_VIEWS v
             where v.OWNER = {#0}
             order by v.VIEW_NAME asc
         </statement>
@@ -1371,7 +1387,7 @@
                 end as CONSTRAINT_TYPE,
                 c.R_OWNER as FK_CONSTRAINT_OWNER,
                 c.R_CONSTRAINT_NAME as FK_CONSTRAINT_NAME,
-                decode(c.STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                decode(c.STATUS, 'ENABLED', 'N', 'Y') as IS_DISABLED,
                 c.SEARCH_CONDITION_VC as CHECK_CONDITION
             from [PREFIX]_CONSTRAINTS c
                  inner join [PREFIX]_OBJECTS obj
@@ -1398,7 +1414,7 @@
                 end as CONSTRAINT_TYPE,
                 c.R_OWNER as FK_CONSTRAINT_OWNER,
                 c.R_CONSTRAINT_NAME as FK_CONSTRAINT_NAME,
-                decode(c.STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                decode(c.STATUS, 'ENABLED', 'N', 'Y') as IS_DISABLED,
                 c.SEARCH_CONDITION as CHECK_CONDITION
             from [PREFIX]_CONSTRAINTS c
                  inner join [PREFIX]_OBJECTS obj
@@ -1428,7 +1444,7 @@
                 end as CONSTRAINT_TYPE,
                 c.R_OWNER as FK_CONSTRAINT_OWNER,
                 c.R_CONSTRAINT_NAME as FK_CONSTRAINT_NAME,
-                decode(c.STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                decode(c.STATUS, 'ENABLED', 'N', 'Y') as IS_DISABLED,
                 c.SEARCH_CONDITION_VC as CHECK_CONDITION
             from [PREFIX]_CONSTRAINTS c
                  inner join [PREFIX]_OBJECTS obj
@@ -1455,7 +1471,7 @@
                 end as CONSTRAINT_TYPE,
                 c.R_OWNER as FK_CONSTRAINT_OWNER,
                 c.R_CONSTRAINT_NAME as FK_CONSTRAINT_NAME,
-                decode(c.STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                decode(c.STATUS, 'ENABLED', 'N', 'Y') as IS_DISABLED,
                 c.SEARCH_CONDITION as CHECK_CONDITION
             from [PREFIX]_CONSTRAINTS c
                  inner join [PREFIX]_OBJECTS obj
@@ -1565,7 +1581,7 @@
                 t.TRIGGER_NAME,
                 t.TRIGGER_TYPE,
                 t.TRIGGERING_EVENT,
-                decode(t.STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                decode(t.STATUS, 'ENABLED', 'N', 'Y') as IS_DISABLED,
                 decode(nvl(o.STATUS, 'VALID'), 'VALID', 'Y', 'N') as IS_VALID,
                 decode(nvl(o.DEBUGINFO, 'F'), 'T', 'Y', 'N') as IS_DEBUG,
                 case when t.TRIGGER_TYPE like '%EACH ROW%' then 'Y' else 'N' end as IS_FOR_EACH_ROW
@@ -1586,7 +1602,7 @@
                 t.TRIGGER_NAME,
                 t.TRIGGER_TYPE,
                 t.TRIGGERING_EVENT,
-                decode(t.STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                decode(t.STATUS, 'ENABLED', 'N', 'Y') as IS_DISABLED,
                 decode(o.STATUS, 'VALID', 'Y', 'N') as IS_VALID,
                 'N' as IS_DEBUG,
                 case when t.TRIGGER_TYPE like '%EACH ROW%' then 'Y' else 'N' end as IS_FOR_EACH_ROW
@@ -1610,7 +1626,7 @@
                 t.TRIGGER_NAME,
                 t.TRIGGER_TYPE,
                 t.TRIGGERING_EVENT,
-                decode(t.STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                decode(t.STATUS, 'ENABLED', 'N', 'Y') as IS_DISABLED,
                 decode(nvl(o.STATUS, 'VALID'), 'VALID', 'Y', 'N') as IS_VALID,
                 decode(nvl(o.DEBUGINFO, 'F'), 'T', 'Y', 'N') as IS_DEBUG,
                 case when t.TRIGGER_TYPE like '%EACH ROW%' then 'Y' else 'N' end as IS_FOR_EACH_ROW
@@ -1633,7 +1649,7 @@
                 t.TRIGGER_NAME,
                 t.TRIGGER_TYPE,
                 t.TRIGGERING_EVENT,
-                decode(t.STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                decode(t.STATUS, 'ENABLED', 'N', 'Y') as IS_DISABLED,
                 decode(o.STATUS, 'VALID', 'Y', 'N') as IS_VALID,
                 'N' as IS_DEBUG,
                 case when t.TRIGGER_TYPE like '%EACH ROW%' then 'Y' else 'N' end as IS_FOR_EACH_ROW
@@ -1658,7 +1674,7 @@
                 t.TRIGGER_NAME,
                 t.TRIGGER_TYPE,
                 t.TRIGGERING_EVENT,
-                decode(t.STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                decode(t.STATUS, 'ENABLED', 'N', 'Y') as IS_DISABLED,
                 decode(nvl(o.STATUS, 'VALID'), 'VALID', 'Y', 'N') as IS_VALID,
                 decode(nvl(o.DEBUGINFO, 'F'), 'T', 'Y', 'N') as IS_DEBUG,
                 case when t.TRIGGER_TYPE like '%EACH ROW%' then 'Y' else 'N' end as IS_FOR_EACH_ROW
@@ -1679,7 +1695,7 @@
                 t.TRIGGER_NAME,
                 t.TRIGGER_TYPE,
                 t.TRIGGERING_EVENT,
-                decode(t.STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                decode(t.STATUS, 'ENABLED', 'N', 'Y') as IS_DISABLED,
                 decode(o.STATUS, 'VALID', 'Y', 'N') as IS_VALID,
                 'N' as IS_DEBUG,
                 case when t.TRIGGER_TYPE like '%EACH ROW%' then 'Y' else 'N' end as IS_FOR_EACH_ROW

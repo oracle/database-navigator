@@ -28,7 +28,6 @@ import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObjectImpl;
 import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.common.list.DBObjectRelationList;
-import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBConstraintType;
 import com.dbn.object.type.DBObjectType;
@@ -43,6 +42,7 @@ import java.util.Objects;
 
 import static com.dbn.object.common.property.DBObjectProperty.DISABLEABLE;
 import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
+import static com.dbn.object.common.status.DBObjectStatus.DISABLED;
 import static com.dbn.object.type.DBObjectRelationType.CONSTRAINT_COLUMN;
 import static com.dbn.object.type.DBObjectType.COLUMN;
 import static com.dbn.object.type.DBObjectType.CONSTRAINT;
@@ -100,8 +100,7 @@ class DBConstraintImpl extends DBSchemaObjectImpl<DBConstraintMetadata> implemen
 
     @Override
     public void initStatus(DBConstraintMetadata metadata) throws SQLException {
-        boolean enabled = metadata.isEnabled();
-        getStatus().set(DBObjectStatus.ENABLED, enabled);
+        setStatus(DISABLED, metadata.isDisabled());
     }
 
     @Override
@@ -120,8 +119,9 @@ class DBConstraintImpl extends DBSchemaObjectImpl<DBConstraintMetadata> implemen
     @Nullable
     @Override
     public Icon getIcon() {
-        boolean enabled = getStatus().is(DBObjectStatus.ENABLED);
-        return enabled ? Icons.DBO_CONSTRAINT : Icons.DBO_CONSTRAINT_DISABLED;
+        return isDisabled() ?
+                Icons.DBO_CONSTRAINT_DISABLED :
+                Icons.DBO_CONSTRAINT;
     }
 
     @NotNull
@@ -147,7 +147,7 @@ class DBConstraintImpl extends DBSchemaObjectImpl<DBConstraintMetadata> implemen
 
     @Override
     public DBDataset getDataset() {
-        return (DBDataset) getParentObject();
+        return getParentObject();
     }
 
     @Override

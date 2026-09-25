@@ -32,12 +32,9 @@ import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseMetadataInterface;
-import com.dbn.editor.DBContentType;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.property.DBObjectProperty;
-import com.dbn.object.common.status.DBObjectStatus;
-import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -57,7 +54,11 @@ import static com.dbn.common.load.ProgressMonitor.setProgressText;
 import static com.dbn.common.notification.NotificationCategory.BROWSER;
 import static com.dbn.database.DatabaseFeature.OBJECT_INVALIDATION;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.editor.DBContentType.CODE_BODY;
+import static com.dbn.editor.DBContentType.CODE_SPEC;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.object.common.status.DBObjectStatus.DEBUG;
+import static com.dbn.object.common.status.DBObjectStatus.VALID;
 
 @State(
     name = ObjectStatusManager.COMPONENT_NAME,
@@ -144,16 +145,15 @@ public class ObjectStatusManager extends ProjectComponentBase implements Persist
                 String objectName = resultSet.getString("OBJECT_NAME");
                 DBSchemaObject schemaObject = schema.getChildObjectNoLoad(objectName);
                 if (schemaObject != null && schemaObject.is(DBObjectProperty.INVALIDABLE)) {
-                    DBObjectStatusHolder objectStatus = schemaObject.getStatus();
                     boolean statusChanged;
 
                     if (schemaObject.getContentType().isBundle()) {
                         String objectType = resultSet.getString("OBJECT_TYPE");
                         statusChanged = objectType.contains("BODY") ?
-                                objectStatus.set(DBContentType.CODE_BODY, DBObjectStatus.VALID, false) :
-                                objectStatus.set(DBContentType.CODE_SPEC, DBObjectStatus.VALID, false);
+                                schemaObject.setStatus(CODE_BODY, VALID, false) :
+                                schemaObject.setStatus(CODE_SPEC, VALID, false);
                     } else {
-                        statusChanged = objectStatus.set(DBObjectStatus.VALID, false);
+                        statusChanged = schemaObject.setStatus(VALID, false);
                     }
                     if (statusChanged) {
                         entities.add(schemaObject.getParent());
@@ -174,16 +174,15 @@ public class ObjectStatusManager extends ProjectComponentBase implements Persist
                 String objectName = resultSet.getString("OBJECT_NAME");
                 DBSchemaObject schemaObject = schema.getChildObjectNoLoad(objectName);
                 if (schemaObject != null && schemaObject.is(DBObjectProperty.DEBUGGABLE)) {
-                    DBObjectStatusHolder objectStatus = schemaObject.getStatus();
                     boolean statusChanged;
 
                     if (schemaObject.getContentType().isBundle()) {
                         String objectType = resultSet.getString("OBJECT_TYPE");
                         statusChanged = objectType.contains("BODY") ?
-                                objectStatus.set(DBContentType.CODE_BODY, DBObjectStatus.DEBUG, true) :
-                                objectStatus.set(DBContentType.CODE_SPEC, DBObjectStatus.DEBUG, true);
+                                schemaObject.setStatus(CODE_BODY, DEBUG, true) :
+                                schemaObject.setStatus(CODE_SPEC, DEBUG, true);
                     } else {
-                        statusChanged = objectStatus.set(DBObjectStatus.DEBUG, true);
+                        statusChanged = schemaObject.setStatus(DEBUG, true);
                     }
                     if (statusChanged) {
                         entities.add(schemaObject.getParent());

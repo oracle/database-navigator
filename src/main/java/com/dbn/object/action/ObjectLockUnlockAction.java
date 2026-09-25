@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.dbn.object.action;
 
 import com.dbn.object.common.DBObject;
+import com.dbn.object.common.property.DBObjectProperty;
 import com.dbn.object.event.ObjectChangeAction;
 import com.dbn.object.management.ObjectManagementService;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -25,12 +26,12 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.nls.NlsResources.txt;
-import static com.dbn.object.common.status.DBObjectStatus.DISABLED;
+import static com.dbn.object.common.status.DBObjectStatus.LOCKED;
 
-public class ObjectEnableDisableAction extends AnObjectAction<DBObject> {
-    ObjectEnableDisableAction(DBObject object) {
+public class ObjectLockUnlockAction extends AnObjectAction<DBObject> {
+    public ObjectLockUnlockAction(DBObject object) {
         super(object);
     }
 
@@ -41,18 +42,14 @@ public class ObjectEnableDisableAction extends AnObjectAction<DBObject> {
             @NotNull DBObject object) {
 
         ObjectManagementService objectManagementService = ObjectManagementService.getInstance(project);
-
-        if (objectManagementService.supports(object)) {
-            boolean disabled = object.hasStatus(DISABLED);
-            ObjectChangeAction changeAction = disabled ?
-                    ObjectChangeAction.ENABLE :
-                    ObjectChangeAction.DISABLE;
-            objectManagementService.changeObject(object, changeAction,null);
-        } else {
+        ObjectChangeAction changeAction = object.hasStatus(LOCKED) ?
+                ObjectChangeAction.UNLOCK :
+                ObjectChangeAction.LOCK;
+        if (!objectManagementService.supports(object) || !isSupported(object)) {
             throw new UnsupportedOperationException();
         }
+        objectManagementService.changeObject(object, changeAction, null);
     }
-
 
     @Override
     protected void update(
@@ -61,16 +58,27 @@ public class ObjectEnableDisableAction extends AnObjectAction<DBObject> {
             @NotNull Project project,
             @Nullable DBObject target) {
 
-        if (isValid(target)) {
-            boolean disabled = target.hasStatus(DISABLED);
-            String text = disabled ?
-                    txt("app.shared.action.Enable") :
-                    txt("app.shared.action.Disable");
-
-            presentation.setText(text);
-            presentation.setVisible(true);
-        } else {
+        if (!isSupported(target)) {
             presentation.setVisible(false);
+            return;
         }
+
+        ObjectChangeAction changeAction = target.hasStatus(LOCKED) ?
+                ObjectChangeAction.UNLOCK :
+                ObjectChangeAction.LOCK;
+        presentation.setText(txt(changeAction == ObjectChangeAction.UNLOCK ?
+                "app.shared.action.Unlock" : "app.shared.action.Lock"));
+        presentation.setVisible(true);
+    }
+
+    public static boolean isSupported(@Nullable DBObject object) {
+        if (isNotValid(object)) return false;
+        if (!object.is(DBObjectProperty.LOCKABLE)) return false;
+
+        ObjectChangeAction changeAction = object.hasStatus(LOCKED) ?
+                ObjectChangeAction.UNLOCK :
+                ObjectChangeAction.LOCK;
+        return object.getConnection().getCompatibilityInterface().supportsObjectAction(
+                object.getObjectType().getTypeId(), changeAction);
     }
 }

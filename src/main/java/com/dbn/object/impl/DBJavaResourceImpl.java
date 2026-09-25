@@ -25,8 +25,6 @@ import com.dbn.object.DBJavaResource;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObjectImpl;
-import com.dbn.object.common.status.DBObjectStatus;
-import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.fileTypes.FileType;
 import org.jetbrains.annotations.NotNull;
@@ -35,8 +33,11 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 import java.sql.SQLException;
 
+import static com.dbn.editor.DBContentType.CODE;
 import static com.dbn.object.common.property.DBObjectProperty.EDITABLE;
 import static com.dbn.object.common.property.DBObjectProperty.INVALIDABLE;
+import static com.dbn.object.common.status.DBObjectStatus.PRESENT;
+import static com.dbn.object.common.status.DBObjectStatus.VALID;
 import static com.dbn.object.type.DBObjectType.JAVA_RESOURCE;
 
 public class DBJavaResourceImpl extends DBSchemaObjectImpl<DBJavaResourceMetadata> implements DBJavaResource {
@@ -70,10 +71,8 @@ public class DBJavaResourceImpl extends DBSchemaObjectImpl<DBJavaResourceMetadat
 	}
 
 	public void initStatus(DBJavaResourceMetadata metadata) throws SQLException {
-		boolean isValid = metadata.isValid();
-		DBObjectStatusHolder objectStatus = getStatus();
-		objectStatus.set(DBObjectStatus.VALID, isValid);
-		objectStatus.set(DBContentType.CODE, DBObjectStatus.PRESENT, true);
+		setStatus(VALID, metadata.isValid());
+        setStatus(CODE, PRESENT, true);
 	}
 
 	@Override
@@ -100,6 +99,6 @@ public class DBJavaResourceImpl extends DBSchemaObjectImpl<DBJavaResourceMetadat
 	}
 
 	private boolean isInvalid() {
-		return getObjectStatus().isNot(DBObjectStatus.VALID);
+		return !hasStatus(VALID);
 	}
 }

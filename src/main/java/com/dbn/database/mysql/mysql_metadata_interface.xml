@@ -29,10 +29,22 @@
     </statement-execution-processor>
     <statement-execution-processor id="users">
         <statement>
+            select
+                concat(quote(User), '@', quote(Host)) as USER_NAME,
+                case when User in ('mysql.infoschema', 'mysql.session', 'mysql.sys') then 'Y' else 'N' end as IS_SYSTEM,
+                'N' as IS_EXPIRED,
+                ACCOUNT_LOCKED as IS_LOCKED,
+                'N' as IS_DISABLED
+            from mysql.user
+            order by User, Host asc
+        </statement>
+        <statement>
             select distinct
                 GRANTEE as USER_NAME,
+                'N' as IS_SYSTEM,
                 'N' as IS_EXPIRED,
-                'N' as IS_LOCKED
+                'N' as IS_LOCKED,
+                'N' as IS_DISABLED
             from information_schema.USER_PRIVILEGES
             order by GRANTEE asc
         </statement>
@@ -340,7 +352,7 @@
                     when rc.UNIQUE_CONSTRAINT_NAME = 'name' then concat('unq_', rc.REFERENCED_TABLE_NAME)
                     else rc.UNIQUE_CONSTRAINT_NAME
                 end as FK_CONSTRAINT_NAME,
-                if(tc.CONSTRAINT_TYPE != 'CHECK' or tc.ENFORCED = 'YES', 'Y', 'N') as IS_ENABLED,
+                if(tc.CONSTRAINT_TYPE != 'CHECK' or tc.ENFORCED = 'YES', 'N', 'Y') as IS_DISABLED,
                 cc.CHECK_CLAUSE as CHECK_CONDITION
             from
                 information_schema.TABLE_CONSTRAINTS tc left join
@@ -368,7 +380,7 @@
                 tc.CONSTRAINT_TYPE,
                 null as FK_CONSTRAINT_OWNER,
                 null as FK_CONSTRAINT_NAME,
-                if(tc.CONSTRAINT_TYPE != 'CHECK' or tc.ENFORCED = 'YES', 'Y', 'N') as IS_ENABLED,
+                if(tc.CONSTRAINT_TYPE != 'CHECK' or tc.ENFORCED = 'YES', 'N', 'Y') as IS_DISABLED,
                 cc.CHECK_CLAUSE as CHECK_CONDITION
             from
                 information_schema.TABLE_CONSTRAINTS tc left join
@@ -399,7 +411,7 @@
                     when rc.UNIQUE_CONSTRAINT_NAME = 'name' then concat('unq_', rc.REFERENCED_TABLE_NAME)
                     else rc.UNIQUE_CONSTRAINT_NAME
                 end as FK_CONSTRAINT_NAME,
-                if(tc.CONSTRAINT_TYPE != 'CHECK' or tc.ENFORCED = 'YES', 'Y', 'N') as IS_ENABLED,
+                if(tc.CONSTRAINT_TYPE != 'CHECK' or tc.ENFORCED = 'YES', 'N', 'Y') as IS_DISABLED,
                 cc.CHECK_CLAUSE as CHECK_CONDITION
             from
                 information_schema.TABLE_CONSTRAINTS tc left join
@@ -428,7 +440,7 @@
                 tc.CONSTRAINT_TYPE,
                 null as FK_CONSTRAINT_OWNER,
                 null as FK_CONSTRAINT_NAME,
-                if(tc.CONSTRAINT_TYPE != 'CHECK' or tc.ENFORCED = 'YES', 'Y', 'N') as IS_ENABLED,
+                if(tc.CONSTRAINT_TYPE != 'CHECK' or tc.ENFORCED = 'YES', 'N', 'Y') as IS_DISABLED,
                 cc.CHECK_CLAUSE as CHECK_CONDITION
             from
                 information_schema.TABLE_CONSTRAINTS tc left join
@@ -582,7 +594,7 @@
                 TRIGGER_NAME,
                 ACTION_TIMING as TRIGGER_TYPE,
                 EVENT_MANIPULATION as TRIGGERING_EVENT,
-                'Y' as IS_ENABLED,
+                'N' as IS_DISABLED,
                 'Y' as IS_VALID,
                 'N' as IS_DEBUG,
                 'Y' as IS_FOR_EACH_ROW
@@ -601,7 +613,7 @@
                 TRIGGER_NAME,
                 ACTION_TIMING as TRIGGER_TYPE,
                 EVENT_MANIPULATION as TRIGGERING_EVENT,
-                'Y' as IS_ENABLED,
+                'N' as IS_DISABLED,
                 'Y' as IS_VALID,
                 'N' as IS_DEBUG,
                 'Y' as IS_FOR_EACH_ROW
