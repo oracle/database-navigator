@@ -90,6 +90,12 @@ public class DBSequenceFactoryInputForm extends DBSchemaObjectFactoryInputForm {
     protected void initStatePersistence() {
         StateAttributes state = ObjectFactoryManager.getInstance(ensureProject()).getState(getObjectType());
         initPersistence(preserveCaseCheckBox, state, "preserve-identifier-case");
+        initPersistence(startWithTextField, state, "start-with");
+        initPersistence(incrementByTextField, state, "increment-by");
+        initPersistence(minValueTextField, state, "min-value");
+        initPersistence(maxValueTextField, state, "max-value");
+        initPersistence(cacheSizeTextField, state, "cache-size");
+        initPersistence(cycleCheckBox, state, "cycle");
     }
 
     @Override
