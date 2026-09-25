@@ -19,6 +19,7 @@ package com.dbn.object.factory.adapter;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.DatabaseEntity;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.security.DatabaseIdentifierCache;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
@@ -57,8 +58,8 @@ public class DBJavaClassFactoryAdapter implements ObjectFactoryAdapter {
         return JAVA_CLASS;
     }
 
-    public DBObjectSpec createInput(DBSchema schema) {
-        DBObjectSpec input = new DBObjectSpec(schema, JAVA_CLASS);
+    public DBObjectSpec createInput(DatabaseEntity parentEntity) {
+        DBObjectSpec input = new DBObjectSpec(parentEntity, JAVA_CLASS);
         input.setAttributeValue(JAVA_CLASS_TYPE, CLASS);
         return input;
     }

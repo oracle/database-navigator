@@ -27,8 +27,10 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.factory.ObjectFactoryAdapter;
 import com.dbn.object.factory.model.DBObjectSpec;
-import com.dbn.object.factory.ui.DBSynonymFactoryInputForm;
+import com.dbn.object.factory.ui.DBTriggerFactoryInputForm;
 import com.dbn.object.type.DBObjectType;
+import com.dbn.object.type.DBTriggerEvent;
+import com.dbn.object.type.DBTriggerType;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -36,48 +38,50 @@ import java.util.List;
 import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
-import static com.dbn.object.factory.model.DBObjectAttributeType.SYNONYM_TARGET_OBJECT_NAME;
-import static com.dbn.object.factory.model.DBObjectAttributeType.SYNONYM_TARGET_OBJECT_TYPE;
-import static com.dbn.object.factory.model.DBObjectAttributeType.SYNONYM_TARGET_SCHEMA;
-import static com.dbn.object.type.DBObjectType.SYNONYM;
+import static com.dbn.object.factory.model.DBObjectAttributeType.OBJECT_DETAIL;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_EVENTS;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TARGET_DATASET;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TYPE;
+import static com.dbn.object.type.DBObjectType.DATASET_TRIGGER;
 
-public class DBSynonymFactoryAdapter implements ObjectFactoryAdapter {
-    @Override
-    public DBObjectType getObjectType() {
-        return SYNONYM;
-    }
-
+public abstract class DBTriggerFactoryAdapter implements ObjectFactoryAdapter {
     @Override
     public DBObjectSpec createInput(DatabaseEntity parentEntity) {
-        DBObjectSpec input = new DBObjectSpec(parentEntity, SYNONYM);
-        input.setObjectName("new_synonym");
-        input.setAttributeValue(SYNONYM_TARGET_SCHEMA, parentEntity.getName());
-        input.setAttributeValue(SYNONYM_TARGET_OBJECT_TYPE, DBObjectType.TABLE);
+        DBObjectSpec input = new DBObjectSpec(parentEntity, getObjectType());
+        input.setObjectName("new_trigger");
+        input.setAttributeValue(TRIGGER_TYPE, DBTriggerType.BEFORE);
+        input.setAttributeValue(TRIGGER_EVENTS, getDefaultEvents());
+        input.setAttributeValue(OBJECT_DETAIL, "begin\n    null;\nend;");
         return input;
     }
 
     @Override
-    public DBSynonymFactoryInputForm createInputForm(DBNComponent parent, DBObjectSpec input) {
-        return new DBSynonymFactoryInputForm(parent, input);
+    public DBTriggerFactoryInputForm createInputForm(DBNComponent parent, DBObjectSpec input) {
+        return new DBTriggerFactoryInputForm(parent, input);
     }
 
     @Override
     public void validateInput(DBObjectSpec input, List<String> errors) {
+        DBObjectType objectType = input.getObjectType();
         String objectName = input.getObjectName();
         if (Strings.isEmptyOrSpaces(objectName)) {
-            errors.add(txt("msg.objects.error.ObjectNameNotSpecified", SYNONYM.getDisplayName()));
+            errors.add(txt("msg.objects.error.ObjectNameNotSpecified", objectType.getDisplayName()));
         } else if (!Strings.isWord(objectName.trim())) {
-            errors.add(txt("msg.objects.error.ObjectNameInvalid", SYNONYM.getDisplayName(), objectName));
+            errors.add(txt("msg.objects.error.ObjectNameInvalid", objectType.getDisplayName(), objectName));
         }
 
-        if (Strings.isEmptyOrSpaces(SYNONYM_TARGET_SCHEMA.of(input))) {
-            errors.add(txt("msg.shared.error.SelectTargetSchema"));
+        if (objectType == DATASET_TRIGGER && Strings.isEmptyOrSpaces(TRIGGER_TARGET_DATASET.of(input))) {
+            errors.add(txt("msg.objects.error.SelectObject", txt("app.object.label.TriggerTargetDataset")));
         }
-        if (SYNONYM_TARGET_OBJECT_TYPE.of(input) == null) {
-            errors.add(txt("msg.objects.error.SelectObject", txt("app.object.label.TargetObjectType")));
+        if (TRIGGER_TYPE.of(input) == null) {
+            errors.add(txt("msg.objects.error.SelectObject", txt("app.object.label.TriggerType")));
         }
-        if (Strings.isEmptyOrSpaces(SYNONYM_TARGET_OBJECT_NAME.of(input))) {
-            errors.add(txt("msg.objects.error.SelectObject", txt("app.object.label.TargetObject")));
+        DBTriggerEvent[] events = TRIGGER_EVENTS.of(input);
+        if (events == null || events.length == 0) {
+            errors.add(txt("msg.objects.error.TriggerEventRequired"));
+        }
+        if (Strings.isEmptyOrSpaces(OBJECT_DETAIL.of(input))) {
+            errors.add(txt("msg.objects.error.TriggerBodyRequired"));
         }
     }
 
@@ -96,9 +100,11 @@ public class DBSynonymFactoryAdapter implements ObjectFactoryAdapter {
                 schemaId,
                 conn -> {
                     DatabaseDataDefinitionInterface dataDefinition = schema.getDataDefinitionInterface();
-                    dataDefinition.createSynonym(input, conn);
+                    dataDefinition.createTrigger(input, conn);
                 });
 
-        ObjectChangeEvent.notify(CREATE, SYNONYM, connectionId, schemaId);
+        ObjectChangeEvent.notify(CREATE, getObjectType(), connectionId, schemaId);
     }
+
+    protected abstract DBTriggerEvent[] getDefaultEvents();
 }

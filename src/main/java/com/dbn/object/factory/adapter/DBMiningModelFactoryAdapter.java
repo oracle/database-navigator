@@ -20,6 +20,7 @@ import com.dbn.common.exception.Exceptions;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.DatabaseEntity;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
@@ -61,8 +62,8 @@ public class DBMiningModelFactoryAdapter implements ObjectFactoryAdapter {
     }
 
     @Override
-    public DBObjectSpec createInput(DBSchema schema) {
-        DBObjectSpec input = new DBObjectSpec(schema, MINING_MODEL);
+    public DBObjectSpec createInput(DatabaseEntity parentEntity) {
+        DBObjectSpec input = new DBObjectSpec(parentEntity, MINING_MODEL);
         input.setAttributeValue(MINING_MODEL_SOURCE_TYPE, MODEL_FILE);
         return input;
     }

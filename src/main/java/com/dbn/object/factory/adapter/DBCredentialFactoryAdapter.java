@@ -19,10 +19,10 @@ package com.dbn.object.factory.adapter;
 import com.dbn.common.data.Data;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.DatabaseEntity;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
-import com.dbn.object.DBSchema;
 import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.factory.ObjectFactoryAdapter;
 import com.dbn.object.factory.model.DBObjectSpec;
@@ -52,8 +52,8 @@ public class DBCredentialFactoryAdapter implements ObjectFactoryAdapter {
         return CREDENTIAL;
     }
 
-    public DBObjectSpec createInput(DBSchema schema) {
-        DBObjectSpec credentialSpec = new DBObjectSpec(schema, CREDENTIAL);
+    public DBObjectSpec createInput(DatabaseEntity parentEntity) {
+        DBObjectSpec credentialSpec = new DBObjectSpec(parentEntity, CREDENTIAL);
         credentialSpec.setAttributeValue(CREDENTIAL_TYPE, DBCredentialType.PASSWORD);
         return credentialSpec;
     }

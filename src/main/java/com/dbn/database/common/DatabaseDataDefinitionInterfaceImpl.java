@@ -18,7 +18,6 @@ package com.dbn.database.common;
 
 import com.dbn.code.common.style.options.CodeStyleCaseOption;
 import com.dbn.code.common.style.options.CodeStyleCaseSettings;
-import com.dbn.common.exception.Exceptions;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
@@ -89,6 +88,11 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
 
     @Override
     public void createSynonym(DBObjectSpec synonymSpec, DBNConnection connection) throws SQLException {
+        notImplemented();
+    }
+
+    @Override
+    public void createTrigger(DBObjectSpec triggerSpec, DBNConnection connection) throws SQLException {
         notImplemented();
     }
 

@@ -19,6 +19,7 @@ package com.dbn.object.factory.adapter;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.DatabaseEntity;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
@@ -49,8 +50,8 @@ public class DBTableFactoryAdapter implements ObjectFactoryAdapter {
         return TABLE;
     }
 
-    public DBObjectSpec createInput(DBSchema schema) {
-        return new DBObjectSpec(schema, TABLE);
+    public DBObjectSpec createInput(DatabaseEntity parentEntity) {
+        return new DBObjectSpec(parentEntity, TABLE);
     }
 
     public DBTableFactoryInputForm createInputForm(DBNComponent parent, DBObjectSpec tableSpec) {

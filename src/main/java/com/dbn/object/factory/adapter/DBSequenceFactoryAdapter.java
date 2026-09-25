@@ -19,6 +19,7 @@ package com.dbn.object.factory.adapter;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.DatabaseEntity;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
@@ -52,8 +53,8 @@ public class DBSequenceFactoryAdapter implements ObjectFactoryAdapter {
     }
 
     @Override
-    public DBObjectSpec createInput(DBSchema schema) {
-        DBObjectSpec input = new DBObjectSpec(schema, SEQUENCE);
+    public DBObjectSpec createInput(DatabaseEntity parentEntity) {
+        DBObjectSpec input = new DBObjectSpec(parentEntity, SEQUENCE);
         input.setObjectName("new_sequence");
         input.setAttributeValue(SEQUENCE_START_WITH, "1");
         input.setAttributeValue(SEQUENCE_INCREMENT_BY, "1");

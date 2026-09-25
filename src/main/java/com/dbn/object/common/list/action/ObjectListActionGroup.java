@@ -19,6 +19,7 @@ package com.dbn.object.common.list.action;
 import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.DatabaseEntity;
+import com.dbn.object.DBDataset;
 import com.dbn.object.DBSchema;
 import com.dbn.object.action.ConsoleCreateAction;
 import com.dbn.object.common.DBObjectBundle;
@@ -29,6 +30,7 @@ import com.dbn.sync.java.action.JavaResourceDownloadAction;
 
 import static com.dbn.database.DatabaseFeature.DEBUGGING;
 import static com.dbn.database.DatabaseFeature.VECTOR_SEARCH;
+import static com.dbn.object.type.DBObjectType.DATASET_TRIGGER;
 import static com.dbn.vfs.DBConsoleType.DEBUG;
 import static com.dbn.vfs.DBConsoleType.SEARCH;
 import static com.dbn.vfs.DBConsoleType.STANDARD;
@@ -51,9 +53,9 @@ public class ObjectListActionGroup extends DefaultActionGroup {
 
     private void addSchemaActions(DBObjectList objectList) {
         DBObjectType objectType = objectList.getObjectType();
-        DatabaseEntity parentElement = objectList.getParentEntity();
+        DatabaseEntity parentEntity = objectList.getParentEntity();
 
-        if (parentElement instanceof DBSchema schema) {
+        if (parentEntity instanceof DBSchema schema) {
             addSeparator();
             if (objectType == DBObjectType.JAVA_CLASS) {
                 add(new JavaObjectDownloadAction(schema));
@@ -62,6 +64,9 @@ public class ObjectListActionGroup extends DefaultActionGroup {
                 add(new JavaResourceDownloadAction(schema));
             }
 
+            add(new CreateObjectAction(objectList));
+        } else if (parentEntity instanceof DBDataset && objectType == DATASET_TRIGGER) {
+            addSeparator();
             add(new CreateObjectAction(objectList));
         }
 

@@ -19,6 +19,7 @@ package com.dbn.object.factory.adapter;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.DatabaseEntity;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
@@ -46,8 +47,8 @@ public class DBViewFactoryAdapter implements ObjectFactoryAdapter {
     }
 
     @Override
-    public DBObjectSpec createInput(DBSchema schema) {
-        DBObjectSpec input = new DBObjectSpec(schema, getObjectType());
+    public DBObjectSpec createInput(DatabaseEntity parentEntity) {
+        DBObjectSpec input = new DBObjectSpec(parentEntity, getObjectType());
         input.setObjectName(getObjectType() == VIEW ? "new_view" : "new_materialized_view");
         input.setAttributeValue(OBJECT_DETAIL, "");
         return input;

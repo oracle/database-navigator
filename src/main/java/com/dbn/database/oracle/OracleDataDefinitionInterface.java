@@ -31,8 +31,10 @@ import com.dbn.ddl.options.DDLFileSettings;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.language.sql.SQLLanguage;
+import com.dbn.object.factory.ObjectFactoryIdentifiers;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.model.DBObjectSpecList;
+import com.dbn.object.type.DBTriggerEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -72,6 +74,10 @@ import static com.dbn.object.factory.model.DBObjectAttributeType.SEQUENCE_MIN_VA
 import static com.dbn.object.factory.model.DBObjectAttributeType.SEQUENCE_START_WITH;
 import static com.dbn.object.factory.model.DBObjectAttributeType.SYNONYM_TARGET_OBJECT_NAME;
 import static com.dbn.object.factory.model.DBObjectAttributeType.SYNONYM_TARGET_SCHEMA;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_EVENTS;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_FOR_EACH_ROW;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TARGET_DATASET;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TYPE;
 import static com.dbn.object.type.DBObjectType.ARGUMENT;
 import static com.dbn.object.type.DBObjectType.COLUMN;
 import static com.dbn.object.type.DBObjectType.CONSTRAINT;
@@ -233,6 +239,41 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
                 synonymSpec.getAdjustedObjectName(),
                 SYNONYM_TARGET_SCHEMA.of(synonymSpec),
                 SYNONYM_TARGET_OBJECT_NAME.of(synonymSpec));
+    }
+
+    @Override
+    public void createTrigger(DBObjectSpec triggerSpec, DBNConnection connection) throws SQLException {
+        @NonNls
+        StringBuilder builder = new StringBuilder("trigger ")
+                .append(triggerSpec.getSchemaName(true))
+                .append('.')
+                .append(triggerSpec.getAdjustedObjectName())
+                .append('\n')
+                .append(TRIGGER_TYPE.of(triggerSpec).getName())
+                .append(' ');
+
+        DBTriggerEvent[] triggerEvents = nvl(TRIGGER_EVENTS.of(triggerSpec), new  DBTriggerEvent[0]);
+        for (int i = 0; i < triggerEvents.length; i++) {
+            if (i > 0) builder.append(" or ");
+            builder.append(triggerEvents[i].getName());
+        }
+
+        if (triggerSpec.getObjectTypeId() == DATASET_TRIGGER) {
+            builder.append(" on ")
+                    .append(triggerSpec.getSchemaName(true))
+                    .append('.')
+                    .append(ObjectFactoryIdentifiers.quoteIdentifier(
+                            triggerSpec.getConnection(),
+                            TRIGGER_TARGET_DATASET.of(triggerSpec)));
+            if (TRIGGER_FOR_EACH_ROW.is(triggerSpec)) {
+                builder.append("\nfor each row");
+            }
+        } else {
+            builder.append(" on database");
+        }
+
+        builder.append('\n').append(OBJECT_DETAIL.of(triggerSpec));
+        createObject(builder.toString(), connection);
     }
 
     @Override

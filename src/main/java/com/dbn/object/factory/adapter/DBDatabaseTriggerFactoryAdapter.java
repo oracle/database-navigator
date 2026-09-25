@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,20 @@
 
 package com.dbn.object.factory.adapter;
 
-import com.dbn.connection.DatabaseEntity;
-import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.type.DBObjectType;
+import com.dbn.object.type.DBTriggerEvent;
 
-import static com.dbn.object.type.DBObjectType.PROCEDURE;
+import static com.dbn.object.type.DBObjectType.DATABASE_TRIGGER;
+import static com.dbn.object.type.DBTriggerEvent.LOGON;
 
-public class DBProcedureFactoryAdapter extends DBMethodFactoryAdapter {
+public class DBDatabaseTriggerFactoryAdapter extends DBTriggerFactoryAdapter {
     @Override
     public DBObjectType getObjectType() {
-        return PROCEDURE;
+        return DATABASE_TRIGGER;
     }
 
     @Override
-    public DBObjectSpec createInput(DatabaseEntity parentEntity) {
-        return new DBObjectSpec(parentEntity, PROCEDURE);
+    protected DBTriggerEvent[] getDefaultEvents() {
+        return new DBTriggerEvent[]{LOGON};
     }
 }

@@ -25,6 +25,7 @@ import com.dbn.common.util.Safe;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.DatabaseEntity;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
@@ -77,31 +78,31 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
     }
 
     public void openFactoryInputDialog(
-            @NotNull DBSchema schema,
+            @NotNull DatabaseEntity parentEntity,
             @NotNull DBObjectType objectType) {
-        openFactoryInputDialog(schema, objectType, null);
+        openFactoryInputDialog(parentEntity, objectType, null);
     }
 
     public void openFactoryInputDialog(
-            @NotNull DBSchema schema,
+            @NotNull DatabaseEntity parentEntity,
             @NotNull DBObjectType objectType,
             @Nullable DBObjectSpec initialInput) {
-        openFactoryInputDialog(schema, objectType, initialInput, (d, c) -> {});
+        openFactoryInputDialog(parentEntity, objectType, initialInput, (d, c) -> {});
     }
 
     public void openFactoryInputDialog(
-            @NotNull DBSchema schema,
+            @NotNull DatabaseEntity parentEntity,
             @NotNull DBObjectType objectType,
             @Nullable DBObjectSpec initialInput,
             @Nullable Consumer<String> objectNameConsumer) {
-        openFactoryInputDialog(schema, objectType, initialInput,
+        openFactoryInputDialog(parentEntity, objectType, initialInput,
                 (d, c) -> when(
                         c == DialogWrapper.OK_EXIT_CODE,
                         () -> Safe.run(objectNameConsumer, nc -> nc.accept(d.getObjectName().toUpperCase()))));
     }
 
     private void openFactoryInputDialog(
-            @NotNull DBSchema schema,
+            @NotNull DatabaseEntity parentEntity,
             @NotNull DBObjectType objectType,
             @Nullable DBObjectSpec initialInput,
             @Nullable Dialogs.DialogCallback<DBObjectFactoryInputDialog> callback) {
@@ -109,25 +110,28 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
 
 
         if (ObjectFactoryAdapters.isSupported(objectType)) {
-            if (isOwnerRestricted(objectType) && !schema.isUserSchema()) {
-                String objectTypeName = objectType.getDisplayName();
-                ConnectionHandler connection = schema.getConnection();
-                DBSchema userSchema = connection.getUserSchema();
+            if (parentEntity instanceof DBSchema schema) {
+                if (isOwnerRestricted(objectType) && !schema.isUserSchema()) {
+                    String objectTypeName = objectType.getDisplayName();
+                    ConnectionHandler connection = schema.getConnection();
+                    DBSchema userSchema = connection.getUserSchema();
 
-                showQuestionDialog(project,
-                        txt("msg.objects.title.OwnerRestriction"),
-                        txt("msg.objects.question.OwnerRestriction", objectTypeName),
-                        OPTIONS_YES_CANCEL, 0,
-                        whenOk(() -> openFactoryInputDialog(
-                                userSchema,
-                                objectType,
-                                initialInput,
-                                callback)));
-                return;
+                    showQuestionDialog(project,
+                            txt("msg.objects.title.OwnerRestriction"),
+                            txt("msg.objects.question.OwnerRestriction", objectTypeName),
+                            OPTIONS_YES_CANCEL, 0,
+                            whenOk(() -> openFactoryInputDialog(
+                                    userSchema,
+                                    objectType,
+                                    initialInput,
+                                    callback)));
+                    return;
+                }
             }
 
 
-            Dialogs.show(() -> new DBObjectFactoryInputDialog(project, schema, objectType, initialInput), callback);
+
+            Dialogs.show(() -> new DBObjectFactoryInputDialog(project, parentEntity, objectType, initialInput), callback);
         } else {
             showErrorDialog(project,
                     txt("msg.objects.title.OperationNotSupported"),

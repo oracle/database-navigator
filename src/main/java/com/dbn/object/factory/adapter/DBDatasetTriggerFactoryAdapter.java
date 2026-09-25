@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,25 +17,34 @@
 package com.dbn.object.factory.adapter;
 
 import com.dbn.connection.DatabaseEntity;
+import com.dbn.object.DBDataset;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.type.DBObjectType;
+import com.dbn.object.type.DBTriggerEvent;
 
-import static com.dbn.object.factory.model.DBObjectAttributeType.RETURN_ARGUMENT;
-import static com.dbn.object.type.DBObjectType.ARGUMENT;
-import static com.dbn.object.type.DBObjectType.FUNCTION;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TARGET_DATASET;
+import static com.dbn.object.type.DBObjectType.DATASET_TRIGGER;
+import static com.dbn.object.type.DBTriggerEvent.INSERT;
 
-public class DBFunctionFactoryAdapter extends DBMethodFactoryAdapter {
-
+public class DBDatasetTriggerFactoryAdapter extends DBTriggerFactoryAdapter {
     @Override
     public DBObjectType getObjectType() {
-        return FUNCTION;
+        return DATASET_TRIGGER;
     }
 
     @Override
     public DBObjectSpec createInput(DatabaseEntity parentEntity) {
-        DBObjectSpec functionSpec = new DBObjectSpec(parentEntity, FUNCTION);
-        DBObjectSpec returnArgumentSpec = new DBObjectSpec(functionSpec, ARGUMENT);
-        functionSpec.setAttributeValue(RETURN_ARGUMENT, returnArgumentSpec);
-        return functionSpec;
+        DBObjectSpec input = super.createInput(parentEntity);
+
+        if (parentEntity instanceof DBDataset dataset) {
+            input.setAttributeValue(TRIGGER_TARGET_DATASET, dataset.getName());
+        }
+
+        return input;
+    }
+
+    @Override
+    protected DBTriggerEvent[] getDefaultEvents() {
+        return new DBTriggerEvent[]{INSERT};
     }
 }

@@ -18,9 +18,10 @@ package com.dbn.object.factory.model;
 
 import com.dbn.common.data.Data;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.DatabaseEntity;
 import com.dbn.database.DatabaseIdentifierCase;
+import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.language.common.quotes.QuotePair;
-import com.dbn.object.DBSchema;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import lombok.Setter;
@@ -49,7 +50,7 @@ public final class DBObjectSpec extends DBObjectSpecBase{
     private final Map<DBObjectType, DBObjectSpecList> children = new EnumMap<>(DBObjectType.class);
     private final Map<DBObjectAttributeType, DBObjectAttribute> attributes = new HashMap<>();
 
-    public DBObjectSpec(DBObjectSpec parent) {
+    DBObjectSpec(DBObjectSpec parent) {
         super(parent);
     }
 
@@ -58,14 +59,10 @@ public final class DBObjectSpec extends DBObjectSpecBase{
         setObjectType(objectType);
     }
 
-    public DBObjectSpec(DBSchema schema) {
-        super(null);
-        setConnectionId(schema.getConnectionId());
-        setSchemaId(schema.getSchemaId());
-    }
-
-    public DBObjectSpec(DBSchema schema, DBObjectType objectType) {
-        this(schema);
+    public DBObjectSpec(DatabaseEntity parentEntity, DBObjectType objectType) {
+        super(parentEntity);
+        setConnectionId(parentEntity.getConnectionId());
+        setSchemaId(parentEntity.getSchemaId());
         setObjectType(objectType);
     }
 
@@ -117,6 +114,10 @@ public final class DBObjectSpec extends DBObjectSpecBase{
 
     public DBObjectType getObjectType() {
         return getAttributeValue(OBJECT_TYPE);
+    }
+
+    public DatabaseObjectTypeId getObjectTypeId() {
+        return getObjectType().getTypeId();
     }
 
     public String getObjectTypeName() {

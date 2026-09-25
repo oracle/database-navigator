@@ -24,6 +24,8 @@ import com.dbn.object.type.DBCredentialType;
 import com.dbn.object.type.DBJavaClassType;
 import com.dbn.object.type.DBMiningModelSourceType;
 import com.dbn.object.type.DBObjectType;
+import com.dbn.object.type.DBTriggerEvent;
+import com.dbn.object.type.DBTriggerType;
 import lombok.Getter;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
@@ -49,6 +51,10 @@ public class DBObjectAttributeType<T> extends PseudoConstant<DBObjectAttributeTy
     public static final DBObjectAttributeType<String> SYNONYM_TARGET_SCHEMA = new DBObjectAttributeType<>("SYNONYM_TARGET_SCHEMA", String.class);
     public static final DBObjectAttributeType<String> SYNONYM_TARGET_OBJECT_NAME = new DBObjectAttributeType<>("SYNONYM_TARGET_OBJECT_NAME", String.class);
     public static final DBObjectAttributeType<DBObjectType> SYNONYM_TARGET_OBJECT_TYPE = new DBObjectAttributeType<>("SYNONYM_TARGET_OBJECT_TYPE", DBObjectType.class);
+    public static final DBObjectAttributeType<DBTriggerType> TRIGGER_TYPE = new DBObjectAttributeType<>("TRIGGER_TYPE", DBTriggerType.class);
+    public static final DBObjectAttributeType<DBTriggerEvent[]> TRIGGER_EVENTS = new DBObjectAttributeType<>("TRIGGER_EVENTS", DBTriggerEvent[].class);
+    public static final DBObjectAttributeType<String> TRIGGER_TARGET_DATASET = new DBObjectAttributeType<>("TRIGGER_TARGET_DATASET", String.class);
+    public static final DBObjectAttributeType<Boolean> TRIGGER_FOR_EACH_ROW = new DBObjectAttributeType<>("TRIGGER_FOR_EACH_ROW", Boolean.class);
 
     public static final DBObjectAttributeType<Integer> DATA_LENGTH = new DBObjectAttributeType<>("DATA_LENGTH", Integer.class);
     public static final DBObjectAttributeType<Integer> DATA_PRECISION = new DBObjectAttributeType<>("DATA_PRECISION", Integer.class);
