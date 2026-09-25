@@ -36,7 +36,10 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+import javax.swing.text.DocumentFilter;
 import javax.swing.text.JTextComponent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -122,6 +125,13 @@ public class TextFields {
         });
     }
 
+    public static void installNumericFilter(JTextComponent textComponent, boolean signed) {
+        Document document = textComponent.getDocument();
+        if (document instanceof AbstractDocument abstractDocument) {
+            abstractDocument.setDocumentFilter(new NumericDocumentFilter(signed));
+        }
+    }
+
     public static void setText(JTextComponent textComponent, String text) {
         textComponent.setText(text == null ? "" : text.trim());
     }
@@ -185,5 +195,47 @@ public class TextFields {
             updateFieldError(textComponent, errorMessage);
         });
 
+    }
+
+    private static final class NumericDocumentFilter extends DocumentFilter {
+        private final boolean signed;
+
+        private NumericDocumentFilter(boolean signed) {
+            this.signed = signed;
+        }
+
+        @Override
+        public void insertString(FilterBypass bypass, int offset, String text, AttributeSet attributes) throws BadLocationException {
+            replace(bypass, offset, 0, text, attributes);
+        }
+
+        @Override
+        public void replace(FilterBypass bypass, int offset, int length, String text, AttributeSet attributes) throws BadLocationException {
+            Document document = bypass.getDocument();
+            String current = document.getText(0, document.getLength());
+            String replacement = text == null ? "" : text;
+            String value = current.substring(0, offset) + replacement + current.substring(offset + length);
+            if (isValid(value)) {
+                bypass.replace(offset, length, replacement, attributes);
+            }
+        }
+
+        @Override
+        public void remove(FilterBypass bypass, int offset, int length) throws BadLocationException {
+            replace(bypass, offset, length, "", null);
+        }
+
+        private boolean isValid(String value) {
+            if (value.isEmpty()) return true;
+
+            int start = signed && value.charAt(0) == '-' ? 1 : 0;
+            if (start == value.length()) return signed;
+
+            for (int i = start; i < value.length(); i++) {
+                char character = value.charAt(i);
+                if (character < '0' || character > '9') return false;
+            }
+            return start == 0 || value.charAt(0) == '-';
+        }
     }
 }

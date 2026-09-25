@@ -92,7 +92,7 @@ public class DBViewFactoryAdapter implements ObjectFactoryAdapter {
                     @NonNls String createStatement = input.getObjectType().getDisplayName() + " " +
                             input.getSchemaName(true) + "." +
                             input.getAdjustedObjectName() + " as\n" +
-                            OBJECT_DETAIL.of(input).trim();
+                            OBJECT_DETAIL.of(input);
                     dataDefinition.createObject(createStatement, conn);
                 });
 

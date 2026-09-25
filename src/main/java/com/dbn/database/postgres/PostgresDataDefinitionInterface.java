@@ -40,6 +40,12 @@ import static com.dbn.object.factory.model.DBObjectAttributeType.DATA_TYPE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.IS_INPUT;
 import static com.dbn.object.factory.model.DBObjectAttributeType.IS_OUTPUT;
 import static com.dbn.object.factory.model.DBObjectAttributeType.RETURN_ARGUMENT;
+import static com.dbn.object.factory.model.DBObjectAttributeType.SEQUENCE_CACHE_SIZE;
+import static com.dbn.object.factory.model.DBObjectAttributeType.SEQUENCE_CYCLE;
+import static com.dbn.object.factory.model.DBObjectAttributeType.SEQUENCE_INCREMENT_BY;
+import static com.dbn.object.factory.model.DBObjectAttributeType.SEQUENCE_MAX_VALUE;
+import static com.dbn.object.factory.model.DBObjectAttributeType.SEQUENCE_MIN_VALUE;
+import static com.dbn.object.factory.model.DBObjectAttributeType.SEQUENCE_START_WITH;
 import static com.dbn.object.type.DBObjectType.ARGUMENT;
 
 public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInterfaceImpl {
@@ -106,6 +112,24 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
     /*********************************************************
      *                   CREATE statements                   *
      *********************************************************/
+    @Override
+    public void createSequence(DBObjectSpec sequenceSpec, DBNConnection connection) throws SQLException {
+        @NonNls
+        StringBuilder builder = new StringBuilder("sequence ")
+                .append(sequenceSpec.getSchemaName(true))
+                .append('.')
+                .append(sequenceSpec.getAdjustedObjectName());
+
+        appendOption(builder, " increment by ", SEQUENCE_INCREMENT_BY.of(sequenceSpec));
+        appendOption(builder, " minvalue ", SEQUENCE_MIN_VALUE.of(sequenceSpec));
+        appendOption(builder, " maxvalue ", SEQUENCE_MAX_VALUE.of(sequenceSpec));
+        appendOption(builder, " start with ", SEQUENCE_START_WITH.of(sequenceSpec));
+        appendOption(builder, " cache ", SEQUENCE_CACHE_SIZE.of(sequenceSpec));
+        if (SEQUENCE_CYCLE.is(sequenceSpec)) builder.append(" cycle");
+
+        createObject(builder.toString(), connection);
+    }
+
     @Override
     public void createMethod(@NotNull DBObjectSpec methodSpec, DBNConnection connection) throws SQLException {
         Project project = methodSpec.getSchema().getProject();

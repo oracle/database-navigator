@@ -34,6 +34,7 @@ import java.util.Objects;
 
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.language.common.quotes.QuoteEscaping.DATABASE;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.factory.ObjectFactoryIdentifiers.canUseDefaultCase;
 import static com.dbn.object.factory.ObjectFactoryIdentifiers.quoteIdentifier;
 import static com.dbn.object.factory.model.DBObjectAttributeType.IDENTIFIER_CASE;
@@ -175,7 +176,7 @@ public final class DBObjectSpec extends DBObjectSpecBase{
     }
 
     public String getObjectDescription() {
-        return getObjectTypeName() + " \"" + getObjectPath() + "\"";
+        return txt("app.object.token.QualifiedNameWithType", getObjectTypeName(), getObjectPath());
     }
 
     @Override

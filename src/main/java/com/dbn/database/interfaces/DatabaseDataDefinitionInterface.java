@@ -60,6 +60,8 @@ public interface DatabaseDataDefinitionInterface extends DatabaseInterface {
 
     void createObject(String code, DBNConnection connection) throws SQLException;
 
+    void createSequence(DBObjectSpec sequenceSpec, DBNConnection connection) throws SQLException;
+
     /*********************************************************
      *                   UPDATE statements                   *
      *********************************************************/

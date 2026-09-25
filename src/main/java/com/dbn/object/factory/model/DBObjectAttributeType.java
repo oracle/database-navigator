@@ -40,6 +40,12 @@ public class DBObjectAttributeType<T> extends PseudoConstant<DBObjectAttributeTy
     public static final DBObjectAttributeType<String> OBJECT_NAME = new DBObjectAttributeType<>("OBJECT_NAME", String.class);
     public static final DBObjectAttributeType<String> OBJECT_DETAIL = new DBObjectAttributeType<>("OBJECT_DETAIL", String.class);
     public static final DBObjectAttributeType<String> DATA_TYPE = new DBObjectAttributeType<>("DATA_TYPE", String.class);
+    public static final DBObjectAttributeType<String> SEQUENCE_START_WITH = new DBObjectAttributeType<>("SEQUENCE_START_WITH", String.class);
+    public static final DBObjectAttributeType<String> SEQUENCE_INCREMENT_BY = new DBObjectAttributeType<>("SEQUENCE_INCREMENT_BY", String.class);
+    public static final DBObjectAttributeType<String> SEQUENCE_MIN_VALUE = new DBObjectAttributeType<>("SEQUENCE_MIN_VALUE", String.class);
+    public static final DBObjectAttributeType<String> SEQUENCE_MAX_VALUE = new DBObjectAttributeType<>("SEQUENCE_MAX_VALUE", String.class);
+    public static final DBObjectAttributeType<String> SEQUENCE_CACHE_SIZE = new DBObjectAttributeType<>("SEQUENCE_CACHE_SIZE", String.class);
+    public static final DBObjectAttributeType<Boolean> SEQUENCE_CYCLE = new DBObjectAttributeType<>("SEQUENCE_CYCLE", Boolean.class);
 
     public static final DBObjectAttributeType<Integer> DATA_LENGTH = new DBObjectAttributeType<>("DATA_LENGTH", Integer.class);
     public static final DBObjectAttributeType<Integer> DATA_PRECISION = new DBObjectAttributeType<>("DATA_PRECISION", Integer.class);
@@ -79,7 +85,10 @@ public class DBObjectAttributeType<T> extends PseudoConstant<DBObjectAttributeTy
     @Nullable
     public T of(@Nullable DBObjectSpec spec) {
         if (spec == null) return null;
-        return spec.getAttributeValue(this);
+        T value = spec.getAttributeValue(this);
+        if (value instanceof String string) return cast(string.trim());
+
+        return value;
     }
 
     public boolean is(DBObjectSpec spec) {

@@ -35,6 +35,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.dbn.common.util.Strings.cachedUpperCase;
+import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.language.common.quotes.QuoteEscaping.DATABASE;
 
@@ -48,6 +49,11 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
 
     public DatabaseDataDefinitionInterfaceImpl(String fileName, DatabaseInterfaces provider) {
         super(fileName, provider);
+    }
+
+    protected static void appendOption(StringBuilder builder, String keyword, String value) {
+        if (isEmptyOrSpaces(value)) return;
+        builder.append(keyword).append(value.trim());
     }
 
     @Override
@@ -72,6 +78,11 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
     @Override
     public void createObject(String code, DBNConnection connection) throws SQLException {
         executeUpdate(connection, "create-object", code);
+    }
+
+    @Override
+    public void createSequence(DBObjectSpec sequenceSpec, DBNConnection connection) throws SQLException {
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     /*********************************************************
