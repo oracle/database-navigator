@@ -33,6 +33,7 @@ import static com.dbn.object.event.ObjectChangeAction.DELETE;
 import static com.dbn.object.event.ObjectChangeAction.DISABLE;
 import static com.dbn.object.event.ObjectChangeAction.ENABLE;
 import static com.dbn.object.event.ObjectChangeAction.LOCK;
+import static com.dbn.object.event.ObjectChangeAction.REFRESH;
 import static com.dbn.object.event.ObjectChangeAction.UNLOCK;
 import static com.dbn.object.event.ObjectChangeAction.UNSPECIFIED;
 import static com.dbn.object.event.ObjectChangeAction.UPDATE;
@@ -55,7 +56,7 @@ class DBObjectBundleMonitor implements ObjectChangeListener {
 
         DBObject object = event.getObject();
         ObjectChangeAction action = event.getChangeAction();
-        if (object != null && action.isOneOf(UPDATE, ENABLE, DISABLE, LOCK, UNLOCK)) {
+        if (object != null && action.isOneOf(UPDATE, REFRESH, ENABLE, DISABLE, LOCK, UNLOCK)) {
             log.info("{}: refreshing {}", connectionName, object.getQualifiedNameWithType());
             object.refresh();
             return;
@@ -74,7 +75,7 @@ class DBObjectBundleMonitor implements ObjectChangeListener {
     }
 
     private void refreshRootObjects(DBObjectType objectType, ObjectChangeAction action) {
-        // root-object change events do not carry the object instance, so UPDATE cannot be handled by the
+        // root-object change events do not carry the object instance, so UPDATE and REFRESH cannot be handled by the
         // object.refresh() path above; reload the root list instead so metadata (e.g. lastUpdated) stays current
         if (action.isOneOf(CREATE, UPDATE, DELETE, LOCK, UNLOCK, ENABLE, DISABLE, UNSPECIFIED)) {
             DBObjectBundle objectBundle = getObjectBundle();

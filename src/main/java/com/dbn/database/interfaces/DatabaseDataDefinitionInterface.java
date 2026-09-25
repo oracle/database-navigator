@@ -65,6 +65,8 @@ public interface DatabaseDataDefinitionInterface extends DatabaseInterface {
      *********************************************************/
     void updateView(String ownerName, String viewName, String code, boolean editionable, DBNConnection connection) throws SQLException;
 
+    void updateMaterializedView(String ownerName, String viewName, String oldCode, String newCode, DBNConnection connection) throws SQLException;
+
     void updateJsonView(String ownerName, String viewName, String code, boolean editionable, DBNConnection connection) throws SQLException;
 
     void updateTrigger(String ownerName, String tableName, String triggerName, String oldCode, String newCode, DBNConnection connection) throws SQLException;
@@ -101,4 +103,10 @@ public interface DatabaseDataDefinitionInterface extends DatabaseInterface {
     void lockUser(String userName, DBNConnection connection) throws SQLException;
 
     void unlockUser(String userName, DBNConnection connection) throws SQLException;
+
+    /*********************************************************
+     *                  REFRESH statements                  *
+     *********************************************************/
+
+    void refreshMaterializedView(String ownerName, String viewName, DBNConnection connection) throws SQLException;
 }

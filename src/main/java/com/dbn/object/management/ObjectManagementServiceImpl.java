@@ -44,6 +44,7 @@ import static com.dbn.object.event.ObjectChangeAction.DELETE;
 import static com.dbn.object.event.ObjectChangeAction.DISABLE;
 import static com.dbn.object.event.ObjectChangeAction.ENABLE;
 import static com.dbn.object.event.ObjectChangeAction.LOCK;
+import static com.dbn.object.event.ObjectChangeAction.REFRESH;
 import static com.dbn.object.event.ObjectChangeAction.UNLOCK;
 import static com.dbn.object.event.ObjectChangeAction.UPDATE;
 
@@ -123,6 +124,11 @@ final class ObjectManagementServiceImpl extends ProjectComponentBase implements 
     }
 
     @Override
+    public void refreshObject(DBObject object, OutcomeHandler successHandler) {
+        invokeModal(object, REFRESH, successHandler);
+    }
+
+    @Override
     public void changeObject(DBObject object, ObjectChangeAction action, OutcomeHandler successHandler) {
         switch (action) {
             case CREATE: createObject(object, successHandler); break;
@@ -132,6 +138,7 @@ final class ObjectManagementServiceImpl extends ProjectComponentBase implements 
             case DISABLE: disableObject(object, successHandler); break;
             case LOCK: lockObject(object, successHandler); break;
             case UNLOCK: unlockObject(object, successHandler); break;
+            case REFRESH: refreshObject(object, successHandler); break;
             default: unsupported(action);
         }
     }

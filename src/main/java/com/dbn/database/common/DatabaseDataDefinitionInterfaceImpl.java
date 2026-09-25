@@ -35,6 +35,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.dbn.common.util.Strings.cachedUpperCase;
+import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.language.common.quotes.QuoteEscaping.DATABASE;
 
 @NonNls
@@ -79,6 +80,20 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
     @Override
     public void updateView(String ownerName, String viewName, String code, boolean editionable, DBNConnection connection) throws SQLException {
         executeUpdate(connection, "change-view", ownerName, viewName, code);
+    }
+
+    @Override
+    public void updateMaterializedView(String ownerName, String viewName, String oldCode, String newCode, DBNConnection connection) throws SQLException {
+        String objectType = "materialized view";
+        String objectQualifier = objectType + " " + ownerName + "." + viewName;
+        dropObject(objectType, ownerName, viewName, connection);
+        try {
+            createObject(objectQualifier + " as\n" + newCode, connection);
+        } catch (SQLException e) {
+            conditionallyLog(e);
+            createObject(objectQualifier + " as\n" + oldCode, connection);
+            throw e;
+        }
     }
 
     @Override
@@ -203,5 +218,14 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
     @Override
     public void unlockUser(String userName, DBNConnection connection) throws SQLException {
         executeUpdate(connection, "unlock-user", userName);
+    }
+
+    /*********************************************************
+     *                  REFRESH statements                  *
+     *********************************************************/
+
+    @Override
+    public void refreshMaterializedView(String ownerName, String viewName, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "refresh-materialized-view", ownerName, viewName);
     }
 }

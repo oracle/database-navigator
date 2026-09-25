@@ -31,6 +31,7 @@ public enum ObjectChangeAction implements Constant<ObjectChangeAction> {
     DISABLE,
     LOCK,
     UNLOCK,
+    REFRESH,
 
     UNSPECIFIED, // unspecified change
 }

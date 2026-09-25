@@ -1,6 +1,7 @@
 package com.dbn.editor.code.source.impl;
 
 import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import com.dbn.editor.DBContentType;
 import com.dbn.object.DBMaterializedView;
@@ -19,6 +20,17 @@ public class DBMaterializedViewSourceCodeAdapter extends DBMetadataSourceCodeAda
         return metadataInterface.loadMaterializedViewSourceCode(
                 view.getSchemaName(),
                 view.getName(),
+                connection);
+    }
+
+    @Override
+    public void saveSourceCode(DBMaterializedView view, DBContentType contentType, String oldCode, String newCode, DBNConnection connection) throws SQLException {
+        DatabaseDataDefinitionInterface dataDefinitionInterface = view.getDataDefinitionInterface();
+        dataDefinitionInterface.updateMaterializedView(
+                view.getSchemaName(true),
+                view.getName(true),
+                oldCode,
+                newCode,
                 connection);
     }
 }

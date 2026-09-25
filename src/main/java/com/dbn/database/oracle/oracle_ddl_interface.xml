@@ -53,6 +53,10 @@
         <statement>alter user {@0} account unlock</statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="refresh-materialized-view">
+        <statement>begin dbms_mview.refresh(list =&gt; '{@0}.{@1}'); end;</statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="drop-constraint">
         <statement>alter table {0}.{1} drop constraint {2}</statement>
     </statement-execution-processor>

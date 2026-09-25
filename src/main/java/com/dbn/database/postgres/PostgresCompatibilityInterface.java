@@ -46,9 +46,11 @@ import static com.dbn.database.DatabaseFeature.SESSION_BROWSING;
 import static com.dbn.database.DatabaseFeature.SESSION_CURRENT_SQL;
 import static com.dbn.database.DatabaseFeature.SESSION_KILL;
 import static com.dbn.database.DatabaseFeature.UPDATABLE_RESULT_SETS;
+import static com.dbn.database.DatabaseObjectTypeId.MATERIALIZED_VIEW;
 import static com.dbn.database.DatabaseObjectTypeId.USER;
 import static com.dbn.object.event.ObjectChangeAction.DISABLE;
 import static com.dbn.object.event.ObjectChangeAction.ENABLE;
+import static com.dbn.object.event.ObjectChangeAction.REFRESH;
 
 public class PostgresCompatibilityInterface extends DatabaseCompatibilityInterfaceImpl {
 
@@ -63,6 +65,7 @@ public class PostgresCompatibilityInterface extends DatabaseCompatibilityInterfa
                 DatabaseObjectTypeId.SCHEMA,
                 DatabaseObjectTypeId.TABLE,
                 DatabaseObjectTypeId.VIEW,
+                DatabaseObjectTypeId.MATERIALIZED_VIEW,
                 DatabaseObjectTypeId.COLUMN,
                 DatabaseObjectTypeId.CONSTRAINT,
                 DatabaseObjectTypeId.INDEX,
@@ -76,8 +79,17 @@ public class PostgresCompatibilityInterface extends DatabaseCompatibilityInterfa
     }
 
     @Override
+    public boolean supportsObjectType(DatabaseObjectTypeId objectTypeId, double databaseVersion) {
+        return switch (objectTypeId) {
+            case MATERIALIZED_VIEW -> databaseVersion >= 9.3;
+            default -> supportsObjectType(objectTypeId);
+        };
+    }
+
+    @Override
     public boolean supportsObjectAction(DatabaseObjectTypeId objectTypeId, ObjectChangeAction action) {
         if (objectTypeId == USER && action.isOneOf(ENABLE, DISABLE)) return true;
+        if (objectTypeId == MATERIALIZED_VIEW && action == REFRESH) return true;
 
         return super.supportsObjectAction(objectTypeId, action);
     }

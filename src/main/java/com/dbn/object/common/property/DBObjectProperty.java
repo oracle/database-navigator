@@ -25,6 +25,7 @@ public enum DBObjectProperty implements Property.LongBase {
     READONLY,
     EDITABLE,
     COMPILABLE,
+    REFRESHABLE,
     DISABLEABLE,
     LOCKABLE,
     DEBUGGABLE,

@@ -82,6 +82,7 @@ import static com.dbn.object.common.property.DBObjectProperty.DIAGRAMMABLE;
 import static com.dbn.object.common.property.DBObjectProperty.DISABLEABLE;
 import static com.dbn.object.common.property.DBObjectProperty.EDITABLE;
 import static com.dbn.object.common.property.DBObjectProperty.REFERENCEABLE;
+import static com.dbn.object.common.property.DBObjectProperty.REFRESHABLE;
 import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
 import static com.dbn.object.common.property.DBObjectProperty.SYSTEM_OBJECT;
 import static com.dbn.vfs.DBConsoleType.DEBUG;
@@ -117,6 +118,10 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
     }
 
     private void addObjectManagementActions(DBObject object) {
+        if (object.is(REFRESHABLE) && ObjectRefreshAction.isSupported(object)) {
+            add(new ObjectRefreshAction(object));
+        }
+
         if (object instanceof DBSchemaObject schemaObject) {
 
             if (object.is(EDITABLE)) {

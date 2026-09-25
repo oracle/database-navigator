@@ -51,5 +51,7 @@ public interface ObjectManagementService extends ProjectComponent {
 
     void unlockObject(DBObject object, OutcomeHandler successHandler);
 
+    void refreshObject(DBObject object, OutcomeHandler successHandler);
+
     void changeObject(DBObject object, ObjectChangeAction action, OutcomeHandler successHandler);
 }

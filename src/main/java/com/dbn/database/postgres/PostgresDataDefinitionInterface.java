@@ -53,6 +53,7 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
         objectName = quoted(objectName);
 
         return objectTypeId == DatabaseObjectTypeId.VIEW ? "create view " + objectName + " as\n" + code :
+                objectTypeId == DatabaseObjectTypeId.MATERIALIZED_VIEW ? "create materialized view " + objectName + " as\n" + code :
                 objectTypeId == DatabaseObjectTypeId.FUNCTION ? "create function " + objectName + " as\n" + code :
                         "create or replace\n" + code;
     }
