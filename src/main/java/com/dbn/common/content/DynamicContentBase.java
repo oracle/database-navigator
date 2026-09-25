@@ -116,6 +116,10 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
         return getParentEntity().getConnection();
     }
 
+    protected boolean needsConnection() {
+        return true;
+    }
+
     private boolean canConnect() {
         ConnectionHandler connection = getConnection();
         return ConnectionHandler.canConnect(connection);
@@ -185,6 +189,7 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
         if (!isLoaded()) {
             if (isDisposed()) return false;
             if (isLoading()) return false;
+            if (!needsConnection()) return true;
             if (!canConnect()) return false;
             return true;
         }
@@ -193,6 +198,7 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
             if (isDisposed()) return false;
             if (isLoading()) return false;
             if (!canLoad()) return false;
+            if (!needsConnection()) return true;
             if (!canConnect()) return false;
             return true;
         }
@@ -201,36 +207,29 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
     }
 
     private boolean shouldLoadInBackground() {
-        if (shouldLoad()) {
-            if (isLoadingInBackground()) return false;
-            if (!canLoadInBackground()) return false;
-            return true;
-        }
+        if (!shouldLoad()) return false;
+        if (isLoadingInBackground()) return false;
+        if (!canLoadInBackground()) return false;
+        return true;
 
-        return false;
     }
 
     private boolean shouldReload() {
         // only allow refresh / reload if already loaded
-        if (isLoaded()) {
-            if (isDisposed()) return false;
-            if (isLoading()) return false;
-            if (isLoadingInBackground()) return false;
+        if (!isLoaded()) return false;
+        if (isDisposed()) return false;
+        if (isLoading()) return false;
+        if (isLoadingInBackground()) return false;
 
-            return true;
-        }
+        return true;
 
-        return false;
     }
 
     private boolean shouldRefresh() {
-        if (shouldReload()) {
-            if (isDirty()) return false;
+        if (!shouldReload()) return false;
+        if (isDirty()) return false;
 
-            return true;
-        }
-
-        return false;
+        return true;
     }
 
     @Override
