@@ -97,7 +97,7 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
 
     @Override
     public void updateTrigger(String ownerName, String tableName, String triggerName, String oldCode, String newCode, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "drop-trigger", ownerName, tableName, triggerName);
+        dropDatasetTrigger(ownerName, tableName, triggerName, connection);
         try {
             createObject(newCode, connection);
         } catch (SQLException e) {
@@ -105,6 +105,16 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
             createObject(oldCode, connection);
             throw e;
         }
+    }
+
+    @Override
+    public void dropDatasetTrigger(String ownerName, String tableName, String triggerName, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "drop-dataset-trigger", ownerName, tableName, triggerName);
+    }
+
+    @Override
+    public void dropDatabaseTrigger(String ownerName, String triggerName, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "drop-event-trigger", triggerName);
     }
 
     @Override

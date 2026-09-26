@@ -77,7 +77,7 @@
         <statement>alter table {0}.{1} drop constraint {2}</statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="drop-trigger">
+    <statement-execution-processor id="drop-dataset-trigger">
         <statement>drop trigger {@2} on {@0}.{@1}</statement>
     </statement-execution-processor>
 

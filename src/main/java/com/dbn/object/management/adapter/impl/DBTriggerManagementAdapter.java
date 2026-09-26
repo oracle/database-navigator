@@ -20,6 +20,8 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseMetadataInterface;
+import com.dbn.object.DBDatabaseTrigger;
+import com.dbn.object.DBDatasetTrigger;
 import com.dbn.object.DBTrigger;
 import com.dbn.object.management.ObjectManagementAdapterBase;
 import com.dbn.object.management.ObjectManagementAdapterExtension;
@@ -54,11 +56,24 @@ public class DBTriggerManagementAdapter extends ObjectManagementAdapterBase<DBTr
     @Override
     protected void deleteObject(ConnectionHandler connection, DBNConnection conn, DBTrigger object) throws SQLException {
         DatabaseDataDefinitionInterface databaseInterface = connection.getDataDefinitionInterface();
-        databaseInterface.dropObject(
-                "trigger",
-                object.getSchemaName(true),
-                object.getName(true),
-                conn);
+        if (object instanceof DBDatabaseTrigger) {
+            databaseInterface.dropDatabaseTrigger(
+                    object.getSchemaName(true),
+                    object.getName(true),
+                    conn);
+        } else if (object instanceof DBDatasetTrigger datasetTrigger) {
+            databaseInterface.dropDatasetTrigger(
+                    datasetTrigger.getDataset().getSchemaName(true),
+                    datasetTrigger.getDataset().getName(true),
+                    object.getName(true),
+                    conn);
+        } else {
+            databaseInterface.dropObject(
+                    "trigger",
+                    object.getSchemaName(true),
+                    object.getName(true),
+                    conn);
+        }
     }
 
     @Override
