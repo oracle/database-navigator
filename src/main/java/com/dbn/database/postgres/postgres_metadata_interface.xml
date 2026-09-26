@@ -554,16 +554,19 @@
     <statement-execution-processor id="event-trigger-source-code">
         <statement>
           select concat(
-              pg_get_functiondef(e.evtfoid),
-              E';\n\ncreate event trigger ',
+              'event trigger ',
               quote_ident(e.evtname),
                 ' on ',
                 e.evtevent,
                 ' execute function ',
-                e.evtfoid::regprocedure,
-                ';'
+                quote_ident(n.nspname),
+                '.',
+                quote_ident(p.proname),
+                '();'
             ) as SOURCE_CODE
             from pg_catalog.pg_event_trigger e
+            join pg_catalog.pg_proc p on p.oid = e.evtfoid
+            join pg_catalog.pg_namespace n on n.oid = p.pronamespace
             where e.evtname = {#0}
         </statement>
     </statement-execution-processor>

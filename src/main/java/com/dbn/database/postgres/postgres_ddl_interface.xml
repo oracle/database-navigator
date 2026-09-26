@@ -54,7 +54,7 @@
     </statement-execution-processor>
 
     <statement-execution-processor id="update-event-trigger" transactional="true">
-        <statement>{0}</statement>
+        <statement>create {0}</statement>
     </statement-execution-processor>
 
     <statement-execution-processor id="drop-object" transactional="true">
