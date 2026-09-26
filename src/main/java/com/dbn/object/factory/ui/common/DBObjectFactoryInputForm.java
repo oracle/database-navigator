@@ -26,6 +26,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.object.factory.model.DBObjectAttribute;
 import com.dbn.object.factory.model.DBObjectAttributeType;
 import com.dbn.object.factory.model.DBObjectSpec;
+import com.dbn.object.factory.model.DBObjectTypeSpec;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,6 +35,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.Icon;
 import javax.swing.JPanel;
 import java.awt.Color;
+import java.util.List;
 
 import static com.dbn.nls.NlsResources.txt;
 
@@ -108,4 +110,12 @@ public abstract class DBObjectFactoryInputForm extends DBNFormBase {
     }
 
     public abstract void focus();
+
+    protected DBObjectTypeSpec getObjectTypeSpec() {
+        return input.getObjectTypeSpec();
+    }
+
+    protected  <T> List<T> getSupportedValues(DBObjectAttributeType<?> type) {
+        return getObjectTypeSpec().getSupportedValues(type);
+    }
 }

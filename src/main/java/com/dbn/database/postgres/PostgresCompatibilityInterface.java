@@ -27,6 +27,7 @@ import com.dbn.database.common.DatabaseCompatibilityInterfaceImpl;
 import com.dbn.editor.session.SessionStatus;
 import com.dbn.language.common.quotes.QuoteDefinition;
 import com.dbn.language.common.quotes.QuotePair;
+import com.dbn.object.factory.model.DBObjectTypeSpec;
 import com.dbn.object.event.ObjectChangeAction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -49,9 +50,21 @@ import static com.dbn.database.DatabaseFeature.TRANSACTIONAL_DDL;
 import static com.dbn.database.DatabaseFeature.UPDATABLE_RESULT_SETS;
 import static com.dbn.database.DatabaseObjectTypeId.MATERIALIZED_VIEW;
 import static com.dbn.database.DatabaseObjectTypeId.USER;
+import static com.dbn.object.factory.model.DBObjectAttributeType.OBJECT_DETAIL;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_EVENTS;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_FOR_EACH_ROW;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TARGET_DATASET;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TYPE;
 import static com.dbn.object.event.ObjectChangeAction.DISABLE;
 import static com.dbn.object.event.ObjectChangeAction.ENABLE;
 import static com.dbn.object.event.ObjectChangeAction.REFRESH;
+import static com.dbn.object.type.DBTriggerEvent.DELETE;
+import static com.dbn.object.type.DBTriggerEvent.INSERT;
+import static com.dbn.object.type.DBTriggerEvent.TRUNCATE;
+import static com.dbn.object.type.DBTriggerEvent.UPDATE;
+import static com.dbn.object.type.DBTriggerType.AFTER;
+import static com.dbn.object.type.DBTriggerType.BEFORE;
+import static com.dbn.object.type.DBTriggerType.INSTEAD_OF;
 
 public class PostgresCompatibilityInterface extends DatabaseCompatibilityInterfaceImpl {
 
@@ -77,6 +90,21 @@ public class PostgresCompatibilityInterface extends DatabaseCompatibilityInterfa
                 DatabaseObjectTypeId.SEQUENCE,
                 DatabaseObjectTypeId.SYSTEM_PRIVILEGE,
                 DatabaseObjectTypeId.GRANTED_PRIVILEGE);
+    }
+
+    @Override
+    public DBObjectTypeSpec getObjectTypeSpec(DatabaseObjectTypeId objectTypeId) {
+        return switch (objectTypeId) {
+            case DATASET_TRIGGER ->
+                    DBObjectTypeSpec.create(objectTypeId)
+                            .withAttribute(TRIGGER_TYPE, List.of(BEFORE, AFTER, INSTEAD_OF), false, true)
+                            .withAttribute(TRIGGER_EVENTS, List.of(INSERT, UPDATE, DELETE, TRUNCATE), true, true)
+                            .withAttribute(TRIGGER_TARGET_DATASET, List.of(), false, true)
+                            .withAttribute(TRIGGER_FOR_EACH_ROW, List.of(false, true), false, false)
+                            .withAttribute(OBJECT_DETAIL, List.of(), false, true);
+            //...
+            default -> super.getObjectTypeSpec(objectTypeId);
+        };
     }
 
     @Override

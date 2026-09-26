@@ -38,6 +38,7 @@ import com.dbn.diagnostics.Diagnostics;
 import com.dbn.editor.session.SessionStatus;
 import com.dbn.language.common.quotes.QuoteDefinition;
 import com.dbn.language.common.quotes.QuotePair;
+import com.dbn.object.factory.model.DBObjectTypeSpec;
 import com.dbn.object.event.ObjectChangeAction;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
@@ -94,6 +95,24 @@ import static com.dbn.database.DatabaseFeature.UPDATABLE_RESULT_SETS;
 import static com.dbn.database.DatabaseFeature.USER_SCHEMA;
 import static com.dbn.database.DatabaseFeature.VECTOR_EMBEDDING;
 import static com.dbn.database.DatabaseFeature.VECTOR_SEARCH;
+import static com.dbn.object.factory.model.DBObjectAttributeType.OBJECT_DETAIL;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_EVENTS;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_FOR_EACH_ROW;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TARGET_DATASET;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TYPE;
+import static com.dbn.object.type.DBTriggerEvent.ALTER;
+import static com.dbn.object.type.DBTriggerEvent.CREATE;
+import static com.dbn.object.type.DBTriggerEvent.DDL;
+import static com.dbn.object.type.DBTriggerEvent.DELETE;
+import static com.dbn.object.type.DBTriggerEvent.DROP;
+import static com.dbn.object.type.DBTriggerEvent.INSERT;
+import static com.dbn.object.type.DBTriggerEvent.LOGON;
+import static com.dbn.object.type.DBTriggerEvent.RENAME;
+import static com.dbn.object.type.DBTriggerEvent.TRUNCATE;
+import static com.dbn.object.type.DBTriggerEvent.UPDATE;
+import static com.dbn.object.type.DBTriggerType.AFTER;
+import static com.dbn.object.type.DBTriggerType.BEFORE;
+import static com.dbn.object.type.DBTriggerType.INSTEAD_OF;
 import static com.dbn.database.DatabaseObjectTypeId.AI_PROFILE;
 import static com.dbn.database.DatabaseObjectTypeId.CREDENTIAL;
 import static com.dbn.database.DatabaseObjectTypeId.JAVA_CLASS;
@@ -218,6 +237,25 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
     @Override
     public List<DatabaseObjectTypeId> getSupportedObjectTypes() {
         return Collections.emptyList(); // default implementation not used (all object types are supported)
+    }
+
+    @Override
+    public DBObjectTypeSpec getObjectTypeSpec(DatabaseObjectTypeId objectTypeId) {
+        return switch (objectTypeId) {
+            case DATASET_TRIGGER -> DBObjectTypeSpec.create(objectTypeId)
+                    .withAttribute(TRIGGER_TYPE, List.of(BEFORE, AFTER, INSTEAD_OF), false, true)
+                    .withAttribute(TRIGGER_EVENTS, List.of(INSERT, UPDATE, DELETE), true, true)
+                    .withAttribute(TRIGGER_TARGET_DATASET, List.of(), false, true)
+                    .withAttribute(TRIGGER_FOR_EACH_ROW, List.of(false, true), false, false)
+                    .withAttribute(OBJECT_DETAIL, List.of(), false, true);
+
+            case DATABASE_TRIGGER -> DBObjectTypeSpec.create(objectTypeId)
+                    .withAttribute(TRIGGER_TYPE, List.of(BEFORE, AFTER), false, true)
+                    .withAttribute(TRIGGER_EVENTS, List.of(LOGON, DDL, CREATE, ALTER, DROP, RENAME, TRUNCATE), true, true)
+                    .withAttribute(OBJECT_DETAIL, List.of(), false, true);
+
+            default -> super.getObjectTypeSpec(objectTypeId);
+        };
     }
 
     @Override

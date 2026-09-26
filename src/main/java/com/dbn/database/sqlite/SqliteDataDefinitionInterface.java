@@ -29,13 +29,21 @@ import com.dbn.ddl.options.DDLFileSettings;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.language.sql.SQLLanguage;
+import com.dbn.object.factory.ObjectFactoryIdentifiers;
+import com.dbn.object.factory.model.DBObjectSpec;
+import com.dbn.object.type.DBTriggerEvent;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NonNls;
 
 import java.sql.SQLException;
 
 import static com.dbn.common.exception.Exceptions.notImplemented;
 import static com.dbn.common.util.Strings.cachedLowerCase;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.object.factory.model.DBObjectAttributeType.OBJECT_DETAIL;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_EVENTS;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TARGET_DATASET;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TYPE;
 
 public class SqliteDataDefinitionInterface extends DatabaseDataDefinitionInterfaceImpl {
     SqliteDataDefinitionInterface(DatabaseInterfaces provider) {
@@ -89,6 +97,30 @@ public class SqliteDataDefinitionInterface extends DatabaseDataDefinitionInterfa
     /*********************************************************
      *                   CHANGE statements                   *
      *********************************************************/
+    @Override
+    public void createTrigger(DBObjectSpec triggerSpec, DBNConnection connection) throws SQLException {
+        DBTriggerEvent[] triggerEvents = TRIGGER_EVENTS.of(triggerSpec);
+        DBTriggerEvent triggerEvent = triggerEvents == null || triggerEvents.length == 0 ? null : triggerEvents[0];
+
+        @NonNls
+        StringBuilder builder = new StringBuilder("trigger ");
+        builder.append(triggerSpec.getSchemaName(true));
+        builder.append('.');
+        builder.append(triggerSpec.getAdjustedObjectName());
+        builder.append('\n');
+        builder.append(TRIGGER_TYPE.of(triggerSpec).getName());
+        builder.append(' ');
+        builder.append(triggerEvent.getName());
+        builder.append(" on ");
+        builder.append(ObjectFactoryIdentifiers.quoteIdentifier(
+                triggerSpec.getConnection(),
+                TRIGGER_TARGET_DATASET.of(triggerSpec)));
+        builder.append("\nfor each row\n");
+        builder.append(OBJECT_DETAIL.of(triggerSpec));
+
+        createObject(builder.toString(), connection);
+    }
+
     @Override
     public void updateView(String ownerName, String viewName, String code, boolean editionable, DBNConnection connection) throws SQLException {
         // try instructions

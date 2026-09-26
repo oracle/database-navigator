@@ -17,6 +17,7 @@
 package com.dbn.object.factory.ui;
 
 import com.dbn.common.color.Colors;
+import com.dbn.common.icon.Icons;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.component.DBNComponent;
@@ -41,16 +42,19 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.util.ui.UIUtil;
+import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Box;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -71,22 +75,8 @@ import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_EVENTS;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_FOR_EACH_ROW;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TARGET_DATASET;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TYPE;
-import static com.dbn.object.type.DBObjectType.DATABASE_TRIGGER;
 import static com.dbn.object.type.DBObjectType.DATASET;
 import static com.dbn.object.type.DBObjectType.DATASET_TRIGGER;
-import static com.dbn.object.type.DBTriggerEvent.ALTER;
-import static com.dbn.object.type.DBTriggerEvent.CREATE;
-import static com.dbn.object.type.DBTriggerEvent.DDL;
-import static com.dbn.object.type.DBTriggerEvent.DELETE;
-import static com.dbn.object.type.DBTriggerEvent.DROP;
-import static com.dbn.object.type.DBTriggerEvent.INSERT;
-import static com.dbn.object.type.DBTriggerEvent.LOGON;
-import static com.dbn.object.type.DBTriggerEvent.RENAME;
-import static com.dbn.object.type.DBTriggerEvent.TRUNCATE;
-import static com.dbn.object.type.DBTriggerEvent.UPDATE;
-import static com.dbn.object.type.DBTriggerType.AFTER;
-import static com.dbn.object.type.DBTriggerType.BEFORE;
-import static com.dbn.object.type.DBTriggerType.INSTEAD_OF;
 
 public class DBTriggerFactoryInputForm extends DBSchemaObjectFactoryInputForm {
     private JPanel mainPanel;
@@ -132,6 +122,10 @@ public class DBTriggerFactoryInputForm extends DBSchemaObjectFactoryInputForm {
         targetDatasetComboBox.setVisible(datasetTrigger);
         triggerForEachRowLabel.setVisible(datasetTrigger);
         triggerForEachRowCheckBox.setVisible(datasetTrigger);
+        if (datasetTrigger && isRowTriggerMandatory()) {
+            triggerForEachRowCheckBox.setSelected(true);
+            triggerForEachRowCheckBox.setEnabled(false);
+        }
         if (!datasetTrigger) return;
 
         targetDatasetComboBox
@@ -146,32 +140,35 @@ public class DBTriggerFactoryInputForm extends DBSchemaObjectFactoryInputForm {
     }
 
     private void initTriggerType() {
-        DBTriggerType[] values = getObjectType() == DATABASE_TRIGGER ?
-                new DBTriggerType[]{BEFORE, AFTER} :
-                new DBTriggerType[]{BEFORE, AFTER, INSTEAD_OF};
-        triggerTypeComboBox.setValues(values);
+        List<DBTriggerType> triggerTypes = getSupportedValues(TRIGGER_TYPE);
+        triggerTypeComboBox.setValues(triggerTypes);
         triggerTypeComboBox.setSelectedValue(TRIGGER_TYPE.of(input));
     }
 
     private void initTriggerEvents() {
-        DBTriggerEvent[] values = getObjectType() == DATABASE_TRIGGER ?
-                new DBTriggerEvent[]{LOGON, DDL, CREATE, ALTER, DROP, RENAME} :
-                new DBTriggerEvent[]{INSERT, UPDATE, DELETE, TRUNCATE};
         DBTriggerEvent[] selectedEvents = TRIGGER_EVENTS.of(input);
-        triggerEvents = Arrays.asList(values);
+        triggerEvents = getSupportedValues(TRIGGER_EVENTS);
         triggerEventButtons = new ArrayList<>();
         triggerEventsPanel.removeAll();
         horizontalBoxLayout(triggerEventsPanel);
-        for (DBTriggerEvent event : values) {
+        for (DBTriggerEvent event : triggerEvents) {
             if (!triggerEventButtons.isEmpty()) {
                 triggerEventsPanel.add(Box.createHorizontalStrut(8));
             }
             JToggleButton toggleButton = new JToggleButton(event.getName().toUpperCase(Locale.ROOT));
+            toggleButton.setHorizontalTextPosition(SwingConstants.LEFT);
+            Insets margin = toggleButton.getMargin();
+            toggleButton.setMargin(JBUI.insets(margin.top, 8, margin.bottom, 8));
             toggleButton.setSelected(isSelected(event, selectedEvents));
             toggleButton.setAlignmentX(Component.LEFT_ALIGNMENT);
             toggleButton.setMaximumSize(toggleButton.getPreferredSize());
             toggleButton.setAlignmentY(Component.CENTER_ALIGNMENT);
             toggleButton.addItemListener(e -> {
+                if (!allowsMultipleTriggerEvents() && toggleButton.isSelected()) {
+                    for (JToggleButton button : triggerEventButtons) {
+                        if (button != toggleButton) button.setSelected(false);
+                    }
+                }
                 updateTriggerEventButton(toggleButton);
                 validateFormFields();
             });
@@ -189,10 +186,12 @@ public class DBTriggerFactoryInputForm extends DBSchemaObjectFactoryInputForm {
 
     private static void updateTriggerEventButton(JToggleButton button) {
         boolean selected = button.isSelected();
-        button.setOpaque(selected);
-        button.setContentAreaFilled(selected);
+        button.setIcon(selected ? Icons.ACTION_CHECK : Icons.COMMON_EMPTY);
+        button.setOpaque(false);
+        button.setContentAreaFilled(false);
         button.setBorderPainted(true);
-        button.setForeground(selected ? Colors.getLabelForeground() : UIUtil.getLabelDisabledForeground());
+        button.setForeground(Colors.getLabelForeground());
+        //button.setPreferredSize(new Dimension(200, -1));
     }
 
     private void initPreserveCaseFields() {
@@ -295,6 +294,15 @@ public class DBTriggerFactoryInputForm extends DBSchemaObjectFactoryInputForm {
         return triggerEventButtons.stream().anyMatch(JToggleButton::isSelected);
     }
 
+    private boolean allowsMultipleTriggerEvents() {
+        return getObjectTypeSpec().allowsMultiple(TRIGGER_EVENTS);
+    }
+
+    private boolean isRowTriggerMandatory() {
+        List<Boolean> booleanOptions = getSupportedValues(TRIGGER_FOR_EACH_ROW);
+        return booleanOptions.size() == 1 && booleanOptions.get(0);
+    }
+
     private DBDataset getSelectedTargetDataset() {
         return getSelection(targetDatasetComboBox);
     }
@@ -306,6 +314,10 @@ public class DBTriggerFactoryInputForm extends DBSchemaObjectFactoryInputForm {
         initTriggerTypePersistence(state);
         if (getObjectType() == DATASET_TRIGGER) {
             initPersistence(triggerForEachRowCheckBox, state, "for-each-row");
+            if (isRowTriggerMandatory()) {
+                triggerForEachRowCheckBox.setSelected(true);
+                triggerForEachRowCheckBox.setEnabled(false);
+            }
         }
         for (int i = 0; i < triggerEvents.size(); i++) {
             DBTriggerEvent event = triggerEvents.get(i);
@@ -360,7 +372,7 @@ public class DBTriggerFactoryInputForm extends DBSchemaObjectFactoryInputForm {
     public void resetFormChanges() {
         super.resetFormChanges();
         triggerTypeComboBox.setSelectedValue(TRIGGER_TYPE.of(input));
-        triggerForEachRowCheckBox.setSelected(TRIGGER_FOR_EACH_ROW.is(input));
+        triggerForEachRowCheckBox.setSelected(isRowTriggerMandatory() || TRIGGER_FOR_EACH_ROW.is(input));
         if (getObjectType() == DATASET_TRIGGER && isInitialized()) {
             targetDatasetComboBox
                     .withValuePreselector(() -> TRIGGER_TARGET_DATASET.of(input))

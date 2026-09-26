@@ -21,6 +21,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.DatabaseEntity;
 import com.dbn.database.DatabaseIdentifierCase;
 import com.dbn.database.DatabaseObjectTypeId;
+import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
 import com.dbn.language.common.quotes.QuotePair;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
@@ -120,6 +121,10 @@ public final class DBObjectSpec extends DBObjectSpecBase{
         return getObjectType().getTypeId();
     }
 
+    public DBObjectTypeSpec getObjectTypeSpec() {
+        return getCompatibilityInterface().getObjectTypeSpec(getObjectTypeId());
+    }
+
     public String getObjectTypeName() {
         return getObjectType().getDisplayName();
     }
@@ -136,7 +141,7 @@ public final class DBObjectSpec extends DBObjectSpecBase{
         String objectName = getObjectName();
         if (!quoted) return objectName;
 
-        QuotePair quotes = getConnection().getCompatibilityInterface().getDefaultIdentifierQuotes();
+        QuotePair quotes = getCompatibilityInterface().getDefaultIdentifierQuotes();
         return quotes.quote(objectName, DATABASE);
     }
 
@@ -223,4 +228,9 @@ public final class DBObjectSpec extends DBObjectSpecBase{
         DBObjectAttribute<T> attribute = findAttribute(attributeId);
         return attribute == null ? null : attribute.getValue();
     }
+
+    private DatabaseCompatibilityInterface getCompatibilityInterface() {
+        return getConnection().getCompatibilityInterface();
+    }
+
 }

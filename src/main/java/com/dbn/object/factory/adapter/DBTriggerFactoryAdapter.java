@@ -51,7 +51,7 @@ public abstract class DBTriggerFactoryAdapter implements ObjectFactoryAdapter {
         input.setObjectName("new_trigger");
         input.setAttributeValue(TRIGGER_TYPE, DBTriggerType.BEFORE);
         input.setAttributeValue(TRIGGER_EVENTS, getDefaultEvents());
-        input.setAttributeValue(OBJECT_DETAIL, "begin\n    null;\nend;");
+        input.setAttributeValue(OBJECT_DETAIL, "begin\nend;");
         return input;
     }
 

@@ -27,8 +27,10 @@ import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.common.DatabaseDataDefinitionInterfaceImpl;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.editor.DBContentType;
+import com.dbn.object.factory.ObjectFactoryIdentifiers;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.model.DBObjectSpecList;
+import com.dbn.object.type.DBTriggerEvent;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NonNls;
@@ -48,6 +50,11 @@ import static com.dbn.object.factory.model.DBObjectAttributeType.SEQUENCE_INCREM
 import static com.dbn.object.factory.model.DBObjectAttributeType.SEQUENCE_MAX_VALUE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.SEQUENCE_MIN_VALUE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.SEQUENCE_START_WITH;
+import static com.dbn.object.factory.model.DBObjectAttributeType.OBJECT_DETAIL;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_EVENTS;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_FOR_EACH_ROW;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TARGET_DATASET;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TYPE;
 import static com.dbn.object.type.DBObjectType.ARGUMENT;
 
 public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInterfaceImpl {
@@ -114,6 +121,34 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
     /*********************************************************
      *                   CREATE statements                   *
      *********************************************************/
+    @Override
+    public void createTrigger(DBObjectSpec triggerSpec, DBNConnection connection) throws SQLException {
+        DBTriggerEvent[] triggerEvents = TRIGGER_EVENTS.of(triggerSpec);
+
+        @NonNls
+        StringBuilder builder = new StringBuilder("trigger ");
+        builder.append(triggerSpec.getAdjustedObjectName());
+        builder.append('\n');
+        builder.append(TRIGGER_TYPE.of(triggerSpec).getName());
+        builder.append(' ');
+
+        for (int i = 0; i < triggerEvents.length; i++) {
+            if (i > 0) builder.append(" or ");
+            builder.append(triggerEvents[i].getName());
+        }
+
+        builder.append(" on ");
+        builder.append(triggerSpec.getSchemaName(true));
+        builder.append('.');
+        builder.append(ObjectFactoryIdentifiers.quoteIdentifier(
+                triggerSpec.getConnection(),
+                TRIGGER_TARGET_DATASET.of(triggerSpec)));
+        builder.append(TRIGGER_FOR_EACH_ROW.is(triggerSpec) ? "\nfor each row\n" : "\nfor each statement\n");
+        builder.append(OBJECT_DETAIL.of(triggerSpec));// PostgreSQL expects the trigger action as an EXECUTE FUNCTION clause.
+
+        createObject(builder.toString(), connection);
+    }
+
     @Override
     public void createSequence(DBObjectSpec sequenceSpec, DBNConnection connection) throws SQLException {
         @NonNls
