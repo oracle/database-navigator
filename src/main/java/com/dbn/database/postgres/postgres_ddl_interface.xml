@@ -53,6 +53,10 @@
         <statement>create or replace {0}</statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="update-event-trigger" transactional="true">
+        <statement>{0}</statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="drop-object" transactional="true">
         <statement>drop {0} {1}.{2}</statement>
     </statement-execution-processor>
@@ -75,6 +79,10 @@
 
     <statement-execution-processor id="drop-trigger">
         <statement>drop trigger {@2} on {@0}.{@1}</statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="drop-event-trigger" transactional="true">
+        <statement>drop event trigger if exists {0}</statement>
     </statement-execution-processor>
 
     <statement-execution-processor id="drop-trigger-function" transactional="true">

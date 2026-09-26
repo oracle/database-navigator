@@ -109,7 +109,27 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
 
     @Override
     public void updateObject(String ownerName, String objectName, String objectType, String oldCode, String newCode, DBNConnection connection) throws SQLException {
+        if (DBObjectType.DATABASE_TRIGGER.getName().equalsIgnoreCase(objectType)) {
+            updateEventTrigger(objectName, oldCode, newCode, connection);
+            return;
+        }
+
         executeUpdate(connection, "update-object", newCode);
+    }
+
+    private void updateEventTrigger(String triggerName, String oldCode, String newCode, DBNConnection connection) throws SQLException {
+        executeStatement(connection, "drop-event-trigger", triggerName);
+        try {
+            executeStatement(connection, "update-event-trigger", newCode);
+        } catch (SQLException e) {
+            conditionallyLog(e);
+            try {
+                executeStatement(connection, "update-event-trigger", oldCode);
+            } catch (SQLException restoreException) {
+                conditionallyLog(restoreException);
+            }
+            throw e;
+        }
     }
 
     /*********************************************************

@@ -550,10 +550,10 @@
 
     <statement-execution-processor id="database-trigger-source-code">
         <statement>
-            select concat(
-                pg_get_functiondef(e.evtfoid),
-                E'\n\ncreate event trigger ',
-                quote_ident(e.evtname),
+          select concat(
+              pg_get_functiondef(e.evtfoid),
+              E';\n\ncreate event trigger ',
+              quote_ident(e.evtname),
                 ' on ',
                 e.evtevent,
                 ' execute function ',
