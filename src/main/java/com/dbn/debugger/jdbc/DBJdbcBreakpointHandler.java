@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ import com.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dbn.language.common.psi.BasePsiElement;
 import com.dbn.language.psql.PSQLFile;
 import com.dbn.object.DBMethod;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
@@ -166,14 +166,14 @@ public class DBJdbcBreakpointHandler extends DBBreakpointHandler<DBJdbcDebugProc
         if (document == null) return;
 
         int line = document.getLineNumber(offset);
-        DBObjectRef<DBSchemaObject> schemaObject = DBDebugUtil.getMainDatabaseObject(method);
-        if (schemaObject == null) return;
+        DBObjectRef<DBObject> object = DBDebugUtil.getMainDatabaseObject(method);
+        if (object == null) return;
 
         try {
             defaultBreakpointInfo = getDebuggerInterface().addProgramBreakpoint(
                     method.getSchemaName(),
-                    schemaObject.getObjectName(),
-                    cachedUpperCase(schemaObject.getObjectType().getName()),
+                    object.getObjectName(),
+                    cachedUpperCase(object.getObjectType().getName()),
                     line,
                     getDebugConnection());
         } catch (SQLException e) {

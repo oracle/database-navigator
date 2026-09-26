@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import com.dbn.editor.code.SourceCodeEditor;
 import com.dbn.editor.code.SourceCodeManager;
 import com.dbn.editor.code.diff.MergeAction;
 import com.dbn.editor.code.diff.SourceCodeDiffManager;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
@@ -36,7 +36,7 @@ import static com.dbn.nls.NlsResources.txt;
 public class SourceCodeOutdatedNotificationPanel extends SourceCodeEditorNotificationPanel{
     public SourceCodeOutdatedNotificationPanel(DBSourceCodeVirtualFile sourceCodeFile, @NotNull FileEditor fileEditor, SourceCodeEditor sourceCodeEditor) {
         super(sourceCodeFile.getObject(), fileEditor, MessageType.WARNING);
-        DBSchemaObject editableObject = sourceCodeFile.getObject();
+        DBObject editableObject = sourceCodeFile.getObject();
         Project project = editableObject.getProject();
         String presentableChangeTime =
                 DatabaseFeature.OBJECT_CHANGE_MONITORING.isSupported(editableObject) ?

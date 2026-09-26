@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import com.dbn.editor.DatabaseFileEditorManager;
 import com.dbn.editor.code.SourceCodeManager;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.vfs.DatabaseFileSystem;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
@@ -43,7 +43,7 @@ import static com.dbn.common.util.Unsafe.cast;
 public class DBDebugUtil {
     private static final String TOOLWINDOW_SPLIT_REGISTRY_KEY = "xdebugger.toolwindow.split";
 
-    public static @Nullable DBSchemaObject getObject(@Nullable XSourcePosition sourcePosition) {
+    public static @Nullable DBObject getObject(@Nullable XSourcePosition sourcePosition) {
         if (sourcePosition == null) return null;
 
         VirtualFile virtualFile = sourcePosition.getFile();
@@ -65,39 +65,39 @@ public class DBDebugUtil {
 
     @Nullable
     public static DBEditableObjectVirtualFile getMainDatabaseFile(DBJavaMethod javaMethod) {
-        DBSchemaObject schemaObject = getMainDatabaseObject(javaMethod);
-        return schemaObject == null ? null : (DBEditableObjectVirtualFile) schemaObject.getVirtualFile();
+        DBObject object = getMainDatabaseObject(javaMethod);
+        return object == null ? null : (DBEditableObjectVirtualFile) object.getVirtualFile();
     }
 
     @Nullable
-    public static DBSchemaObject getMainDatabaseObject(DBJavaMethod method) {
+    public static DBObject getMainDatabaseObject(DBJavaMethod method) {
         return method.getOwnerClass();
     }
 
     @Nullable
     public static DBEditableObjectVirtualFile getMainDatabaseFile(DBMethod method) {
-        DBSchemaObject schemaObject = getMainDatabaseObject(method);
-        return schemaObject == null ? null : (DBEditableObjectVirtualFile) schemaObject.getVirtualFile();
+        DBObject object = getMainDatabaseObject(method);
+        return object == null ? null : (DBEditableObjectVirtualFile) object.getVirtualFile();
     }
 
     @Nullable
-    public static DBSchemaObject getMainDatabaseObject(DBMethod method) {
+    public static DBObject getMainDatabaseObject(DBMethod method) {
         return method != null && method.isProgramMethod() ? method.getProgram() : method;
     }
 
     @Nullable
     public static DBEditableObjectVirtualFile getMainDatabaseFile(DBObjectRef<DBMethod> method) {
-        DBObjectRef<DBSchemaObject> schemaObject = getMainDatabaseObject(method);
-        if (schemaObject == null) return null;
+        DBObjectRef<DBObject> object = getMainDatabaseObject(method);
+        if (object == null) return null;
 
-        Project project = schemaObject.getProject();
+        Project project = object.getProject();
         if (project == null) return null;
 
         DatabaseFileSystem databaseFileSystem = DatabaseFileSystem.getInstance();
-        return databaseFileSystem.findOrCreateDatabaseFile(project, schemaObject);
+        return databaseFileSystem.findOrCreateDatabaseFile(project, object);
     }
 
-    public static DBObjectRef<DBSchemaObject> getMainDatabaseObject(DBObjectRef<DBMethod> method) {
+    public static DBObjectRef<DBObject> getMainDatabaseObject(DBObjectRef<DBMethod> method) {
         if (method == null) return null;
         if (method.isSchemaObject()) return cast(method);
         return method.getParentRef(o -> o.isSchemaObject());

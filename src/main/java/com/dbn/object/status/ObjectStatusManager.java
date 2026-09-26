@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import com.dbn.object.DBSchema;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.property.DBObjectProperty;
 import com.intellij.openapi.components.State;
@@ -57,6 +58,7 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.editor.DBContentType.CODE_BODY;
 import static com.dbn.editor.DBContentType.CODE_SPEC;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.object.common.property.DBObjectProperty.*;
 import static com.dbn.object.common.status.DBObjectStatus.DEBUG;
 import static com.dbn.object.common.status.DBObjectStatus.VALID;
 
@@ -84,14 +86,14 @@ public class ObjectStatusManager extends ProjectComponentBase implements Persist
                 conn -> refreshObjectsStatus(schema, conn));
     }
 
-    public void refreshObjectsStatus(ConnectionHandler connection, @Nullable DBSchemaObject requester) {
+    public void refreshObjectsStatus(ConnectionHandler connection, @Nullable DBObject requester) {
         if (!OBJECT_INVALIDATION.isSupported(connection)) return;
 
         Background.run(() -> {
             try {
-                List<DBSchema> schemas = requester == null ?
-                        connection.getObjectBundle().getSchemas(true) :
-                        requester.getReferencingSchemas();
+                List<DBSchema> schemas = (requester instanceof DBSchemaObject schemaObject) ?
+                        schemaObject.getReferencingSchemas() :
+                        connection.getObjectBundle().getSchemas(true);
 
                 DatabaseInterfaceInvoker.schedule(LOW,
                         txt("prc.objects.title.RefreshingObjectsStatus"),
@@ -143,20 +145,20 @@ public class ObjectStatusManager extends ProjectComponentBase implements Persist
             resultSet = metadata.loadInvalidObjects(schema.getName(), conn);
             while (resultSet != null && resultSet.next()) {
                 String objectName = resultSet.getString("OBJECT_NAME");
-                DBSchemaObject schemaObject = schema.getChildObjectNoLoad(objectName);
-                if (schemaObject != null && schemaObject.is(DBObjectProperty.INVALIDABLE)) {
+                DBObject object = schema.getChildObjectNoLoad(objectName);
+                if (object != null && object.is(INVALIDABLE)) {
                     boolean statusChanged;
 
-                    if (schemaObject.getContentType().isBundle()) {
+                    if (object.getContentType().isBundle()) {
                         String objectType = resultSet.getString("OBJECT_TYPE");
                         statusChanged = objectType.contains("BODY") ?
-                                schemaObject.setStatus(CODE_BODY, VALID, false) :
-                                schemaObject.setStatus(CODE_SPEC, VALID, false);
+                                object.setStatus(CODE_BODY, VALID, false) :
+                                object.setStatus(CODE_SPEC, VALID, false);
                     } else {
-                        statusChanged = schemaObject.setStatus(VALID, false);
+                        statusChanged = object.setStatus(VALID, false);
                     }
                     if (statusChanged) {
-                        entities.add(schemaObject.getParent());
+                        entities.add(object.getParent());
                     }
                 }
             }
@@ -172,20 +174,20 @@ public class ObjectStatusManager extends ProjectComponentBase implements Persist
             resultSet = metadata.loadDebugObjects(schema.getName(), conn);
             while (resultSet != null && resultSet.next()) {
                 String objectName = resultSet.getString("OBJECT_NAME");
-                DBSchemaObject schemaObject = schema.getChildObjectNoLoad(objectName);
-                if (schemaObject != null && schemaObject.is(DBObjectProperty.DEBUGGABLE)) {
+                DBObject object = schema.getChildObjectNoLoad(objectName);
+                if (object != null && object.is(DEBUGGABLE)) {
                     boolean statusChanged;
 
-                    if (schemaObject.getContentType().isBundle()) {
+                    if (object.getContentType().isBundle()) {
                         String objectType = resultSet.getString("OBJECT_TYPE");
                         statusChanged = objectType.contains("BODY") ?
-                                schemaObject.setStatus(CODE_BODY, DEBUG, true) :
-                                schemaObject.setStatus(CODE_SPEC, DEBUG, true);
+                                object.setStatus(CODE_BODY, DEBUG, true) :
+                                object.setStatus(CODE_SPEC, DEBUG, true);
                     } else {
-                        statusChanged = schemaObject.setStatus(DEBUG, true);
+                        statusChanged = object.setStatus(DEBUG, true);
                     }
                     if (statusChanged) {
-                        entities.add(schemaObject.getParent());
+                        entities.add(object.getParent());
                     }
                 }
             }

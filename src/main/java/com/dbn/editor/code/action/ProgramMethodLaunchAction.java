@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
 import com.dbn.object.DBProgram;
 import com.dbn.object.common.DBObject;
-import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
@@ -69,11 +68,11 @@ public abstract class ProgramMethodLaunchAction extends ProjectPopupAction {
         DBSourceCodeVirtualFile sourceCodeFile = getSourcecodeFile(e);
         if (isNotValid(sourceCodeFile)) return AnAction.EMPTY_ARRAY;
 
-        DBSchemaObject schemaObject = sourceCodeFile.getObject();
-        if (schemaObject instanceof DBProgram program) {
+        DBObject object = sourceCodeFile.getObject();
+        if (object instanceof DBProgram program) {
             return createProgramMethodActions(program);
 
-        } else if (schemaObject instanceof DBJavaClass javaClass) {
+        } else if (object instanceof DBJavaClass javaClass) {
             return createJavaMethodActions(javaClass);
         }
 
@@ -92,8 +91,8 @@ public abstract class ProgramMethodLaunchAction extends ProjectPopupAction {
         DBSourceCodeVirtualFile sourceCodeFile = getSourcecodeFile(e);
         if (sourceCodeFile == null) return false;
 
-        DBSchemaObject schemaObject = sourceCodeFile.getObject();
-        DBObjectType objectType = schemaObject.getObjectType();
+        DBObject object = sourceCodeFile.getObject();
+        DBObjectType objectType = object.getObjectType();
         return objectType.matches(PROGRAM) || objectType.matches(JAVA_CLASS);
     }
 

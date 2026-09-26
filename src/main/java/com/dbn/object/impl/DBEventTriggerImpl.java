@@ -40,6 +40,7 @@ import java.sql.SQLException;
 
 import static com.dbn.common.util.Strings.cachedLowerCase;
 import static com.dbn.common.util.Strings.isEmpty;
+import static com.dbn.object.common.property.DBObjectProperty.EDITABLE;
 import static com.dbn.object.common.property.DBObjectProperty.FOR_EACH_ROW;
 import static com.dbn.object.common.property.DBObjectProperty.ROOT_OBJECT;
 import static com.dbn.object.common.status.DBObjectStatus.DEBUG;
@@ -95,6 +96,7 @@ class DBEventTriggerImpl extends DBRootObjectImpl<DBTriggerMetadata> implements 
     @Override
     protected void initProperties() {
         properties.set(ROOT_OBJECT, true);
+        properties.set(EDITABLE, true);
     }
 
     @Override

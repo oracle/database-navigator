@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import com.dbn.language.common.psi.ExecutablePsiElement;
 import com.dbn.language.common.psi.IdentifierPsiElement;
 import com.dbn.language.common.psi.NamedPsiElement;
 import com.dbn.language.common.psi.TokenPsiElement;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.openapi.editor.markup.GutterIconRenderer;
@@ -164,7 +164,7 @@ public class PSQLLanguageAnnotator extends DBLanguageAnnotator {
                         elementType.is(OBJECT_SPECIFICATION) ? DBContentType.CODE_BODY : null;
 
                 if (targetContentType != null && identifierPsiElement.getFile() instanceof PSQLFile file) {
-                    DBSchemaObject object = (DBSchemaObject) file.getUnderlyingObject();
+                    DBObject object = file.getUnderlyingObject();
                     VirtualFile virtualFile = file.getVirtualFile();
 
                     CodeEditorGeneralSettings settings = CodeEditorGeneralSettings.get(basePsiElement.getProject());

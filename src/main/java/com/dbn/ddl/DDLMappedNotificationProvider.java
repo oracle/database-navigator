@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import com.dbn.ddl.options.listener.DDLFileSettingsChangeListener;
 import com.dbn.ddl.ui.DDLMappedNotificationPanel;
 import com.dbn.editor.code.SourceCodeEditor;
 import com.dbn.editor.ddl.DDLFileEditor;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.intellij.openapi.fileEditor.FileEditor;
@@ -95,7 +95,7 @@ public class DDLMappedNotificationProvider extends EditorNotificationProvider<DD
                 if (isNotValid(file)) return;
                 if (!(file instanceof DBEditableObjectVirtualFile editableObjectFile)) return;
 
-                DBObjectRef<DBSchemaObject> object = editableObjectFile.getObjectRef();
+                DBObjectRef<DBObject> object = editableObjectFile.getObjectRef();
                 DDLFileAttachmentManager attachmentManager = DDLFileAttachmentManager.getInstance(project);
                 List<VirtualFile> attachedDDLFiles = attachmentManager.getAttachedDDLFiles(object);
                 if (attachedDDLFiles == null) return;
@@ -131,7 +131,7 @@ public class DDLMappedNotificationProvider extends EditorNotificationProvider<DD
         if (file instanceof DBEditableObjectVirtualFile editableObjectFile) {
             if (!isDdlFileEditor(fileEditor)) return null;
 
-            DBSchemaObject object = editableObjectFile.getObject();
+            DBObject object = editableObjectFile.getObject();
             DDLFileEditor ddlFileEditor = (DDLFileEditor) fileEditor;
             VirtualFile ddlFile = Failsafe.nn(ddlFileEditor.getVirtualFile());
             return new DDLMappedNotificationPanel(project, ddlFile, fileEditor, object);
@@ -140,7 +140,7 @@ public class DDLMappedNotificationProvider extends EditorNotificationProvider<DD
             if (!isDbLanguageFile(file)) return null;
 
             DDLFileAttachmentManager attachmentManager = DDLFileAttachmentManager.getInstance(project);
-            DBSchemaObject object = attachmentManager.getMappedObject(file);
+            DBObject object = attachmentManager.getMappedObject(file);
             if (isNotValid(object)) return null;
             if (!isFileOpened(object)) return null;
 

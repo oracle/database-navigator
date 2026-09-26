@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ import com.dbn.execution.ExecutionManager;
 import com.dbn.execution.compiler.ui.CompilerTypeSelectionDialog;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBSchema;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.object.lookup.DBJavaNameCache;
@@ -89,7 +89,7 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
             @Override
             public void sourceCodeSaved(@NotNull DBSourceCodeVirtualFile sourceCodeFile, @Nullable SourceCodeEditor fileEditor) {
                 Project project = getProject();
-                DBSchemaObject object = sourceCodeFile.getObject();
+                DBObject object = sourceCodeFile.getObject();
 
                 if (!DatabaseFeature.OBJECT_INVALIDATION.isSupported(object)) return;
                 if (object.isNot(COMPILABLE)) return;
@@ -114,15 +114,15 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
         };
     }
 
-    private static CompilerResult createCompilerResult(DBSchemaObject object, CompilerAction compilerAction, @Nullable DBNConnection conn) {
+    private static CompilerResult createCompilerResult(DBObject object, CompilerAction compilerAction, @Nullable DBNConnection conn) {
         return new CompilerResult(compilerAction, object, conn);
     }
 
-    private static CompilerResult createErrorCompilerResult(CompilerAction compilerAction, DBSchemaObject object, DBContentType contentType, Exception e) {
+    private static CompilerResult createErrorCompilerResult(CompilerAction compilerAction, DBObject object, DBContentType contentType, Exception e) {
         return new CompilerResult(compilerAction, object, contentType, txt("msg.compiler.message.CompileOperationFailed", e.getMessage()));
     }
 
-    public CompileType getCompileType(@Nullable DBSchemaObject object, DBContentType contentType) {
+    public CompileType getCompileType(@Nullable DBObject object, DBContentType contentType) {
         OperationSettings operationSettings = OperationSettings.getInstance(getProject());
         CompileType compileType = operationSettings.getCompilerSettings().getCompileType();
         return switch (compileType) {
@@ -132,7 +132,7 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
         };
     }
 
-    public void compileObject(DBSchemaObject object, CompileType compileType, CompilerAction compilerAction) {
+    public void compileObject(DBObject object, CompileType compileType, CompilerAction compilerAction) {
         assert compileType != CompileType.KEEP;
         Project project = object.getProject();
         DatabaseDebuggerManager debuggerManager = DatabaseDebuggerManager.getInstance(project);
@@ -143,7 +143,7 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
         updateFilesContentState(object, compilerAction.getContentType());
     }
 
-    private void updateFilesContentState(DBSchemaObject object, DBContentType contentType) {
+    private void updateFilesContentState(DBObject object, DBContentType contentType) {
         Progress.background(getProject(), object, false,
                 txt("prc.execution.title.RefreshingFileState"),
                 txt("prc.execution.text.RefreshingFileState", contentType.getDescription(), object.getQualifiedNameWithType()),
@@ -167,7 +167,7 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
                 });
     }
 
-    public void compileInBackground(DBSchemaObject object, CompileType compileType, CompilerAction compilerAction) {
+    public void compileInBackground(DBObject object, CompileType compileType, CompilerAction compilerAction) {
         Project project = getProject();
         ConnectionAction.invoke(txt("msg.execution.title.CompilingObject"), false, object,
                 action -> promptCompileTypeSelection(compileType, object, type -> Background.run(() -> {
@@ -189,7 +189,7 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
                 });
     }
 
-    private void doCompileObject(DBSchemaObject object, CompileType compileType, CompilerAction compilerAction) {
+    private void doCompileObject(DBObject object, CompileType compileType, CompilerAction compilerAction) {
         DBContentType contentType = compilerAction.getContentType();
         DBObjectStatusHolder objectStatus = object.getStatus();
         if (object.hasStatus(contentType, COMPILING)) return;
@@ -214,7 +214,7 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
         }
     }
 
-    private static CompilerResult doCompileObject(DBSchemaObject object, CompileType compileType, CompilerAction compilerAction, DBObjectStatusHolder objectStatus, DBNConnection conn) throws SQLException {
+    private static CompilerResult doCompileObject(DBObject object, CompileType compileType, CompilerAction compilerAction, DBObjectStatusHolder objectStatus, DBNConnection conn) throws SQLException {
         DBContentType contentType = compilerAction.getContentType();
         ConnectionHandler connection = object.getConnection();
         DatabaseDataDefinitionInterface dataDefinitionInterface = connection.getDataDefinitionInterface();
@@ -302,7 +302,7 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
                 });
     }
 
-    private void doCompileInvalidObjects(List<? extends DBSchemaObject> objects, String description, ProgressIndicator progress, CompileType compileType) {
+    private void doCompileInvalidObjects(List<? extends DBObject> objects, String description, ProgressIndicator progress, CompileType compileType) {
         if (progress.isCanceled()) return;
 
         progress.setText(txt("prc.compiler.text.CompilingInvalidObjects", description));
@@ -314,7 +314,7 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
                 progress.setIndeterminate(false);
                 progress.setFraction(progressOf(i, count));
 
-                DBSchemaObject object = objects.get(i);
+                DBObject object = objects.get(i);
                 DBObjectStatusHolder objectStatus = object.getStatus();
                 DBContentType objectContentType = object.getContentType();
                 if (objectContentType.isBundle()) {
@@ -336,8 +336,8 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
         }
     }
 
-    private void buildCompilationErrors(List<? extends DBSchemaObject> objects, List<CompilerResult> compilerErrors) {
-        for (DBSchemaObject object : objects) {
+    private void buildCompilationErrors(List<? extends DBObject> objects, List<CompilerResult> compilerErrors) {
+        for (DBObject object : objects) {
             DBObjectStatusHolder objectStatus = object.getStatus();
             if (objectStatus.is(DBObjectStatus.VALID)) continue;
 
@@ -351,7 +351,7 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
 
     private void promptCompileTypeSelection(
             CompileType compileType,
-            @Nullable DBSchemaObject program,
+            @Nullable DBObject program,
             @NotNull Consumer<CompileType> callback) {
 
         if (compileType == CompileType.ASK) {

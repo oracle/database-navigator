@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -175,12 +175,6 @@ public abstract class DBSchemaObjectImpl<M extends DBObjectMetadata> extends DBO
         }
     }
 
-    @Nullable
-    @Override
-    public DBEditableObjectVirtualFile getCachedVirtualFile() {
-        return DatabaseFileSystem.getInstance().findDatabaseFile(this);
-    }
-
     @Override
     public List<DBSchema> getReferencingSchemas() throws SQLException {
         return loadReferencingSchemas(this);
@@ -217,20 +211,4 @@ public abstract class DBSchemaObjectImpl<M extends DBObjectMetadata> extends DBO
                     return schemas;
                 });
     }
-
-    @Override
-    public void executeUpdateDDL(DBContentType contentType, String oldCode, String newCode) throws SQLException {
-        DatabaseInterfaceInvoker.execute(HIGHEST,
-                txt("prc.object.title.UpdatingSourceCode"),
-                txt("prc.object.text.UpdatingSources", getQualifiedNameWithType()),
-                getProject(),
-                getConnectionId(),
-                getSchemaId(),
-                conn -> {
-                    ConnectionHandler connection = getConnection();
-                    DatabaseDataDefinitionInterface dataDefinition = connection.getDataDefinitionInterface();
-                    dataDefinition.updateObject(getSchemaName(true), getName(true), getObjectType().getName(), oldCode, newCode, conn);
-                });
-    }
-
 }

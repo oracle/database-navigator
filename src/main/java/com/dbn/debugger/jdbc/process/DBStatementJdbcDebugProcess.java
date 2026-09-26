@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import com.dbn.execution.statement.StatementExecutionInput;
 import com.dbn.execution.statement.StatementExecutionManager;
 import com.dbn.execution.statement.processor.StatementExecutionProcessor;
 import com.dbn.object.DBMethod;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.xdebugger.XDebugSession;
@@ -62,10 +62,10 @@ public class DBStatementJdbcDebugProcess extends DBJdbcDebugProcess<StatementExe
     @Nullable
     @Override
     public VirtualFile getRuntimeInfoFile(DebuggerRuntimeInfo runtimeInfo) {
-        DBSchemaObject schemaObject = getDatabaseObject(runtimeInfo);
-        return schemaObject == null ?
+        DBObject object = getDatabaseObject(runtimeInfo);
+        return object == null ?
             getExecutionProcessor().getVirtualFile() :
-            schemaObject.getVirtualFile();
+            object.getVirtualFile();
     }
     private StatementExecutionProcessor getExecutionProcessor() {
         return getExecutionInput().getExecutionProcessor();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,6 @@ import com.dbn.editor.code.options.CodeEditorChangesOption;
 import com.dbn.editor.code.options.CodeEditorConfirmationSettings;
 import com.dbn.object.DBConsole;
 import com.dbn.object.common.DBObject;
-import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBObjectVirtualFile;
@@ -91,7 +90,7 @@ public class DatabaseFileManager extends ProjectComponentBase implements Persist
     public static final String COMPONENT_NAME = "DBNavigator.Project.DatabaseFileManager";
 
     private final Set<DBObjectVirtualFile<?>> openFiles = ContainerUtil.newConcurrentSet();
-    private Map<ConnectionId, List<DBObjectRef<DBSchemaObject>>> pendingOpenFiles = new HashMap<>();
+    private Map<ConnectionId, List<DBObjectRef<DBObject>>> pendingOpenFiles = new HashMap<>();
     private final String sessionId;
 
     private DatabaseFileManager(@NotNull Project project) {
@@ -137,7 +136,7 @@ public class DatabaseFileManager extends ProjectComponentBase implements Persist
             @Override
             public void beforeFileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
                 if (file instanceof DBEditableObjectVirtualFile databaseFile) {
-                    DBObjectRef<DBSchemaObject> objectRef = databaseFile.getObjectRef();
+                    DBObjectRef<DBObject> objectRef = databaseFile.getObjectRef();
                     objectRef.ensure();
                 }
             }
@@ -147,7 +146,7 @@ public class DatabaseFileManager extends ProjectComponentBase implements Persist
                 if (!(file instanceof DBEditableObjectVirtualFile databaseFile)) return;
                 if (!databaseFile.isModified()) return;
 
-                DBSchemaObject object = databaseFile.getObject();
+                DBObject object = databaseFile.getObject();
                 String objectDescription = object.getQualifiedNameWithType();
                 Project project = getProject();
 
@@ -205,7 +204,7 @@ public class DatabaseFileManager extends ProjectComponentBase implements Persist
         }
     }
 
-    public void closeFile(DBSchemaObject object) {
+    public void closeFile(DBObject object) {
         if (isFileOpened(object)) {
             closeFile(object.getVirtualFile());
         }
@@ -253,7 +252,7 @@ public class DatabaseFileManager extends ProjectComponentBase implements Persist
 
         List<Element> fileElements = openFilesElement.getChildren();
         for (Element fileElement : fileElements) {
-            DBObjectRef<DBSchemaObject> objectRef = DBObjectRef.from(fileElement);
+            DBObjectRef<DBObject> objectRef = DBObjectRef.from(fileElement);
             if (objectRef == null) continue;
 
             ConnectionId connectionId = objectRef.getConnectionId();
@@ -294,7 +293,7 @@ public class DatabaseFileManager extends ProjectComponentBase implements Persist
         }
     }
 
-    private void reopenDatabaseEditors(@NotNull List<DBObjectRef<DBSchemaObject>> objects, @NotNull ConnectionHandler connection) {
+    private void reopenDatabaseEditors(@NotNull List<DBObjectRef<DBObject>> objects, @NotNull ConnectionHandler connection) {
         Project project = connection.getProject();
         ConnectionAction.invoke(txt("msg.connection.title.OpeningDatabaseEditors"), false, connection, action ->
                 ThreadMonitor.surround(ThreadProperty.WORKSPACE_RESTORE, () ->
@@ -304,12 +303,12 @@ public class DatabaseFileManager extends ProjectComponentBase implements Persist
                                 progress -> reopenDatabaseEditors(objects, connection, progress))));
     }
 
-    private static void reopenDatabaseEditors(@NotNull List<DBObjectRef<DBSchemaObject>> objects, @NotNull ConnectionHandler connection, ProgressIndicator progress) {
+    private static void reopenDatabaseEditors(@NotNull List<DBObjectRef<DBObject>> objects, @NotNull ConnectionHandler connection, ProgressIndicator progress) {
         Project project = connection.getProject();
         progress.setIndeterminate(true);
         var editorManager = DatabaseFileEditorManager.getInstance(project);
 
-        for (DBObjectRef<DBSchemaObject> objectRef : objects) {
+        for (DBObjectRef<DBObject> objectRef : objects) {
             if (progress.isCanceled()) continue;
             if (!connection.canConnect()) continue;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,8 +43,8 @@ import com.dbn.editor.data.options.DataEditorSettings;
 import com.dbn.object.DBConsole;
 import com.dbn.object.DBDataset;
 import com.dbn.object.common.DBObject;
+import com.dbn.object.common.DBRootObject;
 import com.dbn.object.common.DBSchemaObject;
-import com.dbn.object.common.property.DBObjectProperty;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.vfs.DatabaseFileManager;
 import com.dbn.vfs.DatabaseFileSystem;
@@ -81,6 +81,8 @@ import static com.dbn.common.util.Conditional.when;
 import static com.dbn.editor.DatabaseFileEditorInitializer.makeEditorReady;
 import static com.dbn.editor.DatabaseFileEditorManager.COMPONENT_NAME;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.object.common.property.DBObjectProperty.ROOT_OBJECT;
+import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
 import static com.dbn.vfs.DatabaseFileSystem.isFileOpened;
 
 @State(
@@ -113,7 +115,7 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
         };
     }
 
-    public boolean isFileOpen(DBSchemaObject object) {
+    public boolean isFileOpen(DBObject object) {
         return isFileOpen(object.getEditableVirtualFile());
     }
 
@@ -168,12 +170,15 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
             if (object instanceof DBConsole console) {
                 Editors.openFileEditor(getProject(), console.getVirtualFile(), focusEditor);
 
-            } else if (object.is(DBObjectProperty.SCHEMA_OBJECT)) {
+            } else if (object.is(SCHEMA_OBJECT)) {
                 openSchemaObject(handle);
+
+            } else if (object.is(ROOT_OBJECT)) {
+                openRootObject(handle);
 
             } else {
                 DBObject parentObject = object.getParentObject();
-                if (parentObject.is(DBObjectProperty.SCHEMA_OBJECT)) {
+                if (parentObject.is(SCHEMA_OBJECT)) {
                     openChildObject(handle);
                 }
             }
@@ -200,6 +205,29 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
             if (isFileOpened(object))
                 openOrFocusEditor(handle, databaseFile, editorProviderId); else
                 prepareEditor(databaseFile, () -> openOrFocusEditor(handle, databaseFile, editorProviderId));
+
+        });
+    }
+
+    private void openRootObject(@NotNull DBFileOpenHandle handle) {
+        DBRootObject object = handle.getObject();
+        makeEditorReady(object);
+
+        DBEditableObjectVirtualFile databaseFile = getFileSystem().findOrCreateDatabaseFile(object);
+        if (isNotValid(databaseFile)) return;
+
+        EditorProviderId editorProviderId = handle.getEditorProviderId();
+        databaseFile.setSelectedEditorProviderId(editorProviderId);
+
+        invokeFileOpen(handle, () -> {
+            if (!allValid(object, databaseFile)) return;
+
+            // open / reopen (select) the file
+            if (isFileOpened(object)) {
+                openOrFocusEditor(handle, databaseFile, editorProviderId);
+            } else {
+                prepareEditor(databaseFile, () -> openOrFocusEditor(handle, databaseFile, editorProviderId));
+            }
 
         });
     }
@@ -278,7 +306,7 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
     }
 
     private static void prepareEditor(@NotNull DBEditableObjectVirtualFile databaseFile, @NotNull Runnable callback) {
-        DBSchemaObject object = databaseFile.getObject();
+        DBObject object = databaseFile.getObject();
         DBContentType contentType = object.getContentType();
         if (contentType == DBContentType.DATA) {
             prepareDatasetEditor(databaseFile, callback);
@@ -299,7 +327,7 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
             return;
         }
 
-        DBSchemaObject object = databaseFile.getObject();
+        DBObject object = databaseFile.getObject();
         Project project = object.getProject();
 
         DDLFileGeneralSettings ddlFileSettings = DDLFileSettings.getInstance(project).getGeneralSettings();
@@ -317,7 +345,7 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
         }
 
         DDLFileAttachmentManager fileAttachmentManager = DDLFileAttachmentManager.getInstance(project);
-        DBObjectRef<DBSchemaObject> objectRef = DBObjectRef.of(object);
+        DBObjectRef<DBObject> objectRef = DBObjectRef.of(object);
         List<VirtualFile> ddlFiles = fileAttachmentManager.lookupDetachedDDLFiles(objectRef);
         if (!ddlFiles.isEmpty()) {
             List<VirtualFileInfo> fileInfos = VirtualFileInfo.fromFiles(ddlFiles, project);
@@ -397,7 +425,7 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
         databaseFileManager.closeFile(file);
     }
 
-    public void reopenEditor(DBSchemaObject object) {
+    public void reopenEditor(DBObject object) {
         Project project = object.getProject();
         VirtualFile file = getFileSystem().findOrCreateDatabaseFile(object);
         if (isNotValid(file)) return;

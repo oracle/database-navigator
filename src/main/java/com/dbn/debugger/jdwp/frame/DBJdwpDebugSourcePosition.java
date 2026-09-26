@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 package com.dbn.debugger.jdwp.frame;
 
+import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectPsiCache;
-import com.dbn.object.common.DBSchemaObject;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.debugger.SourcePosition;
 import com.intellij.openapi.editor.Editor;
@@ -41,7 +41,7 @@ public class DBJdwpDebugSourcePosition extends SourcePosition {
     public PsiFile getFile() {
         VirtualFile virtualFile = file.getVirtualFile();
         if (virtualFile instanceof DBSourceCodeVirtualFile sourceCodeVirtualFile) {
-            DBSchemaObject object = sourceCodeVirtualFile.getObject();
+            DBObject object = sourceCodeVirtualFile.getObject();
             return DBObjectPsiCache.asPsiFile(object);
         }
         return file;

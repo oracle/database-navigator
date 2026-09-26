@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,10 +55,10 @@ import com.dbn.editor.DBContentType;
 import com.dbn.execution.ExecutionContext;
 import com.dbn.execution.ExecutionInput;
 import com.dbn.object.DBPackage;
-import com.dbn.object.DBType;
 import com.dbn.object.DBSchema;
+import com.dbn.object.DBType;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectBundle;
-import com.dbn.object.common.DBSchemaObject;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBObjectVirtualFile;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
@@ -450,11 +450,11 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
         DBDebugOperation.run(getProject(), txt("ntf.debugger.token.Operation_RUN_TO_POSITION"), () -> {
             console.system(txt("log.debugger.info.DebuggerSessionResumed"));
             stopDebuggerPing();
-            DBSchemaObject object = DBDebugUtil.getObject(position);
+            DBObject object = DBDebugUtil.getObject(position);
             if (object != null) {
                 DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
                 runtimeInfo = debuggerInterface.runToPosition(
-                        object.getSchema().getName(),
+                        object.getSchemaName(),
                         object.getName(),
                         cachedUpperCase(object.getObjectType().getName()),
                         position.getLine(),
@@ -566,24 +566,23 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
 
     @Nullable
     public VirtualFile getRuntimeInfoFile(DebuggerRuntimeInfo runtimeInfo) {
-        DBSchemaObject schemaObject = getDatabaseObject(runtimeInfo);
-        if (schemaObject != null) {
-            DBObjectVirtualFile virtualFile = schemaObject.getVirtualFile();
-            if (virtualFile instanceof DBEditableObjectVirtualFile editableObjectFile) {
-                DBContentType contentType = schemaObject.getContentType();
-                if (contentType == DBContentType.CODE_SPEC_AND_BODY) {
-                    return editableObjectFile.getContentFile(DBContentType.CODE_BODY);
-                } else if (contentType.isOneOf(DBContentType.CODE, DBContentType.CODE_AND_DATA)) {
-                    return editableObjectFile.getContentFile(DBContentType.CODE);
-                }
+        DBObject object = getDatabaseObject(runtimeInfo);
+        if (object == null) return null;
 
+        DBObjectVirtualFile virtualFile = object.getVirtualFile();
+        if (virtualFile instanceof DBEditableObjectVirtualFile editableObjectFile) {
+            DBContentType contentType = object.getContentType();
+            if (contentType == DBContentType.CODE_SPEC_AND_BODY) {
+                return editableObjectFile.getContentFile(DBContentType.CODE_BODY);
+            } else if (contentType.isOneOf(DBContentType.CODE, DBContentType.CODE_AND_DATA)) {
+                return editableObjectFile.getContentFile(DBContentType.CODE);
             }
         }
         return null;
     }
 
     @Nullable
-    protected DBSchemaObject getDatabaseObject(DebuggerRuntimeInfo runtimeInfo) {
+    protected DBObject getDatabaseObject(DebuggerRuntimeInfo runtimeInfo) {
         String ownerName = runtimeInfo.getOwnerName();
         String programName = runtimeInfo.getProgramName();
 
@@ -591,9 +590,9 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
             ConnectionHandler connection = getConnection();
             DBObjectBundle objectBundle = connection.getObjectBundle();
             DBSchema schema = Failsafe.nn(objectBundle.getSchema(ownerName));
-            DBSchemaObject schemaObject = schema.getProgram(programName);
-            if (schemaObject == null) schemaObject = schema.getMethod(programName, (short) 0); // overload 0 is assuming debug is only supported in oracle (no schema method overloading)
-            return schemaObject;
+            DBObject object = schema.getProgram(programName);
+            if (object == null) object = schema.getMethod(programName, (short) 0); // overload 0 is assuming debug is only supported in oracle (no schema method overloading)
+            return object;
         }
         return null;
     }
@@ -744,14 +743,14 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
      * @param object the database object whose identifiers should be loaded
      * @param contentType the source content type, such as {@link DBContentType#CODE_BODY}
      */
-    public DebuggerIdentifierModel getIdentifierModel(DBSchemaObject object, DBContentType contentType) {
+    public DebuggerIdentifierModel getIdentifierModel(DBObject object, DBContentType contentType) {
         ObjectKey key = ObjectKey.create(object.getSchemaName(), object.getName(), contentType);
         return identifierModels.getOrDefault(key, EMPTY_IDENTIFIER_MODEL);
     }
 
     private void preloadIdentifierModels(List<DebuggerRuntimeInfo> frames) {
         for (DebuggerRuntimeInfo frame : frames) {
-            DBSchemaObject object = getDatabaseObject(frame);
+            DBObject object = getDatabaseObject(frame);
             if (object == null) continue;
 
             VirtualFile sourceFile = getRuntimeInfoFile(frame);
@@ -763,13 +762,13 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
         }
     }
 
-    private DebuggerIdentifierModel preloadIdentifierModel(DBSchemaObject object, DBContentType contentType) {
+    private DebuggerIdentifierModel preloadIdentifierModel(DBObject object, DBContentType contentType) {
         ObjectKey key = ObjectKey.create(object.getSchemaName(), object.getName(), contentType);
         return identifierModels.computeIfAbsent(key, ignored -> loadIdentifierModel(object, contentType));
     }
 
     @Nullable
-    private DBType resolveType(DBSchemaObject object, DebuggerIdentifierInfo typeIdentifier) {
+    private DBType resolveType(DBObject object, DebuggerIdentifierInfo typeIdentifier) {
         String typeName = typeIdentifier.getTypeName();
         if (typeName == null) return null;
 
@@ -791,12 +790,12 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
         return packageObject == null ? null : packageObject.getType(typeName);
     }
 
-    public String getIdentifierObjectType(DBSchemaObject object, DBContentType contentType) {
+    public String getIdentifierObjectType(DBObject object, DBContentType contentType) {
         String contentQualifier = contentType == null ? null : contentType.getContentQualifier(object.getObjectType());
         return contentQualifier == null ? cachedUpperCase(object.getObjectType().getName()) : contentQualifier;
     }
 
-    private DebuggerIdentifierModel loadIdentifierModel(DBSchemaObject object, DBContentType contentType) {
+    private DebuggerIdentifierModel loadIdentifierModel(DBObject object, DBContentType contentType) {
         String objectType = getIdentifierObjectType(object, contentType);
         try {
             return DatabaseInterfaceInvoker.load(

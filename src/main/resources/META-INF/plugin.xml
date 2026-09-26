@@ -414,12 +414,12 @@
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBUserManagementAdapter"/>
 
         <!--object source code adapters-->
-        <objectSourceCodeAdapter implementation="com.dbn.editor.code.source.impl.DBLegacySourceCodeAdapter"/>
         <objectSourceCodeAdapter implementation="com.dbn.editor.code.source.impl.DBViewSourceCodeAdapter"/>
         <objectSourceCodeAdapter implementation="com.dbn.editor.code.source.impl.DBJsonViewSourceCodeAdapter"/>
         <objectSourceCodeAdapter implementation="com.dbn.editor.code.source.impl.DBMaterializedViewSourceCodeAdapter"/>
         <objectSourceCodeAdapter implementation="com.dbn.editor.code.source.impl.DBDatabaseTriggerSourceCodeAdapter"/>
         <objectSourceCodeAdapter implementation="com.dbn.editor.code.source.impl.DBDatasetTriggerSourceCodeAdapter"/>
+        <objectSourceCodeAdapter implementation="com.dbn.editor.code.source.impl.DBEventTriggerSourceCodeAdapter"/>
         <objectSourceCodeAdapter implementation="com.dbn.editor.code.source.impl.DBFunctionSourceCodeAdapter"/>
         <objectSourceCodeAdapter implementation="com.dbn.editor.code.source.impl.DBProcedureSourceCodeAdapter"/>
         <objectSourceCodeAdapter implementation="com.dbn.editor.code.source.impl.DBTypeSourceCodeAdapter"/>

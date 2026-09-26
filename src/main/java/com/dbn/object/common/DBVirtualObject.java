@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.file.DBContentVirtualFile;
+import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.intellij.ide.util.EditSourceUtil;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -243,6 +244,11 @@ public class DBVirtualObject extends DBRootObjectImpl implements PsiReference {
     @Override
     public boolean isVirtual() {
         return true;
+    }
+
+    @Override
+    public DBEditableObjectVirtualFile getEditableVirtualFile() {
+        return null;
     }
 
     @Override

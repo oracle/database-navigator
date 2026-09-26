@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,6 @@ import com.dbn.language.common.psi.lookup.PsiLookupAdapter;
 import com.dbn.language.common.quotes.QuoteDefinition;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectPsiElement;
-import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.DBVirtualObject;
 import com.dbn.object.factory.VirtualObjectFactory;
 import com.dbn.object.type.DBObjectType;
@@ -391,7 +390,7 @@ public abstract class BasePsiElement<T extends ElementTypeBase> extends ASTWrapp
             DBEditableObjectVirtualFile databaseFile = sourceCodeFile.getMainDatabaseFile();
             DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(project);
             if (!editorManager.isFileOpen(databaseFile)) {
-                DBSchemaObject object = databaseFile.getObject();
+                DBObject object = databaseFile.getObject();
                 editorManager.openEditor(object, null, false, requestFocus);
             }
             BasicTextEditor textEditor = Editors.getTextEditor(sourceCodeFile);

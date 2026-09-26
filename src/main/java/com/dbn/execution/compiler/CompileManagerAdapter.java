@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,13 @@
 package com.dbn.execution.compiler;
 
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class CompileManagerAdapter implements CompileManagerListener {
     @Override
-    public void compileFinished(@NotNull ConnectionHandler connection, @Nullable DBSchemaObject object) {
+    public void compileFinished(@NotNull ConnectionHandler connection, @Nullable DBObject object) {
 
     }
 }

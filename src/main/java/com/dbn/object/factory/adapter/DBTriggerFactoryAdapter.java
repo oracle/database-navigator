@@ -157,8 +157,9 @@ public abstract class DBTriggerFactoryAdapter implements ObjectFactoryAdapter {
         });
 
         ObjectChangeEvent.notify(CREATE, getObjectType(), connectionId, getObjectType() == EVENT_TRIGGER ? null : schemaId);
-        if (input.requires(TRIGGER_FUNCTION_SCHEMA) && input.requires(TRIGGER_FUNCTION_NAME)) {
+        if (input.requires(TRIGGER_FUNCTION_NAME)) {
             SchemaId functionSchemaId = connection.getSchemaId(TRIGGER_FUNCTION_SCHEMA.value(input));
+            if (functionSchemaId == null) functionSchemaId = schemaId;
             ObjectChangeEvent.notify(CREATE, FUNCTION, connectionId, functionSchemaId);
         }
     }

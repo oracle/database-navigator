@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import com.dbn.execution.ExecutionInput;
 import com.dbn.execution.statement.StatementExecutionInput;
 import com.dbn.language.common.psi.IdentifierPsiElement;
 import com.dbn.object.DBType;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.xdebugger.XSourcePosition;
@@ -69,7 +69,7 @@ public class DBJdbcDebugStackFrame extends DBDebugStackFrame<DBJdbcDebugProcess,
     protected void computeValues(List<DBJdbcDebugValue> values) {
         IdentifierPsiElement subject = getSubject();
         VirtualFile virtualFile = getVirtualFile();
-        DBSchemaObject object = DBDebugUtil.getObject(getSourcePosition());
+        DBObject object = DBDebugUtil.getObject(getSourcePosition());
         if (object == null || virtualFile == null) {
             super.computeValues(values);
             return;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,6 @@ import com.dbn.language.common.psi.BasePsiElement;
 import com.dbn.language.common.psi.PsiUtil;
 import com.dbn.language.psql.PSQLFile;
 import com.dbn.object.common.DBObject;
-import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.event.ObjectChangeListener;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
@@ -205,7 +204,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
         if (startInBackground) {
             Background.run(() -> reloadAndUpdateEditors(databaseFile));
         } else {
-            DBSchemaObject object = databaseFile.getObject();
+            DBObject object = databaseFile.getObject();
             Progress.prompt(getProject(), object, false,
                     txt("prc.codeEditor.title.LoadingSourceCode"),
                     txt("prc.codeEditor.text.ReloadingSourceCodeOf", object.getQualifiedNameWithType()),
@@ -220,8 +219,8 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
         }
     }
 
-    public void ensureSourcesLoaded(@NotNull DBSchemaObject schemaObject, boolean notifyError) {
-        DBEditableObjectVirtualFile editableObjectFile = schemaObject.getEditableVirtualFile();
+    public void ensureSourcesLoaded(@NotNull DBObject object, boolean notifyError) {
+        DBEditableObjectVirtualFile editableObjectFile = object.getEditableVirtualFile();
         List<DBSourceCodeVirtualFile> sourceCodeFiles = editableObjectFile.getSourceCodeFiles();
         for (DBSourceCodeVirtualFile sourceCodeFile : sourceCodeFiles) {
             if (!sourceCodeFile.isLoaded()) {
@@ -238,7 +237,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
         sourceCodeFile.set(LOADING, true);
         Editors.setEditorsReadonly(sourceCodeFile, true);
         Project project = getProject();
-        DBSchemaObject object = sourceCodeFile.getObject();
+        DBObject object = sourceCodeFile.getObject();
 
         ProjectEvents.notify(project,
                 SourceCodeManagerListener.TOPIC,
@@ -278,7 +277,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
 
             if (Read.call(sourceCodeFile, f -> !isValidObjectHeader(f))) return;
 
-            DBSchemaObject object = sourceCodeFile.getObject();
+            DBObject object = sourceCodeFile.getObject();
             String objectQualifiedName = object.getQualifiedNameWithType();
             ProgressMonitor.setProgressDetail(txt("prc.codeEditor.text.CheckingThirdPartyChanges", objectQualifiedName));
 
@@ -317,7 +316,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
     }
 
     private boolean isValidObjectHeader(@NotNull DBSourceCodeVirtualFile sourceCodeFile) {
-        DBSchemaObject object = sourceCodeFile.getObject();
+        DBObject object = sourceCodeFile.getObject();
         DBContentType contentType = sourceCodeFile.getContentType();
         PsiFile psiFile = sourceCodeFile.getPsiFile();
 
@@ -332,7 +331,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
     }
 
     @ThreadContext(ThreadProperty.CODE_LOAD)
-    public SourceCodeContent loadSourceFromDatabase(@NotNull DBSchemaObject object, DBContentType contentType) throws SQLException {
+    public SourceCodeContent loadSourceFromDatabase(@NotNull DBObject object, DBContentType contentType) throws SQLException {
         SourceCodeContent sourceCodeContent = DatabaseInterfaceInvoker.load(HIGH,
                 txt("prc.codeEditor.title.LoadingSourceCode"),
                 txt("prc.codeEditor.text.LoadingSourceCodeOf", object.getQualifiedNameWithType()),
@@ -348,7 +347,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
         return sourceCodeContent;
     }
 
-    public void saveSourceToDatabase(@NotNull DBSchemaObject object, DBContentType contentType, String oldCode, String newCode) throws SQLException {
+    public void saveSourceToDatabase(@NotNull DBObject object, DBContentType contentType, String oldCode, String newCode) throws SQLException {
         DatabaseInterfaceInvoker.execute(HIGHEST,
                 txt("prc.object.title.UpdatingSourceCode"),
                 txt("prc.object.text.UpdatingSources", object.getQualifiedNameWithType()),
@@ -360,13 +359,13 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
     }
 
     @NotNull
-    private static SourceCodeContent loadSourceFromDatabase(@NotNull DBSchemaObject object, DBContentType contentType, DBNConnection conn) throws SQLException {
+    private static SourceCodeContent loadSourceFromDatabase(@NotNull DBObject object, DBContentType contentType, DBNConnection conn) throws SQLException {
         boolean optionalContent = contentType == DBContentType.CODE_BODY;
         ResultSet resultSet = null;
         boolean writable = true;
         try {
             DBObjectType objectType = object.getObjectType();
-            DBObjectSourceCodeAdapter<DBSchemaObject> sourceCodeAdapter = DBObjectSourceCodeAdapters.get(objectType);
+            DBObjectSourceCodeAdapter<DBObject> sourceCodeAdapter = DBObjectSourceCodeAdapters.get(objectType);
             resultSet = sourceCodeAdapter.loadSourceCode(object, contentType, conn);
 
             StringBuilder buffer = readSourceCode(resultSet);
@@ -418,7 +417,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
     }
 
     @NotNull
-    public ChangeTimestamp loadChangeTimestamp(@NotNull DBSchemaObject object, DBContentType contentType) throws SQLException{
+    public ChangeTimestamp loadChangeTimestamp(@NotNull DBObject object, DBContentType contentType) throws SQLException{
         if (OBJECT_CHANGE_MONITORING.isNotSupported(object)) return ChangeTimestamp.now();
 
         Timestamp timestamp = DatabaseInterfaceInvoker.load(HIGHEST,
@@ -460,7 +459,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
         return ChangeTimestamp.now();
     }
 
-    private boolean isValidObjectTypeAndName(@NotNull PsiFile psiFile, @NotNull DBSchemaObject object, DBContentType contentType) {
+    private boolean isValidObjectTypeAndName(@NotNull PsiFile psiFile, @NotNull DBObject object, DBContentType contentType) {
         DBObjectType objectType = object.getObjectType();
 
         if (objectType.isOneOf(
@@ -519,7 +518,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
 
     public void storeSourceToDatabase(DBSourceCodeVirtualFile sourceCodeFile, @Nullable SourceCodeEditor fileEditor, @Nullable Runnable successCallback) {
         Project project = getProject();
-        DBSchemaObject object = sourceCodeFile.getObject();
+        DBObject object = sourceCodeFile.getObject();
         Progress.prompt(project, object, false,
                 txt("prc.codeEditor.title.SavingSourceCode"),
                 txt("prc.codeEditor.text.SavingSourceCodeOf", object.getQualifiedNameWithType()),
@@ -540,7 +539,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
                 });
     }
 
-    public BasePsiElement getObjectNavigationElement(@NotNull DBSchemaObject parentObject, DBContentType contentType, DBObjectType objectType, CharSequence objectName) {
+    public BasePsiElement getObjectNavigationElement(@NotNull DBObject parentObject, DBContentType contentType, DBObjectType objectType, CharSequence objectName) {
         DBEditableObjectVirtualFile editableObjectFile = parentObject.getEditableVirtualFile();
         DBContentVirtualFile contentFile = editableObjectFile.getContentFile(contentType);
         if (contentFile == null) return null;
@@ -554,7 +553,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
 
     }
 
-    public void navigateToObject(@NotNull DBSchemaObject parentObject, @NotNull BasePsiElement basePsiElement) {
+    public void navigateToObject(@NotNull DBObject parentObject, @NotNull BasePsiElement basePsiElement) {
         DBEditableObjectVirtualFile editableObjectFile = parentObject.getEditableVirtualFile();
         DBLanguagePsiFile psiFile = basePsiElement.getFile();
         VirtualFile elementVirtualFile = psiFile.getVirtualFile();
@@ -618,7 +617,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
     }
 
     public void saveSourceCode(@NotNull DBSourceCodeVirtualFile sourceCodeFile, @Nullable SourceCodeEditor fileEditor, Runnable successCallback) {
-        DBSchemaObject object = sourceCodeFile.getObject();
+        DBObject object = sourceCodeFile.getObject();
         ConnectionAction.invoke(txt("msg.codeEditor.title.SavingSourceCode"), false, sourceCodeFile,
                 action -> Progress.prompt(getProject(), object, false,
                         txt("prc.codeEditor.title.SavingSourceCode"),
@@ -658,7 +657,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
     }
 
     public void saveSourceCodeChanges(@NotNull DBEditableObjectVirtualFile databaseFile, Runnable successCallback) {
-        DBSchemaObject object = databaseFile.getObject();
+        DBObject object = databaseFile.getObject();
         ConnectionAction.invoke(txt("msg.codeEditor.title.SavingSourceCode"), false, databaseFile,
                 action -> Progress.prompt(getProject(), object, false,
                         txt("prc.codeEditor.title.SavingSourceCode"),

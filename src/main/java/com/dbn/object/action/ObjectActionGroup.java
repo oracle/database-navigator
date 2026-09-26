@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -163,6 +163,15 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
                 }
                 if (ObjectLockUnlockAction.isSupported(object)) {
                     add(new ObjectLockUnlockAction(object));
+                }
+
+                if (object.is(EDITABLE)) {
+                    DBContentType contentType = object.getContentType();
+                    if (contentType.isOneOf(CODE, CODE_AND_DATA, CODE_SPEC_AND_BODY)) {
+                        if (OBJECT_SOURCE_EDITING.isSupported(object)) {
+                            add(new ObjectEditCodeAction(object));
+                        }
+                    }
                 }
                 add(new ObjectDropAction(object));
             }

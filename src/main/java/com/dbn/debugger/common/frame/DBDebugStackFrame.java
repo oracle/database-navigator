@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ import com.dbn.language.common.psi.BasePsiElement;
 import com.dbn.language.common.psi.IdentifierPsiElement;
 import com.dbn.language.common.psi.PsiUtil;
 import com.dbn.language.psql.PSQLLanguage;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.DBVirtualFile;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
@@ -245,7 +245,7 @@ public abstract class DBDebugStackFrame<P extends DBDebugProcess, V extends DBDe
         XSourcePosition sourcePosition = getSourcePosition();
         VirtualFile virtualFile = DBDebugUtil.getSourceCodeFile(sourcePosition);
 
-        DBSchemaObject object = DBDebugUtil.getObject(sourcePosition);
+        DBObject object = DBDebugUtil.getObject(sourcePosition);
         if (object != null) {
             String frameName = nvl(object.getPresentableText(), object.getName());
             Icon frameIcon = object.getIcon();
