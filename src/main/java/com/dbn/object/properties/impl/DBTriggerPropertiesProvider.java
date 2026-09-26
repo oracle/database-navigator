@@ -16,15 +16,17 @@
 
 package com.dbn.object.properties.impl;
 
+import com.dbn.object.DBSchema;
 import com.dbn.object.DBTrigger;
 import com.dbn.object.properties.DBObjectProperty;
 import com.dbn.object.properties.SimplePresentableProperty;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.object.type.DBTriggerEvent;
+import com.dbn.object.type.DBTriggerTarget;
+import com.dbn.object.type.DBTriggerType;
 
 import java.util.List;
 
-import static com.dbn.common.util.Strings.cachedLowerCase;
 import static com.dbn.common.util.Strings.cachedUpperCase;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -36,15 +38,25 @@ public class DBTriggerPropertiesProvider extends DBGenericObjectPropertiesProvid
     @Override
     public List<DBObjectProperty> getProperties(DBTrigger trigger) {
         List<DBObjectProperty> properties = super.getProperties(trigger);
-        StringBuilder events = new StringBuilder(cachedLowerCase(trigger.getTriggerType().getName()));
-        events.append(" ");
+        StringBuilder events = new StringBuilder();
         DBTriggerEvent[] triggerEvents = trigger.getTriggerEvents();
         for (DBTriggerEvent triggeringEvent : triggerEvents) {
             if (triggeringEvent != triggerEvents[0]) events.append(' ').append(txt("app.objects.propertyValue.Or")).append(' ');
             events.append(cachedUpperCase(triggeringEvent.getName()));
         }
 
+        DBSchema targetSchema = trigger.getTargetSchema();
+        if (targetSchema != null) {
+            properties.add(0, new SimplePresentableProperty(txt("app.object.label.TargetSchema"), targetSchema.getName(), targetSchema.getIcon()));
+        }
+        properties.add(0, new SimplePresentableProperty(txt("app.objects.property.TriggerTarget"), cachedUpperCase(trigger.getTriggerTarget().getName())));
         properties.add(0, new SimplePresentableProperty(txt("app.objects.property.TriggerEvent"), events.toString()));
+        if (trigger.getTriggerType() != DBTriggerType.UNKNOWN) {
+            properties.add(0, new SimplePresentableProperty(txt("app.objects.property.TriggerType"), cachedUpperCase(trigger.getTriggerType().getName())));
+        }
+        if (trigger.getTriggerTarget() == DBTriggerTarget.DATASET) {
+            properties.add(0, new SimplePresentableProperty(txt("app.objects.property.ForEachRow"), trigger.isForEachRow()));
+        }
         return properties;
     }
 }

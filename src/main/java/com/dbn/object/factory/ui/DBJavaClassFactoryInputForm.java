@@ -159,13 +159,13 @@ public class DBJavaClassFactoryInputForm extends DBSchemaObjectFactoryInputForm 
 
     @Override
     public void resetFormChanges() {
-        setText(packageTextField, JAVA_PACKAGE_NAME.of(input));
-        setText(nameTextField, JAVA_CLASS_NAME.of(input));
+        setText(packageTextField, JAVA_PACKAGE_NAME.value(input));
+        setText(nameTextField, JAVA_CLASS_NAME.value(input));
         classTypeComboBox.setSelectedValue(getClassType());
     }
 
     private DBJavaClassType getClassType() {
-        DBJavaClassType classType = JAVA_CLASS_TYPE.of(input);
+        DBJavaClassType classType = JAVA_CLASS_TYPE.value(input);
         return classType == null ? CLASS : classType;
     }
 

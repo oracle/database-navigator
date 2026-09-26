@@ -262,7 +262,7 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      *  <li> SOURCE_SCHEMA_NAME (char)
      *  <li> SOURCE_DATASET_NAME (char)
      *  <li> SOURCE_COLUMN_NAME (char)
-     *  <li> TARGET_SCHEMA_NAME (char)
+     *  <li> TARGET_SCHEMA_NAME (char, for SCHEMA trigger targets)
      *  <li> TARGET_DATASET_NAME (char)
      *  <li> TARGET_COLUMN_NAME (char)
      *
@@ -276,7 +276,7 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      *  <li> SOURCE_SCHEMA_NAME (char)
      *  <li> SOURCE_DATASET_NAME (char)
      *  <li> SOURCE_COLUMN_NAME (char)
-     *  <li> TARGET_SCHEMA_NAME (char)
+     *  <li> TARGET_SCHEMA_NAME (char, for SCHEMA trigger targets)
      *  <li> TARGET_DATASET_NAME (char)
      *  <li> TARGET_COLUMN_NAME (char)
      */
@@ -435,6 +435,8 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      * Column names of the returned ResultSet
      *  <li> TRIGGER_NAME (char)
      *  <li> TRIGGER_TYPE (char)
+     *  <li> TRIGGER_TARGET (TABLE/VIEW/SCHEMA/DATABASE)
+     *  <li> TARGET_SCHEMA_NAME (char, for SCHEMA trigger targets)
      *  <li> TRIGGERING_EVENT (INSERT/DELETE/UPDATE e.g. INSERT or UPDATE)
      *  <li> IS_DISABLED (Y/N)
      *  <li> IS_VALID (Y/N)
@@ -447,6 +449,8 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      * Column names of the returned ResultSet
      *  <li> TRIGGER_NAME (char)
      *  <li> TRIGGER_TYPE (char)
+     *  <li> TRIGGER_TARGET (TABLE/VIEW/SCHEMA/DATABASE)
+     *  <li> TARGET_SCHEMA_NAME (char)
      *  <li> TRIGGERING_EVENT (INSERT/DELETE/UPDATE e.g. INSERT or UPDATE)
      *  <li> IS_DISABLED (Y/N)
      *  <li> IS_VALID (Y/N)
@@ -460,6 +464,8 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      *  <li> DATASET_NAME (char)
      *  <li> TRIGGER_NAME (char)
      *  <li> TRIGGER_TYPE (char)
+     *  <li> TRIGGER_TARGET (TABLE/VIEW/SCHEMA/DATABASE)
+     *  <li> TARGET_SCHEMA_NAME (char)
      *  <li> TRIGGERING_EVENT (INSERT/DELETE/UPDATE e.g. INSERT or UPDATE)
      *  <li> IS_DISABLED (Y/N)
      *  <li> IS_VALID (Y/N)

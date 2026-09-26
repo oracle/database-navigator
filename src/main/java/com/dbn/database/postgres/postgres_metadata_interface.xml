@@ -20,7 +20,7 @@
         <statement>
             select
                 NSPNAME as SCHEMA_NAME,
-                case when lower(NSPNAME)='public' then 'Y' else 'N' end as IS_PUBLIC,
+                'N' as IS_PUBLIC,
                 case when lower(NSPNAME) = 'information_schema' or lower(NSPNAME) like 'pg_%' then 'Y' else 'N' end as IS_SYSTEM,
                 'N' as IS_EMPTY
             from PG_CATALOG.PG_NAMESPACE
@@ -29,8 +29,8 @@
         <statement>
             select
                 SCHEMA_NAME,
-                case when lower(SCHEMA_NAME)='pg_catalog' then 'Y' else 'N' end as IS_PUBLIC,
-                case when lower(SCHEMA_NAME)='information_schema' then 'Y' else 'N' end as IS_SYSTEM,
+                'N' as IS_PUBLIC,
+                case when lower(SCHEMA_NAME) = 'information_schema' or lower(SCHEMA_NAME) like 'pg_%' then 'Y' else 'N' end as IS_SYSTEM,
                 'N' as IS_EMPTY
             from INFORMATION_SCHEMA.SCHEMATA
             order by SCHEMA_NAME asc
@@ -523,6 +523,48 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="database-triggers">
+        <statement>
+            select
+                e.evtname as TRIGGER_NAME,
+                '' as TRIGGER_TYPE,
+                case e.evtevent
+                    when 'ddl_command_start' then 'DDL'
+                    when 'ddl_command_end' then 'DDL'
+                    when 'table_rewrite' then 'DDL'
+                    when 'sql_drop' then 'DROP'
+                    when 'login' then 'LOGON'
+                    else upper(e.evtevent)
+                end as TRIGGERING_EVENT,
+                'DATABASE' as TRIGGER_TARGET,
+                null as TARGET_SCHEMA_NAME,
+                case when e.evtenabled = 'D' then 'Y' else 'N' end as IS_DISABLED,
+                'Y' as IS_VALID,
+                'N' as IS_DEBUG,
+                'N' as IS_FOR_EACH_ROW
+            from pg_catalog.pg_event_trigger e
+            where current_schema() = {#0}
+            order by e.evtname asc
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="database-trigger-source-code">
+        <statement>
+            select concat(
+                pg_get_functiondef(e.evtfoid),
+                E'\n\ncreate event trigger ',
+                quote_ident(e.evtname),
+                ' on ',
+                e.evtevent,
+                ' execute function ',
+                e.evtfoid::regprocedure,
+                ';'
+            ) as SOURCE_CODE
+            from pg_catalog.pg_event_trigger e
+            where e.evtname = {#1}
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="dataset-triggers">
         <statement>
             select distinct
@@ -530,6 +572,8 @@
                 TRIGGER_NAME as TRIGGER_NAME,
                 ACTION_TIMING as TRIGGER_TYPE,
                 string_agg(EVENT_MANIPULATION, ' or ') as TRIGGERING_EVENT,
+                'TABLE' as TRIGGER_TARGET,
+                null as TARGET_SCHEMA_NAME,
                 'N' as IS_DISABLED,
                 'Y' as IS_VALID,
                 'N' as IS_DEBUG,
@@ -553,6 +597,8 @@
                 TRIGGER_NAME as TRIGGER_NAME,
                 ACTION_TIMING as TRIGGER_TYPE,
                 string_agg(EVENT_MANIPULATION, ' or ') as TRIGGERING_EVENT,
+                'TABLE' as TRIGGER_TARGET,
+                null as TARGET_SCHEMA_NAME,
                 'N' as IS_DISABLED,
                 'Y' as IS_VALID,
                 'N' as IS_DEBUG,

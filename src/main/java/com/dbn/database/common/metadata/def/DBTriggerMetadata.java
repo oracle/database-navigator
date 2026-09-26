@@ -33,6 +33,10 @@ public interface DBTriggerMetadata extends DBObjectMetadata {
 
     String getTriggeringEvent() throws SQLException;
 
+    String getTriggerTarget() throws SQLException;
+
+    String getTargetSchemaName() throws SQLException;
+
     boolean isForEachRow() throws SQLException;
 
     boolean isDisabled() throws SQLException;

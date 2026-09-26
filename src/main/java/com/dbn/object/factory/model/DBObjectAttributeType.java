@@ -25,16 +25,20 @@ import com.dbn.object.type.DBJavaClassType;
 import com.dbn.object.type.DBMiningModelSourceType;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.object.type.DBTriggerEvent;
+import com.dbn.object.type.DBTriggerTarget;
 import com.dbn.object.type.DBTriggerType;
 import lombok.Getter;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.lang.reflect.Array;
 
 import static com.dbn.common.util.Unsafe.cast;
 
 
 @Getter
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "unchecked"})
 public class DBObjectAttributeType<T> extends PseudoConstant<DBObjectAttributeType<T>> {
 
     public static final DBObjectAttributeType<DBObjectType> OBJECT_TYPE = new DBObjectAttributeType<>("OBJECT_TYPE", DBObjectType.class);
@@ -52,7 +56,12 @@ public class DBObjectAttributeType<T> extends PseudoConstant<DBObjectAttributeTy
     public static final DBObjectAttributeType<String> SYNONYM_TARGET_OBJECT_NAME = new DBObjectAttributeType<>("SYNONYM_TARGET_OBJECT_NAME", String.class);
     public static final DBObjectAttributeType<DBObjectType> SYNONYM_TARGET_OBJECT_TYPE = new DBObjectAttributeType<>("SYNONYM_TARGET_OBJECT_TYPE", DBObjectType.class);
     public static final DBObjectAttributeType<DBTriggerType> TRIGGER_TYPE = new DBObjectAttributeType<>("TRIGGER_TYPE", DBTriggerType.class);
-    public static final DBObjectAttributeType<DBTriggerEvent[]> TRIGGER_EVENTS = new DBObjectAttributeType<>("TRIGGER_EVENTS", DBTriggerEvent[].class);
+    public static final DBObjectAttributeType<String> TRIGGER_BODY = new DBObjectAttributeType<>("TRIGGER_BODY", String.class);
+    public static final DBObjectAttributeType<String> TRIGGER_BODY_TEMPLATE = new DBObjectAttributeType<>("TRIGGER_BODY_TEMPLATE", String.class);
+    public static final DBObjectAttributeType<String> TRIGGER_FUNCTION_NAME = new DBObjectAttributeType<>("TRIGGER_FUNCTION_NAME", String.class);
+    public static final DBObjectAttributeType<DBTriggerEvent> TRIGGER_EVENTS = new DBObjectAttributeType<>("TRIGGER_EVENTS", DBTriggerEvent.class, true);
+    public static final DBObjectAttributeType<DBTriggerTarget> TRIGGER_TARGET = new DBObjectAttributeType<>("TRIGGER_TARGET", DBTriggerTarget.class);
+    public static final DBObjectAttributeType<String> TRIGGER_TARGET_SCHEMA = new DBObjectAttributeType<>("TRIGGER_TARGET_SCHEMA", String.class);
     public static final DBObjectAttributeType<String> TRIGGER_TARGET_DATASET = new DBObjectAttributeType<>("TRIGGER_TARGET_DATASET", String.class);
     public static final DBObjectAttributeType<Boolean> TRIGGER_FOR_EACH_ROW = new DBObjectAttributeType<>("TRIGGER_FOR_EACH_ROW", Boolean.class);
 
@@ -65,10 +74,10 @@ public class DBObjectAttributeType<T> extends PseudoConstant<DBObjectAttributeTy
     public static final DBObjectAttributeType<Boolean> IS_PRIMARY_KEY = new DBObjectAttributeType<>("IS_PRIMARY_KEY", Boolean.class);
 
     public static final DBObjectAttributeType<String> CONSTRAINT_TYPE = new DBObjectAttributeType<>("CONSTRAINT_TYPE", String.class);
-    public static final DBObjectAttributeType<String[]> CONSTRAINT_COLUMNS = new DBObjectAttributeType<>("CONSTRAINT_COLUMNS", String[].class);
+    public static final DBObjectAttributeType<String> CONSTRAINT_COLUMNS = new DBObjectAttributeType<>("CONSTRAINT_COLUMNS", String.class, true);
 
     public static final DBObjectAttributeType<String> INDEX_DEFINITION = new DBObjectAttributeType<>("INDEX_DEFINITION", String.class);
-    public static final DBObjectAttributeType<String[]> INDEX_COLUMNS = new DBObjectAttributeType<>("INDEX_COLUMNS", String[].class);
+    public static final DBObjectAttributeType<String> INDEX_COLUMNS = new DBObjectAttributeType<>("INDEX_COLUMNS", String.class, true);
     public static final DBObjectAttributeType<DBObjectSpec> RETURN_ARGUMENT = new DBObjectAttributeType<>("RETURN_ARGUMENT", DBObjectSpec.class);
 
     public static final DBObjectAttributeType<DBMiningModelSourceType> MINING_MODEL_SOURCE_TYPE = new DBObjectAttributeType<>("MINING_MODEL_SOURCE_TYPE", DBMiningModelSourceType.class);
@@ -90,14 +99,38 @@ public class DBObjectAttributeType<T> extends PseudoConstant<DBObjectAttributeTy
     public static final DBObjectAttributeType<DatabaseIdentifierCase> IDENTIFIER_CASE = new DBObjectAttributeType<>("IDENTIFIER_CASE", DatabaseIdentifierCase.class);
 
     private final Class<T> type;
+    private final boolean array;
 
     @Nullable
-    public T of(@Nullable DBObjectSpec spec) {
+    public T value(@Nullable DBObjectSpec spec) {
+        if (array) {
+            T[] values = values(spec);
+            return values.length == 0 ? null : values[0];
+        }
         if (spec == null) return null;
         T value = spec.getAttributeValue(this);
         if (value instanceof String string) return cast(string.trim());
 
         return value;
+    }
+
+    @NotNull
+    public T[] values(@Nullable DBObjectSpec spec) {
+        if (!array) throw new IllegalArgumentException("Attribute is not an array: " + id());
+
+        if (spec == null) return emptyValues();
+
+        T[] values = spec.getAttributeValues(this);
+        return values == null ? emptyValues() : values;
+    }
+
+    @NotNull
+    private T[] emptyValues() {
+        return cast(Array.newInstance(type, 0));
+    }
+
+    public Class<?> getValueType() {
+        return array ? Array.newInstance(type, 0).getClass() : type;
     }
 
     public boolean is(DBObjectSpec spec) {
@@ -110,12 +143,16 @@ public class DBObjectAttributeType<T> extends PseudoConstant<DBObjectAttributeTy
     }
 
     private DBObjectAttributeType(@NonNls String id) {
-        super(id);
-        this.type = cast(Object.class);
+        this(id, cast(Object.class), false);
     }
 
     private DBObjectAttributeType(@NonNls String id, Class<T> type) {
+        this(id, type, false);
+    }
+
+    private DBObjectAttributeType(@NonNls String id, Class<T> type, boolean array) {
         super(id);
         this.type = type;
+        this.array = array;
     }
 }

@@ -35,8 +35,8 @@ import com.dbn.object.factory.ObjectFactoryIdentifiers;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.model.DBObjectSpecList;
 import com.dbn.object.type.DBConstraintType;
-import com.dbn.object.type.DBTriggerEvent;
 import com.dbn.object.type.DBObjectType;
+import com.dbn.object.type.DBTriggerEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -55,7 +55,7 @@ import static com.dbn.object.factory.model.DBObjectAttributeType.DATA_TYPE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.IS_INPUT;
 import static com.dbn.object.factory.model.DBObjectAttributeType.IS_OUTPUT;
 import static com.dbn.object.factory.model.DBObjectAttributeType.RETURN_ARGUMENT;
-import static com.dbn.object.factory.model.DBObjectAttributeType.OBJECT_DETAIL;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_BODY;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_EVENTS;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TARGET_DATASET;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TYPE;
@@ -228,8 +228,7 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
      *********************************************************/
     @Override
     public void createTrigger(DBObjectSpec triggerSpec, DBNConnection connection) throws SQLException {
-        DBTriggerEvent[] triggerEvents = TRIGGER_EVENTS.of(triggerSpec);
-        DBTriggerEvent triggerEvent = triggerEvents == null || triggerEvents.length == 0 ? null : triggerEvents[0];
+        DBTriggerEvent triggerEvent = TRIGGER_EVENTS.value(triggerSpec);
 
         @NonNls
         StringBuilder builder = new StringBuilder("trigger ");
@@ -237,7 +236,7 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
         builder.append('.');
         builder.append(triggerSpec.getAdjustedObjectName());
         builder.append('\n');
-        builder.append(TRIGGER_TYPE.of(triggerSpec).getName());
+        builder.append(TRIGGER_TYPE.value(triggerSpec).getName());
         builder.append(' ');
         builder.append(triggerEvent.getName());
         builder.append(" on ");
@@ -245,9 +244,9 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
         builder.append('.');
         builder.append(ObjectFactoryIdentifiers.quoteIdentifier(
                 triggerSpec.getConnection(),
-                TRIGGER_TARGET_DATASET.of(triggerSpec)));
+                TRIGGER_TARGET_DATASET.value(triggerSpec)));
         builder.append("\nfor each row\n");
-        builder.append(OBJECT_DETAIL.of(triggerSpec));
+        builder.append(TRIGGER_BODY.value(triggerSpec));
 
         createObject(builder.toString(), connection);
     }
@@ -297,7 +296,7 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
             buffer.append(argumentName);
             buffer.append(Strings.repeatSymbol(' ', maxArgNameLength - argumentName.length() + 1));
 
-            buffer.append(dco.format(DATA_TYPE.of(argument)));
+            buffer.append(dco.format(DATA_TYPE.value(argument)));
             if (argument != lastElement(arguments)) {
                 buffer.append(",");
             }
@@ -305,10 +304,10 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
 
         buffer.append(")\n");
         if (function) {
-            DBObjectSpec returnArgument = RETURN_ARGUMENT.of(methodSpec);
+            DBObjectSpec returnArgument = RETURN_ARGUMENT.value(methodSpec);
 
             buffer.append(kco.format("returns "));
-            buffer.append(dco.format(DATA_TYPE.of(returnArgument)));
+            buffer.append(dco.format(DATA_TYPE.value(returnArgument)));
             buffer.append("\n");
         }
         buffer.append(kco.format("begin\n\n"));

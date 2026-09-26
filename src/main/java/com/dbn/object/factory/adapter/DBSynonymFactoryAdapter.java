@@ -70,13 +70,13 @@ public class DBSynonymFactoryAdapter implements ObjectFactoryAdapter {
             errors.add(txt("msg.objects.error.ObjectNameInvalid", SYNONYM.getDisplayName(), objectName));
         }
 
-        if (Strings.isEmptyOrSpaces(SYNONYM_TARGET_SCHEMA.of(input))) {
+        if (Strings.isEmptyOrSpaces(SYNONYM_TARGET_SCHEMA.value(input))) {
             errors.add(txt("msg.shared.error.SelectTargetSchema"));
         }
-        if (SYNONYM_TARGET_OBJECT_TYPE.of(input) == null) {
+        if (SYNONYM_TARGET_OBJECT_TYPE.value(input) == null) {
             errors.add(txt("msg.objects.error.SelectObject", txt("app.object.label.TargetObjectType")));
         }
-        if (Strings.isEmptyOrSpaces(SYNONYM_TARGET_OBJECT_NAME.of(input))) {
+        if (Strings.isEmptyOrSpaces(SYNONYM_TARGET_OBJECT_NAME.value(input))) {
             errors.add(txt("msg.objects.error.SelectObject", txt("app.object.label.TargetObject")));
         }
     }

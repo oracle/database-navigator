@@ -163,7 +163,7 @@ public class DBArgumentFactoryInputForm extends DBObjectFactoryInputForm {
         nameTextField.setText(input.getObjectName());
         inCheckBox.setSelected(IS_INPUT.is(input));
         outCheckBox.setSelected(IS_OUTPUT.is(input));
-        dataTypeEditor.setText(DATA_TYPE.of(input));
+        dataTypeEditor.setText(DATA_TYPE.value(input));
     }
 
     @Override

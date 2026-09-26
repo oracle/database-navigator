@@ -19,7 +19,6 @@ package com.dbn.database.sqlite;
 import com.dbn.code.common.style.DBLCodeStyleManager;
 import com.dbn.code.common.style.options.CodeStyleCaseOption;
 import com.dbn.code.common.style.options.CodeStyleCaseSettings;
-import com.dbn.common.exception.Exceptions;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.DatabaseObjectTypeId;
@@ -40,7 +39,7 @@ import java.sql.SQLException;
 import static com.dbn.common.exception.Exceptions.notImplemented;
 import static com.dbn.common.util.Strings.cachedLowerCase;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
-import static com.dbn.object.factory.model.DBObjectAttributeType.OBJECT_DETAIL;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_BODY;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_EVENTS;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TARGET_DATASET;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TYPE;
@@ -99,8 +98,7 @@ public class SqliteDataDefinitionInterface extends DatabaseDataDefinitionInterfa
      *********************************************************/
     @Override
     public void createTrigger(DBObjectSpec triggerSpec, DBNConnection connection) throws SQLException {
-        DBTriggerEvent[] triggerEvents = TRIGGER_EVENTS.of(triggerSpec);
-        DBTriggerEvent triggerEvent = triggerEvents == null || triggerEvents.length == 0 ? null : triggerEvents[0];
+        DBTriggerEvent triggerEvent = TRIGGER_EVENTS.value(triggerSpec);
 
         @NonNls
         StringBuilder builder = new StringBuilder("trigger ");
@@ -108,15 +106,15 @@ public class SqliteDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         builder.append('.');
         builder.append(triggerSpec.getAdjustedObjectName());
         builder.append('\n');
-        builder.append(TRIGGER_TYPE.of(triggerSpec).getName());
+        builder.append(TRIGGER_TYPE.value(triggerSpec).getName());
         builder.append(' ');
         builder.append(triggerEvent.getName());
         builder.append(" on ");
         builder.append(ObjectFactoryIdentifiers.quoteIdentifier(
                 triggerSpec.getConnection(),
-                TRIGGER_TARGET_DATASET.of(triggerSpec)));
+                TRIGGER_TARGET_DATASET.value(triggerSpec)));
         builder.append("\nfor each row\n");
-        builder.append(OBJECT_DETAIL.of(triggerSpec));
+        builder.append(TRIGGER_BODY.value(triggerSpec));
 
         createObject(builder.toString(), connection);
     }

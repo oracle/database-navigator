@@ -26,7 +26,6 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.object.factory.model.DBObjectAttribute;
 import com.dbn.object.factory.model.DBObjectAttributeType;
 import com.dbn.object.factory.model.DBObjectSpec;
-import com.dbn.object.factory.model.DBObjectTypeSpec;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import lombok.Setter;
@@ -111,11 +110,23 @@ public abstract class DBObjectFactoryInputForm extends DBNFormBase {
 
     public abstract void focus();
 
-    protected DBObjectTypeSpec getObjectTypeSpec() {
-        return input.getObjectTypeSpec();
+    protected boolean supports(DBObjectAttributeType<?> type) {
+        return input.supports(type);
     }
 
-    protected  <T> List<T> getSupportedValues(DBObjectAttributeType<?> type) {
-        return getObjectTypeSpec().getSupportedValues(type);
+    protected boolean requires(DBObjectAttributeType<?> type) {
+        return input.requires(type);
+    }
+
+    protected <T> boolean requires(DBObjectAttributeType<T> type, T value) {
+        return input.requires(type, value);
+    }
+
+    protected boolean allowsMultiple(DBObjectAttributeType<?> type) {
+        return input.allowsMultiple(type);
+    }
+
+    protected  <T> List<T> getSupportedValues(DBObjectAttributeType<T> type) {
+        return input.getSupportedValues(type);
     }
 }

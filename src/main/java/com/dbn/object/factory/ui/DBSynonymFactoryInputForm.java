@@ -28,8 +28,8 @@ import com.dbn.database.DatabaseIdentifierCase;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectBundle;
-import com.dbn.object.common.ui.DBObjectTypeSelector;
 import com.dbn.object.common.ui.DBObjectSelector;
+import com.dbn.object.common.ui.DBObjectTypeSelector;
 import com.dbn.object.factory.ObjectFactoryManager;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.type.DBObjectType;
@@ -47,8 +47,6 @@ import static com.dbn.common.ui.form.DBNFormState.initPersistence;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
-import static com.dbn.common.ui.util.TextFields.getText;
-import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.common.util.Strings.isWord;
@@ -94,13 +92,13 @@ public class DBSynonymFactoryInputForm extends DBSchemaObjectFactoryInputForm {
                 .initialize(this, SCHEMA)
                 .withConnectionContext(this::getConnection)
                 .withValueLoader(this::loadSchemas)
-                .withValuePreselector(() -> SYNONYM_TARGET_SCHEMA.of(input))
+                .withValuePreselector(() -> SYNONYM_TARGET_SCHEMA.value(input))
                 .withValueLoadConsumer(values -> populateTargetObjects())
                 .triggerLoad();
 
         targetObjectTypeComboBox
                 .withValueLoader(this::loadTargetObjectTypes)
-                .withValuePreselector(type -> type == SYNONYM_TARGET_OBJECT_TYPE.of(input))
+                .withValuePreselector(type -> type == SYNONYM_TARGET_OBJECT_TYPE.value(input))
                 .withValueLoadConsumer(values -> populateTargetObjects())
                 .triggerLoad();
     }
@@ -115,7 +113,7 @@ public class DBSynonymFactoryInputForm extends DBSchemaObjectFactoryInputForm {
                     .withConnectionContext(this::getConnection)
                     .withSchemaContext(this::getSelectedTargetSchema)
                     .withValueLoader(this::loadTargetObjects)
-                    .withValuePreselector(() -> SYNONYM_TARGET_OBJECT_NAME.of(input));
+                    .withValuePreselector(() -> SYNONYM_TARGET_OBJECT_NAME.value(input));
             targetObjectSelectorInitialized = true;
         }
 
@@ -251,14 +249,14 @@ public class DBSynonymFactoryInputForm extends DBSchemaObjectFactoryInputForm {
         if (!isInitialized()) return;
 
         targetSchemaComboBox
-                .withValuePreselector(() -> SYNONYM_TARGET_SCHEMA.of(input))
+                .withValuePreselector(() -> SYNONYM_TARGET_SCHEMA.value(input))
                 .reloadValues();
         targetObjectTypeComboBox
-                .withValuePreselector(type -> type == SYNONYM_TARGET_OBJECT_TYPE.of(input))
+                .withValuePreselector(type -> type == SYNONYM_TARGET_OBJECT_TYPE.value(input))
                 .reloadValues();
         if (targetObjectSelectorInitialized) {
             targetObjectComboBox
-                    .withValuePreselector(() -> SYNONYM_TARGET_OBJECT_NAME.of(input))
+                    .withValuePreselector(() -> SYNONYM_TARGET_OBJECT_NAME.value(input))
                     .reloadValues();
         }
     }

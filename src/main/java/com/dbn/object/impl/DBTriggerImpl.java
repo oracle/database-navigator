@@ -25,11 +25,12 @@ import com.dbn.object.DBTrigger;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObjectImpl;
 import com.dbn.object.type.DBTriggerEvent;
+import com.dbn.object.type.DBTriggerTarget;
 import com.dbn.object.type.DBTriggerType;
+import lombok.Getter;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
@@ -43,23 +44,13 @@ import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
 import static com.dbn.object.common.status.DBObjectStatus.DEBUG;
 import static com.dbn.object.common.status.DBObjectStatus.DISABLED;
 import static com.dbn.object.common.status.DBObjectStatus.VALID;
-import static com.dbn.object.type.DBTriggerEvent.ALTER;
-import static com.dbn.object.type.DBTriggerEvent.CREATE;
-import static com.dbn.object.type.DBTriggerEvent.DDL;
-import static com.dbn.object.type.DBTriggerEvent.DELETE;
-import static com.dbn.object.type.DBTriggerEvent.DROP;
-import static com.dbn.object.type.DBTriggerEvent.INSERT;
-import static com.dbn.object.type.DBTriggerEvent.LOGON;
-import static com.dbn.object.type.DBTriggerEvent.RENAME;
-import static com.dbn.object.type.DBTriggerEvent.TRUNCATE;
-import static com.dbn.object.type.DBTriggerEvent.UPDATE;
-import static com.dbn.object.type.DBTriggerType.AFTER;
-import static com.dbn.object.type.DBTriggerType.BEFORE;
-import static com.dbn.object.type.DBTriggerType.INSTEAD_OF;
 
+@Getter
 abstract class DBTriggerImpl extends DBSchemaObjectImpl<DBTriggerMetadata> implements DBTrigger {
     private DBTriggerType triggerType;
     private DBTriggerEvent[] triggerEvents;
+    private DBTriggerTarget triggerTarget;
+    private @Nullable DBSchema targetSchema;
 
     DBTriggerImpl(DBSchema schema, DBTriggerMetadata metadata) throws SQLException {
         super(schema, metadata);
@@ -73,33 +64,21 @@ abstract class DBTriggerImpl extends DBSchemaObjectImpl<DBTriggerMetadata> imple
     protected String initObject(ConnectionHandler connection, DBObject parentObject, DBTriggerMetadata metadata) throws SQLException {
         String name = metadata.getTriggerName();
         set(FOR_EACH_ROW, metadata.isForEachRow());
-
-        String triggerTypeString = metadata.getTriggerType();
-        triggerType =
-                triggerTypeString.contains("BEFORE") ? BEFORE :
-                triggerTypeString.contains("AFTER") ? AFTER :
-                triggerTypeString.contains("INSTEAD OF") ? INSTEAD_OF :
-                        DBTriggerType.UNKNOWN;
-
-
-        String triggeringEventString = metadata.getTriggeringEvent();
-        List<DBTriggerEvent> eventList = new ArrayList<>();
-
-        if (isNotEmpty(triggeringEventString)) {
-            if (triggeringEventString.contains("INSERT")) eventList.add(INSERT);
-            if (triggeringEventString.contains("UPDATE")) eventList.add(UPDATE);
-            if (triggeringEventString.contains("DELETE")) eventList.add(DELETE);
-            if (triggeringEventString.contains("TRUNCATE")) eventList.add(TRUNCATE);
-            if (triggeringEventString.contains("CREATE")) eventList.add(CREATE);
-            if (triggeringEventString.contains("ALTER")) eventList.add(ALTER);
-            if (triggeringEventString.contains("DROP")) eventList.add(DROP);
-            if (triggeringEventString.contains("RENAME")) eventList.add(RENAME);
-            if (triggeringEventString.contains("LOGON")) eventList.add(LOGON);
-            if (triggeringEventString.contains("DDL")) eventList.add(DDL);
+        triggerTarget = DBTriggerTarget.value(metadata.getTriggerTarget());
+        if (triggerTarget == DBTriggerTarget.UNKNOWN) {
+            triggerTarget = parentObject instanceof DBDataset ? DBTriggerTarget.DATASET : DBTriggerTarget.DATABASE;
+        }
+        String targetSchemaName = metadata.getTargetSchemaName();
+        if (isNotEmpty(targetSchemaName)) {
+            targetSchema = connection.getObjectBundle().getSchema(targetSchemaName);
+        }
+        if (targetSchema == null && triggerTarget == DBTriggerTarget.SCHEMA) {
+            targetSchema = parentObject instanceof DBSchema schema ? schema :
+                    parentObject instanceof DBDataset dataset ? dataset.getSchema() : null;
         }
 
-        if (eventList.isEmpty()) eventList.add(DBTriggerEvent.UNKNOWN);
-        triggerEvents = eventList.toArray(new DBTriggerEvent[0]);
+        triggerType = DBTriggerType.value(metadata.getTriggerType());
+        triggerEvents = DBTriggerEvent.values(metadata.getTriggeringEvent());
 
         return name;
     }
@@ -125,16 +104,6 @@ abstract class DBTriggerImpl extends DBSchemaObjectImpl<DBTriggerMetadata> imple
     @Override
     public boolean isForEachRow() {
         return is(FOR_EACH_ROW);
-    }
-
-    @Override
-    public DBTriggerType getTriggerType() {
-        return triggerType;
-    }
-
-    @Override
-    public DBTriggerEvent[] getTriggerEvents() {
-        return triggerEvents;
     }
 
     /*********************************************************

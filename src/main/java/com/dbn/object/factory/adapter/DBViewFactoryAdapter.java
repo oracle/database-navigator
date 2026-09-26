@@ -69,7 +69,7 @@ public class DBViewFactoryAdapter implements ObjectFactoryAdapter {
             errors.add(txt("msg.objects.error.ObjectNameInvalid", objectType.getDisplayName(), objectName));
         }
 
-        String selectStatement = OBJECT_DETAIL.of(input);
+        String selectStatement = OBJECT_DETAIL.value(input);
         if (Strings.isEmptyOrSpaces(selectStatement)) {
             errors.add(txt("msg.objects.error.SelectStatementRequired"));
         }
@@ -93,7 +93,7 @@ public class DBViewFactoryAdapter implements ObjectFactoryAdapter {
                     @NonNls String createStatement = input.getObjectType().getDisplayName() + " " +
                             input.getSchemaName(true) + "." +
                             input.getAdjustedObjectName() + " as\n" +
-                            OBJECT_DETAIL.of(input);
+                            OBJECT_DETAIL.value(input);
                     dataDefinition.createObject(createStatement, conn);
                 });
 

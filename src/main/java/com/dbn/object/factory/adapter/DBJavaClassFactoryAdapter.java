@@ -75,8 +75,8 @@ public class DBJavaClassFactoryAdapter implements ObjectFactoryAdapter {
 
     @Override
     public void createObject(DBObjectSpec input) throws SQLException {
-        String className = JAVA_CLASS_NAME.of(input);
-        String packageName = JAVA_PACKAGE_NAME.of(input);
+        String className = JAVA_CLASS_NAME.value(input);
+        String packageName = JAVA_PACKAGE_NAME.value(input);
 
         DBJavaClassType javaClassType = getClassType(input);
         String classType = getTypeIdentifier(javaClassType);
@@ -124,7 +124,7 @@ public class DBJavaClassFactoryAdapter implements ObjectFactoryAdapter {
 
 
     private static DBJavaClassType getClassType(DBObjectSpec input) {
-        DBJavaClassType classType = JAVA_CLASS_TYPE.of(input);
+        DBJavaClassType classType = JAVA_CLASS_TYPE.value(input);
         return classType == null ? CLASS : classType;
     }
 
@@ -133,15 +133,15 @@ public class DBJavaClassFactoryAdapter implements ObjectFactoryAdapter {
     }
 
     private static String getDatabaseObjectName(DBObjectSpec input) {
-        String packageName = JAVA_PACKAGE_NAME.of(input);
-        String className = JAVA_CLASS_NAME.of(input);
+        String packageName = JAVA_PACKAGE_NAME.value(input);
+        String className = JAVA_CLASS_NAME.value(input);
         if (isEmpty(packageName)) return className;
 
         return packageName.replace(".", "/") + "/" + className;
     }
 
     private static String getObjectDescription(DBObjectSpec input) {
-        String objectName = "\"" + getQualifiedClassName(JAVA_PACKAGE_NAME.of(input), JAVA_CLASS_NAME.of(input)) + "\"";
+        String objectName = "\"" + getQualifiedClassName(JAVA_PACKAGE_NAME.value(input), JAVA_CLASS_NAME.value(input)) + "\"";
         return switch (getClassType(input)) {
             case INTERFACE -> "java interface " + objectName;
             case ANNOTATION -> "java annotation " + objectName;

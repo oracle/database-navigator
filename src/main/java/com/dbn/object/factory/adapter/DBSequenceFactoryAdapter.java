@@ -82,12 +82,12 @@ public class DBSequenceFactoryAdapter implements ObjectFactoryAdapter {
         validateInteger(input, SEQUENCE_MAX_VALUE, "app.object.label.SequenceMaxValue", errors);
         validateInteger(input, SEQUENCE_CACHE_SIZE, "app.object.label.SequenceCacheSize", errors);
 
-        String increment = SEQUENCE_INCREMENT_BY.of(input);
+        String increment = SEQUENCE_INCREMENT_BY.value(input);
         if (isInteger(increment) && BigInteger.ZERO.equals(new BigInteger(increment.trim()))) {
             errors.add(txt("msg.objects.error.SequenceIncrementInvalid"));
         }
 
-        String cacheSize = SEQUENCE_CACHE_SIZE.of(input);
+        String cacheSize = SEQUENCE_CACHE_SIZE.value(input);
         if (isInteger(cacheSize) && new BigInteger(cacheSize.trim()).signum() <= 0) {
             errors.add(txt("msg.objects.error.SequenceCacheInvalid"));
         }
@@ -116,7 +116,7 @@ public class DBSequenceFactoryAdapter implements ObjectFactoryAdapter {
 
     private static void validateInteger(DBObjectSpec input, DBObjectAttributeType<String> attribute,
                                         String labelKey, List<String> errors) {
-        String value = attribute.of(input);
+        String value = attribute.value(input);
         if (Strings.isEmptyOrSpaces(value) || isInteger(value)) return;
 
         errors.add(txt("msg.objects.error.SequenceValueInvalid", txt(labelKey)));

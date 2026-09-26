@@ -172,11 +172,11 @@ public class DBSequenceFactoryInputForm extends DBSchemaObjectFactoryInputForm {
     @Override
     public void resetFormChanges() {
         super.resetFormChanges();
-        setText(startWithTextField, SEQUENCE_START_WITH.of(input));
-        setText(incrementByTextField, SEQUENCE_INCREMENT_BY.of(input));
-        setText(minValueTextField, SEQUENCE_MIN_VALUE.of(input));
-        setText(maxValueTextField, SEQUENCE_MAX_VALUE.of(input));
-        setText(cacheSizeTextField, SEQUENCE_CACHE_SIZE.of(input));
+        setText(startWithTextField, SEQUENCE_START_WITH.value(input));
+        setText(incrementByTextField, SEQUENCE_INCREMENT_BY.value(input));
+        setText(minValueTextField, SEQUENCE_MIN_VALUE.value(input));
+        setText(maxValueTextField, SEQUENCE_MAX_VALUE.value(input));
+        setText(cacheSizeTextField, SEQUENCE_CACHE_SIZE.value(input));
         cycleCheckBox.setSelected(SEQUENCE_CYCLE.is(input));
     }
 

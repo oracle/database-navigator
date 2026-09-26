@@ -80,22 +80,22 @@ public class DBCredentialFactoryAdapter implements ObjectFactoryAdapter {
                 schemaId,
                 conn -> {
                     DatabaseAssistantInterface assistantInterface = input.getConnection().getAssistantInterface();
-                    DBCredentialType credentialType = CREDENTIAL_TYPE.of(input);
+                    DBCredentialType credentialType = CREDENTIAL_TYPE.value(input);
 
                     if (credentialType == DBCredentialType.OCI) {
                         assistantInterface.createOciCredential(
                                 conn,
                                 input.getAdjustedObjectName(),
-                                USER_OCID.of(input),
-                                TENANCY_OCID.of(input),
-                                PRIVATE_KEY.of(input),
-                                FINGERPRINT.of(input));
+                                USER_OCID.value(input),
+                                TENANCY_OCID.value(input),
+                                PRIVATE_KEY.value(input),
+                                FINGERPRINT.value(input));
                     } else if (credentialType == DBCredentialType.PASSWORD) {
                         assistantInterface.createPwdCredential(
                                 conn,
                                 input.getAdjustedObjectName(),
-                                USER_NAME.of(input),
-                                Data.asString(PASSWORD.of(input))
+                                USER_NAME.value(input),
+                                Data.asString(PASSWORD.value(input))
                         );
                     }
                 });

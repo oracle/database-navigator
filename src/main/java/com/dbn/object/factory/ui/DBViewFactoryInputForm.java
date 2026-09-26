@@ -97,7 +97,7 @@ public class DBViewFactoryInputForm extends DBSchemaObjectFactoryInputForm {
                 ensureProject(),
                 "view.sql",
                 languageDialect,
-                OBJECT_DETAIL.of(input),
+                OBJECT_DETAIL.value(input),
                 connection,
                 input.getSchemaId());
         if (selectStatementFile == null) return;

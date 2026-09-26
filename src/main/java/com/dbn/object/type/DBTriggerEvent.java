@@ -17,27 +17,61 @@
 package com.dbn.object.type;
 
 import com.dbn.common.constant.Constant;
+import com.dbn.common.ui.Presentable;
 import lombok.Getter;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 @Getter
 @NonNls
-public enum DBTriggerEvent implements Constant<DBTriggerEvent> {
-    INSERT("insert"),
-    UPDATE("update"),
-    DELETE("delete"),
-    TRUNCATE("truncate"),
-    DROP("drop"),
-    LOGON("logon"),
-    ALTER("alter"),
-    CREATE("create"),
-    RENAME("rename"),
-    DDL("ddl"),
-    UNKNOWN("unknown");
+public enum DBTriggerEvent implements Constant<DBTriggerEvent>, Presentable {
+    INSERT("INSERT"),
+    UPDATE("UPDATE"),
+    DELETE("DELETE"),
+    TRUNCATE("TRUNCATE"),
+    DROP("DROP"),
+    LOGON("LOGON"),
+    ALTER("ALTER"),
+    CREATE("CREATE"),
+    RENAME("RENAME"),
+    DDL("DDL"),
+    UNKNOWN("UNKNOWN");
 
     private final String name;
 
     DBTriggerEvent(String name) {
         this.name = name;
+    }
+
+    public static DBTriggerEvent value(@Nullable String value) {
+        if (value == null) return UNKNOWN;
+
+        String normalized = value.trim().toUpperCase(Locale.ROOT);
+        for (DBTriggerEvent triggerEvent : values()) {
+            if (triggerEvent != UNKNOWN && normalized.contains(triggerEvent.name)) {
+                return triggerEvent;
+            }
+        }
+        return UNKNOWN;
+    }
+
+    public static DBTriggerEvent[] values(@Nullable String value) {
+        List<DBTriggerEvent> triggerEvents = new ArrayList<>();
+        if (value != null && !value.isBlank()) {
+            for (String eventValue : value.split("(?i)\\s+OR\\s+")) {
+                DBTriggerEvent triggerEvent = value(eventValue);
+                if (triggerEvent != UNKNOWN && !triggerEvents.contains(triggerEvent)) {
+                    triggerEvents.add(triggerEvent);
+                }
+            }
+        }
+        if (triggerEvents.isEmpty()) {
+            triggerEvents.add(UNKNOWN);
+        }
+        return triggerEvents.toArray(new DBTriggerEvent[0]);
     }
 }

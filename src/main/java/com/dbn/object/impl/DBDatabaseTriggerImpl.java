@@ -86,7 +86,7 @@ class DBDatabaseTriggerImpl extends DBTriggerImpl implements DBDatabaseTrigger {
             triggerDesc.append(triggeringEvent.getName());
         }
 
-        triggerDesc.append(" on database");
+        triggerDesc.append(" on ").append(getTriggerTarget());
 
         ttb.append(false, triggerDesc.toString(), false);
 

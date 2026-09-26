@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -49,9 +50,17 @@ public class DBObjectTypeSpec {
         return Collections.unmodifiableSet(new LinkedHashSet<>(attributes));
     }
 
-    public DBObjectTypeSpec withAttribute(
-            DBObjectAttributeType<?> type,
-            List<?> values,
+    public <T> DBObjectTypeSpec withAttribute(
+            DBObjectAttributeType<T> type,
+            T value,
+            boolean required) {
+        List<T> values = value == null ? List.of() : List.of(value);
+        return withAttribute(type, values, false, required);
+    }
+
+    public <T> DBObjectTypeSpec withAttribute(
+            DBObjectAttributeType<T> type,
+            List<T> values,
             boolean multiple,
             boolean required) {
 
@@ -69,15 +78,25 @@ public class DBObjectTypeSpec {
         return null;
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> List<T> getSupportedValues(DBObjectAttributeType<?> type) {
+    public boolean supports(DBObjectAttributeType<?> type) {
+        return getAttribute(type) != null;
+    }
+
+    public boolean requires(DBObjectAttributeType<?> type) {
+        DBObjectAttributeSpec attribute = getAttribute(type);
+        return attribute != null && attribute.required();
+    }
+
+    public <T> boolean requires(DBObjectAttributeType<T> type, T value) {
+        List<T> values = getAttributeValues(type);
+        return requires(type) && values.size() == 1 && Objects.equals(values.get(0), value);
+    }
+
+    public <T> List<T> getAttributeValues(DBObjectAttributeType<T> type) {
         DBObjectAttributeSpec attribute = getAttribute(type);
         if (attribute == null || attribute.values().isEmpty()) return List.of();
 
-        Class<T> valueType = (Class<T>) type.getType();
-        if (valueType.isArray()) {
-            valueType = (Class<T>) valueType.getComponentType();
-        }
+        Class<T> valueType = type.getType();
 
         List<T> values = new ArrayList<>();
         for (Object value : attribute.values()) {

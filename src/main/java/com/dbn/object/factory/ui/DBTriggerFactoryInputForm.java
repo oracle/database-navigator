@@ -16,13 +16,12 @@
 
 package com.dbn.object.factory.ui;
 
-import com.dbn.common.color.Colors;
-import com.dbn.common.icon.Icons;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.info.DBNInfoLabel;
 import com.dbn.common.ui.misc.DBNComboBox;
+import com.dbn.common.ui.misc.DBNMultiSelectComboBox;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.connection.ConnectionHandler;
@@ -33,34 +32,25 @@ import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.language.psql.PSQLFileType;
 import com.dbn.language.psql.PSQLLanguage;
 import com.dbn.object.DBDataset;
+import com.dbn.object.DBSchema;
 import com.dbn.object.common.ui.DBObjectSelector;
 import com.dbn.object.factory.ObjectFactoryManager;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.type.DBTriggerEvent;
+import com.dbn.object.type.DBTriggerTarget;
 import com.dbn.object.type.DBTriggerType;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.Box;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 import javax.swing.JTextField;
-import javax.swing.JToggleButton;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Insets;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
-import static com.dbn.common.ui.Layouts.horizontalBoxLayout;
 import static com.dbn.common.ui.form.DBNFormState.initPersistence;
 import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.disableFormField;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
@@ -70,13 +60,17 @@ import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.common.util.Strings.isWord;
 import static com.dbn.nls.NlsResources.txt;
-import static com.dbn.object.factory.model.DBObjectAttributeType.OBJECT_DETAIL;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_BODY;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_EVENTS;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_FOR_EACH_ROW;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_FUNCTION_NAME;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TARGET;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TARGET_DATASET;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TARGET_SCHEMA;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TYPE;
 import static com.dbn.object.type.DBObjectType.DATASET;
 import static com.dbn.object.type.DBObjectType.DATASET_TRIGGER;
+import static com.dbn.object.type.DBObjectType.SCHEMA;
 
 public class DBTriggerFactoryInputForm extends DBSchemaObjectFactoryInputForm {
     private JPanel mainPanel;
@@ -85,39 +79,71 @@ public class DBTriggerFactoryInputForm extends DBSchemaObjectFactoryInputForm {
     private DBNComboBox<ConnectionHandler> connectionComboBox;
     private DBNComboBox<SchemaId> schemaComboBox;
     private JTextField nameTextField;
+    private JLabel triggerFunctionNameLabel;
+    private JTextField triggerFunctionNameTextField;
     private JLabel targetDatasetLabel;
+    private JLabel triggerTargetLabel;
+    private JLabel targetSchemaLabel;
     private JLabel triggerTypeLabel;
     private JLabel triggerEventsLabel;
     private JLabel triggerForEachRowLabel;
     private DBObjectSelector<DBDataset> targetDatasetComboBox;
+    private DBNComboBox<DBTriggerTarget> triggerTargetComboBox;
+    private DBObjectSelector<DBSchema> targetSchemaComboBox;
     private DBNComboBox<DBTriggerType> triggerTypeComboBox;
-    private JPanel triggerEventsPanel;
+    private DBNMultiSelectComboBox<DBTriggerEvent> triggerEventsComboBox;
     private JCheckBox triggerForEachRowCheckBox;
     private JCheckBox preserveCaseCheckBox;
     private DBNInfoLabel preserveCaseInfoLabel;
     private EditorEx sqlEditor;
     private Document document;
 
-    private List<DBTriggerEvent> triggerEvents = List.of();
-    private List<JToggleButton> triggerEventButtons = List.of();
-
+    private String triggerName;
     public DBTriggerFactoryInputForm(@NotNull DBNComponent parent, DBObjectSpec input) {
         super(parent, input);
 
         initContextComponents();
         initHeaderForm();
+        initTriggerFunctionName();
         initTargetDataset();
+        initTriggerTarget();
         initTriggerType();
         initTriggerEvents();
         initPreserveCaseFields();
         resetFormChanges();
+        triggerName = nameTextField.getText().trim();
 
-        onTextChange(nameTextField, e -> validateFormFields());
+        onSelectionChange(triggerEventsComboBox, e -> validateFormFields());
+        onTextChange(nameTextField, e -> {
+            updateTriggerFunctionName();
+            validateFormFields();
+        });
         whenFirstShown(this::initEditor);
     }
 
+    private void initTriggerFunctionName() {
+        boolean supported = supports(TRIGGER_FUNCTION_NAME);
+        triggerFunctionNameLabel.setVisible(supported);
+        triggerFunctionNameTextField.setVisible(supported);
+        if (supported) {
+            onTextChange(triggerFunctionNameTextField, e -> validateFormFields());
+        }
+    }
+
+    private void updateTriggerFunctionName() {
+        if (!supports(TRIGGER_FUNCTION_NAME)) return;
+
+        String newTriggerName = nameTextField.getText().trim();
+        if (isEmptyOrSpaces(newTriggerName)) return;
+
+        String generatedFunctionName = triggerName + "_function";
+        if (triggerFunctionNameTextField.getText().trim().equals(generatedFunctionName)) {
+            triggerFunctionNameTextField.setText(newTriggerName + "_function");
+        }
+        triggerName = newTriggerName;
+    }
     private void initTargetDataset() {
-        boolean datasetTrigger = getObjectType() == DATASET_TRIGGER;
+        boolean datasetTrigger = supports(TRIGGER_TARGET_DATASET);
         targetDatasetLabel.setVisible(datasetTrigger);
         targetDatasetComboBox.setVisible(datasetTrigger);
         triggerForEachRowLabel.setVisible(datasetTrigger);
@@ -133,65 +159,72 @@ public class DBTriggerFactoryInputForm extends DBSchemaObjectFactoryInputForm {
                 .withConnectionContext(this::getConnection)
                 .withSchemaContext(input::getSchema)
                 .withValueLoader(() -> input.getSchema().getDatasets())
-                .withValuePreselector(() -> TRIGGER_TARGET_DATASET.of(input))
+                .withValuePreselector(() -> TRIGGER_TARGET_DATASET.value(input))
                 .withValueLoadConsumer(values -> validateFormFields());
         disableFormField(targetDatasetComboBox, "READ_ONLY");
         targetDatasetComboBox.triggerLoad();
     }
 
+    private void initTriggerTarget() {
+        List<DBTriggerTarget> triggerTargets = getSupportedValues(TRIGGER_TARGET);
+        boolean targetSupported = supports(TRIGGER_TARGET);
+        triggerTargetLabel.setVisible(targetSupported);
+        triggerTargetComboBox.setVisible(targetSupported);
+        targetSchemaLabel.setVisible(false);
+        targetSchemaComboBox.setVisible(false);
+        if (!targetSupported) return;
+
+        triggerTargetComboBox.setValues(triggerTargets);
+        triggerTargetComboBox.setSelectedValue(TRIGGER_TARGET.value(input));
+        if (triggerTargets.size() == 1) {
+            triggerTargetComboBox.setEnabled(false);
+        }
+        onSelectionChange(triggerTargetComboBox, target -> {
+            updateTargetSchemaVisibility();
+            validateFormFields();
+        });
+
+        if (supports(TRIGGER_TARGET_SCHEMA)) {
+            targetSchemaComboBox
+                    .initialize(this, SCHEMA)
+                    .withConnectionContext(this::getConnection)
+                    .withValueLoader(this::loadSchemas)
+                    .withValuePreselector(() -> TRIGGER_TARGET_SCHEMA.value(input))
+                    .withValueLoadConsumer(values -> validateFormFields());
+            onSelectionChange(targetSchemaComboBox, e -> validateFormFields());
+            targetSchemaComboBox.triggerLoad();
+        }
+        updateTargetSchemaVisibility();
+    }
+
+    private List<DBSchema> loadSchemas() {
+        return getConnection().getObjectBundle().getSchemas();
+    }
+
+    private void updateTargetSchemaVisibility() {
+        boolean visible = supports(TRIGGER_TARGET_SCHEMA) &&
+                triggerTargetComboBox.getSelectedValue() == DBTriggerTarget.SCHEMA;
+        targetSchemaLabel.setVisible(visible);
+        targetSchemaComboBox.setVisible(visible);
+    }
+
     private void initTriggerType() {
         List<DBTriggerType> triggerTypes = getSupportedValues(TRIGGER_TYPE);
+        boolean supported = supports(TRIGGER_TYPE);
+        triggerTypeLabel.setVisible(supported);
+        triggerTypeComboBox.setVisible(supported);
+        if (!supported) return;
+
         triggerTypeComboBox.setValues(triggerTypes);
-        triggerTypeComboBox.setSelectedValue(TRIGGER_TYPE.of(input));
+        triggerTypeComboBox.setSelectedValue(TRIGGER_TYPE.value(input));
     }
 
     private void initTriggerEvents() {
-        DBTriggerEvent[] selectedEvents = TRIGGER_EVENTS.of(input);
-        triggerEvents = getSupportedValues(TRIGGER_EVENTS);
-        triggerEventButtons = new ArrayList<>();
-        triggerEventsPanel.removeAll();
-        horizontalBoxLayout(triggerEventsPanel);
-        for (DBTriggerEvent event : triggerEvents) {
-            if (!triggerEventButtons.isEmpty()) {
-                triggerEventsPanel.add(Box.createHorizontalStrut(8));
-            }
-            JToggleButton toggleButton = new JToggleButton(event.getName().toUpperCase(Locale.ROOT));
-            toggleButton.setHorizontalTextPosition(SwingConstants.LEFT);
-            Insets margin = toggleButton.getMargin();
-            toggleButton.setMargin(JBUI.insets(margin.top, 8, margin.bottom, 8));
-            toggleButton.setSelected(isSelected(event, selectedEvents));
-            toggleButton.setAlignmentX(Component.LEFT_ALIGNMENT);
-            toggleButton.setMaximumSize(toggleButton.getPreferredSize());
-            toggleButton.setAlignmentY(Component.CENTER_ALIGNMENT);
-            toggleButton.addItemListener(e -> {
-                if (!allowsMultipleTriggerEvents() && toggleButton.isSelected()) {
-                    for (JToggleButton button : triggerEventButtons) {
-                        if (button != toggleButton) button.setSelected(false);
-                    }
-                }
-                updateTriggerEventButton(toggleButton);
-                validateFormFields();
-            });
-            updateTriggerEventButton(toggleButton);
-            triggerEventsPanel.add(toggleButton);
-            triggerEventButtons.add(toggleButton);
-        }
-        triggerEventsPanel.revalidate();
-        triggerEventsPanel.repaint();
-    }
-
-    private static boolean isSelected(DBTriggerEvent event, DBTriggerEvent[] selectedEvents) {
-        return selectedEvents != null && Arrays.asList(selectedEvents).contains(event);
-    }
-
-    private static void updateTriggerEventButton(JToggleButton button) {
-        boolean selected = button.isSelected();
-        button.setIcon(selected ? Icons.ACTION_CHECK : Icons.COMMON_EMPTY);
-        button.setOpaque(false);
-        button.setContentAreaFilled(false);
-        button.setBorderPainted(true);
-        button.setForeground(Colors.getLabelForeground());
-        //button.setPreferredSize(new Dimension(200, -1));
+        DBTriggerEvent[] selectedEvents = TRIGGER_EVENTS.values(input);
+        List<DBTriggerEvent> triggerEvents = getSupportedValues(TRIGGER_EVENTS);
+        triggerEventsComboBox.setSingleSelection(!allowsMultiple(TRIGGER_EVENTS));
+        triggerEventsComboBox.setValues(triggerEvents);
+        triggerEventsComboBox.setSelectedItems(selectedEvents);
     }
 
     private void initPreserveCaseFields() {
@@ -209,7 +242,7 @@ public class DBTriggerFactoryInputForm extends DBSchemaObjectFactoryInputForm {
                 ensureProject(),
                 "trigger.psql",
                 languageDialect,
-                OBJECT_DETAIL.of(input),
+                TRIGGER_BODY.value(input),
                 connection,
                 input.getSchemaId());
         if (triggerBodyFile == null) return;
@@ -240,8 +273,11 @@ public class DBTriggerFactoryInputForm extends DBSchemaObjectFactoryInputForm {
     protected void initFieldAlignment() {
         FieldAlignerData alignerData = getFieldAlignerData();
         alignerData.registerFieldGroup(targetDatasetLabel, targetDatasetComboBox);
+        alignerData.registerFieldGroup(triggerTargetLabel, triggerTargetComboBox);
+        alignerData.registerFieldGroup(targetSchemaLabel, targetSchemaComboBox);
+        alignerData.registerFieldGroup(triggerFunctionNameLabel, triggerFunctionNameTextField);
         alignerData.registerFieldGroup(triggerTypeLabel, triggerTypeComboBox);
-        alignerData.registerFieldGroup(triggerEventsLabel, triggerEventsPanel);
+        alignerData.registerFieldGroup(triggerEventsLabel, triggerEventsComboBox);
         alignerData.registerFieldGroup(triggerForEachRowLabel, triggerForEachRowCheckBox);
     }
 
@@ -253,13 +289,38 @@ public class DBTriggerFactoryInputForm extends DBSchemaObjectFactoryInputForm {
         addTextValidation(nameTextField,
                 n -> isEmptyOrSpaces(n) || isWord(n.trim()),
                 txt("msg.objects.error.ValidObjectNameRequired", getObjectType().getDisplayName()));
-        addSelectionValidation(triggerTypeComboBox,
-                txt("msg.objects.error.SelectObject", txt("app.object.label.TriggerType")));
-        addValidation(triggerEventsPanel, panel -> hasSelectedTriggerEvent() ? null : txt("msg.objects.error.TriggerEventRequired"));
-        addValidation(editorPanel, c -> validateTriggerBody());
-        if (getObjectType() == DATASET_TRIGGER) {
+        if (requires(TRIGGER_FUNCTION_NAME)) {
+            addTextValidation(triggerFunctionNameTextField,
+                    n -> isNotEmptyOrSpaces(n.trim()),
+                    txt("msg.objects.error.TriggerFunctionNameRequired"));
+            addTextValidation(triggerFunctionNameTextField,
+                    n -> isEmptyOrSpaces(n) || isWord(n.trim()),
+                    txt("msg.objects.error.ValidTriggerFunctionNameRequired"));
+        }
+        if (requires(TRIGGER_TYPE)) {
+            addSelectionValidation(triggerTypeComboBox,
+                    txt("msg.objects.error.SelectObject", txt("app.object.label.TriggerType")));
+        }
+        if (requires(TRIGGER_EVENTS)) {
+            addValidation(triggerEventsComboBox, component -> hasSelectedTriggerEvent() ? null : txt("msg.objects.error.TriggerEventRequired"));
+        }
+        if (requires(TRIGGER_BODY)) {
+            addValidation(editorPanel, c -> validateTriggerBody());
+        }
+        if (requires(TRIGGER_TARGET_DATASET)) {
             addSelectionValidation(targetDatasetComboBox,
                     txt("msg.objects.error.SelectObject", txt("app.object.label.TriggerTargetDataset")));
+        }
+        if (supports(TRIGGER_TARGET)) {
+            if (requires(TRIGGER_TARGET)) {
+                addSelectionValidation(triggerTargetComboBox,
+                        txt("msg.objects.error.SelectObject", txt("app.objects.property.TriggerTarget")));
+            }
+            if (requires(TRIGGER_TARGET_SCHEMA)) {
+                addValidation(targetSchemaComboBox,
+                        component -> triggerTargetComboBox.getSelectedValue() == DBTriggerTarget.SCHEMA &&
+                                getSelection(targetSchemaComboBox) == null ? txt("msg.shared.error.SelectTargetSchema") : null);
+            }
         }
     }
 
@@ -271,47 +332,63 @@ public class DBTriggerFactoryInputForm extends DBSchemaObjectFactoryInputForm {
     @Override
     public void applyFormChanges() throws ConfigurationException {
         super.applyFormChanges();
-        input.setAttributeValue(TRIGGER_TYPE, triggerTypeComboBox.getSelectedValue());
-        input.setAttributeValue(TRIGGER_EVENTS, getSelectedTriggerEvents());
-        input.setAttributeValue(TRIGGER_TARGET_DATASET,
-                getSelectedTargetDataset() == null ? null : getSelectedTargetDataset().getName());
-        input.setAttributeValue(TRIGGER_FOR_EACH_ROW, triggerForEachRowCheckBox.isSelected());
-        input.setAttributeValue(OBJECT_DETAIL, document == null ? "" : document.getText().trim());
+        if (supports(TRIGGER_FUNCTION_NAME)) {
+            input.setAttributeValue(TRIGGER_FUNCTION_NAME, triggerFunctionNameTextField.getText().trim());
+        }
+        if (supports(TRIGGER_TYPE)) {
+            input.setAttributeValue(TRIGGER_TYPE, triggerTypeComboBox.getSelectedValue());
+        }
+        input.setAttributeValues(TRIGGER_EVENTS, getSelectedTriggerEvents());
+        if (supports(TRIGGER_TARGET)) {
+            input.setAttributeValue(TRIGGER_TARGET, triggerTargetComboBox.getSelectedValue());
+            if (supports(TRIGGER_TARGET_SCHEMA)) {
+                DBSchema targetSchema = getSelectedTargetSchema();
+                input.setAttributeValue(TRIGGER_TARGET_SCHEMA,
+                        triggerTargetComboBox.getSelectedValue() == DBTriggerTarget.SCHEMA && targetSchema != null ?
+                                targetSchema.getName() : null);
+            }
+        }
+        if (supports(TRIGGER_TARGET_DATASET)) {
+            input.setAttributeValue(TRIGGER_TARGET_DATASET,
+                    getSelectedTargetDataset() == null ? null : getSelectedTargetDataset().getName());
+        }
+        if (supports(TRIGGER_FOR_EACH_ROW)) {
+            input.setAttributeValue(TRIGGER_FOR_EACH_ROW, triggerForEachRowCheckBox.isSelected());
+        }
+        input.setAttributeValue(TRIGGER_BODY, document == null ? "" : document.getText().trim());
         input.setIdentifierCase(getSelectedIdentifierCase());
     }
 
     private DBTriggerEvent[] getSelectedTriggerEvents() {
-        List<DBTriggerEvent> selectedEvents = new ArrayList<>();
-        for (int i = 0; i < triggerEvents.size(); i++) {
-            if (triggerEventButtons.get(i).isSelected()) {
-                selectedEvents.add(triggerEvents.get(i));
-            }
-        }
-        return selectedEvents.toArray(DBTriggerEvent[]::new);
+        return triggerEventsComboBox.getSelectedItems().toArray(DBTriggerEvent[]::new);
     }
 
     private boolean hasSelectedTriggerEvent() {
-        return triggerEventButtons.stream().anyMatch(JToggleButton::isSelected);
-    }
-
-    private boolean allowsMultipleTriggerEvents() {
-        return getObjectTypeSpec().allowsMultiple(TRIGGER_EVENTS);
+        return !triggerEventsComboBox.getSelectedItems().isEmpty();
     }
 
     private boolean isRowTriggerMandatory() {
-        List<Boolean> booleanOptions = getSupportedValues(TRIGGER_FOR_EACH_ROW);
-        return booleanOptions.size() == 1 && booleanOptions.get(0);
+        return requires(TRIGGER_FOR_EACH_ROW, true);
     }
 
     private DBDataset getSelectedTargetDataset() {
         return getSelection(targetDatasetComboBox);
     }
 
+    private DBSchema getSelectedTargetSchema() {
+        return getSelection(targetSchemaComboBox);
+    }
+
     @Override
     protected void initStatePersistence() {
         StateAttributes state = ObjectFactoryManager.getInstance(ensureProject()).getState(getObjectType());
         initPersistence(preserveCaseCheckBox, state, "preserve-identifier-case");
-        initTriggerTypePersistence(state);
+        if (supports(TRIGGER_TYPE)) {
+            initPersistence(triggerTypeComboBox, state, "trigger-type");
+        }
+        if (supports(TRIGGER_TARGET)) {
+            initPersistence(triggerTargetComboBox, state, "trigger-target");
+        }
         if (getObjectType() == DATASET_TRIGGER) {
             initPersistence(triggerForEachRowCheckBox, state, "for-each-row");
             if (isRowTriggerMandatory()) {
@@ -319,26 +396,7 @@ public class DBTriggerFactoryInputForm extends DBSchemaObjectFactoryInputForm {
                 triggerForEachRowCheckBox.setEnabled(false);
             }
         }
-        for (int i = 0; i < triggerEvents.size(); i++) {
-            DBTriggerEvent event = triggerEvents.get(i);
-            initPersistence(triggerEventButtons.get(i), state, "trigger-event-" + event.getName());
-        }
-    }
-
-    private void initTriggerTypePersistence(StateAttributes state) {
-        String savedType = state.getAttribute("trigger-type");
-        if (!isEmptyOrSpaces(savedType)) {
-            for (int i = 0; i < triggerTypeComboBox.getItemCount(); i++) {
-                DBTriggerType type = triggerTypeComboBox.getItemAt(i);
-                if (type.getName().equalsIgnoreCase(savedType)) {
-                    triggerTypeComboBox.setSelectedValue(type);
-                    break;
-                }
-            }
-        }
-        onSelectionChange(triggerTypeComboBox, type -> {
-            if (type != null) state.setAttribute("trigger-type", type.getName());
-        });
+        initPersistence(triggerEventsComboBox, state, "trigger-event", DBTriggerEvent::getName);
     }
 
     @Override
@@ -371,11 +429,27 @@ public class DBTriggerFactoryInputForm extends DBSchemaObjectFactoryInputForm {
     @Override
     public void resetFormChanges() {
         super.resetFormChanges();
-        triggerTypeComboBox.setSelectedValue(TRIGGER_TYPE.of(input));
-        triggerForEachRowCheckBox.setSelected(isRowTriggerMandatory() || TRIGGER_FOR_EACH_ROW.is(input));
-        if (getObjectType() == DATASET_TRIGGER && isInitialized()) {
+        if (supports(TRIGGER_FUNCTION_NAME)) {
+            triggerFunctionNameTextField.setText(TRIGGER_FUNCTION_NAME.value(input));
+        }
+        if (supports(TRIGGER_TYPE)) {
+            triggerTypeComboBox.setSelectedValue(TRIGGER_TYPE.value(input));
+        }
+        if (supports(TRIGGER_TARGET)) {
+            triggerTargetComboBox.setSelectedValue(TRIGGER_TARGET.value(input));
+            if (supports(TRIGGER_TARGET_SCHEMA)) {
+                targetSchemaComboBox
+                        .withValuePreselector(() -> TRIGGER_TARGET_SCHEMA.value(input))
+                        .reloadValues();
+            }
+            updateTargetSchemaVisibility();
+        }
+        if (supports(TRIGGER_FOR_EACH_ROW)) {
+            triggerForEachRowCheckBox.setSelected(isRowTriggerMandatory() || TRIGGER_FOR_EACH_ROW.is(input));
+        }
+        if (supports(TRIGGER_TARGET_DATASET) && isInitialized()) {
             targetDatasetComboBox
-                    .withValuePreselector(() -> TRIGGER_TARGET_DATASET.of(input))
+                    .withValuePreselector(() -> TRIGGER_TARGET_DATASET.value(input))
                     .reloadValues();
         }
         initTriggerEvents();

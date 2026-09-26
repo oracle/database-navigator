@@ -46,7 +46,8 @@ import static com.dbn.database.DatabaseFeature.CONNECTION_ERROR_RECOVERY;
 import static com.dbn.database.DatabaseFeature.OBJECT_SOURCE_EDITING;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
-import static com.dbn.object.factory.model.DBObjectAttributeType.OBJECT_DETAIL;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_BODY;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_BODY_TEMPLATE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_EVENTS;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_FOR_EACH_ROW;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TARGET_DATASET;
@@ -89,8 +90,9 @@ class SqliteCompatibilityInterface extends DatabaseCompatibilityInterfaceImpl {
                     .withAttribute(TRIGGER_TYPE, List.of(BEFORE, AFTER, INSTEAD_OF), false, true)
                     .withAttribute(TRIGGER_EVENTS, List.of(INSERT, UPDATE, DELETE), false, true)
                     .withAttribute(TRIGGER_TARGET_DATASET, List.of(), false, true)
-                    .withAttribute(TRIGGER_FOR_EACH_ROW, List.of(true), false, true)
-                    .withAttribute(OBJECT_DETAIL, List.of(), false, true);
+                    .withAttribute(TRIGGER_FOR_EACH_ROW, true, true)
+                    .withAttribute(TRIGGER_BODY_TEMPLATE, "begin\n\nend;", false)
+                    .withAttribute(TRIGGER_BODY, List.of(), false, true);
             default -> super.getObjectTypeSpec(objectTypeId);
         };
     }

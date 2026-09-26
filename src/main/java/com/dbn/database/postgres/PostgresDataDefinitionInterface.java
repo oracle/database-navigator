@@ -19,7 +19,6 @@ package com.dbn.database.postgres;
 import com.dbn.code.common.style.options.CodeStyleCaseOption;
 import com.dbn.code.common.style.options.CodeStyleCaseSettings;
 import com.dbn.code.psql.style.PSQLCodeStyle;
-import com.dbn.common.exception.Exceptions;
 import com.dbn.common.util.Lists;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.jdbc.DBNConnection;
@@ -30,8 +29,8 @@ import com.dbn.editor.DBContentType;
 import com.dbn.object.factory.ObjectFactoryIdentifiers;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.model.DBObjectSpecList;
-import com.dbn.object.type.DBTriggerEvent;
 import com.dbn.object.type.DBObjectType;
+import com.dbn.object.type.DBTriggerEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -39,6 +38,7 @@ import org.jetbrains.annotations.NotNull;
 import java.sql.SQLException;
 
 import static com.dbn.common.exception.Exceptions.notImplemented;
+import static com.dbn.database.DatabaseObjectTypeId.DATABASE_TRIGGER;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.object.factory.model.DBObjectAttributeType.DATA_TYPE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.IS_INPUT;
@@ -50,9 +50,10 @@ import static com.dbn.object.factory.model.DBObjectAttributeType.SEQUENCE_INCREM
 import static com.dbn.object.factory.model.DBObjectAttributeType.SEQUENCE_MAX_VALUE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.SEQUENCE_MIN_VALUE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.SEQUENCE_START_WITH;
-import static com.dbn.object.factory.model.DBObjectAttributeType.OBJECT_DETAIL;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_BODY;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_EVENTS;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_FOR_EACH_ROW;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_FUNCTION_NAME;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TARGET_DATASET;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TYPE;
 import static com.dbn.object.type.DBObjectType.ARGUMENT;
@@ -123,13 +124,26 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
      *********************************************************/
     @Override
     public void createTrigger(DBObjectSpec triggerSpec, DBNConnection connection) throws SQLException {
-        DBTriggerEvent[] triggerEvents = TRIGGER_EVENTS.of(triggerSpec);
+        if (triggerSpec.getObjectTypeId() == DATABASE_TRIGGER) {
+            createEventTrigger(triggerSpec, connection);
+            return;
+        }
+
+        DBTriggerEvent[] triggerEvents = TRIGGER_EVENTS.values(triggerSpec);
+
+        String functionName = TRIGGER_FUNCTION_NAME.value(triggerSpec);
+        if (Strings.isEmptyOrSpaces(functionName)) {
+            functionName = triggerSpec.getObjectName();
+        }
+        String triggerFunctionName = triggerSpec.getSchemaName(true) + '.' + ObjectFactoryIdentifiers.quoteIdentifier(
+                triggerSpec.getConnection(), functionName.trim());
+        executeUpdate(connection, "create-trigger-function", triggerFunctionName, TRIGGER_BODY.value(triggerSpec));
 
         @NonNls
         StringBuilder builder = new StringBuilder("trigger ");
         builder.append(triggerSpec.getAdjustedObjectName());
         builder.append('\n');
-        builder.append(TRIGGER_TYPE.of(triggerSpec).getName());
+        builder.append(TRIGGER_TYPE.value(triggerSpec).getName());
         builder.append(' ');
 
         for (int i = 0; i < triggerEvents.length; i++) {
@@ -142,11 +156,64 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
         builder.append('.');
         builder.append(ObjectFactoryIdentifiers.quoteIdentifier(
                 triggerSpec.getConnection(),
-                TRIGGER_TARGET_DATASET.of(triggerSpec)));
+                TRIGGER_TARGET_DATASET.value(triggerSpec)));
         builder.append(TRIGGER_FOR_EACH_ROW.is(triggerSpec) ? "\nfor each row\n" : "\nfor each statement\n");
-        builder.append(OBJECT_DETAIL.of(triggerSpec));// PostgreSQL expects the trigger action as an EXECUTE FUNCTION clause.
+        builder.append("execute function ").append(triggerFunctionName).append("()");
 
-        createObject(builder.toString(), connection);
+        try {
+            createObject(builder.toString(), connection);
+        } catch (SQLException e) {
+            conditionallyLog(e);
+            try {
+                executeUpdate(connection, "drop-trigger-function", triggerFunctionName);
+            } catch (SQLException cleanupException) {
+                conditionallyLog(cleanupException);
+            }
+            throw e;
+        }
+    }
+
+    private void createEventTrigger(DBObjectSpec triggerSpec, DBNConnection connection) throws SQLException {
+        DBTriggerEvent[] triggerEvents = TRIGGER_EVENTS.values(triggerSpec);
+        DBTriggerEvent triggerEvent = triggerEvents.length == 0 ? null : triggerEvents[0];
+        if (triggerEvent == null) {
+            throw new SQLException("PostgreSQL event trigger event is not specified");
+        }
+        String eventName = switch (triggerEvent) {
+            case DDL -> "ddl_command_start";
+            case DROP -> "sql_drop";
+            case LOGON -> "login";
+            default -> throw new SQLException("Unsupported PostgreSQL event trigger event: " + triggerEvent);
+        };
+
+        String functionName = TRIGGER_FUNCTION_NAME.value(triggerSpec);
+        if (Strings.isEmptyOrSpaces(functionName)) {
+            functionName = triggerSpec.getObjectName();
+        }
+        String triggerFunctionName = triggerSpec.getSchemaName(true) + '.' + ObjectFactoryIdentifiers.quoteIdentifier(
+                triggerSpec.getConnection(), functionName.trim());
+        executeUpdate(connection, "create-event-trigger-function", triggerFunctionName, TRIGGER_BODY.value(triggerSpec));
+
+        @NonNls
+        StringBuilder builder = new StringBuilder("event trigger ")
+                .append(triggerSpec.getAdjustedObjectName())
+                .append(" on ")
+                .append(eventName)
+                .append(" execute function ")
+                .append(triggerFunctionName)
+                .append("()");
+
+        try {
+            createObject(builder.toString(), connection);
+        } catch (SQLException e) {
+            conditionallyLog(e);
+            try {
+                executeUpdate(connection, "drop-event-trigger-function", triggerFunctionName);
+            } catch (SQLException cleanupException) {
+                conditionallyLog(cleanupException);
+            }
+            throw e;
+        }
     }
 
     @Override
@@ -157,11 +224,11 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
                 .append('.')
                 .append(sequenceSpec.getAdjustedObjectName());
 
-        appendOption(builder, " increment by ", SEQUENCE_INCREMENT_BY.of(sequenceSpec));
-        appendOption(builder, " minvalue ", SEQUENCE_MIN_VALUE.of(sequenceSpec));
-        appendOption(builder, " maxvalue ", SEQUENCE_MAX_VALUE.of(sequenceSpec));
-        appendOption(builder, " start with ", SEQUENCE_START_WITH.of(sequenceSpec));
-        appendOption(builder, " cache ", SEQUENCE_CACHE_SIZE.of(sequenceSpec));
+        appendOption(builder, " increment by ", SEQUENCE_INCREMENT_BY.value(sequenceSpec));
+        appendOption(builder, " minvalue ", SEQUENCE_MIN_VALUE.value(sequenceSpec));
+        appendOption(builder, " maxvalue ", SEQUENCE_MAX_VALUE.value(sequenceSpec));
+        appendOption(builder, " start with ", SEQUENCE_START_WITH.value(sequenceSpec));
+        appendOption(builder, " cache ", SEQUENCE_CACHE_SIZE.value(sequenceSpec));
         if (SEQUENCE_CYCLE.is(sequenceSpec)) builder.append(" cycle");
 
         createObject(builder.toString(), connection);
@@ -212,7 +279,7 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
             buffer.append(argumentName);
             buffer.append(Strings.repeatSymbol(' ', maxArgNameLength - argumentName.length() + 1));
 
-            String dataType = DATA_TYPE.of(argumentSpec);
+            String dataType = DATA_TYPE.value(argumentSpec);
             buffer.append(dco.format(dataType));
             if (argumentSpec != Lists.lastElement(arguments)) {
                 buffer.append(",");
@@ -221,9 +288,9 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
 
         buffer.append(")\n");
         if (function) {
-            DBObjectSpec returnArgument = RETURN_ARGUMENT.of(methodSpec);
+            DBObjectSpec returnArgument = RETURN_ARGUMENT.value(methodSpec);
             buffer.append(kco.format("returns "));
-            buffer.append(dco.format(DATA_TYPE.of(returnArgument)));
+            buffer.append(dco.format(DATA_TYPE.value(returnArgument)));
             buffer.append("\n");
         }
         buffer.append(kco.format("begin\n\n"));

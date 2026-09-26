@@ -53,7 +53,8 @@ import static com.dbn.database.DatabaseFeature.READONLY_CONNECTIVITY;
 import static com.dbn.database.DatabaseFeature.SESSION_BROWSING;
 import static com.dbn.database.DatabaseFeature.SESSION_KILL;
 import static com.dbn.database.DatabaseFeature.UPDATABLE_RESULT_SETS;
-import static com.dbn.object.factory.model.DBObjectAttributeType.OBJECT_DETAIL;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_BODY;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_BODY_TEMPLATE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_EVENTS;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_FOR_EACH_ROW;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TARGET_DATASET;
@@ -108,8 +109,9 @@ public class MySqlCompatibilityInterface extends DatabaseCompatibilityInterfaceI
                     .withAttribute(TRIGGER_TYPE, List.of(BEFORE, AFTER), false, true)
                     .withAttribute(TRIGGER_EVENTS, List.of(INSERT, UPDATE, DELETE), false, true)
                     .withAttribute(TRIGGER_TARGET_DATASET, List.of(), false, true)
-                    .withAttribute(TRIGGER_FOR_EACH_ROW, List.of(true), false, true)
-                    .withAttribute(OBJECT_DETAIL, List.of(), false, true);
+                    .withAttribute(TRIGGER_FOR_EACH_ROW, true, true)
+                    .withAttribute(TRIGGER_BODY_TEMPLATE, "begin\n\nend;", false)
+                    .withAttribute(TRIGGER_BODY, List.of(), false, true);
             default -> super.getObjectTypeSpec(objectTypeId);
         };
     }

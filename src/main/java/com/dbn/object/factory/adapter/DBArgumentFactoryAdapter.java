@@ -58,12 +58,12 @@ public class DBArgumentFactoryAdapter implements ObjectFactoryAdapter {
             errors.add(txt("msg.objects.error.ArgumentNameInvalidAtIndex", position, objectName));
         }
 
-        String dataType = DATA_TYPE.of(argumentSpec);
+        String dataType = DATA_TYPE.value(argumentSpec);
         if (Strings.isEmptyOrSpaces(dataType)){
-            if (objectName.length() > 0) {
-                errors.add(txt("msg.objects.error.ArgumentDataTypeMissingForName", objectName));
-            } else {
+            if (objectName.isEmpty()) {
                 errors.add(txt("msg.objects.error.ArgumentDataTypeMissingAtIndex", position));
+            } else {
+                errors.add(txt("msg.objects.error.ArgumentDataTypeMissingForName", objectName));
             }
         }
     }

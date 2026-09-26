@@ -58,7 +58,7 @@ public class DBDatasourceConfigFactoryAdapter implements ObjectFactoryAdapter {
     @Override
     public void validateInput(DBObjectSpec input, List<String> errors) {
         String configName = input.getIdentifierCase().format(input.getObjectName());
-        String value = OBJECT_DETAIL.of(input);
+        String value = OBJECT_DETAIL.value(input);
         if (value == null || value.isBlank()) {
             errors.add(txt("cfg.datasourceConfig.error.JsonRequired"));
         }
@@ -69,7 +69,7 @@ public class DBDatasourceConfigFactoryAdapter implements ObjectFactoryAdapter {
         DBSchema schema = input.getSchema();
         ConnectionId connectionId = schema.getConnectionId();
         SchemaId schemaId = schema.getSchemaId();
-        String value = OBJECT_DETAIL.of(input);
+        String value = OBJECT_DETAIL.value(input);
         String configName = input.getIdentifierCase().format(input.getObjectName());
 
         DatabaseInterfaceInvoker.execute(

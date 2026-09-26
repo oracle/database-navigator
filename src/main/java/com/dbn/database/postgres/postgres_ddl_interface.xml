@@ -33,6 +33,22 @@
         <statement>create {0}</statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="create-trigger-function" transactional="true">
+        <statement>
+            create function {0}() returns trigger language plpgsql as $DBN_TRIGGER$
+            {1}
+            $DBN_TRIGGER$
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="create-event-trigger-function" transactional="true">
+        <statement>
+            create function {0}() returns event_trigger language plpgsql as $DBN_EVENT_TRIGGER$
+            {1}
+            $DBN_EVENT_TRIGGER$
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="update-object" transactional="true">
         <statement>create or replace {0}</statement>
     </statement-execution-processor>
@@ -59,6 +75,14 @@
 
     <statement-execution-processor id="drop-trigger">
         <statement>drop trigger {@2} on {@0}.{@1}</statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="drop-trigger-function" transactional="true">
+        <statement>drop function if exists {0}()</statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="drop-event-trigger-function" transactional="true">
+        <statement>drop function if exists {0}()</statement>
     </statement-execution-processor>
 
     <statement-execution-processor id="get-session-sql-mode">

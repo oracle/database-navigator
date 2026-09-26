@@ -19,6 +19,7 @@ package com.dbn.common.ui.form;
 import com.dbn.common.data.Data;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.ui.Presentable;
+import com.dbn.common.ui.misc.DBNMultiSelectComboBox;
 import com.dbn.object.common.ui.DBObjectSelector;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import lombok.experimental.UtilityClass;
@@ -28,6 +29,9 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.AbstractButton;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
 
 import static com.dbn.common.ui.util.CheckBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.initSelectionListener;
@@ -68,6 +72,50 @@ public class DBNFormState {
             stateAttributes.setAttribute(stateAttribute, defaultAttribute);
         }
         initPersistence(comboBox, stateAttributes, stateAttribute);
+    }
+
+    public static <T extends Presentable> void initPersistence(
+            DBNMultiSelectComboBox<T> comboBox,
+            StateAttributes stateAttributes,
+            @NonNls String stateAttribute) {
+        initPersistence(comboBox, stateAttributes, stateAttribute, Presentable::getName);
+    }
+
+    public static <T> void initPersistence(
+            DBNMultiSelectComboBox<T> comboBox,
+            StateAttributes stateAttributes,
+            @NonNls String stateAttribute,
+            Function<? super T, String> nameProvider) {
+        Runnable restoreSelection = () -> {
+            List<T> selectedItems = new ArrayList<>(comboBox.getSelectedItems());
+            for (int i = 0; i < comboBox.getItemCount(); i++) {
+                T item = comboBox.getItemAt(i);
+                String itemAttribute = stateAttributes.getAttribute(stateAttribute + '-' + nameProvider.apply(item));
+                if (itemAttribute != null) {
+                    if (Data.asBooleanPrimitive(itemAttribute)) {
+                        if (!selectedItems.contains(item)) selectedItems.add(item);
+                    } else {
+                        selectedItems.remove(item);
+                    }
+                }
+            }
+            comboBox.setSelectedItems(selectedItems);
+        };
+
+        comboBox.addPropertyChangeListener(e -> {
+            if ("model".equals(e.getPropertyName())) {
+                restoreSelection.run();
+            }
+        });
+        restoreSelection.run();
+        comboBox.onSelectionChange(selectedItems -> {
+            for (int i = 0; i < comboBox.getItemCount(); i++) {
+                T item = comboBox.getItemAt(i);
+                stateAttributes.setAttribute(
+                        stateAttribute + '-' + nameProvider.apply(item),
+                        Data.asString(comboBox.isSelected(item)));
+            }
+        });
     }
 
     public static void initPersistence(TextFieldWithBrowseButton textField, StateAttributes stateAttributes, @NonNls String stateAttribute) {

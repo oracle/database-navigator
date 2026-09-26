@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,27 +26,26 @@ import java.util.Locale;
 
 @NonNls
 @Getter
-public enum DBTriggerType implements Constant<DBTriggerType>, Presentable {
-    BEFORE("BEFORE"),
-    AFTER("AFTER"),
-    INSTEAD_OF("INSTEAD OF"),
-    UNKNOWN("UNKNOWN");
+public enum DBTriggerTarget implements Constant<DBTriggerTarget>, Presentable {
+    DATASET("dataset"),
+    SCHEMA("schema"),
+    DATABASE("database"),
+    UNKNOWN("unknown");
 
     private final String name;
 
-    DBTriggerType(String name) {
-        this.name = name;
+    DBTriggerTarget(String name) {
+        this.name = name.toUpperCase(Locale.ROOT);
     }
 
-    public static DBTriggerType value(@Nullable String value) {
+    public static DBTriggerTarget value(@Nullable String value) {
         if (value == null) return UNKNOWN;
 
-        String normalized = value.trim().toUpperCase(Locale.ROOT).replace('_', ' ');
-        for (DBTriggerType triggerType : values()) {
-            if (triggerType != UNKNOWN && normalized.startsWith(triggerType.name)) {
-                return triggerType;
-            }
-        }
-        return UNKNOWN;
+        return switch (value.trim().toUpperCase(Locale.ROOT)) {
+            case "TABLE", "VIEW", "DATASET" -> DATASET;
+            case "SCHEMA" -> SCHEMA;
+            case "DATABASE" -> DATABASE;
+            default -> UNKNOWN;
+        };
     }
 }

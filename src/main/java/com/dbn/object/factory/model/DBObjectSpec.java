@@ -125,6 +125,26 @@ public final class DBObjectSpec extends DBObjectSpecBase{
         return getCompatibilityInterface().getObjectTypeSpec(getObjectTypeId());
     }
 
+    public boolean supports(DBObjectAttributeType<?> type) {
+        return getObjectTypeSpec().supports(type);
+    }
+
+    public boolean requires(DBObjectAttributeType<?> type) {
+        return getObjectTypeSpec().requires(type);
+    }
+
+    public <T> boolean requires(DBObjectAttributeType<T> type, T value) {
+        return getObjectTypeSpec().requires(type, value);
+    }
+
+    public boolean allowsMultiple(DBObjectAttributeType<?> type) {
+        return getObjectTypeSpec().allowsMultiple(type);
+    }
+
+    public <T> List<T> getSupportedValues(DBObjectAttributeType<T> type) {
+        return getObjectTypeSpec().getAttributeValues(type);
+    }
+
     public String getObjectTypeName() {
         return getObjectType().getDisplayName();
     }
@@ -170,7 +190,7 @@ public final class DBObjectSpec extends DBObjectSpecBase{
     }
 
     public DatabaseIdentifierCase getIdentifierCase() {
-        DatabaseIdentifierCase identifierCase = IDENTIFIER_CASE.of(this);
+        DatabaseIdentifierCase identifierCase = IDENTIFIER_CASE.value(this);
         if (identifierCase != null) return identifierCase;
 
         DBObjectSpec parent = getParent();
@@ -217,9 +237,24 @@ public final class DBObjectSpec extends DBObjectSpecBase{
         DBObjectAttribute<T> attribute = getAttribute(type);
         return attribute == null ? null : attribute.getValue();
     }
+    @Nullable
+    public <T> T[] getAttributeValues(DBObjectAttributeType<T> type) {
+        if (!type.isArray()) throw new IllegalArgumentException("Attribute is not an array: " + type.id());
+
+        DBObjectAttribute<T[]> attribute = cast(attributes.get(type));
+        return attribute == null ? null : attribute.getValue();
+    }
 
     public <T> DBObjectAttribute<T> setAttributeValue(DBObjectAttributeType<T> type, T value) {
         DBObjectAttribute<T> attribute = cast(attributes.computeIfAbsent(type, t -> new DBObjectAttribute<>(this)));
+        attribute.setValue(value);
+        return attribute;
+    }
+
+    public <T> DBObjectAttribute<T[]> setAttributeValues(DBObjectAttributeType<T> type, T[] value) {
+        if (!type.isArray()) throw new IllegalArgumentException("Attribute is not an array: " + type.id());
+
+        DBObjectAttribute<T[]> attribute = cast(attributes.computeIfAbsent(type, t -> new DBObjectAttribute<>(this)));
         attribute.setValue(value);
         return attribute;
     }
