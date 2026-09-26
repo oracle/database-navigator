@@ -230,6 +230,7 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
     @Override
     public boolean supportsObjectType(DatabaseObjectTypeId objectTypeId, double databaseVersion) {
         return switch (objectTypeId) {
+            case EVENT_TRIGGER -> false;
             case CREDENTIAL -> databaseVersion >= 12.1;
             case JSON_VIEW -> databaseVersion >= 23.0;
             case AI_PROFILE -> databaseVersion >= 19.0;

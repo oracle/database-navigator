@@ -88,7 +88,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     LEVEL(DatabaseObjectTypeId.LEVEL, "level", "levels", null, null, null, false),
     DISKGROUP(DatabaseObjectTypeId.DISKGROUP, "diskgroup", "diskgroups", null, null, null, false),
     DOMAIN(DatabaseObjectTypeId.DOMAIN, "domain", "domains", null, null, null, false),
-    EVENT_TRIGGER(DatabaseObjectTypeId.EVENT_TRIGGER, "event trigger", "event triggers", null, null, null, false),
+    EVENT_TRIGGER(DatabaseObjectTypeId.EVENT_TRIGGER, "event trigger", "event triggers", Icons.DBO_DATABASE_TRIGGER, Icons.DBO_DATABASE_TRIGGER_DISABLED, Icons.DBO_DATABASE_TRIGGERS, false),
     EDITION(DatabaseObjectTypeId.EDITION, "edition", "editions", null, null, null, false),
     ENGINE(DatabaseObjectTypeId.ENGINE, "engine", "engines", null, null, null, false),
     EVENT(DatabaseObjectTypeId.EVENT, "event", "events", null, null, null, false),
@@ -246,6 +246,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
             DBObjectType.CONSTRAINT,
             DBObjectType.DATASET_TRIGGER,
             DBObjectType.DATABASE_TRIGGER,
+            DBObjectType.EVENT_TRIGGER,
             DBObjectType.SYNONYM,
             DBObjectType.SEQUENCE,
             DBObjectType.PROCEDURE,
@@ -589,6 +590,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         TRIGGER.contentType = DBContentType.CODE;
         DATASET_TRIGGER.contentType = DBContentType.CODE;
         DATABASE_TRIGGER.contentType = DBContentType.CODE;
+        EVENT_TRIGGER.contentType = DBContentType.CODE;
         JAVA_CLASS.contentType = DBContentType.CODE;
         JAVA_RESOURCE.contentType = DBContentType.CODE;
     }
@@ -600,6 +602,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         TRIGGER.addDdlFileType(DBContentType.CODE, DDLFileTypeId.TRIGGER);
         DATASET_TRIGGER.addDdlFileType(DBContentType.CODE, DDLFileTypeId.TRIGGER);
         DATABASE_TRIGGER.addDdlFileType(DBContentType.CODE, DDLFileTypeId.TRIGGER);
+        EVENT_TRIGGER.addDdlFileType(DBContentType.CODE, DDLFileTypeId.TRIGGER);
         FUNCTION.addDdlFileType(DBContentType.CODE, DDLFileTypeId.FUNCTION);
         PROCEDURE.addDdlFileType(DBContentType.CODE, DDLFileTypeId.PROCEDURE);
 

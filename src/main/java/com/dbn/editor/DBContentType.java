@@ -100,6 +100,7 @@ public enum DBContentType {
             case VIEW -> "VIEW";
             case DATASET_TRIGGER -> "TRIGGER";
             case DATABASE_TRIGGER -> "TRIGGER";
+            case EVENT_TRIGGER -> "TRIGGER";
             case PACKAGE ->
                     this == CODE_SPEC ? "PACKAGE" :
                     this == CODE_BODY ? "PACKAGE BODY" : null;
@@ -125,6 +126,7 @@ public enum DBContentType {
                  TRIGGER,
                  DATASET_TRIGGER,
                  DATABASE_TRIGGER,
+                 EVENT_TRIGGER,
                  JAVA_RESOURCE,
                  JAVA_CLASS -> CODE;
             case PACKAGE,

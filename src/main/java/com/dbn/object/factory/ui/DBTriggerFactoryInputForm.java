@@ -36,6 +36,7 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.common.ui.DBObjectSelector;
 import com.dbn.object.factory.ObjectFactoryManager;
 import com.dbn.object.factory.model.DBObjectSpec;
+import com.dbn.object.type.DBObjectType;
 import com.dbn.object.type.DBTriggerEvent;
 import com.dbn.object.type.DBTriggerTarget;
 import com.dbn.object.type.DBTriggerType;
@@ -64,6 +65,7 @@ import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_BODY;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_EVENTS;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_FOR_EACH_ROW;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_FUNCTION_NAME;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_FUNCTION_SCHEMA;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TARGET;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TARGET_DATASET;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TARGET_SCHEMA;
@@ -77,10 +79,13 @@ public class DBTriggerFactoryInputForm extends DBSchemaObjectFactoryInputForm {
     private JPanel headerPanel;
     private JPanel editorPanel;
     private DBNComboBox<ConnectionHandler> connectionComboBox;
+    private JLabel schemaLabel;
     private DBNComboBox<SchemaId> schemaComboBox;
     private JTextField nameTextField;
     private JLabel triggerFunctionNameLabel;
     private JTextField triggerFunctionNameTextField;
+    private JLabel triggerFunctionSchemaLabel;
+    private DBObjectSelector<DBSchema> triggerFunctionSchemaComboBox;
     private JLabel targetDatasetLabel;
     private JLabel triggerTargetLabel;
     private JLabel targetSchemaLabel;
@@ -105,6 +110,7 @@ public class DBTriggerFactoryInputForm extends DBSchemaObjectFactoryInputForm {
         initContextComponents();
         initHeaderForm();
         initTriggerFunctionName();
+        initTriggerFunctionSchema();
         initTargetDataset();
         initTriggerTarget();
         initTriggerType();
@@ -119,6 +125,20 @@ public class DBTriggerFactoryInputForm extends DBSchemaObjectFactoryInputForm {
             validateFormFields();
         });
         whenFirstShown(this::initEditor);
+    }
+
+    @Override
+    protected void initContextComponents() {
+        super.initContextComponents();
+        if (getObjectType() == DBObjectType.EVENT_TRIGGER) {
+            schemaLabel.setVisible(false);
+            schemaComboBox.setVisible(false);
+        }
+    }
+
+    @Override
+    protected String getSchemaName() {
+        return getObjectType() == DBObjectType.EVENT_TRIGGER ? getConnection().getName() : super.getSchemaName();
     }
 
     private void initTriggerFunctionName() {
@@ -142,6 +162,23 @@ public class DBTriggerFactoryInputForm extends DBSchemaObjectFactoryInputForm {
         }
         triggerName = newTriggerName;
     }
+
+    private void initTriggerFunctionSchema() {
+        boolean supported = supports(TRIGGER_FUNCTION_SCHEMA);
+        triggerFunctionSchemaLabel.setVisible(supported);
+        triggerFunctionSchemaComboBox.setVisible(supported);
+        if (!supported) return;
+
+        triggerFunctionSchemaComboBox
+                .initialize(this, SCHEMA)
+                .withConnectionContext(this::getConnection)
+                .withValueLoader(this::loadFunctionSchemas)
+                .withValuePreselector(() -> TRIGGER_FUNCTION_SCHEMA.value(input))
+                .withValueLoadConsumer(values -> validateFormFields());
+        onSelectionChange(triggerFunctionSchemaComboBox, e -> validateFormFields());
+        triggerFunctionSchemaComboBox.triggerLoad();
+    }
+
     private void initTargetDataset() {
         boolean datasetTrigger = supports(TRIGGER_TARGET_DATASET);
         targetDatasetLabel.setVisible(datasetTrigger);
@@ -199,6 +236,12 @@ public class DBTriggerFactoryInputForm extends DBSchemaObjectFactoryInputForm {
 
     private List<DBSchema> loadSchemas() {
         return getConnection().getObjectBundle().getSchemas();
+    }
+
+    private List<DBSchema> loadFunctionSchemas() {
+        return loadSchemas().stream()
+                .filter(schema -> !schema.isSystemSchema())
+                .toList();
     }
 
     private void updateTargetSchemaVisibility() {
@@ -276,6 +319,7 @@ public class DBTriggerFactoryInputForm extends DBSchemaObjectFactoryInputForm {
         alignerData.registerFieldGroup(triggerTargetLabel, triggerTargetComboBox);
         alignerData.registerFieldGroup(targetSchemaLabel, targetSchemaComboBox);
         alignerData.registerFieldGroup(triggerFunctionNameLabel, triggerFunctionNameTextField);
+        alignerData.registerFieldGroup(triggerFunctionSchemaLabel, triggerFunctionSchemaComboBox);
         alignerData.registerFieldGroup(triggerTypeLabel, triggerTypeComboBox);
         alignerData.registerFieldGroup(triggerEventsLabel, triggerEventsComboBox);
         alignerData.registerFieldGroup(triggerForEachRowLabel, triggerForEachRowCheckBox);
@@ -296,6 +340,11 @@ public class DBTriggerFactoryInputForm extends DBSchemaObjectFactoryInputForm {
             addTextValidation(triggerFunctionNameTextField,
                     n -> isEmptyOrSpaces(n) || isWord(n.trim()),
                     txt("msg.objects.error.ValidTriggerFunctionNameRequired"));
+        }
+        if (requires(TRIGGER_FUNCTION_SCHEMA)) {
+            addValidation(triggerFunctionSchemaComboBox,
+                    component -> getSelection(triggerFunctionSchemaComboBox) == null ?
+                            txt("msg.shared.error.SelectSchema") : null);
         }
         if (requires(TRIGGER_TYPE)) {
             addSelectionValidation(triggerTypeComboBox,
@@ -334,6 +383,11 @@ public class DBTriggerFactoryInputForm extends DBSchemaObjectFactoryInputForm {
         super.applyFormChanges();
         if (supports(TRIGGER_FUNCTION_NAME)) {
             input.setAttributeValue(TRIGGER_FUNCTION_NAME, triggerFunctionNameTextField.getText().trim());
+        }
+        if (supports(TRIGGER_FUNCTION_SCHEMA)) {
+            DBSchema functionSchema = getSelection(triggerFunctionSchemaComboBox);
+            input.setAttributeValue(TRIGGER_FUNCTION_SCHEMA,
+                    functionSchema == null ? null : functionSchema.getName());
         }
         if (supports(TRIGGER_TYPE)) {
             input.setAttributeValue(TRIGGER_TYPE, triggerTypeComboBox.getSelectedValue());
@@ -431,6 +485,11 @@ public class DBTriggerFactoryInputForm extends DBSchemaObjectFactoryInputForm {
         super.resetFormChanges();
         if (supports(TRIGGER_FUNCTION_NAME)) {
             triggerFunctionNameTextField.setText(TRIGGER_FUNCTION_NAME.value(input));
+        }
+        if (supports(TRIGGER_FUNCTION_SCHEMA)) {
+            triggerFunctionSchemaComboBox
+                    .withValuePreselector(() -> TRIGGER_FUNCTION_SCHEMA.value(input))
+                    .reloadValues();
         }
         if (supports(TRIGGER_TYPE)) {
             triggerTypeComboBox.setSelectedValue(TRIGGER_TYPE.value(input));

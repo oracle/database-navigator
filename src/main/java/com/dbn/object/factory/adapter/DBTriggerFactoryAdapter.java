@@ -18,12 +18,12 @@ package com.dbn.object.factory.adapter;
 
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.util.Strings;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.DatabaseEntity;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
-import com.dbn.object.DBSchema;
 import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.factory.ObjectFactoryAdapter;
 import com.dbn.object.factory.model.DBObjectSpec;
@@ -44,11 +44,13 @@ import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_BODY;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_BODY_TEMPLATE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_EVENTS;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_FUNCTION_NAME;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_FUNCTION_SCHEMA;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TARGET;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TARGET_DATASET;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TARGET_SCHEMA;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TYPE;
 import static com.dbn.object.type.DBObjectType.DATASET_TRIGGER;
+import static com.dbn.object.type.DBObjectType.EVENT_TRIGGER;
 import static com.dbn.object.type.DBObjectType.FUNCTION;
 import static com.dbn.object.type.DBTriggerTarget.SCHEMA;
 
@@ -120,9 +122,12 @@ public abstract class DBTriggerFactoryAdapter implements ObjectFactoryAdapter {
             String functionName = TRIGGER_FUNCTION_NAME.value(input);
             if (isEmptyOrSpaces(functionName)) {
                 errors.add(txt("msg.objects.error.TriggerFunctionNameRequired"));
-            } else if (!Strings.isWord(functionName.trim())) {
+            } else if (!Strings.isWord(functionName)) {
                 errors.add(txt("msg.objects.error.ValidTriggerFunctionNameRequired"));
             }
+        }
+        if (input.requires(TRIGGER_FUNCTION_SCHEMA) && isEmptyOrSpaces(TRIGGER_FUNCTION_SCHEMA.value(input))) {
+            errors.add(txt("msg.shared.error.SelectSchema"));
         }
         DBTriggerEvent[] events = TRIGGER_EVENTS.values(input);
         if (input.requires(TRIGGER_EVENTS) && events.length == 0) {
@@ -135,9 +140,9 @@ public abstract class DBTriggerFactoryAdapter implements ObjectFactoryAdapter {
 
     @Override
     public void createObject(DBObjectSpec input) throws SQLException {
-        DBSchema schema = input.getSchema();
-        ConnectionId connectionId = schema.getConnectionId();
-        SchemaId schemaId = schema.getSchemaId();
+        ConnectionHandler connection = input.getConnection();
+        ConnectionId connectionId = connection.getConnectionId();
+        SchemaId schemaId = input.getSchemaId();
 
         DatabaseInterfaceInvoker.execute(
                 HIGHEST,
@@ -147,13 +152,14 @@ public abstract class DBTriggerFactoryAdapter implements ObjectFactoryAdapter {
                 connectionId,
                 schemaId,
                 conn -> {
-                    DatabaseDataDefinitionInterface dataDefinition = schema.getDataDefinitionInterface();
+                    DatabaseDataDefinitionInterface dataDefinition = connection.getDataDefinitionInterface();
                     dataDefinition.createTrigger(input, conn);
         });
 
-        ObjectChangeEvent.notify(CREATE, getObjectType(), connectionId, schemaId);
-        if (input.requires(TRIGGER_FUNCTION_NAME)) {
-            ObjectChangeEvent.notify(CREATE, FUNCTION, connectionId, schemaId);
+        ObjectChangeEvent.notify(CREATE, getObjectType(), connectionId, getObjectType() == EVENT_TRIGGER ? null : schemaId);
+        if (input.requires(TRIGGER_FUNCTION_SCHEMA) && input.requires(TRIGGER_FUNCTION_NAME)) {
+            SchemaId functionSchemaId = connection.getSchemaId(TRIGGER_FUNCTION_SCHEMA.value(input));
+            ObjectChangeEvent.notify(CREATE, FUNCTION, connectionId, functionSchemaId);
         }
     }
 

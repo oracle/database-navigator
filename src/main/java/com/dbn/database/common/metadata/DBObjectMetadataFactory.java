@@ -124,6 +124,7 @@ public class DBObjectMetadataFactory {
             case COLUMN -> new DBColumnMetadataImpl(resultSet);
             case CONSTRAINT -> new DBConstraintMetadataImpl(resultSet);
             case ARGUMENT -> new DBArgumentMetadataImpl(resultSet);
+            case EVENT_TRIGGER -> new DBTriggerMetadataImpl(resultSet);
             case DATABASE_TRIGGER -> new DBTriggerMetadataImpl(resultSet);
             case DATASET_TRIGGER -> new DBTriggerMetadataImpl(resultSet);
             case JAVA_PRIMITIVE -> new DBJavaClassMetadataImpl(resultSet);

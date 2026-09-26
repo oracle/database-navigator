@@ -59,6 +59,7 @@ public class DBObjectAttributeType<T> extends PseudoConstant<DBObjectAttributeTy
     public static final DBObjectAttributeType<String> TRIGGER_BODY = new DBObjectAttributeType<>("TRIGGER_BODY", String.class);
     public static final DBObjectAttributeType<String> TRIGGER_BODY_TEMPLATE = new DBObjectAttributeType<>("TRIGGER_BODY_TEMPLATE", String.class);
     public static final DBObjectAttributeType<String> TRIGGER_FUNCTION_NAME = new DBObjectAttributeType<>("TRIGGER_FUNCTION_NAME", String.class);
+    public static final DBObjectAttributeType<String> TRIGGER_FUNCTION_SCHEMA = new DBObjectAttributeType<>("TRIGGER_FUNCTION_SCHEMA", String.class);
     public static final DBObjectAttributeType<DBTriggerEvent> TRIGGER_EVENTS = new DBObjectAttributeType<>("TRIGGER_EVENTS", DBTriggerEvent.class, true);
     public static final DBObjectAttributeType<DBTriggerTarget> TRIGGER_TARGET = new DBObjectAttributeType<>("TRIGGER_TARGET", DBTriggerTarget.class);
     public static final DBObjectAttributeType<String> TRIGGER_TARGET_SCHEMA = new DBObjectAttributeType<>("TRIGGER_TARGET_SCHEMA", String.class);

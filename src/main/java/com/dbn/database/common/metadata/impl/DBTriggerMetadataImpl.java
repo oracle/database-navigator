@@ -59,6 +59,16 @@ public class DBTriggerMetadataImpl extends DBObjectMetadataBase implements DBTri
     }
 
     @Override
+    public String getTriggerFunctionName() throws SQLException {
+        return getString("TRIGGER_FUNCTION_NAME");
+    }
+
+    @Override
+    public String getTriggerFunctionSchemaName() throws SQLException {
+        return getString("TRIGGER_FUNCTION_SCHEMA_NAME");
+    }
+
+    @Override
     public boolean isForEachRow() throws SQLException {
         return isYesFlag("IS_FOR_EACH_ROW");
     }

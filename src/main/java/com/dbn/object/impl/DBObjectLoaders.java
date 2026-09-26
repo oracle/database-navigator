@@ -77,6 +77,7 @@ import com.dbn.object.DBDataset;
 import com.dbn.object.DBDatasetTrigger;
 import com.dbn.object.DBDatasourceConfig;
 import com.dbn.object.DBDimension;
+import com.dbn.object.DBEventTrigger;
 import com.dbn.object.DBFunction;
 import com.dbn.object.DBGrantedPrivilege;
 import com.dbn.object.DBGrantedRole;
@@ -148,6 +149,7 @@ import static com.dbn.object.type.DBObjectType.DATASOURCE_CONFIG;
 import static com.dbn.object.type.DBObjectType.DBLINK;
 import static com.dbn.object.type.DBObjectType.DEBUG_DEPENDENCY;
 import static com.dbn.object.type.DBObjectType.DIMENSION;
+import static com.dbn.object.type.DBObjectType.EVENT_TRIGGER;
 import static com.dbn.object.type.DBObjectType.FUNCTION;
 import static com.dbn.object.type.DBObjectType.GRANTED_PRIVILEGE;
 import static com.dbn.object.type.DBObjectType.GRANTED_ROLE;
@@ -198,6 +200,10 @@ public class DBObjectLoaders {
                 "CONSOLES", null, CONSOLE, true,
                 content -> content.setElements(content.getConnection().getConsoleBundle().getConsoles()));
 
+        DynamicContentResultSetLoader.<DBEventTrigger, DBTriggerMetadata>create(
+                "EVENT_TRIGGERS", null, EVENT_TRIGGER, true, true,
+                (content, conn, mdi) -> mdi.loadEventTriggers(conn),
+                (content, cache, md) -> new DBEventTriggerImpl(content.getConnection(), md));
 
         DynamicContentResultSetLoader.<DBSchema, DBSchemaMetadata>create(
                 "SCHEMAS", null, SCHEMA, true, true,

@@ -437,6 +437,8 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      *  <li> TRIGGER_TYPE (char)
      *  <li> TRIGGER_TARGET (TABLE/VIEW/SCHEMA/DATABASE)
      *  <li> TARGET_SCHEMA_NAME (char, for SCHEMA trigger targets)
+     *  <li> TRIGGER_FUNCTION_NAME (char, for function-backed triggers)
+     *  <li> TRIGGER_FUNCTION_SCHEMA_NAME (char, for function-backed triggers)
      *  <li> TRIGGERING_EVENT (INSERT/DELETE/UPDATE e.g. INSERT or UPDATE)
      *  <li> IS_DISABLED (Y/N)
      *  <li> IS_VALID (Y/N)
@@ -445,12 +447,22 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
     ResultSet loadDatabaseTriggers(String ownerName, DBNConnection connection) throws SQLException;
 
     /**
+     * Loads triggers attached to the database itself. Unlike schema triggers,
+     * these objects have no schema owner and are loaded from the connection root.
+     */
+    ResultSet loadEventTriggers(DBNConnection connection) throws SQLException;
+
+    ResultSet loadEventTriggerSourceCode(String triggerName, DBNConnection connection) throws SQLException;
+
+    /**
      * Loads the triggers of the given dataset (can be a TABLE, VIEW or MATERIALIZED_VIEW)<br>
      * Column names of the returned ResultSet
      *  <li> TRIGGER_NAME (char)
      *  <li> TRIGGER_TYPE (char)
      *  <li> TRIGGER_TARGET (TABLE/VIEW/SCHEMA/DATABASE)
      *  <li> TARGET_SCHEMA_NAME (char)
+     *  <li> TRIGGER_FUNCTION_NAME (char, for function-backed triggers)
+     *  <li> TRIGGER_FUNCTION_SCHEMA_NAME (char, for function-backed triggers)
      *  <li> TRIGGERING_EVENT (INSERT/DELETE/UPDATE e.g. INSERT or UPDATE)
      *  <li> IS_DISABLED (Y/N)
      *  <li> IS_VALID (Y/N)
@@ -466,6 +478,8 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      *  <li> TRIGGER_TYPE (char)
      *  <li> TRIGGER_TARGET (TABLE/VIEW/SCHEMA/DATABASE)
      *  <li> TARGET_SCHEMA_NAME (char)
+     *  <li> TRIGGER_FUNCTION_NAME (char, for function-backed triggers)
+     *  <li> TRIGGER_FUNCTION_SCHEMA_NAME (char, for function-backed triggers)
      *  <li> TRIGGERING_EVENT (INSERT/DELETE/UPDATE e.g. INSERT or UPDATE)
      *  <li> IS_DISABLED (Y/N)
      *  <li> IS_VALID (Y/N)

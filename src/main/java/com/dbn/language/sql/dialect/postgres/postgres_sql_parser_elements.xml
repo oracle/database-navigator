@@ -6336,7 +6336,7 @@
         <token type-id="KW_ALTER" id="03886" />
         <token type-id="KW_EVENT" id="03887" />
         <token type-id="KW_TRIGGER" id="03888" />
-        <object-ref attributes="SUBJECT" original-name="name" type="TRIGGER" id="03889" />
+        <object-ref attributes="SUBJECT" original-name="name" type="EVENT_TRIGGER" id="03889" />
         <one-of id="03890">
             <token type-id="KW_DISABLE" id="03891" />
             <sequence id="03892">
@@ -6359,7 +6359,7 @@
             <sequence id="03905">
                 <token type-id="KW_RENAME" id="03906" />
                 <token type-id="KW_TO" id="03907" />
-                <object-def original-name="new_name" type="TRIGGER" id="03908" />
+                <object-def original-name="new_name" type="EVENT_TRIGGER" id="03908" />
             </sequence>
         </one-of>
     </element-def>

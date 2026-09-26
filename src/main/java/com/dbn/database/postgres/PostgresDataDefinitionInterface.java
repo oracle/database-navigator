@@ -21,6 +21,7 @@ import com.dbn.code.common.style.options.CodeStyleCaseSettings;
 import com.dbn.code.psql.style.PSQLCodeStyle;
 import com.dbn.common.util.Lists;
 import com.dbn.common.util.Strings;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.common.DatabaseDataDefinitionInterfaceImpl;
@@ -38,8 +39,9 @@ import org.jetbrains.annotations.NotNull;
 import java.sql.SQLException;
 
 import static com.dbn.common.exception.Exceptions.notImplemented;
-import static com.dbn.database.DatabaseObjectTypeId.DATABASE_TRIGGER;
+import static com.dbn.database.DatabaseObjectTypeId.EVENT_TRIGGER;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.object.factory.ObjectFactoryIdentifiers.quoteIdentifier;
 import static com.dbn.object.factory.model.DBObjectAttributeType.DATA_TYPE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.IS_INPUT;
 import static com.dbn.object.factory.model.DBObjectAttributeType.IS_OUTPUT;
@@ -54,6 +56,7 @@ import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_BODY;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_EVENTS;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_FOR_EACH_ROW;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_FUNCTION_NAME;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_FUNCTION_SCHEMA;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TARGET_DATASET;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TYPE;
 import static com.dbn.object.type.DBObjectType.ARGUMENT;
@@ -118,8 +121,14 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
     }
 
     @Override
+    public void dropEventTrigger(String triggerName, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "drop-event-trigger", triggerName);
+    }
+
+    @Override
     public void updateObject(String ownerName, String objectName, String objectType, String oldCode, String newCode, DBNConnection connection) throws SQLException {
-        if (DBObjectType.DATABASE_TRIGGER.getName().equalsIgnoreCase(objectType)) {
+        // TODO review
+        if (DBObjectType.EVENT_TRIGGER.getName().equalsIgnoreCase(objectType)) {
             updateEventTrigger(objectName, oldCode, newCode, connection);
             return;
         }
@@ -154,7 +163,7 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
      *********************************************************/
     @Override
     public void createTrigger(DBObjectSpec triggerSpec, DBNConnection connection) throws SQLException {
-        if (triggerSpec.getObjectTypeId() == DATABASE_TRIGGER) {
+        if (triggerSpec.getObjectTypeId() == EVENT_TRIGGER) {
             createEventTrigger(triggerSpec, connection);
             return;
         }
@@ -165,8 +174,8 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
         if (Strings.isEmptyOrSpaces(functionName)) {
             functionName = triggerSpec.getObjectName();
         }
-        String triggerFunctionName = triggerSpec.getSchemaName(true) + '.' + ObjectFactoryIdentifiers.quoteIdentifier(
-                triggerSpec.getConnection(), functionName.trim());
+        String triggerFunctionName = triggerSpec.getSchemaName(true) + '.' + quoteIdentifier(
+                triggerSpec.getConnection(), functionName);
         executeUpdate(connection, "create-trigger-function", triggerFunctionName, TRIGGER_BODY.value(triggerSpec));
 
         @NonNls
@@ -184,7 +193,7 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
         builder.append(" on ");
         builder.append(triggerSpec.getSchemaName(true));
         builder.append('.');
-        builder.append(ObjectFactoryIdentifiers.quoteIdentifier(
+        builder.append(quoteIdentifier(
                 triggerSpec.getConnection(),
                 TRIGGER_TARGET_DATASET.value(triggerSpec)));
         builder.append(TRIGGER_FOR_EACH_ROW.is(triggerSpec) ? "\nfor each row\n" : "\nfor each statement\n");
@@ -203,7 +212,7 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
         }
     }
 
-    private void createEventTrigger(DBObjectSpec triggerSpec, DBNConnection connection) throws SQLException {
+    private void createEventTrigger(DBObjectSpec triggerSpec, DBNConnection conn) throws SQLException {
         DBTriggerEvent[] triggerEvents = TRIGGER_EVENTS.values(triggerSpec);
         DBTriggerEvent triggerEvent = triggerEvents.length == 0 ? null : triggerEvents[0];
         if (triggerEvent == null) {
@@ -220,9 +229,16 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
         if (Strings.isEmptyOrSpaces(functionName)) {
             functionName = triggerSpec.getObjectName();
         }
-        String triggerFunctionName = triggerSpec.getSchemaName(true) + '.' + ObjectFactoryIdentifiers.quoteIdentifier(
-                triggerSpec.getConnection(), functionName.trim());
-        executeUpdate(connection, "create-event-trigger-function", triggerFunctionName, TRIGGER_BODY.value(triggerSpec));
+        String functionSchema = TRIGGER_FUNCTION_SCHEMA.value(triggerSpec);
+        if (Strings.isEmptyOrSpaces(functionSchema)) {
+            functionSchema = triggerSpec.getSchemaName();
+        }
+        ConnectionHandler connection = triggerSpec.getConnection();
+        String triggerFunctionSchema = quoteIdentifier(connection, functionSchema);
+        String triggerFunctionName = quoteIdentifier(connection, functionName);
+        String triggerBody = TRIGGER_BODY.value(triggerSpec);
+
+        executeUpdate(conn, "create-event-trigger-function", functionSchema, functionName, triggerBody);
 
         @NonNls
         StringBuilder builder = new StringBuilder("event trigger ")
@@ -230,15 +246,17 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
                 .append(" on ")
                 .append(eventName)
                 .append(" execute function ")
+                .append(triggerFunctionSchema)
+                .append(".")
                 .append(triggerFunctionName)
                 .append("()");
 
         try {
-            createObject(builder.toString(), connection);
+            createObject(builder.toString(), conn);
         } catch (SQLException e) {
             conditionallyLog(e);
             try {
-                executeUpdate(connection, "drop-event-trigger-function", triggerFunctionName);
+                executeUpdate(conn, "drop-event-trigger-function", functionSchema, functionName);
             } catch (SQLException cleanupException) {
                 conditionallyLog(cleanupException);
             }

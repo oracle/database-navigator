@@ -238,6 +238,16 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     }
 
     @Override
+    public ResultSet loadEventTriggers(DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "event-triggers");
+    }
+
+    @Override
+    public ResultSet loadEventTriggerSourceCode(String triggerName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "event-trigger-source-code", triggerName);
+    }
+
+    @Override
     public ResultSet loadDatasetTriggers(String ownerName, String datasetName, DBNConnection connection) throws SQLException {
         return executeQuery(connection, "dataset-triggers", ownerName, datasetName);
     }

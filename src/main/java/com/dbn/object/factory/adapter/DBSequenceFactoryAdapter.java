@@ -36,6 +36,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import static com.dbn.common.Priority.HIGHEST;
+import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.SEQUENCE_CACHE_SIZE;
@@ -70,7 +71,7 @@ public class DBSequenceFactoryAdapter implements ObjectFactoryAdapter {
     @Override
     public void validateInput(DBObjectSpec input, List<String> errors) {
         String objectName = input.getObjectName();
-        if (Strings.isEmptyOrSpaces(objectName)) {
+        if (isEmptyOrSpaces(objectName)) {
             errors.add(txt("msg.objects.error.ObjectNameNotSpecified", SEQUENCE.getDisplayName()));
         } else if (!Strings.isWord(objectName.trim())) {
             errors.add(txt("msg.objects.error.ObjectNameInvalid", SEQUENCE.getDisplayName(), objectName));
@@ -83,12 +84,12 @@ public class DBSequenceFactoryAdapter implements ObjectFactoryAdapter {
         validateInteger(input, SEQUENCE_CACHE_SIZE, "app.object.label.SequenceCacheSize", errors);
 
         String increment = SEQUENCE_INCREMENT_BY.value(input);
-        if (isInteger(increment) && BigInteger.ZERO.equals(new BigInteger(increment.trim()))) {
+        if (isInteger(increment) && BigInteger.ZERO.equals(new BigInteger(increment))) {
             errors.add(txt("msg.objects.error.SequenceIncrementInvalid"));
         }
 
         String cacheSize = SEQUENCE_CACHE_SIZE.value(input);
-        if (isInteger(cacheSize) && new BigInteger(cacheSize.trim()).signum() <= 0) {
+        if (isInteger(cacheSize) && new BigInteger(cacheSize).signum() <= 0) {
             errors.add(txt("msg.objects.error.SequenceCacheInvalid"));
         }
     }
@@ -117,13 +118,13 @@ public class DBSequenceFactoryAdapter implements ObjectFactoryAdapter {
     private static void validateInteger(DBObjectSpec input, DBObjectAttributeType<String> attribute,
                                         String labelKey, List<String> errors) {
         String value = attribute.value(input);
-        if (Strings.isEmptyOrSpaces(value) || isInteger(value)) return;
+        if (isEmptyOrSpaces(value) || isInteger(value)) return;
 
         errors.add(txt("msg.objects.error.SequenceValueInvalid", txt(labelKey)));
     }
 
     private static boolean isInteger(String value) {
-        return !Strings.isEmptyOrSpaces(value) && value.trim().matches("-?\\d+");
+        return !isEmptyOrSpaces(value) && value.matches("-?\\d+");
     }
 
 }

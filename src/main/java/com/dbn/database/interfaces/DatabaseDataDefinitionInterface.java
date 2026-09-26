@@ -92,6 +92,10 @@ public interface DatabaseDataDefinitionInterface extends DatabaseInterface {
         dropObject("trigger", ownerName, triggerName, connection);
     }
 
+    default void dropEventTrigger(String triggerName, DBNConnection connection) throws SQLException {
+        dropObject("event trigger", null, triggerName, connection);
+    }
+
     void dropUser(String userName, DBNConnection connection) throws SQLException;
 
     void dropConstraint(String ownerName, String tableName, String constraintName, DBConstraintType constraintType, DBNConnection connection) throws SQLException;

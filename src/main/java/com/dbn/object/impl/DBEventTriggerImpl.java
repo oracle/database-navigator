@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,79 +16,63 @@
 
 package com.dbn.object.impl;
 
+import com.dbn.browser.ui.HtmlToolTipBuilder;
+import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBTriggerMetadata;
-import com.dbn.editor.DBContentType;
-import com.dbn.object.DBDataset;
+import com.dbn.object.DBEventTrigger;
 import com.dbn.object.DBFunction;
 import com.dbn.object.DBSchema;
-import com.dbn.object.DBTrigger;
 import com.dbn.object.common.DBObject;
-import com.dbn.object.common.DBSchemaObjectImpl;
+import com.dbn.object.common.DBRootObjectImpl;
+import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.object.type.DBObjectType;
 import com.dbn.object.type.DBTriggerEvent;
 import com.dbn.object.type.DBTriggerTarget;
 import com.dbn.object.type.DBTriggerType;
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.Icon;
 import java.sql.SQLException;
 
+import static com.dbn.common.util.Strings.cachedLowerCase;
 import static com.dbn.common.util.Strings.isEmpty;
-import static com.dbn.common.util.Strings.isNotEmpty;
-import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
-import static com.dbn.object.common.property.DBObjectProperty.DEBUGGABLE;
-import static com.dbn.object.common.property.DBObjectProperty.DISABLEABLE;
-import static com.dbn.object.common.property.DBObjectProperty.EDITABLE;
 import static com.dbn.object.common.property.DBObjectProperty.FOR_EACH_ROW;
-import static com.dbn.object.common.property.DBObjectProperty.INVALIDABLE;
-import static com.dbn.object.common.property.DBObjectProperty.REFERENCEABLE;
-import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
+import static com.dbn.object.common.property.DBObjectProperty.ROOT_OBJECT;
 import static com.dbn.object.common.status.DBObjectStatus.DEBUG;
 import static com.dbn.object.common.status.DBObjectStatus.DISABLED;
 import static com.dbn.object.common.status.DBObjectStatus.VALID;
+import static com.dbn.object.type.DBObjectType.EVENT_TRIGGER;
 import static com.dbn.object.type.DBObjectType.FUNCTION;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
 
 @Getter
-abstract class DBTriggerImpl extends DBSchemaObjectImpl<DBTriggerMetadata> implements DBTrigger {
+class DBEventTriggerImpl extends DBRootObjectImpl<DBTriggerMetadata> implements DBEventTrigger {
     private DBTriggerType triggerType;
     private DBTriggerEvent[] triggerEvents;
     private DBTriggerTarget triggerTarget;
-    private @Nullable DBSchema targetSchema;
     private @Nullable DBObjectRef<DBFunction> triggerFunction;
 
-    DBTriggerImpl(DBSchema schema, DBTriggerMetadata metadata) throws SQLException {
-        super(schema, metadata);
-    }
-
-    DBTriggerImpl(DBDataset dataset, DBTriggerMetadata metadata) throws SQLException {
-        super(dataset, metadata);
+    DBEventTriggerImpl(ConnectionHandler connection, DBTriggerMetadata metadata) throws SQLException {
+        super(connection, metadata);
     }
 
     @Override
     protected String initObject(ConnectionHandler connection, DBObject parentObject, DBTriggerMetadata metadata) throws SQLException {
-        String name = metadata.getTriggerName();
         set(FOR_EACH_ROW, metadata.isForEachRow());
         triggerTarget = DBTriggerTarget.value(metadata.getTriggerTarget());
         if (triggerTarget == DBTriggerTarget.UNKNOWN) {
-            triggerTarget = parentObject instanceof DBDataset ? DBTriggerTarget.DATASET : DBTriggerTarget.DATABASE;
-        }
-        String targetSchemaName = metadata.getTargetSchemaName();
-        if (isNotEmpty(targetSchemaName)) {
-            targetSchema = connection.getObjectBundle().getSchema(targetSchemaName);
-        }
-        if (targetSchema == null && triggerTarget == DBTriggerTarget.SCHEMA) {
-            targetSchema = parentObject instanceof DBSchema schema ? schema :
-                    parentObject instanceof DBDataset dataset ? dataset.getSchema() : null;
+            triggerTarget = DBTriggerTarget.DATABASE;
         }
 
         initTriggerFunction(connection, metadata);
 
         triggerType = DBTriggerType.value(metadata.getTriggerType());
         triggerEvents = DBTriggerEvent.values(metadata.getTriggeringEvent());
-
-        return name;
+        return metadata.getTriggerName();
     }
 
     private void initTriggerFunction(ConnectionHandler connection, DBTriggerMetadata metadata) throws SQLException {
@@ -109,14 +93,8 @@ abstract class DBTriggerImpl extends DBSchemaObjectImpl<DBTriggerMetadata> imple
     }
 
     @Override
-    public void initProperties() {
-        properties.set(EDITABLE, true);
-        properties.set(DISABLEABLE, true);
-        properties.set(REFERENCEABLE, true);
-        properties.set(COMPILABLE, true);
-        properties.set(DEBUGGABLE, true);
-        properties.set(INVALIDABLE, true);
-        properties.set(SCHEMA_OBJECT, true);
+    protected void initProperties() {
+        properties.set(ROOT_OBJECT, true);
     }
 
     @Override
@@ -130,17 +108,54 @@ abstract class DBTriggerImpl extends DBSchemaObjectImpl<DBTriggerMetadata> imple
         return DBObjectRef.get(triggerFunction);
     }
 
-    /*********************************************************
-     *                     TreeElement                       *
-     *********************************************************/
+    @NotNull
+    @Override
+    public DBObjectType getObjectType() {
+        return EVENT_TRIGGER;
+    }
 
     @Override
     public boolean isLeaf() {
         return true;
     }
 
+    @Nullable
     @Override
-    public String getCodeParseRootId(DBContentType contentType) {
-        return "trigger_definition";
+    public Icon getIcon() {
+        DBObjectStatusHolder objectStatus = getStatus();
+        boolean valid = objectStatus.is(VALID);
+        boolean disabled = objectStatus.is(DISABLED);
+        if (valid) {
+            boolean debug = objectStatus.is(DEBUG);
+            if (disabled) {
+                return debug ?
+                        Icons.DBO_DATABASE_TRIGGER_DEBUG_DISABLED :
+                        Icons.DBO_DATABASE_TRIGGER_DISABLED;
+            }
+            return debug ?
+                    Icons.DBO_DATABASE_TRIGGER_DEBUG :
+                    Icons.DBO_DATABASE_TRIGGER;
+        }
+
+        return disabled ?
+                Icons.DBO_DATABASE_TRIGGER_ERR_DISABLED :
+                Icons.DBO_DATABASE_TRIGGER_ERR;
+    }
+
+    @Override
+    public void buildToolTip(HtmlToolTipBuilder ttb) {
+        ttb.append(true, getObjectType().getName(), true);
+        StringBuilder triggerDescription = new StringBuilder(" - ");
+        if (triggerType != DBTriggerType.UNKNOWN) {
+            triggerDescription.append(cachedLowerCase(triggerType.getName())).append(' ');
+        }
+        for (int i = 0; i < triggerEvents.length; i++) {
+            if (i > 0) triggerDescription.append(" or ");
+            triggerDescription.append(triggerEvents[i].getName());
+        }
+        triggerDescription.append(" on ").append(triggerTarget.getName());
+        ttb.append(false, triggerDescription.toString(), false);
+        ttb.createEmptyRow();
+        super.buildToolTip(ttb);
     }
 }

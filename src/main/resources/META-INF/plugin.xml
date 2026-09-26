@@ -354,6 +354,7 @@
         <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBArgumentPropertiesProvider"/>
         <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBTablePropertiesProvider"/>
         <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBTriggerPropertiesProvider"/>
+        <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBEventTriggerPropertiesProvider"/>
         <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBSynonymPropertiesProvider"/>
         <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBTypePropertiesProvider"/>
         <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBTypeAttributePropertiesProvider"/>
@@ -374,6 +375,8 @@
         <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBSchemaNavigationInfoProvider"/>
         <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBSynonymNavigationInfoProvider"/>
         <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBTableNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBTriggerNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBEventTriggerNavigationInfoProvider"/>
         <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBTypeNavigationInfoProvider"/>
         <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBTypeAttributeNavigationInfoProvider"/>
         <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBUserNavigationInfoProvider"/>
@@ -396,6 +399,7 @@
         <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBSynonymFactoryAdapter"/>
         <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBDatasetTriggerFactoryAdapter"/>
         <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBDatabaseTriggerFactoryAdapter"/>
+        <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBEventTriggerFactoryAdapter"/>
 
         <!--object management adapters-->
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBConstraintManagementAdapter"/>
@@ -404,6 +408,7 @@
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBAIProfileManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBMiningModelManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBTriggerManagementAdapter"/>
+        <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBEventTriggerManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBJsonViewManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBMaterializedViewManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBUserManagementAdapter"/>

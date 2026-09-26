@@ -37,6 +37,10 @@ public interface DBTriggerMetadata extends DBObjectMetadata {
 
     String getTargetSchemaName() throws SQLException;
 
+    String getTriggerFunctionName() throws SQLException;
+
+    String getTriggerFunctionSchemaName() throws SQLException;
+
     boolean isForEachRow() throws SQLException;
 
     boolean isDisabled() throws SQLException;

@@ -523,7 +523,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="database-triggers">
+    <statement-execution-processor id="event-triggers">
         <statement>
             select
                 e.evtname as TRIGGER_NAME,
@@ -538,17 +538,20 @@
                 end as TRIGGERING_EVENT,
                 'DATABASE' as TRIGGER_TARGET,
                 null as TARGET_SCHEMA_NAME,
+                p.proname as TRIGGER_FUNCTION_NAME,
+                n.nspname as TRIGGER_FUNCTION_SCHEMA_NAME,
                 case when e.evtenabled = 'D' then 'Y' else 'N' end as IS_DISABLED,
                 'Y' as IS_VALID,
                 'N' as IS_DEBUG,
                 'N' as IS_FOR_EACH_ROW
             from pg_catalog.pg_event_trigger e
-            where current_schema() = {#0}
+            join pg_catalog.pg_proc p on p.oid = e.evtfoid
+            join pg_catalog.pg_namespace n on n.oid = p.pronamespace
             order by e.evtname asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="database-trigger-source-code">
+    <statement-execution-processor id="event-trigger-source-code">
         <statement>
           select concat(
               pg_get_functiondef(e.evtfoid),
@@ -561,7 +564,7 @@
                 ';'
             ) as SOURCE_CODE
             from pg_catalog.pg_event_trigger e
-            where e.evtname = {#1}
+            where e.evtname = {#0}
         </statement>
     </statement-execution-processor>
 
@@ -574,20 +577,29 @@
                 string_agg(EVENT_MANIPULATION, ' or ' order by EVENT_MANIPULATION) as TRIGGERING_EVENT,
                 'TABLE' as TRIGGER_TARGET,
                 null as TARGET_SCHEMA_NAME,
+                p.proname as TRIGGER_FUNCTION_NAME,
+                fn.nspname as TRIGGER_FUNCTION_SCHEMA_NAME,
                 'N' as IS_DISABLED,
                 'Y' as IS_VALID,
                 'N' as IS_DEBUG,
                 case when ACTION_ORIENTATION = 'ROW' then 'Y' else 'N' end as IS_FOR_EACH_ROW
-            from INFORMATION_SCHEMA.TRIGGERS
+            from INFORMATION_SCHEMA.TRIGGERS t
+            join pg_catalog.pg_namespace n on n.nspname = t.EVENT_OBJECT_SCHEMA
+            join pg_catalog.pg_class c on c.relnamespace = n.oid and c.relname = t.EVENT_OBJECT_TABLE
+            join pg_catalog.pg_trigger tr on tr.tgrelid = c.oid and tr.tgname = t.TRIGGER_NAME
+            join pg_catalog.pg_proc p on p.oid = tr.tgfoid
+            join pg_catalog.pg_namespace fn on fn.oid = p.pronamespace
             where
-                EVENT_OBJECT_SCHEMA = {#0} and
-                EVENT_OBJECT_TABLE = {#1}
+                t.EVENT_OBJECT_SCHEMA = {#0} and
+                t.EVENT_OBJECT_TABLE = {#1}
             group by
-                EVENT_OBJECT_TABLE,
-                TRIGGER_NAME,
-                ACTION_TIMING,
-                ACTION_ORIENTATION
-            order by TRIGGER_NAME asc
+                t.EVENT_OBJECT_TABLE,
+                t.TRIGGER_NAME,
+                t.ACTION_TIMING,
+                t.ACTION_ORIENTATION,
+                p.proname,
+                fn.nspname
+            order by t.TRIGGER_NAME asc
         </statement>
     </statement-execution-processor>
 
@@ -600,20 +612,29 @@
                 string_agg(EVENT_MANIPULATION, ' or ' order by EVENT_MANIPULATION) as TRIGGERING_EVENT,
                 'TABLE' as TRIGGER_TARGET,
                 null as TARGET_SCHEMA_NAME,
+                p.proname as TRIGGER_FUNCTION_NAME,
+                fn.nspname as TRIGGER_FUNCTION_SCHEMA_NAME,
                 'N' as IS_DISABLED,
                 'Y' as IS_VALID,
                 'N' as IS_DEBUG,
                 case when ACTION_ORIENTATION = 'ROW' then 'Y' else 'N' end as IS_FOR_EACH_ROW
-            from INFORMATION_SCHEMA.TRIGGERS
-            where EVENT_OBJECT_SCHEMA = {#0}
+            from INFORMATION_SCHEMA.TRIGGERS t
+            join pg_catalog.pg_namespace n on n.nspname = t.EVENT_OBJECT_SCHEMA
+            join pg_catalog.pg_class c on c.relnamespace = n.oid and c.relname = t.EVENT_OBJECT_TABLE
+            join pg_catalog.pg_trigger tr on tr.tgrelid = c.oid and tr.tgname = t.TRIGGER_NAME
+            join pg_catalog.pg_proc p on p.oid = tr.tgfoid
+            join pg_catalog.pg_namespace fn on fn.oid = p.pronamespace
+            where t.EVENT_OBJECT_SCHEMA = {#0}
             group by
-                EVENT_OBJECT_TABLE,
-                TRIGGER_NAME,
-                ACTION_TIMING,
-                ACTION_ORIENTATION
+                t.EVENT_OBJECT_TABLE,
+                t.TRIGGER_NAME,
+                t.ACTION_TIMING,
+                t.ACTION_ORIENTATION,
+                p.proname,
+                fn.nspname
             order by
-                EVENT_OBJECT_TABLE,
-                TRIGGER_NAME asc
+                t.EVENT_OBJECT_TABLE,
+                t.TRIGGER_NAME asc
         </statement>
     </statement-execution-processor>
 

@@ -43,8 +43,8 @@
 
     <statement-execution-processor id="create-event-trigger-function" transactional="true">
         <statement>
-            create function {0}() returns event_trigger language plpgsql as $DBN_EVENT_TRIGGER$
-            {1}
+            create function {@0}.{@1}() returns event_trigger language plpgsql as $DBN_EVENT_TRIGGER$
+            {2}
             $DBN_EVENT_TRIGGER$
         </statement>
     </statement-execution-processor>
@@ -90,7 +90,7 @@
     </statement-execution-processor>
 
     <statement-execution-processor id="drop-event-trigger-function" transactional="true">
-        <statement>drop function if exists {0}()</statement>
+        <statement>drop function if exists {@0}.{@1}()</statement>
     </statement-execution-processor>
 
     <statement-execution-processor id="get-session-sql-mode">

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,17 @@
 
 package com.dbn.object;
 
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBRootObject;
 import com.dbn.object.type.DBTriggerEvent;
 import com.dbn.object.type.DBTriggerTarget;
 import com.dbn.object.type.DBTriggerType;
 import org.jetbrains.annotations.Nullable;
 
-public interface DBTrigger extends DBSchemaObject {
+/**
+ * A trigger that is attached to the database itself rather than to a schema
+ * or a dataset. PostgreSQL event triggers are represented by this type.
+ */
+public interface DBEventTrigger extends DBRootObject {
     boolean isForEachRow();
 
     DBTriggerType getTriggerType();
@@ -33,8 +37,4 @@ public interface DBTrigger extends DBSchemaObject {
 
     @Nullable
     DBFunction getTriggerFunction();
-
-    @Nullable
-    DBSchema getTargetSchema();
-
 }

@@ -31,6 +31,7 @@ import com.dbn.sync.java.action.JavaResourceDownloadAction;
 import static com.dbn.database.DatabaseFeature.DEBUGGING;
 import static com.dbn.database.DatabaseFeature.VECTOR_SEARCH;
 import static com.dbn.object.type.DBObjectType.DATASET_TRIGGER;
+import static com.dbn.object.type.DBObjectType.EVENT_TRIGGER;
 import static com.dbn.vfs.DBConsoleType.DEBUG;
 import static com.dbn.vfs.DBConsoleType.SEARCH;
 import static com.dbn.vfs.DBConsoleType.STANDARD;
@@ -88,6 +89,9 @@ public class ObjectListActionGroup extends DefaultActionGroup {
                 if (VECTOR_SEARCH.isSupported(connection)) {
                     add(new ConsoleCreateAction(connection, SEARCH));
                 }
+            } else if (objectType == EVENT_TRIGGER) {
+                addSeparator();
+                add(new CreateObjectAction(objectList));
             }
         }
 

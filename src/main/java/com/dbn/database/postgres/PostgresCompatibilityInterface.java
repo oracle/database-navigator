@@ -58,6 +58,7 @@ import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_BODY_TE
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_EVENTS;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_FOR_EACH_ROW;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_FUNCTION_NAME;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_FUNCTION_SCHEMA;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TARGET;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TARGET_DATASET;
 import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TYPE;
@@ -90,7 +91,7 @@ public class PostgresCompatibilityInterface extends DatabaseCompatibilityInterfa
                 DatabaseObjectTypeId.CONSTRAINT,
                 DatabaseObjectTypeId.INDEX,
                 DatabaseObjectTypeId.DATASET_TRIGGER,
-                DatabaseObjectTypeId.DATABASE_TRIGGER,
+                DatabaseObjectTypeId.EVENT_TRIGGER,
                 DatabaseObjectTypeId.FUNCTION,
                 DatabaseObjectTypeId.ARGUMENT,
                 DatabaseObjectTypeId.SEQUENCE,
@@ -105,18 +106,19 @@ public class PostgresCompatibilityInterface extends DatabaseCompatibilityInterfa
                     DBObjectTypeSpec.create(objectTypeId)
                             .withAttribute(TRIGGER_TYPE, List.of(BEFORE, AFTER, INSTEAD_OF), false, true)
                             .withAttribute(TRIGGER_EVENTS, List.of(INSERT, UPDATE, DELETE, TRUNCATE), true, true)
-                            .withAttribute(TRIGGER_FUNCTION_NAME, List.of(), false, true)
-                            .withAttribute(TRIGGER_TARGET_DATASET, List.of(), false, true)
+                            .withAttribute(TRIGGER_FUNCTION_NAME, null, true)
+                            .withAttribute(TRIGGER_TARGET_DATASET, null, true)
                             .withAttribute(TRIGGER_FOR_EACH_ROW, List.of(false, true), false, false)
                             .withAttribute(TRIGGER_BODY_TEMPLATE, "begin\n    return new;\nend;", false)
-                            .withAttribute(TRIGGER_BODY, List.of(), false, true);
-            case DATABASE_TRIGGER ->
+                            .withAttribute(TRIGGER_BODY, null, true);
+            case EVENT_TRIGGER ->
                     DBObjectTypeSpec.create(objectTypeId)
                             .withAttribute(TRIGGER_EVENTS, List.of(DDL, DROP), false, true)
-                            .withAttribute(TRIGGER_FUNCTION_NAME, List.of(), false, true)
+                            .withAttribute(TRIGGER_FUNCTION_NAME, null, true)
+                            .withAttribute(TRIGGER_FUNCTION_SCHEMA, null, true)
                             .withAttribute(TRIGGER_TARGET, DATABASE, true)
                             .withAttribute(TRIGGER_BODY_TEMPLATE, "begin\n\nend;", false)
-                            .withAttribute(TRIGGER_BODY, List.of(), false, true);
+                            .withAttribute(TRIGGER_BODY, null, true);
             //...
             default -> super.getObjectTypeSpec(objectTypeId);
         };
@@ -126,7 +128,7 @@ public class PostgresCompatibilityInterface extends DatabaseCompatibilityInterfa
     public boolean supportsObjectType(DatabaseObjectTypeId objectTypeId, double databaseVersion) {
         return switch (objectTypeId) {
             case MATERIALIZED_VIEW -> databaseVersion >= 9.3;
-            case DATABASE_TRIGGER -> databaseVersion >= 9.3;
+            case EVENT_TRIGGER -> databaseVersion >= 9.3;
             default -> supportsObjectType(objectTypeId);
         };
     }
