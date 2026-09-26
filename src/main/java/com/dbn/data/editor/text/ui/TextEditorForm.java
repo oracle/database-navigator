@@ -66,11 +66,11 @@ import static com.dbn.common.file.FileTypes.getJsonFileType;
 import static com.dbn.common.file.FileTypes.getTextFileType;
 import static com.dbn.common.file.FileTypes.getXmlFileType;
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Strings.convertLineSeparators;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.language.common.psi.PsiUtil.getFileManager;
 import static com.dbn.nls.NlsResources.txt;
-import static com.intellij.openapi.util.text.StringUtil.convertLineSeparators;
 
 public class TextEditorForm extends DBNFormBase implements TextContentTypeOwner {
     private JPanel mainPanel;

@@ -571,13 +571,13 @@
                 EVENT_OBJECT_TABLE as DATASET_NAME,
                 TRIGGER_NAME as TRIGGER_NAME,
                 ACTION_TIMING as TRIGGER_TYPE,
-                string_agg(EVENT_MANIPULATION, ' or ') as TRIGGERING_EVENT,
+                string_agg(EVENT_MANIPULATION, ' or ' order by EVENT_MANIPULATION) as TRIGGERING_EVENT,
                 'TABLE' as TRIGGER_TARGET,
                 null as TARGET_SCHEMA_NAME,
                 'N' as IS_DISABLED,
                 'Y' as IS_VALID,
                 'N' as IS_DEBUG,
-                'Y' as IS_FOR_EACH_ROW
+                case when ACTION_ORIENTATION = 'ROW' then 'Y' else 'N' end as IS_FOR_EACH_ROW
             from INFORMATION_SCHEMA.TRIGGERS
             where
                 EVENT_OBJECT_SCHEMA = {#0} and
@@ -585,7 +585,8 @@
             group by
                 EVENT_OBJECT_TABLE,
                 TRIGGER_NAME,
-                ACTION_TIMING
+                ACTION_TIMING,
+                ACTION_ORIENTATION
             order by TRIGGER_NAME asc
         </statement>
     </statement-execution-processor>
@@ -596,19 +597,20 @@
                 EVENT_OBJECT_TABLE as DATASET_NAME,
                 TRIGGER_NAME as TRIGGER_NAME,
                 ACTION_TIMING as TRIGGER_TYPE,
-                string_agg(EVENT_MANIPULATION, ' or ') as TRIGGERING_EVENT,
+                string_agg(EVENT_MANIPULATION, ' or ' order by EVENT_MANIPULATION) as TRIGGERING_EVENT,
                 'TABLE' as TRIGGER_TARGET,
                 null as TARGET_SCHEMA_NAME,
                 'N' as IS_DISABLED,
                 'Y' as IS_VALID,
                 'N' as IS_DEBUG,
-                'Y' as IS_FOR_EACH_ROW
+                case when ACTION_ORIENTATION = 'ROW' then 'Y' else 'N' end as IS_FOR_EACH_ROW
             from INFORMATION_SCHEMA.TRIGGERS
             where EVENT_OBJECT_SCHEMA = {#0}
             group by
                 EVENT_OBJECT_TABLE,
                 TRIGGER_NAME,
-                ACTION_TIMING
+                ACTION_TIMING,
+                ACTION_ORIENTATION
             order by
                 EVENT_OBJECT_TABLE,
                 TRIGGER_NAME asc
@@ -906,12 +908,12 @@
             select concat(
                 'trigger ',
                 TRIGGER_NAME,
-                E'$$DBN_GUARDED_BLOCK_END_OFFSET$$\n\r', lower(ACTION_TIMING), ' ',
-                string_agg(lower(EVENT_MANIPULATION), ' or '),
-                E'\n\r    on ',
+                E'$$DBN_GUARDED_BLOCK_END_OFFSET$$\n', lower(ACTION_TIMING), ' ',
+                string_agg(lower(EVENT_MANIPULATION), ' or ' order by EVENT_MANIPULATION),
+                E'\n    on ',
                 EVENT_OBJECT_SCHEMA, '.', EVENT_OBJECT_TABLE,
-                E'\n\r for each row ',
-                E'\n\r', ACTION_STATEMENT) as SOURCE_CODE
+                E'\n for each ', lower(ACTION_ORIENTATION), ' ',
+                E'\n', ACTION_STATEMENT) as SOURCE_CODE
             from INFORMATION_SCHEMA.TRIGGERS
             where
                 EVENT_OBJECT_SCHEMA = {#0} and
@@ -922,6 +924,7 @@
                 TRIGGER_NAME,
                 ACTION_TIMING,
                 ACTION_STATEMENT,
+                ACTION_ORIENTATION,
                 EVENT_OBJECT_SCHEMA,
                 EVENT_OBJECT_TABLE
         </statement>
@@ -940,23 +943,23 @@
                                     p.SPECIFIC_NAME = r.SPECIFIC_NAME
                                 order by p.ORDINAL_POSITION), ', ' )),
                     ')',
-                    case when {#2}='FUNCTION' then E'\n\r\treturns '||
+                    case when {#2}='FUNCTION' then E'\n\treturns '||
                                 (case when prc.PRORETSET then 'setof ' else '' end) ||
                                 (case when r.DATA_TYPE = 'USER-DEFINED' then r.TYPE_UDT_NAME else r.DATA_TYPE end) else '' end,
                     ' as ',
                     E'\n\$BODY$ ',
                     r.ROUTINE_DEFINITION,
                     '$BODY$ ',
-                    E'\n\rlanguage ', r.EXTERNAL_LANGUAGE,
+                    E'\nlanguage ', r.EXTERNAL_LANGUAGE,
                     case when prc.PROVOLATILE = 'v' then ' volatile'
                          when prc.PROVOLATILE = 'i' then ' immutable'
                          when prc.PROVOLATILE = 's' then ' stable' else '' end,
                     case when prc.PROISSTRICT then ' strict' else '' end,
                     case when prc.PROSECDEF then ' security definer' else '' end,
-                    case when prc.PROCOST > 0 then E'\n\rcost '||prc.PROCOST end,
-                    case when prc.PROROWS > 0 then E'\n\rrows '||prc.PROROWS end,
+                    case when prc.PROCOST > 0 then E'\ncost '||prc.PROCOST end,
+                    case when prc.PROROWS > 0 then E'\nrows '||prc.PROROWS end,
                         ';',
-                    E'\n\ralter function ', r.ROUTINE_NAME,
+                    E'\nalter function ', r.ROUTINE_NAME,
                     '(', (select array_to_string( array(
                                     select p.PARAMETER_MODE||' '||(case when p.PARAMETER_NAME is not null then p.PARAMETER_NAME||' ' else '' end)||p.DATA_TYPE from INFORMATION_SCHEMA.PARAMETERS p where
                                         p.SPECIFIC_SCHEMA = r.SPECIFIC_SCHEMA and

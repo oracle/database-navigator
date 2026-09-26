@@ -106,6 +106,7 @@ import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.common.util.Messages.showQuestionDialog;
 import static com.dbn.common.util.Messages.showWarningDialog;
 import static com.dbn.common.util.Naming.unquote;
+import static com.dbn.common.util.Strings.convertLineSeparators;
 import static com.dbn.common.util.Strings.toLowerCase;
 import static com.dbn.database.DatabaseFeature.OBJECT_CHANGE_MONITORING;
 import static com.dbn.database.common.DatabaseContentLimits.checkSourceLineCount;
@@ -411,7 +412,8 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
 
         // normalize line breaks
         // (background: not all entries in ALL_SOURCE have line breaks)
-        codeLine = StringUtils.stripEnd(codeLine, "[ \n\r\t]") + "\n";
+        codeLine = convertLineSeparators(codeLine);
+        codeLine = StringUtils.stripEnd(codeLine, " \n\r\t") + "\n";
         return codeLine;
     }
 

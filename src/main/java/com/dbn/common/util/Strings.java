@@ -467,6 +467,11 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
         return StringUtil.containsLineBreak(text);
     }
 
+    @NotNull
+    public static String convertLineSeparators(@NotNull String text) {
+        return StringUtil.convertLineSeparators(text.replace("\n\r", "\n"));
+    }
+
     public static String capitalize(String s) {
         return StringUtil.capitalize(s);
     }
