@@ -25,8 +25,8 @@ import com.dbn.common.options.ConfigMonitor;
 import com.dbn.common.options.SettingsChangeNotifier;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.options.ui.ConfigurationEditors;
-import com.dbn.common.text.TextContent;
-import com.dbn.common.ui.form.DBNHintForm;
+import com.dbn.common.message.MessageType;
+import com.dbn.common.ui.panel.DBNBanner;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Commons;
 import com.dbn.connection.AuthenticationType;
@@ -94,6 +94,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
     private final ConnectionAuthenticationSettingsForm authSettingsForm;
 
     private DatabaseType selectedDatabaseType;
+    private DatabaseType suppressedDatabaseType;
 
     public ConnectionDatabaseSettingsForm(ConnectionDatabaseSettings configuration) {
         super(configuration);
@@ -270,6 +271,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
                 DatabaseUrlPattern.get(databaseType, urlType);
 
         configuration.setDatabaseType(databaseType);
+        configuration.setSuppressedDatabaseType(suppressedDatabaseType);
         configuration.setName(getConnectionName());
         configuration.setDescription(getText(descriptionTextField));
         configuration.setDriverLibrary(driverSettingsForm.getDriverLibrary());
@@ -371,6 +373,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
                         authSettingsForm.cloudProviderSettingsChanged() :
                         authSettingsForm.settingsChanged()) ||
                 !Commons.match(configuration.getDatabaseType(), selectedDatabaseType) ||
+                !Commons.match(configuration.getSuppressedDatabaseType(), suppressedDatabaseType) ||
                 !Commons.match(configuration.getDriverLibrary(), driverSettingsForm.getDriverLibrary());
 
         applyFormChanges(configuration);
@@ -471,6 +474,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         ConnectionDatabaseSettings configuration = getConfiguration();
         DatabaseInfo databaseInfo = configuration.getDatabaseInfo();
         DatabaseType databaseType = configuration.getDatabaseType();
+        suppressedDatabaseType = configuration.getSuppressedDatabaseType();
 
         nameTextField.setText(configuration.getDisplayName());
         descriptionTextField.setText(configuration.getDescription());
@@ -485,17 +489,31 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
     private void updateNativeSupportDatabaseHint() {
         DatabaseType selectedDatabaseType = getSelectedDatabaseType();
         DatabaseType driverDatabaseType = driverSettingsForm.getDriverDatabaseType();
-        if (selectedDatabaseType == DatabaseType.GENERIC && driverDatabaseType != null && driverDatabaseType != selectedDatabaseType) {
+        databaseTypeHintPanel.removeAll();
+
+        if (selectedDatabaseType == DatabaseType.GENERIC &&
+                driverDatabaseType != null &&
+                driverDatabaseType != suppressedDatabaseType) {
             String databaseTypeName = driverDatabaseType.getName();
-            TextContent hintText = TextContent.plain(txt("cfg.connection.hint.KnownDatabaseType", databaseTypeName));
-            DBNHintForm hintForm = new DBNHintForm(this,
-                    hintText, null, true,
+            DBNBanner banner = new DBNBanner(
+                    txt("cfg.connection.hint.KnownDatabaseType", databaseTypeName),
+                    MessageType.WARNING);
+            banner.addAction(
                     txt("cfg.connection.action.ChangeToDatabaseType", databaseTypeName),
                     () -> setSelection(databaseTypeComboBox, driverDatabaseType));
-            hintForm.setHighlighted(true);
-            databaseTypeHintPanel.add(hintForm.getComponent(), BorderLayout.CENTER);
-        } else {
-            databaseTypeHintPanel.removeAll();
+            banner.addAction(
+                    txt("app.shared.action.Dismiss"),
+                    () -> dismissNativeSupportDatabaseHint(driverDatabaseType));
+            databaseTypeHintPanel.add(banner, BorderLayout.CENTER);
         }
+
+        databaseTypeHintPanel.revalidate();
+        databaseTypeHintPanel.repaint();
+    }
+
+    private void dismissNativeSupportDatabaseHint(DatabaseType databaseType) {
+        suppressedDatabaseType = databaseType;
+        mackConfigModified();
+        updateNativeSupportDatabaseHint();
     }
 }

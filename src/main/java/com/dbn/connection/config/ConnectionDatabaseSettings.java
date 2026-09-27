@@ -88,6 +88,7 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
     private DatabaseType databaseType;
     private DatabaseType derivedDatabaseType = DatabaseType.GENERIC;
     private DatabaseType confirmedDatabaseType = DatabaseType.GENERIC;
+    private DatabaseType suppressedDatabaseType;
     private DatabaseUrlPattern urlPattern;
     private double databaseVersion = 9999;
 
@@ -443,6 +444,7 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
         databaseType     = getEnum(element, "database-type", databaseType);
         configType       = getEnum(element, "config-type", configType);
         databaseVersion  = getDouble(element, "database-version", databaseVersion);
+        suppressedDatabaseType = getEnum(element, "suppressed-database-type", DatabaseType.class);
 
         String url = getString(element, "url", databaseInfo.getUrl());
         DatabaseUrlType defaultUrlType =
@@ -523,6 +525,7 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
         setEnum(element, "database-type", databaseType);
         setEnum(element, "config-type", configType);
         setDouble(element, "database-version", databaseVersion);
+        setEnum(element, "suppressed-database-type", suppressedDatabaseType);
 
         setEnum(element, "driver-source", driverSource);
         setString(element, "driver-library", nvle(driverLibrary));

@@ -27,8 +27,7 @@ import com.dbn.common.message.MessageType;
 import com.dbn.common.options.SettingsChangeNotifier;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.options.ui.ConfigurationEditors;
-import com.dbn.common.text.TextContent;
-import com.dbn.common.ui.form.DBNHintForm;
+import com.dbn.common.ui.panel.DBNBanner;
 import com.dbn.common.util.Commons;
 import com.dbn.connection.ConnectionHandlerStatusListener;
 import com.dbn.connection.ConnectionId;
@@ -48,7 +47,6 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.dbn.common.text.TextContent.plain;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
@@ -88,10 +86,8 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
 
         environmentTypesComboBox.addActionListener(e -> notifyPresentationChanges());
 
-        // TODO NLS
-        TextContent autoConnectHintText = plain(txt("cfg.connection.hint.DisabledAutoConnect"));
-        DBNHintForm hintForm = new DBNHintForm(this, autoConnectHintText, MessageType.INFO, false);
-        autoConnectHintPanel.add(hintForm.getComponent());
+        String autoConnectWarning = txt("cfg.connection.hint.DisabledAutoConnect");
+        autoConnectHintPanel.add(new DBNBanner(autoConnectWarning, MessageType.WARNING));
 
         boolean visibleHint = !autoConnectCheckBox.isSelected() && restoreWorkspaceCheckBox.isSelected();
         autoConnectHintPanel.setVisible(visibleHint);
