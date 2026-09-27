@@ -48,16 +48,22 @@ import java.util.function.Function;
 
 import static com.dbn.common.util.Strings.toLowerCase;
 
-public class DBJdbcDebugStackFrame extends DBDebugStackFrame<DBJdbcDebugProcess, DBJdbcDebugValue> {
+public class DBJdbcDebugStackFrame extends DBDebugStackFrame<DBJdbcDebugProcess<?>, DBJdbcDebugValue> {
     private final DebuggerRuntimeInfo runtimeInfo;
+    private final long suspensionId;
     private final Latent<DBJdbcDebuggerEvaluator> evaluator =
             Latent.basic(() -> new DBJdbcDebuggerEvaluator(DBJdbcDebugStackFrame.this));
 
     private final Map<String, VariableInfo> variableCache = new ConcurrentHashMap<>();
 
-    DBJdbcDebugStackFrame(DBJdbcDebugProcess debugProcess, DebuggerRuntimeInfo runtimeInfo, int index) {
+    DBJdbcDebugStackFrame(DBJdbcDebugProcess<?> debugProcess, DebuggerRuntimeInfo runtimeInfo, int index, long suspensionId) {
         super(debugProcess, index);
         this.runtimeInfo = runtimeInfo;
+        this.suspensionId = suspensionId;
+    }
+
+    public long getSuspensionId() {
+        return suspensionId;
     }
 
     @SneakyThrows
@@ -78,7 +84,7 @@ public class DBJdbcDebugStackFrame extends DBDebugStackFrame<DBJdbcDebugProcess,
         DebuggerRuntimeInfo runtimeInfo = this.runtimeInfo;
         int currentLine = runtimeInfo.getLineNumber() == null ? Integer.MAX_VALUE : runtimeInfo.getLineNumber() + 1;
         DBContentType contentType = getSourceContentType();
-        DBJdbcDebugProcess debugProcess = getDebugProcess();
+        DBJdbcDebugProcess<?> debugProcess = getDebugProcess();
         String objectType = debugProcess.getIdentifierObjectType(object, contentType);
         DebuggerIdentifierModel model = debugProcess.getIdentifierModel(object, contentType);
         List<DebuggerIdentifierInfo> variables = subject == null
@@ -121,7 +127,7 @@ public class DBJdbcDebugStackFrame extends DBDebugStackFrame<DBJdbcDebugProcess,
 
     @Override
     protected XSourcePosition resolveSourcePosition() {
-        DBJdbcDebugProcess debugProcess = getDebugProcess();
+        DBJdbcDebugProcess<?> debugProcess = getDebugProcess();
         VirtualFile virtualFile = debugProcess.getRuntimeInfoFile(runtimeInfo);
 
         int lineNumber = runtimeInfo.getLineNumber();

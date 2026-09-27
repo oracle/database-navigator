@@ -32,6 +32,7 @@ import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
+import java.sql.SQLException;
 
 import static com.dbn.common.util.Strings.toLowerCase;
 import static com.dbn.common.util.Strings.toUpperCase;
@@ -45,8 +46,9 @@ public class DBJdbcDebuggerEvaluator extends DBDebuggerEvaluator<DBJdbcDebugStac
 
     @Override
     public void computePresentation(@NotNull DBJdbcDebugValue debugValue, @NotNull final XValueNode node, @NotNull XValuePlace place) {
+        boolean updatePresentation = true;
         try {
-            DBJdbcDebugProcess debugProcess = debugValue.getDebugProcess();
+            DBJdbcDebugProcess<?> debugProcess = debugValue.getDebugProcess();
             String value = "";
             String type;
             if (debugValue.isStructured() || debugValue.getChildVariableNames() != null) {
@@ -58,10 +60,18 @@ public class DBJdbcDebuggerEvaluator extends DBDebuggerEvaluator<DBJdbcDebugStac
                 int frameIndex = debugValue.getStackFrame().getFrameIndex();
 
                 DBNConnection conn = debugProcess.getDebuggerConnection();
-                DatabaseDebuggerInterface debuggerInterface = debugProcess.getDebuggerInterface();
                 DBJdbcDebugStackFrame frame = getFrame();
                 VariableInfo variableInfo = frame.getVariableInfo(variablePath,
-                        n -> loadVariableInfo(n, debuggerInterface, frameIndex, conn));
+                        n -> loadVariableInfo(
+                                n,
+                                frameIndex,
+                                conn,
+                                debugProcess,
+                                frame.getSuspensionId()));
+                if (variableInfo == null) {
+                    updatePresentation = false;
+                    return;
+                }
 
                 value = variableInfo.getValue();
                 type = variableInfo.getError();
@@ -79,16 +89,34 @@ public class DBJdbcDebuggerEvaluator extends DBDebuggerEvaluator<DBJdbcDebugStac
             debugValue.setValue("");
             debugValue.setType(e.getMessage());
         } finally {
-            updateValuePresentation(debugValue, node);
+            if (updatePresentation) {
+                updateValuePresentation(debugValue, node);
+            }
         }
     }
 
     @SneakyThrows
-    private static VariableInfo loadVariableInfo(String variableName, DatabaseDebuggerInterface debuggerInterface, int frameIndex, DBNConnection conn) {
+    private static VariableInfo loadVariableInfo(
+            String variableName,
+            int frameIndex,
+            DBNConnection conn,
+            DBJdbcDebugProcess<?> debugProcess,
+            long suspensionId) {
+
+        return debugProcess.executeDebuggerInspection(
+                suspensionId,
+                d -> loadVariableInfo(d, variableName, frameIndex, conn));
+    }
+
+    private static VariableInfo loadVariableInfo(
+            DatabaseDebuggerInterface debuggerInterface, String variableName,
+            int frameIndex,
+            DBNConnection conn) throws SQLException {
+
         VariableInfo variableInfo = debuggerInterface.getVariableInfo(variableName, frameIndex, conn);
         if (variableInfo.getError() != null && frameIndex > 0) {
             // TODO why is the variable lookup not following the "one based" frame indexing?
-            variableInfo = loadVariableInfo(variableName, debuggerInterface, frameIndex - 1, conn);
+            variableInfo = loadVariableInfo(debuggerInterface, variableName, frameIndex - 1, conn);
         }
         return variableInfo;
     }

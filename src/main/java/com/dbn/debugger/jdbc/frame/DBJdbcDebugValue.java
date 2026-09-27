@@ -48,8 +48,8 @@ public class DBJdbcDebugValue extends DBDebugValue<DBJdbcDebugStackFrame>{
     }
 
     @Override
-    public DBJdbcDebugProcess getDebugProcess() {
-        return (DBJdbcDebugProcess) super.getDebugProcess();
+    public DBJdbcDebugProcess<?> getDebugProcess() {
+        return (DBJdbcDebugProcess<?>) super.getDebugProcess();
     }
 
     @Override

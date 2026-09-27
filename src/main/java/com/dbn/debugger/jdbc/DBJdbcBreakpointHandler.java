@@ -17,6 +17,7 @@
 package com.dbn.debugger.jdbc;
 
 import com.dbn.common.icon.Icons;
+import com.dbn.common.routine.ParametricCallable;
 import com.dbn.common.thread.Write;
 import com.dbn.common.util.Documents;
 import com.dbn.connection.ConnectionHandler;
@@ -29,7 +30,6 @@ import com.dbn.debugger.DBDebugConsoleLogger;
 import com.dbn.debugger.DBDebugUtil;
 import com.dbn.debugger.common.breakpoint.DBBreakpointHandler;
 import com.dbn.debugger.common.breakpoint.DBBreakpointType;
-import com.dbn.debugger.common.process.DBDebugProcess;
 import com.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dbn.language.common.psi.BasePsiElement;
 import com.dbn.language.psql.PSQLFile;
@@ -62,17 +62,17 @@ import static com.dbn.debugger.common.breakpoint.DBBreakpointUtil.setBreakpointI
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
-public class DBJdbcBreakpointHandler extends DBBreakpointHandler<DBJdbcDebugProcess> {
+public class DBJdbcBreakpointHandler extends DBBreakpointHandler<DBJdbcDebugProcess<?>> {
     protected BreakpointInfo defaultBreakpointInfo;
 
-    DBJdbcBreakpointHandler(XDebugSession session, DBJdbcDebugProcess debugProcess) {
+    DBJdbcBreakpointHandler(XDebugSession session, DBJdbcDebugProcess<?> debugProcess) {
         super(session, debugProcess);
         //resetBreakpoints();
     }
 
     @Override
     protected void registerDatabaseBreakpoint(@NotNull XLineBreakpoint<XBreakpointProperties> breakpoint) {
-        DBJdbcDebugProcess debugProcess = getDebugProcess();
+        DBJdbcDebugProcess<?> debugProcess = getDebugProcess();
         XDebugSession session = getSession();
 
         VirtualFile virtualFile = getBreakpointFile(breakpoint);
@@ -149,13 +149,13 @@ public class DBJdbcBreakpointHandler extends DBBreakpointHandler<DBJdbcDebugProc
         if (object == null) return;
 
         try {
-            DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
-            BreakpointInfo breakpointInfo = debuggerInterface.addProgramBreakpoint(
-                    method.getSchemaName(),
-                    object.getObjectName(),
-                    cachedUpperCase(object.getObjectType().getName()),
-                    breakpointLine,
-                    getDebugConnection());
+            BreakpointInfo breakpointInfo = executeDebuggerOperation(
+                    d -> d.addProgramBreakpoint(
+                            method.getSchemaName(),
+                            object.getObjectName(),
+                            cachedUpperCase(object.getObjectType().getName()),
+                            breakpointLine,
+                            getDebugConnection()));
             registerDefaultBreakpoint(breakpointInfo, method.getQualifiedName(), breakpointLine);
         } catch (SQLException e) {
             handleDefaultBreakpointError(e);
@@ -171,8 +171,8 @@ public class DBJdbcBreakpointHandler extends DBBreakpointHandler<DBJdbcDebugProc
      */
     public void registerDefaultSourceBreakpoint(int line) {
         try {
-            DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
-            BreakpointInfo breakpointInfo = debuggerInterface.addSourceBreakpoint(line, getDebugConnection());
+            BreakpointInfo breakpointInfo = executeDebuggerOperation(
+                    d -> d.addSourceBreakpoint(line, getDebugConnection()));
             String targetName = getDebugProcess().getExecutionInput().getExecutionContext().getTargetName();
             registerDefaultBreakpoint(breakpointInfo, targetName, line);
         } catch (SQLException e) {
@@ -212,16 +212,20 @@ public class DBJdbcBreakpointHandler extends DBBreakpointHandler<DBJdbcDebugProc
     @Override
     public void unregisterDefaultBreakpoint() {
         try {
-            if (defaultBreakpointInfo != null && defaultBreakpointInfo.getBreakpointId() != null) {
-                getDebuggerInterface().removeBreakpoint(defaultBreakpointInfo.getBreakpointId(), getDebugConnection());
-            }
+            if (defaultBreakpointInfo == null) return;
+            if (defaultBreakpointInfo.getBreakpointId() == null) return;
+
+            executeDebuggerOperation(
+                    d -> d.removeBreakpoint(
+                            defaultBreakpointInfo.getBreakpointId(),
+                            getDebugConnection()));
         } catch (SQLException e) {
             conditionallyLog(e);
         }
     }
 
     private DBNConnection getDebugConnection() {
-        DBJdbcDebugProcess debugProcess = getDebugProcess();
+        DBJdbcDebugProcess<?> debugProcess = getDebugProcess();
         return debugProcess.getDebuggerConnection();
     }
 
@@ -230,20 +234,21 @@ public class DBJdbcBreakpointHandler extends DBBreakpointHandler<DBJdbcDebugProc
         Integer breakpointLine = debugProcess.resolveBreakpointLine(breakpoint);
         if (breakpointLine == null) return;
 
-        ConnectionHandler connection = getConnection();
-        DatabaseDebuggerInterface debuggerInterface = connection.getDebuggerInterface();
         DBNConnection debugConnection = getDebugConnection();
         DBObjectRef object = getDatabaseObject(breakpoint);
-        BreakpointInfo breakpointInfo = object == null ?
-                debuggerInterface.addSourceBreakpoint(
-                        breakpointLine,
-                        debugConnection) :
-                debuggerInterface.addProgramBreakpoint(
-                        object.getSchemaName(),
-                        object.getObjectName(),
-                        cachedUpperCase(object.getObjectType().getName()),
-                        breakpointLine,
-                        debugConnection);
+        BreakpointInfo breakpointInfo;
+        if (object == null) {
+            breakpointInfo = executeDebuggerOperation(
+                    d -> d.addSourceBreakpoint(breakpointLine, debugConnection));
+        } else {
+            breakpointInfo = executeDebuggerOperation(
+                    d -> d.addProgramBreakpoint(
+                            object.getSchemaName(),
+                            object.getObjectName(),
+                            cachedUpperCase(object.getObjectType().getName()),
+                            breakpointLine,
+                            debugConnection));
+        }
 
         String error = breakpointInfo.getError();
         if (error != null) {
@@ -269,13 +274,11 @@ public class DBJdbcBreakpointHandler extends DBBreakpointHandler<DBJdbcDebugProc
     }
 
     private void removeBreakpoint(boolean temporary, Integer breakpointId) throws SQLException {
-        ConnectionHandler connection = getConnection();
         DBNConnection debugConnection = getDebugConnection();
-        DatabaseDebuggerInterface debuggerInterface = connection.getDebuggerInterface();
         if (temporary) {
-            debuggerInterface.disableBreakpoint(breakpointId, debugConnection);
+            executeDebuggerOperation(d -> d.disableBreakpoint(breakpointId, debugConnection));
         } else {
-            debuggerInterface.removeBreakpoint(breakpointId, debugConnection);
+            executeDebuggerOperation(d -> d.removeBreakpoint(breakpointId, debugConnection));
         }
     }
 
@@ -283,11 +286,10 @@ public class DBJdbcBreakpointHandler extends DBBreakpointHandler<DBJdbcDebugProc
         Integer breakpointId = getBreakpointId(breakpoint);
         if (breakpointId == null) return;
 
-        ConnectionHandler connection = getConnection();
         DBNConnection debugConnection = getDebugConnection();
 
-        DatabaseDebuggerInterface debuggerInterface = connection.getDebuggerInterface();
-        BreakpointOperationInfo breakpointOperationInfo = debuggerInterface.enableBreakpoint(breakpointId, debugConnection);
+        BreakpointOperationInfo breakpointOperationInfo = executeDebuggerOperation(
+                d -> d.enableBreakpoint(breakpointId, debugConnection));
         String error = breakpointOperationInfo.getError();
         if (error != null) {
             getSession().updateBreakpointPresentation(breakpoint,
@@ -297,11 +299,14 @@ public class DBJdbcBreakpointHandler extends DBBreakpointHandler<DBJdbcDebugProc
     }
 
     private String disableBreakpoint(Integer breakpointId) throws SQLException {
-        ConnectionHandler connection = getConnection();
-        DatabaseDebuggerInterface debuggerInterface = connection.getDebuggerInterface();
         DBNConnection debugConnection = getDebugConnection();
-        BreakpointOperationInfo breakpointOperationInfo = debuggerInterface.disableBreakpoint(breakpointId, debugConnection);
+        BreakpointOperationInfo breakpointOperationInfo = executeDebuggerOperation(
+                d -> d.disableBreakpoint(breakpointId, debugConnection));
         return breakpointOperationInfo.getError();
+    }
+
+    private <R> R executeDebuggerOperation(ParametricCallable<DatabaseDebuggerInterface, R, SQLException> callable) throws SQLException {
+        return getDebugProcess().executeDebuggerOperation(callable);
     }
 
     private void resetBreakpoints() {
