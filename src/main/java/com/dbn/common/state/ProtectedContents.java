@@ -109,8 +109,11 @@ public final class ProtectedContents implements Iterable<ProtectedContent> {
 
     public List<String> values() {
         List<String> values = new ArrayList<>();
-        for (ProtectedContent value : contents) {
-            values.add(value.get());
+        for (ProtectedContent content : contents) {
+            String value = content.get();
+            if (value != null) {
+                values.add(value);
+            }
         }
         return values;
     }

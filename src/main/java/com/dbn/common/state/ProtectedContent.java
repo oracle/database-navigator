@@ -19,7 +19,6 @@ package com.dbn.common.state;
 import com.dbn.common.util.Strings;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.component.PersistentStateContext.getEncryptionCache;
@@ -57,15 +56,18 @@ public final class ProtectedContent implements PersistentStateElement {
         value = encrypted ? null : encryptedValue;
     }
 
-    @NotNull
+    @Nullable
     public String get() {
-        if (!resolved) {
-            value = nvl(encryptionCache == null ?
-                    StateEncryption.decrypt(encryptionScope, encryptedValue) :
-                    encryptionCache.decrypt(encryptionScope, encryptedValue), "");
-            resolved = true;
-        }
-        return nvl(value, "");
+        if (resolved) return value;
+
+        String decryptedValue = encryptionCache == null ?
+                StateEncryption.decrypt(encryptionScope, encryptedValue) :
+                encryptionCache.decrypt(encryptionScope, encryptedValue);
+        if (decryptedValue == null) return null;
+
+        value = decryptedValue;
+        resolved = true;
+        return value;
     }
 
     public void set(@Nullable String value) {
