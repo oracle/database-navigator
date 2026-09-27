@@ -19,8 +19,12 @@ package com.dbn.debugger;
 import com.dbn.common.Reflection;
 import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.dispose.Failsafe;
+import com.dbn.common.util.Documents;
 import com.dbn.editor.DatabaseFileEditorManager;
 import com.dbn.editor.code.SourceCodeManager;
+import com.dbn.execution.statement.StatementExecutionInput;
+import com.dbn.execution.statement.processor.StatementExecutionProcessor;
+import com.dbn.language.common.psi.ExecutablePsiElement;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
 import com.dbn.object.common.DBObject;
@@ -28,16 +32,26 @@ import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.vfs.DatabaseFileSystem;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.RangeMarker;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.registry.Registry;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.xdebugger.XDebugProcessStarter;
+import com.intellij.xdebugger.XDebugSession;
+import com.intellij.xdebugger.XDebugSessionListener;
 import com.intellij.xdebugger.XDebuggerManager;
 import com.intellij.xdebugger.XSourcePosition;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.common.util.GuardedBlocks.createGuardedBlock;
+import static com.dbn.common.util.GuardedBlocks.removeGuardedBlocks;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.editor.code.content.GuardedBlockType.DEBUGGER_EXECUTION;
+import static com.dbn.nls.NlsResources.txt;
 
 @UtilityClass
 public class DBDebugUtil {
@@ -115,6 +129,44 @@ public class DBDebugUtil {
             DBEditableObjectVirtualFile mainDatabaseFile = sourceCodeFile.getMainDatabaseFile();
             openEditor(mainDatabaseFile);
         }
+    }
+
+    public static void guardStatementExecution(
+            XDebugSession session,
+            @Nullable StatementExecutionInput executionInput) {
+        if (executionInput == null) return;
+
+        StatementExecutionProcessor executionProcessor = executionInput.getExecutionProcessor();
+        if (executionProcessor == null) return;
+
+        ExecutablePsiElement executable = executionProcessor.getCachedExecutable();
+        if (isNotValid(executable)) return;
+
+        Document document = Documents.getDocument(executable.getFile());
+        if (document == null) return;
+
+        SourceCodeManager.getInstance(session.getProject());
+        TextRange textRange = executable.getTextRange();
+        RangeMarker rangeMarker = document.createRangeMarker(textRange);
+        rangeMarker.setGreedyToLeft(false);
+        rangeMarker.setGreedyToRight(false);
+        executionInput.setExecutableRangeMarker(rangeMarker);
+
+        createGuardedBlock(
+                document,
+                DEBUGGER_EXECUTION,
+                textRange.getStartOffset(),
+                textRange.getEndOffset(),
+                txt("app.debugger.hint.AnonymousBlockUnderDebug"));
+
+        session.addSessionListener(new XDebugSessionListener() {
+            @Override
+            public void sessionStopped() {
+                removeGuardedBlocks(document, DEBUGGER_EXECUTION);
+                executionInput.clearExecutableRangeMarker(rangeMarker);
+                rangeMarker.dispose();
+            }
+        });
     }
 
     @Compatibility

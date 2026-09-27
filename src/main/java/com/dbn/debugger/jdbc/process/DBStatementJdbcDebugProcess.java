@@ -18,6 +18,7 @@ package com.dbn.debugger.jdbc.process;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.debug.DebuggerRuntimeInfo;
+import com.dbn.debugger.DBDebugUtil;
 import com.dbn.debugger.common.breakpoint.DBBreakpointUtil;
 import com.dbn.debugger.jdbc.DBJdbcDebugProcess;
 import com.dbn.execution.ExecutionTarget;
@@ -37,10 +38,17 @@ import java.sql.SQLException;
 import java.util.Objects;
 
 import static com.dbn.common.util.Strings.countNewLines;
+import static com.dbn.debugger.DBDebugUtil.guardStatementExecution;
 
 public class DBStatementJdbcDebugProcess extends DBJdbcDebugProcess<StatementExecutionInput> {
     DBStatementJdbcDebugProcess(@NotNull XDebugSession session, ConnectionHandler connection) {
         super(session, connection);
+    }
+
+    @Override
+    public void sessionInitialized() {
+        guardStatementExecution(getSession(), getExecutionInput());
+        super.sessionInitialized();
     }
 
     @Override

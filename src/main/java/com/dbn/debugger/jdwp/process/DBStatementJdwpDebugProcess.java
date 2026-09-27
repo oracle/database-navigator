@@ -18,6 +18,7 @@ package com.dbn.debugger.jdwp.process;
 
 import com.dbn.common.util.Commons;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.debugger.DBDebugUtil;
 import com.dbn.debugger.common.breakpoint.DBBreakpointUtil;
 import com.dbn.debugger.jdwp.DBJdwpBreakpointHandler;
 import com.dbn.debugger.jdwp.DBJdwpSourcePath;
@@ -42,6 +43,7 @@ import java.util.Objects;
 
 import static com.dbn.common.util.Classes.simpleClassName;
 import static com.dbn.common.util.Strings.countNewLines;
+import static com.dbn.debugger.DBDebugUtil.guardStatementExecution;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -49,6 +51,12 @@ import static com.dbn.nls.NlsResources.txt;
 public class DBStatementJdwpDebugProcess extends DBJdwpDebugProcess<StatementExecutionInput> {
     DBStatementJdwpDebugProcess(@NotNull XDebugSession session, @NotNull DebuggerSession debuggerSession, ConnectionHandler connection, DBJdwpTcpConfig tcpConfig) {
         super(session, debuggerSession, connection, tcpConfig);
+    }
+
+    @Override
+    public void sessionInitialized() {
+        guardStatementExecution(getSession(), getExecutionInput());
+        super.sessionInitialized();
     }
 
     @Override

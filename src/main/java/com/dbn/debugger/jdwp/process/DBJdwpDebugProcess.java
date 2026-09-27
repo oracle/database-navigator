@@ -21,7 +21,6 @@ import com.dbn.common.exception.ProcessDeferredException;
 import com.dbn.common.network.NetworkAddress;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Commons;
-import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.Resources;
@@ -114,7 +113,6 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
     private final DBDebugProcessStatusHolder status = new DBDebugProcessStatusHolder();
     private final DBBreakpointHandler<DBJdwpDebugProcess>[] breakpointHandlers;
     private final DBDebugConsoleLogger console;
-    private final String declaredBlockIdentifier;
     private final DBJdwpTcpConfig tcpConfig;
     private final DBJdwpSourcePathCache sourcePathCache = new DBJdwpSourcePathCache();
 
@@ -135,9 +133,6 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
         DBJdwpBreakpointHandler breakpointHandler = new DBJdwpBreakpointHandler(session, this);
         this.breakpointHandlers = new DBBreakpointHandler[]{breakpointHandler};
         debuggerSession.getProcess().putUserData(KEY, this);
-
-        DatabaseDebuggerInterface debuggerInterface = connection.getDebuggerInterface();
-        this.declaredBlockIdentifier = debuggerInterface.getJdwpBlockIdentifier().replace(".", "\\");
     }
 
     @Override
@@ -521,11 +516,10 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
 
     public boolean isDeclaredBlock(@Nullable Location location) {
         if (location == null) return false;
-        if (Strings.isEmptyOrSpaces(declaredBlockIdentifier)) return false;
 
         try {
-            String sourcePath = location.sourcePath();
-            return sourcePath.startsWith(declaredBlockIdentifier);
+            DBJdwpSourcePath sourcePath = DBJdwpSourcePath.from(location.sourcePath());
+            return sourcePath.isAnonymousBlock();
         } catch (Exception e) {
             conditionallyLog(e);
             log.warn("Failed to evaluate declared block", e);

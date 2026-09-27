@@ -20,6 +20,7 @@ import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectPsiCache;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.debugger.SourcePosition;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
@@ -54,7 +55,10 @@ public class DBJdwpDebugSourcePosition extends SourcePosition {
 
     @Override
     public int getOffset() {
-        return 0;
+        Document document = getFile().getViewProvider().getDocument();
+        if (document == null || line < 0 || line >= document.getLineCount()) return -1;
+
+        return document.getLineStartOffset(line);
     }
 
     @Override

@@ -19,6 +19,7 @@ package com.dbn.editor.code.content;
 import com.intellij.openapi.util.Key;
 
 public enum GuardedBlockType {
+    DEBUGGER_EXECUTION,
     READONLY_DOCUMENT,
     READONLY_DOCUMENT_SECTION;
 
