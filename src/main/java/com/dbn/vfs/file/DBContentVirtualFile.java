@@ -168,6 +168,12 @@ public abstract class DBContentVirtualFile extends DBVirtualFileBase implements 
     public VirtualFile getParent() {
         if (!isValid()) return null;
 
+        // Java source files are parsed by the IntelliJ Java plugin as PsiJavaFile instances.
+        // The database file system does not expose a consistent VirtualFile child hierarchy,
+        // so attaching such a file to a synthetic database directory produces an invalid PSI
+        // tree (the Java debugger expects the file to be among its parent's children).
+        if (getObjectType() == DBObjectType.JAVA_CLASS) return null;
+
         DBObjectRef parentObject = getObjectRef().getParentRef();
         if (parentObject == null) return null;
 
