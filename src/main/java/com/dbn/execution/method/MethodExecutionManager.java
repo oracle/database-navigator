@@ -237,7 +237,7 @@ public class MethodExecutionManager extends ProjectComponentBase implements Pers
                     if (context.isNot(ExecutionStatus.CANCELLED)) {
                         Messages.showErrorDialog(project,
                                 txt("msg.execution.title.MethodExecutionError"),
-                                txt("msg.execution.message.MethodExecutionError", method.getQualifiedNameWithType(), getLocalizedMessage(e)),
+                                txt("msg.execution.message.MethodExecutionError", method.getQualifiedName(), getLocalizedMessage(e)),
                                 new String[]{
                                         txt("msg.shared.button.TryAgain"),
                                         txt("msg.shared.button.Cancel")}, 0,
