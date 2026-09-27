@@ -36,6 +36,7 @@ import com.dbn.debugger.jdwp.process.DBJavaJdwpRunner;
 import com.dbn.debugger.jdwp.process.DBMethodJdwpRunner;
 import com.dbn.debugger.jdwp.process.DBStatementJdwpRunner;
 import com.dbn.debugger.options.DebuggerTypeOption;
+import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.SourceCodeManager;
 import com.dbn.editor.code.SourceCodeManagerListener;
 import com.dbn.execution.statement.processor.StatementExecutionProcessor;
@@ -97,6 +98,7 @@ import static com.dbn.debugger.DBDebuggerType.JDWP;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.common.property.DBObjectProperty.DEBUGGABLE;
+import static com.dbn.object.common.status.DBObjectStatus.*;
 
 @State(
     name = DatabaseDebuggerManager.COMPONENT_NAME,
@@ -326,11 +328,24 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
         if (schema.isSystemSchema()) return false;
         if (!schemaObject.is(DEBUGGABLE)) return false;
 
-        DBObjectStatusHolder objectStatus = schemaObject.getStatus();
-        if (objectStatus.is(DBObjectStatus.DEBUG)) return false;
+        if (isCompiledForDebug(schemaObject)) return false;
         if (compileList.contains(schemaObject)) return true;
 
         compileList.add(schemaObject);
+        return true;
+    }
+
+    private static boolean isCompiledForDebug(DBSchemaObject schemaObject) {
+        DBObjectStatusHolder objectStatus = schemaObject.getStatus();
+        DBContentType contentType = schemaObject.getContentType();
+
+        DBContentType[] subContentTypes = contentType.getSubContentTypes();
+        if (subContentTypes.length == 0) return objectStatus.is(DEBUG);
+
+        for (DBContentType subContentType : subContentTypes) {
+            if (objectStatus.isNot(subContentType, PRESENT)) continue;
+            if (objectStatus.isNot(subContentType, DEBUG)) return false;
+        }
         return true;
     }
 
