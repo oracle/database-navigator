@@ -229,33 +229,31 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
                     if (is(PROCESS_TERMINATING) || is(TARGET_EXECUTION_TERMINATED)) {
                         getSession().stop();
                     } else {
-                        set(BREAKPOINT_SETTING_ALLOWED, true);
-                        progress.setText(txt("prc.debugger.text.RegisteringBreakpoints"));
-                        registerBreakpoints(
-                                () -> Progress.background(project, connection, false,
-                                        txt("prc.debugger.text.StartingDebugger"),
-                                        txt("prc.debugger.text.SynchronizingSessions"),
-                                        (progress1) -> {
-                                            DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
-                                            try {
-                                                startTargetProgram();
-                                                if (isNot(TARGET_EXECUTION_THREW_EXCEPTION) && isNot(TARGET_EXECUTION_TERMINATED)) {
-                                                    runtimeInfo = debuggerInterface.synchronizeSession(debuggerConnection);
-                                                    runtimeInfo = debuggerInterface.stepOver(debuggerConnection);
-                                                    progress.setText(txt("prc.debugger.text.SuspendingSession"));
-                                                    console.system(txt("log.debugger.info.DebugSessionSynchronized"));
-                                                    suspendSession();
-                                                }
+                        DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
+                        try {
+                            startTargetProgram();
+                            if (is(TARGET_EXECUTION_THREW_EXCEPTION)) return;
+                            if (is(TARGET_EXECUTION_TERMINATED)) return;
 
-                                            } catch (SQLException e) {
-                                                conditionallyLog(e);
-                                                set(SESSION_INITIALIZATION_THREW_EXCEPTION, true);
-                                                console.system(txt("log.debugger.error.ErrorSynchronizingSession", e.getMessage()));
-                                                Messages.showErrorDialog(getProject(),
-                                                        txt("msg.debugger.error.CouldInitDebugEnvironment",connection.getName()), e);
-                                                getSession().stop();
-                                            }
-                                        }));
+                            runtimeInfo = debuggerInterface.synchronizeSession(debuggerConnection);
+                            console.system(txt("log.debugger.info.DebugSessionSynchronized"));
+
+                            set(BREAKPOINT_SETTING_ALLOWED, true);
+                            progress.setText(txt("prc.debugger.text.RegisteringBreakpoints"));
+                            registerBreakpoints();
+
+                            runtimeInfo = debuggerInterface.stepOver(debuggerConnection);
+                            progress.setText(txt("prc.debugger.text.SuspendingSession"));
+                            suspendSession();
+
+                        } catch (SQLException e) {
+                            conditionallyLog(e);
+                            set(SESSION_INITIALIZATION_THREW_EXCEPTION, true);
+                            console.system(txt("log.debugger.error.ErrorSynchronizingSession", e.getMessage()));
+                            Messages.showErrorDialog(getProject(),
+                                    txt("msg.debugger.error.CouldInitDebugEnvironment",connection.getName()), e);
+                            getSession().stop();
+                        }
                     }
                 });
     }
@@ -297,17 +295,27 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
     protected abstract void executeTarget() throws SQLException;
 
     /**
-     * breakpoints need to be registered after the database session is started,
-     * otherwise they do not get valid ids
+     * Registers breakpoints after the target has reached its initial interpreter event.
+     * Anonymous PL/SQL blocks only become addressable as the current program unit after
+     * the target session has started and the debugger session has synchronized with it.
      */
-    private void registerBreakpoints(Runnable callback) {
+    private void registerBreakpoints() {
         console.system(txt("log.debugger.info.RegisteringBreakpoints"));
         List<XLineBreakpoint<XBreakpointProperties>> breakpoints = getDatabaseBreakpoints();
 
         getBreakpointHandler().registerBreakpoints(breakpoints, null);
+        console.system(txt("log.debugger.info.RegisteringDefaultBreakpoint"));
         registerDefaultBreakpoint();
         console.system(txt("log.debugger.info.DoneRegisteringBreakpoints"));
-        callback.run();
+    }
+
+    /**
+     * Returns the zero-based database source line for a breakpoint, or {@code null} when
+     * the breakpoint is not applicable to this debug target.
+     */
+    @Nullable
+    public Integer resolveBreakpointLine(@NotNull XLineBreakpoint<XBreakpointProperties> breakpoint) {
+        return DBBreakpointUtil.getDatabaseObject(breakpoint) == null ? null : breakpoint.getLine();
     }
 
     protected void registerDefaultBreakpoint() {}
@@ -544,7 +552,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
         return runtimeInfo.isTerminated();
     }
 
-    private static String getSuspensionLocation(DebuggerRuntimeInfo runtimeInfo) {
+    private String getSuspensionLocation(DebuggerRuntimeInfo runtimeInfo) {
         String ownerName = runtimeInfo.getOwnerName();
         String programName = runtimeInfo.getProgramName();
         if (Strings.isNotEmpty(ownerName) && Strings.isNotEmpty(programName)) {
@@ -552,7 +560,9 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
         }
         if (Strings.isNotEmpty(programName)) return programName;
         if (Strings.isNotEmpty(ownerName)) return ownerName;
-        return "?";
+
+        VirtualFile virtualFile = getRuntimeInfoFile(runtimeInfo);
+        return virtualFile == null ? "?" : virtualFile.getPresentableName();
     }
 
     private static String getSuspensionLineNumber(DebuggerRuntimeInfo runtimeInfo) {
@@ -560,8 +570,8 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
         return lineNumber == null ? "?" : Integer.toString(lineNumber + 1);
     }
 
-    protected DBBreakpointHandler<?> getBreakpointHandler() {
-        return getBreakpointHandlers()[0];
+    protected DBJdbcBreakpointHandler getBreakpointHandler() {
+        return (DBJdbcBreakpointHandler) getBreakpointHandlers()[0];
     }
 
     @Nullable

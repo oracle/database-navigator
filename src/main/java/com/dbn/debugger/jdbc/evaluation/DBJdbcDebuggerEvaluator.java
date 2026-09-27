@@ -54,7 +54,7 @@ public class DBJdbcDebuggerEvaluator extends DBDebuggerEvaluator<DBJdbcDebugStac
                 // attributes are independently resolvable as VARIABLE.ATTRIBUTE.
                 type = "record";
             } else {
-                String variablePath = toUpperCase(debugValue.getVariablePath());
+                String variablePath = normalizeVariablePath(debugValue.getVariablePath());
                 int frameIndex = debugValue.getStackFrame().getFrameIndex();
 
                 DBNConnection conn = debugProcess.getDebuggerConnection();
@@ -91,6 +91,27 @@ public class DBJdbcDebuggerEvaluator extends DBDebuggerEvaluator<DBJdbcDebugStac
             variableInfo = loadVariableInfo(variableName, debuggerInterface, frameIndex - 1, conn);
         }
         return variableInfo;
+    }
+
+    private static String normalizeVariablePath(String variablePath) {
+        if (variablePath.indexOf('"') == -1) return toUpperCase(variablePath);
+
+        StringBuilder normalized = new StringBuilder(variablePath.length());
+        int segmentStart = 0;
+        boolean quoted = false;
+        for (int index = 0; index < variablePath.length(); index++) {
+            if (variablePath.charAt(index) != '"') continue;
+
+            String segment = variablePath.substring(segmentStart, index);
+            normalized.append(quoted ? segment : toUpperCase(segment));
+            normalized.append('"');
+            quoted = !quoted;
+            segmentStart = index + 1;
+        }
+
+        String segment = variablePath.substring(segmentStart);
+        normalized.append(quoted ? segment : toUpperCase(segment));
+        return normalized.toString();
     }
 
     private static void updateValuePresentation(@NotNull DBJdbcDebugValue debugValue, @NotNull XValueNode node) {

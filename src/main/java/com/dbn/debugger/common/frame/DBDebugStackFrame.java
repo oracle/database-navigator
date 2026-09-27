@@ -16,9 +16,6 @@
 
 package com.dbn.debugger.common.frame;
 
-import com.dbn.code.common.style.DBLCodeStyleManager;
-import com.dbn.code.common.style.options.CodeStyleCaseOption;
-import com.dbn.code.common.style.options.CodeStyleCaseSettings;
 import com.dbn.common.consumer.ListCollector;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.latent.Latent;
@@ -33,7 +30,7 @@ import com.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dbn.language.common.psi.BasePsiElement;
 import com.dbn.language.common.psi.IdentifierPsiElement;
 import com.dbn.language.common.psi.PsiUtil;
-import com.dbn.language.psql.PSQLLanguage;
+import com.dbn.language.common.psi.QualifiedIdentifierPsiElement;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.DBVirtualFile;
@@ -210,22 +207,19 @@ public abstract class DBDebugStackFrame<P extends DBDebugProcess, V extends DBDe
         if (psiFile == null) return;
 
         int offset = document.getLineStartOffset(sourcePosition.getLine());
-        CodeStyleCaseSettings codeStyleCaseSettings = DBLCodeStyleManager.getInstance(psiFile.getProject()).getCodeStyleCaseSettings(PSQLLanguage.INSTANCE);
-        CodeStyleCaseOption objectCaseOption = codeStyleCaseSettings.getObjectCaseOption();
-
         psiFile.lookupVariableDefinition(offset, basePsiElement -> {
-            String variableName = objectCaseOption.format(basePsiElement.getText());
+            String variableName = getVariableName(basePsiElement);
             //DBObject object = basePsiElement.resolveUnderlyingObject();
 
             ListCollector<String> childVariableNames = ListCollector.unique();
             if (basePsiElement instanceof IdentifierPsiElement identifierPsiElement) {
                 identifierPsiElement.findQualifiedUsages(qualifiedUsage -> {
-                    String childVariableName = objectCaseOption.format(qualifiedUsage.getText());
+                    String childVariableName = getVariableName(qualifiedUsage);
                     childVariableNames.accept(childVariableName);
                 });
             }
 
-            String valueCacheKey = cachedUpperCase(variableName);
+            String valueCacheKey = variableName;
             if (!valuesMap.containsKey(valueCacheKey)) {
                 Icon icon = basePsiElement.getIcon(true);
                 List<String> childVariables = childVariableNames.isEmpty() ? null : childVariableNames.elements();
@@ -234,6 +228,31 @@ public abstract class DBDebugStackFrame<P extends DBDebugProcess, V extends DBDe
                 valuesMap.put(valueCacheKey, value);
             }
         });
+    }
+
+    private static String getVariableName(BasePsiElement psiElement) {
+        if (psiElement instanceof IdentifierPsiElement identifierPsiElement) {
+            return getVariableName(identifierPsiElement);
+        }
+
+        if (psiElement instanceof QualifiedIdentifierPsiElement qualifiedIdentifier) {
+            StringBuilder name = new StringBuilder();
+            for (int index = 0; ; index++) {
+                IdentifierPsiElement identifier = qualifiedIdentifier.getLeafAtIndex(index);
+                if (identifier == null) break;
+
+                if (!name.isEmpty()) name.append('.');
+                name.append(getVariableName(identifier));
+            }
+            if (!name.isEmpty()) return name.toString();
+        }
+
+        return cachedUpperCase(psiElement.getText());
+    }
+
+    private static String getVariableName(IdentifierPsiElement identifier) {
+        String name = identifier.getText();
+        return identifier.isQuoted() ? name : cachedUpperCase(name);
     }
 
     private Project getProject() {

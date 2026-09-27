@@ -72,9 +72,7 @@ public class DBJdbcBreakpointHandler extends DBBreakpointHandler<DBJdbcDebugProc
 
     @Override
     protected void registerDatabaseBreakpoint(@NotNull XLineBreakpoint<XBreakpointProperties> breakpoint) {
-        DBDebugProcess debugProcess = getDebugProcess();
-        DBDebugConsoleLogger console = debugProcess.getConsole();
-
+        DBJdbcDebugProcess debugProcess = getDebugProcess();
         XDebugSession session = getSession();
 
         VirtualFile virtualFile = getBreakpointFile(breakpoint);
@@ -83,64 +81,45 @@ public class DBJdbcBreakpointHandler extends DBBreakpointHandler<DBJdbcDebugProc
             XDebuggerManager debuggerManager = XDebuggerManager.getInstance(project);
             XBreakpointManager breakpointManager = debuggerManager.getBreakpointManager();
             Write.run(project, () -> breakpointManager.removeBreakpoint(breakpoint));
-        } else {
-            try {
-                if (getBreakpointId(breakpoint) != null) {
-                    enableBreakpoint(breakpoint);
+            return;
+        }
 
-                } else {
-                    BreakpointInfo breakpointInfo = addBreakpoint(breakpoint);
-                    String error = breakpointInfo.getError();
-                    if (error != null) {
-                        handleBreakpointError(breakpoint, error);
-                    } else {
-                        Integer breakpointId = breakpointInfo.getBreakpointId();
-                        setBreakpointId(breakpoint, breakpointId);
+        try {
+            Integer breakpointId = getBreakpointId(breakpoint);
+            if (breakpointId == null) {
+                addBreakpoint(breakpoint);
+            } else {
+                Integer breakpointLine = debugProcess.resolveBreakpointLine(breakpoint);
+                if (breakpointLine == null) return;
 
-                        if (!breakpoint.isEnabled()) {
-                            error = disableBreakpoint(breakpointId);
-                            if (error != null) {
-                                session.updateBreakpointPresentation( breakpoint,
-                                        Icons.DEBUG_INVALID_BREAKPOINT,
-                                        "INVALID: " + error);
-                            }
-
-                        }
-                        String breakpointDesc = getBreakpointDesc(breakpoint);
-                        console.system(txt("log.debugger.info.BreakpointAdded", breakpointDesc));
-                    }
-                }
-
-            } catch (Exception e) {
-                conditionallyLog(e);
-                handleBreakpointError(breakpoint, e.getMessage());
+                enableBreakpoint(breakpoint);
             }
+        } catch (Exception e) {
+            conditionallyLog(e);
+            handleBreakpointError(breakpoint, e.getMessage());
         }
     }
 
     @Override
     protected void unregisterDatabaseBreakpoint(@NotNull XLineBreakpoint<XBreakpointProperties> breakpoint, boolean temporary) {
-        DBDebugProcess debugProcess = getDebugProcess();
-
         if (!canSetBreakpoints()) return;
 
         Integer breakpointId = getBreakpointId(breakpoint);
-        if (breakpointId != null) {
-            DBDebugConsoleLogger console = debugProcess.getConsole();
+        if (breakpointId == null) return;
 
-            VirtualFile virtualFile = getBreakpointFile(breakpoint);
-            if (virtualFile != null) {
-                String breakpointDesc = getBreakpointDesc(breakpoint);
-                try {
-                    removeBreakpoint(temporary, breakpointId);
-                    console.system(txt("log.debugger.info.BreakpointRemoved", breakpointDesc));
-                } catch (SQLException e) {
-                    conditionallyLog(e);
-                    console.error(txt("log.debugger.error.ErrorRemovingBreakpoint", breakpointDesc, e.getMessage()));
-                    sendErrorNotification(DEBUGGER, txt("ntf.debugger.error.ErrorUnregisteringBreakpoints", e));
-                } finally {
-                    setBreakpointId(breakpoint, null);
-                }
+        DBDebugConsoleLogger console = getConsole();
+        VirtualFile virtualFile = getBreakpointFile(breakpoint);
+        if (virtualFile != null) {
+            String breakpointDesc = getBreakpointDesc(breakpoint);
+            try {
+                removeBreakpoint(temporary, breakpointId);
+                console.system(txt("log.debugger.info.BreakpointRemoved", breakpointDesc));
+            } catch (SQLException e) {
+                conditionallyLog(e);
+                console.error(txt("log.debugger.error.ErrorRemovingBreakpoint", breakpointDesc, e.getMessage()));
+                sendErrorNotification(DEBUGGER, txt("ntf.debugger.error.ErrorUnregisteringBreakpoints", e));
+            } finally {
+                setBreakpointId(breakpoint, null);
             }
         }
     }
@@ -165,20 +144,64 @@ public class DBJdbcBreakpointHandler extends DBBreakpointHandler<DBJdbcDebugProc
         Document document = Documents.getDocument(psqlFile);
         if (document == null) return;
 
-        int line = document.getLineNumber(offset);
+        int breakpointLine = document.getLineNumber(offset);
         DBObjectRef<DBObject> object = DBDebugUtil.getMainDatabaseObject(method);
         if (object == null) return;
 
         try {
-            defaultBreakpointInfo = getDebuggerInterface().addProgramBreakpoint(
+            DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
+            BreakpointInfo breakpointInfo = debuggerInterface.addProgramBreakpoint(
                     method.getSchemaName(),
                     object.getObjectName(),
                     cachedUpperCase(object.getObjectType().getName()),
-                    line,
+                    breakpointLine,
                     getDebugConnection());
+            registerDefaultBreakpoint(breakpointInfo, method.getQualifiedName(), breakpointLine);
         } catch (SQLException e) {
-            conditionallyLog(e);
+            handleDefaultBreakpointError(e);
         }
+    }
+
+    /**
+     * Registers a hidden entry breakpoint in the current nonpersistent source unit.
+     * The target must already be synchronized so {@code DBMS_DEBUG} can resolve the
+     * anonymous program handle.
+     *
+     * @param line zero-based line in the anonymous source
+     */
+    public void registerDefaultSourceBreakpoint(int line) {
+        try {
+            DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
+            BreakpointInfo breakpointInfo = debuggerInterface.addSourceBreakpoint(line, getDebugConnection());
+            String targetName = getDebugProcess().getExecutionInput().getExecutionContext().getTargetName();
+            registerDefaultBreakpoint(breakpointInfo, targetName, line);
+        } catch (SQLException e) {
+            handleDefaultBreakpointError(e);
+        }
+    }
+
+    private void registerDefaultBreakpoint(BreakpointInfo breakpointInfo, String targetName, int line) {
+        defaultBreakpointInfo = breakpointInfo;
+
+        Integer breakpointId = breakpointInfo.getBreakpointId();
+        String breakpointDesc = targetName + ":" + (line + 1) + " (id=" + breakpointId + ")";
+        String error = breakpointInfo.getError();
+        DBDebugConsoleLogger console = getConsole();
+        if (error == null) {
+            console.system(txt("log.debugger.info.BreakpointAdded", breakpointDesc));
+        } else {
+            console.error(txt("log.debugger.error.FailedAddingBreakpoint", breakpointDesc, error));
+        }
+    }
+
+    private DBDebugConsoleLogger getConsole() {
+        return getDebugProcess().getConsole();
+    }
+
+    private void handleDefaultBreakpointError(SQLException e) {
+        conditionallyLog(e);
+        DBDebugConsoleLogger console = getConsole();
+        console.error(txt("log.debugger.error.FailedRegisteringBreakpoint", e.getMessage()));
     }
 
     @Override
@@ -202,21 +225,47 @@ public class DBJdbcBreakpointHandler extends DBBreakpointHandler<DBJdbcDebugProc
         return debugProcess.getDebuggerConnection();
     }
 
-    private BreakpointInfo addBreakpoint(@NotNull XLineBreakpoint<XBreakpointProperties> breakpoint) throws Exception {
+    private void addBreakpoint(@NotNull XLineBreakpoint<XBreakpointProperties> breakpoint) throws Exception {
+        DBJdbcDebugProcess<?> debugProcess = getDebugProcess();
+        Integer breakpointLine = debugProcess.resolveBreakpointLine(breakpoint);
+        if (breakpointLine == null) return;
+
         ConnectionHandler connection = getConnection();
         DatabaseDebuggerInterface debuggerInterface = connection.getDebuggerInterface();
         DBNConnection debugConnection = getDebugConnection();
         DBObjectRef object = getDatabaseObject(breakpoint);
-        return object == null ?
+        BreakpointInfo breakpointInfo = object == null ?
                 debuggerInterface.addSourceBreakpoint(
-                        breakpoint.getLine(),
+                        breakpointLine,
                         debugConnection) :
                 debuggerInterface.addProgramBreakpoint(
                         object.getSchemaName(),
                         object.getObjectName(),
                         cachedUpperCase(object.getObjectType().getName()),
-                        breakpoint.getLine(),
+                        breakpointLine,
                         debugConnection);
+
+        String error = breakpointInfo.getError();
+        if (error != null) {
+            handleBreakpointError(breakpoint, error);
+            return;
+        }
+
+        Integer breakpointId = breakpointInfo.getBreakpointId();
+        setBreakpointId(breakpoint, breakpointId);
+
+        if (!breakpoint.isEnabled()) {
+            error = disableBreakpoint(breakpointId);
+            if (error != null) {
+                getSession().updateBreakpointPresentation(breakpoint,
+                        Icons.DEBUG_INVALID_BREAKPOINT,
+                        "INVALID: " + error);
+            }
+        }
+
+        DBDebugConsoleLogger console = getConsole();
+        String breakpointDesc = getBreakpointDesc(breakpoint);
+        console.system(txt("log.debugger.info.BreakpointAdded", breakpointDesc));
     }
 
     private void removeBreakpoint(boolean temporary, Integer breakpointId) throws SQLException {
@@ -232,19 +281,18 @@ public class DBJdbcBreakpointHandler extends DBBreakpointHandler<DBJdbcDebugProc
 
     private void enableBreakpoint(@NotNull XLineBreakpoint<XBreakpointProperties> breakpoint) throws Exception {
         Integer breakpointId = getBreakpointId(breakpoint);
-        if (breakpointId != null) {
-            ConnectionHandler connection = getConnection();
-            DBNConnection debugConnection = getDebugConnection();
+        if (breakpointId == null) return;
 
-            DatabaseDebuggerInterface debuggerInterface = connection.getDebuggerInterface();
-            BreakpointOperationInfo breakpointOperationInfo = debuggerInterface.enableBreakpoint(breakpointId, debugConnection);
-            String error = breakpointOperationInfo.getError();
-            if (error != null) {
-                getSession().updateBreakpointPresentation(breakpoint,
-                        Icons.DEBUG_INVALID_BREAKPOINT,
-                        "INVALID: " + error);
-            }
+        ConnectionHandler connection = getConnection();
+        DBNConnection debugConnection = getDebugConnection();
 
+        DatabaseDebuggerInterface debuggerInterface = connection.getDebuggerInterface();
+        BreakpointOperationInfo breakpointOperationInfo = debuggerInterface.enableBreakpoint(breakpointId, debugConnection);
+        String error = breakpointOperationInfo.getError();
+        if (error != null) {
+            getSession().updateBreakpointPresentation(breakpoint,
+                    Icons.DEBUG_INVALID_BREAKPOINT,
+                    "INVALID: " + error);
         }
     }
 
@@ -264,13 +312,13 @@ public class DBJdbcBreakpointHandler extends DBBreakpointHandler<DBJdbcDebugProc
             if (breakpoint.getType() instanceof DBBreakpointType) {
                 XLineBreakpoint lineBreakpoint = (XLineBreakpoint) breakpoint;
                 VirtualFile virtualFile = getBreakpointFile(lineBreakpoint);
-                if (virtualFile != null) {
-                    FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
-                    ConnectionHandler connection = contextManager.getConnection(virtualFile);
+                if (virtualFile == null) continue;
 
-                    if (connection == getDebugProcess().getConnection()) {
-                        setBreakpointId(lineBreakpoint, null);
-                    }
+                FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
+                ConnectionHandler connection = contextManager.getConnection(virtualFile);
+
+                if (connection == getDebugProcess().getConnection()) {
+                    setBreakpointId(lineBreakpoint, null);
                 }
             }
         }
