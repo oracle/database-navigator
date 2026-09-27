@@ -67,7 +67,9 @@ import org.jetbrains.java.debugger.breakpoints.properties.JavaLineBreakpointProp
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.debugger.common.breakpoint.DBBreakpointUtil.getBreakpointLocation;
@@ -82,6 +84,8 @@ import static com.intellij.debugger.impl.PrioritizedTask.Priority.NORMAL;
 public class DBJdwpBreakpointHandler extends DBBreakpointHandler<DBJdwpDebugProcess> {
     private static final ClassPrepareRequestor GENERIC_CLASS_PREPARE_REQUESTER = (p, r) -> {};
     private static final Key<LineBreakpoint> LINE_BREAKPOINT = Key.create("DBNavigator.LineBreakpoint");
+    private final Set<ReferenceType> anonymousBlockTypes = ConcurrentHashMap.newKeySet();
+    private final Map<XLineBreakpoint<XBreakpointProperties>, ClassPrepareRequest> prepareRequests = new ConcurrentHashMap<>();
     private XLineBreakpoint<XBreakpointProperties> defaultBreakpoint;
 
     public DBJdwpBreakpointHandler(XDebugSession session, DBJdwpDebugProcess debugProcess) {
@@ -162,7 +166,7 @@ public class DBJdwpBreakpointHandler extends DBBreakpointHandler<DBJdwpDebugProc
 
     @Override
     protected void registerDatabaseBreakpoint(@NotNull final XLineBreakpoint<XBreakpointProperties> breakpoint) {
-        // not supported (see callback on class prepare)
+        getDebugProcess().queueCommand(NORMAL, () -> prepareObjectClasses(breakpoint));
     }
 
     private void createBreakpointRequest(
@@ -276,12 +280,15 @@ public class DBJdwpBreakpointHandler extends DBBreakpointHandler<DBJdwpDebugProc
         LineBreakpoint lineBreakpoint = getLineBreakpoint(getSession().getProject(), breakpoint);
         if (lineBreakpoint == null) return;
 
+        if (prepareRequests.containsKey(breakpoint)) return;
+
         RequestManagerImpl requestsManager = getRequestsManager();
         ClassPrepareRequest request = requestsManager.createClassPrepareRequest(
                 (p, referenceType) -> {
-                    if (!anonymousBlock || isAnonymousBlock(referenceType, programIdentifier)) {
-                        createBreakpointRequest(breakpoint, referenceType, true);
-                    }
+                    if (anonymousBlock && !isAnonymousBlock(referenceType, programIdentifier)) return;
+
+                    if (anonymousBlock) anonymousBlockTypes.add(referenceType);
+                    createBreakpointRequest(breakpoint, referenceType, true);
                 },
                 classPattern);
         if (request == null) return;
@@ -289,12 +296,13 @@ public class DBJdwpBreakpointHandler extends DBBreakpointHandler<DBJdwpDebugProc
         // Install the prepare request before inspecting loaded classes so a class
         // cannot become visible between the lookup and request registration.
         requestsManager.enableRequest(request);
+        prepareRequests.put(breakpoint, request);
 
         // The anonymous-block class cannot exist before the block is executed.
         // Scanning all loaded classes only probes unrelated Oracle built-ins,
         // many of which do not expose source information.
         List<ReferenceType> referenceTypes = anonymousBlock ?
-                List.of() :
+                List.copyOf(anonymousBlockTypes) :
                 getVirtualMachineProxy().classesByName(programIdentifier);
         for (ReferenceType referenceType : referenceTypes) {
             createBreakpointRequest(breakpoint, referenceType, false);
@@ -351,6 +359,12 @@ public class DBJdwpBreakpointHandler extends DBBreakpointHandler<DBJdwpDebugProc
         String breakpointLocation = getBreakpointLocation(breakpoint);
         debugProcess.queueCommand(NORMAL, () -> {
             RequestManagerImpl requestsManager = getRequestsManager();
+
+            ClassPrepareRequest prepareRequest = prepareRequests.remove(breakpoint);
+            if (prepareRequest != null) {
+                prepareRequest.disable();
+            }
+
             LineBreakpoint lineBreakpoint = getLineBreakpoint(getSession().getProject(), breakpoint);
             if (temporary) {
                 final Set<EventRequest> requests = requestsManager.findRequests(lineBreakpoint);
