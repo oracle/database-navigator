@@ -17,6 +17,7 @@
 package com.dbn.execution.statement;
 
 import com.dbn.common.latent.Latent;
+import com.dbn.common.thread.Read;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
@@ -146,13 +147,16 @@ public class StatementExecutionInput extends LocalExecutionInput {
     }
 
     public int getExecutableLineNumber() {
-        RangeMarker rangeMarker = executableRangeMarker;
-        if (rangeMarker != null && rangeMarker.isValid()) {
-            Document document = rangeMarker.getDocument();
-            return document.getLineNumber(rangeMarker.getStartOffset());
-        }
+        return Read.call(() -> {
+            RangeMarker rangeMarker = executableRangeMarker;
+            if (rangeMarker != null && rangeMarker.isValid()) {
+                Document document = rangeMarker.getDocument();
+                int startOffset = rangeMarker.getStartOffset();
+                return document.getLineNumber(startOffset);
+            }
 
-        return executionProcessor == null ? 0 : executionProcessor.getExecutableLineNumber();
+            return executionProcessor == null ? 0 : executionProcessor.getExecutableLineNumber();
+        });
     }
 
     public void clearExecutableRangeMarker(RangeMarker rangeMarker) {
