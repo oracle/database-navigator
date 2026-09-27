@@ -40,6 +40,8 @@ import static com.dbn.common.ui.util.PasswordFields.setPassword;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
+import static com.dbn.common.util.Strings.isEmptyOrSpaces;
+import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ReverseSshTunnelConfigForm extends ConfigurationEditorForm<ReverseSshTunnelConfiguration> {
@@ -116,6 +118,16 @@ public class ReverseSshTunnelConfigForm extends ConfigurationEditorForm<ReverseS
         setPassword(keyPassPhraseInput, configuration.getKeyPassphrase());
         setText(bindHostTextField, configuration.getBindHost());
         setText(bindPortTextField, String.valueOf(configuration.getBindPort()));
+    }
+
+    boolean isHostEmpty() {
+        return isEmptyOrSpaces(getText(hostTextField));
+    }
+
+    void initializeHost(String host) {
+        if (isHostEmpty() && isNotEmptyOrSpaces(host)) {
+            setText(hostTextField, host);
+        }
     }
 
     @Override

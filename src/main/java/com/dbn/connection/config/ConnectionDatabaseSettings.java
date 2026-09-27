@@ -35,6 +35,9 @@ import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.ServerType;
 import com.dbn.connection.config.file.DatabaseFileBundle;
 import com.dbn.connection.config.provider.ConfigProviderInfo;
+import com.dbn.connection.config.tns.TnsNames;
+import com.dbn.connection.config.tns.TnsNamesParser;
+import com.dbn.connection.config.tns.TnsProfile;
 import com.dbn.connection.config.ui.ConnectionDatabaseSettingsForm;
 import com.dbn.driver.DatabaseDriverManager;
 import com.dbn.driver.DriverSource;
@@ -67,9 +70,11 @@ import static com.dbn.common.options.setting.Settings.setString;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Strings.isEmptyOrSpaces;
+import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.common.util.Strings.nvle;
 import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 import static com.dbn.connection.config.EasyConnectParameters.sanitizeParameters;
+import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
@@ -129,7 +134,7 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
         String driver = getDriver();
         derivedDatabaseType = databaseType;
         confirmedDatabaseType = databaseType;
-        if (databaseType == DatabaseType.GENERIC && Strings.isNotEmptyOrSpaces(driver)) {
+        if (databaseType == DatabaseType.GENERIC && isNotEmptyOrSpaces(driver)) {
             derivedDatabaseType = DatabaseType.derive(driver);
             confirmedDatabaseType = DatabaseType.resolve(driver);
         }
@@ -239,6 +244,57 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
                     getUrlParameters()
             );
         }
+    }
+
+    /**
+     * Resolves the database host from the parsed connection details, falling
+     * back to parsing a custom JDBC URL and resolving its TNS profile when
+     * necessary. This method may access the filesystem and should not be called
+     * on the EDT.
+     */
+    @Nullable
+    public String resolveHost() {
+        String host = databaseInfo.getHost();
+        if (isNotEmptyOrSpaces(host)) return host;
+
+        String connectionUrl = databaseInfo.getUrl();
+        DatabaseUrlPattern resolvedUrlPattern = databaseType.resolveUrlPattern(connectionUrl);
+        if (resolvedUrlPattern != null) {
+            host = resolvedUrlPattern.resolveHost(connectionUrl);
+            if (isNotEmptyOrSpaces(host)) return host;
+        }
+
+        String tnsProfile = databaseInfo.getTnsProfile();
+        String tnsFolder = databaseInfo.getTnsFolder();
+        if (resolvedUrlPattern != null) {
+            if (isEmptyOrSpaces(tnsProfile)) {
+                tnsProfile = resolvedUrlPattern.resolveTnsProfile(connectionUrl);
+            }
+            if (isEmptyOrSpaces(tnsFolder)) {
+                tnsFolder = resolvedUrlPattern.resolveTnsFolder(connectionUrl);
+            }
+        }
+        if (isEmptyOrSpaces(tnsFolder)) {
+            tnsFolder = databaseInfo.ensureTnsFolder();
+        }
+        if (isEmptyOrSpaces(tnsProfile)) return null;
+        if (isEmptyOrSpaces(tnsFolder)) return null;
+
+        tnsFolder = Files.normalizePath(tnsFolder);
+        File tnsNamesFile = new File(tnsFolder, "tnsnames.ora");
+        if (!tnsNamesFile.isFile()) return null;
+
+        try {
+            TnsNames tnsNames = TnsNamesParser.get(tnsNamesFile);
+            for (TnsProfile profile : tnsNames.getProfiles()) {
+                if (Strings.equalsIgnoreCase(profile.getProfile(), tnsProfile)) {
+                    return profile.getHost();
+                }
+            }
+        } catch (Exception e) {
+            conditionallyLog(e);
+        }
+        return null;
     }
 
     public boolean isConfigHttps() {
