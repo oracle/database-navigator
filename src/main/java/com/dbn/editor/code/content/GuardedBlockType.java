@@ -17,11 +17,20 @@
 package com.dbn.editor.code.content;
 
 import com.intellij.openapi.util.Key;
+import lombok.Getter;
 
+@Getter
 public enum GuardedBlockType {
-    DEBUGGER_EXECUTION,
-    READONLY_DOCUMENT,
-    READONLY_DOCUMENT_SECTION;
+    DEBUGGER_EXECUTION(false),
+    READONLY_DOCUMENT(false),
+    READONLY_DOCUMENT_SECTION(true);
 
     public static final Key<GuardedBlockType> KEY = new Key<>("GUARDED_BLOCK_TYPE");
+
+    private final boolean persistent;
+
+    GuardedBlockType(boolean persistent) {
+        this.persistent = persistent;
+    }
+
 }

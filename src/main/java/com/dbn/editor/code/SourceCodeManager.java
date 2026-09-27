@@ -40,6 +40,7 @@ import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.Resources;
+import com.dbn.connection.SchemaId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
@@ -348,12 +349,15 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
     }
 
     public void saveSourceToDatabase(@NotNull DBObject object, DBContentType contentType, String oldCode, String newCode) throws SQLException {
+        // TODO review with OJVM team
+        // Java source DDL qualifies the target schema and must retain the session user's current schema.
+        SchemaId schemaId = object.getObjectType() == JAVA_CLASS ? null : object.getSchemaId();
         DatabaseInterfaceInvoker.execute(HIGHEST,
                 txt("prc.object.title.UpdatingSourceCode"),
                 txt("prc.object.text.UpdatingSources", object.getQualifiedNameWithType()),
                 object.getProject(),
                 object.getConnectionId(),
-                object.getSchemaId(),
+                schemaId,
                 conn -> DBObjectSourceCodeAdapters.get(object.getObjectType()).saveSourceCode(
                         object, contentType, oldCode, newCode, conn));
     }

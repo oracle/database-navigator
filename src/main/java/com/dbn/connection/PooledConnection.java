@@ -29,7 +29,7 @@ public final class PooledConnection {
 
     public static void run(@NotNull ConnectionContext context, @NotNull ConnectionRunnable runnable) throws SQLException {
         ConnectionHandler connection = context.getConnection();
-        SchemaId schemaId = context.getSchemaId();
+        SchemaId schemaId = resolveSchemaId(context, connection);
 
         DBNConnection conn = null;
         try {
@@ -54,7 +54,7 @@ public final class PooledConnection {
 
     public static <T> T call(@NotNull ConnectionContext context, boolean readonly, @NotNull ConnectionCallable<T> callable) throws SQLException {
         ConnectionHandler connection = context.getConnection();
-        SchemaId schemaId = context.getSchemaId();
+        SchemaId schemaId = resolveSchemaId(context, connection);
 
         DBNConnection c = null;
         try {
@@ -71,5 +71,13 @@ public final class PooledConnection {
                 c.set(ResourceStatus.ACTIVE, false);
             }
         }
+    }
+
+    /**
+     * Resolves the task schema or resets a reused connection to its authenticated user schema.
+     */
+    private static SchemaId resolveSchemaId(@NotNull ConnectionContext context, @NotNull ConnectionHandler connection) {
+        SchemaId schemaId = context.getSchemaId();
+        return schemaId == null ? connection.getUserSchemaId() : schemaId;
     }
 }
