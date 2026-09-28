@@ -218,7 +218,7 @@ DBLINK_QUALIFIER = "@"({IDENTIFIER}|{QUOTED_IDENTIFIER})("."({IDENTIFIER}|{QUOTE
 "cont_coefficient" {return tt.ktt(74);}
 "conversion" {return tt.ktt(75);}
 "count" {return tt.ktt(76);}
-"coveragei" {return tt.ktt(77);}
+"coverage" {return tt.ktt(77);}
 "cramers_v" {return tt.ktt(78);}
 "create" {return tt.ktt(79);}
 "cross" {return tt.ktt(80);}

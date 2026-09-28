@@ -142,7 +142,7 @@
         <token index="74" id="KW_CONT_COEFFICIENT" value="cont_coefficient" category="keyword"/>
         <token index="75" id="KW_CONVERSION" value="conversion" category="keyword"/>
         <token index="76" id="KW_COUNT" value="count" category="keyword"/>
-        <token index="77" id="KW_COVERAGEi" value="coveragei" category="keyword"/>
+        <token index="77" id="KW_COVERAGE" value="coverage" category="keyword"/>
         <token index="78" id="KW_CRAMERS_V" value="cramers_v" category="keyword"/>
         <token index="79" id="KW_CREATE" value="create" category="keyword" reserved="true"/>
         <token index="80" id="KW_CROSS" value="cross" category="keyword"/>

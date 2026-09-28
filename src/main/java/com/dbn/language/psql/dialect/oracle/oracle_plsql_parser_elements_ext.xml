@@ -368,7 +368,7 @@
             <node tt="KW_RESTRICT_REFERENCES" pc="pragma_restrict_references_statement" />
             <node tt="KW_DEPRECATE" pc="deprecate_pragma" />
             <node tt="KW_SUPPLEMENTAL_LOG_DATA" pc="supplemental_log_data_pragma" />
-            <node tt="IDENTIFIER" pc="coverage_pragma" />
+            <node tt="KW_COVERAGE" pc="coverage_pragma" />
             <node tt="KW_SUPPRESSES_WARNING_6009" pc="suppresses_warning_6009_pragma" />
             <node tt="KW_UDF" pc="udf_pragma" />
         </node>
