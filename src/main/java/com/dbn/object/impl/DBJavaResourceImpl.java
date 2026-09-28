@@ -72,7 +72,9 @@ public class DBJavaResourceImpl extends DBSchemaObjectImpl<DBJavaResourceMetadat
 
 	public void initStatus(DBJavaResourceMetadata metadata) throws SQLException {
 		setStatus(VALID, metadata.isValid());
-        setStatus(CODE, PRESENT, true);
+        if (getContentType() != DBContentType.NONE) {
+            setStatus(CODE, PRESENT, true);
+        }
 	}
 
 	@Override
