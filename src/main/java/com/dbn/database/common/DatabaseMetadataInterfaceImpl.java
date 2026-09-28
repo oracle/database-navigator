@@ -25,6 +25,7 @@ import com.dbn.database.common.statement.output.ClobOutput;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -49,6 +50,12 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     @Override
     public void setCurrentSchema(String schemaName, DBNConnection connection) throws SQLException {
         executeUpdate(connection, "set-current-schema", schemaName);
+    }
+
+    @Override
+    @Nullable
+    public String getCurrentSchema(DBNConnection connection) throws SQLException {
+        return connection.getSchema();
     }
 
     @Override
