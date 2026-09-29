@@ -30,6 +30,7 @@ import com.dbn.language.common.quotes.QuoteDefinition;
 import com.dbn.language.common.quotes.QuotePair;
 import lombok.Getter;
 import lombok.SneakyThrows;
+import lombok.experimental.Delegate;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -47,7 +48,7 @@ import static com.dbn.language.common.quotes.QuoteEscaping.DATABASE;
 @Getter
 public abstract class DatabaseInterfaceBase implements DatabaseInterface{
     private final String fileName;
-    private final DatabaseInterfaces interfaces;
+    private final @Delegate DatabaseInterfaces interfaces;
     protected Map<String, StatementExecutionProcessor> processors = new HashMap<>();
 
     public DatabaseInterfaceBase(String fileName, DatabaseInterfaces interfaces) {

@@ -19,6 +19,7 @@ package com.dbn.database.interfaces;
 import com.dbn.connection.jdbc.DBNConnection;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -949,6 +950,12 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      * Sets the current schema for the given connection.
      */
     void setCurrentSchema(String schemaName, DBNConnection connection) throws SQLException;
+
+    /**
+     * Returns the current schema for the given connection, or {@code null} when no current schema is set.
+     */
+    @Nullable
+    String getCurrentSchema(DBNConnection connection) throws SQLException;
 
     /**
      * Loads the source code (select statement) for the given view;

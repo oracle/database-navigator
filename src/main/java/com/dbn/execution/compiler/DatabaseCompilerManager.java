@@ -234,6 +234,7 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
             javaInterface.compileJavaClass(
                     schemaName,
                     objectName,
+                    debug,
                     conn);
 
         } else if (contentType == CODE_SPEC || contentType == CODE) {
@@ -398,6 +399,7 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
                                         javaInterface.compileJavaClass(
                                                 schemaName,
                                                 objectName,
+                                                false,
                                                 conn);
                                     });
                         } catch (SQLException e) {

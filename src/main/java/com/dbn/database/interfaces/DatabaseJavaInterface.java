@@ -43,5 +43,5 @@ public interface DatabaseJavaInterface extends DatabaseInterface {
 
     void dropJavaClass(String ownerName, String objectName, DBNConnection connection) throws SQLException;
 
-    void compileJavaClass(String ownerName, String objectName, DBNConnection connection) throws SQLException;
+    void compileJavaClass(String ownerName, String objectName, boolean debug, DBNConnection connection) throws SQLException;
 }
