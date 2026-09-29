@@ -16,29 +16,23 @@
 
 package com.dbn.options.general.ui;
 
-import com.dbn.common.color.Colors;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.util.Components;
+import com.dbn.common.ui.info.DBNCommentLabel;
 import com.dbn.common.ui.util.Fonts;
 import com.dbn.options.general.WorkspaceFeature;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
-import javax.swing.JTextPane;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.LayoutManager;
 
-import static com.intellij.util.ui.UIUtil.getLabelDisabledForeground;
-import static com.intellij.util.ui.UIUtil.getLabelForeground;
+import static com.dbn.common.color.Colors.getLabelDisabledForeground;
+import static com.dbn.common.color.Colors.getLabelForeground;
+
 
 public class WorkspaceFeatureItemForm extends DBNFormBase {
     private JPanel mainPanel;
     private JCheckBox enabledCheckBox;
-    private JTextPane descriptionTextPane;
-    private int descriptionWidth;
+    private DBNCommentLabel descriptionLabel;
 
     private final WorkspaceFeature feature;
 
@@ -47,14 +41,10 @@ public class WorkspaceFeatureItemForm extends DBNFormBase {
         this.feature = feature;
 
         enabledCheckBox.setText(feature.getDisplayName());
-        descriptionTextPane.setText(feature.getDescription());
+        descriptionLabel.setText(feature.getDescription());
         enabledCheckBox.setFont(Fonts.regular(1));
-        descriptionTextPane.setForeground(Colors.faded(getLabelForeground()));
-        descriptionTextPane.setFocusable(false);
         enabledCheckBox.addActionListener(e -> refreshState());
         refreshState();
-
-        whenFirstShown(this::installDescriptionResizer);
     }
 
     @NotNull
@@ -75,31 +65,6 @@ public class WorkspaceFeatureItemForm extends DBNFormBase {
         enabledCheckBox.setForeground(enabledCheckBox.isSelected() ?
                 getLabelForeground() :
                 getLabelDisabledForeground());
-    }
-
-    private void installDescriptionResizer() {
-        Container container = mainPanel.getParent();
-        if (!(container instanceof JPanel parent)) return;
-        LayoutManager layout = parent.getLayout();
-        if (!(layout instanceof BoxLayout)) return;
-
-        Components.onComponentResized(parent, e -> resizeDescription());
-        resizeDescription();
-    }
-
-    private void resizeDescription() {
-        int width = descriptionTextPane.getWidth();
-        if (width <= 0 || width == descriptionWidth) return;
-
-        descriptionTextPane.setPreferredSize(null);
-        descriptionTextPane.setSize(width, Integer.MAX_VALUE);
-        int height = descriptionTextPane.getPreferredSize().height;
-        descriptionTextPane.setPreferredSize(new Dimension(150, height));
-        Dimension maximumSize = mainPanel.getMaximumSize();
-        mainPanel.setMaximumSize(new Dimension(maximumSize.width, mainPanel.getPreferredSize().height));
-        descriptionTextPane.revalidate();
-        mainPanel.revalidate();
-        descriptionWidth = width;
     }
 
     @Override

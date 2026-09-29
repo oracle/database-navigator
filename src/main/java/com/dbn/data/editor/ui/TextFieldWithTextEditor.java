@@ -26,7 +26,6 @@ import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.actionSystem.Shortcut;
 import com.intellij.openapi.keymap.KeymapUtil;
 import com.intellij.openapi.project.Project;
-import com.intellij.util.ui.UIUtil;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,6 +38,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseListener;
 
+import static com.dbn.common.color.Colors.getLabelDisabledForeground;
 import static com.dbn.nls.NlsResources.txt;
 
 @Getter
@@ -67,7 +67,7 @@ public class TextFieldWithTextEditor extends TextFieldWithButtons {
         if (Strings.isNotEmpty(displayValue)) {
             textField.setText(displayValue);
             textField.setEnabled(false);
-            textField.setDisabledTextColor(UIUtil.getLabelDisabledForeground());
+            textField.setDisabledTextColor(getLabelDisabledForeground());
         }
         //textField.setPreferredSize(new Dimension(150, -1));
         textField.addKeyListener(keyListener);

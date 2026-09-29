@@ -20,11 +20,9 @@ import com.dbn.assistant.mcp.AssistantMcpToolApprovals;
 import com.dbn.assistant.mcp.model.AssistantMcpToolInfo;
 import com.dbn.assistant.tool.approval.AssistantToolApprovalStatus;
 import com.dbn.assistant.tool.approval.AssistantToolApprovalUtil;
-import com.dbn.common.color.Colors;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNToggleButton;
 import com.dbn.common.ui.util.Fonts;
-import com.intellij.util.ui.UIUtil;
 import lombok.Getter;
 
 import javax.swing.JComponent;
@@ -34,6 +32,8 @@ import javax.swing.JTextPane;
 
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.APPROVED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.PROMPTED;
+import static com.dbn.common.color.Colors.getContextHelpForeground;
+import static com.dbn.common.color.Colors.getLabelDisabledForeground;
 
 public class AssistantMcpToolApprovalForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -66,7 +66,7 @@ public class AssistantMcpToolApprovalForm extends DBNFormBase {
     }
 
     private void initDescriptionPanel() {
-        descriptionTextPane.setForeground(Colors.faded(UIUtil.getLabelForeground()));
+        descriptionTextPane.setForeground(getContextHelpForeground());
         descriptionTextPane.setText(toolInfo.getDescription());
     }
 
@@ -100,8 +100,8 @@ public class AssistantMcpToolApprovalForm extends DBNFormBase {
         nameLabel.setEnabled(enabled);
 
         descriptionTextPane.setForeground(enabled ?
-                Colors.faded(UIUtil.getLabelForeground()) :
-                UIUtil.getLabelDisabledForeground());
+                getContextHelpForeground() :
+                getLabelDisabledForeground());
     }
 
     public void resetState() {

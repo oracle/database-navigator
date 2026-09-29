@@ -16,7 +16,6 @@
 
 package com.dbn.editor.data.record.ui;
 
-import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.locale.Formatter;
 import com.dbn.common.ui.alignment.FieldAlignerData;
@@ -61,6 +60,10 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.text.ParseException;
 
+import static com.dbn.common.color.Colors.getLabelDisabledForeground;
+import static com.dbn.common.color.Colors.getLabelForeground;
+import static com.dbn.common.color.Colors.getTextFieldBackground;
+import static com.dbn.common.color.Colors.getTextFieldForeground;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.data.type.GenericDataType.ARRAY;
@@ -96,7 +99,7 @@ public class DatasetRecordEditorColumnForm extends DBNFormBase {
 
         columnLabel.setIcon(column.getIcon());
         columnLabel.setText(column.getName());
-        columnLabel.setForeground(auditColumn ? UIUtil.getLabelDisabledForeground() : UIUtil.getLabelForeground());
+        columnLabel.setForeground(auditColumn ? getLabelDisabledForeground() : getLabelForeground());
         dataTypeLabel.setText(dataType.getQualifiedName());
         dataTypeLabel.setForeground(UIUtil.getInactiveTextColor());
 
@@ -120,7 +123,7 @@ public class DatasetRecordEditorColumnForm extends DBNFormBase {
                 JTextField valueTextField = textFieldWithPopup.getTextField();
                 valueTextField.addKeyListener(keyAdapter);
                 valueTextField.addFocusListener(focusListener);
-                onTextChange(valueTextField, e -> getEditorComponent().setForeground(Colors.getTextFieldForeground()));
+                onTextChange(valueTextField, e -> getEditorComponent().setForeground(getTextFieldForeground()));
 
                 if (editable) {
                     switch (genericDataType) {
@@ -220,7 +223,7 @@ public class DatasetRecordEditorColumnForm extends DBNFormBase {
             editorComponent.setText(presentableValue);
         }
         JTextField valueTextField = editorComponent.getTextField();
-        valueTextField.setBackground(Colors.getTextFieldBackground());
+        valueTextField.setBackground(getTextFieldBackground());
     }
 
     public DatasetEditorModelCell getCell() {
@@ -261,7 +264,7 @@ public class DatasetRecordEditorColumnForm extends DBNFormBase {
             Object value = getEditorValue();
             UserValueHolder<Object> userValueHolder = editorComponent.getUserValueHolder();
             userValueHolder.updateUserValue(value, false);
-            valueTextField.setForeground(Colors.getTextFieldForeground());
+            valueTextField.setForeground(getTextFieldForeground());
         } catch (ParseException e) {
             conditionallyLog(e);
             if (highlightError) {

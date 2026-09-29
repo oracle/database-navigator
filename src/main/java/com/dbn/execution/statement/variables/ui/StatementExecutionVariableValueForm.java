@@ -52,6 +52,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import static com.dbn.common.color.Colors.getLabelDisabledForeground;
 import static com.dbn.common.ui.util.Accessibility.attachSelectionAnnouncer;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleDescription;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
@@ -102,7 +103,7 @@ public class StatementExecutionVariableValueForm extends DBNFormBase {
             VirtualFile virtualFile = executionProcessor.getVirtualFile();
             StatementExecutionVariable cachedVariable = variablesCache.getVariable(virtualFile, variable.getName());
             if (cachedVariable != null) {
-                textField.setForeground(UIUtil.getLabelDisabledForeground());
+                textField.setForeground(getLabelDisabledForeground());
                 textField.setText(cachedVariable.getValue());
 
                 onTextChange(textField, e -> textField.setForeground(UIUtil.getTextFieldForeground()));

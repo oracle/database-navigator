@@ -34,7 +34,6 @@ import com.dbn.object.common.ui.DBObjectSelector;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.Box;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -136,18 +135,19 @@ public class LiquibaseWorkflowDashboardForm extends DBNFormBase {
     }
 
     private void addCategory(@NotNull LiquibaseWorkflowCategory category) {
-        JPanel itemsPanel = new JPanel();
-        verticalBoxLayout(itemsPanel);
+        JPanel itemsPanel = new JPanel(new BorderLayout());
+        JPanel itemsListPanel = new JPanel();
+        verticalBoxLayout(itemsListPanel);
         for (LiquibaseWorkflow workflow : LiquibaseWorkflow.values()) {
             if (workflow.getCategory() != category) continue;
             LiquibaseDashboardItemForm form = new LiquibaseDashboardItemForm(
                     this,
                     workflow,
                     () -> executeWorkflow(workflow));
-            itemsPanel.add(form.getComponent());
+            itemsListPanel.add(form.getComponent());
             workflowForms.add(form);
         }
-        itemsPanel.add(Box.createVerticalGlue());
+        itemsPanel.add(itemsListPanel, BorderLayout.NORTH);
 
         JScrollPane scrollPane = new JScrollPane(itemsPanel);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
