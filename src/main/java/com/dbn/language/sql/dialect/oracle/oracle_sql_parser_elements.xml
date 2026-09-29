@@ -2922,7 +2922,7 @@
         <one-of id="01604">
             <sequence id="01605">
                 <iteration separator="CHR_COMMA" id="01606">
-                    <object-ref type="DISKGROUP" id="01607" />
+                    <object-ref attributes="SUBJECT" type="DISKGROUP" id="01607" />
                 </iteration>
                 <one-of id="01608">
                     <sequence id="01609">
@@ -6188,7 +6188,7 @@
                 <token id="03459" type-id="KW_CLOSE" />
                 <token id="03460" type-id="KW_DATABASE" />
                 <token id="03461" type-id="KW_LINK" />
-                <object-ref id="03462" type="DBLINK" />
+                <object-ref attributes="SUBJECT" id="03462" type="DBLINK" />
             </sequence>
             <sequence id="03463">
                 <token id="03464" type-id="KW_ENABLE" />
@@ -10144,7 +10144,7 @@
             <sequence id="05699">
                 <token id="05700" type-id="KW_AUDIT" />
                 <token id="05701" type-id="KW_POLICY" />
-                <object-ref id="05702" type="POLICY" />
+                <object-ref attributes="SUBJECT" id="05702" type="POLICY" />
             </sequence>
             <sequence id="05703">
                 <token id="05704" type-id="KW_COLUMN" />
@@ -10152,30 +10152,30 @@
                     <variant>
                         <object-ref id="05706" optional="true" type="SCHEMA" />
                         <object-ref id="05707" type="TABLE" />
-                        <object-ref id="05708" type="COLUMN" />
+                        <object-ref attributes="SUBJECT" id="05708" type="COLUMN" />
                     </variant>
                     <variant>
                         <object-ref optional="true" type="SCHEMA" id="05709" />
                         <object-ref type="VIEW" id="05710" />
-                        <object-ref type="COLUMN" id="05711" />
+                        <object-ref attributes="SUBJECT" type="COLUMN" id="05711" />
                     </variant>
                     <variant>
                         <object-ref optional="true" type="SCHEMA" id="05712" />
                         <object-ref type="MATERIALIZED_VIEW" id="05713" />
-                        <object-ref type="COLUMN" id="05714" />
+                        <object-ref attributes="SUBJECT" type="COLUMN" id="05714" />
                     </variant>
                 </qualified-identifier>
             </sequence>
             <sequence id="05715">
                 <token id="05716" type-id="KW_EDITION" />
-                <object-ref id="05717" type="EDITION" />
+                <object-ref attributes="SUBJECT" id="05717" type="EDITION" />
             </sequence>
             <sequence id="05718">
                 <token id="05719" type-id="KW_INDEXTYPE" />
                 <qualified-identifier id="05720" separator="CHR_DOT">
                     <variant>
                         <object-ref id="05721" optional="true" type="SCHEMA" />
-                        <object-ref id="05722" type="INDEXTYPE" />
+                        <object-ref attributes="SUBJECT" id="05722" type="INDEXTYPE" />
                     </variant>
                 </qualified-identifier>
             </sequence>
@@ -10185,7 +10185,7 @@
                 <qualified-identifier id="05726" separator="CHR_DOT">
                     <variant>
                         <object-ref id="05727" optional="true" type="SCHEMA" />
-                        <object-ref id="05728" type="MATERIALIZED_VIEW" />
+                        <object-ref attributes="SUBJECT" id="05728" type="MATERIALIZED_VIEW" />
                     </variant>
                 </qualified-identifier>
             </sequence>
@@ -10195,7 +10195,7 @@
                 <qualified-identifier id="05732" separator="CHR_DOT">
                     <variant>
                         <object-ref id="05733" optional="true" type="SCHEMA" />
-                        <object-ref id="05734" type="MINING_MODEL" />
+                        <object-ref attributes="SUBJECT" id="05734" type="MINING_MODEL" />
                     </variant>
                 </qualified-identifier>
             </sequence>
@@ -10204,7 +10204,7 @@
                 <qualified-identifier id="05737" separator="CHR_DOT">
                     <variant>
                         <object-ref id="05738" optional="true" type="SCHEMA" />
-                        <object-ref id="05739" type="OPERATOR" />
+                        <object-ref attributes="SUBJECT" id="05739" type="OPERATOR" />
                     </variant>
                 </qualified-identifier>
             </sequence>
@@ -10213,11 +10213,11 @@
                 <qualified-identifier id="05742" separator="CHR_DOT">
                     <variant>
                         <object-ref id="05743" optional="true" type="SCHEMA" />
-                        <object-ref id="05744" type="TABLE" />
+                        <object-ref attributes="SUBJECT" id="05744" type="TABLE" />
                     </variant>
                     <variant>
                         <object-ref id="05745" optional="true" type="SCHEMA" />
-                        <object-ref id="05746" type="VIEW" />
+                        <object-ref attributes="SUBJECT" id="05746" type="VIEW" />
                     </variant>
                 </qualified-identifier>
             </sequence>
@@ -10227,7 +10227,7 @@
                 <qualified-identifier id="05750">
                     <variant>
                         <object-ref optional="true" type="SCHEMA" id="05751" />
-                        <object-ref type="PROPERTY_GRAPH" id="05752" />
+                        <object-ref attributes="SUBJECT" type="PROPERTY_GRAPH" id="05752" />
                     </variant>
                 </qualified-identifier>
             </sequence>
@@ -17472,7 +17472,7 @@
         <token id="09508" type-id="KW_DROP" />
         <token id="09509" type-id="KW_DIRECTORY" />
         <element ref-id="if_exists_clause" optional="true" />
-        <object-ref type="DIRECTORY" original-name="directory_name" id="09510" />
+        <object-ref attributes="SUBJECT" type="DIRECTORY" original-name="directory_name" id="09510" />
     </element-def>
 
     <!-- ========= drop diskgroup ========= -->
@@ -18806,7 +18806,7 @@
     <!-- ========= savepoint ========= -->
     <element-def attributes="TRANSACTION_CONTROL, SPECIFIC" description="SAVEPOINT statement" id="savepoint_statement">
         <token type-id="KW_SAVEPOINT" id="10186" />
-        <object-ref attributes="SUBJECT" type="SAVEPOINT" original-name="savepoint" id="10187" />
+        <object-def attributes="SUBJECT" type="SAVEPOINT" original-name="savepoint" id="10187" />
     </element-def>
 
     <!-- ========= set constraints ========= -->
@@ -18935,7 +18935,7 @@
         <qualified-identifier id="10262" separator="CHR_DOT">
             <variant>
                 <object-ref id="10263" optional="true" referenceable="true" type="SCHEMA" />
-                <object-ref id="10264" referenceable="true" type="DATASET" />
+                <object-ref attributes="SUBJECT" id="10264" referenceable="true" type="DATASET" />
             </variant>
         </qualified-identifier>
         <alias-def id="10265" optional="true" original-name="t_alias" type="DATASET" />

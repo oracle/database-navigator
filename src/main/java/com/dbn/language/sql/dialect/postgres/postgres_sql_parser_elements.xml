@@ -481,7 +481,7 @@
     <!-- ========= savepoint ========= -->
     <element-def attributes="SPECIFIC" description="SAVEPOINT statement" id="savepoint_statement">
         <token id="00211" type-id="KW_SAVEPOINT" />
-        <object-ref attributes="SUBJECT" id="00212" type="SAVEPOINT" />
+        <object-def attributes="SUBJECT" id="00212" type="SAVEPOINT" />
     </element-def>
 
     <!-- ========= comment on ========= -->
