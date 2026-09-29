@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import com.dbn.execution.common.options.ExecutionEngineSettings;
 import com.dbn.help.HelpTopic;
 import com.dbn.navigation.options.NavigationSettings;
 import com.dbn.options.general.GeneralProjectSettings;
+import com.dbn.options.general.WorkspaceSettings;
 import com.dbn.options.ui.ProjectSettingsForm;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
@@ -78,6 +79,7 @@ public class ProjectSettings
     private final @Getter(lazy = true) DDLFileSettings ddlFileSettings                  = new DDLFileSettings(this);
     private final @Getter(lazy = true) AssistantSettings assistantSettings              = new AssistantSettings(this);
     private final @Getter(lazy = true) ConnectionBundleSettings connectionSettings      = new ConnectionBundleSettings(this);
+    private final @Getter(lazy = true) WorkspaceSettings workspaceSettings              = new WorkspaceSettings(this);
 
     public ProjectSettings(Project project) {
         super(project);
@@ -180,7 +182,8 @@ public class ProjectSettings
                 getOperationSettings(),
                 getDdlFileSettings(),
                 getAssistantSettings(),
-                getGeneralSettings()};
+                getGeneralSettings(),
+                getWorkspaceSettings()};
     }
 
     /*********************************************************

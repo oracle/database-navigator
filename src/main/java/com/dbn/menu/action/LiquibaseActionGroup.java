@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-package com.dbn.options;
+package com.dbn.menu.action;
 
-public enum ConfigId {
-  BROWSER,
-  NAVIGATION,
-  DATA_GRID,
-  DATA_EDITOR,
-  CODE_EDITOR,
-  CODE_COMPLETION,
-  CODE_STYLE,
-  EXECUTION_ENGINE,
-  DDL_FILES,
-  CONNECTIONS,
-  OPERATIONS,
-  ASSISTANT,
-  GENERAL,
-  WORKSPACE
+import com.dbn.common.action.DefaultActionGroup;
+import com.dbn.options.general.WorkspaceFeature;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
+
+public class LiquibaseActionGroup extends DefaultActionGroup {
+    @Override
+    public void update(@NotNull AnActionEvent e) {
+        super.update(e);
+
+        Project project = e.getProject();
+        e.getPresentation().setVisible(project != null && WorkspaceFeature.LIQUIBASE.isEnabled(project));
+    }
 }

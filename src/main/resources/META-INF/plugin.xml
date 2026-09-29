@@ -683,12 +683,12 @@
                     <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift J"/>
                 </action>
             </group>
-            <group id="DBN.MainMenu.Monitoring" popup="true">
+            <group id="DBN.MainMenu.Monitoring" class="com.dbn.menu.action.MonitoringActionGroup" popup="true">
                 <action class="com.dbn.menu.action.ResourceMonitorOpenAction" id="DBN.MainMenu.ResourceMonitor"/>
                 <action id="DBN.MainMenu.EventMonitor" class="com.dbn.menu.action.MonitorDataChangeOpenAction"/>
                 <!--<action class="com.dbn.action.menu.PendingTransactionsOpenAction" id="DBN.MainMenu.PendingTransactions"/>-->
             </group>
-            <group id="DBN.MainMenu.Liquibase" popup="true" icon="com.dbn.common.icon.Icons.DB_LIQUIBASE">
+            <group id="DBN.MainMenu.Liquibase" class="com.dbn.menu.action.LiquibaseActionGroup" popup="true" icon="com.dbn.common.icon.Icons.DB_LIQUIBASE">
                 <action id="DBN.MainMenu.LiquibaseWorkspaces" class="com.dbn.menu.action.LiquibaseWorkspacesOpenAction"/>
                 <action id="DBN.MainMenu.LiquibaseEnvironmentProfiles" class="com.dbn.menu.action.LiquibaseEnvironmentProfilesOpenAction"/>
                 <separator/>
@@ -755,7 +755,7 @@
             <separator/>
             <action id="DBN.SessionBrowser.Settings" class="com.dbn.editor.session.action.SessionBrowserSettingsAction"/>
         </group>
-        <group id="DBN.Vector.Search">
+        <group id="DBN.Vector.Search" class="com.dbn.menu.action.VectorSearchActionGroup">
             <action id="DBN.Vector.Search.Schema" class="com.dbn.vector.search.action.VectorSchemaSelectAction"/>
             <action id="DBN.Vector.Search.Table" class="com.dbn.vector.search.action.VectorTableSelectAction"/>
             <action id="DBN.Vector.Search.Metric" class="com.dbn.vector.search.action.VectorMetricSelectAction"/>

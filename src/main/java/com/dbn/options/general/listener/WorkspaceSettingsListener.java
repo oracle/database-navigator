@@ -14,21 +14,15 @@
  * limitations under the License.
  */
 
-package com.dbn.options;
+package com.dbn.options.general.listener;
 
-public enum ConfigId {
-  BROWSER,
-  NAVIGATION,
-  DATA_GRID,
-  DATA_EDITOR,
-  CODE_EDITOR,
-  CODE_COMPLETION,
-  CODE_STYLE,
-  EXECUTION_ENGINE,
-  DDL_FILES,
-  CONNECTIONS,
-  OPERATIONS,
-  ASSISTANT,
-  GENERAL,
-  WORKSPACE
+import com.intellij.openapi.project.Project;
+import com.intellij.util.messages.Topic;
+
+import java.util.EventListener;
+
+public interface WorkspaceSettingsListener extends EventListener {
+    Topic<WorkspaceSettingsListener> TOPIC = Topic.create("Workspace settings changed", WorkspaceSettingsListener.class);
+
+    void configurationChanged(Project project);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.execution.method.browser.ui.MethodExecutionBrowserForm;
+import com.dbn.options.general.WorkspaceFeature;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
@@ -33,7 +34,11 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
+import java.util.List;
+
+import static com.dbn.database.DatabaseFeature.*;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.*;
 
 public class ConnectionSelectDropdownAction extends ComboBoxAction {
     private final MethodExecutionBrowserForm browserComponent;
@@ -51,15 +56,17 @@ public class ConnectionSelectDropdownAction extends ComboBoxAction {
         Project project = Lookups.getProject(component);
         ConnectionManager connectionManager = ConnectionManager.getInstance(project);
         ConnectionBundle connectionBundle = connectionManager.getConnectionBundle();
+        boolean featureEnabled = !debug || DEBUGGER.isEnabled(project);
 /*        for (ConnectionHandler virtualConnectionHandler : connectionBundle.getVirtualConnections()) {
             SelectConnectionAction connectionAction = new SelectConnectionAction(browserComponent, virtualConnectionHandler);
             actionGroup.add(connectionAction);
         }*/
 
-        if (connectionBundle.getConnections().size() > 0) {
+        List<ConnectionHandler> connections = connectionBundle.getConnections();
+        if (!connections.isEmpty()) {
             //actionGroup.addSeparator();
-            for (ConnectionHandler connection : connectionBundle.getConnections()) {
-                if (!debug || DatabaseFeature.DEBUGGING.isSupported(connection)) {
+            for (ConnectionHandler connection : connections) {
+                if (featureEnabled && (!debug || DEBUGGING.isSupported(connection))) {
                     ConnectionSelectAction connectionAction = new ConnectionSelectAction(browserComponent, connection);
                     actionGroup.add(connectionAction);
                 }
