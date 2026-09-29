@@ -5303,7 +5303,7 @@
     </element-def>
     <element-def attributes="TRANSACTIONAL, SPECIFIC" description="SAVEPOINT statement" id="savepoint_statement">
         <token type-id="KW_SAVEPOINT" id="02814" />
-        <object-def attributes="SUBJECT" original-name="identifier" type="SAVEPOINT" id="02815" />
+        <object-ref attributes="SUBJECT" original-name="identifier" type="SAVEPOINT" id="02815" />
     </element-def>
     <element-def attributes="TRANSACTIONAL, SPECIFIC" description="RELEASE SAVEPOINT statement" id="release_savepoint_statement">
         <token type-id="KW_RELEASE" id="02816" />

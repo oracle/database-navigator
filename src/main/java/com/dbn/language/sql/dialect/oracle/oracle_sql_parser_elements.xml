@@ -9806,7 +9806,7 @@
         <token id="05480" type-id="KW_ALTER" />
         <token id="05481" type-id="KW_USER" />
         <element ref-id="if_exists_clause" optional="true" />
-        <object-def attributes="SUBJECT" id="05482" type="USER" />
+        <object-ref attributes="SUBJECT" id="05482" type="USER" />
         <one-of id="05483">
             <sequence id="05484">
                 <token type-id="CHR_COMMA" id="05485" />
@@ -17212,7 +17212,7 @@
         <qualified-identifier id="09390">
             <variant>
                 <object-ref type="SCHEMA" optional="true" id="09391" />
-                <object-def attributes="SUBJECT" type="ANALYTIC_VIEW" original-name="analytic_view_name" id="09392" />
+                <object-ref attributes="SUBJECT" type="ANALYTIC_VIEW" original-name="analytic_view_name" id="09392" />
             </variant>
         </qualified-identifier>
     </element-def>
@@ -17223,7 +17223,7 @@
         <token type-id="KW_APPLICATION" id="09394" />
         <token type-id="KW_IDENTITY" id="09395" />
         <element ref-id="if_exists_clause" optional="true" />
-        <object-def attributes="SUBJECT" type="APPLICATION" original-name="app_identity" id="09396" />
+        <object-ref attributes="SUBJECT" type="APPLICATION" original-name="app_identity" id="09396" />
     </element-def>
 
     <!-- ========= drop assertion ========= -->
@@ -17234,7 +17234,7 @@
         <qualified-identifier id="09399">
             <variant>
                 <object-ref type="SCHEMA" optional="true" id="09400" />
-                <object-def attributes="SUBJECT" type="ASSERTION" original-name="assertion_name" id="09401" />
+                <object-ref attributes="SUBJECT" type="ASSERTION" original-name="assertion_name" id="09401" />
             </variant>
         </qualified-identifier>
     </element-def>
@@ -17244,7 +17244,7 @@
         <token type-id="KW_DROP" id="09402" />
         <token type-id="KW_AUDIT" id="09403" />
         <token type-id="KW_POLICY" id="09404" />
-        <object-def attributes="SUBJECT" type="POLICY" id="09405" />
+        <object-ref attributes="SUBJECT" type="POLICY" id="09405" />
     </element-def>
 
     <!-- ========= drop edition ========= -->
@@ -17252,7 +17252,7 @@
         <token type-id="KW_DROP" id="09406" />
         <token type-id="KW_EDITION" id="09407" />
         <element ref-id="if_exists_clause" optional="true" />
-        <object-def attributes="SUBJECT" type="EDITION" id="09408" />
+        <object-ref attributes="SUBJECT" type="EDITION" id="09408" />
         <token type-id="KW_CASCADE" optional="true" id="09409" />
     </element-def>
 
@@ -17261,7 +17261,7 @@
         <token type-id="KW_DROP" id="09410" />
         <token type-id="KW_FLASHBACK" id="09411" />
         <token type-id="KW_ARCHIVE" id="09412" />
-        <object-def attributes="SUBJECT" type="FLASHBACK_ARCHIVE" original-name="flashback_archive" id="09413" />
+        <object-ref attributes="SUBJECT" type="FLASHBACK_ARCHIVE" original-name="flashback_archive" id="09413" />
     </element-def>
 
     <!-- ========= drop hierarchy ========= -->
@@ -17272,7 +17272,7 @@
         <qualified-identifier id="09416">
             <variant>
                 <object-ref type="SCHEMA" optional="true" id="09417" />
-                <object-def attributes="SUBJECT" type="HIERARCHY" original-name="hierarchy_name" id="09418" />
+                <object-ref attributes="SUBJECT" type="HIERARCHY" original-name="hierarchy_name" id="09418" />
             </variant>
         </qualified-identifier>
     </element-def>
@@ -17287,7 +17287,7 @@
         <qualified-identifier id="09423">
             <variant>
                 <object-ref type="SCHEMA" optional="true" id="09424" />
-                <object-def attributes="SUBJECT" type="INMEMORY_JOIN_GROUP" original-name="join_group" id="09425" />
+                <object-ref attributes="SUBJECT" type="INMEMORY_JOIN_GROUP" original-name="join_group" id="09425" />
             </variant>
         </qualified-identifier>
     </element-def>
@@ -17331,7 +17331,7 @@
         <qualified-identifier id="09442">
             <variant>
                 <object-ref type="SCHEMA" optional="true" id="09443" />
-                <object-def attributes="SUBJECT" type="DOMAIN" original-name="domain_name" id="09444" />
+                <object-ref attributes="SUBJECT" type="DOMAIN" original-name="domain_name" id="09444" />
             </variant>
         </qualified-identifier>
         <sequence optional="true" id="09445">
@@ -17390,7 +17390,7 @@
         <qualified-identifier id="09472">
             <variant>
                 <object-ref type="SCHEMA" optional="true" id="09473" />
-                <object-def attributes="SUBJECT" type="ATTRIBUTE_DIMENSION" original-name="attr_dimension_name" id="09474" />
+                <object-ref attributes="SUBJECT" type="ATTRIBUTE_DIMENSION" original-name="attr_dimension_name" id="09474" />
             </variant>
         </qualified-identifier>
     </element-def>
@@ -18806,7 +18806,7 @@
     <!-- ========= savepoint ========= -->
     <element-def attributes="TRANSACTION_CONTROL, SPECIFIC" description="SAVEPOINT statement" id="savepoint_statement">
         <token type-id="KW_SAVEPOINT" id="10186" />
-        <object-def attributes="SUBJECT" type="SAVEPOINT" original-name="savepoint" id="10187" />
+        <object-ref attributes="SUBJECT" type="SAVEPOINT" original-name="savepoint" id="10187" />
     </element-def>
 
     <!-- ========= set constraints ========= -->
