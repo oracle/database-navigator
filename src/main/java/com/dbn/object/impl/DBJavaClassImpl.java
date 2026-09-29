@@ -133,10 +133,8 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 	}
 
 	public void initStatus(DBJavaClassMetadata metadata) throws SQLException {
-		boolean isValid = metadata.isValid();
-		boolean isDebug = metadata.isDebug();
-		setStatus(VALID, isValid);
-        setStatus(DEBUG, isDebug);
+		setStatus(VALID, metadata.isValid());
+        setStatus(DEBUG, metadata.isDebug());
         setStatus(CODE, PRESENT, true);
 	}
 

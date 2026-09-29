@@ -34,14 +34,14 @@ public class OracleJavaInterface extends DatabaseInterfaceBase implements Databa
     public void createJavaSource(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException {
         executeUpdate(connection, "prepare-java-staging-table", ownerName);
         executeUpdate(connection, "create-java-source", ownerName, objectName, content);
-        compileJavaClass(ownerName, objectName, false, connection);
+        compileJavaClass(ownerName, objectName, connection);
     }
 
     @Override
     public void updateJavaSource(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException {
         executeUpdate(connection, "prepare-java-staging-table", ownerName);
         executeUpdate(connection, "update-java-source", ownerName, objectName, content);
-        compileJavaClass(ownerName, objectName, false, connection);
+        compileJavaClass(ownerName, objectName, connection);
     }
 
     @Override
@@ -71,9 +71,9 @@ public class OracleJavaInterface extends DatabaseInterfaceBase implements Databa
     }
 
     @Override
-    public void compileJavaClass(String ownerName, String objectName, boolean debug, DBNConnection connection) throws SQLException {
+    public void compileJavaClass(String ownerName, String objectName, DBNConnection connection) throws SQLException {
         executeSilentUpdate(connection, "set-java-property", "sun.tools.javac.Main.args", 'g');
-        executeSilentUpdate(connection, "set-java-compiler-option", unquote(objectName), "debug", Boolean.toString(debug));
+        executeSilentUpdate(connection, "set-java-compiler-option", unquote(objectName), "debug", "true");
         executeUpdate(connection, "compile-java-source", ownerName, objectName);
         executeUpdate(connection, "compile-java-class", ownerName, objectName);
     }
