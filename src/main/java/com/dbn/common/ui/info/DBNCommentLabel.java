@@ -26,5 +26,7 @@ public class DBNCommentLabel extends JBLabel {
     public DBNCommentLabel() {
         setFont(JBFont.medium());
         setForeground(getContextHelpForeground());
+        setAllowAutoWrapping(true);
+        setCopyable(true);
     }
 }

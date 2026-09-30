@@ -370,7 +370,7 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
 
     private void initHintPanel() {
         TextContent hint = plain(executionInput.getHint());
-        hintPanel.add(new DBNHintForm(this, hint, null, true).getComponent());
+        hintPanel.add(new DBNHintForm(this, hint, null).getComponent());
     }
 
     private void initContextLabels() {

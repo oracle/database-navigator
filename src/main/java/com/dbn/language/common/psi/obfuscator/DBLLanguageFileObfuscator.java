@@ -255,6 +255,7 @@ public class DBLLanguageFileObfuscator {
 
     private String getObjectName(DBObjectType objectType, String objectName) {
         Map<String, String> indexMap = objectTypeIndex.computeIfAbsent(objectType, t -> new HashMap<>());
-        return indexMap.computeIfAbsent(toLowerCase(objectName), n -> obfuscatedName(objectType.getName().replace(" ", "_"), indexMap.size() + 1));
+        String prefix = objectType == DBObjectType.ANY ? "obj" : objectType.getName().replace(" ", "_");
+        return indexMap.computeIfAbsent(toLowerCase(objectName), n -> obfuscatedName(prefix, indexMap.size() + 1));
     }
 }

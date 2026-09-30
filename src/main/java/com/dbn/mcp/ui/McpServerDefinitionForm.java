@@ -133,7 +133,7 @@ public class McpServerDefinitionForm extends DBNFormBase {
     private void initHintPanel() {
         TextContent hintContent = TextContent.plain(
                 txt("msg.mcp.hint.ServerDefinition"));
-        hintPanel.add(new DBNHintForm(this, hintContent, null, true).getComponent());
+        hintPanel.add(new DBNHintForm(this, hintContent, null).getComponent());
     }
 
     private DBNBanner containerWarningBanner;

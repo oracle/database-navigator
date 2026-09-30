@@ -23,7 +23,6 @@ import com.dbn.assistant.tool.approval.AssistantToolApprovalStatus;
 import com.dbn.assistant.tool.approval.AssistantToolApprovalUtil;
 import com.dbn.assistant.tool.approval.AssistantToolApprovals;
 import com.dbn.assistant.tool.config.AssistantToolSettings;
-import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.Layouts;
@@ -32,7 +31,6 @@ import com.dbn.common.ui.misc.DBNToggleButton;
 import com.dbn.common.ui.util.Fonts;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.ui.UIUtil;
 
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -48,6 +46,8 @@ import static com.dbn.assistant.tool.AssistantToolData.getToolTypes;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.APPROVED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.BLOCKED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.PROMPTED;
+import static com.dbn.common.color.Colors.getContextHelpForeground;
+import static com.dbn.common.color.Colors.getLabelDisabledForeground;
 import static com.dbn.common.constant.Constant.array;
 
 public class AssistantToolApprovalCategoryForm extends AssistantToolApprovalItemForm {
@@ -95,7 +95,7 @@ public class AssistantToolApprovalCategoryForm extends AssistantToolApprovalItem
     }
 
     private void initDescriptionPanel() {
-        descriptionTextPane.setForeground(Colors.faded(UIUtil.getLabelForeground()));
+        descriptionTextPane.setForeground(getContextHelpForeground());
         descriptionTextPane.setText(category.getDescription());
         descriptionTextPane.setVisible(false); // TODO overcrowds the tool approval screens
     }
@@ -152,8 +152,8 @@ public class AssistantToolApprovalCategoryForm extends AssistantToolApprovalItem
         infoLabel.setIcon(infoIcon);
 
         descriptionTextPane.setForeground(enabled ?
-                Colors.faded(UIUtil.getLabelForeground()) :
-                UIUtil.getLabelDisabledForeground());
+                getContextHelpForeground() :
+                getLabelDisabledForeground());
 
         for (AssistantToolApprovalTypeForm toolTypeForm : toolTypeForms.values()) {
             toolTypeForm.refreshState();

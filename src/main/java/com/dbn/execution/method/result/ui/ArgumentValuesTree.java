@@ -40,6 +40,7 @@ import java.util.List;
 
 import static com.dbn.common.util.Strings.cachedLowerCase;
 import static com.dbn.nls.NlsResources.txt;
+import static com.intellij.ui.SimpleTextAttributes.*;
 
 class ArgumentValuesTree extends DBNTree{
 
@@ -89,20 +90,26 @@ class ArgumentValuesTree extends DBNTree{
             Object userValue = treeNode.getUserValue();
             if (userValue instanceof DBMethod method) {
                 setIcon(method.getIcon());
-                append(method.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                append(method.getName(), REGULAR_ATTRIBUTES);
             }
 
             if (userValue instanceof String) {
                 append((String) userValue, treeNode.isLeaf() ?
-                        SimpleTextAttributes.REGULAR_ATTRIBUTES :
-                        SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+                        REGULAR_ATTRIBUTES :
+                        REGULAR_BOLD_ATTRIBUTES);
             }
 
             if (userValue instanceof DBObjectRef) {
                 DBObjectRef<DBArgument> argumentRef = (DBObjectRef<DBArgument>) userValue;
                 DBArgument argument = DBObjectRef.get(argumentRef);
                 setIcon(argument == null ? Icons.DBO_ARGUMENT : argument.getIcon());
-                append(argumentRef.getObjectName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                append(argumentRef.getObjectName(), REGULAR_ATTRIBUTES);
+                if (argument != null) {
+                    DBDataType dataType = argument.getDataType();
+                    if (dataType != null) {
+                        append(" (" + dataType.getName() + ")", GRAY_ATTRIBUTES);
+                    }
+                }
             }
 
             if (userValue instanceof ArgumentValue argumentValue) {
@@ -114,27 +121,29 @@ class ArgumentValuesTree extends DBNTree{
                 if (attribute == null) {
                     if (argument == null) {
                         setIcon(DBObjectType.ARGUMENT.getIcon());
-                        append(txt("app.shared.placeholder.Unknown"), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                        append(" = ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                        append(txt("app.shared.placeholder.Unknown"), REGULAR_ATTRIBUTES);
+                        append(" = ", REGULAR_ATTRIBUTES);
                     } else{
                         setIcon(argument.getIcon());
-                        append(argument.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                        append(" = ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                        append(argument.getName(), REGULAR_ATTRIBUTES);
+                        append(" = ", REGULAR_ATTRIBUTES);
+                    }
+                    append(displayValue, REGULAR_BOLD_ATTRIBUTES);
+                    if (argument != null) {
                         DBDataType dataType = argument.getDataType();
                         if (dataType != null) {
-                            append("{" + cachedLowerCase(dataType.getName()) + "} " , SimpleTextAttributes.GRAY_ATTRIBUTES);
+                            append(" (" + dataType.getName() + ")", GRAY_ATTRIBUTES);
                         }
                     }
-                    append(displayValue, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
                 } else {
                     setIcon(attribute.getIcon());
-                    append(attribute.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                    append(" = ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                    append(attribute.getName(), REGULAR_ATTRIBUTES);
+                    append(" = ", REGULAR_ATTRIBUTES);
+                    append(displayValue, REGULAR_BOLD_ATTRIBUTES);
                     DBDataType dataType = attribute.getDataType();
                     if (dataType != null) {
-                        append("{" + dataType.getName() + "} " , SimpleTextAttributes.GRAY_ATTRIBUTES);
+                        append(" (" + dataType.getName() + ")", GRAY_ATTRIBUTES);
                     }
-                    append(displayValue, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
                 }
             }
         }

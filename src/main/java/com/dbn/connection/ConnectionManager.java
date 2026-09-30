@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,6 @@ import com.dbn.database.interfaces.DatabaseMessageParserInterface;
 import com.dbn.editor.DBContentType;
 import com.dbn.execution.ExecutionManager;
 import com.dbn.execution.method.MethodExecutionManager;
-import com.dbn.options.ConfigId;
 import com.dbn.options.ProjectSettingsManager;
 import com.dbn.vfs.DatabaseFileManager;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
@@ -348,7 +347,7 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
                 options(txt("app.connection.button.SetupConnection"), txt("msg.shared.button.Cancel")), 0,
                 option -> when(option == 0, () -> {
                     ProjectSettingsManager settingsManager = ProjectSettingsManager.getInstance(project);
-                    settingsManager.openProjectSettings(ConfigId.CONNECTIONS);
+                    settingsManager.openConnectionConfig();
                 }));
     }
 

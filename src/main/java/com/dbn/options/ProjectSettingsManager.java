@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import com.dbn.connection.config.ConnectionBundleSettings;
 import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.connection.config.ConnectionConfigType;
 import com.dbn.connection.config.tns.TnsImportData;
+import com.dbn.connection.config.ui.ConnectionBundleSettingsDialog;
 import com.dbn.connection.operation.options.OperationSettings;
 import com.dbn.credentials.LegacyCredentialMigrator;
 import com.dbn.data.grid.options.DataGridSettings;
@@ -150,12 +151,22 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
         Dialogs.show(() -> new ProjectSettingsDialog(getProject(), connectionId));
     }
 
+    public void openConnectionConfig() {
+        Dialogs.show(() -> new ConnectionBundleSettingsDialog(getProject()));
+    }
+
+    public void openConnectionConfig(@NotNull ConnectionId connectionId) {
+        if (getConnectionSettings().getConnectionSettings(connectionId) == null) return;
+
+        Dialogs.show(() -> new ConnectionBundleSettingsDialog(getProject(), connectionId));
+    }
+
     public void createConnection(@NotNull DatabaseType databaseType, @NotNull ConnectionConfigType configType) {
-        Dialogs.show(() -> new ProjectSettingsDialog(getProject(), databaseType, configType));
+        Dialogs.show(() -> new ConnectionBundleSettingsDialog(getProject(), databaseType, configType));
     }
 
     public void createConnections(TnsImportData importData) {
-        Dialogs.show(() -> new ProjectSettingsDialog(getProject(), importData));
+        Dialogs.show(() -> new ConnectionBundleSettingsDialog(getProject(), importData));
     }
 
     // opened from oci-toolkit

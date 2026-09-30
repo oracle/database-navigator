@@ -47,7 +47,7 @@ public class CompilerTypeSelectionForm extends DBNFormBase {
         }
         TextContent hintText = plain(
                 txt("msg.compiler.hint.CompileTypeSelection"));
-        DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
+        DBNHintForm hintForm = new DBNHintForm(this, hintText, null);
         hintPanel.add(hintForm.getComponent(), BorderLayout.CENTER);
 
         parent.registerRememberSelectionCheckBox(rememberSelectionCheckBox);

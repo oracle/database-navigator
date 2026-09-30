@@ -17,7 +17,6 @@
 package com.dbn.common.text;
 
 import com.intellij.util.ui.JBUI;
-import com.intellij.util.ui.UIUtil;
 import lombok.Data;
 import org.jetbrains.annotations.NonNls;
 
@@ -30,7 +29,12 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 
+import static com.dbn.common.color.Colors.getContextHelpForeground;
+import static com.dbn.common.color.Colors.getLabelDisabledForeground;
+import static com.dbn.common.color.Colors.getLabelForeground;
 import static com.intellij.ui.ColorUtil.toHex;
+import static com.intellij.util.ui.UIUtil.getLabelFont;
+import static com.intellij.util.ui.UIUtil.getToolTipForeground;
 
 @Data
 public class TextContent {
@@ -78,13 +82,13 @@ public class TextContent {
     public void initFonts() {
         // quick hack for R3.5.0 accessibility:
         // TODO use velocity template engine instead / proper font family and size placeholders
-        Font font = UIUtil.getLabelFont();
+        Font font = getLabelFont();
         String fontName = font.getFontName();
         int fontSize = font.getSize();
 
         Color color = tooltip ?
-                UIUtil.getToolTipForeground() :
-                UIUtil.getLabelForeground();
+                getToolTipForeground() :
+                getLabelForeground();
         String colorHex = toHex(color);
 
         replaceFields("REGULAR_FONT_STYLE",
@@ -100,7 +104,7 @@ public class TextContent {
         replaceFields("REGULAR_GRAY_FONT_STYLE",
                 "font-family:" + fontName + ",Segoe UI,SansSerif,serif; " +
                         "font-size: " + fontSize + "pt; " +
-                        "color: #" + toHex(UIUtil.getContextHelpForeground()) + ";");
+                        "color: #" + toHex(getContextHelpForeground()) + ";");
 
         replaceFields("MONOSPACE_FONT_STYLE",
                 "font-family: Courier New, Courier, monospace; " +
@@ -112,7 +116,7 @@ public class TextContent {
                         "font-size: " + (fontSize + JBUI.scale(2)) + "pt; " +
                         "color: #" + colorHex + ";");
 
-        replaceFields("TABLE_GRID_COLOR", "#" + toHex(UIUtil.getLabelDisabledForeground()));
+        replaceFields("TABLE_GRID_COLOR", "#" + toHex(getLabelDisabledForeground()));
     }
 
     private void replaceFields(@NonNls String identifier, @NonNls String replacement) {

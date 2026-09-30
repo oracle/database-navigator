@@ -158,7 +158,7 @@ public class AssistantMcpToolApprovalsForm extends DBNFormBase {
         hintText.initField("MCP_SERVER_NAME", mcpServer.getName());
         hintText.initFonts();
 
-        DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
+        DBNHintForm hintForm = new DBNHintForm(this, hintText, null);
         hintPanel.add(hintForm.getComponent());
     }
 

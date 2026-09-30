@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,9 @@ package com.dbn.menu.action;
 
 import com.dbn.common.action.ProjectAction;
 import com.dbn.connection.transaction.DatabaseTransactionManager;
+import com.dbn.options.general.WorkspaceFeature;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,8 +33,19 @@ public class ResourceMonitorOpenAction extends ProjectAction {
     }
 
     @Override
+    protected WorkspaceFeature getFeature() {
+        return WorkspaceFeature.RESOURCE_MONITOR;
+    }
+
+    @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         DatabaseTransactionManager executionManager = DatabaseTransactionManager.getInstance(project);
         executionManager.showResourceMonitorDialog();
+    }
+
+    @Override
+    protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
+        Presentation presentation = e.getPresentation();
+        presentation.setVisible(isFeatureEnabled(project));
     }
 }

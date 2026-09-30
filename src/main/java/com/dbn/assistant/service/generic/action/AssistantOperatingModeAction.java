@@ -23,9 +23,9 @@ import com.dbn.assistant.chat.window.action.AssistantActionSupport;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.action.SelectDropdownAction;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.database.DatabaseFeature;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,7 +35,9 @@ import java.util.List;
 import static com.dbn.assistant.AssistantMode.ANALYTICS;
 import static com.dbn.assistant.AssistantMode.DEVELOPMENT;
 import static com.dbn.assistant.chat.ChatAvailability.AVAILABLE;
+import static com.dbn.database.DatabaseFeature.VECTOR_SEARCH;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.VECTOR_TOOLBOX;
 
 public class AssistantOperatingModeAction extends SelectDropdownAction<AssistantMode> implements AssistantActionSupport {
 
@@ -49,7 +51,9 @@ public class AssistantOperatingModeAction extends SelectDropdownAction<Assistant
         if (assistantState == null) return null;
 
         ConnectionHandler connection = assistantState.getConnection();
-        if (DatabaseFeature.VECTOR_SEARCH.isSupported(connection)) {
+        Project project = connection.getProject();
+        if (VECTOR_TOOLBOX.isEnabled(project) &&
+                VECTOR_SEARCH.isSupported(connection)) {
             return Arrays.asList(AssistantMode.values());
         } else {
             return List.of(DEVELOPMENT, ANALYTICS);

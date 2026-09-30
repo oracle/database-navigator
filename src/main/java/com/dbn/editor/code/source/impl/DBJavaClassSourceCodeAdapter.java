@@ -20,7 +20,6 @@ import java.sql.SQLException;
 
 import static com.dbn.common.util.Unsafe.warned;
 import static com.dbn.database.common.DatabaseContentLimits.checkJavaBinaryLength;
-import static com.dbn.object.common.status.DBObjectStatus.DEBUG;
 import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
 
 public class DBJavaClassSourceCodeAdapter extends DBMetadataSourceCodeAdapter<DBJavaClass> {
@@ -86,7 +85,6 @@ public class DBJavaClassSourceCodeAdapter extends DBMetadataSourceCodeAdapter<DB
         javaInterface.compileJavaClass(
                 javaClass.getSchemaName(true),
                 javaClass.getName(true),
-                javaClass.hasStatus(DEBUG),
                 connection);
     }
 }

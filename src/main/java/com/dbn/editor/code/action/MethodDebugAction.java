@@ -23,6 +23,7 @@ import com.dbn.editor.code.SourceCodeEditor;
 import com.dbn.object.DBMethod;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.type.DBObjectType;
+import com.dbn.options.general.WorkspaceFeature;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -40,6 +41,11 @@ public class MethodDebugAction extends AbstractCodeEditorAction {
     }
 
     @Override
+    protected WorkspaceFeature getFeature() {
+        return WorkspaceFeature.DEBUGGER;
+    }
+
+    @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull SourceCodeEditor fileEditor, @NotNull DBSourceCodeVirtualFile sourceCodeFile) {
         DBMethod method = (DBMethod) sourceCodeFile.getObject();
         DatabaseDebuggerManager debuggerManager = DatabaseDebuggerManager.getInstance(project);
@@ -48,7 +54,7 @@ public class MethodDebugAction extends AbstractCodeEditorAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project, @Nullable SourceCodeEditor fileEditor, @Nullable DBSourceCodeVirtualFile sourceCodeFile) {
-        boolean visible = isVisible(sourceCodeFile);
+        boolean visible = isFeatureEnabled(project) && isVisible(sourceCodeFile);
 
         Presentation presentation = e.getPresentation();
         presentation.setVisible(visible);

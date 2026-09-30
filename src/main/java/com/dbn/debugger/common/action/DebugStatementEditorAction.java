@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import com.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dbn.language.common.psi.BasePsiElement;
 import com.dbn.language.common.psi.ExecutablePsiElement;
 import com.dbn.language.common.psi.PsiUtil;
+import com.dbn.options.general.WorkspaceFeature;
 import com.dbn.vfs.DBConsoleType;
 import com.dbn.vfs.file.DBConsoleVirtualFile;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -51,34 +52,40 @@ public class DebugStatementEditorAction extends ProjectAction {
     }
 
     @Override
+    protected WorkspaceFeature getFeature() {
+        return WorkspaceFeature.DEBUGGER;
+    }
+
+    @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         Editor editor = Lookups.getEditor(e);
-        if (editor != null) {
-            VirtualFile virtualFile = Documents.getVirtualFile(editor);
-            ExecutablePsiElement executablePsiElement = null;
-            if (virtualFile instanceof DBConsoleVirtualFile consoleVirtualFile) {
-                if (consoleVirtualFile.getType() == DBConsoleType.DEBUG) {
-                    PsiFile file = Documents.getFile(editor);
-                    if (file != null) {
-                        BasePsiElement basePsiElement = PsiUtil.lookupElementAtOffset(file, ElementTypeAttribute.EXECUTABLE, 100);
-                        if (basePsiElement instanceof ExecutablePsiElement) {
-                            executablePsiElement = (ExecutablePsiElement) basePsiElement;
-                        }
+        if (editor == null) return;
+        if (!isFeatureEnabled(project)) return;
+
+        VirtualFile virtualFile = Documents.getVirtualFile(editor);
+        ExecutablePsiElement executablePsiElement = null;
+        if (virtualFile instanceof DBConsoleVirtualFile consoleVirtualFile) {
+            if (consoleVirtualFile.getType() == DBConsoleType.DEBUG) {
+                PsiFile file = Documents.getFile(editor);
+                if (file != null) {
+                    BasePsiElement basePsiElement = PsiUtil.lookupElementAtOffset(file, ElementTypeAttribute.EXECUTABLE, 100);
+                    if (basePsiElement instanceof ExecutablePsiElement) {
+                        executablePsiElement = (ExecutablePsiElement) basePsiElement;
                     }
                 }
             }
+        }
 
-            if (executablePsiElement == null) {
-                executablePsiElement = PsiUtil.lookupExecutableAtCaret(editor, true);
-            }
+        if (executablePsiElement == null) {
+            executablePsiElement = PsiUtil.lookupExecutableAtCaret(editor, true);
+        }
 
-            if (executablePsiElement != null && executablePsiElement.is(ElementTypeAttribute.DEBUGGABLE)) {
-                StatementExecutionManager statementExecutionManager = StatementExecutionManager.getInstance(project);
-                StatementExecutionProcessor executionProcessor = statementExecutionManager.getExecutionProcessor(executablePsiElement, true);
-                if (executionProcessor != null) {
-                    DatabaseDebuggerManager debuggerManager = DatabaseDebuggerManager.getInstance(project);
-                    debuggerManager.startStatementDebugger(executionProcessor);
-                }
+        if (executablePsiElement != null && executablePsiElement.is(ElementTypeAttribute.DEBUGGABLE)) {
+            StatementExecutionManager statementExecutionManager = StatementExecutionManager.getInstance(project);
+            StatementExecutionProcessor executionProcessor = statementExecutionManager.getExecutionProcessor(executablePsiElement, true);
+            if (executionProcessor != null) {
+                DatabaseDebuggerManager debuggerManager = DatabaseDebuggerManager.getInstance(project);
+                debuggerManager.startStatementDebugger(executionProcessor);
             }
         }
     }

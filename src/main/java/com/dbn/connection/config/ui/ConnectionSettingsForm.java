@@ -23,6 +23,7 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.options.ConfigMonitor;
 import com.dbn.common.options.ui.CompositeConfigurationEditorForm;
 import com.dbn.common.ui.form.DBNHeaderForm;
+import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.util.TabbedPanes;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Safe;
@@ -49,16 +50,15 @@ import com.intellij.ui.components.JBTabbedPane;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
-import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.event.ActionListener;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.exception.Exceptions.getLocalizedMessage;
 import static com.dbn.common.options.ConfigActivity.CLONING;
+import static com.dbn.common.ui.link.Hyperlinks.initHyperlink;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
@@ -66,9 +66,10 @@ import static com.dbn.nls.NlsResources.txt;
 public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<ConnectionSettings> {
     private JPanel mainPanel;
     private JPanel headerPanel;
-    private JButton infoButton;
-    private JButton testButton;
-    private JButton exportButton;
+    private JPanel actionLinksPanel;
+    private DBNHyperlinkLabel infoLink;
+    private DBNHyperlinkLabel testLink;
+    private DBNHyperlinkLabel exportLink;
     private JBTabbedPane tabbedPane;
     private DBNHeaderForm headerForm;
 
@@ -80,8 +81,6 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
 
         resetFormChanges();
 
-        registerComponent(testButton);
-        registerComponent(infoButton);
         ProjectEvents.subscribe(ensureProject(), this, ConnectionPresentationChangeListener.TOPIC, connectionPresentationChangeListener);
     }
 
@@ -132,26 +131,28 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
         Color color = detailSettings.getEnvironmentType().getColor();
 
         headerForm = new DBNHeaderForm(this, name, icon, color);
-        testButton = new JButton(txt("cfg.connection.button.TestConnection"));
-        infoButton = new JButton(txt("cfg.connection.button.Info"));
-        exportButton = new JButton(txt("cfg.connection.button.Export"));
-        headerForm.addButton(testButton);
-        headerForm.addButton(infoButton);
-        headerForm.addButton(exportButton);
-        registerComponent(exportButton);
+        initActionLinks();
 
         updateJsonExportVisibility();
 
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
     }
 
+    private void initActionLinks() {
+        initHyperlink(testLink, txt("cfg.connection.link.TestConnection"), this::testConnection);
+        initHyperlink(infoLink, txt("cfg.connection.link.Info"), this::showConnectionInfo);
+        infoLink.setToolTipText(txt("cfg.connection.link.DatabaseInfo"));
+        initHyperlink(exportLink, txt("cfg.connection.link.Export"), this::exportConnection);
+        exportLink.setToolTipText(txt("cfg.connection.link.ExportConfiguration"));
+    }
+
     void updateJsonExportVisibility(DatabaseType databaseType, DatabaseUrlType urlType) {
-        if (exportButton == null) return;
+        if (exportLink == null) return;
 
         boolean supportedUrlType =
                 urlType != DatabaseUrlType.CUSTOM &&
                 urlType != DatabaseUrlType.PROVIDER;
-        exportButton.setVisible(databaseType == DatabaseType.ORACLE && supportedUrlType);
+        exportLink.setVisible(databaseType == DatabaseType.ORACLE && supportedUrlType);
     }
 
     private void updateJsonExportVisibility() {
@@ -205,50 +206,57 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
         }
     }
 
-    @Override
-    protected ActionListener createActionListener() {
-        return e -> {
-            Object source = e.getSource();
-            ConnectionSettings configuration = getConfiguration();
-            if (source == testButton || source == infoButton) {
-                ConnectionSettingsForm connectionSettingsForm = configuration.getSettingsEditor();
-                if (connectionSettingsForm == null) return;
+    private void testConnection() {
+        executeConnectionAction(false);
+    }
 
-                Project project = ensureProject();
-                try {
-                    ConnectionSettings temporaryConfig = connectionSettingsForm.getTemporaryConfig();
-                    ConnectionManager connectionManager = ConnectionManager.getInstance(project);
+    private void showConnectionInfo() {
+        executeConnectionAction(true);
+    }
 
-                    if (source == testButton) {
-                        connectionManager.testConfigConnection(temporaryConfig, true);
-                    } else if (source == infoButton) {
-                        ConnectionDetailSettingsForm detailSettingsForm = configuration.getDetailSettings().getSettingsEditor();
-                        if (detailSettingsForm != null) {
-                            EnvironmentType environmentType = detailSettingsForm.getSelectedEnvironmentType();
-                            connectionManager.showConnectionInfo(temporaryConfig, environmentType);
-                        }
-                    }
-                    configuration.getDatabaseSettings().setConnectivityStatus(temporaryConfig.getDatabaseSettings().getConnectivityStatus());
-                    refreshConnectionList(configuration);
-                } catch (ConfigurationException e1) {
-                    conditionallyLog(e1);
-                    showErrorDialog(project, txt("cfg.connection.title.InvalidConfiguration"), getLocalizedMessage(e1));
+    private void executeConnectionAction(boolean showInfo) {
+        mackConfigModified();
+
+        ConnectionSettings configuration = getConfiguration();
+        ConnectionSettingsForm connectionSettingsForm = configuration.getSettingsEditor();
+        if (connectionSettingsForm == null) return;
+
+        Project project = ensureProject();
+        try {
+            ConnectionSettings temporaryConfig = connectionSettingsForm.getTemporaryConfig();
+            ConnectionManager connectionManager = ConnectionManager.getInstance(project);
+
+            if (showInfo) {
+                ConnectionDetailSettingsForm detailSettingsForm = configuration.getDetailSettings().getSettingsEditor();
+                if (detailSettingsForm != null) {
+                    EnvironmentType environmentType = detailSettingsForm.getSelectedEnvironmentType();
+                    connectionManager.showConnectionInfo(temporaryConfig, environmentType);
                 }
+            } else {
+                connectionManager.testConfigConnection(temporaryConfig, true);
             }
-            if (source == exportButton){
-                Project project = ensureProject();
-                try{
-                    ConnectionSettings tmp = getTemporaryConfig();
-                    ConnectionHandler connection = ConnectionHandler.get(configuration.getConnectionId());
-                    ConfigProviderExportManager exportManager = ConfigProviderExportManager.getInstance();
-                    exportManager.exportConnection(project, connection, tmp);
-                }catch (ConfigurationException ex) {
-                    conditionallyLog(ex);
-                    showErrorDialog(project, txt("cfg.connection.title.InvalidConfiguration"), getLocalizedMessage(ex));
-                }
-                return;
-            }
-        };
+            configuration.getDatabaseSettings().setConnectivityStatus(temporaryConfig.getDatabaseSettings().getConnectivityStatus());
+            refreshConnectionList(configuration);
+        } catch (ConfigurationException e) {
+            conditionallyLog(e);
+            showErrorDialog(project, txt("cfg.connection.title.InvalidConfiguration"), getLocalizedMessage(e));
+        }
+    }
+
+    private void exportConnection() {
+        mackConfigModified();
+
+        ConnectionSettings configuration = getConfiguration();
+        Project project = ensureProject();
+        try {
+            ConnectionSettings temporaryConfig = getTemporaryConfig();
+            ConnectionHandler connection = ConnectionHandler.get(configuration.getConnectionId());
+            ConfigProviderExportManager exportManager = ConfigProviderExportManager.getInstance();
+            exportManager.exportConnection(project, connection, temporaryConfig);
+        } catch (ConfigurationException e) {
+            conditionallyLog(e);
+            showErrorDialog(project, txt("cfg.connection.title.InvalidConfiguration"), getLocalizedMessage(e));
+        }
     }
 
     protected void refreshConnectionList(ConnectionSettings configuration) {

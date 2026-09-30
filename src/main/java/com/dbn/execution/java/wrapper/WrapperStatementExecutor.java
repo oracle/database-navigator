@@ -161,6 +161,6 @@ public class WrapperStatementExecutor {
         dataDefinitionInterface.compileObject(schemaName, methodName, methodType, true, connection);
 
         // compile java wrapper
-        javaInterface.compileJavaClass(schemaName, model.getJavaWrapperName(), true, connection);
+        javaInterface.compileJavaClass(schemaName, model.getJavaWrapperName(), connection);
     }
 }

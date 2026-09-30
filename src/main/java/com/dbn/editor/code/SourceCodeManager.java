@@ -349,17 +349,17 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
     }
 
     public void saveSourceToDatabase(@NotNull DBObject object, DBContentType contentType, String oldCode, String newCode) throws SQLException {
-        // TODO review with OJVM team
-        // Java source DDL qualifies the target schema and must retain the session user's current schema.
-        SchemaId schemaId = object.getObjectType() == JAVA_CLASS ? null : object.getSchemaId();
-        DatabaseInterfaceInvoker.execute(HIGHEST,
+        DBObjectType objectType = object.getObjectType();
+        SchemaId schemaId = object.getSchemaId();
+        DBObjectSourceCodeAdapter<DBObject> adapter = DBObjectSourceCodeAdapters.get(objectType);
+
+        DatabaseInterfaceInvoker.execute(HIGH,
                 txt("prc.object.title.UpdatingSourceCode"),
                 txt("prc.object.text.UpdatingSources", object.getQualifiedNameWithType()),
                 object.getProject(),
                 object.getConnectionId(),
                 schemaId,
-                conn -> DBObjectSourceCodeAdapters.get(object.getObjectType()).saveSourceCode(
-                        object, contentType, oldCode, newCode, conn));
+                conn -> adapter.saveSourceCode(object, contentType, oldCode, newCode, conn));
     }
 
     @NotNull

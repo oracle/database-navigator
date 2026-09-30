@@ -44,7 +44,7 @@ public class SelectDDLFileForm extends DBNFormBase {
         DBNHeaderForm headerForm = new DBNHeaderForm(this, object);
         headerPanel.add(headerForm.getComponent());
 
-        DBNHintForm hintForm = new DBNHintForm(this, hint, null, true);
+        DBNHintForm hintForm = new DBNHintForm(this, hint, null);
         hintPanel.add(hintForm.getComponent());
 
         DefaultListModel<VirtualFileInfo> listModel = new DefaultListModel<>();

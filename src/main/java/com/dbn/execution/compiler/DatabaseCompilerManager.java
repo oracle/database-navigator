@@ -234,7 +234,6 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
             javaInterface.compileJavaClass(
                     schemaName,
                     objectName,
-                    debug,
                     conn);
 
         } else if (contentType == CODE_SPEC || contentType == CODE) {
@@ -395,13 +394,10 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
                                     txt("prc.compiler.text.CompilingJavaClass", className),
                                     project,
                                     connection.getConnectionId(),
-                                    conn -> {
-                                        javaInterface.compileJavaClass(
-                                                schemaName,
-                                                objectName,
-                                                false,
-                                                conn);
-                                    });
+                                    conn -> javaInterface.compileJavaClass(
+                                            schemaName,
+                                            objectName,
+                                            conn));
                         } catch (SQLException e) {
                             sendErrorNotification(NotificationCategory.COMPILER, txt("ntf.compiler.error.FailedToCompileClass", className, e.getMessage()));
                         }
