@@ -55,6 +55,20 @@ PSQL_STUB_PROGRAM = {ws}("package"|"trigger"|"function"|"procedure"|"type")
 PSQL_STUB_IDENTIFIER = ({ws}({IDENTIFIER}|{QUOTED_IDENTIFIER}))*
 
 PSQL_BLOCK_START_CREATE = "create"{PSQL_STUB_OR_REPLACE}{PSQL_STUB_IF_NOT_EXISTS}{PSQL_STUB_FORCE}{PSQL_STUB_EDITIONABLE}{PSQL_STUB_PUBLIC}{PSQL_STUB_PROGRAM}
+PSQL_BLOCK_EXIT_DDL =
+      "create"{PSQL_STUB_OR_REPLACE}{ws}("table"|"view"|"materialized"{ws}"view"|"index"|"bitmap"{ws}"index"|"unique"{ws}"index"|"sequence"|"synonym"|"database"{ws}"link"|"type"|"cluster"|"user"|"role"|"profile"|"tablespace"|"directory"|"context"|"domain")
+    | "alter"{ws}("table"|"index"|"view"|"materialized"{ws}"view"|"sequence"|"synonym"|"type"|"procedure"|"function"|"trigger"|"package"|"database"|"system"|"session"|"tablespace")
+    | "drop"{ws}("table"|"index"|"view"|"materialized"{ws}"view"|"sequence"|"synonym"|"type"|"procedure"|"function"|"trigger"|"package"|"database"|"user"|"role")
+    | "truncate"{ws}("table"|"cluster")
+    | "comment"{ws}"on"
+    | "grant"{ws}
+    | "revoke"{ws}
+    | "analyze"{ws}
+    | "flashback"{ws}
+    | "purge"{ws}
+    | "audit"{ws}
+    | "noaudit"{ws}
+    | "administer"{ws}"key"{ws}"management"
 PSQL_BLOCK_START_DECLARE = "declare"
 PSQL_BLOCK_START_BEGIN = "begin"
 //PSQL_BLOCK_END_IGNORE = "end"{ws}("if"|"loop"|"case"){PSQL_STUB_IDENTIFIER}{wso}";"
@@ -81,6 +95,7 @@ DBLINK_QUALIFIER = "@"({IDENTIFIER}|{QUOTED_IDENTIFIER})("."({IDENTIFIER}|{QUOTE
     {STRING}                        {}
 
     {PSQL_BLOCK_START_CREATE}       {if (pbm.isBlockStarted()) { pbm.pushBack(); pbm.end(true); return getChameleon(); }}
+    {PSQL_BLOCK_EXIT_DDL}           { pbm.pushBack(); pbm.end(true); return getChameleon(); }
     {PSQL_BLOCK_END_IGNORE}         { pbm.ignore();}
     {PSQL_BLOCK_END_SLASH}          { yypushback(1); if (pbm.end(true)) return getChameleon();}
     {PSQL_BLOCK_END_CREATE_SLASH}   { yypushback(1); if (pbm.end(true)) return getChameleon();}
