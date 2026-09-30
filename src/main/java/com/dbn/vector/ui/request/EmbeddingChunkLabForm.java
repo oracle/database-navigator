@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,7 +88,7 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
     private void initHintPanel() {
         TextContent textContent = TextContent.plain(
                 txt("msg.vector.hint.ChunkLab"));
-        DBNHintForm hintForm = new DBNHintForm(this, textContent, null, true);
+        DBNHintForm hintForm = new DBNHintForm(this, textContent, null);
         hintPanel.add(hintForm.getComponent());
     }
 

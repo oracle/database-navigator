@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,8 @@ public class ConnectionActionGroup extends AbstractConnectionActionGroup {
         add(new MiscellaneousConnectionAction(connection));
         addSeparator();
         add(new DatabaseInformationOpenAction(connection));
-        add(new ConnectionPasswordChangeAction(connection));
         add(new ConnectionSettingsOpenAction(connection));
+        addSeparator();
+        add(new ConnectionPasswordChangeAction(connection));
     }
 }

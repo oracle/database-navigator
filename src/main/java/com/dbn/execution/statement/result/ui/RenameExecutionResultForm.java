@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,9 @@
 
 package com.dbn.execution.statement.result.ui;
 
-import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.form.DBNHintForm;
+import com.dbn.common.ui.info.DBNCommentLabel;
 import com.dbn.common.util.Strings;
 import com.dbn.execution.ExecutionManager;
 import com.dbn.execution.ExecutionResult;
@@ -31,7 +30,6 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import static com.dbn.common.text.TextContent.plain;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -55,9 +53,9 @@ public class RenameExecutionResultForm extends DBNFormBase {
         nameTextField.setText(resultName);
 
         if (executionResult.supportsStickyNames()) {
-            TextContent hint = plain(txt("msg.execution.hint.RenameResult"));
-            DBNHintForm hintForm = new DBNHintForm(this, hint, null, false);
-            hintPanel.add(hintForm.getComponent());
+            DBNCommentLabel hintLabel = new DBNCommentLabel();
+            hintLabel.setText(txt("msg.execution.hint.RenameResult"));
+            hintPanel.add(hintLabel);
 
             ExecutionManager executionManager = ExecutionManager.getInstance(ensureProject());
             stickyCheckBox.setSelected(executionManager.isRetainStickyNames());

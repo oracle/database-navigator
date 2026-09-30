@@ -938,6 +938,7 @@
                     <action id="DBN.Browser.DisplayMode.Tabbed" class="com.dbn.browser.action.BrowserDisplayModeAction$Tabbed"/>
                     <action id="DBN.Browser.DisplayMode.Selector" class="com.dbn.browser.action.BrowserDisplayModeAction$Selector"/>
                 </group>
+                <action id="DBN.Browser.Settings.ConnectionConfig" class="com.dbn.browser.action.ConnectionConfigOpenAction"/>
                 <action id="DBN.Browser.Settings.Open" class="com.dbn.browser.action.BrowserProjectSettingsAction"/>
             </group>
         </group>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,7 @@ import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.options.SettingsChangeNotifier;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
-import com.dbn.common.text.TextContent;
-import com.dbn.common.ui.form.DBNHintForm;
+import com.dbn.common.ui.panel.DBNBanner;
 import com.dbn.ddl.options.DDLFileGeneralSettings;
 import com.dbn.ddl.options.listener.DDLFileSettingsChangeListener;
 import com.intellij.openapi.options.ConfigurationException;
@@ -33,7 +32,6 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.event.ActionListener;
 
-import static com.dbn.common.text.TextContent.plain;
 import static com.dbn.nls.NlsResources.txt;
 
 public class DDLFileGeneralSettingsForm extends ConfigurationEditorForm<DDLFileGeneralSettings> {
@@ -48,9 +46,10 @@ public class DDLFileGeneralSettingsForm extends ConfigurationEditorForm<DDLFileG
     public DDLFileGeneralSettingsForm(DDLFileGeneralSettings settings) {
         super(settings);
 
-        TextContent hintText = plain(txt("cfg.ddlFiles.hint.SynchronizeDdlFiles"));
-        DBNHintForm hintForm = new DBNHintForm(this, hintText, MessageType.INFO, false);
-        hintPanel.add(hintForm.getComponent(), BorderLayout.CENTER);
+        DBNBanner hintBanner = new DBNBanner(
+            txt("cfg.ddlFiles.hint.SynchronizeDdlFiles"),
+            MessageType.INFO);
+        hintPanel.add(hintBanner, BorderLayout.CENTER);
 
         resetFormChanges();
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ public class OptionsDialogForm<O extends Presentable> extends DBNFormBase {
     public OptionsDialogForm(OptionsDialog<O> dialog) {
         super(dialog);
 
-        DBNHintForm optionDescriptionForm = new DBNHintForm(this, null, null, true);
+        DBNHintForm optionDescriptionForm = new DBNHintForm(this, null, null);
         optionDescriptionPanel.add(optionDescriptionForm.getComponent());
 
         optionLabel.setText(dialog.getOptionLabel());

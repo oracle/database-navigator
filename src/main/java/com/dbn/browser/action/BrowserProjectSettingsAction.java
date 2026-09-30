@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class BrowserProjectSettingsAction extends ProjectSettingsOpenAction {
     public BrowserProjectSettingsAction() {
-        super(ConfigId.CONNECTIONS, false, txt("app.browser.action.BrowserSettings"));
+        super(ConfigId.BROWSER, true, txt("app.browser.action.BrowserSettings"));
     }
 
     @Override

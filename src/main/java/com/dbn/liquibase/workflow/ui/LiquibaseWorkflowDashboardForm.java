@@ -84,7 +84,7 @@ public class LiquibaseWorkflowDashboardForm extends DBNFormBase {
     }
 
     private void initHintPanel() {
-        hintPanel.add(new DBNHintForm(this, TextContent.plain(txt("app.liquibase.hint.Workflows")), null, true).getComponent(), BorderLayout.CENTER);
+        hintPanel.add(new DBNHintForm(this, TextContent.plain(txt("app.liquibase.hint.Workflows")), null).getComponent(), BorderLayout.CENTER);
     }
 
     private void initHyperlinkPanel() {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,11 +77,24 @@ public class OracleMethodExecutionProcessor extends MethodExecutionProcessorImpl
 
             DBDataType dataType = argument.getDataType();
             if (dataType.isPurelyDeclared()) {
+                DBType declaredType = dataType.getDeclaredType();
+
                 buffer.append("    ");
                 appendVariableName(buffer, argument);
-                buffer.append(" := ").append(dataType.getQualifiedName(true)).append("();\n");
+                buffer.append(" := ").append(dataType.getQualifiedName(true));
+                if (declaredType.isCollection()) {
+                    buffer.append("()");
+                } else {
+                    buffer.append("(");
+                    List<DBTypeAttribute> attributes = declaredType.getAttributes();
+                    for (int i = 0; i < attributes.size(); i++) {
+                        if (i > 0) buffer.append(", ");
+                        buffer.append("NULL");
+                    }
+                    buffer.append(")");
+                }
+                buffer.append(";\n");
 
-                DBType declaredType = dataType.getDeclaredType();
                 List<DBTypeAttribute> attributes = declaredType.getAttributes();
                 for (DBTypeAttribute attribute : attributes) {
                     buffer.append("    ");
