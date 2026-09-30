@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,13 @@
 
 package com.dbn.database.common.metadata.impl;
 
-import com.dbn.database.common.metadata.DBObjectMetadataBase;
-import com.dbn.database.common.metadata.def.DBNestedTableMetadata;
+import com.dbn.database.common.metadata.def.DBNestedTableColumnMetadata;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class DBNestedTableMetadataImpl extends DBObjectMetadataBase implements DBNestedTableMetadata {
-
-    public DBNestedTableMetadataImpl(ResultSet resultSet) {
+public class DBNestedTableColumnMetadataImpl extends DBColumnMetadataImpl implements DBNestedTableColumnMetadata {
+    public DBNestedTableColumnMetadataImpl(ResultSet resultSet) {
         super(resultSet);
     }
 
@@ -34,22 +32,7 @@ public class DBNestedTableMetadataImpl extends DBObjectMetadataBase implements D
     }
 
     @Override
-    public String getParentTableName() throws SQLException {
-        return getString("PARENT_TABLE_NAME");
-    }
-
-    @Override
-    public String getParentTableColumnName() throws SQLException {
-        return getString("PARENT_TABLE_COLUMN_NAME");
-    }
-
-    @Override
-    public String getDeclaredTypeName() throws SQLException {
-        return getString("DECL_TYPE_NAME");
-    }
-
-    @Override
-    public String getDeclaredTypeOwner() throws SQLException {
-        return getString("DECL_TYPE_OWNER");
+    public String getTableName() throws SQLException {
+        return getString("TABLE_NAME");
     }
 }

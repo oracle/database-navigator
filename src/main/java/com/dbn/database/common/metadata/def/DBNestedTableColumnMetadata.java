@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,17 @@
  * limitations under the License.
  */
 
-package com.dbn.object;
+package com.dbn.database.common.metadata.def;
 
-public interface DBNestedTable extends DBDataset {
-    DBNestedTableColumn getColumn(String name);
+import com.dbn.database.common.security.ObjectIdentifier;
 
-    DBTable getParentTable();
+import java.sql.SQLException;
 
-    DBColumn getParentTableColumn();
+public interface DBNestedTableColumnMetadata extends DBColumnMetadata {
+
+    @ObjectIdentifier
+    String getNestedTableName() throws SQLException;
+
+    @ObjectIdentifier
+    String getTableName() throws SQLException;
 }

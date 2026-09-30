@@ -394,24 +394,64 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      * Loads the actions of nested-tables owned by the given table<br>
      * Column names of the returned ResultSet
      *  <li> NESTED_TABLE_NAME (char)
-     *  <li> TABLE_COLUMN (char)
+     *  <li> TABLE_COLUMN_NAME (char)
      *  <li> TYPE_NAME (char)
      *  <li> TYPE_OWNER (char)
      */
     ResultSet loadNestedTables(String ownerName, String tableName, DBNConnection connection) throws SQLException;
 
     /**
+     * Loads the columns of the nested-table storage table owned by the given table<br>
+     * Column names of the returned ResultSet
+     *  <li> NESTED_TABLE_NAME (char)
+     *  <li> TABLE_NAME (char)
+     *  <li> DATASET_NAME (char)
+     *  <li> COLUMN_NAME (char)
+     *  <li> POSITION (number)
+     *  <li> DATA_TYPE_NAME (char)
+     *  <li> DECL_TYPE_OWNER (char)
+     *  <li> DECL_TYPE_NAME (char)
+     *  <li> DECL_TYPE_PROGRAM (char)
+     *  <li> DATA_LENGTH (number)
+     *  <li> DATA_PRECISION (number)
+     *  <li> DATA_SCALE (number)
+     *  <li> IS_SET (Y/N)
+     */
+    ResultSet loadNestedTableColumns(String ownerName, String tableName, DBNConnection connection) throws SQLException;
+
+    /**
      * Loads the actions of nested-tables for the given owner<br>
      * Column names of the returned ResultSet
      *  <li> NESTED_TABLE_NAME (char)
      *  <li> TABLE_NAME (char)
-     *  <li> TABLE_COLUMN (char)
+     *  <li> TABLE_COLUMN_NAME (char)
      *  <li> TYPE_NAME (char)
      *  <li> TYPE_OWNER (char)
      *
      * Sort by TABLE_NAME
      */
     ResultSet loadAllNestedTables(String ownerName, DBNConnection connection) throws SQLException;
+
+    /**
+     * Loads all columns of nested-table storage tables for the given owner<br>
+     * Column names of the returned ResultSet
+     *  <li> NESTED_TABLE_NAME (char)
+     *  <li> TABLE_NAME (char)
+     *  <li> DATASET_NAME (char)
+     *  <li> COLUMN_NAME (char)
+     *  <li> POSITION (number)
+     *  <li> DATA_TYPE_NAME (char)
+     *  <li> DECL_TYPE_OWNER (char)
+     *  <li> DECL_TYPE_NAME (char)
+     *  <li> DECL_TYPE_PROGRAM (char)
+     *  <li> DATA_LENGTH (number)
+     *  <li> DATA_PRECISION (number)
+     *  <li> DATA_SCALE (number)
+     *  <li> IS_SET (Y/N)
+     *
+     * Sort by TABLE_NAME and NESTED_TABLE_NAME
+     */
+    ResultSet loadAllNestedTableColumns(String ownerName, DBNConnection connection) throws SQLException;
 
 
     /**

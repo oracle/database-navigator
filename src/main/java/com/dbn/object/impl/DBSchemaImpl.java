@@ -124,6 +124,7 @@ import static com.dbn.object.type.DBObjectType.JSON_VIEW;
 import static com.dbn.object.type.DBObjectType.MATERIALIZED_VIEW;
 import static com.dbn.object.type.DBObjectType.MINING_MODEL;
 import static com.dbn.object.type.DBObjectType.NESTED_TABLE;
+import static com.dbn.object.type.DBObjectType.NESTED_TABLE_COLUMN;
 import static com.dbn.object.type.DBObjectType.PACKAGE;
 import static com.dbn.object.type.DBObjectType.PACKAGE_FUNCTION;
 import static com.dbn.object.type.DBObjectType.PACKAGE_PROCEDURE;
@@ -180,25 +181,26 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
         childObjects.createObjectList(DBLINK,            this);
         childObjects.createObjectList(CREDENTIAL,        this);
         childObjects.createObjectList(AI_PROFILE,        this);
-        childObjects.createObjectList(MINING_MODEL,          this);
+        childObjects.createObjectList(MINING_MODEL,      this);
         childObjects.createObjectList(DATASOURCE_CONFIG, this);
         DBObjectList<DBConstraint> constraints = childObjects.createObjectList(CONSTRAINT, this, INTERNAL, GROUPED);
         DBObjectList<DBIndex> indexes          = childObjects.createObjectList(INDEX,      this, INTERNAL, GROUPED);
         DBObjectList<DBColumn> columns         = childObjects.createObjectList(COLUMN,     this, INTERNAL, GROUPED, HIDDEN);
 
-        childObjects.createObjectList(DATASET_TRIGGER,   this, INTERNAL, GROUPED);
-        childObjects.createObjectList(NESTED_TABLE,      this, INTERNAL, GROUPED, HIDDEN);
-        childObjects.createObjectList(PACKAGE_FUNCTION,  this, INTERNAL, GROUPED, HIDDEN);
-        childObjects.createObjectList(PACKAGE_PROCEDURE, this, INTERNAL, GROUPED, HIDDEN);
-        childObjects.createObjectList(PACKAGE_TYPE,      this, INTERNAL, GROUPED, HIDDEN);
-        childObjects.createObjectList(TYPE_ATTRIBUTE,    this, INTERNAL, GROUPED, HIDDEN);
-        childObjects.createObjectList(TYPE_FUNCTION,     this, INTERNAL, GROUPED, HIDDEN);
-        childObjects.createObjectList(TYPE_PROCEDURE,    this, INTERNAL, GROUPED, HIDDEN);
-        childObjects.createObjectList(JAVA_FIELD,        this, INTERNAL, GROUPED, HIDDEN);
-        childObjects.createObjectList(JAVA_METHOD,       this, INTERNAL, GROUPED, HIDDEN);
-        childObjects.createObjectList(JAVA_PARAMETER,    this, INTERNAL, GROUPED, HIDDEN);
-        childObjects.createObjectList(JAVA_INNER_CLASS,  this, INTERNAL, GROUPED);
-        childObjects.createObjectList(ARGUMENT,          this, INTERNAL, GROUPED, HIDDEN);
+        childObjects.createObjectList(DATASET_TRIGGER,     this, INTERNAL, GROUPED);
+        childObjects.createObjectList(NESTED_TABLE,        this, INTERNAL, GROUPED, HIDDEN);
+        childObjects.createObjectList(NESTED_TABLE_COLUMN, this, INTERNAL, GROUPED, HIDDEN);
+        childObjects.createObjectList(PACKAGE_FUNCTION,    this, INTERNAL, GROUPED, HIDDEN);
+        childObjects.createObjectList(PACKAGE_PROCEDURE,   this, INTERNAL, GROUPED, HIDDEN);
+        childObjects.createObjectList(PACKAGE_TYPE,        this, INTERNAL, GROUPED, HIDDEN);
+        childObjects.createObjectList(TYPE_ATTRIBUTE,      this, INTERNAL, GROUPED, HIDDEN);
+        childObjects.createObjectList(TYPE_FUNCTION,       this, INTERNAL, GROUPED, HIDDEN);
+        childObjects.createObjectList(TYPE_PROCEDURE,      this, INTERNAL, GROUPED, HIDDEN);
+        childObjects.createObjectList(JAVA_FIELD,          this, INTERNAL, GROUPED, HIDDEN);
+        childObjects.createObjectList(JAVA_METHOD,         this, INTERNAL, GROUPED, HIDDEN);
+        childObjects.createObjectList(JAVA_PARAMETER,      this, INTERNAL, GROUPED, HIDDEN);
+        childObjects.createObjectList(JAVA_INNER_CLASS,    this, INTERNAL, GROUPED);
+        childObjects.createObjectList(ARGUMENT,            this, INTERNAL, GROUPED, HIDDEN);
 
         //ol.createHiddenObjectList(DBObjectType.TYPE_METHOD, this, TYPE_METHODS_LOADER);
 

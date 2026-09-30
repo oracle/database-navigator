@@ -484,6 +484,10 @@
                               from [PREFIX]_MVIEWS mv
                               where mv.OWNER = t.owner
                                 and mv.MVIEW_NAME = t.TABLE_NAME)
+              and not exists (SELECT 1
+                              from [PREFIX]_NESTED_TABLES nt
+                              where nt.OWNER = t.OWNER
+                                and nt.TABLE_NAME = t.TABLE_NAME)
             order by t.TABLE_NAME asc
         </statement>
     </statement-execution-processor>
@@ -1519,13 +1523,80 @@
         <statement prefixes="DBA, ALL">
             select
                 TABLE_NAME as NESTED_TABLE_NAME,
-                PARENT_TABLE_COLUMN as TABLE_COLUMN,
+                PARENT_TABLE_NAME as PARENT_TABLE_NAME,
+                PARENT_TABLE_COLUMN as PARENT_TABLE_COLUMN_NAME,
                 TABLE_TYPE_OWNER as DECL_TYPE_OWNER,
                 TABLE_TYPE_NAME as DECL_TYPE_NAME
                 from [PREFIX]_NESTED_TABLES
             where
                 OWNER = {#0} and
                 PARENT_TABLE_NAME = {#1}
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="nested-table-columns">
+        <statement prefixes="DBA, ALL" since-version="10.1">
+            select
+                nt.TABLE_NAME as NESTED_TABLE_NAME,
+                nt.PARENT_TABLE_NAME as TABLE_NAME,
+                nt.PARENT_TABLE_NAME as DATASET_NAME,
+                col.COLUMN_NAME,
+                col.COLUMN_ID as POSITION,
+                REGEXP_REPLACE(col.DATA_TYPE, '\([0-9]+\)', '') as DATA_TYPE_NAME,
+                col.DATA_TYPE_OWNER as DECL_TYPE_OWNER,
+                col.DATA_TYPE as DECL_TYPE_NAME,
+                null as DECL_TYPE_PROGRAM,
+                decode(col.DATA_TYPE, 'VECTOR', col.CHAR_LENGTH, col.DATA_LENGTH) as DATA_LENGTH,
+                col.DATA_PRECISION,
+                col.DATA_SCALE,
+                null as COMMENTS,
+                'N' as IS_PRIMARY_KEY,
+                'N' as IS_FOREIGN_KEY,
+                'N' as IS_UNIQUE_KEY,
+                'N' as IS_IDENTITY,
+                'Y' as IS_NULLABLE,
+                'N' as IS_HIDDEN,
+                'N' as IS_SET
+            from [PREFIX]_NESTED_TABLES nt
+                 inner join [PREFIX]_NESTED_TABLE_COLS col
+                         on col.OWNER = nt.OWNER
+                        and col.TABLE_NAME = nt.TABLE_NAME
+            where
+                nt.OWNER = {#0} and
+                nt.TABLE_NAME = {#1} and
+                col.HIDDEN_COLUMN = 'NO'
+            order by col.COLUMN_ID asc
+        </statement>
+        <statement prefixes="DBA, ALL" comment="Oracle 8.0">
+            select
+                nt.TABLE_NAME as NESTED_TABLE_NAME,
+                nt.PARENT_TABLE_NAME as TABLE_NAME,
+                nt.PARENT_TABLE_NAME as DATASET_NAME,
+                col.COLUMN_NAME,
+                col.COLUMN_ID as POSITION,
+                REGEXP_REPLACE(col.DATA_TYPE, '\([0-9]+\)', '') as DATA_TYPE_NAME,
+                col.DATA_TYPE_OWNER as DECL_TYPE_OWNER,
+                col.DATA_TYPE as DECL_TYPE_NAME,
+                null as DECL_TYPE_PROGRAM,
+                col.DATA_LENGTH,
+                col.DATA_PRECISION,
+                col.DATA_SCALE,
+                null as COMMENTS,
+                'N' as IS_PRIMARY_KEY,
+                'N' as IS_FOREIGN_KEY,
+                'N' as IS_UNIQUE_KEY,
+                'N' as IS_IDENTITY,
+                'Y' as IS_NULLABLE,
+                'N' as IS_HIDDEN,
+                'N' as IS_SET
+            from [PREFIX]_NESTED_TABLES nt
+                 inner join [PREFIX]_TAB_COLUMNS col
+                         on col.OWNER = nt.OWNER
+                        and col.TABLE_NAME = nt.TABLE_NAME
+            where
+                nt.OWNER = {#0} and
+                nt.TABLE_NAME = {#1}
+            order by col.COLUMN_ID asc
         </statement>
     </statement-execution-processor>
 
@@ -1564,13 +1635,76 @@
         <statement prefixes="DBA, ALL">
             select
                 TABLE_NAME as NESTED_TABLE_NAME,
-                PARENT_TABLE_NAME as TABLE_NAME,
-                PARENT_TABLE_COLUMN as TABLE_COLUMN,
+                PARENT_TABLE_NAME as PARENT_TABLE_NAME,
+                PARENT_TABLE_COLUMN as PARENT_TABLE_COLUMN_NAME,
                 TABLE_TYPE_OWNER as DECL_TYPE_OWNER,
                 TABLE_TYPE_NAME as DECL_TYPE_NAME
             from [PREFIX]_NESTED_TABLES
             where OWNER = {#0}
             order by PARENT_TABLE_NAME asc
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="all-nested-table-columns" timeout="90">
+        <statement prefixes="DBA, ALL" since-version="10.1">
+            select
+                nt.TABLE_NAME as NESTED_TABLE_NAME,
+                nt.PARENT_TABLE_NAME as TABLE_NAME,
+                nt.PARENT_TABLE_NAME as DATASET_NAME,
+                col.COLUMN_NAME,
+                col.COLUMN_ID as POSITION,
+                REGEXP_REPLACE(col.DATA_TYPE, '\([0-9]+\)', '') as DATA_TYPE_NAME,
+                col.DATA_TYPE_OWNER as DECL_TYPE_OWNER,
+                col.DATA_TYPE as DECL_TYPE_NAME,
+                null as DECL_TYPE_PROGRAM,
+                decode(col.DATA_TYPE, 'VECTOR', col.CHAR_LENGTH, col.DATA_LENGTH) as DATA_LENGTH,
+                col.DATA_PRECISION,
+                col.DATA_SCALE,
+                null as COMMENTS,
+                'N' as IS_PRIMARY_KEY,
+                'N' as IS_FOREIGN_KEY,
+                'N' as IS_UNIQUE_KEY,
+                'N' as IS_IDENTITY,
+                'Y' as IS_NULLABLE,
+                'N' as IS_HIDDEN,
+                'N' as IS_SET
+            from [PREFIX]_NESTED_TABLES nt
+                 inner join [PREFIX]_NESTED_TABLE_COLS col
+                         on col.OWNER = nt.OWNER
+                        and col.TABLE_NAME = nt.TABLE_NAME
+            where
+                nt.OWNER = {#0} and
+                col.HIDDEN_COLUMN = 'NO'
+            order by nt.PARENT_TABLE_NAME asc, nt.TABLE_NAME asc, col.COLUMN_ID asc
+        </statement>
+        <statement prefixes="DBA, ALL" comment="Oracle 8.0">
+            select
+                nt.TABLE_NAME as NESTED_TABLE_NAME,
+                nt.PARENT_TABLE_NAME as TABLE_NAME,
+                nt.PARENT_TABLE_NAME as DATASET_NAME,
+                col.COLUMN_NAME,
+                col.COLUMN_ID as POSITION,
+                REGEXP_REPLACE(col.DATA_TYPE, '\([0-9]+\)', '') as DATA_TYPE_NAME,
+                col.DATA_TYPE_OWNER as DECL_TYPE_OWNER,
+                col.DATA_TYPE as DECL_TYPE_NAME,
+                null as DECL_TYPE_PROGRAM,
+                col.DATA_LENGTH,
+                col.DATA_PRECISION,
+                col.DATA_SCALE,
+                null as COMMENTS,
+                'N' as IS_PRIMARY_KEY,
+                'N' as IS_FOREIGN_KEY,
+                'N' as IS_UNIQUE_KEY,
+                'N' as IS_IDENTITY,
+                'Y' as IS_NULLABLE,
+                'N' as IS_HIDDEN,
+                'N' as IS_SET
+            from [PREFIX]_NESTED_TABLES nt
+                 inner join [PREFIX]_TAB_COLUMNS col
+                         on col.OWNER = nt.OWNER
+                        and col.TABLE_NAME = nt.TABLE_NAME
+            where nt.OWNER = {#0}
+            order by nt.PARENT_TABLE_NAME asc, nt.TABLE_NAME asc, col.COLUMN_ID asc
         </statement>
     </statement-execution-processor>
 

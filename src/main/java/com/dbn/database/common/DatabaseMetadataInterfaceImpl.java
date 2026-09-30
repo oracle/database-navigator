@@ -225,8 +225,18 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     }
 
     @Override
+    public ResultSet loadNestedTableColumns(String ownerName, String tableName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "nested-table-columns", ownerName, tableName);
+    }
+
+    @Override
     public ResultSet loadAllNestedTables(String ownerName, DBNConnection connection) throws SQLException {
         return executeQuery(connection, "all-nested-tables", ownerName);
+    }
+
+    @Override
+    public ResultSet loadAllNestedTableColumns(String ownerName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "all-nested-table-columns", ownerName);
     }
 
     @Override

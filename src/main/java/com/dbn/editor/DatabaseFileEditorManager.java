@@ -42,6 +42,7 @@ import com.dbn.editor.data.filter.DatasetFilterType;
 import com.dbn.editor.data.options.DataEditorSettings;
 import com.dbn.object.DBConsole;
 import com.dbn.object.DBDataset;
+import com.dbn.object.DBNestedTable;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBRootObject;
 import com.dbn.object.common.DBSchemaObject;
@@ -372,6 +373,11 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
     }
 
     private static void prepareDatasetEditor(DBEditableObjectVirtualFile databaseFile, @NotNull Runnable callback) {
+        if (databaseFile.getObject() instanceof DBNestedTable) {
+            callback.run();
+            return;
+        }
+
         // do not prompt filter dialogs attachments during workspace restore
         if (ThreadInfo.current().is(WORKSPACE_RESTORE)) {
             callback.run();

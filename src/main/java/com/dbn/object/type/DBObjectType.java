@@ -116,7 +116,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     MODEL(DatabaseObjectTypeId.MODEL, "model", "models", null, null, null, false),
     MODULE(DatabaseObjectTypeId.MODULE, "module", "modules", null, null, null, false),
     NESTED_TABLE(DatabaseObjectTypeId.NESTED_TABLE, "nested table", "nested tables", Icons.DBO_NESTED_TABLE, null, Icons.DBO_NESTED_TABLES, false),
-    NESTED_TABLE_COLUMN(DatabaseObjectTypeId.NESTED_TABLE_COLUMN, "nested table column", "nested table columns", null, null, null, false),
+    NESTED_TABLE_COLUMN(DatabaseObjectTypeId.NESTED_TABLE_COLUMN, "column", "columns", Icons.DBO_COLUMN, null, Icons.DBO_COLUMNS, false),
     OPERATOR(DatabaseObjectTypeId.OPERATOR, "operator", "operators", null, null, null, false),
     OPERATOR_CLASS(DatabaseObjectTypeId.OPERATOR_CLASS, "operator class", "operator classes", null, null, null, false),
     OPERATOR_FAMILY(DatabaseObjectTypeId.OPERATOR_FAMILY, "operator family", "operator families", null, null, null, false),
@@ -531,7 +531,9 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         INDEX.addParent(SCHEMA);
         JSON_VIEW.addParent(SCHEMA);
         MATERIALIZED_VIEW.addParent(SCHEMA);
+        NESTED_TABLE.addParent(SCHEMA);
         NESTED_TABLE.addParent(TABLE);
+        NESTED_TABLE.addParent(DATASET);
         NESTED_TABLE_COLUMN.addParent(NESTED_TABLE);
         PACKAGE.addParent(SCHEMA);
         PACKAGE_BODY.addParent(SCHEMA);
@@ -580,6 +582,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         FUNCTION.contentType = DBContentType.CODE;
         PROCEDURE.contentType = DBContentType.CODE;
         TABLE.contentType = DBContentType.DATA;
+        NESTED_TABLE.contentType = DBContentType.DATA;
         VIEW.contentType = DBContentType.CODE_AND_DATA;
         ANALYTIC_VIEW.contentType = DBContentType.CODE_AND_DATA;
         MATERIALIZED_VIEW.contentType = DBContentType.CODE_AND_DATA;
@@ -624,6 +627,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         TABLE.addTreeChild(INDEX);
         TABLE.addTreeChild(DATASET_TRIGGER);
         TABLE.addTreeChild(NESTED_TABLE);
+        NESTED_TABLE.addTreeChild(COLUMN);
 
         VIEW.addTreeChild(COLUMN);
         VIEW.addTreeChild(CONSTRAINT);
