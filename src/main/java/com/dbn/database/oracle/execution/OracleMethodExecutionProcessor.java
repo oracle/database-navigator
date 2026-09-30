@@ -301,7 +301,6 @@ public class OracleMethodExecutionProcessor extends MethodExecutionProcessorImpl
                     executionResult.addArgumentValue(argument, result);
                     parameterIndex++;
                 } else {
-                    executionResult.addArgumentValue(argument, null);
                     List<DBTypeAttribute> attributes = declaredType.getAttributes();
                     for (DBTypeAttribute attribute : attributes) {
                         // TODO assuming type attributes are all native
