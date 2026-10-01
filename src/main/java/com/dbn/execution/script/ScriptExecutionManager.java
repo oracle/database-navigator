@@ -48,12 +48,12 @@ import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Getter;
 import lombok.Setter;
-import org.jdesktop.swingx.util.OS;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -340,7 +340,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
     @Nullable
     public VirtualFile selectCmdLineExecutable(@NotNull DatabaseType databaseType, @Nullable String selectedExecutable) {
         CmdLineInterface defaultCli = CmdLineInterface.getDefault(databaseType);
-        String extension = OS.isWindows() ? ".exe" : "";
+        String extension = SystemInfo.isWindows ? ".exe" : "";
         FileChooserDescriptor fileChooserDescriptor = FileChoosers.singleFile().
                 withTitle(txt("cfg.execution.title.SelectCommandLineClient")).
                 withDescription(txt("cfg.execution.text.SelectCommandLineClient", defaultCli.getExecutablePath() + extension)).

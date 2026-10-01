@@ -24,7 +24,7 @@ import com.dbn.common.util.Strings;
 import com.dbn.connection.DatabaseType;
 import com.dbn.execution.script.CmdLineInterface;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
-import org.jdesktop.swingx.util.OS;
+import com.intellij.openapi.util.SystemInfo;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JPanel;
@@ -83,7 +83,7 @@ public class CmdLineInterfaceInputForm extends DBNFormBase {
         executableTextField.setText(executablePath);
 
         CmdLineInterface defaultClient = CmdLineInterface.getDefault(databaseType);
-        String extension = OS.isWindows() ? ".exe" : "";
+        String extension = SystemInfo.isWindows ? ".exe" : "";
         addSingleFileChooser(
                 getProject(), executableTextField,
                 txt("cfg.execution.title.SelectCommandLineClient"),
