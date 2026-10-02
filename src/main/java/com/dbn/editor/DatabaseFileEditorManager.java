@@ -85,6 +85,7 @@ import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.common.property.DBObjectProperty.ROOT_OBJECT;
 import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
 import static com.dbn.vfs.DatabaseFileSystem.isFileOpened;
+import static com.dbn.vfs.file.DBFileOpenHandle.isFileOpening;
 
 @State(
         name = COMPONENT_NAME,
@@ -157,7 +158,17 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
 
     public void openEditor(@NotNull DBObject object, @Nullable EditorProviderId editorProviderId, boolean scrollBrowser, boolean focusEditor) {
         if (!isEditable(object)) return;
-        if (DBFileOpenHandle.isFileOpening(object)) return;
+        checkDisposed();
+
+        DDLFileAttachmentManager attachmentManager = DDLFileAttachmentManager.getInstance(getProject());
+        attachmentManager.whenMappingsInitialized(() ->
+                doOpenEditor(object, editorProviderId, scrollBrowser, focusEditor));
+    }
+
+    private void doOpenEditor(@NotNull DBObject object, @Nullable EditorProviderId editorProviderId, boolean scrollBrowser, boolean focusEditor) {
+        if (!isEditable(object)) return;
+        if (isFileOpening(object)) return;
+        checkDisposed();
 
         NavigationInstructions editorInstructions = NavigationInstructions.create().with(OPEN).with(SCROLL, focusEditor).with(FOCUS, focusEditor);
         NavigationInstructions browserInstructions = NavigationInstructions.create().with(SCROLL, scrollBrowser);

@@ -26,7 +26,6 @@ import com.dbn.common.file.FileMappings;
 import com.dbn.common.file.VirtualFileInfo;
 import com.dbn.common.file.util.FileSearchRequest;
 import com.dbn.common.file.util.VirtualFiles;
-import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.thread.Read;
@@ -92,6 +91,7 @@ import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Editors.updateEditorNotifications;
 import static com.dbn.common.util.FileChoosers.singleFolder;
 import static com.dbn.common.util.Lists.convert;
 import static com.dbn.common.util.Lists.first;
@@ -201,6 +201,10 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
 
     public boolean hasAttachedDDLFiles(DBObjectRef<DBObject> objectRef) {
         return mappings.contains(objectRef);
+    }
+
+    public void whenMappingsInitialized(Runnable operation) {
+        mappings.whenInitialized(operation);
     }
 
     private boolean isValidDDLFile(VirtualFile file, DBObjectRef<DBObject> objectRef) {
@@ -554,7 +558,8 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
         Element element = newElement("state");
 
         Element mappingsElement = newElement(element, "mappings");
-        for (String fileUrl : mappings.fileUrls()) {
+        Map<String, DBObjectRef<DBObject>> mappings = this.mappings.mappings();
+        for (String fileUrl : mappings.keySet()) {
             var objectRef = mappings.get(fileUrl);
 
             Element mappingElement = newElement(mappingsElement, "mapping");
@@ -581,6 +586,7 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
                 element.getChildren("mapping") :
                 mappingsElement.getChildren();
 
+        Map<String, DBObjectRef<DBObject>> mappings = new LinkedHashMap<>();
         for (Element mappingElement : mappingElements) {
             String fileUrl = stringAttribute(mappingElement, "file-url");
             if (isEmpty(fileUrl)) continue;
@@ -588,9 +594,6 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
             fileUrl = VirtualFiles.ensureFileUrl(fileUrl);
             DBObjectRef<DBObject> objectRef = DBObjectRef.from(mappingElement);
             if (objectRef == null) continue;
-
-            VirtualFile file = VirtualFiles.findFileByUrl(fileUrl);
-            if (file == null || !isTrustedDDLFile(file, objectRef)) continue;
 
             mappings.put(fileUrl, objectRef);
         }
@@ -610,7 +613,8 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
             }
         }
 
-        Background.run(() -> mappings.cleanup());
+        this.mappings.addMappings(mappings);
+        this.mappings.whenInitialized(() -> updateEditorNotifications(getProject(), null));
     }
 
     public void warmUpAttachedDDLFiles(VirtualFile file) {

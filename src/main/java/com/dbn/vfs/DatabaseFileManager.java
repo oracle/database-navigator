@@ -34,6 +34,7 @@ import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ConnectionConfigListener;
+import com.dbn.ddl.DDLFileAttachmentManager;
 import com.dbn.editor.DatabaseFileEditorManager;
 import com.dbn.editor.code.SourceCodeManager;
 import com.dbn.editor.code.diff.SourceCodeDiffManager;
@@ -262,6 +263,16 @@ public class DatabaseFileManager extends ProjectComponentBase implements Persist
     }
 
     public void reopenDatabaseEditors() {
+        if (pendingOpenFiles == null) return;
+        if (pendingOpenFiles.isEmpty()) return;
+        checkDisposed();
+
+        DDLFileAttachmentManager attachmentManager = DDLFileAttachmentManager.getInstance(getProject());
+        attachmentManager.whenMappingsInitialized(this::doReopenDatabaseEditors);
+    }
+
+    private void doReopenDatabaseEditors() {
+        checkDisposed();
         if (pendingOpenFiles == null || pendingOpenFiles.isEmpty()) return;
 
         // overwrite and nullify

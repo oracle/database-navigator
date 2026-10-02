@@ -104,9 +104,11 @@ import java.util.stream.Collectors;
 
 import static com.dbn.browser.DatabaseBrowserUtils.markSkipBrowserAutoscroll;
 import static com.dbn.browser.DatabaseBrowserUtils.unmarkSkipBrowserAutoscroll;
+import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.ui.util.Components.onComponentResized;
 import static com.dbn.common.util.Documents.onDocumentChanged;
+import static com.dbn.common.util.Modality.nonModal;
 import static com.intellij.openapi.editor.EditorModificationUtil.setReadOnlyHint;
 
 @Slf4j
@@ -513,14 +515,24 @@ public class Editors {
 
     public static void updateEditorNotifications(@Nullable PsiFile file) {
         if  (file == null) return;
-        Project project = file.getProject();
-        updateEditorNotifications(project, file.getVirtualFile());
+        updateEditorNotifications(
+                file.getProject(),
+                file.getVirtualFile());
     }
+
     public static void updateEditorNotifications(@NotNull Project project, @Nullable VirtualFile file) {
-        EditorNotifications notifications = getNotifications(project);
-        if (file == null)
-            notifications.updateAllNotifications(); else
-            notifications.updateNotifications(file);
+        if (isNotValid(project)) return;
+
+        Dispatch.run(nonModal(), () -> {
+            if (isNotValid(project)) return;
+
+            EditorNotifications notifications = getNotifications(project);
+            if (file == null){
+                notifications.updateAllNotifications();
+            } else {
+                notifications.updateNotifications(file);
+            }
+        });
     }
 
     public static boolean isDdlFileEditor(FileEditor fileEditor) {
@@ -559,7 +571,7 @@ public class Editors {
         DDLFileAttachmentManager attachmentManager = DDLFileAttachmentManager.getInstance(project);
         attachmentManager.warmUpAttachedDDLFiles(file);
 
-        Dispatch.run(Modality.nonModal(), () -> {
+        Dispatch.run(nonModal(), () -> {
             try {
                 if (!file.exists()) return;
 
@@ -603,7 +615,7 @@ public class Editors {
         if (editorProviderId == null) return;
 
         FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
-        Dispatch.run(Modality.nonModal(), () -> fileEditorManager.setSelectedEditor(file, editorProviderId.getId()));
+        Dispatch.run(nonModal(), () -> fileEditorManager.setSelectedEditor(file, editorProviderId.getId()));
     }
 
     @Workaround
