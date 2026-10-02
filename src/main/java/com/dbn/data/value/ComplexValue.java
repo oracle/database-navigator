@@ -98,6 +98,10 @@ public class ComplexValue extends ValueAdapter<String> implements Comparable<Com
         return displayValue;
     }
 
+    public boolean isNull() {
+        return value == null;
+    }
+
     @Override
     public String toString() {
         return getDisplayValue();

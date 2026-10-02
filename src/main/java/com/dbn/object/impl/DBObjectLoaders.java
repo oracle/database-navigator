@@ -467,10 +467,10 @@ public class DBObjectLoaders {
                 (content, conn, mdi) -> mdi.loadAllNestedTableColumns(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> {
                     DBSchema schema = content.ensureParentEntity();
-                    String nestedTableName = md.getNestedTableName();
-                    String cacheKey = md.getTableName() + '.' + nestedTableName;
+                    String storageTableName = md.getStorageTableName();
+                    String cacheKey = md.getTableName() + '.' + storageTableName;
                     DBNestedTable nestedTable = valid(cache.get(cacheKey,
-                            () -> schema.getChildObject(NESTED_TABLE, nestedTableName)));
+                            () -> schema.getChildObject(NESTED_TABLE, storageTableName)));
                     return new DBNestedTableColumnImpl(nestedTable, md);
                 });
 

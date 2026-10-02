@@ -248,6 +248,10 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      *  <li> COLUMN_NAME (char)
      *  <li> DECL_TYPE_NAME (char)
      *  <li> DECL_TYPE_OWNER (char)
+     *  <li> NTBL_PARENT_OWNER_NAME (char)
+     *  <li> NTBL_PARENT_TABLE_NAME (char)
+     *  <li> NTBL_PARENT_COLUMN_NAME (char)
+     *  <li> STORAGE_TABLE_NAME (char)
      *  <li> DATA_LENGTH (number)
      *  <li> DATA_PRECISION (number)
      *  <li> DATA_SCALE (number)
@@ -403,7 +407,7 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
     /**
      * Loads the columns of the nested-table storage table owned by the given table<br>
      * Column names of the returned ResultSet
-     *  <li> NESTED_TABLE_NAME (char)
+     *  <li> STORAGE_TABLE_NAME (char)
      *  <li> TABLE_NAME (char)
      *  <li> DATASET_NAME (char)
      *  <li> COLUMN_NAME (char)
@@ -412,10 +416,15 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      *  <li> DECL_TYPE_OWNER (char)
      *  <li> DECL_TYPE_NAME (char)
      *  <li> DECL_TYPE_PROGRAM (char)
+     *  <li> NTBL_NAME (char)
+     *  <li> NTBL_PARENT_OWNER_NAME (char)
+     *  <li> NTBL_PARENT_TABLE_NAME (char)
+     *  <li> NTBL_PARENT_COLUMN_NAME (char)
      *  <li> DATA_LENGTH (number)
      *  <li> DATA_PRECISION (number)
      *  <li> DATA_SCALE (number)
      *  <li> IS_SET (Y/N)
+     *  <li> IS_COLLECTION (Y/N)
      */
     ResultSet loadNestedTableColumns(String ownerName, String tableName, DBNConnection connection) throws SQLException;
 
@@ -435,7 +444,7 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
     /**
      * Loads all columns of nested-table storage tables for the given owner<br>
      * Column names of the returned ResultSet
-     *  <li> NESTED_TABLE_NAME (char)
+     *  <li> STORAGE_TABLE_NAME (char)
      *  <li> TABLE_NAME (char)
      *  <li> DATASET_NAME (char)
      *  <li> COLUMN_NAME (char)
@@ -444,12 +453,17 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      *  <li> DECL_TYPE_OWNER (char)
      *  <li> DECL_TYPE_NAME (char)
      *  <li> DECL_TYPE_PROGRAM (char)
+     *  <li> NTBL_NAME (char)
+     *  <li> NTBL_PARENT_OWNER_NAME (char)
+     *  <li> NTBL_PARENT_TABLE_NAME (char)
+     *  <li> NTBL_PARENT_COLUMN_NAME (char)
      *  <li> DATA_LENGTH (number)
      *  <li> DATA_PRECISION (number)
      *  <li> DATA_SCALE (number)
      *  <li> IS_SET (Y/N)
+     *  <li> IS_COLLECTION (Y/N)
      *
-     * Sort by TABLE_NAME and NESTED_TABLE_NAME
+     * Sort by TABLE_NAME and STORAGE_TABLE_NAME
      */
     ResultSet loadAllNestedTableColumns(String ownerName, DBNConnection connection) throws SQLException;
 
@@ -827,6 +841,7 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      *  <li> SUPERTYPE_OWNER (char)
      *  <li> SUPERTYPE_NAME (char)
      *  <li> TYPECODE (char)
+     *  <li> IS_COLLECTION (Y/N)
      */
     ResultSet loadTypes(String ownerName, DBNConnection connection) throws SQLException;
 

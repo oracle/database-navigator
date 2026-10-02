@@ -189,7 +189,12 @@ public class GenericMetadataTranslators {
                 case "DECL_TYPE_NAME" -> null;
                 case "DECL_TYPE_OWNER" -> null;
                 case "DECL_TYPE_PROGRAM" -> null;
+                case "NTBL_PARENT_OWNER_NAME" -> null;
+                case "NTBL_PARENT_TABLE_NAME" -> null;
+                case "NTBL_PARENT_COLUMN_NAME" -> null;
+                case "NTBL_NAME" -> null;
                 case "IS_SET" -> literalBoolean(false);
+                case "IS_COLLECTION" -> literalBoolean(inner.getInt("DATA_TYPE") == Types.ARRAY);
                 default -> null;
             };
         }

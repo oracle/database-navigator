@@ -42,6 +42,7 @@ import static com.dbn.common.util.Unsafe.silent;
 import static com.dbn.connection.ResultSets.getColumnValue;
 import static com.dbn.connection.ResultSets.updateColumnValue;
 import static com.dbn.connection.Statements.setParameterValue;
+import static com.dbn.data.type.GenericDataType.*;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
@@ -72,12 +73,16 @@ public class DBNativeDataType extends StatefulDisposableBase implements DynamicC
         return getGenericDataType().isLOB();
     }
 
+    public boolean isCollection() {
+        return getGenericDataType().is(ARRAY, COLLECTION, TABLE);
+    }
+
     public Object getValueFromResultSet(ResultSet resultSet, int columnIndex) {
         // FIXME: add support for stream updatable types
 
         GenericDataType genericDataType = definition.getGenericDataType();
-        if (genericDataType == GenericDataType.ROWID) return "[ROWID]";
-        if (genericDataType == GenericDataType.FILE) return "[FILE]";
+        if (genericDataType == ROWID) return "[ROWID]";
+        if (genericDataType == FILE) return "[FILE]";
         if (ValueAdapter.supports(genericDataType)) return createValueAdapter(resultSet, columnIndex, genericDataType);
 
         Class<?> clazz = definition.getTypeClass();
@@ -147,12 +152,12 @@ public class DBNativeDataType extends StatefulDisposableBase implements DynamicC
     public void setValueToResultSet(ResultSet resultSet, int columnIndex, Object value) throws SQLException {
         // FIXME: add support for stream updatable types
         GenericDataType genericDataType = definition.getGenericDataType();
-        if (genericDataType == GenericDataType.BLOB) return;
-        if (genericDataType == GenericDataType.CLOB) return;
-        if (genericDataType == GenericDataType.XMLTYPE) return;
-        if (genericDataType == GenericDataType.ROWID) return;
-        if (genericDataType == GenericDataType.FILE) return;
-        if (genericDataType == GenericDataType.ARRAY) return;
+        if (genericDataType == BLOB) return;
+        if (genericDataType == CLOB) return;
+        if (genericDataType == XMLTYPE) return;
+        if (genericDataType == ROWID) return;
+        if (genericDataType == FILE) return;
+        if (genericDataType == ARRAY) return;
 
         if (value == null) {
             updateColumnValue(resultSet, columnIndex, null);
@@ -181,7 +186,7 @@ public class DBNativeDataType extends StatefulDisposableBase implements DynamicC
             }
             return;
         }
-        if (genericDataType == GenericDataType.CURSOR) return;// not supported
+        if (genericDataType == CURSOR) return;// not supported
 
         DataTypeParseAdapter<T> parseAdapter = definition.getParseAdapter();
         if (parseAdapter != null) {

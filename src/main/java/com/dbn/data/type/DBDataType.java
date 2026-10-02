@@ -18,7 +18,10 @@ package com.dbn.data.type;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.data.value.ComplexValue;
+import com.dbn.data.value.NestedTableValue;
 import com.dbn.database.common.metadata.def.DBDataTypeMetadata;
+import com.dbn.object.DBColumn;
+import com.dbn.object.DBNestedTable;
 import com.dbn.object.DBType;
 import com.dbn.object.lookup.DBObjectRef;
 import lombok.Getter;
@@ -38,19 +41,23 @@ import static com.dbn.data.type.GenericDataType.NCLOB;
 public class DBDataType {
     private DBNativeDataType nativeType;
     private DBObjectRef<DBType> declaredType;
+    private DBObjectRef<DBNestedTable> nestedTable;
+    private DBObjectRef<DBColumn> nestedTableColumn;
     private String name;
     private String qualifiedName;
     private long length;
     private int precision;
     private int scale;
     private boolean set;
+    private boolean collection;
+    private boolean table;
 
     public static DBDataType get(ConnectionHandler connection, DBDataTypeMetadata metadata) throws SQLException {
         DBDataTypeDefinition definition = new DBDataTypeDefinition(metadata);
         return connection.getObjectBundle().getDataTypes().getDataType(definition);
     }
 
-    public static DBDataType get(ConnectionHandler connection, String dataTypeName, long length, int precision, int scale, boolean set) {
+    public static DBDataType get(ConnectionHandler connection, String dataTypeName, long length, int precision, int scale, boolean set, boolean collection) {
         String declaredTypeName = null;
         String declaredTypeOwner = null;
         String declaredTypePackage = null;
@@ -67,7 +74,7 @@ public class DBDataType {
                 declaredTypeName = nameChain[2];
             }
         }
-        DBDataTypeDefinition definition = new DBDataTypeDefinition(dataTypeName, declaredTypeName, declaredTypeOwner, declaredTypePackage, length, precision, scale, set);
+        DBDataTypeDefinition definition = new DBDataTypeDefinition(dataTypeName, declaredTypeName, declaredTypeOwner, declaredTypePackage, length, precision, scale, set, collection);
         return connection.getObjectBundle().getDataTypes().getDataType(definition);
     }
 
@@ -127,9 +134,14 @@ public class DBDataType {
     public Object getValueFromResultSet(ResultSet resultSet, int columnIndex) throws SQLException {
         if (nativeType != null) {
             return nativeType.getValueFromResultSet(resultSet, columnIndex);
-        } else {
-            return new ComplexValue(resultSet, columnIndex);
         }
+
+        ComplexValue complexValue = new ComplexValue(resultSet, columnIndex);
+        if (nestedTable == null) return complexValue;
+        if (nestedTableColumn == null) return complexValue;
+        //if (complexValue.isNull()) return null;
+
+        return new NestedTableValue(nestedTable, nestedTableColumn);
     }
 
     public void setValueToResultSet(ResultSet resultSet, int columnIndex, Object value) throws SQLException {

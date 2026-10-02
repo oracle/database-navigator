@@ -18,7 +18,6 @@ package com.dbn.data.model.resultSet;
 
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.data.model.sortable.SortableDataModelCell;
-import com.dbn.data.type.DBDataType;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.ResultSet;
@@ -33,9 +32,8 @@ public class ResultSetDataModelCell<
 
     public ResultSetDataModelCell(R row, ResultSet resultSet, ResultSetColumnInfo columnInfo) throws SQLException {
         super(row, null, columnInfo.getIndex());
-        DBDataType dataType = columnInfo.getDataType();
         if (!getModel().is(INSERTING)) {
-            Object userValue = dataType.getValueFromResultSet(resultSet, columnInfo.getResultSetIndex());
+            Object userValue = columnInfo.getValueFromResultSet(resultSet);
             setUserValue(userValue);
         }
     }

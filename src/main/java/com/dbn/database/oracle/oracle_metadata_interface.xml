@@ -1004,10 +1004,24 @@
                 col.DATA_TYPE_OWNER as DECL_TYPE_OWNER,
                 col.DATA_TYPE as DECL_TYPE_NAME,
                 null as DECL_TYPE_PROGRAM,
+                nt.TABLE_NAME as NTBL_NAME,
+                nt.OWNER as NTBL_PARENT_OWNER_NAME,
+                nt.PARENT_TABLE_NAME as NTBL_PARENT_TABLE_NAME,
+                nt.PARENT_TABLE_COLUMN as NTBL_PARENT_COLUMN_NAME,
                 decode(col.DATA_TYPE, 'VECTOR', col.CHAR_LENGTH, col.DATA_LENGTH) as DATA_LENGTH,
                 col.DATA_PRECISION,
                 col.DATA_SCALE,
                 'N' as IS_SET,
+                case
+                    when col.DATA_TYPE in ('TABLE', 'VARRAY') then 'Y'
+                    when exists (
+                        select 1
+                        from [PREFIX]_TYPES typ
+                        where typ.OWNER = col.DATA_TYPE_OWNER
+                          and typ.TYPE_NAME = col.DATA_TYPE
+                          and typ.TYPECODE = 'COLLECTION') then 'Y'
+                    else 'N'
+                end as IS_COLLECTION,
                 col.NULLABLE as IS_NULLABLE,
                 decode (col.HIDDEN_COLUMN, 'YES', 'Y', 'N' ) as IS_HIDDEN,
                 decode (pk.CONSTRAINT_NAME, null, 'N', 'Y') as IS_PRIMARY_KEY,
@@ -1038,6 +1052,17 @@
                         and uk.OWNER = col.OWNER
                         and uk.TABLE_NAME = col.TABLE_NAME
                         and uk.COLUMN_NAME = col.COLUMN_NAME
+                  left outer join (
+                        select distinct
+                            OWNER,
+                            PARENT_TABLE_NAME,
+                            PARENT_TABLE_COLUMN,
+                            TABLE_NAME
+                        from [PREFIX]_NESTED_TABLES
+                        where OWNER = {#0}) nt
+                         on nt.OWNER = col.OWNER
+                        and nt.PARENT_TABLE_NAME = col.TABLE_NAME
+                        and nt.PARENT_TABLE_COLUMN = col.COLUMN_NAME
             where
                 col.OWNER = {#0} and
                 col.TABLE_NAME = {#1}
@@ -1052,10 +1077,24 @@
                 col.DATA_TYPE_OWNER AS DECL_TYPE_OWNER,
                 col.DATA_TYPE as DECL_TYPE_NAME,
                 null as DECL_TYPE_PROGRAM,
+                nt.TABLE_NAME as NTBL_NAME,
+                nt.OWNER as NTBL_PARENT_OWNER_NAME,
+                nt.PARENT_TABLE_NAME as NTBL_PARENT_TABLE_NAME,
+                nt.PARENT_TABLE_COLUMN as NTBL_PARENT_COLUMN_NAME,
                 col.DATA_LENGTH,
                 col.DATA_PRECISION,
                 col.DATA_SCALE,
                 'N' as IS_SET,
+                case
+                    when col.DATA_TYPE in ('TABLE', 'VARRAY') then 'Y'
+                    when exists (
+                        select 1
+                        from [PREFIX]_TYPES typ
+                        where typ.OWNER = col.DATA_TYPE_OWNER
+                          and typ.TYPE_NAME = col.DATA_TYPE
+                          and typ.TYPECODE = 'COLLECTION') then 'Y'
+                    else 'N'
+                end as IS_COLLECTION,
                 col.NULLABLE as IS_NULLABLE,
                 'N' as IS_HIDDEN,
                 decode (pk.CONSTRAINT_NAME, null, 'N', 'Y') as IS_PRIMARY_KEY,
@@ -1107,7 +1146,14 @@
                       con.OWNER = cc.OWNER and
                       con.TABLE_NAME = cc.TABLE_NAME and
                       con.CONSTRAINT_NAME = cc.CONSTRAINT_NAME and
-                      con.CONSTRAINT_TYPE = 'U') uk
+                      con.CONSTRAINT_TYPE = 'U') uk,
+                (select distinct
+                     OWNER,
+                     PARENT_TABLE_NAME,
+                     PARENT_TABLE_COLUMN,
+                     TABLE_NAME
+                 from [PREFIX]_NESTED_TABLES
+                 where OWNER = {#0}) nt
             where
                 col.OWNER = {#0} and
                 col.TABLE_NAME = {#1} and
@@ -1119,7 +1165,10 @@
                 col.COLUMN_NAME = fk.COLUMN_NAME(+) and
                 col.OWNER = uk.OWNER(+) and
                 col.TABLE_NAME = uk.TABLE_NAME(+) and
-                col.COLUMN_NAME = uk.COLUMN_NAME(+)
+                col.COLUMN_NAME = uk.COLUMN_NAME(+) and
+                col.OWNER = nt.OWNER(+) and
+                col.TABLE_NAME = nt.PARENT_TABLE_NAME(+) and
+                col.COLUMN_NAME = nt.PARENT_TABLE_COLUMN(+)
             order by col.COLUMN_NAME asc
         </statement>
     </statement-execution-processor>
@@ -1148,10 +1197,24 @@
                 col.DATA_TYPE_OWNER as DECL_TYPE_OWNER,
                 col.DATA_TYPE as DECL_TYPE_NAME,
                 null as DECL_TYPE_PROGRAM,
+                nt.TABLE_NAME as NTBL_NAME,
+                nt.OWNER as NTBL_PARENT_OWNER_NAME,
+                nt.PARENT_TABLE_NAME as NTBL_PARENT_TABLE_NAME,
+                nt.PARENT_TABLE_COLUMN as NTBL_PARENT_COLUMN_NAME,
                 decode(col.DATA_TYPE, 'VECTOR', col.CHAR_LENGTH, col.DATA_LENGTH) as DATA_LENGTH,
                 col.DATA_PRECISION,
                 col.DATA_SCALE,
                 'N' as IS_SET,
+                case
+                    when col.DATA_TYPE in ('TABLE', 'VARRAY') then 'Y'
+                    when exists (
+                        select 1
+                        from [PREFIX]_TYPES typ
+                        where typ.OWNER = col.DATA_TYPE_OWNER
+                          and typ.TYPE_NAME = col.DATA_TYPE
+                          and typ.TYPECODE = 'COLLECTION') then 'Y'
+                    else 'N'
+                end as IS_COLLECTION,
                 col.NULLABLE as IS_NULLABLE,
                 decode (col.HIDDEN_COLUMN, 'YES', 'Y', 'N' ) as IS_HIDDEN,
                 decode (pk.CONSTRAINT_NAME, null, 'N', 'Y') as IS_PRIMARY_KEY,
@@ -1182,6 +1245,17 @@
                         and uk.OWNER = col.OWNER
                         and uk.TABLE_NAME = col.TABLE_NAME
                         and uk.COLUMN_NAME = col.COLUMN_NAME
+                  left outer join (
+                        select distinct
+                            OWNER,
+                            PARENT_TABLE_NAME,
+                            PARENT_TABLE_COLUMN,
+                            TABLE_NAME
+                        from [PREFIX]_NESTED_TABLES
+                        where OWNER = {#0}) nt
+                         on nt.OWNER = col.OWNER
+                        and nt.PARENT_TABLE_NAME = col.TABLE_NAME
+                        and nt.PARENT_TABLE_COLUMN = col.COLUMN_NAME
             where col.OWNER = {#0}
             order by col.TABLE_NAME asc
         </statement>
@@ -1202,10 +1276,24 @@
                 col.DATA_TYPE_OWNER as DECL_TYPE_OWNER,
                 col.DATA_TYPE as DECL_TYPE_NAME,
                 null as DECL_TYPE_PROGRAM,
+                nt.TABLE_NAME as NTBL_NAME,
+                nt.OWNER as NTBL_PARENT_OWNER_NAME,
+                nt.PARENT_TABLE_NAME as NTBL_PARENT_TABLE_NAME,
+                nt.PARENT_TABLE_COLUMN as NTBL_PARENT_COLUMN_NAME,
                 col.DATA_LENGTH,
                 col.DATA_PRECISION,
                 col.DATA_SCALE,
                 'N' as IS_SET,
+                case
+                    when col.DATA_TYPE in ('TABLE', 'VARRAY') then 'Y'
+                    when exists (
+                        select 1
+                        from [PREFIX]_TYPES typ
+                        where typ.OWNER = col.DATA_TYPE_OWNER
+                          and typ.TYPE_NAME = col.DATA_TYPE
+                          and typ.TYPECODE = 'COLLECTION') then 'Y'
+                    else 'N'
+                end as IS_COLLECTION,
                 col.NULLABLE as IS_NULLABLE,
                 'N' as IS_HIDDEN,
                 decode (pk.CONSTRAINT_NAME, null, 'N', 'Y') as IS_PRIMARY_KEY,
@@ -1260,7 +1348,14 @@
                       con.OWNER = cc.OWNER and
                       con.TABLE_NAME = cc.TABLE_NAME and
                       con.CONSTRAINT_NAME = cc.CONSTRAINT_NAME and
-                      con.CONSTRAINT_TYPE = 'U') uk
+                      con.CONSTRAINT_TYPE = 'U') uk,
+                (select distinct
+                     OWNER,
+                     PARENT_TABLE_NAME,
+                     PARENT_TABLE_COLUMN,
+                     TABLE_NAME
+                 from [PREFIX]_NESTED_TABLES
+                 where OWNER = {#0}) nt
             where
                 col.OWNER = {#0} and
                 col.OWNER = obj.OWNER and
@@ -1273,7 +1368,10 @@
                 col.COLUMN_NAME = fk.COLUMN_NAME(+) and
                 col.OWNER = uk.OWNER(+) and
                 col.TABLE_NAME = uk.TABLE_NAME(+) and
-                col.COLUMN_NAME = uk.COLUMN_NAME(+)
+                col.COLUMN_NAME = uk.COLUMN_NAME(+) and
+                col.OWNER = nt.OWNER(+) and
+                col.TABLE_NAME = nt.PARENT_TABLE_NAME(+) and
+                col.COLUMN_NAME = nt.PARENT_TABLE_COLUMN(+)
             order by col.TABLE_NAME asc
         </statement>
     </statement-execution-processor>
@@ -1537,7 +1635,7 @@
     <statement-execution-processor id="nested-table-columns">
         <statement prefixes="DBA, ALL" since-version="10.1">
             select
-                nt.TABLE_NAME as NESTED_TABLE_NAME,
+                nt.TABLE_NAME as STORAGE_TABLE_NAME,
                 nt.PARENT_TABLE_NAME as TABLE_NAME,
                 nt.PARENT_TABLE_NAME as DATASET_NAME,
                 col.COLUMN_NAME,
@@ -1546,10 +1644,24 @@
                 col.DATA_TYPE_OWNER as DECL_TYPE_OWNER,
                 col.DATA_TYPE as DECL_TYPE_NAME,
                 null as DECL_TYPE_PROGRAM,
+                null as NTBL_NAME,
+                null as NTBL_PARENT_OWNER_NAME,
+                null as NTBL_PARENT_TABLE_NAME,
+                null as NTBL_PARENT_COLUMN_NAME,
                 decode(col.DATA_TYPE, 'VECTOR', col.CHAR_LENGTH, col.DATA_LENGTH) as DATA_LENGTH,
                 col.DATA_PRECISION,
                 col.DATA_SCALE,
                 null as COMMENTS,
+                case
+                    when col.DATA_TYPE in ('TABLE', 'VARRAY') then 'Y'
+                    when exists (
+                        select 1
+                        from [PREFIX]_TYPES typ
+                        where typ.OWNER = col.DATA_TYPE_OWNER
+                          and typ.TYPE_NAME = col.DATA_TYPE
+                          and typ.TYPECODE = 'COLLECTION') then 'Y'
+                    else 'N'
+                end as IS_COLLECTION,
                 'N' as IS_PRIMARY_KEY,
                 'N' as IS_FOREIGN_KEY,
                 'N' as IS_UNIQUE_KEY,
@@ -1569,7 +1681,7 @@
         </statement>
         <statement prefixes="DBA, ALL" comment="Oracle 8.0">
             select
-                nt.TABLE_NAME as NESTED_TABLE_NAME,
+                nt.TABLE_NAME as STORAGE_TABLE_NAME,
                 nt.PARENT_TABLE_NAME as TABLE_NAME,
                 nt.PARENT_TABLE_NAME as DATASET_NAME,
                 col.COLUMN_NAME,
@@ -1578,10 +1690,24 @@
                 col.DATA_TYPE_OWNER as DECL_TYPE_OWNER,
                 col.DATA_TYPE as DECL_TYPE_NAME,
                 null as DECL_TYPE_PROGRAM,
+                null as NTBL_NAME,
+                null as NTBL_PARENT_OWNER_NAME,
+                null as NTBL_PARENT_TABLE_NAME,
+                null as NTBL_PARENT_COLUMN_NAME,
                 col.DATA_LENGTH,
                 col.DATA_PRECISION,
                 col.DATA_SCALE,
                 null as COMMENTS,
+                case
+                    when col.DATA_TYPE in ('TABLE', 'VARRAY') then 'Y'
+                    when exists (
+                        select 1
+                        from [PREFIX]_TYPES typ
+                        where typ.OWNER = col.DATA_TYPE_OWNER
+                          and typ.TYPE_NAME = col.DATA_TYPE
+                          and typ.TYPECODE = 'COLLECTION') then 'Y'
+                    else 'N'
+                end as IS_COLLECTION,
                 'N' as IS_PRIMARY_KEY,
                 'N' as IS_FOREIGN_KEY,
                 'N' as IS_UNIQUE_KEY,
@@ -1648,7 +1774,7 @@
     <statement-execution-processor id="all-nested-table-columns" timeout="90">
         <statement prefixes="DBA, ALL" since-version="10.1">
             select
-                nt.TABLE_NAME as NESTED_TABLE_NAME,
+                nt.TABLE_NAME as STORAGE_TABLE_NAME,
                 nt.PARENT_TABLE_NAME as TABLE_NAME,
                 nt.PARENT_TABLE_NAME as DATASET_NAME,
                 col.COLUMN_NAME,
@@ -1657,10 +1783,24 @@
                 col.DATA_TYPE_OWNER as DECL_TYPE_OWNER,
                 col.DATA_TYPE as DECL_TYPE_NAME,
                 null as DECL_TYPE_PROGRAM,
+                null as NTBL_NAME,
+                null as NTBL_PARENT_OWNER_NAME,
+                null as NTBL_PARENT_TABLE_NAME,
+                null as NTBL_PARENT_COLUMN_NAME,
                 decode(col.DATA_TYPE, 'VECTOR', col.CHAR_LENGTH, col.DATA_LENGTH) as DATA_LENGTH,
                 col.DATA_PRECISION,
                 col.DATA_SCALE,
                 null as COMMENTS,
+                case
+                    when col.DATA_TYPE in ('TABLE', 'VARRAY') then 'Y'
+                    when exists (
+                        select 1
+                        from [PREFIX]_TYPES typ
+                        where typ.OWNER = col.DATA_TYPE_OWNER
+                          and typ.TYPE_NAME = col.DATA_TYPE
+                          and typ.TYPECODE = 'COLLECTION') then 'Y'
+                    else 'N'
+                end as IS_COLLECTION,
                 'N' as IS_PRIMARY_KEY,
                 'N' as IS_FOREIGN_KEY,
                 'N' as IS_UNIQUE_KEY,
@@ -1679,7 +1819,7 @@
         </statement>
         <statement prefixes="DBA, ALL" comment="Oracle 8.0">
             select
-                nt.TABLE_NAME as NESTED_TABLE_NAME,
+                nt.TABLE_NAME as STORAGE_TABLE_NAME,
                 nt.PARENT_TABLE_NAME as TABLE_NAME,
                 nt.PARENT_TABLE_NAME as DATASET_NAME,
                 col.COLUMN_NAME,
@@ -1688,10 +1828,24 @@
                 col.DATA_TYPE_OWNER as DECL_TYPE_OWNER,
                 col.DATA_TYPE as DECL_TYPE_NAME,
                 null as DECL_TYPE_PROGRAM,
+                null as NTBL_NAME,
+                null as NTBL_PARENT_OWNER_NAME,
+                null as NTBL_PARENT_TABLE_NAME,
+                null as NTBL_PARENT_COLUMN_NAME,
                 col.DATA_LENGTH,
                 col.DATA_PRECISION,
                 col.DATA_SCALE,
                 null as COMMENTS,
+                case
+                    when col.DATA_TYPE in ('TABLE', 'VARRAY') then 'Y'
+                    when exists (
+                        select 1
+                        from [PREFIX]_TYPES typ
+                        where typ.OWNER = col.DATA_TYPE_OWNER
+                          and typ.TYPE_NAME = col.DATA_TYPE
+                          and typ.TYPECODE = 'COLLECTION') then 'Y'
+                    else 'N'
+                end as IS_COLLECTION,
                 'N' as IS_PRIMARY_KEY,
                 'N' as IS_FOREIGN_KEY,
                 'N' as IS_UNIQUE_KEY,
@@ -2330,14 +2484,29 @@
                 t.SUPERTYPE_OWNER,
                 t.SUPERTYPE_NAME,
                 t.TYPECODE,
-                ct.ELEM_TYPE_NAME  as COLLECTION_DATA_TYPE_NAME,
-                ct.ELEM_TYPE_OWNER as COLLECTION_DECL_TYPE_OWNER,
-                ct.ELEM_TYPE_NAME  as COLLECTION_DECL_TYPE_NAME,
-                null               as COLLECTION_DECL_TYPE_PROGRAM,
-                ct.LENGTH          as COLLECTION_DATA_LENGTH,
-                ct.PRECISION       as COLLECTION_DATA_PRECISION,
-                ct.SCALE           as COLLECTION_DATA_SCALE,
-                'N'                as COLLECTION_IS_SET,
+                case when t.TYPECODE = 'COLLECTION' then 'Y' else 'N' end as IS_COLLECTION,
+                null as NTBL_NAME,
+                null as NTBL_PARENT_OWNER_NAME,
+                null as NTBL_PARENT_TABLE_NAME,
+                null as NTBL_PARENT_COLUMN_NAME,
+                ct.ELEM_TYPE_NAME  as COLL_DATA_TYPE_NAME,
+                ct.ELEM_TYPE_OWNER as COLL_DECL_TYPE_OWNER,
+                ct.ELEM_TYPE_NAME  as COLL_DECL_TYPE_NAME,
+                null               as COLL_DECL_TYPE_PROGRAM,
+                null               as COLL_NTBL_NAME,
+                null               as COLL_NTBL_PARENT_OWNER_NAME,
+                null               as COLL_NTBL_PARENT_TABLE_NAME,
+                null               as COLL_NTBL_PARENT_COLUMN_NAME,
+                ct.LENGTH          as COLL_DATA_LENGTH,
+                ct.PRECISION       as COLL_DATA_PRECISION,
+                ct.SCALE           as COLL_DATA_SCALE,
+                'N'                as COLL_IS_SET,
+                case when exists (
+                    select 1
+                    from [PREFIX]_TYPES element_type
+                    where element_type.OWNER = ct.ELEM_TYPE_OWNER
+                      and element_type.TYPE_NAME = ct.ELEM_TYPE_NAME
+                      and element_type.TYPECODE = 'COLLECTION') then 'Y' else 'N' end as COLL_IS_COLLECTION,
                 nvl(s.IS_SPEC_PRESENT, 'N') as IS_SPEC_PRESENT,
                 nvl(b.IS_BODY_PRESENT, 'N') as IS_BODY_PRESENT,
                 s.IS_SPEC_VALID,
@@ -2382,14 +2551,29 @@
                 t.SUPERTYPE_OWNER,
                 t.SUPERTYPE_NAME,
                 t.TYPECODE,
-                ct.ELEM_TYPE_NAME  as COLLECTION_DATA_TYPE_NAME,
-                ct.ELEM_TYPE_OWNER as COLLECTION_DECL_TYPE_OWNER,
-                ct.ELEM_TYPE_NAME  as COLLECTION_DECL_TYPE_NAME,
-                null               as COLLECTION_DECL_TYPE_PROGRAM,
-                ct.LENGTH          as COLLECTION_DATA_LENGTH,
-                ct.PRECISION       as COLLECTION_DATA_PRECISION,
-                ct.SCALE           as COLLECTION_DATA_SCALE,
-                'N'                as COLLECTION_IS_SET,
+                case when t.TYPECODE = 'COLLECTION' then 'Y' else 'N' end as IS_COLLECTION,
+                null as NTBL_NAME,
+                null as NTBL_PARENT_OWNER_NAME,
+                null as NTBL_PARENT_TABLE_NAME,
+                null as NTBL_PARENT_COLUMN_NAME,
+                ct.ELEM_TYPE_NAME  as COLL_DATA_TYPE_NAME,
+                ct.ELEM_TYPE_OWNER as COLL_DECL_TYPE_OWNER,
+                ct.ELEM_TYPE_NAME  as COLL_DECL_TYPE_NAME,
+                null               as COLL_DECL_TYPE_PROGRAM,
+                null               as COLL_NTBL_PARENT_OWNER_NAME,
+                null               as COLL_NTBL_PARENT_TABLE_NAME,
+                null               as COLL_NTBL_PARENT_COLUMN_NAME,
+                null               as COLL_NTBL_NAME,
+                ct.LENGTH          as COLL_DATA_LENGTH,
+                ct.PRECISION       as COLL_DATA_PRECISION,
+                ct.SCALE           as COLL_DATA_SCALE,
+                'N'                as COLL_IS_SET,
+                case when exists (
+                    select 1
+                    from [PREFIX]_TYPES element_type
+                    where element_type.OWNER = ct.ELEM_TYPE_OWNER
+                      and element_type.TYPE_NAME = ct.ELEM_TYPE_NAME
+                      and element_type.TYPECODE = 'COLLECTION') then 'Y' else 'N' end as COLL_IS_COLLECTION,
                 nvl(s.IS_SPEC_PRESENT, 'N') as IS_SPEC_PRESENT,
                 nvl(b.IS_BODY_PRESENT, 'N') as IS_BODY_PRESENT,
                 s.IS_SPEC_VALID,
@@ -2434,14 +2618,24 @@
                 t.SUPERTYPE_OWNER,
                 t.SUPERTYPE_NAME,
                 t.TYPECODE,
-                null as COLLECTION_DATA_TYPE_NAME,
-                null as COLLECTION_DECL_TYPE_OWNER,
-                null as COLLECTION_DECL_TYPE_NAME,
-                null as COLLECTION_DECL_TYPE_PROGRAM,
-                0    as COLLECTION_DATA_LENGTH,
-                0    as COLLECTION_DATA_PRECISION,
-                0    as COLLECTION_DATA_SCALE,
-                'N'  as COLLECTION_IS_SET,
+                case when t.TYPECODE = 'COLLECTION' then 'Y' else 'N' end as IS_COLLECTION,
+                null as NTBL_PARENT_OWNER_NAME,
+                null as NTBL_PARENT_TABLE_NAME,
+                null as NTBL_PARENT_COLUMN_NAME,
+                null as NTBL_NAME,
+                null as COLL_DATA_TYPE_NAME,
+                null as COLL_DECL_TYPE_OWNER,
+                null as COLL_DECL_TYPE_NAME,
+                null as COLL_DECL_TYPE_PROGRAM,
+                null as COLL_NTBL_PARENT_OWNER_NAME,
+                null as COLL_NTBL_PARENT_TABLE_NAME,
+                null as COLL_NTBL_PARENT_COLUMN_NAME,
+                null as COLL_NTBL_NAME,
+                0    as COLL_DATA_LENGTH,
+                0    as COLL_DATA_PRECISION,
+                0    as COLL_DATA_SCALE,
+                'N'  as COLL_IS_SET,
+                'N'  as COLL_IS_COLLECTION,
                 nvl(s.IS_SPEC_PRESENT, 'N') as IS_SPEC_PRESENT,
                 nvl(b.IS_BODY_PRESENT, 'N') as IS_BODY_PRESENT,
                 s.IS_SPEC_VALID,
@@ -2464,11 +2658,25 @@
                  ATTR_TYPE_NAME as DATA_TYPE_NAME,
                  ATTR_TYPE_OWNER as DECL_TYPE_OWNER,
                  ATTR_TYPE_NAME as DECL_TYPE_NAME,
-                 null as DECL_TYPE_PROGRAM,
+                null as DECL_TYPE_PROGRAM,
+                null as NTBL_PARENT_OWNER_NAME,
+                null as NTBL_PARENT_TABLE_NAME,
+                 null as NTBL_PARENT_COLUMN_NAME,
+                 null as NTBL_NAME,
                  LENGTH as DATA_LENGTH,
                  PRECISION as DATA_PRECISION,
                  SCALE as DATA_SCALE,
-                'N' as IS_SET
+                'N' as IS_SET,
+                case
+                    when ATTR_TYPE_NAME in ('TABLE', 'VARRAY') then 'Y'
+                    when exists (
+                        select 1
+                        from [PREFIX]_TYPES typ
+                        where typ.OWNER = ATTR_TYPE_OWNER
+                          and typ.TYPE_NAME = ATTR_TYPE_NAME
+                          and typ.TYPECODE = 'COLLECTION') then 'Y'
+                    else 'N'
+                end as IS_COLLECTION
              from  [PREFIX]_TYPE_ATTRS
              where
                  OWNER = {#0} and
@@ -2486,11 +2694,25 @@
                  ATTR_TYPE_NAME as DATA_TYPE_NAME,
                  ATTR_TYPE_OWNER as DECL_TYPE_OWNER,
                  ATTR_TYPE_NAME as DECL_TYPE_NAME,
-                 null as DECL_TYPE_PROGRAM,
+                null as DECL_TYPE_PROGRAM,
+                null as NTBL_PARENT_OWNER_NAME,
+                null as NTBL_PARENT_TABLE_NAME,
+                 null as NTBL_PARENT_COLUMN_NAME,
+                 null as NTBL_NAME,
                  LENGTH as DATA_LENGTH,
                  PRECISION as DATA_PRECISION,
                  SCALE as DATA_SCALE,
-                 'N' as IS_SET
+                 'N' as IS_SET,
+                 case
+                     when ATTR_TYPE_NAME in ('TABLE', 'VARRAY') then 'Y'
+                     when exists (
+                         select 1
+                         from [PREFIX]_TYPES typ
+                         where typ.OWNER = ATTR_TYPE_OWNER
+                           and typ.TYPE_NAME = ATTR_TYPE_NAME
+                           and typ.TYPECODE = 'COLLECTION') then 'Y'
+                     else 'N'
+                 end as IS_COLLECTION
              from [PREFIX]_TYPE_ATTRS
              where OWNER = {#0}
              order by TYPE_NAME asc
@@ -2506,10 +2728,24 @@
                 ATTR_TYPE_OWNER as DECL_TYPE_OWNER,
                 PACKAGE_NAME as DECL_TYPE_PROGRAM,
                 TYPE_NAME as DECL_TYPE_NAME,
+                null as NTBL_PARENT_OWNER_NAME,
+                null as NTBL_PARENT_TABLE_NAME,
+                null as NTBL_PARENT_COLUMN_NAME,
+                null as NTBL_NAME,
                 LENGTH as DATA_LENGTH,
                 PRECISION as DATA_PRECISION,
                 SCALE as DATA_SCALE,
-                'N' as IS_SET
+                'N' as IS_SET,
+                case
+                    when ATTR_TYPE_NAME in ('TABLE', 'VARRAY') then 'Y'
+                    when exists (
+                        select 1
+                        from [PREFIX]_TYPES typ
+                        where typ.OWNER = ATTR_TYPE_OWNER
+                          and typ.TYPE_NAME = ATTR_TYPE_NAME
+                          and typ.TYPECODE = 'COLLECTION') then 'Y'
+                    else 'N'
+                end as IS_COLLECTION
             from [PREFIX]_PLSQL_TYPE_ATTRS aa1
             where
                 OWNER = {#0} and
@@ -2525,10 +2761,24 @@
                 TYPE_OWNER as DECL_TYPE_OWNER,
                 decode(TYPE_SUBNAME, null, null, TYPE_NAME) as DECL_TYPE_PROGRAM,
                 decode(TYPE_SUBNAME, null, nvl(TYPE_NAME, DATA_TYPE), TYPE_SUBNAME) as DECL_TYPE_NAME,
+                null as NTBL_PARENT_OWNER_NAME,
+                null as NTBL_PARENT_TABLE_NAME,
+                null as NTBL_PARENT_COLUMN_NAME,
+                null as NTBL_NAME,
                 DATA_LENGTH,
                 DATA_PRECISION,
                 DATA_SCALE,
-                'N' as IS_SET
+                'N' as IS_SET,
+                case
+                    when aa1.DATA_TYPE in ('TABLE', 'VARRAY') then 'Y'
+                    when exists (
+                        select 1
+                        from [PREFIX]_TYPES typ
+                        where typ.OWNER = aa1.TYPE_OWNER
+                          and typ.TYPE_NAME = aa1.TYPE_NAME
+                          and typ.TYPECODE = 'COLLECTION') then 'Y'
+                    else 'N'
+                end as IS_COLLECTION
             from [PREFIX]_ARGUMENTS aa1
             where
                 ARGUMENT_NAME is not null and
@@ -2826,11 +3076,25 @@
                 TYPE_OWNER as DECL_TYPE_OWNER,
                 decode(TYPE_SUBNAME, null, null, TYPE_NAME) as DECL_TYPE_PROGRAM,
                 decode(TYPE_SUBNAME, null, nvl(TYPE_NAME, DATA_TYPE), TYPE_SUBNAME) as DECL_TYPE_NAME,
+                null as NTBL_PARENT_OWNER_NAME,
+                null as NTBL_PARENT_TABLE_NAME,
+                null as NTBL_PARENT_COLUMN_NAME,
+                null as NTBL_NAME,
                 DATA_LENGTH,
                 DATA_PRECISION,
                 DATA_SCALE,
-                'N' as IS_SET
-            from [PREFIX]_ARGUMENTS
+                'N' as IS_SET,
+                case
+                    when a.DATA_TYPE in ('TABLE', 'VARRAY') then 'Y'
+                    when exists (
+                        select 1
+                        from [PREFIX]_TYPES typ
+                        where typ.OWNER = a.TYPE_OWNER
+                          and typ.TYPE_NAME = a.TYPE_NAME
+                          and typ.TYPECODE = 'COLLECTION') then 'Y'
+                    else 'N'
+                end as IS_COLLECTION
+            from [PREFIX]_ARGUMENTS a
             where
                 OWNER = {#0} and
                 PACKAGE_NAME is null and
@@ -2860,11 +3124,25 @@
                 TYPE_OWNER as DECL_TYPE_OWNER,
                 decode(TYPE_SUBNAME, null, null, TYPE_NAME) as DECL_TYPE_PROGRAM,
                 decode(TYPE_SUBNAME, null, nvl(TYPE_NAME, DATA_TYPE), TYPE_SUBNAME) as DECL_TYPE_NAME,
+                null as NTBL_PARENT_OWNER_NAME,
+                null as NTBL_PARENT_TABLE_NAME,
+                null as NTBL_PARENT_COLUMN_NAME,
+                null as NTBL_NAME,
                 decode(DATA_TYPE, 'VECTOR', CHAR_LENGTH, DATA_LENGTH) as DATA_LENGTH,
                 DATA_PRECISION,
                 DATA_SCALE,
-                'N' as IS_SET
-            from [PREFIX]_ARGUMENTS
+                'N' as IS_SET,
+                case
+                    when a.DATA_TYPE in ('TABLE', 'VARRAY') then 'Y'
+                    when exists (
+                        select 1
+                        from [PREFIX]_TYPES typ
+                        where typ.OWNER = a.TYPE_OWNER
+                          and typ.TYPE_NAME = a.TYPE_NAME
+                          and typ.TYPECODE = 'COLLECTION') then 'Y'
+                    else 'N'
+                end as IS_COLLECTION
+            from [PREFIX]_ARGUMENTS a
             where
                 OWNER = {#0} and
                 PACKAGE_NAME = {#1} and
@@ -2893,11 +3171,25 @@
                 TYPE_OWNER as DECL_TYPE_OWNER,
                 decode(TYPE_SUBNAME, null, null, TYPE_NAME) as DECL_TYPE_PROGRAM,
                 decode(TYPE_SUBNAME, null, nvl(TYPE_NAME, DATA_TYPE), TYPE_SUBNAME) as DECL_TYPE_NAME,
+                null as NTBL_PARENT_OWNER_NAME,
+                null as NTBL_PARENT_TABLE_NAME,
+                null as NTBL_PARENT_COLUMN_NAME,
+                null as NTBL_NAME,
                 decode(DATA_TYPE, 'VECTOR', CHAR_LENGTH, DATA_LENGTH) as DATA_LENGTH,
                 DATA_PRECISION,
                 DATA_SCALE,
-                'N' as IS_SET
-            from [PREFIX]_ARGUMENTS
+                'N' as IS_SET,
+                case
+                    when a.DATA_TYPE in ('TABLE', 'VARRAY') then 'Y'
+                    when exists (
+                        select 1
+                        from [PREFIX]_TYPES typ
+                        where typ.OWNER = a.TYPE_OWNER
+                          and typ.TYPE_NAME = a.TYPE_NAME
+                          and typ.TYPECODE = 'COLLECTION') then 'Y'
+                    else 'N'
+                end as IS_COLLECTION
+            from [PREFIX]_ARGUMENTS a
             where
                 OWNER = {#0} and
                 DATA_LEVEL = 0 and

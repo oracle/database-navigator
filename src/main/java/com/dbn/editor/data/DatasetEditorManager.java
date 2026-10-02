@@ -35,6 +35,7 @@ import com.dbn.editor.data.filter.DatasetFilterInput;
 import com.dbn.editor.data.filter.DatasetFilterManager;
 import com.dbn.editor.data.options.DataEditorSettings;
 import com.dbn.object.DBDataset;
+import com.dbn.object.DBNestedTable;
 import com.dbn.object.DBTable;
 import com.dbn.object.DBView;
 import com.dbn.object.common.DBObject;
@@ -104,7 +105,8 @@ public class DatasetEditorManager extends ProjectComponentBase implements Persis
                         FileEditor[] fileEditors = source.getEditors(file);
                         for (FileEditor fileEditor : fileEditors) {
                             if (fileEditor instanceof DatasetEditor datasetEditor) {
-                                if (object instanceof DBTable || editableObjectFile.getSelectedEditorProviderId() == EditorProviderId.DATA) {
+                                if (object instanceof DBTable || object instanceof DBNestedTable ||
+                                        editableObjectFile.getSelectedEditorProviderId() == EditorProviderId.DATA) {
                                     datasetEditor.loadData(INITIAL_LOAD_INSTRUCTIONS);
                                 }
                             }

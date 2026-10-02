@@ -59,7 +59,6 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
-import java.awt.BorderLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -258,7 +257,7 @@ public class McpToolDefinitionForm extends DBNFormBase {
             validateFormFields();
         });
 
-        sqlEditorPanel.add(editor.getComponent(), BorderLayout.CENTER);
+        sqlEditorPanel.add(editor.getComponent());
     }
 
     private void configureEditor(EditorEx editor) {

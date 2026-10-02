@@ -27,8 +27,8 @@ public class DBNestedTableColumnMetadataImpl extends DBColumnMetadataImpl implem
     }
 
     @Override
-    public String getNestedTableName() throws SQLException {
-        return getString("NESTED_TABLE_NAME");
+    public String getStorageTableName() throws SQLException {
+        return getString("STORAGE_TABLE_NAME");
     }
 
     @Override

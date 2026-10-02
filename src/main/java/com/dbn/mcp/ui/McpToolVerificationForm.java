@@ -230,7 +230,7 @@ public class McpToolVerificationForm extends DBNFormBase {
         outputTable = new ResultSetTable<>(this, dataModel, true, recordViewInfo);
         outputScrollPane.setViewportView(outputTable);
         outputTable.installValuePopupAddon();
-        outputPanel.setBorder(Borders.lineBorder(Colors.getOutlineColor()));
+        outputPanel.setBorder(Borders.COMPONENT_OUTLINE_BORDER);
         outputTable.setLoading(false);
     }
 

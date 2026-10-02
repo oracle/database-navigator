@@ -23,7 +23,7 @@ import java.sql.SQLException;
 public interface DBNestedTableColumnMetadata extends DBColumnMetadata {
 
     @ObjectIdentifier
-    String getNestedTableName() throws SQLException;
+    String getStorageTableName() throws SQLException;
 
     @ObjectIdentifier
     String getTableName() throws SQLException;
