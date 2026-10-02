@@ -20,7 +20,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class DBNResourcesBuilderTest {
+public class TranslationResourceBuilderTest {
     @Test
     public void rebuildsUsingTemplateCategoryOrder() {
         String source = "" +
@@ -46,6 +46,6 @@ public class DBNResourcesBuilderTest {
                 "# another template header\n" +
                 "cfg.connection.Z=connection z\n";
 
-        assertEquals(expected, DBNResourcesBuilder.rebuild(source, template));
+        assertEquals(expected, TranslationResourceBuilder.rebuild(source, template));
     }
 }

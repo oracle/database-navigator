@@ -38,7 +38,7 @@ import java.util.stream.Stream;
  * Rebuilds all DBN resource bundles from the checked-in template.
  * Template blocks use placeholders such as {@code [CFG_KEYS]}.
  */
-public final class DBNResourcesBuilder {
+public final class TranslationResourceBuilder {
     private static final Path RESOURCE_DIRECTORY =
             Path.of("src/main/resources/messages");
     private static final String RESOURCE_PREFIX = "DBNResources";
@@ -47,7 +47,7 @@ public final class DBNResourcesBuilder {
     private static final Pattern KEYS_PLACEHOLDER =
             Pattern.compile("^\\s*\\[([A-Za-z][A-Za-z0-9]*)_KEYS\\]\\s*$");
 
-    private DBNResourcesBuilder() {
+    private TranslationResourceBuilder() {
     }
 
     public static void main(String[] args) throws IOException {
@@ -65,7 +65,7 @@ public final class DBNResourcesBuilder {
         try (Stream<Path> files = Files.list(projectRoot.resolve(RESOURCE_DIRECTORY))) {
             List<Path> resourceFiles = files
                     .filter(Files::isRegularFile)
-                    .filter(DBNResourcesBuilder::isResourceFile)
+                    .filter(TranslationResourceBuilder::isResourceFile)
                     .sorted()
                     .toList();
             if (resourceFiles.isEmpty()) {

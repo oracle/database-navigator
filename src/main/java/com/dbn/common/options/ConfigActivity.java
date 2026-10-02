@@ -25,6 +25,7 @@ import com.dbn.common.property.Property;
  * @author Dan Cioca (Oracle)
  */
 public enum ConfigActivity implements Property.IntBase {
+    RENDERING,     // Initializing configuration form
     INITIALIZING,  // Loading persisted configuration into live settings
     TRANSFERRING,  // Copying configuration values between objects without applying storage filtering
     CLONING,       // Creating an in-memory clone of a configuration tree

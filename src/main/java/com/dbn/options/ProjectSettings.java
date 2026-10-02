@@ -109,12 +109,7 @@ public class ProjectSettings
 
     @Override
     public void apply() throws ConfigurationException {
-        try {
-            ConfigMonitor.set(APPLYING, true);
-            super.apply();
-        } finally {
-            ConfigMonitor.set(APPLYING, false);
-        }
+        ConfigMonitor.surround(APPLYING, () -> super.apply());
     }
 
     @NotNull

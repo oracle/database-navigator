@@ -193,6 +193,10 @@ public class JdbcUrls {
         return false;
     }
 
+    public static boolean isSensitiveParameter(@NotNull String key) {
+        return isSensitiveKey(key);
+    }
+
     private static String compactKey(@NotNull String key) {
         return key.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]+", "");
     }

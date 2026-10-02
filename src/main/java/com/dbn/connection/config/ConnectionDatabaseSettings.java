@@ -65,7 +65,6 @@ import static com.dbn.common.options.setting.Settings.getString;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setDouble;
 import static com.dbn.common.options.setting.Settings.setEnum;
-import static com.dbn.common.options.setting.Settings.setSensitiveString;
 import static com.dbn.common.options.setting.Settings.setString;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
@@ -538,7 +537,7 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
             setString(element, "host", nvle(databaseInfo.getHost()));
             setString(element, "port", nvle(databaseInfo.getPort()));
             setString(element, "database", nvle(databaseInfo.getDatabase()));
-            setSensitiveString(element, "tns-folder", nvle(databaseInfo.getTnsFolder()));
+            setString(element, "tns-folder", nvle(databaseInfo.getTnsFolder()));
             setString(element, "tns-profile", nvle(databaseInfo.getTnsProfile()));
             setEnum(element, "server-type", databaseInfo.getServerType());
             setEnum(element, "protocol", databaseInfo.getProtocol());

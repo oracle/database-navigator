@@ -21,6 +21,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class JdbcUrlsTest {
 
@@ -158,5 +159,12 @@ public class JdbcUrlsTest {
     public void testKeepBenignParametersUntouched() {
         String url = "jdbc:postgresql://localhost/db?sslmode=require&connectTimeout=15";
         assertEquals(url, JdbcUrls.redactSensitiveParameters(url));
+    }
+
+    @Test
+    public void testSensitiveParameterDetectionIncludesFileLocations() {
+        assertTrue(JdbcUrls.isSensitiveParameter("wallet_location"));
+        assertTrue(JdbcUrls.isSensitiveParameter("trustStoreFile"));
+        assertFalse(JdbcUrls.isSensitiveParameter("sslmode"));
     }
 }

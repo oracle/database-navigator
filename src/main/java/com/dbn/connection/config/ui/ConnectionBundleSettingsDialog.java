@@ -88,7 +88,8 @@ public class ConnectionBundleSettingsDialog extends DBNDialog<ConnectionBundleSe
     @NotNull
     @Override
     protected ConnectionBundleSettingsForm createForm() {
-        ConnectionBundleSettingsForm form = connectionSettings.createConfigurationEditor();
+        connectionSettings.createComponent();
+        ConnectionBundleSettingsForm form = connectionSettings.ensureSettingsEditor();
         if (selectedConnectionId != null) {
             form.selectConnection(selectedConnectionId);
         }
@@ -105,18 +106,32 @@ public class ConnectionBundleSettingsDialog extends DBNDialog<ConnectionBundleSe
     protected Action[] initializeActions() {
         return actions(
                 getOKAction(),
+                getApplyAction(),
                 getCancelAction());
     }
 
     @Override
     protected void doOKAction() {
         try {
-            connectionSettings.apply();
+            projectSettings.apply();
             super.doOKAction();
+            projectSettings.disposeUIResources();
         } catch (ConfigurationException e) {
             conditionallyLog(e);
             showErrorDialog(getProject(), txt("cfg.connection.title.InvalidConfiguration"), getLocalizedMessage(e));
         }
+    }
+
+    @Override
+    public void doCancelAction() {
+        super.doCancelAction();
+        projectSettings.disposeUIResources();
+    }
+
+    private @NotNull Action getApplyAction() {
+        return createApplyAction(
+                () -> projectSettings.isModified(),
+                () -> projectSettings.apply());
     }
 
     @Override

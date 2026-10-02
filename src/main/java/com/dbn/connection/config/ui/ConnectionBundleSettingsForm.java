@@ -83,6 +83,7 @@ import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Lists.anyMatch;
 import static com.dbn.common.util.Lists.count;
+import static com.dbn.common.util.Messages.*;
 import static com.dbn.common.util.Naming.nextNumberedIdentifier;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -308,7 +309,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
             connectionsList.setSelectedIndex(selectedIndex);
         } catch (ConfigurationException e) {
             conditionallyLog(e);
-            Messages.showErrorDialog(getProject(), getLocalizedMessage(e));
+            showErrorDialog(getProject(), getLocalizedMessage(e));
         }
     }
 
@@ -356,10 +357,29 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
     }
 
     public void copyConnectionsToClipboard() {
-        List<ConnectionSettings> configurations = connectionsList.getSelectedValuesList();
-        Project project = getProject();
+        boolean clipboard = ConfigMonitor.is(CLIPBOARD);
         try {
             ConfigMonitor.set(CLIPBOARD, true);
+            List<ConnectionSettings> configurations = connectionsList.getSelectedValuesList();
+            copyConnectionsToClipboard(configurations);
+        } finally {
+            ConfigMonitor.set(CLIPBOARD, clipboard);
+        }
+    }
+
+    private void copyConnectionsToClipboard(List<ConnectionSettings> configurations) {
+        Project project = getProject();
+        int option = showAcknowledgementDialog(
+                project,
+                txt("msg.connection.title.ExportConfiguration"),
+                txt("msg.connection.question.ClipboardExportSensitiveInformation"),
+                options(
+                        txt("msg.shared.button.Continue"),
+                        txt("msg.shared.button.Cancel")),
+                1, null);
+        if (option != 0) return;
+
+        try {
             Element rootElement = ConnectionConfigExport.createConnectionConfigElement();
             for (ConnectionSettings configuration : configurations) {
                 Element configElement = newElement(rootElement, "config");
@@ -372,16 +392,15 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
 
             CopyPasteManager copyPasteManager = CopyPasteManager.getInstance();
             copyPasteManager.setContents(new StringSelection(xmlString));
-            Messages.showInfoDialog(project,
+
+            showInfoDialog(project,
                     txt("msg.connection.title.ConfigExported"),
-                    txt("msg.connection.info.ConfigExported"));
+                    txt("msg.connection.info.ConfigExported", configurations.size()));
         } catch (Exception e) {
             conditionallyLog(e);
-            Messages.showErrorDialog(project,
+            showErrorDialog(project,
                     txt("msg.connection.title.ExportFailed"),
                     txt("msg.connection.error.ExportFailed"), e);
-        } finally {
-            ConfigMonitor.set(CLIPBOARD, false);
         }
     }
 
@@ -406,7 +425,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
             }
 
             if (importedConnections.isEmpty()) {
-                Messages.showWarningDialog(
+                showWarningDialog(
                         getProject(),
                         txt("msg.connection.title.ImportFailed"),
                         txt("msg.connection.warning.ImportFailedEmpty"));
@@ -429,7 +448,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
 
         } catch (Exception e) {
             conditionallyLog(e);
-            Messages.showErrorDialog(getProject(),
+            showErrorDialog(getProject(),
                     txt("msg.connection.title.ImportFailed"),
                     txt("msg.connection.error.ImportFailedUnparseable"), e);
         }

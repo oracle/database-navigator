@@ -194,15 +194,12 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
     @Override
     public synchronized void loadComponentState(@NotNull Element element) {
         if (areSettingsLoaded()) return;
-        try {
-            ConfigMonitor.set(INITIALIZING, true);
+        ConfigMonitor.surround(INITIALIZING, () -> {
             states.readState(element, "states");
             projectSettings.readConfiguration(element);
             markSettingsLoaded();
             credentialMigrator.promptCredentialRestore();
-        } finally {
-            ConfigMonitor.set(INITIALIZING, false);
-        }
+        });
     }
 
     private boolean areSettingsLoaded() {
