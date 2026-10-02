@@ -69,6 +69,7 @@ import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.isEmptyText;
+import static com.dbn.editor.data.filter.DatasetFilterUtil.createSimpleSelectStatement;
 import static com.dbn.nls.NlsResources.txt;
 
 public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasicFilter> {
@@ -193,9 +194,8 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
         updateGeneratedName();
 
         @NonNls
-        StringBuilder selectStatement = new StringBuilder("select * from ");
-        selectStatement.append(dataset.getSchemaName(true)).append('.');
-        selectStatement.append(dataset.getName(true));
+        StringBuilder selectStatement = new StringBuilder();
+        createSimpleSelectStatement(dataset, selectStatement);
         selectStatement.append(" where\n    ");
 
         boolean addJoin = false;

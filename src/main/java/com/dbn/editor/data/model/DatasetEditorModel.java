@@ -31,9 +31,7 @@ import com.dbn.connection.SessionId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.jdbc.DBNResultSet;
 import com.dbn.connection.jdbc.DBNStatement;
-import com.dbn.data.grid.options.DataGridSettings;
 import com.dbn.data.model.resultSet.ResultSetDataModel;
-import com.dbn.data.sorting.SortingInstruction;
 import com.dbn.data.sorting.SortingState;
 import com.dbn.editor.data.DatasetEditor;
 import com.dbn.editor.data.DatasetEditorError;
@@ -46,7 +44,6 @@ import com.dbn.editor.data.ui.table.DatasetEditorTable;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBConstraint;
 import com.dbn.object.DBDataset;
-import com.dbn.object.DBNestedTable;
 import com.dbn.object.DBTable;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
@@ -207,9 +204,8 @@ public class DatasetEditorModel
             if (filter == null) filter = DatasetFilterManager.EMPTY_FILTER;
         }
 
-        String selectStatement = dataset instanceof DBNestedTable nestedTable
-                ? createNestedTableSelectStatement(nestedTable, getState().getSortingState())
-                : filter.createSelectStatement(dataset, getState().getSortingState());
+        SortingState sortingState = getState().getSortingState();
+        String selectStatement = filter.createSelectStatement(dataset, sortingState);
         DBNStatement statement = null;
         if (isReadonly()) {
             statement = conn.createStatement();
@@ -253,51 +249,6 @@ public class DatasetEditorModel
 
         loadTimestamp = System.currentTimeMillis();
         return statement.executeQuery(selectStatement);
-    }
-
-    private String createNestedTableSelectStatement(DBNestedTable nestedTable, SortingState sortingState) {
-        DBTable table = nestedTable.getParentTable();
-        DBColumn parentTableColumn = nestedTable.getParentTableColumn();
-        if (parentTableColumn == null) {
-            throw new IllegalStateException("Nested table collection column is not available");
-        }
-
-        String quotedCollectionColumn = parentTableColumn.getName(true);
-        StringBuilder query = new StringBuilder("select ");
-        List<DBColumn> primaryKeyColumns = table.getPrimaryKeyColumns();
-        if (primaryKeyColumns.isEmpty()) {
-            query.append("n.*");
-        } else {
-            for (int i = 0; i < primaryKeyColumns.size(); i++) {
-                if (i > 0) query.append(", ");
-                query.append("p.").append(primaryKeyColumns.get(i).getName(true));
-            }
-            query.append(", n.*");
-        }
-
-        query.append(" from ")
-                .append(table.getQualifiedName(true))
-                .append(" p, table(p.")
-                .append(quotedCollectionColumn)
-                .append(") n");
-
-        appendNestedTableOrderBy(query, nestedTable, sortingState);
-        return query.toString();
-    }
-
-    private void appendNestedTableOrderBy(StringBuilder query, DBNestedTable nestedTable, SortingState sortingState) {
-        boolean nullsFirst = DataGridSettings.getInstance(nestedTable.getProject()).getSortingSettings().isNullsFirst();
-        boolean instructionAdded = false;
-        for (SortingInstruction instruction : sortingState.getInstructions()) {
-            DBColumn column = nestedTable.getColumn(instruction.getColumnName());
-            if (column == null || instruction.getDirection().isIndefinite()) continue;
-
-            String columnName = "n." + column.getName(true);
-            String orderByClause = column.getCompatibilityInterface()
-                    .getOrderByClause(columnName, instruction.getDirection(), nullsFirst);
-            query.append(instructionAdded ? ", " : " order by ").append(orderByClause);
-            instructionAdded = true;
-        }
     }
 
     public boolean isDirty() {

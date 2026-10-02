@@ -36,6 +36,8 @@ import java.util.Objects;
 
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.editor.data.filter.DatasetFilterUtil.addOrderByClause;
+import static com.dbn.editor.data.filter.DatasetFilterUtil.createSimpleSelectStatement;
 
 @Getter
 @Setter
@@ -114,7 +116,7 @@ public class DatasetBasicFilter extends DatasetFilterImpl {
     public String createSelectStatement(DBDataset dataset, SortingState sortingState) {
         setError(null);
         @NonNls StringBuilder buffer = new StringBuilder();
-        DatasetFilterUtil.createSimpleSelectStatement(dataset, buffer);
+        createSimpleSelectStatement(dataset, buffer);
         boolean initialized = false;
         for (DatasetBasicFilterCondition condition : conditions) {
             if (condition.isActive()) {
@@ -131,7 +133,7 @@ public class DatasetBasicFilter extends DatasetFilterImpl {
             }
         }
 
-        DatasetFilterUtil.addOrderByClause(dataset, buffer, sortingState);
+        addOrderByClause(dataset, buffer, sortingState);
         return buffer.toString();
     }
 
