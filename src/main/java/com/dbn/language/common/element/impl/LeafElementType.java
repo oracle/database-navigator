@@ -22,8 +22,6 @@ import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.util.ElementTypeDefinitionException;
 import org.jdom.Element;
 
-import java.util.Set;
-
 public abstract class LeafElementType extends ElementTypeBase implements Indexable {
     public TokenType tokenType;
 
@@ -64,11 +62,5 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
     @Override
     public boolean isLeaf() {
         return true;
-    }
-
-    @Override
-    public void collectAnonymousLeafs(Set<LeafElementType> bucket) {
-        super.collectAnonymousLeafs(bucket);
-        bucket.add(this);
     }
 }
