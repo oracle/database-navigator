@@ -16,6 +16,7 @@
 
 package com.dbn.common.state;
 
+import com.dbn.common.util.Strings;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,6 +29,7 @@ import java.util.Objects;
 import static com.dbn.common.state.StateEncryptionScopes.EXECUTION_STATEMENT_VARIABLE;
 import static com.dbn.common.state.StateEncryptionScopes.EXECUTION_VARIABLE_EXPRESSION;
 import static com.dbn.common.state.StateEncryptionScopes.EXECUTION_VARIABLE_VALUE;
+import static com.dbn.common.util.Strings.isNotEmpty;
 
 public final class ProtectedContents implements Iterable<ProtectedContent> {
     private final List<ProtectedContent> contents = new ArrayList<>();
@@ -54,14 +56,20 @@ public final class ProtectedContents implements Iterable<ProtectedContent> {
     @Nullable
     public String getValue() {
         ProtectedContent value = contents.isEmpty() ? null : contents.get(0);
-        return value == null ? null : value.get();
+        if (value == null || value.isNullMarker()) return null;
+
+        String stringValue = value.get();
+        return Strings.isEmpty(stringValue) ? null : stringValue;
     }
 
     public void setValue(@Nullable String value) {
-        if (value == null) return;
-
-        contents.removeIf(v -> Objects.equals(v.get(), value));
-        add(0, newContent(value));
+        if (Strings.isEmpty(value)) {
+            contents.removeIf(v -> v.isNullMarker() || v.isEmpty());
+            add(0, ProtectedContent.nullMarker(encryptionScope));
+        } else {
+            contents.removeIf(v -> v.isNullMarker() || v.isEmpty() || Objects.equals(v.get(), value));
+            add(0, newContent(value));
+        }
     }
 
     public ProtectedContent newContent() {
@@ -111,7 +119,7 @@ public final class ProtectedContents implements Iterable<ProtectedContent> {
         List<String> values = new ArrayList<>();
         for (ProtectedContent content : contents) {
             String value = content.get();
-            if (value != null) {
+            if (isNotEmpty(value)) {
                 values.add(value);
             }
         }
@@ -127,9 +135,16 @@ public final class ProtectedContents implements Iterable<ProtectedContent> {
     }
 
     public void copyFrom(ProtectedContents source) {
+        if (source == this) return;
+
+        List<ProtectedContent> sourceContents = new ArrayList<>(source.contents);
         clear();
-        for (String value : source.values()) {
-            add(newContent(value));
+        for (ProtectedContent content : sourceContents) {
+            if (content.isNullMarker()) {
+                add(ProtectedContent.nullMarker(encryptionScope));
+            } else if (!content.isEmpty()) {
+                add(newContent(content.get()));
+            }
         }
         trim();
     }
@@ -140,8 +155,17 @@ public final class ProtectedContents implements Iterable<ProtectedContent> {
     }
 
     private void trim() {
-        if (contents.size() > limit) {
-            contents.subList(limit, contents.size()).clear();
+        int valueCount = 0;
+        for (ProtectedContent content : contents) {
+            if (!content.isNullMarker()) valueCount++;
+        }
+
+        for (int i = contents.size() - 1; valueCount > limit && i >= 0; i--) {
+            ProtectedContent content = contents.get(i);
+            if (content.isNullMarker()) continue;
+
+            contents.remove(i);
+            valueCount--;
         }
     }
 }

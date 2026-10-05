@@ -44,14 +44,17 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Commons.coalesce;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 
 @Getter
 @Setter
@@ -105,11 +108,19 @@ public class MethodExecutionInput extends LocalExecutionInput implements Compara
         if (method == null) return;
 
         List<DBArgument> arguments = method.getArguments();
+        Set<DBObjectRef<DBType>> visitedTypes = new HashSet<>();
         for (DBArgument argument : arguments) {
             DBType declaredType = argument.getDataType().getDeclaredType();
-            if (declaredType != null) {
-                declaredType.getAttributes();
-            }
+            initDeclaredType(declaredType, visitedTypes);
+        }
+    }
+
+    private static void initDeclaredType(DBType declaredType, Set<DBObjectRef<DBType>> visitedTypes) {
+        if (declaredType == null || declaredType.isCollection() || !visitedTypes.add(DBObjectRef.of(declaredType))) return;
+
+        for (DBTypeAttribute attribute : declaredType.getAttributes()) {
+            DBType nestedType = attribute.getDataType().getDeclaredType();
+            initDeclaredType(nestedType, visitedTypes);
         }
     }
 
@@ -169,7 +180,12 @@ public class MethodExecutionInput extends LocalExecutionInput implements Compara
     }
 
     public void setInputValue(@NotNull DBArgument argument, DBTypeAttribute typeAttribute, String value) {
-        ArgumentValue argumentValue = getArgumentValue(argument, typeAttribute);
+        ArgumentValue argumentValue = getArgumentValue(argument, singletonList(typeAttribute));
+        argumentValue.setValue(value);
+    }
+
+    public void setInputValue(@NotNull DBArgument argument, @NotNull List<DBTypeAttribute> attributes, String value) {
+        ArgumentValue argumentValue = getArgumentValue(argument, attributes);
         argumentValue.setValue(value);
     }
 
@@ -184,20 +200,30 @@ public class MethodExecutionInput extends LocalExecutionInput implements Compara
     }
 
     public List<String> getInputValueHistory(@NotNull DBArgument argument, @Nullable DBTypeAttribute typeAttribute) {
-        ArgumentValue argumentValue =
-                typeAttribute == null ?
-                        getArgumentValue(argument) :
-                        getArgumentValue(argument, typeAttribute);
+        List<DBTypeAttribute> attributes = typeAttribute == null ?
+                emptyList() :
+                singletonList(typeAttribute);
+        return getInputValueHistory(argument, attributes);
+    }
+
+    public List<String> getInputValueHistory(@NotNull DBArgument argument, @NotNull List<DBTypeAttribute> attributes) {
+        ArgumentValue argumentValue = attributes.isEmpty() ?
+                getArgumentValue(argument) :
+                getArgumentValue(argument, attributes);
 
         ValueHolder valueStore = argumentValue.getValueHolder();
         if (valueStore instanceof ExecutionVariable executionVariable) {
             return executionVariable.getValueHistory();
         }
-        return Collections.emptyList();
+        return emptyList();
     }
 
     public String getInputValue(DBArgument argument, DBTypeAttribute typeAttribute) {
-        ArgumentValue argumentValue = getArgumentValue(argument, typeAttribute);
+        return getInputValue(argument, singletonList(typeAttribute));
+    }
+
+    public String getInputValue(@NotNull DBArgument argument, @NotNull List<DBTypeAttribute> attributes) {
+        ArgumentValue argumentValue = getArgumentValue(argument, attributes);
         return (String) argumentValue.getValue();
     }
 
@@ -214,13 +240,17 @@ public class MethodExecutionInput extends LocalExecutionInput implements Compara
     }
 
     private ArgumentValue getArgumentValue(DBArgument argument, DBTypeAttribute attribute) {
+        return getArgumentValue(argument, singletonList(attribute));
+    }
+
+    private ArgumentValue getArgumentValue(DBArgument argument, List<DBTypeAttribute> attributePath) {
         for (ArgumentValue argumentValue : argumentValues) {
-            if (argumentValue.matches(argument)  && argumentValue.matches(attribute)) {
+            if (argumentValue.matches(argument) && argumentValue.matches(attributePath)) {
                 return argumentValue;
             }
         }
 
-        ArgumentValue argumentValue = new ArgumentValue(argument, attribute, null);
+        ArgumentValue argumentValue = new ArgumentValue(argument, attributePath, null);
         argumentValue.setValueHolder(getExecutionVariable(argumentValue.getName()));
         argumentValues.add(argumentValue);
         return argumentValue;

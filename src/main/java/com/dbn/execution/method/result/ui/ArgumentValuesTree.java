@@ -16,13 +16,14 @@
 
 package com.dbn.execution.method.result.ui;
 
+import com.dbn.code.sql.color.SQLTextAttributesKeys;
 import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.tree.DBNColoredTreeCellRenderer;
 import com.dbn.common.ui.tree.DBNTree;
-import com.dbn.common.util.TextAttributes;
 import com.dbn.data.grid.color.DataGridTextAttributesKeys;
 import com.dbn.data.type.DBDataType;
+import com.dbn.data.type.GenericDataType;
 import com.dbn.execution.method.ArgumentValue;
 import com.dbn.object.DBArgument;
 import com.dbn.object.DBMethod;
@@ -39,15 +40,21 @@ import java.sql.ResultSet;
 import java.util.List;
 
 import static com.dbn.common.util.Strings.cachedLowerCase;
+import static com.dbn.common.util.TextAttributes.getSimpleTextAttributes;
+import static com.dbn.data.type.GenericDataType.LITERAL;
+import static com.dbn.data.type.GenericDataType.NUMERIC;
 import static com.dbn.nls.NlsResources.txt;
-import static com.intellij.ui.SimpleTextAttributes.*;
+import static com.intellij.ui.SimpleTextAttributes.ERROR_ATTRIBUTES;
+import static com.intellij.ui.SimpleTextAttributes.GRAY_ATTRIBUTES;
+import static com.intellij.ui.SimpleTextAttributes.REGULAR_ATTRIBUTES;
+import static com.intellij.ui.SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES;
 
 class ArgumentValuesTree extends DBNTree{
 
     ArgumentValuesTree(MethodExecutionResultForm parent, List<ArgumentValue> inputArgumentValues, List<ArgumentValue> outputArgumentValues) {
         super(parent, createModel(parent, inputArgumentValues, outputArgumentValues));
         setCellRenderer(new CellRenderer());
-        Color bgColor = TextAttributes.getSimpleTextAttributes(DataGridTextAttributesKeys.PLAIN_DATA).getBgColor();
+        Color bgColor = getSimpleTextAttributes(DataGridTextAttributesKeys.PLAIN_DATA).getBgColor();
         setBackground(bgColor == null ? Colors.getTableBackground() : bgColor);
 
         addTreeSelectionListener(createTreeSelectionListener());
@@ -112,6 +119,15 @@ class ArgumentValuesTree extends DBNTree{
                 }
             }
 
+            if (userValue instanceof DBTypeAttribute attribute) {
+                setIcon(attribute.getIcon());
+                append(attribute.getName(), treeNode.isLeaf() ? REGULAR_ATTRIBUTES : REGULAR_BOLD_ATTRIBUTES);
+                DBDataType dataType = attribute.getDataType();
+                if (dataType != null) {
+                    append(" (" + dataType.getName() + ")", GRAY_ATTRIBUTES);
+                }
+            }
+
             if (userValue instanceof ArgumentValue argumentValue) {
                 DBArgument argument = argumentValue.getArgument();
                 DBTypeAttribute attribute = argumentValue.getAttribute();
@@ -128,9 +144,9 @@ class ArgumentValuesTree extends DBNTree{
                         append(argument.getName(), REGULAR_ATTRIBUTES);
                         append(" = ", REGULAR_ATTRIBUTES);
                     }
-                    append(displayValue, REGULAR_BOLD_ATTRIBUTES);
+                    DBDataType dataType = argument == null ? null : argument.getDataType();
+                    appendValue(argumentValue, originalValue, displayValue, dataType);
                     if (argument != null) {
-                        DBDataType dataType = argument.getDataType();
                         if (dataType != null) {
                             append(" (" + dataType.getName() + ")", GRAY_ATTRIBUTES);
                         }
@@ -139,13 +155,31 @@ class ArgumentValuesTree extends DBNTree{
                     setIcon(attribute.getIcon());
                     append(attribute.getName(), REGULAR_ATTRIBUTES);
                     append(" = ", REGULAR_ATTRIBUTES);
-                    append(displayValue, REGULAR_BOLD_ATTRIBUTES);
                     DBDataType dataType = attribute.getDataType();
+                    appendValue(argumentValue, originalValue, displayValue, dataType);
                     if (dataType != null) {
-                        append(" (" + dataType.getName() + ")", GRAY_ATTRIBUTES);
+                        append(" (" + cachedLowerCase(dataType.getName()) + ")", GRAY_ATTRIBUTES);
                     }
                 }
             }
+        }
+
+        private void appendValue(ArgumentValue argumentValue, Object originalValue, String displayValue, DBDataType dataType) {
+            boolean valueHidden = originalValue instanceof ResultSet || argumentValue.isLargeObject() || argumentValue.isLargeValue();
+            GenericDataType genericDataType = dataType == null ? null : dataType.getGenericDataType();
+            if (!valueHidden && originalValue != null && genericDataType == LITERAL) {
+                displayValue = "'" + displayValue.replace("'", "''") + "'";
+            }
+
+            append(displayValue, getValueAttributes(genericDataType, originalValue));
+        }
+
+        private SimpleTextAttributes getValueAttributes(GenericDataType genericDataType, Object originalValue) {
+            if (originalValue == null) return ERROR_ATTRIBUTES;
+            if (genericDataType == LITERAL) return getSimpleTextAttributes(SQLTextAttributesKeys.STRING);
+            if (genericDataType == NUMERIC) return getSimpleTextAttributes(SQLTextAttributesKeys.NUMBER);
+
+            return REGULAR_ATTRIBUTES;
         }
     }
 }

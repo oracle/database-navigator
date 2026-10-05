@@ -17,11 +17,11 @@
 package com.dbn.common.state;
 
 import com.dbn.common.util.Strings;
+import lombok.Getter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
-import static com.dbn.common.component.PersistentStateContext.getEncryptionCache;
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.readCdata;
 import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
@@ -30,10 +30,12 @@ import static com.dbn.common.state.StateEncryption.isUnencryptedStateApproved;
 import static com.dbn.common.state.StateEncryption.requestUnencryptedStateApproval;
 import static com.dbn.common.util.Commons.nvl;
 
+@Getter
 public final class ProtectedContent implements PersistentStateElement {
     private final @NonNls String encryptionScope;
     private String encryptedValue;
     private boolean encrypted;
+    private boolean nullMarker;
     private String value;
     private boolean resolved;
     private final StateEncryptionCache encryptionCache;
@@ -48,16 +50,25 @@ public final class ProtectedContent implements PersistentStateElement {
         set(value);
     }
 
+    public static ProtectedContent nullMarker(@NonNls String encryptionScope) {
+        ProtectedContent content = new ProtectedContent(encryptionScope);
+        content.nullMarker = true;
+        content.resolved = true;
+        return content;
+    }
+
     @Override
     public void readState(Element element) {
-        encryptedValue = readCdata(element);
+        nullMarker = booleanAttribute(element, "null-marker", false);
         encrypted = booleanAttribute(element, "encrypted", false);
-        resolved = !encrypted;
-        value = encrypted ? null : encryptedValue;
+        encryptedValue = readCdata(element);
+        resolved = nullMarker || !encrypted;
+        value = nullMarker || encrypted ? null : encryptedValue;
     }
 
     @Nullable
     public String get() {
+        if (nullMarker) return null;
         if (resolved) return value;
 
         String decryptedValue = encryptionCache == null ?
@@ -71,6 +82,7 @@ public final class ProtectedContent implements PersistentStateElement {
     }
 
     public void set(@Nullable String value) {
+        nullMarker = false;
         this.encryptedValue = null;
         this.encrypted = false;
         this.resolved = true;
@@ -79,6 +91,13 @@ public final class ProtectedContent implements PersistentStateElement {
 
     @Override
     public void writeState(Element element) {
+        setBooleanAttribute(element, "null-marker", nullMarker);
+        if (nullMarker) {
+            setBooleanAttribute(element, "encrypted", false);
+            writeCdata(element, "", true);
+            return;
+        }
+
         if (!resolved && encrypted) {
             setBooleanAttribute(element, "encrypted", true);
             writeCdata(element, encryptedValue, true);
@@ -106,6 +125,8 @@ public final class ProtectedContent implements PersistentStateElement {
     }
 
     public boolean isEmpty() {
+        if (nullMarker) return false;
+
         return resolved ? Strings.isEmpty(value) : Strings.isEmpty(encryptedValue);
     }
 }
