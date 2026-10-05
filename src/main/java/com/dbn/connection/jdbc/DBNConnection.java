@@ -325,16 +325,16 @@ public class DBNConnection extends DBNConnectionBase {
             }
 
             if (isInitialized() && status.isOneOf(VALID, CLOSED)) {
-                verifyAndRelease();
+                verifyAndDiscard();
                 notifyStatusChange();
             }
         });
     }
 
-    private void verifyAndRelease() {
+    private void verifyAndDiscard() {
         if (is(VALID) && isNot(CLOSED)) return;
 
-        propagate(connection -> connection.getConnectionPool().release(this));
+        propagate(connection -> connection.getConnectionPool().discard(this));
         resetDataChanges();
 
     }
