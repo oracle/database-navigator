@@ -17,6 +17,7 @@
 package com.dbn.common.util;
 
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -67,6 +68,7 @@ public class JdbcUrls {
     private static final Pattern LEAF_BLOCK_PARAMETER =
             Pattern.compile("(\\(\\s*)([A-Za-z0-9_.-]+)(\\s*=\\s*)([^()]*?)(\\s*\\))");
 
+    @NonNls
     private static final Set<String> SENSITIVE_KEY_NAMES = Set.of(
             "user",
             "username",
@@ -91,8 +93,11 @@ public class JdbcUrls {
             "credentials",
             "secretkey",
             "sessionkey",
-            "signingkey");
+            "signingkey",
+            "walletlocation",
+            "truststorefile");
 
+    @NonNls
     private static final Set<String> SENSITIVE_KEY_SUFFIXES = Set.of(
             "password",
             "secret",
@@ -100,7 +105,10 @@ public class JdbcUrls {
             "apikey",
             "passphrase",
             "credential",
-            "credentials");
+            "credentials",
+            "wallet",
+            "truststore",
+            "keystore");
 
     @Nullable
     public static String redactSensitiveParameters(@Nullable String url) {
