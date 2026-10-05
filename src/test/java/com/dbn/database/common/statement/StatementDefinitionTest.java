@@ -175,7 +175,7 @@ public class StatementDefinitionTest {
                 .getResource("../statement-interface.dtd"));
 
         Element dataDictionary = loadDefinition(PostgresDataDefinitionInterface.class, "postgres_ddl_interface.xml");
-        StatementDefinition definition = statementDefinition(dataDictionary, "drop-trigger");
+        StatementDefinition definition = statementDefinition(dataDictionary, "drop-dataset-trigger");
 
         String statementText = definition.prepareStatementText(
                 StatementDefinitionTest::enquoteSqliteIdentifier,
