@@ -27,6 +27,7 @@ import javax.swing.JPanel;
 
 import static com.dbn.common.color.Colors.getLabelDisabledForeground;
 import static com.dbn.common.color.Colors.getLabelForeground;
+import static com.intellij.util.ui.UIUtil.getContextHelpForeground;
 
 
 public class WorkspaceFeatureItemForm extends DBNFormBase {
@@ -40,6 +41,7 @@ public class WorkspaceFeatureItemForm extends DBNFormBase {
         super(parent);
         this.feature = feature;
 
+        mainPanel.setOpaque(false);
         enabledCheckBox.setText(feature.getDisplayName());
         descriptionLabel.setText(feature.getDescription());
         enabledCheckBox.setFont(Fonts.regular(1));
@@ -64,6 +66,9 @@ public class WorkspaceFeatureItemForm extends DBNFormBase {
     private void refreshState() {
         enabledCheckBox.setForeground(enabledCheckBox.isSelected() ?
                 getLabelForeground() :
+                getLabelDisabledForeground());
+        descriptionLabel.setForeground(enabledCheckBox.isSelected() ?
+                getContextHelpForeground() :
                 getLabelDisabledForeground());
     }
 

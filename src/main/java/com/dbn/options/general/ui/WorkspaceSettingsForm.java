@@ -16,19 +16,25 @@
 
 package com.dbn.options.general.ui;
 
+import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.ui.info.DBNCommentLabel;
 import com.dbn.options.general.WorkspaceFeature;
 import com.dbn.options.general.WorkspaceSettings;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.Box;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridLayout;
+import java.awt.RenderingHints;
 import java.util.List;
-
-import static com.dbn.common.ui.Layouts.verticalBoxLayout;
 
 public class WorkspaceSettingsForm extends ConfigurationEditorForm<WorkspaceSettings> {
     private JPanel mainPanel;
@@ -46,13 +52,21 @@ public class WorkspaceSettingsForm extends ConfigurationEditorForm<WorkspaceSett
     }
 
     private void initFeaturePanel() {
-        verticalBoxLayout(featuresPanel);
         for (WorkspaceFeature feature : WorkspaceFeature.values()) {
             WorkspaceFeatureItemForm form = new WorkspaceFeatureItemForm(this, feature);
-            featuresPanel.add(form.getComponent());
             featureForms.add(form);
         }
-        featuresPanel.add(Box.createVerticalGlue());
+
+        int rowCount = (featureForms.size() + 1) / 2;
+        featuresPanel.setLayout(new GridLayout(rowCount, 2, JBUI.scale(8), JBUI.scale(8)));
+        for (int row = 0; row < rowCount; row++) {
+            featuresPanel.add(new RoundedPanel(featureForms.get(row).getComponent()));
+
+            int secondColumnIndex = row + rowCount;
+            if (secondColumnIndex < featureForms.size()) {
+                featuresPanel.add(new RoundedPanel(featureForms.get(secondColumnIndex).getComponent()));
+            }
+        }
     }
 
     @Override
@@ -71,6 +85,39 @@ public class WorkspaceSettingsForm extends ConfigurationEditorForm<WorkspaceSett
     @Override
     public JPanel getMainComponent() {
         return mainPanel;
+    }
+
+    private static final class RoundedPanel extends JPanel {
+        private static final int CORNER_RADIUS = 16;
+
+        private RoundedPanel(@NotNull JComponent content) {
+            super(new BorderLayout());
+            setOpaque(false);
+            add(content, BorderLayout.CENTER);
+        }
+
+        @Override
+        protected void paintComponent(Graphics graphics) {
+            super.paintComponent(graphics);
+
+            Graphics2D g = (Graphics2D) graphics.create();
+            try {
+                g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                int width = getWidth() - 1;
+                int height = getHeight() - 1;
+                if (width <= 0 || height <= 0) return;
+
+                int arc = JBUI.scale(CORNER_RADIUS);
+                Color background = Colors.getPanelBackground();
+                g.setColor(background);
+                g.fillRoundRect(0, 0, width, height, arc, arc);
+                g.setColor(Colors.getOutlineColor());
+                g.drawRoundRect(0, 0, width, height, arc, arc);
+            } finally {
+                g.dispose();
+            }
+        }
     }
 
 }
