@@ -18,11 +18,11 @@ package com.dbn.object.datasource.prerequisite;
 
 import com.dbn.prerequisite.definition.impl.DatabaseVersionPrerequisite;
 
-import static com.dbn.prerequisite.shared.PrerequisiteTypes.DATABASE_VERSION_26_0;
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.DATABASE_VERSION_23_26;
 
 public class DatabaseVersion_DATA_SOURCE_CONFIG extends DatabaseVersionPrerequisite {
 
     public DatabaseVersion_DATA_SOURCE_CONFIG() {
-        super(DATABASE_VERSION_26_0, 26, 0);
+        super(DATABASE_VERSION_23_26, 23, 26);
     }
 }

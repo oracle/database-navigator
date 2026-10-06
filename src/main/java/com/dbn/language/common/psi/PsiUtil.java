@@ -30,6 +30,7 @@ import com.dbn.language.common.psi.lookup.LookupAdapters;
 import com.dbn.language.common.psi.lookup.PsiLookupAdapter;
 import com.dbn.object.DBSchema;
 import com.dbn.object.type.DBObjectType;
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.lang.Language;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -59,12 +60,14 @@ import static com.dbn.common.util.Unsafe.cast;
 public class PsiUtil {
     // TODO: check if any other visitor relevant
     public static final PsiElementVisitors SUPPORTED_VISITORS = PsiElementVisitors.create(
-            //com.intellij.spellchecker.inspections.SpellCheckingInspection;
-            //com.maddyhome.idea.copyright.actions.UpdateCopyrightAction;
-            //com.dbn.diagnostics.data.ParserDiagnosticsUtil;
+            //com.intellij.spellchecker.inspections.SpellCheckingInspection
+            //com.maddyhome.idea.copyright.actions.UpdateCopyrightAction
+            //com.dbn.diagnostics.data.ParserDiagnosticsUtil
+            //com.dbn.language.common.dialect.DBLanguageDialectResolver
             "SpellCheckingInspection",
             "ParserDiagnosticsUtil",
-            "UpdateCopyrightAction");
+            "UpdateCopyrightAction",
+            "DBLanguageDialectResolver");
 
     public static boolean hasErrors(@NotNull PsiFile psiFile) {
         return Read.call(psiFile, file -> {
@@ -416,5 +419,17 @@ public class PsiUtil {
     public static FileManager getFileManager(Project project) {
         PsiManagerEx psiManager = (PsiManagerEx) PsiManager.getInstance(project);
         return psiManager.getFileManager();
+    }
+
+    public static void setHighlightingEnabled(@Nullable PsiFile psiFile, boolean enabled) {
+        if (psiFile == null) return;
+        if (!psiFile.isValid()) return;
+
+        Project project = psiFile.getProject();
+        DaemonCodeAnalyzer codeAnalyzer = DaemonCodeAnalyzer.getInstance(project);
+        codeAnalyzer.setHighlightingEnabled(psiFile, enabled);
+        if (enabled) {
+            codeAnalyzer.restart(psiFile);
+        }
     }
 }

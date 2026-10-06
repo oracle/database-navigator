@@ -79,4 +79,6 @@ public interface ElementTypeCache<T extends ElementTypeBase> {
     Set<TokenType> captureFirstPossibleTokens(ElementLookupContext context, @Nullable Set<TokenType> bucket);
 
     void registerLeaf(LeafElementType leaf, ElementTypeBase source);
+
+    void releaseInitState();
 }

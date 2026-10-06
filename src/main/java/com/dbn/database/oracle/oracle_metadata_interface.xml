@@ -408,7 +408,21 @@
                 DECODE(EXTERNAL_DATA, 'YES', 'Y', 'N') as EXTERNAL_DATA,
                 DECODE(INMEMORY, 'YES', 'Y', 'N') as INMEMORY
             from [PREFIX]_MINING_MODELS
-                where OWNER = {#0}
+            where OWNER = {#0}
+            order by MODEL_NAME asc
+        </statement>
+        <statement prefixes="DBA, ALL">
+            select
+                MODEL_NAME,
+                MINING_FUNCTION,
+                ALGORITHM,
+                ALGORITHM_TYPE,
+                MODEL_SIZE,
+                DECODE(PARTITIONED, 'YES', 'Y', 'N') as PARTITIONED,
+                'N' as EXTERNAL_DATA,
+                'N' as INMEMORY
+            from [PREFIX]_MINING_MODELS
+            where OWNER = {#0}
             order by MODEL_NAME asc
         </statement>
         <statement>
@@ -421,6 +435,20 @@
                 DECODE(PARTITIONED, 'YES', 'Y', 'N') as PARTITIONED,
                 DECODE(EXTERNAL_DATA, 'YES', 'Y', 'N') as EXTERNAL_DATA,
                 DECODE(INMEMORY, 'YES', 'Y', 'N') as INMEMORY
+            from USER_MINING_MODELS
+            where USER = {#0}
+            order by MODEL_NAME asc
+        </statement>
+        <statement>
+            select
+                MODEL_NAME,
+                MINING_FUNCTION,
+                ALGORITHM,
+                ALGORITHM_TYPE,
+                MODEL_SIZE,
+                DECODE(PARTITIONED, 'YES', 'Y', 'N') as PARTITIONED,
+                'N' as EXTERNAL_DATA,
+                'N' as INMEMORY
             from USER_MINING_MODELS
             where USER = {#0}
             order by MODEL_NAME asc

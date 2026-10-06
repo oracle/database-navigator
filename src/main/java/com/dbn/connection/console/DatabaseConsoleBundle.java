@@ -24,7 +24,7 @@ import com.dbn.object.DBConsole;
 import com.dbn.object.impl.DBConsoleImpl;
 import com.dbn.vfs.DBConsoleType;
 import com.dbn.vfs.file.DBConsoleVirtualFile;
-import com.intellij.openapi.project.Project;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,24 +36,12 @@ import java.util.Set;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 
+@Getter
 public class DatabaseConsoleBundle extends ConnectionComponentBase {
     private final List<DBConsole> consoles = DisposableContainers.concurrentList(this);
 
     public DatabaseConsoleBundle(ConnectionHandler connection) {
         super(connection);
-    }
-
-    public synchronized List<DBConsole> getConsoles() {
-        if (consoles.isEmpty()) {
-            String consoleName = getConnection().getName();
-            createConsole(consoleName, DBConsoleType.STANDARD);
-        }
-        return consoles;
-    }
-
-    @NotNull
-    private Project getProject() {
-        return getConnection().getProject();
     }
 
     public Set<String> getConsoleNames() {
@@ -86,22 +74,29 @@ public class DatabaseConsoleBundle extends ConnectionComponentBase {
         return nd(console);
     }
 
-    public synchronized DBConsole getConsole(String name, DBConsoleType type, boolean create) {
+    public DBConsole getConsole(String name, DBConsoleType type, boolean create) {
         DBConsole console = getConsole(name);
         if (console == null && create) {
-            return createConsole(name, type);
+            return createConsole(name, type, true);
         }
         return console;
     }
 
-    DBConsole createConsole(String name, DBConsoleType type) {
+    DBConsole restoreConsole(String name, DBConsoleType type) {
+        DBConsole console = getConsole(name);
+        return console == null ? createConsole(name, type, false) : console;
+    }
+
+    DBConsole createConsole(String name, DBConsoleType type, boolean initialize) {
         ConnectionHandler connection = getConnection();
         DBConsole console = new DBConsoleImpl(connection, name, type);
         consoles.add(console);
         Collections.sort(consoles);
 
         DBConsoleVirtualFile virtualFile = console.getVirtualFile();
-        virtualFile.setDatabaseSchema(connection.getDefaultSchemaId());
+        if (initialize) {
+            virtualFile.setDatabaseSchema(connection.getDefaultSchemaId());
+        }
 
         return console;
     }

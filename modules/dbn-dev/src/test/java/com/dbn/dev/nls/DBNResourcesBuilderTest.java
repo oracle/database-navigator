@@ -39,9 +39,9 @@ public class DBNResourcesBuilderTest {
 
         String expected = "" +
                 "# template header\n" +
+                "app.alpha.Z=alpha z\n" +
                 "app.beta.A=beta a\\nnext\n" +
                 "app.beta.Z=beta z\n" +
-                "app.alpha.Z=alpha z\n" +
                 "\n" +
                 "# another template header\n" +
                 "cfg.connection.Z=connection z\n";

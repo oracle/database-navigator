@@ -33,18 +33,15 @@ public class IterationElementTypeCache extends ElementTypeIndexedCache<Iteration
 
     @Override
     boolean initAsFirstPossibleLeaf(LeafElementType leaf, ElementTypeBase source) {
-        boolean notInitialized = !firstPossibleLeafs.contains(leaf);
-        return notInitialized && (
-                isWrapperBeginLeaf(leaf) ||
-                isIteratedSource(source) && source.cache.couldStartWithLeaf(leaf));
+        if (isWrapperBeginLeaf(leaf)) return true;
+        if (!isIteratedSource(source)) return false;
+        return source.cache.couldStartWithLeaf(leaf);
     }
 
     @Override
     boolean initAsFirstRequiredLeaf(LeafElementType leaf, ElementTypeBase source) {
-        boolean notInitialized = !firstRequiredLeafs.contains(leaf);
-        return notInitialized &&
-                isIteratedSource(source) &&
-                source.cache.shouldStartWithLeaf(leaf);
+        if (!isIteratedSource(source)) return false;
+        return source.cache.shouldStartWithLeaf(leaf);
     }
 
     private boolean isIteratedSource(ElementTypeBase source) {

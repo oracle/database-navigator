@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,116 +16,25 @@
 
 package com.dbn.common.index;
 
-import java.util.Arrays;
-
 /**
- * Small memory footprint collection of primitive int values.
- * The values are held in a sorted int array which gets reconstructed with every insertion
- * The elements lookup and insertion index resolution is done with binary search
- * (this is to replace the outdated THashSet from trove4j)
+ * Collection of primitive indexes used by parser caches.
  *
- * TODO for larger collections it's probably better to switch to IntHashSet ("add-only" copy of java.util.regex.IntHashSet)
- * (lookup inside a 100 records collections translates to up to 7 basic operations)
- *
- * @author Dan Cioca (Oracle)
+ * Implementations may use different storage strategies depending on the density of the indexes.
  */
-public class IndexCollection{
-    public static final int[] EMPTY_ARRAY = new int[0];
-    private int[] values;
+public interface IndexCollection {
+    int[] EMPTY_ARRAY = new int[0];
 
-    public IndexCollection() {
-        values = EMPTY_ARRAY;
-    }
+    boolean isEmpty();
 
-    public IndexCollection(int ... values) {
-        this.values = Arrays.copyOf(values, values.length);
-    }
+    boolean contains(int value);
 
-    int[] values() {
-        return values;
-    }
+    int indexOf(int value);
 
-    public boolean isEmpty() {
-        return values.length == 0;
-    }
+    int size();
 
-    public synchronized void add(int value) {
-        int index = insertionIndex(value);
-        if (index == -1) return; // no change
+    int[] values();
 
-        int[] copy = new int[values.length + 1];
+    void add(int value);
 
-        copy[index] = value;
-        System.arraycopy(values, 0, copy, 0, index);
-        System.arraycopy(values, index, copy, index + 1, values.length - index);
-
-        this.values = copy;
-    }
-
-    private int insertionIndex(int value) {
-        if (isEmpty()) return 0;
-        int left = 0;
-        int right = values.length - 1;
-
-        if (value < values[left]) return 0;
-        if (value > values[right]) return values.length;
-
-
-        while (left <= right) {
-            int mid = left + (right - left) / 2;
-
-            if (values[mid] == value) return -1; // already present
-            if (values[mid] < value) left = mid + 1; else right = mid - 1;
-        }
-
-        return left;
-    }
-
-    public boolean contains(int value) {
-        //return indexOf(value) > -1;
-
-        if (values.length == 0) return false;
-
-        int left = 0;
-        int right = values.length - 1;
-        if (value < values[left]) return false;
-        if (value > values[right]) return false;
-
-        while (left <= right) {
-            int mid = left + (right - left) / 2;
-
-            if (values[mid] == value) return true; // found
-            if (values[mid] > value) right = mid - 1; else left = mid + 1;
-        }
-
-        return false;
-    }
-
-    public int indexOf(int value) {
-        if (values.length == 0) return -1;
-
-        int left = 0;
-        int right = values.length - 1;
-        if (value < values[left]) return -1;
-        if (value > values[right]) return -1;
-
-        while (left <= right) {
-            int mid = left + (right - left) / 2;
-
-            if (values[mid] == value) return mid; // found
-            if (values[mid] > value) right = mid - 1; else left = mid + 1;
-        }
-
-        return -1;
-    }
-
-
-    public int size() {
-        return values.length;
-    }
-
-    @Override
-    public String toString() {
-        return values == null ? "[]" : Arrays.toString(values);
-    }
+    boolean addIfAbsent(int value);
 }

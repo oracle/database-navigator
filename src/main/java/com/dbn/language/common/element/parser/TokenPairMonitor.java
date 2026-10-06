@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,12 +61,27 @@ public class TokenPairMonitor extends ParserBuilderExtension {
         if (stack == null) return false;
 
         if (tokenType == stack.endToken) return true;
-        if (tokenType == stack.beginToken) return !stack.isExplicitRange();
-
-        return false;
+        if (tokenType != stack.beginToken) return false;
+        return !stack.isExplicitRange();
     }
 
     public boolean hasConsumedMatch(ElementTypeBase elementType) {
+        TokenType token = builder.getPreviousToken();
+        if (token == null) return false;
+        if (builder.getToken() == token) return false;
+        if (!tokens.contains(token)) return false;
+
+        TokenPairStack stack = getStack(token);
+        if (stack == null) return false;
+        if (token != stack.endToken) {
+            if (token != stack.beginToken) return false;
+            if (stack.isExplicitRange()) return false;
+        }
+
+        return elementType.cache.couldStartWithToken(token);
+    }
+
+    public boolean hasConsumedMatchOld(ElementTypeBase elementType) {
         for (TokenType token : tokens) {
             if (!isConsumedMatch(token)) continue;
             if (!elementType.cache.couldStartWithToken(token)) continue;

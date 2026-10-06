@@ -9,8 +9,10 @@
 /src/main/resources/lib/
 /modules/dbn-api/build/
 /modules/dbn-spi/build/
+/modules/dbn-dev/build/
 /modules/dbn-api/.gradle/
 /modules/dbn-spi/.gradle/
+/modules/dbn-dev/.gradle/
 /modules/dbn-dev/language-builder.properties
 /mcp-dist/
 /.intellijPlatform/

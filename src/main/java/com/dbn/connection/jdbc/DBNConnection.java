@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -371,13 +371,6 @@ public class DBNConnection extends DBNConnectionBase {
     public int getIdleMinutes() {
         long idleTimeMillis = System.currentTimeMillis() - lastAccess;
         return (int) (idleTimeMillis / TimeUtil.Millis.ONE_MINUTE);
-    }
-
-    public static Connection getInner(Connection connection) {
-        if (connection instanceof DBNConnection dbnConnection) {
-            return dbnConnection.getInner();
-        }
-        return connection;
     }
 
     @NotNull

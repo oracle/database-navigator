@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package com.dbn.common.util;
 
+import com.dbn.common.routine.ThrowableConsumer;
+import com.dbn.common.routine.ThrowableFunction;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -35,14 +37,14 @@ public final class Safe {
     }
 
     @Nullable
-    public static <R, T> R call(@Nullable T target, @NotNull Function<T, R> supplier){
+    public static <R, T, E extends Throwable> R call(@Nullable T target, @NotNull ThrowableFunction<T, R, E> function) throws E{
         if (isNotValid(target)) return null;
-        return supplier.apply(target);
+        return function.apply(target);
     }
 
-    public static <T> void run(@Nullable T target, @NotNull Consumer<T> runnable){
+    public static <T, E extends Throwable> void run(@Nullable T target, @NotNull ThrowableConsumer<T, E> consumer) throws E{
         if (isNotValid(target)) return;
-        runnable.accept(target);
+        consumer.accept(target);
     }
 
     public static <T extends Comparable<T>> int compare(@Nullable T value1, @Nullable T value2) {

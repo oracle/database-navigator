@@ -20,7 +20,6 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
-import com.dbn.common.util.Strings;
 import com.dbn.data.editor.text.TextContentType;
 import com.dbn.data.editor.text.TextContentTypeOwner;
 import com.dbn.data.editor.text.actions.TextContentTypeComboBoxAction;
@@ -44,6 +43,7 @@ import static com.dbn.common.util.Messages.showWarningDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
+import static com.intellij.openapi.util.text.StringUtil.convertLineSeparators;
 
 public class JavaExecutionLargeValueResultForm extends DBNFormBase implements TextContentTypeOwner {
     private JPanel actionsPanel;
@@ -74,12 +74,10 @@ public class JavaExecutionLargeValueResultForm extends DBNFormBase implements Te
             text = (String) value;
         }
 
-        text = Strings.removeCharacter(nvl(text, ""), '\r');
+        text = convertLineSeparators(nvl(text, ""));
         Document document = Documents.createDocument(text);
 
         contentType = TextContentType.get(project, getCanonicalName(parameter.getJavaClassRef()));
-
-        if (contentType == null) contentType = TextContentType.getPlainText(project);
 
         editor = Editors.createEditor(document, project, null, contentType.getFileType());
         editor.getContentComponent().setFocusTraversalKeysEnabled(false);

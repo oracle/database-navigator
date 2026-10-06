@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -146,13 +146,6 @@ public class DBNResultSet extends DBNResource<ResultSet> implements ResultSet, C
     @Override
     public void closeInner() throws SQLException {
         handled(() -> inner.close());
-    }
-
-    public static ResultSet getInner(ResultSet resultSet) {
-        if (resultSet instanceof DBNResultSet dbnResultSet) {
-            return dbnResultSet.getInner();
-        }
-        return resultSet;
     }
 
     /********************************************************************

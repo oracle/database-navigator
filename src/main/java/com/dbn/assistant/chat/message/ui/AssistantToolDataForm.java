@@ -29,7 +29,6 @@ import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Languages;
 import com.dbn.common.util.Viewers;
-import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.lang.Language;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
@@ -57,6 +56,7 @@ import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.create
 import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.isPreviewOversized;
 import static com.dbn.common.util.Editors.restrictEditorHeight;
 import static com.dbn.language.common.psi.PsiUtil.getFileManager;
+import static com.dbn.language.common.psi.PsiUtil.setHighlightingEnabled;
 
 public class AssistantToolDataForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -168,10 +168,7 @@ public class AssistantToolDataForm extends DBNFormBase {
         FileManager fileManager = getFileManager(project);
         FileViewProvider viewProvider = fileManager.createFileViewProvider(file, true);
         PsiFile psiFile = viewProvider.getPsi(language);
-        if (psiFile != null) {
-            DaemonCodeAnalyzer codeAnalyzer = DaemonCodeAnalyzer.getInstance(project);
-            codeAnalyzer.setHighlightingEnabled(psiFile, false);
-        }
+        setHighlightingEnabled(psiFile, false);
         return psiFile;
     }
 

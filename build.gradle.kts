@@ -25,7 +25,7 @@ import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
 plugins {
     id("java")
     id("org.jetbrains.kotlin.jvm") version "2.2.20"
-    id("org.jetbrains.intellij.platform") version "2.11.0"
+    id("org.jetbrains.intellij.platform") version "2.18.1"
     id("com.github.jk1.dependency-license-report") version "2.9"
 }
 
@@ -35,7 +35,7 @@ val bundledJdbcPostgres: Configuration by configurations.creating
 val bundledJdbcSqlite: Configuration by configurations.creating
 
 group = "com.dbn"
-version = "4.1.0.0"
+version = "4.1.0.3"
 
 java {
     toolchain {
@@ -60,7 +60,9 @@ dependencies {
     testAnnotationProcessor("org.projectlombok:lombok:1.18.36")
 
     intellijPlatform {
-        intellijIdea("2024.3.3")
+        intellijIdea("2024.3.3") {
+            useInstaller = false
+        }
 
         // https://plugins.jetbrains.com/docs/intellij/plugin-dependencies.html#bundled-and-other-plugins
         bundledPlugins(
@@ -225,7 +227,7 @@ dependencies {
     bundledJdbcMysql("com.mysql:mysql-connector-j:9.5.0@jar")
 
     // PostgreSQL
-    bundledJdbcPostgres("org.postgresql:postgresql:42.7.11@jar")
+    bundledJdbcPostgres("org.postgresql:postgresql:42.7.13@jar")
 
     // SQLite
     bundledJdbcSqlite("org.xerial:sqlite-jdbc:3.53.2.0@jar")

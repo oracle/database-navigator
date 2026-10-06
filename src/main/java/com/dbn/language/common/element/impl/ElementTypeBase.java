@@ -305,7 +305,7 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
         if (wrapping == null) return;
 
         bucket.add(wrapping.beginElement);
-        bucket.add(wrapping.beginElement);
+        bucket.add(wrapping.endElement);
     }
 
     public void changeParent(ElementTypeBase oldParent, ElementTypeBase newParent) {

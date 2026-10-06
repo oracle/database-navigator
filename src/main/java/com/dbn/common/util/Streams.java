@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.dbn.common.util;
 
 import com.intellij.openapi.util.io.StreamUtil;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -26,7 +27,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 @UtilityClass
 public class Streams {
@@ -51,5 +54,9 @@ public class Streams {
         try (InputStreamReader reader = new InputStreamReader(inputStream)) {
             return StreamUtil.readText(reader);
         }
+    }
+
+    public static @Nullable Reader reader(InputStream inputStream) {
+        return inputStream == null ? null : new InputStreamReader(inputStream, StandardCharsets.UTF_8);
     }
 }

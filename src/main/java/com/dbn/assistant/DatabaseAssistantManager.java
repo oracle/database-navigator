@@ -90,6 +90,7 @@ import static com.dbn.common.util.Modality.nonModal;
 public class DatabaseAssistantManager extends ProjectComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Project.DatabaseAssistantManager";
     public static final @NonNls String TOOL_WINDOW_ID = "DB Assistant";
+    private static final int MAX_ASSISTANT_STATE_COUNT = 1024;
 
     private final Map<ConnectionId, Map<AssistantType, AssistantState>> assistantStates = new ConcurrentHashMap<>();
     private final Map<ConnectionId, AssistantType> selectedAssistantTypes = new ConcurrentHashMap<>();
@@ -400,7 +401,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     @Override
     public void loadComponentState(@NotNull Element element) {
         Element statesElement = element.getChild("assistants");
-        List<Element> stateElements = childrenOf(statesElement);
+        List<Element> stateElements = childrenOf(statesElement, "assistant-state", MAX_ASSISTANT_STATE_COUNT);
         for (Element stateElement : stateElements) {
             AssistantState assistantState = new AssistantStateDelegate(getProject());
             assistantState.readState(stateElement);

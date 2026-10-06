@@ -16,7 +16,6 @@
 
 package com.dbn.common.editor;
 
-import com.dbn.common.compatibility.Workaround;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.dispose.StatefulDisposable;
@@ -46,7 +45,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
 import java.beans.PropertyChangeListener;
-import java.util.Objects;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
 
@@ -236,22 +234,4 @@ public abstract class BasicTextEditorImpl<T extends VirtualFile> extends Statefu
         // TODO cleanup - happens as part of text editor disposal
         // EditorUtil.releaseEditor(textEditor.getEditor());
     }
-
-
-    /*******************************************************************
-     *  WORKAROUND: double gutter issue (delegated equals and hashcode)
-     *******************************************************************/
-
-    @Override
-    @Workaround
-    public boolean equals(Object o) {
-        return o == this || Objects.equals(o, textEditor);
-    }
-
-    @Override
-    @Workaround
-    public int hashCode() {
-        return textEditor.hashCode();
-    }
-
 }

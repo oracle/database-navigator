@@ -38,6 +38,7 @@ import static com.dbn.assistant.chat.message.AuthorType.AGENT;
 import static com.dbn.assistant.chat.message.AuthorType.SYSTEM;
 import static com.dbn.assistant.chat.message.AuthorType.USER;
 import static com.dbn.common.message.MessageType.ERROR;
+import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.longAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setLongAttribute;
@@ -50,6 +51,8 @@ import static com.dbn.common.util.Strings.isNotEmpty;
 @Getter
 @Setter
 public class Chat implements PersistentStateElement, Identifiable<String> {
+    static final int MAX_MESSAGE_COUNT = 2048;
+
     private String id = UUIDs.compact();
     private String title;
     private String sourceId;
@@ -146,7 +149,8 @@ public class Chat implements PersistentStateElement, Identifiable<String> {
         timestamp = longAttribute(element, "timestamp", 0L);
 
         AssistantType assistantType = getContext().getAssistantType();
-        List<Element> messagesElements = element.getChild("messages").getChildren();
+        Element messagesElement = element.getChild("messages");
+        List<Element> messagesElements = childrenOf(messagesElement, "message", MAX_MESSAGE_COUNT);
         for(Element msgElement : messagesElements){
             ChatMessage chatMessage = new ChatMessage(assistantType);
             chatMessage.readState(msgElement);

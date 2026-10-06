@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.dbn.common.util;
 
 import com.dbn.common.routine.ParametricCallable;
+import com.dbn.common.routine.ThrowableCallable;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
@@ -69,6 +70,29 @@ public final class Commons {
                 return value;
             }
         }
+        return null;
+    }
+
+    /**
+     * Calls alternatives in order and returns the first successful result.
+     * Unlike {@link #coalesce(Supplier[])}, a {@code null} result is successful
+     * and earlier failures are preserved on the final failure as suppressed exceptions.
+     */
+    @SafeVarargs
+    @SuppressWarnings("unchecked")
+    @Nullable
+    public static <T, E extends Throwable> T fallback(ThrowableCallable<T, E>... callables) throws E {
+        E failure = null;
+        for (ThrowableCallable<T, E> callable : callables) {
+            try {
+                return callable.call();
+            } catch (Throwable e) {
+                if (failure != null) e.addSuppressed(failure);
+                failure = (E) e;
+            }
+        }
+
+        if (failure != null) throw failure;
         return null;
     }
 

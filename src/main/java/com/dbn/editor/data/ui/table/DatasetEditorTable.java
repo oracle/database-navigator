@@ -228,7 +228,7 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
                 runnable.run();
             } finally {
                 scope.set(UPDATING, false);
-                refreshTableGutter();
+                Dispatch.run(this, () -> refreshTableGutter());
             }
         });
     }

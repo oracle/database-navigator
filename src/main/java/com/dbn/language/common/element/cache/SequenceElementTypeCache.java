@@ -35,19 +35,15 @@ public class SequenceElementTypeCache<T extends SequenceElementType> extends Ele
 
     @Override
     boolean initAsFirstPossibleLeaf(LeafElementType leaf, ElementTypeBase source) {
-        boolean notInitialized = !firstPossibleLeafs.contains(leaf);
-        return notInitialized && (
-                isWrapperBeginLeaf(leaf) ||
-                    (couldStartWithElement(source) &&
-                     source.cache.couldStartWithLeaf(leaf)));
+        if (isWrapperBeginLeaf(leaf)) return true;
+        if (!couldStartWithElement(source)) return false;
+        return source.cache.couldStartWithLeaf(leaf);
     }
 
     @Override
     boolean initAsFirstRequiredLeaf(LeafElementType leaf, ElementTypeBase source) {
-        boolean notInitialized = !firstRequiredLeafs.contains(leaf);
-        return notInitialized &&
-                shouldStartWithElement(source) &&
-                source.cache.shouldStartWithLeaf(leaf);
+        if (!shouldStartWithElement(source)) return false;
+        return source.cache.shouldStartWithLeaf(leaf);
     }
 
     private boolean couldStartWithElement(ElementType elementType) {

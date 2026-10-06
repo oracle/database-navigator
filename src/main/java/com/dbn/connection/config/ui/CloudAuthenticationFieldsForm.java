@@ -21,7 +21,6 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.misc.DBNComboBox;
-import com.dbn.common.util.Commons;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.provider.CloudAuthenticationType;
@@ -56,6 +55,7 @@ import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.Commons.match;
 import static com.dbn.common.util.Commons.matchArrays;
+import static com.dbn.common.util.Commons.nvln;
 import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.connection.config.provider.CloudAuthenticationType.AZURE_INTERACTIVE;
@@ -71,11 +71,6 @@ import static com.dbn.connection.config.provider.CloudAuthenticationType.values;
 import static com.dbn.nls.NlsResources.txt;
 
 public class CloudAuthenticationFieldsForm extends DBNFormBase {
-    private static final String GCP_AUTHENTICATION_URL =
-            "https://github.com/oracle/ojdbc-extensions/blob/main/ojdbc-provider-gcp/README.md#authentication";
-    private static final String AWS_AUTHENTICATION_URL =
-            "https://github.com/oracle/ojdbc-extensions/blob/main/ojdbc-provider-aws/README.md#common-parameters-for-centralized-config-providers";
-
     private JPanel mainPanel;
     private JLabel authenticationLabel;
     private JLabel authenticationInfoLabel;
@@ -129,12 +124,12 @@ public class CloudAuthenticationFieldsForm extends DBNFormBase {
 
         addSingleFileChooser(
                 getProject(), ociConfigFileTextField,
-                "Select OCI Configuration File",
-                "Select the OCI config file (usually ~/.oci/config)");
+                txt("cfg.oci.title.SelectConfigFile"),
+                txt("cfg.oci.text.SelectConfigFile"));
         addSingleFileChooser(
                 getProject(), azureClientCertificatePathTextField,
-                "Select Azure Client Certificate",
-                "Select the Azure service principal certificate file");
+                txt("cfg.connection.title.SelectAzureClientCertificateFile"),
+                txt("cfg.connection.text.SelectAzureClientCertificateFile"));
         authenticationComboBox.addActionListener(e -> {
             applyDefaultOciConfigFile();
             updateFieldVisibility();
@@ -226,11 +221,10 @@ public class CloudAuthenticationFieldsForm extends DBNFormBase {
 
     public void resetFormChanges() {
         ConfigProviderInfo configProvider = getConfigProviderInfo();
-        configProvider.reloadSecrets();
         setCloudProviderType(configProvider.getCloudProviderType());
 
         if (isAuthenticationProvider()) {
-            setSelection(authenticationComboBox, Commons.nvl(
+            setSelection(authenticationComboBox, nvln(
                     configProvider.getCloudAuthenticationType(),
                     getDefault(cloudProviderType)));
         }
@@ -276,7 +270,7 @@ public class CloudAuthenticationFieldsForm extends DBNFormBase {
         String configFile = isOciDefaultAuthentication() ? getOciConfigProviderConfigFile() : null;
         String profile = isOciDefaultAuthentication() ? getOciConfigProviderProfile() : null;
         boolean authenticationChanged = !match(
-                Commons.nvl(configProvider.getCloudAuthenticationType(), getDefault(cloudProviderType)),
+                nvln(configProvider.getCloudAuthenticationType(), getDefault(cloudProviderType)),
                 getCloudConfigProviderAuthentication());
         if (isAzureProvider()) {
             return authenticationChanged ||
@@ -374,13 +368,13 @@ public class CloudAuthenticationFieldsForm extends DBNFormBase {
         if (cloudProviderType == null) return;
 
         if (cloudProviderType.isGcp()) {
-            authenticationInfoLabel.setText("Authentication uses Google Application Default Credentials.");
-            authenticationInfoHyperlink.setHyperlinkText("Authentication details");
-            authenticationInfoHyperlink.setHyperlinkTarget(GCP_AUTHENTICATION_URL);
+            authenticationInfoLabel.setText(txt("cfg.connection.info.Authentication_GCP"));
+            authenticationInfoHyperlink.setHyperlinkText(txt("cfg.connection.link.AuthenticationDetails"));
+            authenticationInfoHyperlink.setHyperlinkTarget(txt("cfg.connection.url.Authentication_GCP"));
         } else if (cloudProviderType.isAws()) {
-            authenticationInfoLabel.setText("Authentication uses the AWS default credentials provider chain.");
-            authenticationInfoHyperlink.setHyperlinkText("Authentication details");
-            authenticationInfoHyperlink.setHyperlinkTarget(AWS_AUTHENTICATION_URL);
+            authenticationInfoLabel.setText(txt("cfg.connection.info.Authentication_AWS"));
+            authenticationInfoHyperlink.setHyperlinkText(txt("cfg.connection.link.AuthenticationDetails"));
+            authenticationInfoHyperlink.setHyperlinkTarget(txt("cfg.connection.url.Authentication_AWS"));
         }
     }
 

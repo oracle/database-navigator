@@ -47,7 +47,8 @@ public class QualifiedIdentifierElementCache extends ElementTypeIndexedCache<Qua
     @Override
     boolean initAsFirstRequiredLeaf(LeafElementType leaf, ElementTypeBase source) {
         for (LeafElementType[] variant : elementType.variants) {
-            if (variant[0] == source && !variant[0].optional) return true;
+            if (variant[0] != source) continue;
+            if (!variant[0].optional) return true;
         }
         return false;
     }

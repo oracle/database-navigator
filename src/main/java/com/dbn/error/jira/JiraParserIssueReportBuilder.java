@@ -13,13 +13,17 @@ import com.dbn.diagnostics.ParserIssueReportInput;
 import com.dbn.error.IssueReport;
 import com.dbn.error.MarkupElement;
 import com.intellij.openapi.diagnostic.Attachment;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+
+import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 
 public class JiraParserIssueReportBuilder extends JiraIssueReportBuilder {
     @Override
@@ -47,7 +51,7 @@ public class JiraParserIssueReportBuilder extends JiraIssueReportBuilder {
     }
 
     @Override
-    protected void buildAdditionalInfo(IssueReport report, StringBuilder description) {
+    protected void buildAdditionalInfo(IssueReport report, @NonNls StringBuilder description) {
         super.buildAdditionalInfo(report, description);
 
         ParserIssueReportInput input = getReportInput(report);
@@ -57,6 +61,12 @@ public class JiraParserIssueReportBuilder extends JiraIssueReportBuilder {
         description.append("Language Dialect: ");
         description.append(input.getLanguageDialectId());
         description.append(getMarkupElement(MarkupElement.PANEL));
+
+        if (!isEmptyOrSpaces(input.getComment())) {
+            description.append(getMarkupElement(MarkupElement.PANEL, "User Comment"));
+            description.append(input.getComment());
+            description.append(getMarkupElement(MarkupElement.PANEL));
+        }
     }
 
     @Nullable
@@ -72,7 +82,10 @@ public class JiraParserIssueReportBuilder extends JiraIssueReportBuilder {
 
         Attachment attachment = attachments.get(0);
         try {
-            String content = Files.readString(Path.of(attachment.getPath()), StandardCharsets.UTF_8);
+            ParserIssueReportInput input = getReportInput(report);
+            Charset charset = input == null ? StandardCharsets.UTF_8 : input.getCharset();
+
+            String content = Files.readString(Path.of(attachment.getPath()), charset);
             int previewLength = Math.min(content.length(), 10000);
             description.append(getMarkupElement(MarkupElement.CODE, attachment.getDisplayText()));
             description.append(content, 0, previewLength);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@ import com.dbn.common.util.Lists;
 import com.dbn.connection.config.ConnectionBundleSettings;
 import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.connection.config.ConnectionSettings;
-import com.dbn.connection.console.DatabaseConsoleManager;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.type.DBObjectType;
@@ -70,9 +69,9 @@ public class ConnectionBundle extends StatefulDisposableBase implements BrowserT
                 ConnectionId.VIRTUAL_ORACLE,
                 new VirtualConnectionHandler(
                         ConnectionId.VIRTUAL_ORACLE,
-                        "Virtual - Oracle 26.0",
+                        "Virtual - Oracle 23.26",
                         DatabaseType.ORACLE,
-                        10.1,
+                        23.26,
                         this));
 
         virtualConnections.put(
@@ -81,7 +80,7 @@ public class ConnectionBundle extends StatefulDisposableBase implements BrowserT
                         ConnectionId.VIRTUAL_MYSQL,
                         "Virtual - MySQL 7.9",
                         DatabaseType.MYSQL,
-                        5.0,
+                        7.9,
                         this));
 
         virtualConnections.put(ConnectionId.VIRTUAL_POSTGRES,
@@ -97,7 +96,7 @@ public class ConnectionBundle extends StatefulDisposableBase implements BrowserT
                         ConnectionId.VIRTUAL_SQLITE,
                         "Virtual - SQLite 3.53.3",
                         DatabaseType.SQLITE,
-                        3.10,
+                        3.53,
                         this));
 
         virtualConnections.put(
@@ -146,7 +145,7 @@ public class ConnectionBundle extends StatefulDisposableBase implements BrowserT
 
         this.connections = newConnections;
 
-        listChanged = listChanged || oldConnections.size() > 0;
+        listChanged = listChanged || !oldConnections.isEmpty();
         if (listChanged) {
             Project project = configuration.getProject();
             SettingsChangeNotifier.register(() -> {
@@ -167,9 +166,6 @@ public class ConnectionBundle extends StatefulDisposableBase implements BrowserT
         }
 
         rebuildIndex();
-
-        // ensure console state loaded
-        DatabaseConsoleManager.getInstance(getProject());
     }
 
     private boolean sizeChanged(FilteredList<ConnectionHandler> newConnections) {

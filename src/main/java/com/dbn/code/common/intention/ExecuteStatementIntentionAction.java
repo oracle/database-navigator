@@ -103,7 +103,7 @@ public class ExecuteStatementIntentionAction extends EditorIntentionAction {
         if (isNotValid(fileEditor)) return;
 
         StatementExecutionManager executionManager = StatementExecutionManager.getInstance(project);
-        StatementExecutionProcessor executionProcessor = executionManager.getExecutionProcessor(fileEditor, executable, true);
+        StatementExecutionProcessor executionProcessor = executionManager.getExecutionProcessor(executable, true);
         if (isNotValid(executionProcessor)) return;
 
         DataContext dataContext = Context.getDataContext(editor);

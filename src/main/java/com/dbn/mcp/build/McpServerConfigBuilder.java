@@ -18,6 +18,7 @@ package com.dbn.mcp.build;
 
 import com.dbn.common.component.ConnectionComponent;
 import com.dbn.common.database.DatabaseInfo;
+import com.dbn.common.util.Files;
 import com.dbn.common.util.Json;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
@@ -75,6 +76,7 @@ public final class McpServerConfigBuilder extends ConnectionComponent {
             throw new UnsupportedOperationException(txt("msg.mcp.exception.TnsProfileNotConfigured"));
         }
 
+        tnsFolder = Files.normalizePath(tnsFolder);
         File tnsFile = Paths.get(tnsFolder, "tnsnames.ora").toFile();
         if (!tnsFile.isFile()) {
             throw new UnsupportedOperationException(txt("msg.mcp.exception.TnsFileNotFound", tnsFile.getAbsolutePath()));
