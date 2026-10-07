@@ -74,7 +74,7 @@ public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
 
     private boolean editingEnabled = true;
 
-    public JsonDataEditorTable(DBNForm parent, JsonDataEditor editor) throws SQLException {
+    public JsonDataEditorTable(DBNForm parent, JsonDataEditor editor) {
         super(parent, createModel(editor), false,
                 new RecordViewInfo(
                     editor.getJsonView().getQualifiedName(),
@@ -99,7 +99,7 @@ public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
         return new JsonDataEditorTableCellRenderer();
     }
 
-    private static JsonDataEditorModel createModel(JsonDataEditor jsonDataEditor) throws SQLException {
+    private static JsonDataEditorModel createModel(JsonDataEditor jsonDataEditor) {
         return new JsonDataEditorModel(jsonDataEditor);
     }
 

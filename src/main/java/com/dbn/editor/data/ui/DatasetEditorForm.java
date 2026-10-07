@@ -16,14 +16,13 @@
 
 package com.dbn.editor.data.ui;
 
-import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.dispose.Disposer;
-import com.dbn.common.icon.Icons;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.AutoCommitLabel;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNTableScrollPane;
+import com.dbn.common.ui.panel.DBNLoadingPanel;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
@@ -36,21 +35,18 @@ import com.dbn.data.grid.options.DataGridSettings;
 import com.dbn.data.grid.ui.table.basic.BasicTable;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.data.DatasetEditor;
+import com.dbn.editor.data.model.DatasetEditorModel;
 import com.dbn.editor.data.state.column.DatasetColumnState;
 import com.dbn.editor.data.statusbar.DatasetEditorStatusBarWidget;
 import com.dbn.editor.data.ui.table.DatasetEditorTable;
 import com.dbn.editor.data.ui.table.cell.DatasetTableCellEditor;
 import com.dbn.object.DBDataset;
 import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformCoreDataKeys;
-import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
-import com.intellij.util.ui.AsyncProcessIcon;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.table.TableColumn;
 import java.awt.BorderLayout;
@@ -60,6 +56,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.common.dispose.Failsafe.nn;
+import static com.dbn.common.ui.panel.DBNLoadingPanel.newLoadingPanel;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.help.HelpTopic.TABLE_EDITORS;
@@ -68,11 +65,8 @@ import static com.dbn.nls.NlsResources.txt;
 public class DatasetEditorForm extends DBNFormBase implements SearchableDataComponent {
     private JPanel actionsPanel;
     private JPanel mainPanel;
-    private JLabel loadingLabel;
-    private JPanel loadingIconPanel;
     private JPanel searchPanel;
-    private JPanel loadingActionPanel;
-    private JPanel loadingDataPanel;
+    private JPanel loadingPanel;
     private JPanel datasetTablePanel;
     private DBNTableScrollPane datasetTableScrollPane;
 
@@ -86,32 +80,21 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
         this.datasetEditor = WeakRef.of(datasetEditor);
 
         DBDataset dataset = getDataset();
-        try {
-            this.toolbarPanel.setBorder(Borders.insetBorder(2));
+        this.toolbarPanel.setBorder(Borders.insetBorder(2));
 
-            loadingDataPanel.setBorder(Borders.tableBorder(1, 0, 0, 0));
-            datasetTablePanel.setBorder(Borders.tableBorder(1, 0, 0, 0));
-            datasetEditorTable = new DatasetEditorTable(this, datasetEditor);
-            datasetTableScrollPane.setViewportView(datasetEditorTable);
+        loadingPanel.setBorder(Borders.tableBorder(1, 0, 0, 0));
+        datasetTablePanel.setBorder(Borders.tableBorder(1, 0, 0, 0));
+        datasetEditorTable = new DatasetEditorTable(this, datasetEditor);
+        datasetTableScrollPane.setViewportView(datasetEditorTable);
 
-            ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBN.DataEditor");
-            setAccessibleName(actionToolbar, txt("app.dataEditor.aria.DatasetEditorActions"));
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBN.DataEditor");
+        setAccessibleName(actionToolbar, txt("app.dataEditor.aria.DatasetEditorActions"));
 
-            actionsPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
-            loadingIconPanel.add(new AsyncProcessIcon("Loading"));
-            hideLoadingHint();
+        actionsPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
 
-            ActionToolbar loadingActionToolbar = Actions.createActionToolbar(actionsPanel, true, new CancelLoadingAction());
-            loadingActionPanel.add(loadingActionToolbar.getComponent());
+        initLoadingPanel();
 
-            Disposer.register(this, autoCommitLabel);
-        } catch (SQLException e) {
-            conditionallyLog(e);
-            Messages.showErrorDialog(
-                    getProject(),
-                    txt("msg.dataEditor.title.FailedToOpenEditor"),
-                    txt("msg.dataEditor.error.FailedToOpenEditor", dataset.getQualifiedNameWithType(), e));
-        }
+        Disposer.register(this, autoCommitLabel);
 
         if (dataset.isEditable(DBContentType.DATA)) {
             ConnectionHandler connection = getConnectionHandler();
@@ -125,6 +108,14 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
         mainPanel.setFocusTraversalPolicyProvider(true);
 
         Disposer.register(datasetEditor, this);
+    }
+
+    private void initLoadingPanel() {
+        newLoadingPanel(this, txt("app.dataEditor.text.LoadingData"))
+                .withCancelAction(
+                        () -> getTableModel().cancelDataLoad(),
+                        () -> !getTableModel().isLoadCancelled())
+                .installOn(this.loadingPanel, false);
     }
 
     public DatasetEditorTable beforeRebuild() throws SQLException {
@@ -190,11 +181,11 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
     }
 
     public void showLoadingHint() {
-        dispatch(() -> nn(loadingDataPanel).setVisible(true));
+        dispatch(() -> nn(loadingPanel).setVisible(true));
     }
 
     public void hideLoadingHint() {
-        dispatch(() -> nn(loadingDataPanel).setVisible(false));
+        dispatch(() -> nn(loadingPanel).setVisible(false));
     }
 
     @NotNull
@@ -234,19 +225,9 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
         return getEditorTable();
     }
 
-    private class CancelLoadingAction extends BasicAction {
-        @Override
-        public void actionPerformed(@NotNull AnActionEvent e) {
-            getEditorTable().getModel().cancelDataLoad();
-        }
-
-        @Override
-        public void update(@NotNull AnActionEvent e) {
-            Presentation presentation = e.getPresentation();
-            presentation.setText(txt("app.shared.action.Cancel"));
-            presentation.setIcon(Icons.DATA_EDITOR_STOP_LOADING);
-            presentation.setEnabled(!getEditorTable().getModel().isLoadCancelled());
-        }
+    @NotNull
+    private DatasetEditorModel getTableModel() {
+        return getEditorTable().getModel();
     }
 
 

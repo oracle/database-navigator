@@ -24,6 +24,7 @@ import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.AutoCommitLabel;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNTableScrollPane;
+import com.dbn.common.ui.panel.DBNLoadingPanel;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
@@ -34,6 +35,7 @@ import com.dbn.data.find.SearchableDataComponent;
 import com.dbn.data.grid.ui.table.basic.BasicTable;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.json.JsonDataEditor;
+import com.dbn.editor.json.model.JsonDataEditorModel;
 import com.dbn.editor.json.model.JsonDataEditorModelCell;
 import com.dbn.editor.json.ui.table.JsonDataEditorTable;
 import com.dbn.object.DBJsonView;
@@ -46,7 +48,6 @@ import com.intellij.util.ui.AsyncProcessIcon;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import java.awt.BorderLayout;
@@ -54,6 +55,7 @@ import java.awt.DefaultFocusTraversalPolicy;
 import java.sql.SQLException;
 
 import static com.dbn.common.dispose.Failsafe.nn;
+import static com.dbn.common.ui.panel.DBNLoadingPanel.newLoadingPanel;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -62,11 +64,8 @@ import static com.dbn.nls.NlsResources.txt;
 public class JsonDataEditorForm extends DBNFormBase implements SearchableDataComponent {
     private JPanel actionsPanel;
     private JPanel mainPanel;
-    private JLabel loadingLabel;
-    private JPanel loadingIconPanel;
     private JPanel searchPanel;
-    private JPanel loadingActionPanel;
-    private JPanel loadingDataPanel;
+    private JPanel loadingPanel;
     private JPanel tablePanel;
     private DBNTableScrollPane jsonDataTableScrollPane;
 
@@ -83,34 +82,22 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
         this.jsonDataEditor = WeakRef.of(jsonDataEditor);
 
         DBJsonView jsonView = getJsonView();
-        try {
-            toolbarPanel.setBorder(Borders.insetBorder(2));
+        toolbarPanel.setBorder(Borders.insetBorder(2));
 
-            loadingDataPanel.setBorder(Borders.tableBorder(1, 0, 0, 0));
-            tablePanel.setBorder(Borders.tableBorder(1, 0, 0, 0));
-            editorPanel.setBorder(Borders.tableBorder(0, 1, 0, 0));
-            editorPanel.setVisible(false);
-            jsonDataEditorTable = new JsonDataEditorTable(this, jsonDataEditor);
-            jsonDataTableScrollPane.setViewportView(jsonDataEditorTable);
+        loadingPanel.setBorder(Borders.tableBorder(1, 0, 0, 0));
+        tablePanel.setBorder(Borders.tableBorder(1, 0, 0, 0));
+        editorPanel.setBorder(Borders.tableBorder(0, 1, 0, 0));
+        editorPanel.setVisible(false);
+        jsonDataEditorTable = new JsonDataEditorTable(this, jsonDataEditor);
+        jsonDataTableScrollPane.setViewportView(jsonDataEditorTable);
 
-            ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBN.JsonDataEditor");
-            setAccessibleName(actionToolbar, txt("app.dataEditor.aria.JsonDataEditorActions"));
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBN.JsonDataEditor");
+        setAccessibleName(actionToolbar, txt("app.dataEditor.aria.JsonDataEditorActions"));
 
-            actionsPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
-            loadingIconPanel.add(new AsyncProcessIcon("Loading"));
-            hideLoadingHint();
+        actionsPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
+        initLoadingPanel();
 
-            ActionToolbar loadingActionToolbar = Actions.createActionToolbar(actionsPanel, true, new CancelLoadingAction());
-            loadingActionPanel.add(loadingActionToolbar.getComponent());
-
-            Disposer.register(this, autoCommitLabel);
-        } catch (SQLException e) {
-            conditionallyLog(e);
-            Messages.showErrorDialog(
-                    getProject(),
-                    txt("msg.dataEditor.title.FailedToOpenEditor"),
-                    txt("msg.dataEditor.error.FailedToOpenEditor", jsonView.getQualifiedNameWithType(), e));
-        }
+        Disposer.register(this, autoCommitLabel);
 
         if (jsonView.isEditable(DBContentType.JSON)) {
             ConnectionHandler connection = getConnectionHandler();
@@ -129,6 +116,14 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
         this.contentEditorForm = WeakRef.of(contentEditorForm);
 
         setSplitPaneProportion(editorSplitPanel, 0.2);
+    }
+
+    private void initLoadingPanel() {
+        newLoadingPanel(this, txt("app.dataEditor.text.LoadingData"))
+                .withCancelAction(
+                        () -> getTableModel().cancelDataLoad(),
+                        () -> !getTableModel().isLoadCancelled())
+                .installOn(this.loadingPanel, false);
     }
 
     public JsonDataEditorTable beforeRebuild() throws SQLException {
@@ -180,11 +175,11 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
     }
 
     public void showLoadingHint() {
-        dispatch(() -> nn(loadingDataPanel).setVisible(true));
+        dispatch(() -> nn(loadingPanel).setVisible(true));
     }
 
     public void hideLoadingHint() {
-        dispatch(() -> nn(loadingDataPanel).setVisible(false));
+        dispatch(() -> nn(loadingPanel).setVisible(false));
     }
 
     @NotNull
@@ -220,19 +215,8 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
         if (visible) hideSearchHeader();
     }
 
-    private class CancelLoadingAction extends BasicAction {
-        @Override
-        public void actionPerformed(@NotNull AnActionEvent e) {
-            getEditorTable().getModel().cancelDataLoad();
-        }
-
-        @Override
-        public void update(@NotNull AnActionEvent e) {
-            Presentation presentation = e.getPresentation();
-            presentation.setText(txt("app.shared.action.Cancel"));
-            presentation.setIcon(Icons.DATA_EDITOR_STOP_LOADING);
-            presentation.setEnabled(!getEditorTable().getModel().isLoadCancelled());
-        }
+    private @NotNull JsonDataEditorModel getTableModel() {
+        return getEditorTable().getModel();
     }
 
 

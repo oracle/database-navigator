@@ -20,6 +20,7 @@ import com.dbn.common.dispose.Disposer;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.misc.DBNTableScrollPane;
+import com.dbn.common.ui.panel.DBNLoadingPanel;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.PooledConnection;
@@ -42,11 +43,11 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
 import java.sql.SQLException;
 import java.util.List;
 
 import static com.dbn.common.thread.Dispatch.async;
+import static com.dbn.common.ui.panel.DBNLoadingPanel.newLoadingPanel;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
@@ -58,10 +59,7 @@ class DBNestedTableViewerForm extends DBNFormBase {
     private final DatasetFilterInput parentFilter;
     private JPanel mainPanel;
     private JPanel headerPanel;
-    private JLabel loadingLabel;
-    private JPanel loadingIconPanel;
-    private JPanel loadingActionPanel;
-    private JPanel loadingDataPanel;
+    private JPanel loadingPanel;
     private JPanel resultPanel;
     private DBNTableScrollPane resultScrollPane;
     private final ResultSetTable resultTable;
@@ -78,8 +76,7 @@ class DBNestedTableViewerForm extends DBNFormBase {
         DBNHeaderForm headerForm = new DBNHeaderForm(this, nvl(parentTableColumn, nestedTable));
         headerPanel.add(headerForm.getComponent());
 
-        loadingIconPanel.add(new AsyncProcessIcon("Loading"));
-        loadingDataPanel.setVisible(true);
+        newLoadingPanel(this, txt("app.dataEditor.text.LoadingData")).installOn(this.loadingPanel, true);
 
         RecordViewInfo recordViewInfo = new RecordViewInfo(nestedTable.getPresentableName(), nestedTable.getIcon());
         this.resultTable = new ResultSetTable<>(this, dataModel, false, recordViewInfo);
@@ -188,7 +185,7 @@ class DBNestedTableViewerForm extends DBNFormBase {
             setModel(result.data);
         } finally {
             resultTable.setLoading(false);
-            loadingDataPanel.setVisible(false);
+            loadingPanel.setVisible(false);
         }
     }
 
@@ -209,7 +206,7 @@ class DBNestedTableViewerForm extends DBNFormBase {
                     error);
         } finally {
             resultTable.setLoading(false);
-            loadingDataPanel.setVisible(false);
+            loadingPanel.setVisible(false);
         }
     }
 

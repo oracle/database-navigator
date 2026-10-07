@@ -94,7 +94,7 @@ public class DatasetEditorModel
     private final List<DatasetEditorModelRow> changedRows = new ArrayList<>();
     private final Latent<List<DBColumn>> uniqueKeyColumns = Latent.basic(() -> loadUniqueKeyColumns());
 
-    public DatasetEditorModel(DatasetEditor datasetEditor) throws SQLException {
+    public DatasetEditorModel(DatasetEditor datasetEditor) {
         super(datasetEditor.getConnection());
         Project project = getProject();
         this.datasetEditor = WeakRef.of(datasetEditor);

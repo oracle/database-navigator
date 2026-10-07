@@ -98,7 +98,7 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
 
     private @Getter @Setter boolean editingEnabled = true;
 
-    public DatasetEditorTable(DBNForm parent, DatasetEditor datasetEditor) throws SQLException {
+    public DatasetEditorTable(DBNForm parent, DatasetEditor datasetEditor) {
         super(parent, createModel(datasetEditor), false,
                 new RecordViewInfo(
                     datasetEditor.getDataset().getQualifiedName(),
@@ -135,7 +135,7 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
         return new DatasetEditorTableCellRenderer();
     }
 
-    private static DatasetEditorModel createModel(DatasetEditor datasetEditor) throws SQLException {
+    private static DatasetEditorModel createModel(DatasetEditor datasetEditor) {
         return new DatasetEditorModel(datasetEditor);
     }
 
