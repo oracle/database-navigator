@@ -34,6 +34,7 @@ import java.util.function.Supplier;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.thread.ThreadMonitor.isDispatchThread;
+import static com.dbn.common.ui.util.UserInterface.whenAttachedToWindow;
 import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static com.dbn.common.util.Commons.nvl;
 import static com.intellij.openapi.application.ApplicationManager.getApplication;
@@ -72,6 +73,8 @@ public final class Dispatch {
             run(component, runnable);
         }
     }
+/*
+    // TODO cleanup old modality state deferral utility
     public static void run(Component component, Runnable runnable) {
         if (component.isShowing()) {
             ModalityState modalityState = ModalityState.stateForComponent(component);
@@ -82,6 +85,15 @@ public final class Dispatch {
             run(ModalityState.defaultModalityState(), runnable);
         }
     }
+*/
+
+    public static void run(Component component, Runnable runnable) {
+        whenAttachedToWindow(component, () -> {
+            ModalityState modalityState = ModalityState.stateForComponent(component);
+            run(modalityState, runnable);
+        });
+    }
+
 
     // fire and forget
     public static void run(@Nullable ModalityState modalityState, Runnable runnable) {

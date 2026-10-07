@@ -22,11 +22,9 @@ import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.AutoCommitLabel;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNTableScrollPane;
-import com.dbn.common.ui.panel.DBNLoadingPanel;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SessionId;
 import com.dbn.data.find.SearchableDataComponent;
@@ -58,7 +56,7 @@ import java.util.List;
 import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.ui.panel.DBNLoadingPanel.newLoadingPanel;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
-import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.common.ui.util.Components.setComponentVisible;
 import static com.dbn.help.HelpTopic.TABLE_EDITORS;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -181,11 +179,11 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
     }
 
     public void showLoadingHint() {
-        dispatch(() -> nn(loadingPanel).setVisible(true));
+        setComponentVisible(loadingPanel, true);
     }
 
     public void hideLoadingHint() {
-        dispatch(() -> nn(loadingPanel).setVisible(false));
+        setComponentVisible(loadingPanel, false);
     }
 
     @NotNull

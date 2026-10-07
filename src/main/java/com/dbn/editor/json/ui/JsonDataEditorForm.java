@@ -16,19 +16,15 @@
 
 package com.dbn.editor.json.ui;
 
-import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.dispose.Disposer;
-import com.dbn.common.icon.Icons;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.AutoCommitLabel;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNTableScrollPane;
-import com.dbn.common.ui.panel.DBNLoadingPanel;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SessionId;
 import com.dbn.data.find.SearchableDataComponent;
@@ -40,11 +36,8 @@ import com.dbn.editor.json.model.JsonDataEditorModelCell;
 import com.dbn.editor.json.ui.table.JsonDataEditorTable;
 import com.dbn.object.DBJsonView;
 import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
-import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.editor.ex.EditorEx;
-import com.intellij.util.ui.AsyncProcessIcon;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -57,8 +50,8 @@ import java.sql.SQLException;
 import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.ui.panel.DBNLoadingPanel.newLoadingPanel;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.ui.util.Components.setComponentVisible;
 import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
-import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
 public class JsonDataEditorForm extends DBNFormBase implements SearchableDataComponent {
@@ -175,11 +168,11 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
     }
 
     public void showLoadingHint() {
-        dispatch(() -> nn(loadingPanel).setVisible(true));
+        setComponentVisible(loadingPanel, true);
     }
 
     public void hideLoadingHint() {
-        dispatch(() -> nn(loadingPanel).setVisible(false));
+        setComponentVisible(loadingPanel, false);
     }
 
     @NotNull
