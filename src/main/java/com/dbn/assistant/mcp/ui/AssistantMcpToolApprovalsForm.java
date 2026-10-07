@@ -41,7 +41,6 @@ import com.dbn.common.ui.misc.DBNToggleButton;
 import com.dbn.common.util.Actions;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
-import com.intellij.util.ui.AsyncProcessIcon;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -51,13 +50,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
-import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.APPROVED;
 import static com.dbn.common.approval.UserApprovalAction.MCP_SERVER_ACCESS;
 import static com.dbn.common.exception.Exceptions.getLocalizedMessages;
+import static com.dbn.common.ui.panel.DBNLoadingPanel.newLoadingPanel;
 import static com.dbn.common.ui.util.ClientProperty.HORIZONTAL_SCROLL_POLICY;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
@@ -166,7 +165,7 @@ public class AssistantMcpToolApprovalsForm extends DBNFormBase {
         HORIZONTAL_SCROLL_POLICY.set(toolsScrollPane, HORIZONTAL_SCROLLBAR_NEVER);
         Layouts.verticalBoxLayout(toolsPanel);
 
-        loadingPanel.add(new AsyncProcessIcon(txt("cfg.assistant.text.LoadingTools")), BorderLayout.WEST);
+        newLoadingPanel(this, txt("cfg.assistant.text.LoadingTools")).installOn(loadingPanel, false);
         mainPanel.remove(toolsHeaderPanel);
         toolsScrollPane.setColumnHeaderView(toolsHeaderPanel);
 
@@ -225,6 +224,7 @@ public class AssistantMcpToolApprovalsForm extends DBNFormBase {
         initMetadataWarning(metadata);
         updateActionToolbars();
         filterToolForms();
+        revalidateForm();
     }
 
     private void initMetadataWarning(AssistantMcpToolMetadata metadata) {

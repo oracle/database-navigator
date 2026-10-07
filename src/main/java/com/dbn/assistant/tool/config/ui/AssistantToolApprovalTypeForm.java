@@ -22,13 +22,13 @@ import com.dbn.assistant.tool.AssistantToolData;
 import com.dbn.assistant.tool.AssistantToolType;
 import com.dbn.assistant.tool.approval.AssistantToolApprovalStatus;
 import com.dbn.assistant.tool.approval.AssistantToolApprovalUtil;
+import com.dbn.common.ui.info.DBNTextBlock;
 import com.dbn.common.ui.misc.DBNToggleButton;
 import com.dbn.common.ui.util.Fonts;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextPane;
 
 import static com.dbn.assistant.tool.AssistantToolData.getToolDisplayDescription;
 import static com.dbn.assistant.tool.AssistantToolData.getToolDisplayName;
@@ -43,7 +43,7 @@ import static com.dbn.common.dispose.Failsafe.nn;
 public class AssistantToolApprovalTypeForm extends AssistantToolApprovalItemForm {
     private JPanel mainPanel;
     private JLabel nameLabel;
-    private JTextPane descriptionTextPane;
+    private DBNTextBlock descriptionBlock;
     private DBNToggleButton<AssistantToolApprovalStatus> statusToggle;
 
     private final AssistantToolType type;
@@ -92,8 +92,8 @@ public class AssistantToolApprovalTypeForm extends AssistantToolApprovalItemForm
         AssistantTool assistantTool = getAssistantTool();
         String toolDescription = getToolDisplayDescription(assistantTool);
 
-        descriptionTextPane.setForeground(getContextHelpForeground());
-        descriptionTextPane.setText(toolDescription);
+        descriptionBlock.setForeground(getContextHelpForeground());
+        descriptionBlock.setText(toolDescription);
     }
 
     private AssistantToolApprovalCategoryForm getCategoryForm() {
@@ -135,7 +135,7 @@ public class AssistantToolApprovalTypeForm extends AssistantToolApprovalItemForm
         statusToggle.setEnabled(controlEnabled);
         nameLabel.setEnabled(contentEnabled);
 
-        descriptionTextPane.setForeground(contentEnabled ?
+        descriptionBlock.setForeground(contentEnabled ?
                 getContextHelpForeground():
                 getLabelDisabledForeground());
     }

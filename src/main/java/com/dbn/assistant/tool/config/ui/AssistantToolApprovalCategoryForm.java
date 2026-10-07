@@ -27,6 +27,7 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.Layouts;
 import com.dbn.common.ui.info.DBNInfoLabel;
+import com.dbn.common.ui.info.DBNTextBlock;
 import com.dbn.common.ui.misc.DBNToggleButton;
 import com.dbn.common.ui.util.Fonts;
 import com.intellij.openapi.util.IconLoader;
@@ -36,7 +37,6 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextPane;
 import java.util.List;
 import java.util.Map;
 
@@ -55,7 +55,7 @@ public class AssistantToolApprovalCategoryForm extends AssistantToolApprovalItem
     private JLabel nameLabel;
     private DBNInfoLabel infoLabel;
     private JPanel toolTypesPanel;
-    private JTextPane descriptionTextPane;
+    private DBNTextBlock descriptionBlock;
     private DBNToggleButton<AssistantToolApprovalStatus> statusToggle;
 
     private final AssistantToolCategory category;
@@ -95,9 +95,9 @@ public class AssistantToolApprovalCategoryForm extends AssistantToolApprovalItem
     }
 
     private void initDescriptionPanel() {
-        descriptionTextPane.setForeground(getContextHelpForeground());
-        descriptionTextPane.setText(category.getDescription());
-        descriptionTextPane.setVisible(false); // TODO overcrowds the tool approval screens
+        descriptionBlock.setForeground(getContextHelpForeground());
+        descriptionBlock.setText(category.getDescription());
+        descriptionBlock.setVisible(false); // TODO overcrowds the tool approval screens
     }
 
     private void initToolTypesPanel() {
@@ -151,7 +151,7 @@ public class AssistantToolApprovalCategoryForm extends AssistantToolApprovalItem
         Icon infoIcon = enabled ? Icons.ACTION_INFO : IconLoader.getDisabledIcon(Icons.ACTION_INFO);
         infoLabel.setIcon(infoIcon);
 
-        descriptionTextPane.setForeground(enabled ?
+        descriptionBlock.setForeground(enabled ?
                 getContextHelpForeground() :
                 getLabelDisabledForeground());
 
