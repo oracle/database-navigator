@@ -202,13 +202,10 @@ public class MethodExecutionInputValueForm extends DBNFormBase {
         String value = getExecutionInput().getInputValue(argument, resolvedAttributePath);
 
         if (genericDataType.is(GenericDataType.XMLTYPE, GenericDataType.CLOB)) {
-            TextFieldWithTextEditor inputField = new TextFieldWithTextEditor(project, "[" + genericDataType.name() + "]");
+            TextFieldWithTextEditor inputField = new TextFieldWithTextEditor(project, null);
             TextContentType contentType = genericDataType == GenericDataType.XMLTYPE ?
                     TextContentType.get(project, "XML") :
                     TextContentType.getPlainText(project);
-            if (contentType == null) {
-                contentType = TextContentType.getPlainText(project);
-            }
 
             DBObjectType valueType = attributeValue ? DBObjectType.TYPE_ATTRIBUTE : DBObjectType.ARGUMENT;
             userValueHolder = new UserValueHolderImpl<>(getValueName(), valueType, dataType, project);

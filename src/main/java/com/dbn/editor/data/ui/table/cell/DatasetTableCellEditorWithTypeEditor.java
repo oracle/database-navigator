@@ -31,8 +31,6 @@ import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.actionSystem.Shortcut;
 import org.jetbrains.annotations.NotNull;
 
-import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.event.KeyEvent;
 
 import static com.dbn.editor.data.model.RecordStatus.DELETED;
@@ -46,14 +44,10 @@ class DatasetTableCellEditorWithTypeEditor extends DatasetTableCellEditor {
     private Object value;
 
     DatasetTableCellEditorWithTypeEditor(DatasetEditorTable table) {
-        super(table, new TextFieldWithTypeEditor(table.getProject()));
+        super(table, new TextFieldWithTypeEditor(table.getProject(), table));
         editorComponent = (TextFieldWithTypeEditor) super.getEditorComponent();
         editorComponent.setOpenAction(() -> openEditor());
         editorComponent.getTextField().setBorder(Borders.EMPTY_BORDER);
-        updateButtonSize(table);
-        table.addPropertyChangeListener(e -> {
-            if (e.getNewValue() instanceof Font) updateButtonSize(table);
-        });
     }
 
     @Override
@@ -126,10 +120,5 @@ class DatasetTableCellEditorWithTypeEditor extends DatasetTableCellEditor {
                     editorComponent.setText(StructureValue.DISPLAY_VALUE);
                     stopCellEditing();
                 });
-    }
-
-    private void updateButtonSize(DatasetEditorTable table) {
-        int rowHeight = table.getRowHeight();
-        editorComponent.setButtonSize(new Dimension(Math.max(20, rowHeight), rowHeight - 2));
     }
 }

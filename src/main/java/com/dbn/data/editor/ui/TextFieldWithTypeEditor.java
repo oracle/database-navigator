@@ -16,48 +16,26 @@
 
 package com.dbn.data.editor.ui;
 
-import com.dbn.common.icon.Icons;
-import com.dbn.common.ui.util.Mouse;
+import com.dbn.common.ui.table.DBNTable;
 import com.intellij.openapi.project.Project;
-
-import javax.swing.JComponent;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
+import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
 
-public class TextFieldWithTypeEditor extends TextFieldWithButtons {
-    private final JComponent button;
+@Setter
+public class TextFieldWithTypeEditor extends TextFieldWithEditor {
     private Runnable openAction;
 
-    public TextFieldWithTypeEditor(Project project) {
-        super(project);
-
-        button = createButton(Icons.DATA_EDITOR_BROWSE, txt("msg.dataEditor.title.EditRecord"));
-        button.setToolTipText(txt("msg.dataEditor.title.EditRecord"));
-        button.addMouseListener(Mouse.listener().onClick(e -> {
-            if (openAction != null) openAction.run();
-        }));
-        add(button, BorderLayout.EAST);
-    }
-
-    public void setOpenAction(Runnable openAction) {
-        this.openAction = openAction;
-    }
-
-    public void setButtonSize(Dimension size) {
-        button.setPreferredSize(size);
-        button.setMaximumSize(size);
+    public TextFieldWithTypeEditor(@NotNull Project project, @Nullable DBNTable parentTable) {
+        super(project, parentTable,
+                txt("msg.dataEditor.title.EditRecord"),
+                txt("msg.dataEditor.title.EditRecord"));
     }
 
     @Override
-    public void setEnabled(boolean enabled) {
-        super.setEnabled(enabled);
-        button.setEnabled(enabled);
-    }
-
-    @Override
-    public void setEditable(boolean editable) {
-        super.setEditable(false);
+    public void openEditor() {
+        if (openAction != null) openAction.run();
     }
 }

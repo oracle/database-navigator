@@ -16,6 +16,7 @@
 
 package com.dbn.data.editor.ui;
 
+import com.dbn.common.color.Colors;
 import com.dbn.common.project.ProjectRef;
 import com.dbn.common.ui.panel.DBNPanelImpl;
 import com.dbn.common.ui.util.Accessibility;

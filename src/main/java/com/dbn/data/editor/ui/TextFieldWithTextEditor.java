@@ -16,10 +16,9 @@
 
 package com.dbn.data.editor.ui;
 
-import com.dbn.common.icon.Icons;
 import com.dbn.common.thread.Dispatch;
+import com.dbn.common.ui.table.DBNTable;
 import com.dbn.common.ui.util.Keyboard;
-import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.util.Strings;
 import com.dbn.data.editor.text.ui.TextEditorDialog;
 import com.intellij.openapi.actionSystem.IdeActions;
@@ -28,70 +27,45 @@ import com.intellij.openapi.keymap.KeymapUtil;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.swing.JComponent;
 import javax.swing.JTextField;
-import java.awt.BorderLayout;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.MouseListener;
 
 import static com.dbn.common.color.Colors.getLabelDisabledForeground;
 import static com.dbn.nls.NlsResources.txt;
 
 @Getter
-public class TextFieldWithTextEditor extends TextFieldWithButtons {
-    private final JComponent button;
-    private final String displayValue;
+public class TextFieldWithTextEditor extends TextFieldWithEditor {
 
-    public TextFieldWithTextEditor(@NotNull Project project) {
-        this(project, null);
-    }
-
-    public TextFieldWithTextEditor(@NotNull Project project, String displayValue) {
-        super(project);
-        this.displayValue = displayValue;
+    public TextFieldWithTextEditor(@NotNull Project project, @Nullable DBNTable parentTable) {
+        super(project, parentTable, txt("msg.dataEditor.title.TextEditor"), createToolTipText());
         setBounds(0, 0, 0, 0);
 
-        button = createButton(Icons.DATA_EDITOR_BROWSE, txt("msg.dataEditor.title.TextEditor"));
-        button.addMouseListener(mouseListener);
-        Shortcut[] shortcuts = Keyboard.getShortcuts(IdeActions.ACTION_SHOW_INTENTION_ACTIONS);
-        String shortcutText = KeymapUtil.getShortcutsText(shortcuts);
-
-        button.setToolTipText(txt("app.dataEditor.tooltip.OpenTextEditor", shortcutText));
-        add(button, BorderLayout.EAST);
-
         JTextField textField = getTextField();
-        if (Strings.isNotEmpty(displayValue)) {
-            textField.setText(displayValue);
-            textField.setEnabled(false);
-            textField.setDisabledTextColor(getLabelDisabledForeground());
-        }
-        //textField.setPreferredSize(new Dimension(150, -1));
-        textField.addKeyListener(keyListener);
-        textField.setEditable(false);
 
-        button.addKeyListener(keyListener);
+        textField.setEditable(false);
+        textField.addKeyListener(keyListener);
+        getButton().addKeyListener(keyListener);
         addKeyListener(keyListener);
 
         customizeTextField(textField);
     }
 
-    @Override
-    public void setEnabled(boolean enabled) {
-        super.setEnabled(enabled);
-        button.setEnabled(enabled);
+    @NotNull
+    private static String createToolTipText() {
+        Shortcut[] shortcuts = Keyboard.getShortcuts(IdeActions.ACTION_SHOW_INTENTION_ACTIONS);
+        String shortcutText = KeymapUtil.getShortcutsText(shortcuts);
+        return txt("app.dataEditor.tooltip.OpenTextEditor", shortcutText);
     }
 
+    @Override
     public void openEditor() {
         TextEditorDialog.show(getProject(), this);
     }
 
-    /********************************************************
-     *                      KeyListener                     *
-     ********************************************************/
     private final KeyListener keyListener = new KeyAdapter() {
         @Override
         public void keyPressed(KeyEvent keyEvent) {
@@ -102,12 +76,6 @@ public class TextFieldWithTextEditor extends TextFieldWithButtons {
             }
         }
     };
-    /********************************************************
-     *                    ActionListener                    *
-     ********************************************************/
-    private final ActionListener actionListener = e -> openEditor();
-
-    private final MouseListener mouseListener = Mouse.listener().onClick(e -> openEditor());
 
     /********************************************************
      *                 TextEditorListener                   *
@@ -115,8 +83,8 @@ public class TextFieldWithTextEditor extends TextFieldWithButtons {
     @Override
     public void afterUpdate() {
         Object userValue = getUserValueHolder().getUserValue();
-        if (userValue instanceof String text && Strings.isEmpty(displayValue)) {
-            Dispatch.run(() -> {
+        if (userValue instanceof String text) {
+            Dispatch.run(this, () -> {
                 setEditable(text.length() < 1000 && text.indexOf('\n') == -1);
                 setText(text);
             });

@@ -25,8 +25,8 @@ import com.dbn.data.editor.ui.DataEditorComponent;
 import com.dbn.data.editor.ui.ListPopupValuesProvider;
 import com.dbn.data.editor.ui.ListPopupValuesProviderBase;
 import com.dbn.data.editor.ui.TextFieldWithPopup;
-import com.dbn.data.editor.ui.TextFieldWithTypeEditor;
 import com.dbn.data.editor.ui.TextFieldWithTextEditor;
+import com.dbn.data.editor.ui.TextFieldWithTypeEditor;
 import com.dbn.data.editor.ui.UserValueHolder;
 import com.dbn.data.grid.options.DataGridSettings;
 import com.dbn.data.type.DBDataType;
@@ -116,7 +116,7 @@ public class DatasetRecordEditorColumnForm extends DBNFormBase {
         GenericDataType genericDataType = dataType.getGenericDataType();
         DBNativeDataType nativeDataType = dataType.getNativeType();
         if (genericDataType == STRUCTURE) {
-            TextFieldWithTypeEditor structureEditorField = new TextFieldWithTypeEditor(project);
+            TextFieldWithTypeEditor structureEditorField = new TextFieldWithTypeEditor(project, null);
             structureEditorField.setOpenAction(() -> openStructureEditor());
             structureEditorField.getTextField().addKeyListener(keyAdapter);
             structureEditorField.getTextField().addFocusListener(focusListener);
@@ -171,7 +171,7 @@ public class DatasetRecordEditorColumnForm extends DBNFormBase {
                 }
                 editorComponent = textFieldWithPopup;
             } else if (genericDataType.is(BLOB, CLOB, JSON, XMLTYPE)) {
-                editorComponent = new TextFieldWithTextEditor(project);
+                editorComponent = new TextFieldWithTextEditor(project, null);
             } else {
                 editorComponent = new BasicDataEditorComponent();
             }

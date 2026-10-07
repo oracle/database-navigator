@@ -33,7 +33,7 @@ import java.awt.event.KeyEvent;
  */
 public class DatasetTableCellEditorWithTableEditor extends DatasetTableCellEditor {
     public DatasetTableCellEditorWithTableEditor(DatasetEditorTable table) {
-        super(table, new TextFieldWithTableEditor(table));
+        super(table, new TextFieldWithTableEditor(table.getProject(), table));
         getTableTypeEditorComponent().getTextField().setBorder(Borders.EMPTY_BORDER);
     }
 

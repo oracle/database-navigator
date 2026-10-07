@@ -16,67 +16,24 @@
 
 package com.dbn.data.editor.ui;
 
-import com.dbn.common.icon.Icons;
-import com.dbn.common.ui.misc.DBNButton;
-import com.dbn.common.ui.util.Borders;
-import com.dbn.common.ui.util.Mouse;
+import com.dbn.common.ui.table.DBNTable;
 import com.dbn.data.value.NestedTableValue;
 import com.dbn.editor.data.model.DatasetEditorModelCell;
 import com.dbn.editor.data.nested.DBNestedTableViewerDialog;
-import com.dbn.editor.data.ui.table.DatasetEditorTable;
-
-import javax.swing.Icon;
-import javax.swing.JComponent;
-import javax.swing.JTextField;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Font;
+import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
 
-public final class TextFieldWithTableEditor extends TextFieldWithButtons {
-    private final JComponent button;
-
-    public TextFieldWithTableEditor(DatasetEditorTable table) {
-        super(table.getProject());
-
-        button = createButton(Icons.DATA_EDITOR_BROWSE, txt("app.objects.action.ViewData"));
-        button.setBorder(Borders.insetBorder(1));
-        button.setOpaque(false);
-        button.setToolTipText(txt("app.objects.action.ViewData"));
-        button.addMouseListener(Mouse.listener().onClick(e -> openEditor()));
-        add(button, BorderLayout.EAST);
-
-        int rowHeight = table.getRowHeight();
-        button.setPreferredSize(new Dimension(Math.max(20, rowHeight), rowHeight - 2));
-        table.addPropertyChangeListener(e -> {
-            Object newProperty = e.getNewValue();
-            if (newProperty instanceof Font) {
-                int rowHeight1 = table.getRowHeight();
-                button.setPreferredSize(new Dimension(Math.max(20, rowHeight1), rowHeight1 - 2));
-            }
-        });
+public final class TextFieldWithTableEditor extends TextFieldWithEditor {
+    public TextFieldWithTableEditor(@NotNull Project project, @Nullable DBNTable parentTable) {
+        super(project, parentTable,
+                txt("app.objects.action.ViewData"),
+                txt("app.objects.action.ViewData"));
     }
 
     @Override
-    public JComponent createButton(Icon icon, String name) {
-        return new DBNButton(icon, name);
-    }
-
-    @Override
-    public void setEnabled(boolean enabled) {
-        super.setEnabled(enabled);
-        button.setEnabled(enabled);
-    }
-
-    @Override
-    public void setEditable(boolean editable) {
-        super.setEditable(editable);
-        JTextField textField = getTextField();
-        setBackground(textField.getBackground());
-        button.setBackground(textField.getBackground());
-    }
-
     public void openEditor() {
         if (getUserValueHolder() instanceof DatasetEditorModelCell cell &&
                 cell.getUserValue() instanceof NestedTableValue nestedTableValue) {

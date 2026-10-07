@@ -16,7 +16,6 @@
 
 package com.dbn.editor.data.ui.table.cell;
 
-import com.dbn.common.ui.misc.DBNButton;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Keyboard;
 import com.dbn.data.editor.ui.TextFieldWithTextEditor;
@@ -28,12 +27,7 @@ import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.actionSystem.Shortcut;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.Icon;
-import javax.swing.JComponent;
 import javax.swing.JTextField;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.event.KeyEvent;
 
 public class DatasetTableCellEditorWithTextEditor extends DatasetTableCellEditor {
@@ -45,33 +39,7 @@ public class DatasetTableCellEditorWithTextEditor extends DatasetTableCellEditor
     }
 
     private static TextFieldWithTextEditor createTextField(DatasetEditorTable table) {
-        return new TextFieldWithTextEditor(table.getProject()) {
-            @Override
-            public void setEditable(boolean editable) {
-                super.setEditable(editable);
-                Color background = getTextField().getBackground();
-                setBackground(background);
-                getButton().setBackground(background);
-            }
-
-            @Override
-            public JComponent createButton(Icon icon, String name) {
-                DBNButton button = new DBNButton(icon, name);
-                button.setBorder(Borders.insetBorder(1));
-                button.setOpaque(false);
-
-                int rowHeight = table.getRowHeight();
-                button.setPreferredSize(new Dimension(Math.max(20, rowHeight), rowHeight - 2));
-                table.addPropertyChangeListener(e -> {
-                    Object newProperty = e.getNewValue();
-                    if (newProperty instanceof Font) {
-                        int rowHeight1 = table.getRowHeight();
-                        button.setPreferredSize(new Dimension(Math.max(20, rowHeight1), table.getRowHeight() - 2));
-                    }
-                });
-                return button;
-            }
-        };
+        return new TextFieldWithTextEditor(table.getProject(), table);
     }
 
     @Override
