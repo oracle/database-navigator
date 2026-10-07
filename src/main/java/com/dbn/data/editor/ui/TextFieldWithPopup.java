@@ -27,6 +27,7 @@ import com.dbn.object.common.DBObject;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -68,8 +69,9 @@ public class TextFieldWithPopup extends TextFieldWithButtons {
         Dimension preferredSize = textField.getPreferredSize();
         Dimension maximumSize = new Dimension((int) preferredSize.getWidth(), (int) preferredSize.getHeight());
 
-        buttonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 0));
+        buttonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         buttonsPanel.setMaximumSize(maximumSize);
+        buttonsPanel.setVisible(false);
         add(buttonsPanel, BorderLayout.EAST);
 
         textField.addKeyListener(keyListener);
@@ -149,8 +151,11 @@ public class TextFieldWithPopup extends TextFieldWithButtons {
         addButtonListener(popupProvider, button);
 
 
-        int index = buttonsPanel.getComponentCount();
-        buttonsPanel.add(button, index);
+        if (buttonsPanel.getComponentCount() > 0) {
+            buttonsPanel.add(Box.createHorizontalStrut(2));
+        }
+        buttonsPanel.add(button);
+        buttonsPanel.setVisible(true);
         popupProvider.setButton(button);
     }
 

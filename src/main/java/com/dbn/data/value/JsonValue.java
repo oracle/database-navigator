@@ -17,6 +17,7 @@
 package com.dbn.data.value;
 
 import com.dbn.common.data.Data;
+import com.dbn.common.util.Json;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.jdbc.ValueReaders;
 import com.dbn.data.type.DBDataType;
@@ -116,7 +117,7 @@ public class JsonValue extends LargeObjectValue{
 
     @Override
     public String getDisplayValue() {
-        return data;
+        return Json.createJsonPreview(data, 2);
     }
 
     @Override

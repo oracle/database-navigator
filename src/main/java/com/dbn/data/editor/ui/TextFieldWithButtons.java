@@ -85,6 +85,9 @@ public abstract class TextFieldWithButtons extends DBNPanelImpl implements DataE
             textField.setBorder(Borders.EMPTY_BORDER);
             textField.setMargin(JBUI.emptyInsets());
             textField.setPreferredSize(new Dimension(textField.getPreferredSize().width, parentTable.getRowHeight()));
+        } else {
+            Dimension preferredSize = textField.getPreferredSize();
+            textField.setPreferredSize(new Dimension(300, preferredSize.height));
         }
 
     }
