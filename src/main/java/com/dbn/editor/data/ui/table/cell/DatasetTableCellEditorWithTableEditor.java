@@ -16,28 +16,16 @@
 
 package com.dbn.editor.data.ui.table.cell;
 
-import com.dbn.common.icon.Icons;
-import com.dbn.common.ui.misc.DBNButton;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Keyboard;
-import com.dbn.common.ui.util.Mouse;
-import com.dbn.data.editor.ui.TextFieldWithButtons;
+import com.dbn.data.editor.ui.TextFieldWithTableEditor;
 import com.dbn.data.value.NestedTableValue;
 import com.dbn.editor.data.model.DatasetEditorModelCell;
-import com.dbn.editor.data.nested.DBNestedTableViewerDialog;
 import com.dbn.editor.data.ui.table.DatasetEditorTable;
 import com.intellij.openapi.actionSystem.IdeActions;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.Icon;
-import javax.swing.JComponent;
-import javax.swing.JTextField;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.event.KeyEvent;
-
-import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Cell editor for collection/table values. The value is represented by a
@@ -86,54 +74,4 @@ public class DatasetTableCellEditorWithTableEditor extends DatasetTableCellEdito
         }
     }
 
-    private static final class TextFieldWithTableEditor extends TextFieldWithButtons {
-        private final JComponent button;
-
-        private TextFieldWithTableEditor(DatasetEditorTable table) {
-            super(table.getProject());
-
-            button = createButton(Icons.DATA_EDITOR_BROWSE, txt("app.objects.action.ViewData"));
-            button.setBorder(Borders.insetBorder(1));
-            button.setOpaque(false);
-            button.setToolTipText(txt("app.objects.action.ViewData"));
-            button.addMouseListener(Mouse.listener().onClick(e -> openEditor()));
-            add(button, BorderLayout.EAST);
-
-            int rowHeight = table.getRowHeight();
-            button.setPreferredSize(new Dimension(Math.max(20, rowHeight), rowHeight - 2));
-            table.addPropertyChangeListener(e -> {
-                Object newProperty = e.getNewValue();
-                if (newProperty instanceof Font) {
-                    int rowHeight1 = table.getRowHeight();
-                    button.setPreferredSize(new Dimension(Math.max(20, rowHeight1), rowHeight1 - 2));
-                }
-            });
-        }
-
-        @Override
-        public JComponent createButton(Icon icon, String name) {
-            return new DBNButton(icon, name);
-        }
-
-        @Override
-        public void setEnabled(boolean enabled) {
-            super.setEnabled(enabled);
-            button.setEnabled(enabled);
-        }
-
-        @Override
-        public void setEditable(boolean editable) {
-            super.setEditable(editable);
-            JTextField textField = getTextField();
-            setBackground(textField.getBackground());
-            button.setBackground(textField.getBackground());
-        }
-
-        private void openEditor() {
-            if (getUserValueHolder() instanceof DatasetEditorModelCell cell &&
-                    cell.getUserValue() instanceof NestedTableValue nestedTableValue) {
-                DBNestedTableViewerDialog.show(nestedTableValue, cell);
-            }
-        }
-    }
 }

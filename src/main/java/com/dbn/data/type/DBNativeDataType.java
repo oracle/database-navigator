@@ -30,7 +30,6 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -42,7 +41,15 @@ import static com.dbn.common.util.Unsafe.silent;
 import static com.dbn.connection.ResultSets.getColumnValue;
 import static com.dbn.connection.ResultSets.updateColumnValue;
 import static com.dbn.connection.Statements.setParameterValue;
-import static com.dbn.data.type.GenericDataType.*;
+import static com.dbn.data.type.GenericDataType.ARRAY;
+import static com.dbn.data.type.GenericDataType.BLOB;
+import static com.dbn.data.type.GenericDataType.CLOB;
+import static com.dbn.data.type.GenericDataType.COLLECTION;
+import static com.dbn.data.type.GenericDataType.CURSOR;
+import static com.dbn.data.type.GenericDataType.FILE;
+import static com.dbn.data.type.GenericDataType.ROWID;
+import static com.dbn.data.type.GenericDataType.TABLE;
+import static com.dbn.data.type.GenericDataType.XMLTYPE;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
@@ -83,7 +90,9 @@ public class DBNativeDataType extends StatefulDisposableBase implements DynamicC
         GenericDataType genericDataType = definition.getGenericDataType();
         if (genericDataType == ROWID) return "[ROWID]";
         if (genericDataType == FILE) return "[FILE]";
-        if (ValueAdapter.supports(genericDataType)) return createValueAdapter(resultSet, columnIndex, genericDataType);
+
+        Object valueAdapter = createValueAdapter(resultSet, columnIndex, genericDataType);
+        if (valueAdapter != null) return valueAdapter;
 
         Class<?> clazz = definition.getTypeClass();
         try {
@@ -170,20 +179,16 @@ public class DBNativeDataType extends StatefulDisposableBase implements DynamicC
 
     public Object getValueFromStatement(DBNCallableStatement callableStatement, int parameterIndex) throws SQLException {
         GenericDataType genericDataType = definition.getGenericDataType();
-        if (ValueAdapter.supports(genericDataType)) {
-            return ValueAdapter.create(genericDataType, callableStatement, parameterIndex);
-        }
+        @Nullable ValueAdapter<?> valueAdapter = ValueAdapter.create(genericDataType, callableStatement, parameterIndex);
+        if (valueAdapter != null) return valueAdapter;
         return callableStatement.getObject(parameterIndex);
     }
 
     public <T> void setValueToStatement(PreparedStatement statement, int parameterIndex, T value) throws SQLException {
         GenericDataType genericDataType = definition.getGenericDataType();
-        if (ValueAdapter.supports(genericDataType)) {
-            ValueAdapter<T> valueAdapter = ValueAdapter.create(genericDataType);
-            if (valueAdapter != null) {
-                Connection connection = statement.getConnection();
-                valueAdapter.write(connection, statement, parameterIndex, value);
-            }
+        @Nullable ValueAdapter<T> valueAdapter = ValueAdapter.create(genericDataType);
+        if (valueAdapter != null) {
+            valueAdapter.write(statement.getConnection(), statement, parameterIndex, value);
             return;
         }
         if (genericDataType == CURSOR) return;// not supported

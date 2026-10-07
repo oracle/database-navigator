@@ -28,6 +28,7 @@ import com.dbn.editor.data.options.DataEditorSettings;
 import com.dbn.editor.data.options.DataEditorValueListPopupSettings;
 import com.dbn.editor.data.ui.table.DatasetEditorTable;
 import com.dbn.object.DBColumn;
+import com.dbn.object.DBType;
 import com.intellij.openapi.Disposable;
 import org.jetbrains.annotations.Nullable;
 
@@ -132,7 +133,10 @@ public class DatasetTableCellEditorFactory implements Disposable {
     }
 
     private TableCellEditor createEditorForDeclaredType(ColumnInfo columnInfo, DatasetEditorTable table) {
-        return null;
+        DBType declaredType = columnInfo.getDataType().getDeclaredType();
+        if (declaredType == null || declaredType.isCollection()) return null;
+
+        return new DatasetTableCellEditorWithTypeEditor(table);
     }
 
     @Override

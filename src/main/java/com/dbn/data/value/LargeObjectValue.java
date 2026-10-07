@@ -16,8 +16,12 @@
 
 package com.dbn.data.value;
 
+import com.dbn.common.data.Data;
+import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.data.type.DBDataType;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -29,6 +33,12 @@ public abstract class LargeObjectValue extends ValueAdapter<String> {
     public static final int MAX_READ_SIZE = 1024 * 1024;
 
     private boolean truncated;
+
+    @Override
+    @Nullable
+    protected String convertUserValue(@Nullable Object userValue, DBDataType dataType, DBNConnection connection) throws SQLException {
+        return Data.asString(userValue);
+    }
 
     public abstract String read(int maxSize) throws SQLException;
     public abstract long size() throws SQLException;

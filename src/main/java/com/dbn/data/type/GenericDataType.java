@@ -46,6 +46,7 @@ public enum GenericDataType implements Presentable, Constant<GenericDataType> {
     VECTOR(txt("app.data.const.GenericDataType_VECTOR")),
     PROPRIETARY(txt("app.data.const.GenericDataType_PROPRIETARY")),
     COMPLEX(txt("app.data.const.GenericDataType_COMPLEX")),
+    STRUCTURE(txt("app.data.const.GenericDataType_STRUCTURE")),
     ;
 
     private final String name;

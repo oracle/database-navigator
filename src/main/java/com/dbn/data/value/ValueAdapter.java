@@ -16,6 +16,9 @@
 
 package com.dbn.data.value;
 
+import com.dbn.common.util.Commons;
+import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.data.type.DBDataType;
 import com.dbn.data.type.GenericDataType;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
@@ -36,16 +39,6 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
 public abstract class ValueAdapter<T> {
-
-    public abstract GenericDataType getGenericDataType();
-    public abstract @Nullable T read() throws SQLException;
-    public abstract @Nullable String export() throws SQLException;
-    public abstract void write(Connection connection, PreparedStatement preparedStatement, int parameterIndex, @Nullable T value) throws SQLException;
-    public abstract void write(Connection connection, ResultSet resultSet, int columnIndex, @Nullable T value) throws SQLException;
-
-    @NonNls
-    public abstract String getDisplayValue();
-
     public static final Map<GenericDataType, Class<? extends ValueAdapter<?>>> REGISTRY = new EnumMap<>(GenericDataType.class);
     static {
         REGISTRY.put(GenericDataType.JSON, JsonValue.class);
@@ -55,19 +48,50 @@ public abstract class ValueAdapter<T> {
         REGISTRY.put(GenericDataType.CLOB, ClobValue.class);
         REGISTRY.put(GenericDataType.NCLOB, NClobValue.class);
         REGISTRY.put(GenericDataType.XMLTYPE, XmlTypeValue.class);
+        REGISTRY.put(GenericDataType.STRUCTURE, StructureValue.class);
     }
 
-    public static boolean supports(GenericDataType genericDataType) {
-        return REGISTRY.containsKey(genericDataType);
+    public abstract GenericDataType getGenericDataType();
+
+    @Nullable
+    public final T prepareUserValue(@Nullable Object userValue, DBDataType dataType, DBNConnection connection) throws SQLException {
+        return convertUserValue(userValue, dataType, connection);
     }
 
+    @Nullable
+    protected abstract T convertUserValue(@Nullable Object userValue, DBDataType dataType, DBNConnection connection) throws SQLException;
+
+    public abstract @Nullable T read() throws SQLException;
+    public abstract @Nullable String export() throws SQLException;
+    public abstract void write(Connection connection, PreparedStatement preparedStatement, int parameterIndex, @Nullable T value) throws SQLException;
+    public abstract void write(Connection connection, ResultSet resultSet, int columnIndex, @Nullable T value) throws SQLException;
+
+    @NonNls
+    public abstract String getDisplayValue();
+
+    public boolean matches(@Nullable Object value) throws SQLException {
+        if (value instanceof ValueAdapter<?> valueAdapter) {
+            value = valueAdapter.read();
+        }
+        return Commons.match(read(), value);
+    }
+
+    @Nullable
     private static <T> Class<ValueAdapter<T>> get(GenericDataType genericDataType) {
         return cast(REGISTRY.get(genericDataType));
     }
 
+    @Nullable
+    public static <T> ValueAdapter<T> create(DBDataType dataType) throws SQLException {
+        return create(dataType.getGenericDataType());
+    }
+
+    @Nullable
     public static <T> ValueAdapter<T> create(GenericDataType genericDataType) throws SQLException {
+        Class<ValueAdapter<T>> valueAdapterClass = get(genericDataType);
+        if (valueAdapterClass == null) return null;
+
         try {
-            Class<ValueAdapter<T>> valueAdapterClass = get(genericDataType);
             return valueAdapterClass.getDeclaredConstructor().newInstance();
         } catch (Throwable e) {
             conditionallyLog(e);
@@ -76,9 +100,12 @@ public abstract class ValueAdapter<T> {
         return null;
     }
 
+    @Nullable
     public static <T> ValueAdapter<T> create(GenericDataType genericDataType, ResultSet resultSet, int columnIndex) throws SQLException {
+        Class<ValueAdapter<T>> valueAdapterClass = get(genericDataType);
+        if (valueAdapterClass == null) return null;
+
         try {
-            Class<ValueAdapter<T>> valueAdapterClass = get(genericDataType);
             Constructor<ValueAdapter<T>> constructor = valueAdapterClass.getConstructor(ResultSet.class, int.class);
             return constructor.newInstance(resultSet, columnIndex);
         } catch (Throwable e) {
@@ -88,8 +115,11 @@ public abstract class ValueAdapter<T> {
         return null;
     }
 
+    @Nullable
     public static <T> ValueAdapter<T> create(GenericDataType genericDataType, CallableStatement callableStatement, int parameterIndex) throws SQLException {
         Class<ValueAdapter<T>> valueAdapterClass = get(genericDataType);
+        if (valueAdapterClass == null) return null;
+
         try {
             Constructor<ValueAdapter<T>> constructor = valueAdapterClass.getConstructor(CallableStatement.class, int.class);
             return constructor.newInstance(callableStatement, parameterIndex);

@@ -35,8 +35,7 @@ import com.dbn.data.model.ColumnInfo;
 import com.dbn.data.model.DataModelCell;
 import com.dbn.data.record.RecordViewInfo;
 import com.dbn.data.sorting.SortDirection;
-import com.dbn.data.value.ArrayValue;
-import com.dbn.data.value.LargeObjectValue;
+import com.dbn.data.type.GenericDataType;
 import com.dbn.data.value.ValueAdapter;
 import com.dbn.editor.DatabaseFileEditorManager;
 import com.dbn.editor.EditorProviderId;
@@ -388,13 +387,14 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
 
             if (editorTableCell.isModified() && !e.isControlDown()) {
                 Object userValue = editorTableCell.getUserValue();
-                if (userValue instanceof ArrayValue) {
-                    return txt("app.dataEditor.tooltip.ArrayValueChanged");
-                } else  if (userValue instanceof LargeObjectValue largeObjectValue) {
-                    return txt("app.dataEditor.tooltip.LargeObjectContentChanged", largeObjectValue.getGenericDataType());
-                } else {
-                    return txt("app.dataEditor.tooltip.OriginalValue", editorTableCell.getOriginalUserValue());
+                GenericDataType genericDataType = editorTableCell.getColumnInfo().getDataType().getGenericDataType();
+                if (userValue instanceof ValueAdapter<?> valueAdapter) {
+                    return txt("app.dataEditor.tooltip.ComplexValueChanged", valueAdapter.getGenericDataType());
                 }
+                if (ValueAdapter.REGISTRY.containsKey(genericDataType)) {
+                    return txt("app.dataEditor.tooltip.ComplexValueChanged", genericDataType);
+                }
+                return txt("app.dataEditor.tooltip.OriginalValue", editorTableCell.getOriginalUserValue());
 
             }
         }

@@ -119,6 +119,7 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
 
         if (cell.isLobValue()) return attributes.getReadonlyData(modified, caretRow);
         if (cell.isArrayValue()) return attributes.getReadonlyData(modified, caretRow);
+        if (cell.isStructureValue()) return attributes.getReadonlyData(modified, caretRow);
         if (auditColumn) return attributes.getAuditData(modified, caretRow);
 
         return attributes.getPlainData(modified, caretRow);

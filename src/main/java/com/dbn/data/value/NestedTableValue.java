@@ -16,6 +16,8 @@
 
 package com.dbn.data.value;
 
+import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.data.type.DBDataType;
 import com.dbn.data.type.GenericDataType;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBNestedTable;
@@ -23,6 +25,7 @@ import com.dbn.object.lookup.DBObjectRef;
 import lombok.Getter;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -55,6 +58,11 @@ public class NestedTableValue extends LargeObjectValue {
     @Override
     public GenericDataType getGenericDataType() {
         return TABLE;
+    }
+
+    @Override
+    protected String convertUserValue(@Nullable Object userValue, DBDataType dataType, DBNConnection connection) throws SQLException {
+        throw unsupported();
     }
 
     @Override
