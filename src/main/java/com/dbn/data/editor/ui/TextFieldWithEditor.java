@@ -18,9 +18,7 @@ package com.dbn.data.editor.ui;
 
 import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.ui.misc.DBNButton;
 import com.dbn.common.ui.table.DBNTable;
-import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.data.grid.color.BasicTableTextAttributes;
 import com.intellij.openapi.project.Project;
@@ -30,26 +28,21 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.Icon;
 import javax.swing.JComponent;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
 
 /** A text field with a button that opens a dedicated editor for its value. */
 @Getter
 public abstract class TextFieldWithEditor extends TextFieldWithButtons {
     private final JComponent button;
-    private final DBNTable parentTable;
 
     protected TextFieldWithEditor(
             @NotNull Project project,
             @Nullable DBNTable parentTable,
             @NotNull @Nls String buttonName,
             @NotNull @Nls String buttonToolTip) {
-        super(project);
-        this.parentTable = parentTable;
+        super(project, parentTable);
 
         button = createButton(Icons.DATA_EDITOR_BROWSE, buttonName);
         button.setToolTipText(buttonToolTip);
@@ -69,32 +62,12 @@ public abstract class TextFieldWithEditor extends TextFieldWithButtons {
             textField.setForeground(foreground);
         }
 
-        if (parentTable == null) return;
-        Color background = textField.getBackground();
-        setBackground(background);
-        getButton().setBackground(background);
-    }
-
-    @Override
-    public JComponent createButton(Icon icon, String name) {
-        if (parentTable == null) {
-            return super.createButton(icon, name);
+        DBNTable parentTable = getParentTable();
+        if (parentTable != null) {
+            Color background = textField.getBackground();
+            setBackground(background);
+            getButton().setBackground(background);
         }
-
-        DBNButton button = new DBNButton(icon, name);
-        button.setBorder(Borders.insetBorder(1));
-        button.setOpaque(false);
-
-        int rowHeight = parentTable.getRowHeight();
-        button.setPreferredSize(new Dimension(Math.max(20, rowHeight), rowHeight - 2));
-        parentTable.addPropertyChangeListener(e -> {
-            Object newProperty = e.getNewValue();
-            if (newProperty instanceof Font) {
-                int rowHeight1 = parentTable.getRowHeight();
-                button.setPreferredSize(new Dimension(Math.max(20, rowHeight1), parentTable.getRowHeight() - 2));
-            }
-        });
-        return button;
     }
 
     public abstract void openEditor();

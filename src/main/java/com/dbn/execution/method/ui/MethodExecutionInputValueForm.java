@@ -216,7 +216,7 @@ public class MethodExecutionInputValueForm extends DBNFormBase {
             inputTextField = inputField.getTextField();
             inputFieldPanel.add(inputField, BorderLayout.CENTER);
         } else {
-            TextFieldWithPopup<?> inputField = new TextFieldWithPopup<>(project);
+            TextFieldWithPopup inputField = new TextFieldWithPopup(project);
             inputField.setPreferredSize(new JBDimension(240, -1));
             if (genericDataType == GenericDataType.DATE_TIME) {
                 inputField.createCalendarPopup(false);

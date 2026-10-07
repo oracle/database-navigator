@@ -153,7 +153,7 @@ public class JavaExecutionInputFieldForm extends DBNFormBase {
 		JavaExecutionInput executionInput = getExecutionInput();
 		String value = executionInput.getInputValue(fieldPath, ExecutionInputMode.FIELDS);
 
-		TextFieldWithPopup<?> inputField = new TextFieldWithPopup<>(project);
+		TextFieldWithPopup inputField = new TextFieldWithPopup(project);
 		inputField.setPreferredSize(new Dimension(240, -1));
 
 		inputTextField = inputField.getTextField();

@@ -16,39 +16,32 @@
 
 package com.dbn.editor.data.ui.table.cell;
 
-import com.dbn.common.ui.util.Borders;
-import com.dbn.common.ui.util.Keyboard;
 import com.dbn.data.editor.ui.TextFieldWithTableEditor;
 import com.dbn.data.value.NestedTableValue;
 import com.dbn.editor.data.model.DatasetEditorModelCell;
 import com.dbn.editor.data.ui.table.DatasetEditorTable;
-import com.intellij.openapi.actionSystem.IdeActions;
 import org.jetbrains.annotations.NotNull;
-
-import java.awt.event.KeyEvent;
 
 /**
  * Cell editor for collection/table values. The value is represented by a
  * dedicated table action and is deliberately not backed by the text editor.
  */
-public class DatasetTableCellEditorWithTableEditor extends DatasetTableCellEditor {
+public class DatasetTableCellEditorWithTableEditor extends DatasetTableCellEditorWithSpecialEditor<TextFieldWithTableEditor> {
     public DatasetTableCellEditorWithTableEditor(DatasetEditorTable table) {
-        super(table, new TextFieldWithTableEditor(table.getProject(), table));
-        getTableTypeEditorComponent().getTextField().setBorder(Borders.EMPTY_BORDER);
+        super(table);
     }
 
-    private TextFieldWithTableEditor getTableTypeEditorComponent() {
-        return (TextFieldWithTableEditor) super.getEditorComponent();
+    @Override
+    protected TextFieldWithTableEditor createEditorComponent(DatasetEditorTable table) {
+        return new TextFieldWithTableEditor(table.getProject(), table);
     }
 
     @Override
     public void prepareEditor(@NotNull DatasetEditorModelCell cell) {
-        getTableTypeEditorComponent().setUserValueHolder(cell);
-        setCell(cell);
-        highlight(cell.hasError() ? HIGHLIGHT_TYPE_ERROR : HIGHLIGHT_TYPE_NONE);
+        super.prepareEditor(cell);
 
         Object userValue = cell.getUserValue();
-        getTableTypeEditorComponent().setEnabled(userValue instanceof NestedTableValue);
+        getEditorComponent().setEnabled(userValue instanceof NestedTableValue);
         setEditable(false);
     }
 
@@ -57,21 +50,4 @@ public class DatasetTableCellEditorWithTableEditor extends DatasetTableCellEdito
         DatasetEditorModelCell cell = getCell();
         return cell == null ? null : cell.getUserValue();
     }
-
-    @Override
-    public void setEditable(boolean editable) {
-        getTableTypeEditorComponent().setEditable(editable);
-    }
-
-    @Override
-    public void keyPressed(KeyEvent keyEvent) {
-        if (!keyEvent.isConsumed() && Keyboard.match(
-                Keyboard.getShortcuts(IdeActions.ACTION_SHOW_INTENTION_ACTIONS), keyEvent)) {
-            keyEvent.consume();
-            getTableTypeEditorComponent().openEditor();
-        } else {
-            super.keyPressed(keyEvent);
-        }
-    }
-
 }

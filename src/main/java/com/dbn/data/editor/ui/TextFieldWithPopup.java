@@ -17,6 +17,7 @@
 package com.dbn.data.editor.ui;
 
 import com.dbn.common.dispose.DisposableContainers;
+import com.dbn.common.ui.table.DBNTable;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.data.editor.ui.array.ArrayEditorPopupProviderForm;
 import com.dbn.data.editor.ui.calendar.CalendarPopupProviderForm;
@@ -51,19 +52,17 @@ import static com.dbn.common.util.Lists.firstElement;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.nls.NlsResources.txt;
 
-public class TextFieldWithPopup<T extends JComponent> extends TextFieldWithButtons {
+public class TextFieldWithPopup extends TextFieldWithButtons {
     private final JPanel buttonsPanel;
 
     private final List<TextFieldPopupProvider> popupProviders = DisposableContainers.list(this);
-    private T parentComponent;
 
     public TextFieldWithPopup(Project project) {
         this(project, null);
-
     }
-    public TextFieldWithPopup(Project project, @Nullable T parentComponent) {
-        super(project);
-        this.parentComponent = parentComponent;
+
+    public TextFieldWithPopup(Project project, @Nullable DBNTable parentTable) {
+        super(project, parentTable);
 
         JTextField textField = getTextField();
         Dimension preferredSize = textField.getPreferredSize();
@@ -77,11 +76,6 @@ public class TextFieldWithPopup<T extends JComponent> extends TextFieldWithButto
         textField.addFocusListener(focusListener);
 
         customizeTextField(super.getTextField());
-    }
-
-    @Nullable
-    public T getParentComponent() {
-        return parentComponent;
     }
 
     @Override
@@ -284,6 +278,5 @@ public class TextFieldWithPopup<T extends JComponent> extends TextFieldWithButto
     @Override
     public void disposeInner() {
         super.disposeInner();
-        parentComponent = null;
     }
 }

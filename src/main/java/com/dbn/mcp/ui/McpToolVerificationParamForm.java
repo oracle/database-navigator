@@ -39,7 +39,7 @@ public class McpToolVerificationParamForm extends DBNFormBase {
     private DBNComboBox<GenericDataType> dataTypeComboBox;
 
     private final StatementExecutionVariable variable;
-    private final TextFieldWithPopup<?> editorComponent;
+    private final TextFieldWithPopup editorComponent;
     private final Runnable previewUpdater;
 
     public McpToolVerificationParamForm(
@@ -61,7 +61,7 @@ public class McpToolVerificationParamForm extends DBNFormBase {
 
         dataTypeComboBox.setSelectedValue(variable.getDataType());
 
-        editorComponent = new TextFieldWithPopup<>(project);
+        editorComponent = new TextFieldWithPopup(project);
         editorComponent.createCalendarPopup(false);
         editorComponent.setPopupEnabled(TextFieldPopupType.CALENDAR, variable.getDataType() == GenericDataType.DATE_TIME);
 

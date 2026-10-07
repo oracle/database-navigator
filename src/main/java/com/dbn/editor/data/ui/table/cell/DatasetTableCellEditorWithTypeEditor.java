@@ -16,8 +16,6 @@
 
 package com.dbn.editor.data.ui.table.cell;
 
-import com.dbn.common.ui.util.Borders;
-import com.dbn.common.ui.util.Keyboard;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.data.editor.ui.TextFieldWithTypeEditor;
 import com.dbn.data.type.GenericDataType;
@@ -27,11 +25,7 @@ import com.dbn.data.value.StructureValue;
 import com.dbn.editor.data.model.DatasetEditorModelCell;
 import com.dbn.editor.data.ui.table.DatasetEditorTable;
 import com.dbn.object.DBType;
-import com.intellij.openapi.actionSystem.IdeActions;
-import com.intellij.openapi.actionSystem.Shortcut;
 import org.jetbrains.annotations.NotNull;
-
-import java.awt.event.KeyEvent;
 
 import static com.dbn.editor.data.model.RecordStatus.DELETED;
 
@@ -39,20 +33,22 @@ import static com.dbn.editor.data.model.RecordStatus.DELETED;
  * Cell editor for SQL object values. The table cell is a launch point for the
  * attribute form; the individual values are edited in the modal form.
  */
-class DatasetTableCellEditorWithTypeEditor extends DatasetTableCellEditor {
-    private final TextFieldWithTypeEditor editorComponent;
+class DatasetTableCellEditorWithTypeEditor extends DatasetTableCellEditorWithSpecialEditor<TextFieldWithTypeEditor> {
     private Object value;
 
     DatasetTableCellEditorWithTypeEditor(DatasetEditorTable table) {
-        super(table, new TextFieldWithTypeEditor(table.getProject(), table));
-        editorComponent = (TextFieldWithTypeEditor) super.getEditorComponent();
-        editorComponent.setOpenAction(() -> openEditor());
-        editorComponent.getTextField().setBorder(Borders.EMPTY_BORDER);
+        super(table);
+        getEditorComponent().setOpenAction(this::openEditor);
+    }
+
+    @Override
+    protected TextFieldWithTypeEditor createEditorComponent(DatasetEditorTable table) {
+        return new TextFieldWithTypeEditor(table.getProject(), table);
     }
 
     @Override
     public void prepareEditor(@NotNull DatasetEditorModelCell cell) {
-        setCell(cell);
+        super.prepareEditor(cell);
         value = cell.getUserValue();
 
         Object userValue = cell.getUserValue();
@@ -63,11 +59,10 @@ class DatasetTableCellEditorWithTypeEditor extends DatasetTableCellEditor {
                 userValue instanceof ComplexValue complexValue ?
                 complexValue.getDisplayValue() :
                 userValue == null ? null : userValue.toString();
+        TextFieldWithTypeEditor editorComponent = getEditorComponent();
         editorComponent.setText(text);
-        editorComponent.setUserValueHolder(cell);
         editorComponent.setEnabled(isEditable());
         editorComponent.setEditable(false);
-        highlight(cell.hasError() ? HIGHLIGHT_TYPE_ERROR : HIGHLIGHT_TYPE_NONE);
     }
 
     @Override
@@ -85,19 +80,9 @@ class DatasetTableCellEditorWithTypeEditor extends DatasetTableCellEditor {
 
     @Override
     public void setEditable(boolean editable) {
+        TextFieldWithTypeEditor editorComponent = getEditorComponent();
         editorComponent.setEditable(false);
         editorComponent.setEnabled(editable);
-    }
-
-    @Override
-    public void keyPressed(KeyEvent keyEvent) {
-        Shortcut[] shortcuts = Keyboard.getShortcuts(IdeActions.ACTION_SHOW_INTENTION_ACTIONS);
-        if (!keyEvent.isConsumed() && Keyboard.match(shortcuts, keyEvent)) {
-            keyEvent.consume();
-            openEditor();
-        } else {
-            super.keyPressed(keyEvent);
-        }
     }
 
     private void openEditor() {
@@ -117,7 +102,7 @@ class DatasetTableCellEditorWithTypeEditor extends DatasetTableCellEditor {
                 () -> !getTable().isDisposed() && getCell() == cell && cell.isEditing(),
                 attributes -> {
                     value = attributes;
-                    editorComponent.setText(StructureValue.DISPLAY_VALUE);
+                    getEditorComponent().setText(StructureValue.DISPLAY_VALUE);
                     stopCellEditing();
                 });
     }

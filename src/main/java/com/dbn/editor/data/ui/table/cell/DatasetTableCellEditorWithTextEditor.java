@@ -16,48 +16,33 @@
 
 package com.dbn.editor.data.ui.table.cell;
 
-import com.dbn.common.ui.util.Borders;
-import com.dbn.common.ui.util.Keyboard;
 import com.dbn.data.editor.ui.TextFieldWithTextEditor;
 import com.dbn.data.model.ColumnInfo;
 import com.dbn.data.type.DBDataType;
 import com.dbn.editor.data.model.DatasetEditorModelCell;
 import com.dbn.editor.data.ui.table.DatasetEditorTable;
-import com.intellij.openapi.actionSystem.IdeActions;
-import com.intellij.openapi.actionSystem.Shortcut;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JTextField;
-import java.awt.event.KeyEvent;
 
-public class DatasetTableCellEditorWithTextEditor extends DatasetTableCellEditor {
+public class DatasetTableCellEditorWithTextEditor extends DatasetTableCellEditorWithSpecialEditor<TextFieldWithTextEditor> {
     public DatasetTableCellEditorWithTextEditor(DatasetEditorTable table) {
-        super(table, createTextField(table));
-        TextFieldWithTextEditor editorComponent = getEditorComponent();
-        JTextField textField = editorComponent.getTextField();
-        textField.setBorder(Borders.EMPTY_BORDER);
+        super(table);
     }
 
-    private static TextFieldWithTextEditor createTextField(DatasetEditorTable table) {
+    @Override
+    protected TextFieldWithTextEditor createEditorComponent(DatasetEditorTable table) {
         return new TextFieldWithTextEditor(table.getProject(), table);
     }
 
     @Override
-    @NotNull
-    public TextFieldWithTextEditor getEditorComponent() {
-        return (TextFieldWithTextEditor) super.getEditorComponent();
-    }
-
-    @Override
     public void prepareEditor(@NotNull DatasetEditorModelCell cell) {
-        getEditorComponent().setUserValueHolder(cell);
-        setCell(cell);
+        super.prepareEditor(cell);
         ColumnInfo columnInfo = cell.getColumnInfo();
         DBDataType dataType = columnInfo.getDataType();
         if (!dataType.isNative()) return;
 
         JTextField textField = getTextField();
-        highlight(cell.hasError() ? HIGHLIGHT_TYPE_ERROR : HIGHLIGHT_TYPE_NONE);
         if (dataType.getNativeType().isLargeObject()) {
             setEditable(false);
         } else {
@@ -69,25 +54,4 @@ public class DatasetTableCellEditorWithTextEditor extends DatasetTableCellEditor
         }
         selectText(textField);
     }
-
-    @Override
-    public void setEditable(boolean editable) {
-        TextFieldWithTextEditor editorComponent = getEditorComponent();
-        editorComponent.setEditable(editable);
-    }
-
-    /********************************************************
-     *                      KeyListener                     *
-     ********************************************************/
-    @Override
-    public void keyPressed(KeyEvent keyEvent) {
-        Shortcut[] shortcuts = Keyboard.getShortcuts(IdeActions.ACTION_SHOW_INTENTION_ACTIONS);
-        if (!keyEvent.isConsumed() && Keyboard.match(shortcuts, keyEvent)) {
-            keyEvent.consume();
-            getEditorComponent().openEditor();
-        } else {
-            super.keyPressed(keyEvent);
-        }
-    }
-
 }

@@ -83,7 +83,7 @@ public class CalendarPopupProviderForm extends TextFieldPopupProviderForm implem
     private CalendarPopupType type;
 
     public CalendarPopupProviderForm(
-            TextFieldWithPopup<?> textField,
+            TextFieldWithPopup textField,
             boolean autoPopup,
             @NotNull CalendarPopupType type) {
         super(textField, autoPopup, true);

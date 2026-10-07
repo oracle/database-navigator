@@ -16,6 +16,7 @@
 
 package com.dbn.data.type.ui;
 
+import com.dbn.common.data.Data;
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.locale.Formatter;
 import com.dbn.common.ui.alignment.FieldAlignerData;
@@ -60,7 +61,7 @@ public class DeclaredTypeAttributeForm extends DBNFormBase {
     private final Object initialValue;
     private final List<DeclaredTypeAttributeForm> childForms = DisposableContainers.list(this);
 
-    private TextFieldWithPopup<?> inputField;
+    private TextFieldWithPopup inputField;
     private DBType editableNestedType;
 
     DeclaredTypeAttributeForm(
@@ -126,7 +127,7 @@ public class DeclaredTypeAttributeForm extends DBNFormBase {
     }
 
     private void initInputField(Project project) {
-        inputField = new TextFieldWithPopup<>(project);
+        inputField = new TextFieldWithPopup(project);
         inputField.setPreferredSize(new JBDimension(260, -1));
         if (dataType.isNative() && dataType.getGenericDataType() == GenericDataType.DATE_TIME) {
             inputField.createCalendarPopup(false);
@@ -163,7 +164,7 @@ public class DeclaredTypeAttributeForm extends DBNFormBase {
 
         GenericDataType genericDataType = nativeType.getGenericDataType();
         Object parsedValue = genericDataType == GenericDataType.BOOLEAN ?
-                Boolean.parseBoolean(text) :
+                Data.asBoolean(text) :
                 formatter.parseObject(dataType.getTypeClass(), text);
         return nativeType.getDefinition().convert(parsedValue);
     }

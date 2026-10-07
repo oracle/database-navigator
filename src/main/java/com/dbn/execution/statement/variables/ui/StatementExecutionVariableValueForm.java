@@ -70,7 +70,7 @@ public class StatementExecutionVariableValueForm extends DBNFormBase {
 
     @Getter
     private final StatementExecutionVariable variable;
-    private final TextFieldWithPopup<?> editorComponent;
+    private final TextFieldWithPopup editorComponent;
 
     StatementExecutionVariableValueForm(StatementExecutionInputForm parent, StatementExecutionVariable variable) {
         super(parent);
@@ -91,7 +91,7 @@ public class StatementExecutionVariableValueForm extends DBNFormBase {
         StatementExecutionManager executionManager = StatementExecutionManager.getInstance(project);
         StatementExecutionVariables variablesCache = executionManager.getExecutionVariables();
 
-        editorComponent = new TextFieldWithPopup<>(project);
+        editorComponent = new TextFieldWithPopup(project);
         editorComponent.createCalendarPopup(false);
         editorComponent.createValuesListPopup(createValuesProvider(variable, executionProcessor, variablesCache), null, true);
         editorComponent.setPopupEnabled(TextFieldPopupType.CALENDAR, variable.getDataType() == GenericDataType.DATE_TIME);

@@ -69,7 +69,7 @@ public class ArrayEditorPopupProviderForm extends TextFieldPopupProviderForm {
 
     private ArrayEditorList list;
 
-    public ArrayEditorPopupProviderForm(TextFieldWithPopup<?> textField, boolean autoPopup, ListProperty ... properties) {
+    public ArrayEditorPopupProviderForm(TextFieldWithPopup textField, boolean autoPopup, ListProperty ... properties) {
         super(textField, autoPopup, true);
 
         mainPanel.addKeyListener(this);

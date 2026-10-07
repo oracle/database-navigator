@@ -80,7 +80,7 @@ public class DatasetTableCellEditorFactory implements Disposable {
 
         if (genericDataType == VECTOR) {
             DatasetTableCellEditorWithPopup tableCellEditor = new DatasetTableCellEditorWithPopup(table);
-            TextFieldWithPopup<?> editorComponent = tableCellEditor.getEditorComponent();
+            TextFieldWithPopup editorComponent = tableCellEditor.getEditorComponent();
 
             // VECTOR arrays with length > 0 are expected to be fixed-length (non-editable)
             boolean editable = dataType.getLength() == 0;
