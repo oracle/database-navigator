@@ -18,7 +18,6 @@ package com.dbn.common.ui.dialog;
 
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.intellij.ui.components.JBList;
 import lombok.Getter;
@@ -27,7 +26,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.DefaultListModel;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
 import java.util.List;
 
 public class SelectionListForm<T> extends DBNFormBase {
@@ -36,18 +34,13 @@ public class SelectionListForm<T> extends DBNFormBase {
     private @Getter JBList<T> selectionList;
     private JPanel hintPanel;
 
-    public SelectionListForm(SelectionListDialog<T> dialog, @Nullable Object contextObject, @Nullable TextContent hintContent) {
+    public SelectionListForm(SelectionListDialog<T> dialog, @Nullable TextContent hintContent) {
         super(dialog);
 
-        if (contextObject == null) {
-            headerPanel.setVisible(false);
-        } else {
-            DBNHeaderForm headerForm = new DBNHeaderForm(this, contextObject);
-            headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
-        }
+        installContextHeader(headerPanel);
 
         if (hintContent == null) {
-            headerPanel.setVisible(false);
+            hintPanel.setVisible(false);
         } else {
             DBNHintForm hintForm = new DBNHintForm(this, hintContent, null);
             hintPanel.add(hintForm.getComponent());

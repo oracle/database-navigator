@@ -60,6 +60,10 @@ import java.util.List;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.data.type.GenericDataType.CLOB;
+import static com.dbn.data.type.GenericDataType.DATE_TIME;
+import static com.dbn.data.type.GenericDataType.JSON;
+import static com.dbn.data.type.GenericDataType.XMLTYPE;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
@@ -201,10 +205,12 @@ public class MethodExecutionInputValueForm extends DBNFormBase {
         List<DBTypeAttribute> resolvedAttributePath = getAttributePath();
         String value = getExecutionInput().getInputValue(argument, resolvedAttributePath);
 
-        if (genericDataType.is(GenericDataType.XMLTYPE, GenericDataType.CLOB)) {
-            TextFieldWithTextEditor inputField = new TextFieldWithTextEditor(project, null);
-            TextContentType contentType = genericDataType == GenericDataType.XMLTYPE ?
-                    TextContentType.get(project, "XML") :
+        if (genericDataType.is(XMLTYPE, JSON, CLOB)) {
+            Object contextObject = attributeValue ? getLeadAttribute() : argument;
+            TextFieldWithTextEditor inputField = new TextFieldWithTextEditor(project, null, contextObject);
+            TextContentType contentType =
+                    genericDataType == XMLTYPE ? TextContentType.get(project, "XML") :
+                    genericDataType == JSON ? TextContentType.get(project, "JSON") :
                     TextContentType.getPlainText(project);
 
             DBObjectType valueType = attributeValue ? DBObjectType.TYPE_ATTRIBUTE : DBObjectType.ARGUMENT;
@@ -218,7 +224,7 @@ public class MethodExecutionInputValueForm extends DBNFormBase {
         } else {
             TextFieldWithPopup inputField = new TextFieldWithPopup(project);
             inputField.setPreferredSize(new JBDimension(240, -1));
-            if (genericDataType == GenericDataType.DATE_TIME) {
+            if (genericDataType == DATE_TIME) {
                 inputField.createCalendarPopup(false);
             }
             inputField.createValuesListPopup(createValuesProvider(), argument, true);

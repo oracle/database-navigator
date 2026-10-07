@@ -19,7 +19,7 @@ package com.dbn.data.editor.text.ui;
 import com.dbn.common.action.UserDataKeys;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.panel.DBNLoadingPanel;
+import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
@@ -75,6 +75,7 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class TextEditorForm extends DBNFormBase implements TextContentTypeOwner {
     private JPanel mainPanel;
+    private JPanel headerPanel;
     private JPanel editorPanel;
     private JPanel actionsPanel;
     private JPanel loadingPanel;
@@ -96,11 +97,17 @@ public class TextEditorForm extends DBNFormBase implements TextContentTypeOwner 
         return mainPanel;
     }
 
-    public TextEditorForm(TextEditorDialog parent, DocumentListener documentListener, UserValueHolder<?> userValueHolder, DataEditorComponent textEditorAdapter) {
+    public TextEditorForm(
+            TextEditorDialog parent,
+            DocumentListener documentListener,
+            UserValueHolder<?> userValueHolder,
+            DataEditorComponent textEditorAdapter) {
         super(parent);
         this.documentListener = documentListener;
         this.userValueHolder = userValueHolder;
         this.textEditorAdapter = textEditorAdapter;
+
+        installContextHeader(headerPanel);
 
         Project project = getProject();
         if (userValueHolder.getContentType() == null) {

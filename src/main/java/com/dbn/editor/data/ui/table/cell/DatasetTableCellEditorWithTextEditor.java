@@ -32,12 +32,13 @@ public class DatasetTableCellEditorWithTextEditor extends DatasetTableCellEditor
 
     @Override
     protected TextFieldWithTextEditor createEditorComponent(DatasetEditorTable table) {
-        return new TextFieldWithTextEditor(table.getProject(), table);
+        return new TextFieldWithTextEditor(table.getProject(), table, null);
     }
 
     @Override
     public void prepareEditor(@NotNull DatasetEditorModelCell cell) {
         super.prepareEditor(cell);
+        getEditorComponent().setContextObject(cell.getColumn());
         ColumnInfo columnInfo = cell.getColumnInfo();
         DBDataType dataType = columnInfo.getDataType();
         if (!dataType.isNative()) return;

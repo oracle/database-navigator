@@ -19,7 +19,6 @@ package com.dbn.data.editor.ui;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.table.DBNTable;
 import com.dbn.common.ui.util.Keyboard;
-import com.dbn.common.util.Strings;
 import com.dbn.data.editor.text.ui.TextEditorDialog;
 import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.actionSystem.Shortcut;
@@ -34,15 +33,15 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
-import static com.dbn.common.color.Colors.getLabelDisabledForeground;
 import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public class TextFieldWithTextEditor extends TextFieldWithEditor {
 
-    public TextFieldWithTextEditor(@NotNull Project project, @Nullable DBNTable parentTable) {
+    public TextFieldWithTextEditor(@NotNull Project project, @Nullable DBNTable parentTable, @Nullable Object contextObject) {
         super(project, parentTable, txt("msg.dataEditor.title.TextEditor"), createToolTipText());
         setBounds(0, 0, 0, 0);
+        setContextObject(contextObject);
 
         JTextField textField = getTextField();
 
@@ -63,7 +62,7 @@ public class TextFieldWithTextEditor extends TextFieldWithEditor {
 
     @Override
     public void openEditor() {
-        TextEditorDialog.show(getProject(), this);
+        TextEditorDialog.show(getProject(), this, getContextObject());
     }
 
     private final KeyListener keyListener = new KeyAdapter() {

@@ -46,6 +46,7 @@ import com.dbn.object.DBType;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.JBColor;
 import com.intellij.util.ui.UIUtil;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
@@ -88,7 +89,7 @@ public class DatasetRecordEditorColumnForm extends DBNFormBase {
     private JLabel dataTypeLabel;
     private JPanel mainPanel;
 
-    private DatasetEditorModelCell cell;
+    private @Getter DatasetEditorModelCell cell;
     private final DataEditorComponent editorComponent;
 
     public DatasetRecordEditorColumnForm(DatasetRecordEditorForm parentForm, DatasetEditorModelCell cell) {
@@ -171,7 +172,7 @@ public class DatasetRecordEditorColumnForm extends DBNFormBase {
                 }
                 editorComponent = textFieldWithPopup;
             } else if (genericDataType.is(BLOB, CLOB, JSON, XMLTYPE)) {
-                editorComponent = new TextFieldWithTextEditor(project, null);
+                editorComponent = new TextFieldWithTextEditor(project, null, column);
             } else {
                 editorComponent = new BasicDataEditorComponent();
             }
@@ -253,10 +254,6 @@ public class DatasetRecordEditorColumnForm extends DBNFormBase {
         valueTextField.setBackground(getTextFieldBackground());
     }
 
-    public DatasetEditorModelCell getCell() {
-        return cell;
-    }
-
     private void openStructureEditor() {
         DatasetEditorModelCell cell = this.cell;
         if (cell == null || cell.getRow().is(DELETED) || !cell.getRow().getModel().isEditable()) return;
@@ -271,6 +268,7 @@ public class DatasetRecordEditorColumnForm extends DBNFormBase {
                 declaredType,
                 cell.getUserValue(),
                 cell.getColumn().getQualifiedNameWithType(),
+                cell.getColumn(),
                 () -> !isDisposed() && this.cell == cell && cell.getRow().isNot(DELETED) && cell.getRow().getModel().isEditable(),
                 attributes -> {
                     cell.updateUserValue(attributes, false);

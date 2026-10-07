@@ -18,6 +18,7 @@ package com.dbn.data.type.ui;
 
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.object.DBType;
 import com.dbn.object.DBTypeAttribute;
@@ -42,6 +43,7 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class DeclaredTypeValueEditorForm extends DBNFormBase {
     private JPanel mainPanel;
+    private JPanel headerPanel;
     private JLabel typeLabel;
     private JScrollPane attributesScrollPane;
     private JPanel attributesPanel;
@@ -53,6 +55,8 @@ public class DeclaredTypeValueEditorForm extends DBNFormBase {
             DBType declaredType,
             Object initialValue) {
         super(parent);
+
+        installContextHeader(headerPanel);
 
         typeLabel.setText(declaredType.getName());
         typeLabel.setIcon(declaredType.getIcon());

@@ -53,10 +53,12 @@ public class DeclaredTypeValueEditorDialog extends DBNDialog<DeclaredTypeValueEd
     public DeclaredTypeValueEditorDialog(
             @NotNull ConnectionHandler connection,
             @NotNull DBType declaredType,
-            @Nullable Object initialValue) {
+            @Nullable Object initialValue,
+            @Nullable Object contextObject) {
         super(connection, txt("msg.dataEditor.title.EditRecord"), true);
         this.declaredType = declaredType;
         this.initialValue = resolveObjectValue(initialValue);
+        setContextObject(contextObject);
         setModal(true);
         setResizable(true);
         setDefaultSize(640, 480);
@@ -81,6 +83,7 @@ public class DeclaredTypeValueEditorDialog extends DBNDialog<DeclaredTypeValueEd
             DBType declaredType,
             Object initialValue,
             String objectName,
+            @Nullable Object contextObject,
             BooleanSupplier isCurrent,
             Consumer<Object[]> valueConsumer) {
         Progress.prompt(
@@ -96,7 +99,7 @@ public class DeclaredTypeValueEditorDialog extends DBNDialog<DeclaredTypeValueEd
                         if (!isCurrent.getAsBoolean()) return;
 
                         Dialogs.show(
-                                () -> new DeclaredTypeValueEditorDialog(connection, declaredType, initialValue),
+                                () -> new DeclaredTypeValueEditorDialog(connection, declaredType, initialValue, contextObject),
                                 (dialog, exitCode) -> {
                                     if (exitCode == OK_EXIT_CODE && isCurrent.getAsBoolean()) {
                                         valueConsumer.accept(dialog.getAttributeValues());

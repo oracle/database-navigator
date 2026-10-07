@@ -53,6 +53,7 @@ public abstract class TextFieldWithButtons extends DBNPanelImpl implements DataE
     private final ProjectRef project;
     private UserValueHolder<?> userValueHolder;
     private final WeakRef<DBNTable> parentTable;
+    private @Nullable WeakRef<Object> contextObject;
 
     protected TextFieldWithButtons(@NotNull Project project, @Nullable DBNTable parentTable) {
         this.project = ProjectRef.of(project);
@@ -72,6 +73,16 @@ public abstract class TextFieldWithButtons extends DBNPanelImpl implements DataE
     @Nullable
     public DBNTable getParentTable() {
         return WeakRef.get(parentTable);
+    }
+
+
+    public void setContextObject(@Nullable Object contextObject) {
+        this.contextObject = WeakRef.of(contextObject);
+    }
+
+    @Nullable
+    public Object getContextObject() {
+        return WeakRef.get(contextObject);
     }
 
     @NotNull

@@ -99,6 +99,7 @@ class DatasetTableCellEditorWithTypeEditor extends DatasetTableCellEditorWithSpe
                 declaredType,
                 cell.getUserValue(),
                 cell.getColumn().getQualifiedNameWithType(),
+                cell.getColumn(),
                 () -> !getTable().isDisposed() && getCell() == cell && cell.isEditing(),
                 attributes -> {
                     value = attributes;
