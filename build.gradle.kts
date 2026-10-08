@@ -35,7 +35,7 @@ val bundledJdbcPostgres: Configuration by configurations.creating
 val bundledJdbcSqlite: Configuration by configurations.creating
 
 group = "com.dbn"
-version = "4.1.0.3"
+version = "4.1.1.0"
 
 java {
     toolchain {
@@ -198,16 +198,16 @@ dependencies {
     bundledJdbcOracle("com.fasterxml.jackson.core:jackson-databind:2.22.2@jar")
     bundledJdbcOracle("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.22.2@jar")
     bundledJdbcOracle("com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.22.2@jar")
-    bundledJdbcOracle("com.oracle.database.ha:ons:23.26.3.0.0@jar")
-    bundledJdbcOracle("com.oracle.database.ha:simplefan:23.26.3.0.0@jar")
+    bundledJdbcOracle("com.oracle.database.ha:ons:23.26.1.0.0@jar")
+    bundledJdbcOracle("com.oracle.database.ha:simplefan:23.26.1.0.0@jar")
     bundledJdbcOracle("com.oracle.database.jdbc:ojdbc-provider-common:1.1.0@jar")
     bundledJdbcOracle("com.oracle.database.jdbc:ojdbc-provider-oci:1.1.0@jar")
-    bundledJdbcOracle("com.oracle.database.jdbc:ojdbc17:23.26.3.0.0@jar")
-    bundledJdbcOracle("com.oracle.database.jdbc:rsi:23.26.3.0.0@jar")
-    bundledJdbcOracle("com.oracle.database.nls:orai18n:23.26.3.0.0@jar")
-    bundledJdbcOracle("com.oracle.database.security:oraclepki:23.26.3.0.0@jar")
-    bundledJdbcOracle("com.oracle.database.xml:xdb:23.26.3.0.0@jar")
-    bundledJdbcOracle("com.oracle.database.xml:xmlparserv2:23.26.3.0.0@jar")
+    bundledJdbcOracle("com.oracle.database.jdbc:ojdbc17:23.26.1.0.0@jar")
+    bundledJdbcOracle("com.oracle.database.jdbc:rsi:23.26.1.0.0@jar")
+    bundledJdbcOracle("com.oracle.database.nls:orai18n:23.26.1.0.0@jar")
+    bundledJdbcOracle("com.oracle.database.security:oraclepki:23.26.1.0.0@jar")
+    bundledJdbcOracle("com.oracle.database.xml:xdb:23.26.1.0.0@jar")
+    bundledJdbcOracle("com.oracle.database.xml:xmlparserv2:23.26.1.0.0@jar")
     bundledJdbcOracle("com.oracle.oci.sdk:oci-java-sdk-circuitbreaker:3.86.2@jar")
     bundledJdbcOracle("com.oracle.oci.sdk:oci-java-sdk-common-httpclient-jersey:3.86.2@jar")
     bundledJdbcOracle("com.oracle.oci.sdk:oci-java-sdk-common-httpclient:3.86.2@jar")
