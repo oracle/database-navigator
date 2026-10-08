@@ -16,15 +16,20 @@
 
 package com.dbn.common.dispose;
 
+import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.list.FilteredList;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Classes;
 import com.dbn.vfs.DBVirtualFile;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
+import com.intellij.openapi.project.ProjectManagerListener;
 import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.ui.tabs.JBTabs;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.Reference;
@@ -73,6 +78,27 @@ public final class Disposer {
             // dispose if parent already disposed
             dispose(disposable);
         }
+    }
+
+    /**
+     * Registers a DBN disposable for project closing without making the project its disposer parent.
+     */
+    public static void register(@Nullable Project project, @Nullable Disposable disposable) {
+        if (project == null) return;
+        if (disposable == null) return;
+        if (isNotValid(project)) {
+            dispose(disposable);
+            return;
+        }
+
+        ProjectEvents.subscribe(project, disposable, ProjectManager.TOPIC, new ProjectManagerListener() {
+            @Override
+            public void projectClosing(@NotNull Project closingProject) {
+                if (closingProject == project) {
+                    dispose(disposable);
+                }
+            }
+        });
     }
 
     public static void dispose(@Nullable Disposable disposable) {

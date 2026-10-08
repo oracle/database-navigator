@@ -182,6 +182,15 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
         setConnection(file, connection);
     }
 
+    public void setVirtualConnection(@NotNull Editor editor, @NotNull DatabaseType databaseType) {
+        Document document = editor.getDocument();
+        VirtualFile file = FileDocumentManager.getInstance().getFile(document);
+        if (file == null) return;
+
+        setVirtualConnection(file, databaseType);
+        Documents.touchDocument(editor, true);
+    }
+
     public void setConnection(@NotNull Editor editor, @Nullable ConnectionHandler connection) {
         Document document = editor.getDocument();
         VirtualFile file = FileDocumentManager.getInstance().getFile(document);

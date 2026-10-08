@@ -60,12 +60,14 @@ import static com.dbn.common.util.Unsafe.cast;
 public class PsiUtil {
     // TODO: check if any other visitor relevant
     public static final PsiElementVisitors SUPPORTED_VISITORS = PsiElementVisitors.create(
-            //com.intellij.spellchecker.inspections.SpellCheckingInspection;
-            //com.maddyhome.idea.copyright.actions.UpdateCopyrightAction;
-            //com.dbn.diagnostics.data.ParserDiagnosticsUtil;
+            //com.intellij.spellchecker.inspections.SpellCheckingInspection
+            //com.maddyhome.idea.copyright.actions.UpdateCopyrightAction
+            //com.dbn.diagnostics.data.ParserDiagnosticsUtil
+            //com.dbn.language.common.dialect.DBLanguageDialectResolver
             "SpellCheckingInspection",
             "ParserDiagnosticsUtil",
-            "UpdateCopyrightAction");
+            "UpdateCopyrightAction",
+            "DBLanguageDialectResolver");
 
     public static boolean hasErrors(@NotNull PsiFile psiFile) {
         return Read.call(psiFile, file -> {

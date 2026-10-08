@@ -43,6 +43,7 @@ import java.util.List;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.util.Editors.isDdlFileEditor;
+import static com.dbn.common.util.Editors.updateEditorNotifications;
 import static com.dbn.common.util.Files.isDbLanguageFile;
 import static com.dbn.vfs.DatabaseFileSystem.isFileOpened;
 
@@ -109,7 +110,7 @@ public class DDLMappedNotificationProvider extends EditorNotificationProvider<DD
 
     @NotNull
     private static DDLFileSettingsChangeListener ddlFileSettingsChangeListener() {
-        return (Project project) -> Editors.updateNotifications(project, null);
+        return (Project project) -> updateEditorNotifications(project, null);
     }
 
     @NotNull

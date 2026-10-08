@@ -7,6 +7,7 @@ package com.dbn.code.common.intention;
 
 import com.dbn.common.icon.Icons;
 import com.dbn.diagnostics.ParserDiagnosticsManager;
+import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
@@ -48,7 +49,10 @@ public class SubmitParserIssueIntentionAction extends EditorIntentionAction {
         PsiFile file = element.getContainingFile();
         if (!(file instanceof DBLanguagePsiFile psiFile)) return;
 
+        DBLanguageDialect languageDialect = psiFile.getLanguageDialect();
+        if (languageDialect == null) return;
+
         ParserDiagnosticsManager diagnosticsManager = ParserDiagnosticsManager.get(project);
-        diagnosticsManager.submitParserIssueReport(psiFile);
+        diagnosticsManager.submitParserIssueReport(psiFile, languageDialect);
     }
 }

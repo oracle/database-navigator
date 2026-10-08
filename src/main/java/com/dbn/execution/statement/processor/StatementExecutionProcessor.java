@@ -24,7 +24,6 @@ import com.dbn.connection.SchemaId;
 import com.dbn.connection.context.DatabaseContextBase;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.session.DatabaseSession;
-import com.dbn.editor.EditorProviderId;
 import com.dbn.execution.statement.StatementExecutionContext;
 import com.dbn.execution.statement.StatementExecutionInput;
 import com.dbn.execution.statement.result.StatementExecutionResult;
@@ -95,9 +94,6 @@ public interface StatementExecutionProcessor extends DatabaseContextBase, Statef
 
     @Nullable
     FileEditor getFileEditor();
-
-    @Nullable
-    EditorProviderId getEditorProviderId();
 
     @Nullable
     ExecutablePsiElement getCachedExecutable();

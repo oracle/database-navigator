@@ -62,6 +62,12 @@ public abstract class DBLanguageDialect extends Language implements DBFileElemen
         REGISTRY.put(identifier, this);
     }
 
+    @Override
+    @NotNull
+    public String getDisplayName() {
+        return identifier.getName();
+    }
+
     public boolean isInitialized() {
         if (!syntaxHighlighter.loaded()) return false;
         if (!parserDefinition.loaded()) return false;

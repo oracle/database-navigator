@@ -17,7 +17,7 @@
 <idea-plugin url="https://plugins.jetbrains.com/plugin/1800-database-navigator" require-restart="true">
     <name>Database Navigator</name>
     <id>DBN</id>
-    <version>4.1.0.0</version>
+    <version>4.1.0.3</version>
     <category>Database</category>
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
@@ -568,6 +568,7 @@
         <group id="DBN.Editor">
             <action id="DBN.Editor.DatabaseLogging" class="com.dbn.execution.logging.action.DatabaseLoggingToggleAction" icon="com.dbn.common.icon.Icons.EXEC_LOG_OUTPUT_CONSOLE"/>
             <action id="DBN.Editor.Connection" class="com.dbn.language.editor.action.ConnectionSelectDropdownAction"/>
+            <action id="DBN.Editor.Dialect" class="com.dbn.language.editor.action.DialectSelectDropdownAction"/>
             <action id="DBN.Editor.Schema" class="com.dbn.language.editor.action.SchemaSelectDropdownAction"/>
             <action id="DBN.Editor.Session" class="com.dbn.language.editor.action.DatabaseSessionSelectDropdownAction"/>
             <action id="DBN.Transaction.Commit" class="com.dbn.language.editor.action.TransactionCommitAction" icon="com.dbn.common.icon.Icons.CONNECTION_COMMIT"/>
@@ -698,7 +699,7 @@
                 <action id="DBN.MainMenu.Diagnostics.Parser" class="com.dbn.diagnostics.action.ParserDiagnosticsOpenAction"/>
                 <action id="DBN.MainMenu.Diagnostics.Connection" class="com.dbn.menu.action.DiagnosticsMonitorOpenAction"/>
                 <action id="DBN.MainMenu.Diagnostics.ReloadMetadataDefinitions" class="com.dbn.menu.action.MetaDataDefinitionReloadAction"/>
-                <action id="DBN.MainMenu.Diagnostics.ScrambleProjectCode" class="com.dbn.diagnostics.action.ExportScrambledSourcecodeAction"/>
+                <action id="DBN.MainMenu.Diagnostics.ObfuscateProjectCode" class="com.dbn.diagnostics.action.ExportObfuscatedSourcecodeAction"/>
                 <separator/>
                 <action id="DBN.MainMenu.Diagnostics.Settings" class="com.dbn.menu.action.DiagnosticsSettingsOpenAction"/>
             </group>
@@ -845,7 +846,7 @@
         <group id="DBN.MachineLearning.Result">
             <action id="DBN.MachineLearning.Result.Toolbox" class="com.dbn.ml.result.action.MLResultTrainAgainAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_INPUT_FORM"/>
             <action id="DBN.MachineLearning.Result.Predict" class="com.dbn.ml.result.action.MLResultPredictAction" icon="com.dbn.common.icon.Icons.ACTION_EXECUTE"/>
-            <action id="DBN.MachineLearning.Result.ViewInDatabase" class="com.dbn.ml.result.action.MLResultViewInBrowserAction" icon="com.dbn.common.icon.Icons.DBO_AI_MODEL"/>
+            <action id="DBN.MachineLearning.Result.ViewInDatabase" class="com.dbn.ml.result.action.MLResultViewInBrowserAction" icon="com.dbn.common.icon.Icons.DBO_MINING_MODEL"/>
             <separator/>
             <action id="DBN.MachineLearning.Result.Close" class="com.dbn.ml.result.action.MLResultCloseAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_CLOSE"/>
         </group>
