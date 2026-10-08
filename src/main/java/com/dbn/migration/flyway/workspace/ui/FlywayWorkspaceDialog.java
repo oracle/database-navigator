@@ -14,35 +14,34 @@
  * limitations under the License.
  */
 
-package com.dbn.migration.liquibase.workspace.ui;
+package com.dbn.migration.flyway.workspace.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.DatabaseType;
-import com.dbn.migration.liquibase.workspace.LiquibaseWorkspace;
-import com.dbn.migration.liquibase.workspace.LiquibaseWorkspaceBundle;
-import com.dbn.migration.shared.engine.DatabaseMigrationEngineType;
+import com.dbn.migration.flyway.workspace.FlywayWorkspace;
+import com.dbn.migration.flyway.workspace.FlywayWorkspaceBundle;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
 
-import static com.dbn.migration.shared.engine.DatabaseMigrationEngineType.LIQUIBASE;
+import static com.dbn.migration.shared.engine.DatabaseMigrationEngineType.FLYWAY;
 import static com.dbn.nls.NlsResources.txt;
 
 @Getter
-public class LiquibaseWorkspaceDialog extends DBNDialog<LiquibaseWorkspaceForm> {
-    private final LiquibaseWorkspaceBundle workspaces;
-    private final LiquibaseWorkspace workspace;
+public class FlywayWorkspaceDialog extends DBNDialog<FlywayWorkspaceForm> {
+    private final FlywayWorkspaceBundle workspaces;
+    private final FlywayWorkspace workspace;
     private final boolean newWorkspace;
     private final DatabaseType databaseType;
 
-    public LiquibaseWorkspaceDialog(
-            LiquibaseWorkspaceBundle workspaces,
-            LiquibaseWorkspace workspace,
+    public FlywayWorkspaceDialog(
+            FlywayWorkspaceBundle workspaces,
+            FlywayWorkspace workspace,
             @Nullable DatabaseType databaseType,
             boolean newWorkspace) {
-        super(workspaces.getProject(), LIQUIBASE.getWorkspaceTitle(), true);
+        super(workspaces.getProject(), FLYWAY.getWorkspaceTitle(), true);
         this.workspaces = workspaces;
         this.workspace = workspace.clone();
         this.newWorkspace = newWorkspace;
@@ -53,14 +52,14 @@ public class LiquibaseWorkspaceDialog extends DBNDialog<LiquibaseWorkspaceForm> 
 
     @NotNull
     @Override
-    protected LiquibaseWorkspaceForm createForm() {
-        return new LiquibaseWorkspaceForm(this);
+    protected FlywayWorkspaceForm createForm() {
+        return new FlywayWorkspaceForm(this);
     }
 
     @Override
     @NotNull
     protected final Action[] initializeActions() {
-        String caption = txt(newWorkspace ? "msg.shared.button.Create" : "msg.liquibase.button.Update");
+        String caption = txt(newWorkspace ? "msg.shared.button.Create" : "msg.shared.button.Update");
         renameAction(getOKAction(), caption);
         return actions(getOKAction(), getCancelAction());
     }

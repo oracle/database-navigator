@@ -50,6 +50,9 @@ public enum WorkspaceFeature {
     LIQUIBASE(
             txt("cfg.workspace.label.WorkspaceFeature_LIQUIBASE"),
             txt("cfg.workspace.text.WorkspaceFeature_LIQUIBASE")),
+    FLYWAY(
+            txt("cfg.workspace.label.WorkspaceFeature_FLYWAY"),
+            txt("cfg.workspace.text.WorkspaceFeature_FLYWAY")),
     EVENT_MONITOR(
             txt("cfg.workspace.label.WorkspaceFeature_EVENT_MONITOR"),
             txt("cfg.workspace.text.WorkspaceFeature_EVENT_MONITOR")),

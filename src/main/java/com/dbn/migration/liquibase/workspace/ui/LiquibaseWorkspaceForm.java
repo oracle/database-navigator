@@ -31,8 +31,9 @@ import com.dbn.connection.mapping.FileConnectionContextManager;
 import com.dbn.migration.liquibase.workspace.LiquibaseChangelogFiles;
 import com.dbn.migration.liquibase.workspace.LiquibaseChangelogFormat;
 import com.dbn.migration.liquibase.workspace.LiquibaseWorkspace;
-import com.dbn.migration.liquibase.workspace.LiquibaseWorkspaceBundle;
 import com.dbn.migration.liquibase.workspace.LiquibaseWorkspacePaths;
+import com.dbn.migration.shared.workspace.DatabaseMigrationWorkspaceBundle;
+import com.dbn.migration.shared.workspace.ui.DatabaseMigrationWorkspacesForm;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
@@ -82,7 +83,7 @@ public class LiquibaseWorkspaceForm extends DBNFormBase {
     private JBTextField propertiesFileTextField;
     private DBNCommentLabel rootPathInfoLabel;
 
-    private final LiquibaseWorkspaceBundle workspaces;
+    private final DatabaseMigrationWorkspaceBundle<LiquibaseWorkspace> workspaces;
     private final LiquibaseWorkspace workspace;
     private final DatabaseType databaseType;
 
@@ -93,16 +94,16 @@ public class LiquibaseWorkspaceForm extends DBNFormBase {
                 parent.getDatabaseType());
     }
 
-    LiquibaseWorkspaceForm(
+    public LiquibaseWorkspaceForm(
             @NotNull DBNComponent parent,
-            @NotNull LiquibaseWorkspaceBundle workspaces,
+            @NotNull DatabaseMigrationWorkspaceBundle<LiquibaseWorkspace> workspaces,
             @NotNull LiquibaseWorkspace workspace) {
         this(parent, workspaces, workspace, null);
     }
 
-    LiquibaseWorkspaceForm(
+    public LiquibaseWorkspaceForm(
             @NotNull DBNComponent parent,
-            @NotNull LiquibaseWorkspaceBundle workspaces,
+            @NotNull DatabaseMigrationWorkspaceBundle<LiquibaseWorkspace> workspaces,
             @NotNull LiquibaseWorkspace workspace,
             @Nullable DatabaseType databaseType) {
         super(parent);
@@ -217,7 +218,7 @@ public class LiquibaseWorkspaceForm extends DBNFormBase {
         workspace.setName(newName);
 
         Disposable parent = ensureParentComponent();
-        if (parent instanceof LiquibaseWorkspacesForm bundleForm) {
+        if (parent instanceof DatabaseMigrationWorkspacesForm<?, ?> bundleForm) {
             bundleForm.refreshWorkspaceList();
         }
     }

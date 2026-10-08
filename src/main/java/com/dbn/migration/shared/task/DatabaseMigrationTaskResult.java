@@ -39,7 +39,7 @@ import org.jetbrains.annotations.NotNull;
 public abstract class DatabaseMigrationTaskResult<
         I extends DatabaseMigrationTaskInput,
         C extends DatabaseMigrationTaskContext<I>,
-        F extends ExecutionResultForm>
+        F extends ExecutionResultForm<?>>
         extends ExecutionResultBase<F> {
 
     private final C context;

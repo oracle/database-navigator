@@ -33,7 +33,7 @@ import javax.swing.Icon;
 public abstract class LiquibaseTaskResult<
         I extends LiquibaseTaskInput,
         C extends LiquibaseTaskContext<I>,
-        F extends ExecutionResultForm>
+        F extends ExecutionResultForm<?>>
         extends DatabaseMigrationTaskResult<I, C, F> {
 
     protected LiquibaseTaskResult(@NotNull C context) {

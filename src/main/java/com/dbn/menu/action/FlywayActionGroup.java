@@ -14,29 +14,20 @@
  * limitations under the License.
  */
 
-package com.dbn.migration.liquibase.workspace;
+package com.dbn.menu.action;
 
-import com.dbn.migration.shared.workspace.DatabaseMigrationWorkspaceBundle;
+import com.dbn.common.action.DefaultActionGroup;
+import com.dbn.options.general.WorkspaceFeature;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * Project-level container for Liquibase workspaces and schema selection preferences.
- */
-public class LiquibaseWorkspaceBundle
-        extends DatabaseMigrationWorkspaceBundle<LiquibaseWorkspace> {
-    public LiquibaseWorkspaceBundle(@NotNull Project project) {
-        super(project);
-    }
-
-    @NotNull
+public class FlywayActionGroup extends DefaultActionGroup {
     @Override
-    protected LiquibaseWorkspace createWorkspaceInstance() {
-        return new LiquibaseWorkspace();
-    }
+    public void update(@NotNull AnActionEvent e) {
+        super.update(e);
 
-    @Override
-    public LiquibaseWorkspaceBundle clone() {
-        return (LiquibaseWorkspaceBundle) super.clone();
+        Project project = e.getProject();
+        e.getPresentation().setVisible(project != null && WorkspaceFeature.FLYWAY.isEnabled(project));
     }
 }

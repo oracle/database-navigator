@@ -381,6 +381,7 @@ public class Icons {
     public static final Icon DB_SQLITE            = AllIcons.Providers.Sqlite;
     public static final Icon DB_GENERIC           = load("/img/database/Generic.svg");
     public static final Icon DB_LIQUIBASE         = load("/img/database/Liquibase.svg");
+    public static final Icon DB_FLYWAY            = load("/img/database/Flyway.svg");
 
 
     public static final Icon DB_ORACLE_LARGE      = IconUtil.toSize(AllIcons.Providers.Oracle, 32, 32);

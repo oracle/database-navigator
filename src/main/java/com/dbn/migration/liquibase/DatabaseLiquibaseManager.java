@@ -53,7 +53,9 @@ import com.dbn.migration.liquibase.workspace.LiquibaseWorkspaceBundle;
 import com.dbn.migration.liquibase.workspace.ui.LiquibaseEnvironmentProfileDialog;
 import com.dbn.migration.liquibase.workspace.ui.LiquibaseEnvironmentProfilesDialog;
 import com.dbn.migration.liquibase.workspace.ui.LiquibaseWorkspaceDialog;
-import com.dbn.migration.liquibase.workspace.ui.LiquibaseWorkspacesDialog;
+import com.dbn.migration.liquibase.workspace.ui.LiquibaseWorkspaceForm;
+import com.dbn.migration.shared.engine.DatabaseMigrationEngineType;
+import com.dbn.migration.shared.workspace.ui.DatabaseMigrationWorkspacesDialog;
 import com.dbn.options.general.GeneralProjectSettings;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
@@ -146,7 +148,11 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
     }
 
     public void openWorkspaceSettings() {
-        Dialogs.show(() -> new LiquibaseWorkspacesDialog(workspaces),
+        Dialogs.show(() -> new DatabaseMigrationWorkspacesDialog<>(
+                        workspaces,
+                        DatabaseMigrationEngineType.LIQUIBASE,
+                        workspaces::clone,
+                        LiquibaseWorkspaceForm::new),
                 whenOk(d -> workspaces.replaceWorkspaces(d.getWorkspaces())));
     }
 

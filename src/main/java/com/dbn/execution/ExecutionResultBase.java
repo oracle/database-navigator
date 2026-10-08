@@ -18,22 +18,24 @@ package com.dbn.execution;
 
 import com.dbn.common.dispose.StatefulDisposableBase;
 import com.dbn.execution.common.result.ui.ExecutionResultForm;
-import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.dispose.Checks.isValid;
 
-@Getter
-@Setter
-public abstract class ExecutionResultBase<F extends ExecutionResultForm> extends StatefulDisposableBase implements ExecutionResult<F> {
-    private ExecutionResult<F> previous;
+public abstract class ExecutionResultBase<F extends ExecutionResultForm<?>> extends StatefulDisposableBase implements ExecutionResult<F> {
+    private ExecutionResult<?> previous;
 
-    public void setPrevious(@Nullable ExecutionResult<F> previous) {
+    @Override
+    public void setPrevious(@Nullable ExecutionResult<?> previous) {
         if (previous == null || isValid(previous)) {
             this.previous = previous;
         }
+    }
+
+    @Override
+    public ExecutionResult<?> getPrevious() {
+        return previous;
     }
 
     @Nullable

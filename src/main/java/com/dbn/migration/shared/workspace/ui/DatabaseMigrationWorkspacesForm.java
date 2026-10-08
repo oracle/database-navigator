@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package com.dbn.migration.liquibase.workspace.ui;
+package com.dbn.migration.shared.workspace.ui;
 
 import com.dbn.common.dispose.DisposableContainers;
-import com.dbn.common.icon.Icons;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.panel.DBNBanner;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Strings;
-import com.dbn.migration.liquibase.workspace.LiquibaseWorkspace;
-import com.dbn.migration.liquibase.workspace.LiquibaseWorkspaceBundle;
+import com.dbn.migration.shared.engine.DatabaseMigrationEngineType;
+import com.dbn.migration.shared.workspace.DatabaseMigrationWorkspace;
+import com.dbn.migration.shared.workspace.DatabaseMigrationWorkspaceBundle;
+import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.ui.ToolbarDecorator;
 import org.jetbrains.annotations.NotNull;
 
@@ -45,23 +46,34 @@ import static com.dbn.common.ui.util.Decorators.createToolbarDecorator;
 import static com.dbn.common.ui.util.Decorators.createToolbarDecoratorComponent;
 import static com.dbn.nls.NlsResources.txt;
 
-/** Overview form for managing the named Liquibase workspaces in a project. */
-public class LiquibaseWorkspacesForm extends DBNFormBase {
-    private static final String EMPTY_CARD = "DBN_LIQUIBASE_EMPTY_WORKSPACES";
+/**
+ * Overview form for managing the named workspaces of a database migration engine.
+ *
+ * <p>The workspace list and lifecycle are engine-neutral. The engine supplies
+ * presentation metadata and the details form used for each workspace.</p>
+ */
+public class DatabaseMigrationWorkspacesForm<
+        W extends DatabaseMigrationWorkspace,
+        B extends DatabaseMigrationWorkspaceBundle<W>> extends DBNFormBase {
+    private static final String EMPTY_CARD = "DBN_EMPTY_MIGRATION_WORKSPACES";
     private JPanel mainPanel;
     private JPanel workspacesPanel;
     private JPanel detailsPanel;
-    private JList<LiquibaseWorkspace> workspacesList;
+    private JList<W> workspacesList;
 
-    private final LiquibaseWorkspaceBundle workspaces;
-    private final Map<String, LiquibaseWorkspaceForm> workspaceForms = DisposableContainers.map(this);
+    private final B workspaces;
+    private final DatabaseMigrationEngineType engineType;
+    private final DatabaseMigrationWorkspaceFormFactory<W, B> workspaceFormFactory;
+    private final Map<String, DBNForm> workspaceForms = DisposableContainers.map(this);
 
-    LiquibaseWorkspacesForm(LiquibaseWorkspacesDialog parent) {
+    DatabaseMigrationWorkspacesForm(DatabaseMigrationWorkspacesDialog<W, B> parent) {
         super(parent);
         workspaces = parent.getWorkspaces();
+        engineType = parent.getEngineType();
+        workspaceFormFactory = parent.getWorkspaceFormFactory();
         workspacesList.setCellRenderer((list, value, index, selected, focus) -> {
             String name = Strings.isEmpty(value.getName()) ? txt("app.shared.placeholder.Unnamed") : value.getName();
-            JLabel label = new JLabel(name, Icons.DB_LIQUIBASE, JLabel.LEADING);
+            JLabel label = new JLabel(name, engineType.getIcon(), JLabel.LEADING);
             label.setOpaque(true);
             label.setBackground(selected ? list.getSelectionBackground() : list.getBackground());
             label.setForeground(selected ? list.getSelectionForeground() : list.getForeground());
@@ -84,7 +96,7 @@ public class LiquibaseWorkspacesForm extends DBNFormBase {
     }
 
     private JComponent createEmptyDetails() {
-        DBNBanner hintBanner = new DBNBanner(txt("app.liquibase.hint.NoWorkspaces"), MessageType.INFO);
+        DBNBanner hintBanner = new DBNBanner(engineType.getNoWorkspacesHint(), MessageType.INFO);
         JPanel hintPanel = new JPanel(new BorderLayout());
         hintPanel.setBorder(Borders.insetBorder(0, 8,8,8));
         hintPanel.add(hintBanner, BorderLayout.NORTH);
@@ -101,39 +113,39 @@ public class LiquibaseWorkspacesForm extends DBNFormBase {
     }
 
     private void updateWorkspaces() {
-        DefaultListModel<LiquibaseWorkspace> model = new DefaultListModel<>();
+        DefaultListModel<W> model = new DefaultListModel<>();
         workspaces.getWorkspaces().forEach(model::addElement);
         workspacesList.setModel(model);
     }
 
     private void showSelectedWorkspace() {
-        LiquibaseWorkspace workspace = workspacesList.getSelectedValue();
+        W workspace = workspacesList.getSelectedValue();
         if (workspace == null) {
             showCard(detailsPanel, EMPTY_CARD);
             return;
         }
 
         DBNForm workspaceForm = workspaceForms.computeIfAbsent(workspace.getId(), id ->
-                new LiquibaseWorkspaceForm(this, workspaces, workspace));
+                workspaceFormFactory.create(this, workspaces, workspace));
         if (getCard(detailsPanel, workspace.getId()) == null) {
             addCard(detailsPanel, workspaceForm, workspace.getId());
         }
         showCard(detailsPanel, workspace.getId());
     }
 
-    void refreshWorkspaceList() {
+    public void refreshWorkspaceList() {
         workspacesList.repaint();
     }
 
     private void addWorkspace() {
-        LiquibaseWorkspace workspace = workspaces.createWorkspace();
+        W workspace = workspaces.createWorkspace();
         updateWorkspaces();
         workspacesList.setSelectedValue(workspace, true);
         markFormChanged();
     }
 
     private void removeWorkspace() {
-        LiquibaseWorkspace workspace = workspacesList.getSelectedValue();
+        W workspace = workspacesList.getSelectedValue();
         if (workspace == null) return;
         int selectedIndex = workspacesList.getSelectedIndex();
         workspaces.removeWorkspace(workspace.getId());
@@ -150,7 +162,7 @@ public class LiquibaseWorkspacesForm extends DBNFormBase {
     }
 
     private void moveWorkspace(int offset) {
-        LiquibaseWorkspace workspace = workspacesList.getSelectedValue();
+        W workspace = workspacesList.getSelectedValue();
         if (workspace == null) return;
         workspaces.moveWorkspace(workspace, offset);
         updateWorkspaces();
@@ -158,8 +170,10 @@ public class LiquibaseWorkspacesForm extends DBNFormBase {
         markFormChanged();
     }
 
-    public void applyFormChanges() {
-        workspaceForms.values().forEach(f -> f.applyFormChanges());
+    public void applyFormChanges() throws ConfigurationException {
+        for (DBNForm workspaceForm : workspaceForms.values()) {
+            workspaceForm.applyFormChanges();
+        }
     }
 
     public void cancelFormChanges() {

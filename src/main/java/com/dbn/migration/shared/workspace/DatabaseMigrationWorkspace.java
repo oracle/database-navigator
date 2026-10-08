@@ -17,29 +17,68 @@
 package com.dbn.migration.shared.workspace;
 
 import com.dbn.common.index.Identifiable;
+import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.Named;
 import com.dbn.common.util.UUIDs;
 import com.dbn.connection.DatabaseType;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
+import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
+
+import static com.dbn.common.options.setting.Settings.enumAttribute;
+import static com.dbn.common.options.setting.Settings.setEnumAttribute;
+import static com.dbn.common.options.setting.Settings.setStringAttribute;
+import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 /**
  * Base state shared by database migration workspaces.
  *
- * <p>The base stores workspace identity, display name, target database type, and
- * configured root path. Concrete migration engines remain responsible for their
- * file layout and for resolving the root path in the surrounding project.</p>
+ * <p>The base stores workspace identity, display name, target database type, content
+ * root, and configured root path. Concrete migration engines remain responsible for
+ * their file layout and additional persisted settings.</p>
  */
 @Getter
 @Setter
-public abstract class DatabaseMigrationWorkspace implements Named, Identifiable<String> {
+public abstract class DatabaseMigrationWorkspace implements Named, Identifiable<String>, PersistentStateElement {
     private String id = UUIDs.regular();
     private String name;
     private DatabaseType databaseType;
+    private String contentRootPath;
     private String rootPath;
 
     protected DatabaseMigrationWorkspace(@NotNull String rootPath) {
         this.rootPath = rootPath;
+    }
+
+    public boolean usesSameContentRoot(@NotNull DatabaseMigrationWorkspace other) {
+        return Objects.equals(contentRootPath, other.contentRootPath);
+    }
+
+    @Override
+    public void readState(@NotNull Element element) {
+        setId(stringAttribute(element, "id", getId()));
+        setName(stringAttribute(element, "name", getName()));
+        setDatabaseType(enumAttribute(element, "database-type", DatabaseType.GENERIC));
+        setContentRootPath(stringAttribute(element, "content-root-path", getContentRootPath()));
+        setRootPath(stringAttribute(element, "root-path", getRootPath()));
+    }
+
+    @Override
+    public void writeState(@NotNull Element element) {
+        setStringAttribute(element, "id", getId());
+        setStringAttribute(element, "name", getName());
+        setEnumAttribute(element, "database-type", getDatabaseType());
+        setStringAttribute(element, "content-root-path", getContentRootPath());
+        setStringAttribute(element, "root-path", getRootPath());
+    }
+
+    @Override
+    @SneakyThrows
+    public DatabaseMigrationWorkspace clone() {
+        return (DatabaseMigrationWorkspace) super.clone();
     }
 }

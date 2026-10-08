@@ -32,6 +32,7 @@ import com.dbn.execution.method.action.MethodExecuteAction;
 import com.dbn.execution.method.action.ProgramMethodDebugAction;
 import com.dbn.execution.method.action.ProgramMethodExecuteAction;
 import com.dbn.generator.statement.action.GenerateStatementActionGroup;
+import com.dbn.migration.flyway.action.FlywaySchemaActions;
 import com.dbn.migration.liquibase.action.LiquibaseSchemaActions;
 import com.dbn.ml.action.AIModelPredictAction;
 import com.dbn.object.DBColumn;
@@ -57,7 +58,6 @@ import com.dbn.object.management.ObjectManagementService;
 import com.dbn.object.navigation.DBObjectNavigationInfoProvider;
 import com.dbn.object.navigation.DBObjectNavigationInfoProviderCache;
 import com.dbn.object.type.DBObjectType;
-import com.dbn.options.general.WorkspaceFeature;
 import com.dbn.sync.java.action.JavaObjectDownloadAction;
 import com.dbn.sync.java.action.JavaResourceDownloadAction;
 import com.intellij.openapi.actionSystem.ActionGroup;
@@ -87,7 +87,13 @@ import static com.dbn.object.common.property.DBObjectProperty.REFERENCEABLE;
 import static com.dbn.object.common.property.DBObjectProperty.REFRESHABLE;
 import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
 import static com.dbn.object.common.property.DBObjectProperty.SYSTEM_OBJECT;
-import static com.dbn.options.general.WorkspaceFeature.*;
+import static com.dbn.options.general.WorkspaceFeature.DEBUGGER;
+import static com.dbn.options.general.WorkspaceFeature.EVENT_MONITOR;
+import static com.dbn.options.general.WorkspaceFeature.FLYWAY;
+import static com.dbn.options.general.WorkspaceFeature.LIQUIBASE;
+import static com.dbn.options.general.WorkspaceFeature.MACHINE_LEARNING;
+import static com.dbn.options.general.WorkspaceFeature.OJVM;
+import static com.dbn.options.general.WorkspaceFeature.VECTOR_TOOLBOX;
 import static com.dbn.vfs.DBConsoleType.DEBUG;
 import static com.dbn.vfs.DBConsoleType.SEARCH;
 import static com.dbn.vfs.DBConsoleType.STANDARD;
@@ -108,7 +114,7 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
         addCodeGeneratorActions(object);
         addObjectListActions(object);
         addObjectPropertiesActions(object);
-        addLiquibaseActions(object);
+        addMigrationActions(object);
     }
 
     private void addTableActions(DBObject object) {
@@ -312,11 +318,20 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
         add(new RefreshActionGroup(object));
     }
 
-    private void addLiquibaseActions(DBObject object) {
+    private void addMigrationActions(DBObject object) {
+        if (!(object instanceof DBSchema schema)) return;
+
         Project project = object.getProject();
-        if (LIQUIBASE.isEnabled(project) && object instanceof DBSchema schema) {
-            addSeparator();
+        boolean liquibaseEnabled = LIQUIBASE.isEnabled(project);
+        boolean flywayEnabled = FLYWAY.isEnabled(project);
+        if (!liquibaseEnabled && !flywayEnabled) return;
+
+        addSeparator();
+        if (liquibaseEnabled) {
             add(new LiquibaseSchemaActions(schema));
+        }
+        if (flywayEnabled) {
+            add(new FlywaySchemaActions(schema));
         }
     }
 

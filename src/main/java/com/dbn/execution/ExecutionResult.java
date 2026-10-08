@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
-public interface ExecutionResult<F extends ExecutionResultForm> extends StatefulDisposable, DataProvider {
+public interface ExecutionResult<F extends ExecutionResultForm<?>> extends StatefulDisposable, DataProvider {
 
     @Nullable
     F createForm();
@@ -69,9 +69,9 @@ public interface ExecutionResult<F extends ExecutionResultForm> extends Stateful
 
     DBLanguagePsiFile createPreviewFile();
 
-    ExecutionResult<F> getPrevious();
+    ExecutionResult<?> getPrevious();
 
-    void setPrevious(ExecutionResult<F> previous);
+    void setPrevious(ExecutionResult<?> previous);
 
     default boolean isRenameable(){
         return false;

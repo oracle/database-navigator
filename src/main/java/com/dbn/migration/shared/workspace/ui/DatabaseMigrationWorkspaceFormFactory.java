@@ -14,29 +14,28 @@
  * limitations under the License.
  */
 
-package com.dbn.migration.liquibase.workspace;
+package com.dbn.migration.shared.workspace.ui;
 
+import com.dbn.common.ui.component.DBNComponent;
+import com.dbn.common.ui.form.DBNForm;
+import com.dbn.migration.shared.workspace.DatabaseMigrationWorkspace;
 import com.dbn.migration.shared.workspace.DatabaseMigrationWorkspaceBundle;
-import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Project-level container for Liquibase workspaces and schema selection preferences.
+ * Creates the engine-specific details form displayed by the shared workspace form.
+ *
+ * @param <W> workspace type managed by the details form
+ * @param <B> workspace bundle type providing the details form state
  */
-public class LiquibaseWorkspaceBundle
-        extends DatabaseMigrationWorkspaceBundle<LiquibaseWorkspace> {
-    public LiquibaseWorkspaceBundle(@NotNull Project project) {
-        super(project);
-    }
+@FunctionalInterface
+public interface DatabaseMigrationWorkspaceFormFactory<
+        W extends DatabaseMigrationWorkspace,
+        B extends DatabaseMigrationWorkspaceBundle<W>> {
 
     @NotNull
-    @Override
-    protected LiquibaseWorkspace createWorkspaceInstance() {
-        return new LiquibaseWorkspace();
-    }
-
-    @Override
-    public LiquibaseWorkspaceBundle clone() {
-        return (LiquibaseWorkspaceBundle) super.clone();
-    }
+    DBNForm create(
+            @NotNull DBNComponent parent,
+            @NotNull B workspaces,
+            @NotNull W workspace);
 }
