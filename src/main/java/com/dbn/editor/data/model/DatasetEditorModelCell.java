@@ -68,15 +68,21 @@ public class DatasetEditorModelCell
 
     @Override
     public void updateUserValue(Object newUserValue, boolean bulk) {
+        set(RecordStatus.UPDATING, true);
+        notifyCellUpdated();
         Background.run(() -> {
             try {
-                set(RecordStatus.UPDATING, true);
                 updateValue(newUserValue, bulk);
-                notifyCellUpdated();
             } finally {
                 set(RecordStatus.UPDATING, false);
+                notifyCellUpdated();
+                updateActionToolbars();
             }
         });
+    }
+
+    private void updateActionToolbars() {
+        getEditorModel().getDatasetEditor().updateActionToolbars();
     }
 
     private void updateValue(Object newUserValue, boolean bulk) {

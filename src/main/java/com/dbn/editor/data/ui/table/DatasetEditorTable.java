@@ -58,6 +58,7 @@ import com.dbn.object.DBColumn;
 import com.dbn.object.DBDataset;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionPopupMenu;
+import com.intellij.ui.AnimatedIcon;
 import com.intellij.ui.awt.RelativePoint;
 import lombok.Getter;
 import lombok.Setter;
@@ -65,6 +66,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JPopupMenu;
+import javax.swing.ListSelectionModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.TableColumnModelEvent;
@@ -80,6 +82,7 @@ import java.util.EventObject;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.editor.data.DataLoadInstruction.DELIBERATE_ACTION;
@@ -106,9 +109,15 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
         JTableHeader tableHeader = getTableHeader();
         tableHeader.setDefaultRenderer(new DatasetEditorTableHeaderRenderer());
         setName(datasetEditor.getDataset().getName());
+        putClientProperty(AnimatedIcon.ANIMATION_IN_RENDERER_ALLOWED, true);
         this.datasetEditor = WeakRef.of(datasetEditor);
 
-        getSelectionModel().addListSelectionListener(getModel());
+        ListSelectionModel selectionModel = getSelectionModel();
+        selectionModel.addListSelectionListener(getModel());
+        selectionModel.addListSelectionListener(
+                e -> when(!e.getValueIsAdjusting(),
+                () -> updateActionToolbars()));
+
         addKeyListener(new DatasetEditorKeyListener(this));
         addMouseListener(tableMouseListener);
 
@@ -202,18 +211,17 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
                 result.second(t);
             }
 
-            performUpdate(rowIndex, columnIndex, () -> {
-                cell.setTemporaryUserValue(editorTextValue);
-                Throwable exception = result.second();
-                Object value = result.first();
-                if (exception == null) {
-                    setValueAt(value, rowIndex, columnIndex);
-                } else {
-                    setValueAt(value, exception.getMessage(), rowIndex, columnIndex);
-                }
-            });
+            cell.setTemporaryUserValue(editorTextValue);
+            Throwable exception = result.second();
+            Object value = result.first();
+            if (exception == null) {
+                setValueAt(value, rowIndex, columnIndex);
+            } else {
+                setValueAt(value, exception.getMessage(), rowIndex, columnIndex);
+            }
         } finally {
             removeEditor();
+            updateActionToolbars();
         }
     }
 
@@ -542,6 +550,10 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
                 (int) (rectangle.getX() + rectangle.getWidth() - 20),
                 (int) (rectangle.getY() + rectangle.getHeight()) + 20);
         return new RelativePoint(getTableHeader(), point);
+    }
+
+    private void updateActionToolbars() {
+        getDatasetEditor().getEditorForm().updateActionToolbars();
     }
 
     /********************************************************

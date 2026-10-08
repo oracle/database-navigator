@@ -59,7 +59,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.text.JTextComponent;
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.util.Arrays;
@@ -314,7 +313,7 @@ public abstract class DBNFormBase
 
     public void resetFormChanges() {}
 
-    protected void updateActionToolbars() {
+    public void updateActionToolbars() {
         dispatch(() -> UserInterface.updateActionToolbars(getMainComponent()));
     }
 

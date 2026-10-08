@@ -25,7 +25,9 @@ import com.dbn.editor.data.model.DatasetEditorColumnInfo;
 import com.dbn.editor.data.model.DatasetEditorModelCell;
 import com.dbn.editor.data.model.DatasetEditorModelRow;
 import com.dbn.editor.data.ui.table.DatasetEditorTable;
+import com.intellij.ui.AnimatedIcon;
 import com.intellij.ui.SimpleTextAttributes;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.border.Border;
 import java.awt.Color;
@@ -37,6 +39,11 @@ import static com.dbn.editor.data.model.RecordStatus.MODIFIED;
 import static com.dbn.editor.data.model.RecordStatus.UPDATING;
 
 public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
+
+    public DatasetEditorTableCellRenderer() {
+        setTransparentIconBackground(true);
+        setIconOnTheRight(true);
+    }
 
     @Override
     protected void customizeCellRenderer(DBNTable table, Object value, boolean isSelected, boolean hasFocus, int rowIndex, int columnIndex) {
@@ -79,7 +86,12 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
         setBorder(border);
         setBackground(background);
         setForeground(foreground);
+        setIcon(cell.is(UPDATING) ? getSpinner() : null);
         writeUserValue(cell, textAttributes, attributes);
+    }
+
+    private static @NotNull AnimatedIcon getSpinner() {
+        return AnimatedIcon.Default.INSTANCE;
     }
 
     private SimpleTextAttributes getTextAttributes(DatasetEditorModelCell cell, DatasetEditorTable table, int rowIndex, boolean selected) {
@@ -103,10 +115,14 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
         boolean connected = table.getDatasetEditor().isConnected();
 
         if (loading) return attributes.getLoadingData(caretRow);
-        if (selected) return
-                table.isFocusOwner() || table.isGutterFocussed()?
-                        attributes.getSelection() :
-                        attributes.getCaretRow();
+        if (selected) {
+            if (updating) return attributes.getUpdatingData(caretRow);
+
+            SimpleTextAttributes selectionAttributes = table.isFocusOwner() || table.isGutterFocussed()?
+                    attributes.getSelection() :
+                    attributes.getCaretRow();
+            return selectionAttributes;
+        }
 
         if (dirty) return attributes.getLoadingData(caretRow);
         if (!connected) return attributes.getLoadingData(caretRow);
@@ -130,4 +146,3 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
         super.setForeground(fg);
     }
 }
-                                                                

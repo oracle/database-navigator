@@ -46,6 +46,7 @@ import com.dbn.object.DBConstraint;
 import com.dbn.object.DBDataset;
 import com.dbn.object.DBTable;
 import com.dbn.object.lookup.DBObjectRef;
+import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -366,7 +367,6 @@ public class DatasetEditorModel
         if (!column.isForeignKey()) return null;
 
         for (DBConstraint constraint : column.getConstraints()) {
-            constraint = constraint.getUndisposedEntity();
             if (constraint == null || !constraint.isForeignKey()) continue;
 
             DBConstraint fkConstraint = constraint.getForeignKeyConstraint();
@@ -376,17 +376,16 @@ public class DatasetEditorModel
             DatasetFilterInput filterInput = new DatasetFilterInput(fkDataset);
 
             for (DBColumn constraintColumn : constraint.getColumns()) {
-                constraintColumn = constraintColumn.getUndisposedEntity();
-                if (constraintColumn != null) {
-                    DBColumn foreignKeyColumn = constraintColumn.getForeignKeyColumn();
-                    if (foreignKeyColumn != null) {
-                        DatasetEditorModelCell constraintCell = cell.getRow().getCellForColumn(constraintColumn);
-                        if (constraintCell != null) {
-                            Object value = constraintCell.getUserValue();
-                            filterInput.setColumnValue(foreignKeyColumn, value);
-                        }
-                    }
-                }
+                if (constraintColumn == null) continue;
+
+                DBColumn foreignKeyColumn = constraintColumn.getForeignKeyColumn();
+                if (foreignKeyColumn == null) continue;
+
+                DatasetEditorModelCell constraintCell = cell.getRow().getCellForColumn(constraintColumn);
+                if (constraintCell == null) continue;
+
+                Object value = constraintCell.getUserValue();
+                filterInput.setColumnValue(foreignKeyColumn, value);
             }
             return filterInput;
 
@@ -404,7 +403,12 @@ public class DatasetEditorModel
         Progress.prompt(getProject(), dataset, true,
                 txt("prc.dataEditor.title.DeletingRecords"),
                 txt("prc.dataEditor.text.DeletingRecordsFrom", dataset.getQualifiedNameWithType()),
-                progress -> {
+                progress -> deleteRecords(rowIndexes, progress));
+    }
+
+    private void deleteRecords(int[] rowIndexes, ProgressIndicator progress) {
+        try {
+            DBDataset dataset = getDataset();
             progress.setIndeterminate(false);
             for (int index : rowIndexes) {
                 progress.setFraction(Progress.progressOf(index, rowIndexes.length));
@@ -423,7 +427,9 @@ public class DatasetEditorModel
             }
             DBNConnection conn = getResultConnection();
             conn.notifyDataChanges(dataset.getVirtualFile());
-        });
+        } finally {
+            updateActionToolbars();
+        }
     }
 
     public void insertRecord(int rowIndex) {
@@ -449,6 +455,8 @@ public class DatasetEditorModel
             conditionallyLog(e);
             set(INSERTING, false);
             showErrorDialog(getProject(), txt("msg.dataEditor.error.CannotInsertRecord", dataset.getQualifiedNameWithType()), e);
+        } finally {
+            updateActionToolbars();
         }
     }
 
@@ -477,6 +485,8 @@ public class DatasetEditorModel
             conditionallyLog(e);
             set(INSERTING, false);
             showErrorDialog(getProject(), txt("msg.dataEditor.error.CannotDuplicateRecord", dataset.getQualifiedNameWithType()), e);
+        } finally {
+            updateActionToolbars();
         }
     }
 
@@ -507,6 +517,8 @@ public class DatasetEditorModel
                 row.notifyError(error, true, true);
             }
             if (!error.isNotified() || propagateError) throw e;
+        } finally {
+            updateActionToolbars();
         }
     }
 
@@ -526,7 +538,13 @@ public class DatasetEditorModel
         } catch (SQLException e) {
             conditionallyLog(e);
             log.warn("Failed to cancel insert operation", e);
+        } finally {
+            updateActionToolbars();
         }
+    }
+
+    private void updateActionToolbars() {
+        getDatasetEditor().getEditorForm().updateActionToolbars();
     }
 
     /**
