@@ -31,14 +31,11 @@ public interface PersistentConfiguration  {
     default void validate() throws ConfigurationException {};
 
     default void applyTo(PersistentConfiguration configuration) {
-        try {
-            ConfigMonitor.set(TRANSFERRING, true);
+        ConfigMonitor.surround(TRANSFERRING, () -> {
             @NonNls Element element = new Element("configuration");
             writeConfiguration(element);
             configuration.readConfiguration(element);
-        } finally {
-            ConfigMonitor.set(TRANSFERRING, false);
-        }
+        });
     }
 
     default boolean isTransientContext() {

@@ -131,7 +131,7 @@ public class DatasourceConfigEditForm extends DBNFormBase {
     }
 
     private void initFeatureInfo() {
-        DBNHintForm hintForm = new DBNHintForm(this, TextContent.plain(txt("cfg.datasourceConfig.hint.Feature")), null, true);
+        DBNHintForm hintForm = new DBNHintForm(this, TextContent.plain(txt("cfg.datasourceConfig.hint.Feature")), null);
         hintPanel.add(hintForm.getComponent(), BorderLayout.CENTER);
 
         HyperLinkForm hyperLinkForm = HyperLinkForm.create(

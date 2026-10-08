@@ -20,9 +20,11 @@ import com.dbn.common.constant.Constant;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
+import com.dbn.options.general.WorkspaceFeature;
 import com.dbn.prerequisite.DatabasePrerequisiteManager;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.database.DatabaseFeature.DATASOURCE_CONFIG;
@@ -32,6 +34,7 @@ import static com.dbn.database.DatabaseFeature.JAVA_VIRTUAL_MACHINE;
 import static com.dbn.database.DatabaseFeature.MACHINE_LEARNING;
 import static com.dbn.database.DatabaseFeature.VECTOR_EMBEDDING;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.*;
 
 @Getter
 public enum DatabaseOperation implements Constant<DatabaseOperation> {
@@ -119,5 +122,17 @@ public enum DatabaseOperation implements Constant<DatabaseOperation> {
         if (context == null) return false;
         DatabaseCompatibilityInterface compatibility = context.getCompatibilityInterface();
         return compatibility.supportsOperation(this);
+    }
+
+    public boolean areWorkspaceFeaturesEnabled(@NotNull Project project) {
+        return switch (this) {
+            case CHANGE_JAVA_CODE, EXECUTE_JAVA_CODE, CREATE_JAVA_WRAPPER -> OJVM.isEnabled(project);
+            case DEBUG_JAVA_CODE -> DEBUGGER.isEnabled(project) && OJVM.isEnabled(project);
+            case DEBUG_PLSQL_CODE_JDBC, DEBUG_PLSQL_CODE_JDWP -> DEBUGGER.isEnabled(project);
+            case ENABLE_CHANGE_NOTIFICATIONS -> EVENT_MONITOR.isEnabled(project);
+            case CREATE_VECTOR_EMBEDDINGS -> VECTOR_TOOLBOX.isEnabled(project);
+            case TRAIN_MACHINE_LEARNING_MODEL -> WorkspaceFeature.MACHINE_LEARNING.isEnabled(project);
+            default -> true;
+        };
     }
 }

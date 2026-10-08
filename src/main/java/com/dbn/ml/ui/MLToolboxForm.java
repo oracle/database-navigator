@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -181,7 +181,7 @@ public class MLToolboxForm extends MLToolboxFormBase {
 
     private void initHintPanel() {
         TextContent hintText = TextContent.plain(txt("cfg.machineLearning.hint.MLToolbox"));
-        DBNHintForm hintForm = new DBNHintForm(null, hintText, null, true);
+        DBNHintForm hintForm = new DBNHintForm(null, hintText, null);
         hintPanel.add(hintForm.getComponent());
 
         HyperLinkForm hyperLinkForm = HyperLinkForm.create(

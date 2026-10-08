@@ -86,20 +86,10 @@ public class MethodExecutionResult extends ExecutionResultBase<MethodExecutionRe
         }
     }
 
-    public void addArgumentValue(DBArgument argument, DBTypeAttribute attribute, Object value) {
+    public void addArgumentValue(DBArgument argument, List<DBTypeAttribute> attributePath, Object value) {
         ValueHolder<Object> valueStore = ValueHolder.basic(value);
-        ArgumentValue argumentValue = new ArgumentValue(argument, attribute, valueStore);
+        ArgumentValue argumentValue = new ArgumentValue(argument, attributePath, valueStore);
         argumentValues.add(argumentValue);
-    }
-
-
-    public ArgumentValue getArgumentValue(DBObjectRef<DBArgument> argumentRef) {
-        for (ArgumentValue argumentValue : argumentValues) {
-            if (argumentValue.getArgumentRef().equals(argumentRef)) {
-                return argumentValue;
-            }
-        }
-        return null;
     }
 
 

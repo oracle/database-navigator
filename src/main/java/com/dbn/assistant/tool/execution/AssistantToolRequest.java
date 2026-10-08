@@ -75,7 +75,7 @@ public class AssistantToolRequest implements PersistentStateElement {
     }
 
     public String getToolArguments() {
-        return toolArguments.get();
+        return nvl(toolArguments.get(), "");
     }
 
     public void setToolArguments(String toolArguments) {

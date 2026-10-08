@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,8 @@ import com.dbn.editor.DBContentType;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.status.DBObjectStatusHolder;
-import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBObjectVirtualFile;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -38,26 +35,17 @@ public interface DBSchemaObject extends DBObject {
 
     List<DBObject> getReferencingObjects();
 
+    List<DBObject> getDebugDependencies();
+
     boolean isEditable(DBContentType contentType);
 
     DBLanguage getCodeLanguage(DBContentType contentType);
-
-    @NonNls
-    String getCodeParseRootId(DBContentType contentType);
-
-    @Deprecated // TODO move implementations to com.dbn.object.management.ObjectManagementService
-    void executeUpdateDDL(DBContentType contentType, String oldCode, String newCode) throws SQLException;
 
     DBObjectStatusHolder getStatus();
 
     @Override
     @NotNull
     DBObjectVirtualFile<?> getVirtualFile();
-
-    DBEditableObjectVirtualFile getEditableVirtualFile();
-
-    @Nullable
-    DBEditableObjectVirtualFile getCachedVirtualFile();
 
     List<DBSchema> getReferencingSchemas() throws SQLException;
 

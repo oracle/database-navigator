@@ -234,14 +234,4 @@ public class SequenceElementType extends ElementTypeBase {
     public int indexOf(ElementType elementType) {
         return indexOf(elementType, 0);
     }
-
-    @Override
-    public void collectAnonymousLeafs(Set<LeafElementType> bucket) {
-        super.collectAnonymousLeafs(bucket);
-        if (!basic) return;
-
-        for (ElementTypeRef child : children) {
-            bucket.add((LeafElementType) child.elementType);
-        }
-    }
 }

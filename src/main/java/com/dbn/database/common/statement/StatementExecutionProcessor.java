@@ -30,6 +30,7 @@ import com.dbn.connection.jdbc.DBNResultSet;
 import com.dbn.connection.jdbc.DBNStatement;
 import com.dbn.database.DatabaseActivityTrace;
 import com.dbn.database.DatabaseCompatibility;
+import com.dbn.database.DatabaseFeature;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.database.interfaces.DatabaseMessageParserInterface;
 import lombok.Getter;
@@ -46,6 +47,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.doubleAttribute;
 import static com.dbn.common.options.setting.Settings.integerAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
@@ -60,6 +62,7 @@ public class StatementExecutionProcessor implements Identifiable<String> {
     private final DatabaseInterfaces interfaces;
     private final String id;
     private final int timeout;
+    private final boolean transactional;
     private List<StatementDefinition> statementDefinitions = new ArrayList<>();
 
 
@@ -67,6 +70,7 @@ public class StatementExecutionProcessor implements Identifiable<String> {
         this.interfaces = interfaces;
         this.id = stringAttribute(element, "id");
         this.timeout =  integerAttribute(element, "timeout", 30);
+        this.transactional = booleanAttribute(element, "transactional", false);
 
         List<Element> children = element.getChildren();
         if (children.isEmpty()) {
@@ -148,6 +152,7 @@ public class StatementExecutionProcessor implements Identifiable<String> {
 
                     DBNPreparedStatement statement = null;
                     ResultSet resultSet = null;
+                    boolean completed = false;
                     try {
                         activityTrace.init();
                         statement = definition.prepareStatement(connection, arguments);
@@ -160,10 +165,10 @@ public class StatementExecutionProcessor implements Identifiable<String> {
                         DBNResultSet.setIdentifier(resultSet, context.getIdentifier());
 
                         activityTrace.reset();
+                        completed = true;
                         return resultSet;
                     } catch (SQLException e) {
                         conditionallyLog(e);
-                        Resources.close(statement);
                         String message = e.getMessage();
                         if (isDatabaseAccessDebug())
                             log.warn("[DBN] Error executing statement: {}\nCause: {}", statementLogText, message);
@@ -178,13 +183,8 @@ public class StatementExecutionProcessor implements Identifiable<String> {
                         activityTrace.fail(traceException, unsupported);
                         throw e;
                     } finally {
-                        if (resultSet == null && statement != null) {
-                            if (statement.isCached()) {
-                                statement.park();
-                            } else {
-                                Resources.close(statement);
-                            }
-
+                        if (resultSet == null) {
+                            Resources.release(statement, completed);
                         }
                     }
                 });
@@ -222,6 +222,7 @@ public class StatementExecutionProcessor implements Identifiable<String> {
                     if (isDatabaseAccessDebug()) log.info("[DBN] Executing statement: {}", statementLogText);
 
                     DBNCallableStatement statement = null;
+                    boolean completed = false;
                     try {
                         statement = definition.prepareCall(connection, arguments);
                         initOutputReader(outputReader, statement, definition.getParameterCount());
@@ -231,12 +232,13 @@ public class StatementExecutionProcessor implements Identifiable<String> {
                         statement.execute();
 
                         invokeOutputReader(outputReader, statement);
+                        completed = true;
                         return outputReader;
                     } catch (SQLException e) {
                         handleException(e, statementLogText);
                         return outputReader;
                     } finally {
-                        Resources.close(statement);
+                        Resources.release(statement, completed);
                     }
                 });
     }
@@ -280,7 +282,7 @@ public class StatementExecutionProcessor implements Identifiable<String> {
     public int executeUpdate(DBNConnection connection, Object... arguments) throws SQLException {
         StatementExecutorContext context = createContext(connection);
         SQLException exception = NO_STATEMENT_DEFINITION_EXCEPTION;
-        for (StatementDefinition statementDefinition : statementDefinitions) {
+        for (StatementDefinition statementDefinition : getStatementDefinitions(connection)) {
             try {
                 return executeUpdate(statementDefinition, context, arguments);
             } catch (SQLException e){
@@ -304,17 +306,21 @@ public class StatementExecutionProcessor implements Identifiable<String> {
                     if (isDatabaseAccessDebug()) log.info("[DBN] Executing statement: {}", statementLogText);
 
                     DBNPreparedStatement statement = null;
+                    boolean completed = false;
                     try {
                         statement = definition.prepareStatement(connection, arguments);
                         context.setStatement(statement);
 
                         statement.setQueryTimeout(timeout);
                         statement.executeUpdate();
-                        return statement.getUpdateCount();
+                        commitIfRequired(connection);
+                        int updateCount = statement.getUpdateCount();
+                        completed = true;
+                        return updateCount;
                     } catch (SQLException e) {
                         handleException(e, statementLogText);
                     } finally {
-                        Resources.close(statement);
+                        Resources.release(statement, completed);
                     }
                     return 0;
                 });
@@ -348,16 +354,20 @@ public class StatementExecutionProcessor implements Identifiable<String> {
                     if (isDatabaseAccessDebug()) log.info("[DBN] Executing statement: {}", statementLogText);
 
                     DBNStatement statement = connection.createStatement();
+                    boolean completed = false;
                     context.setStatement(statement);
                     try {
                         statement.setQueryTimeout(timeout);
                         statement.execute(statementText);
-                        return statement.getUpdateCount();
+                        commitIfRequired(connection);
+                        int updateCount = statement.getUpdateCount();
+                        completed = true;
+                        return updateCount;
                     } catch (SQLException e) {
                         handleException(e, statementLogText);
                         return 0;
                     } finally {
-                        Resources.close(statement);
+                        Resources.release(statement, completed);
                     }
                 });
     }
@@ -378,6 +388,13 @@ public class StatementExecutionProcessor implements Identifiable<String> {
     private boolean isSuccessException(SQLException e) {
         DatabaseMessageParserInterface parserInterface = interfaces.getMessageParserInterface();
         return parserInterface.isSuccessException(e);
+    }
+
+    private void commitIfRequired(@NotNull DBNConnection connection) throws SQLException {
+        if (!transactional || !connection.isPoolConnection()) return;
+        if (!interfaces.getCompatibilityInterface().supportsFeature(DatabaseFeature.TRANSACTIONAL_DDL)) return;
+
+        Resources.commit(connection);
     }
 
     @NotNull

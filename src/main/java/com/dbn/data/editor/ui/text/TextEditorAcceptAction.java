@@ -37,7 +37,7 @@ class TextEditorAcceptAction extends TextEditorAction {
         if (form == null) return;
 
         String text = form.getText().trim();
-        TextFieldWithPopup<?> editorComponent = form.getEditorComponent();
+        TextFieldWithPopup editorComponent = form.getEditorComponent();
         UserValueHolder userValueHolder = editorComponent.getUserValueHolder();
         userValueHolder.updateUserValue(text, false);
 

@@ -132,12 +132,35 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="get-java-compiler-option">
+        <statement>
+            select dbms_java.get_compiler_option({#0}, {#1}) from dual
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="reset-java-compiler-option">
+        <statement>
+            begin
+                dbms_java.reset_compiler_option({#0}, {#1});
+            end;
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="set-java-property">
         <statement>
             declare
                 result varchar2(4000);
             begin
                 result := dbms_java.set_property({#0}, {#1});
+            end;
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="remove-java-property">
+        <statement>
+            declare
+                result varchar2(4000);
+            begin
+                result := dbms_java.remove_property({#0});
             end;
         </statement>
     </statement-execution-processor>

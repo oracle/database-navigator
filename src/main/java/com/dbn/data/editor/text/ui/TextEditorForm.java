@@ -19,6 +19,7 @@ package com.dbn.data.editor.text.ui;
 import com.dbn.common.action.UserDataKeys;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
@@ -51,7 +52,6 @@ import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.impl.file.impl.FileManager;
 import com.intellij.testFramework.LightVirtualFile;
-import com.intellij.util.ui.AsyncProcessIcon;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -65,19 +65,20 @@ import static com.dbn.common.file.FileTypes.getDtdFileType;
 import static com.dbn.common.file.FileTypes.getJsonFileType;
 import static com.dbn.common.file.FileTypes.getTextFileType;
 import static com.dbn.common.file.FileTypes.getXmlFileType;
+import static com.dbn.common.ui.panel.DBNLoadingPanel.newLoadingPanel;
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Strings.convertLineSeparators;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.language.common.psi.PsiUtil.getFileManager;
 import static com.dbn.nls.NlsResources.txt;
-import static com.intellij.openapi.util.text.StringUtil.convertLineSeparators;
 
 public class TextEditorForm extends DBNFormBase implements TextContentTypeOwner {
     private JPanel mainPanel;
+    private JPanel headerPanel;
     private JPanel editorPanel;
     private JPanel actionsPanel;
-    private JPanel loadingDataPanel;
-    private JPanel loadingIconPanel;
+    private JPanel loadingPanel;
 
     private EditorEx editor;
     private PsiFile psiFile;
@@ -96,11 +97,17 @@ public class TextEditorForm extends DBNFormBase implements TextContentTypeOwner 
         return mainPanel;
     }
 
-    public TextEditorForm(TextEditorDialog parent, DocumentListener documentListener, UserValueHolder<?> userValueHolder, DataEditorComponent textEditorAdapter) {
+    public TextEditorForm(
+            TextEditorDialog parent,
+            DocumentListener documentListener,
+            UserValueHolder<?> userValueHolder,
+            DataEditorComponent textEditorAdapter) {
         super(parent);
         this.documentListener = documentListener;
         this.userValueHolder = userValueHolder;
         this.textEditorAdapter = textEditorAdapter;
+
+        installContextHeader(headerPanel);
 
         Project project = getProject();
         if (userValueHolder.getContentType() == null) {
@@ -112,9 +119,10 @@ public class TextEditorForm extends DBNFormBase implements TextContentTypeOwner 
                 new TextEditorRevertAction(this));
         actionsPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
 
-        loadingIconPanel.add(new AsyncProcessIcon("Loading"));
+        newLoadingPanel(this, "app.dataEditor.text.LoadingContent")
+                .installOn(this.loadingPanel, true);
+
         contentLoading = true;
-        loadingDataPanel.setVisible(true);
         text = "";
         originalText = "";
         initEditor();
@@ -204,7 +212,7 @@ public class TextEditorForm extends DBNFormBase implements TextContentTypeOwner 
         contentLoading = false;
         Editors.setEditorReadonly(editor, false);
         PsiUtil.setHighlightingEnabled(psiFile, true);
-        loadingDataPanel.setVisible(false);
+        loadingPanel.setVisible(false);
     }
 
     public boolean isContentChanged() {

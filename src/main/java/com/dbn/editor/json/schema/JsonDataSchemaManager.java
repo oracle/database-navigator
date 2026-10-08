@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import com.dbn.common.listener.DBNFileEditorManagerListener;
 import com.dbn.common.util.Unsafe;
 import com.dbn.editor.json.JsonFileCache;
 import com.dbn.object.DBJsonView;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
@@ -111,7 +111,7 @@ public class JsonDataSchemaManager extends ProjectComponentBase implements Persi
             public void whenFileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
                 if (!(file instanceof DBEditableObjectVirtualFile editableObjectFile)) return;
 
-                DBSchemaObject object = editableObjectFile.getObject();
+                DBObject object = editableObjectFile.getObject();
                 if (object instanceof DBJsonView jsonView) {
                     cacheJsonSchema(jsonView);
                 }

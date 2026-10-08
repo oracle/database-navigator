@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.dbn.common.icon.Icons;
 import com.dbn.debugger.DatabaseDebuggerManager;
 import com.dbn.object.DBMethod;
 import com.dbn.object.action.AnObjectAction;
+import com.dbn.options.general.WorkspaceFeature;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -36,6 +37,11 @@ public class MethodDebugAction extends AnObjectAction<DBMethod> {
     }
 
     @Override
+    protected WorkspaceFeature getFeature() {
+        return WorkspaceFeature.DEBUGGER;
+    }
+
+    @Override
     protected void actionPerformed(
             @NotNull AnActionEvent e,
             @NotNull Project project,
@@ -47,6 +53,10 @@ public class MethodDebugAction extends AnObjectAction<DBMethod> {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DBMethod target) {
+        boolean featureEnabled = isFeatureEnabled(project);
+        presentation.setVisible(featureEnabled);
+        if (!featureEnabled) return;
+
         if (listElement) {
             super.update(e, presentation, project, target);
         } else {

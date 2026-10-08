@@ -49,6 +49,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
 
+import static com.dbn.object.common.status.DBObjectStatus.*;
+
 class DBTypeImpl
         extends DBProgramImpl<DBTypeMetadata, DBTypeProcedure, DBTypeFunction, DBType>
         implements DBType {
@@ -128,8 +130,8 @@ class DBTypeImpl
     @Override
     @Nullable
     public Icon getIcon() {
-        if (getStatus().is(DBObjectStatus.VALID)) {
-            if (getStatus().is(DBObjectStatus.DEBUG))  {
+        if (hasStatus(VALID)) {
+            if (hasStatus(DEBUG))  {
                 return Icons.DBO_TYPE_DEBUG;
             } else {
                 return isCollection() ? Icons.DBO_TYPE_COLLECTION : Icons.DBO_TYPE;

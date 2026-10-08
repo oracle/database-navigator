@@ -21,10 +21,13 @@ import com.dbn.common.util.Editors;
 import com.dbn.editor.console.ui.SQLConsoleEditorToolbarForm;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.common.action.UserDataKeys.EDITOR_TOOLBAR_INSTALLED;
+import static com.dbn.common.action.UserDataKeys.isUserData;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.util.FileEditors.isDbConsoleEditor;
 import static com.dbn.common.util.Files.isDbConsoleFile;
@@ -35,15 +38,27 @@ public class SQLConsoleEditorListener extends DBNFileEditorManagerListener {
         if (isNotValid(file)) return;
         if (!isDbConsoleFile(file)) return;
 
-        FileEditor editor = source.getSelectedEditor(file);
-        if (!isDbConsoleEditor(editor)) return;
+        for (FileEditor editor : source.getEditors(file)) {
+            ensureToolbar(editor, source);
+        }
+    }
 
-        SQLConsoleEditor consoleEditor = (SQLConsoleEditor) editor;
-        if (isNotValid(consoleEditor)) return;
+    @Override
+    public void whenSelectionChanged(@NotNull FileEditorManagerEvent event) {
+        if (!isDbConsoleFile(event.getNewFile())) return;
+        ensureToolbar(event.getNewEditor(), event.getManager());
+    }
+
+    private static void ensureToolbar(FileEditor editor, FileEditorManager source) {
+        if (!isDbConsoleEditor(editor)) return;
+        if (isNotValid(editor)) return;
+        if (isUserData(editor, EDITOR_TOOLBAR_INSTALLED)) return;
 
         Project project = source.getProject();
+        SQLConsoleEditor consoleEditor = (SQLConsoleEditor) editor;
         SQLConsoleEditorToolbarForm toolbarForm = new SQLConsoleEditorToolbarForm(project, consoleEditor);
         Editors.addEditorToolbar(consoleEditor, toolbarForm);
+        consoleEditor.putUserData(EDITOR_TOOLBAR_INSTALLED, true);
 
 //
 //    Document document = FileDocumentManager.getInstance().getDocument(file);

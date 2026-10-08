@@ -17,10 +17,11 @@
 package com.dbn.connection.console;
 
 import com.dbn.common.dispose.DisposableContainers;
-import com.dbn.common.dispose.Disposer;
 import com.dbn.connection.ConnectionComponentBase;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.object.DBConsole;
+import com.dbn.object.event.ObjectChangeAction;
+import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.impl.DBConsoleImpl;
 import com.dbn.vfs.DBConsoleType;
 import com.dbn.vfs.file.DBConsoleVirtualFile;
@@ -35,6 +36,10 @@ import java.util.Objects;
 import java.util.Set;
 
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.object.event.ObjectChangeAction.CREATE;
+import static com.dbn.object.event.ObjectChangeAction.DELETE;
+import static com.dbn.object.event.ObjectChangeAction.UPDATE;
+import static com.dbn.object.type.DBObjectType.CONSOLE;
 
 @Getter
 public class DatabaseConsoleBundle extends ConnectionComponentBase {
@@ -42,6 +47,7 @@ public class DatabaseConsoleBundle extends ConnectionComponentBase {
 
     public DatabaseConsoleBundle(ConnectionHandler connection) {
         super(connection);
+        getDefaultConsole();
     }
 
     public Set<String> getConsoleNames() {
@@ -76,39 +82,50 @@ public class DatabaseConsoleBundle extends ConnectionComponentBase {
 
     public DBConsole getConsole(String name, DBConsoleType type, boolean create) {
         DBConsole console = getConsole(name);
-        if (console == null && create) {
-            return createConsole(name, type, true);
-        }
-        return console;
+        if (console != null) return console;
+        if (!create) return null;
+
+        return createConsole(name, type);
     }
 
     DBConsole restoreConsole(String name, DBConsoleType type) {
         DBConsole console = getConsole(name);
-        return console == null ? createConsole(name, type, false) : console;
+        if (console != null) return console;
+
+        return createConsole(name, type, false, false);
     }
 
-    DBConsole createConsole(String name, DBConsoleType type, boolean initialize) {
+    void clear() {
+        consoles.clear();
+    }
+
+    DBConsole createConsole(String name, DBConsoleType type) {
+        return createConsole(name, type, true, true);
+    }
+
+    private DBConsole createConsole(String name, DBConsoleType type, boolean initialize, boolean notify) {
         ConnectionHandler connection = getConnection();
         DBConsole console = new DBConsoleImpl(connection, name, type);
         consoles.add(console);
         Collections.sort(consoles);
 
-        DBConsoleVirtualFile virtualFile = console.getVirtualFile();
         if (initialize) {
+            DBConsoleVirtualFile virtualFile = console.getVirtualFile();
             virtualFile.setDatabaseSchema(connection.getDefaultSchemaId());
+        }
+
+        if (notify) {
+            notifyChanges(CREATE);
         }
 
         return console;
     }
 
-    void removeConsole(String name) {
-        DBConsole console = getConsole(name);
-        removeConsole(console);
-        Disposer.dispose(console);
-    }
-
     void removeConsole(DBConsole console) {
-        consoles.remove(console);
+        if (console == null) return;
+        if (!consoles.remove(console)) return;
+
+        notifyChanges(DELETE);
     }
 
     @Override
@@ -116,9 +133,15 @@ public class DatabaseConsoleBundle extends ConnectionComponentBase {
     }
 
     void renameConsole(String oldName, String newName) {
-        if (!Objects.equals(oldName, newName)) {
-            DBConsole console = ensureConsole(oldName);
-            console.setName(newName);
-        }
+        if (Objects.equals(oldName, newName)) return;
+
+        DBConsole console = ensureConsole(oldName);
+        console.setName(newName);
+        notifyChanges(UPDATE);
+    }
+
+    void notifyChanges(ObjectChangeAction action) {
+        ConnectionHandler connection = getConnection();
+        ObjectChangeEvent.notify(action, CONSOLE, connection.getConnectionId(), null);
     }
 }

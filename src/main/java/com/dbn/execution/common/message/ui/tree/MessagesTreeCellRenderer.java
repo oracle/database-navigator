@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import com.dbn.execution.common.message.ui.tree.node.StatementExecutionMessagesN
 import com.dbn.execution.compiler.CompilerMessage;
 import com.dbn.execution.explain.result.ExplainPlanMessage;
 import com.dbn.execution.statement.StatementExecutionMessage;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -97,11 +97,11 @@ public class MessagesTreeCellRenderer extends DBNColoredTreeCellRenderer {
 
             }
             else if (value instanceof CompilerMessagesObjectNode compilerMessagesObjectNode){
-                DBSchemaObject object = compilerMessagesObjectNode.getObject();
+                DBObject object = compilerMessagesObjectNode.getObject();
 
                 ConnectionHandler connection;
                 if (object == null) {
-                    DBObjectRef<DBSchemaObject> objectRef = compilerMessagesObjectNode.getObjectRef();
+                    DBObjectRef<DBObject> objectRef = compilerMessagesObjectNode.getObjectRef();
                     icon = objectRef.getObjectType().getIcon();
                     append(objectRef.getPath(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
                     connection = objectRef.getConnection();

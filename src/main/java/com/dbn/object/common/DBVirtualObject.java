@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import com.dbn.code.common.lookup.ObjectLookupItemBuilder;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.ref.WeakRefCache;
 import com.dbn.common.routine.Consumer;
+import com.dbn.common.thread.Synchronized;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Lists;
 import com.dbn.common.util.Strings;
@@ -47,6 +48,7 @@ import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.file.DBContentVirtualFile;
+import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.intellij.ide.util.EditSourceUtil;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -245,6 +247,11 @@ public class DBVirtualObject extends DBRootObjectImpl implements PsiReference {
     }
 
     @Override
+    public DBEditableObjectVirtualFile getEditableVirtualFile() {
+        return null;
+    }
+
+    @Override
     @NotNull
     public List<?> collectChildObjects(DBObjectType objectType) {
         return getChildObjects(objectType);
@@ -298,16 +305,15 @@ public class DBVirtualObject extends DBRootObjectImpl implements PsiReference {
     public DBObjectList<DBObject> getChildObjectList(DBObjectType objectType) {
         if (loadingChildren) return null;
 
-        synchronized (this) {
-            if (loadingChildren) return null;
-
+        return Synchronized.on(this, DBVirtualObject.class, o -> {
+            if (o.loadingChildren) return null;
             try {
-                loadingChildren = true;
-                return loadChildObjectList(objectType);
+                o.loadingChildren = true;
+                return o.loadChildObjectList(objectType);
             } finally {
-                loadingChildren = false;
+                o.loadingChildren = false;
             }
-        }
+        });
     }
 
     private DBObjectList<DBObject> loadChildObjectList(DBObjectType objectType) {

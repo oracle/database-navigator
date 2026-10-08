@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,12 +31,12 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
 import static com.dbn.common.text.TextContent.plain;
-import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.connection.AuthenticationType.NONE;
 import static com.dbn.connection.AuthenticationType.OS_CREDENTIALS;
 import static com.dbn.connection.AuthenticationType.TOKEN;
 import static com.dbn.connection.AuthenticationType.USER;
 import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
+import static com.dbn.nls.NlsResources.txt;
 
 
 /**
@@ -88,7 +88,7 @@ public class ConnectionAuthenticationForm extends DBNFormBase {
         } else {
             hintText = plain(txt("cfg.connection.hint.Authentication"));
         }
-        DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
+        DBNHintForm hintForm = new DBNHintForm(this, hintText, null);
         hintPanel.add(hintForm.getComponent(), BorderLayout.CENTER);
     }
 

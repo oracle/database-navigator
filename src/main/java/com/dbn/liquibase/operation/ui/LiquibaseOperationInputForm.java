@@ -144,10 +144,10 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
     private DBNInfoLabel updateTagInfoLabel;
     private JSpinner updateCountSpinner;
     private DBNComboBox<LiquibaseUpdateType> updateTypeSelector;
-    private TextFieldWithPopup<?> rollbackDateField;
+    private TextFieldWithPopup rollbackDateField;
     private DBObjectSelector<DBSchema> sourceSchemaSelector;
     private DBObjectSelector<DBSchema> targetSchemaSelector;
-    private TextFieldWithPopup<?> rollbackTagField;
+    private TextFieldWithPopup rollbackTagField;
 
     private final LiquibaseOperationInput executionInput;
 
@@ -269,10 +269,10 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
         if (!support.supports(ROLLBACK)) return;
 
         Project project = executionInput.getProject();
-        rollbackTagField = new TextFieldWithPopup<>(project);
+        rollbackTagField = new TextFieldWithPopup(project);
         rollbackTagFieldPanel.add(rollbackTagField);
 
-        rollbackDateField = new TextFieldWithPopup<>(project);
+        rollbackDateField = new TextFieldWithPopup(project);
         rollbackDateFieldPanel.add(rollbackDateField);
 
         rollbackTagField.createValuesListPopup(new ListPopupValuesProvider() {
@@ -370,7 +370,7 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
 
     private void initHintPanel() {
         TextContent hint = plain(executionInput.getHint());
-        hintPanel.add(new DBNHintForm(this, hint, null, true).getComponent());
+        hintPanel.add(new DBNHintForm(this, hint, null).getComponent());
     }
 
     private void initContextLabels() {

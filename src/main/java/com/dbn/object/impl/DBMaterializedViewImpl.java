@@ -33,9 +33,17 @@ import org.jetbrains.annotations.Nullable;
 import java.sql.SQLException;
 import java.util.List;
 
+import static com.dbn.object.common.property.DBObjectProperty.REFRESHABLE;
+
 class DBMaterializedViewImpl extends DBViewImpl<DBMaterializedViewMetadata> implements DBMaterializedView {
     DBMaterializedViewImpl(DBSchema schema, DBMaterializedViewMetadata metadata) throws SQLException {
         super(schema, metadata);
+    }
+
+    @Override
+    protected void initProperties() {
+        super.initProperties();
+        set(REFRESHABLE, true);
     }
 
     @Override

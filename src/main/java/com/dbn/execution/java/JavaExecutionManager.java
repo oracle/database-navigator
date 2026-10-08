@@ -244,7 +244,7 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 							if (context.isNot(ExecutionStatus.CANCELLED)) {
 									showErrorDialog(project,
                                         txt("msg.execution.title.MethodExecutionError"),
-											txt("msg.execution.message.MethodExecutionError", method.getQualifiedNameWithType(), getLocalizedMessage(e).trim()),
+											txt("msg.execution.message.MethodExecutionError", method.getQualifiedName(), getLocalizedMessage(e).trim()),
 											new String[]{txt("msg.shared.button.TryAgain"), txt("msg.shared.button.Cancel")}, 0,
 										option -> when(option == 0, () ->
 												startMethodExecution(input, DBDebuggerType.NONE)));

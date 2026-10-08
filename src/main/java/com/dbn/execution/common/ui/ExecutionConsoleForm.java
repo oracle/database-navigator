@@ -89,7 +89,6 @@ import static com.dbn.common.navigation.NavigationInstruction.OPEN;
 import static com.dbn.common.navigation.NavigationInstruction.RESET;
 import static com.dbn.common.navigation.NavigationInstruction.SCROLL;
 import static com.dbn.common.navigation.NavigationInstruction.SELECT;
-import static com.dbn.common.ui.tab.DBNTabs.updateTabColor;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -124,10 +123,11 @@ public class ExecutionConsoleForm extends DBNFormBase {
 
                 ConnectionHandler connection = executionResult.getConnection();
                 EnvironmentType environmentType = connection.getEnvironmentType();
+                DBNColoredTabs<DBNForm> resultTabs = getResultTabs();
                 if (visibilitySettings.getExecutionResultTabs().value()) {
-                    updateTabColor(component, environmentType.getColor());
+                    resultTabs.setTabColor(component, environmentType.getColor());
                 } else {
-                    updateTabColor(component, null);
+                    resultTabs.setTabColor(component, null);
                 }
             }
         };

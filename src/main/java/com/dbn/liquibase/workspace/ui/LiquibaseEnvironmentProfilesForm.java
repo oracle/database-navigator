@@ -18,10 +18,10 @@ package com.dbn.liquibase.workspace.ui;
 
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.environment.EnvironmentTypeId;
-import com.dbn.common.text.TextContent;
+import com.dbn.common.message.MessageType;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.form.DBNHintForm;
+import com.dbn.common.ui.panel.DBNBanner;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Strings;
 import com.dbn.liquibase.workspace.LiquibaseEnvironmentProfile;
@@ -84,10 +84,10 @@ public class LiquibaseEnvironmentProfilesForm extends DBNFormBase {
     }
 
     private JComponent createEmptyDetails() {
-        DBNHintForm hintForm = new DBNHintForm(this, TextContent.plain(txt("app.liquibase.hint.NoEnvironmentProfiles")), null, false);
+        DBNBanner hintBanner = new DBNBanner(txt("app.liquibase.hint.NoEnvironmentProfiles"), MessageType.INFO);
         JPanel hintPanel = new JPanel(new BorderLayout());
         hintPanel.setBorder(Borders.insetBorder(0, 8,8,8));
-        hintPanel.add(hintForm.getComponent());
+        hintPanel.add(hintBanner, BorderLayout.NORTH);
         return hintPanel;
     }
 

@@ -23,6 +23,7 @@ import org.jdom.Element;
 
 import static com.dbn.assistant.tool.AssistantToolContents.prepareToolResponseContent;
 import static com.dbn.common.state.StateEncryptionScopes.ASSISTANT_TOOL_RESPONSE;
+import static com.dbn.common.util.Commons.nvl;
 
 @NoArgsConstructor
 public class AssistantToolResponse implements PersistentStateElement {
@@ -33,7 +34,7 @@ public class AssistantToolResponse implements PersistentStateElement {
     }
 
     public String getContent() {
-        return content.get();
+        return nvl(content.get(), "");
     }
 
     public void setContent(String content) {

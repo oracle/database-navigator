@@ -8,6 +8,7 @@ package com.dbn.object.factory.adapter;
 
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.DatabaseEntity;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.object.DBSchema;
@@ -42,8 +43,8 @@ public class DBDatasourceConfigFactoryAdapter implements ObjectFactoryAdapter {
     }
 
     @Override
-    public DBObjectSpec createInput(DBSchema schema) {
-        DBObjectSpec input = new DBObjectSpec(schema, DATASOURCE_CONFIG);
+    public DBObjectSpec createInput(DatabaseEntity parentEntity) {
+        DBObjectSpec input = new DBObjectSpec(parentEntity, DATASOURCE_CONFIG);
         input.setObjectName("new_configuration");
         input.setAttributeValue(OBJECT_DETAIL, DEFAULT_JSON_TEMPLATE);
         return input;
@@ -57,7 +58,7 @@ public class DBDatasourceConfigFactoryAdapter implements ObjectFactoryAdapter {
     @Override
     public void validateInput(DBObjectSpec input, List<String> errors) {
         String configName = input.getIdentifierCase().format(input.getObjectName());
-        String value = OBJECT_DETAIL.of(input);
+        String value = OBJECT_DETAIL.value(input);
         if (value == null || value.isBlank()) {
             errors.add(txt("cfg.datasourceConfig.error.JsonRequired"));
         }
@@ -68,7 +69,7 @@ public class DBDatasourceConfigFactoryAdapter implements ObjectFactoryAdapter {
         DBSchema schema = input.getSchema();
         ConnectionId connectionId = schema.getConnectionId();
         SchemaId schemaId = schema.getSchemaId();
-        String value = OBJECT_DETAIL.of(input);
+        String value = OBJECT_DETAIL.value(input);
         String configName = input.getIdentifierCase().format(input.getObjectName());
 
         DatabaseInterfaceInvoker.execute(

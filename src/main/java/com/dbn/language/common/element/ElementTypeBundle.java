@@ -102,8 +102,13 @@ public class ElementTypeBundle {
     }
 
 
+    /**
+     * Registers every leaf, including synthetic separators and wrapping tokens, for
+     * cache initialization after all named definitions and leaf constructors finish.
+     */
     public void registerElement(LeafElementType tokenType) {
         leafRegistry.add(tokenType);
+        builder.leafElementTypes.add(tokenType);
         builder.elementTypes.put(tokenType.getId(), tokenType);
     }
 
@@ -272,7 +277,6 @@ public class ElementTypeBundle {
             throw new ElementTypeDefinitionException("Could not resolve element definition '" + type + '\'');
         }
 
-        result.collectAnonymousLeafs(builder.leafElementTypes);
         registerElementType(result);
         builder.elementDefinitions.put(result, def);
         return result;

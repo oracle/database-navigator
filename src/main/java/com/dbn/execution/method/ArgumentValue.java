@@ -27,40 +27,71 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
+
+import static java.util.Collections.emptyList;
 
 @Getter
 @Setter
 public class ArgumentValue {
-    private final DBObjectRef<DBArgument> argumentRef;
-    private DBObjectRef<DBTypeAttribute> attributeRef;
+    private final DBObjectRef<DBArgument> argument;
+    private final List<DBObjectRef<DBTypeAttribute>> attributePath;
     private ValueHolder valueHolder;
 
     public ArgumentValue(@NotNull DBArgument argument, @Nullable DBTypeAttribute attribute, ValueHolder valueHolder) {
-        this.argumentRef = DBObjectRef.of(argument);
-        this.attributeRef = DBObjectRef.of(attribute);
+        this(argument, attribute == null ? emptyList() : Collections.singletonList(attribute), valueHolder);
+    }
+
+    public ArgumentValue(@NotNull DBArgument argument, @NotNull List<DBTypeAttribute> attributePath, ValueHolder valueHolder) {
+        this.argument = DBObjectRef.of(argument);
+        List<DBObjectRef<DBTypeAttribute>> attributePathRefs = new ArrayList<>(attributePath.size());
+        for (DBTypeAttribute attribute : attributePath) {
+            attributePathRefs.add(DBObjectRef.of(attribute));
+        }
+        this.attributePath = attributePathRefs;
         this.valueHolder = valueHolder;
     }
 
     public ArgumentValue(@NotNull DBArgument argument, ValueHolder valueHolder) {
-        this.argumentRef = DBObjectRef.of(argument);
-        this.valueHolder = valueHolder;
+        this(argument, emptyList(), valueHolder);
     }
 
     @Nullable
     public DBArgument getArgument() {
-        return argumentRef.get();
+        return argument.get();
     }
 
+    public DBObjectRef<DBArgument> getArgumentRef() {
+        return argument;
+    }
+
+    @Nullable
     public DBTypeAttribute getAttribute() {
-        return DBObjectRef.get(attributeRef);
+        return attributePath.isEmpty() ? null : DBObjectRef.get(attributePath.get(attributePath.size() - 1));
+    }
+
+    @NotNull
+    public List<DBTypeAttribute> getAttributePath() {
+        if (attributePath.isEmpty()) return emptyList();
+
+        List<DBTypeAttribute> resolvedAttributePath = new ArrayList<>(attributePath.size());
+        for (DBObjectRef<DBTypeAttribute> attributeRef : attributePath) {
+            DBTypeAttribute attribute = DBObjectRef.get(attributeRef);
+            if (attribute == null) return emptyList();
+            resolvedAttributePath.add(attribute);
+        }
+        return resolvedAttributePath;
     }
 
     public String getName() {
-        return
-            attributeRef == null ?
-            argumentRef.getObjectName() :
-            argumentRef.getObjectName() + '.' + attributeRef.getObjectName();
+        StringBuilder name = new StringBuilder(argument.getObjectName());
+        for (DBObjectRef<DBTypeAttribute> attribute : attributePath) {
+            name.append('.').append(attribute.getObjectName());
+        }
+        return name.toString();
     }
 
     public Object getValue() {
@@ -87,11 +118,20 @@ public class ArgumentValue {
     }
 
     public boolean matches(DBArgument argument) {
-        return Objects.equals(argument.ref(), this.argumentRef);
+        return Objects.equals(argument.ref(), this.argument);
     }
 
     public boolean matches(DBTypeAttribute attribute) {
-        return Objects.equals(attribute.ref(), this.attributeRef);
+        return matches(Collections.singletonList(attribute));
+    }
+
+    public boolean matches(List<DBTypeAttribute> attributePath) {
+        if (attributePath.size() != this.attributePath.size()) return false;
+
+        for (int i = 0; i < attributePath.size(); i++) {
+            if (!Objects.equals(attributePath.get(i).ref(), this.attributePath.get(i))) return false;
+        }
+        return true;
     }
 
     public boolean isCursor() {
@@ -103,6 +143,6 @@ public class ArgumentValue {
     }
 
     public String toString() {
-        return argumentRef.getObjectName() + " = " + getValue();
+        return getName() + " = " + getValue();
     }
 }

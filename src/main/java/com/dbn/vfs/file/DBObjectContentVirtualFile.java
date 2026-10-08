@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import com.dbn.connection.session.DatabaseSession;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.object.common.DBObject;
-import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.vfs.DBParseableVirtualFile;
 import com.dbn.vfs.DBVirtualFileBase;
@@ -48,11 +47,11 @@ import java.nio.charset.Charset;
 @Getter
 @Setter
 public class DBObjectContentVirtualFile extends DBVirtualFileBase implements DBParseableVirtualFile {
-    private final DBObjectRef<DBSchemaObject> object;
+    private final DBObjectRef<DBObject> object;
     private final FileType fileType;
     private CharSequence content;
 
-    public DBObjectContentVirtualFile(DBSchemaObject object, String content, FileType fileType) {
+    public DBObjectContentVirtualFile(DBObject object, String content, FileType fileType) {
         super(object.getProject(), object.getName());
         this.object = DBObjectRef.of(object);
         this.content = content;

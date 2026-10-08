@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,13 @@ import com.dbn.common.icon.Icons;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.execution.java.JavaExecutionManager;
 import com.dbn.execution.method.MethodExecutionManager;
+import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
 import com.dbn.object.action.AnObjectAction;
 import com.dbn.object.common.DBObject;
+import com.dbn.options.general.WorkspaceFeature;
+import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -56,6 +59,10 @@ public class ProgramMethodExecuteAction extends ProgramMethodLaunchAction {
     @Override
     public void update(@NotNull AnActionEvent e, @NotNull Project project) {
         boolean visible = isVisible(e);
+        DBSourceCodeVirtualFile sourceCodeFile = getSourcecodeFile(e);
+        if (visible && sourceCodeFile != null && sourceCodeFile.getObject() instanceof DBJavaClass) {
+            visible = WorkspaceFeature.OJVM.isEnabled(project);
+        }
 
         Presentation presentation = e.getPresentation();
         presentation.setVisible(visible);

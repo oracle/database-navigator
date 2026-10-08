@@ -16,61 +16,47 @@
 
 package com.dbn.object.common.status;
 
-import com.dbn.common.property.PropertyHolderBase;
 import com.dbn.editor.DBContentType;
 import com.dbn.object.common.status.DBObjectStatus.Propagation;
-import lombok.Getter;
-import org.jetbrains.annotations.Nullable;
 
 public class DBObjectStatusHolder {
+    private static final int STATUS_MASK = 0xFFFF;
+    private static final int DEFAULT_STATUS_MASK = defaultStatusMask();
+
     private final DBContentType mainContentType;
-    private Entry[] statusEntries;
+    private int statusBits;
 
     public DBObjectStatusHolder(DBContentType mainContentType) {
+        DBContentType[] subContentTypes = mainContentType.getSubContentTypes();
+        if (subContentTypes.length > 2) {
+            throw new IllegalArgumentException("Status holder supports at most two sub-content types");
+        }
+
         this.mainContentType = mainContentType;
-    }
-
-    private synchronized Entry ensure(DBContentType contentType) {
-        Entry statusEntry = get(contentType);
-        if (statusEntry != null) return statusEntry;
-
-        if (statusEntries == null) {
-            statusEntries = new Entry[1];
-            statusEntry = new Entry(contentType);
-            statusEntries[0] = statusEntry;
-        } else {
-            statusEntry = get(contentType);
-            if (statusEntry == null) {
-                int currentSize = this.statusEntries.length;
-                Entry[] statusEntries = new Entry[currentSize + 1];
-                System.arraycopy(this.statusEntries, 0, statusEntries, 0, currentSize);
-                statusEntry = new Entry(contentType);
-                statusEntries[currentSize] = statusEntry;
-                this.statusEntries = statusEntries;
-            }
+        this.statusBits = DEFAULT_STATUS_MASK;
+        if (subContentTypes.length == 2) {
+            this.statusBits |= DEFAULT_STATUS_MASK << Short.SIZE;
         }
-        return statusEntry;
     }
 
-    @Nullable
-    private Entry get(DBContentType contentType) {
-        if (statusEntries == null) return null;
-
-        for (Entry statusEntry : statusEntries) {
-            if (statusEntry.getContentType() == contentType) {
-                return statusEntry;
-            }
+    public synchronized boolean set(DBContentType contentType, DBObjectStatus status, boolean value) {
+        if (contentType == mainContentType && contentType.isBundle()) {
+            return set(status, value);
         }
-        return null;
+
+        int slot = requireSlot(contentType);
+        int mask = status.maskOn() & STATUS_MASK;
+        int shiftedMask = mask << (slot * Short.SIZE);
+        boolean currentValue = (statusBits & shiftedMask) != 0;
+        if (currentValue == value) return false;
+
+        statusBits = value ?
+                statusBits | shiftedMask :
+                statusBits & ~shiftedMask;
+        return true;
     }
 
-
-    public boolean set(DBContentType contentType, DBObjectStatus status, boolean value) {
-        Entry statusEntry = ensure(contentType);
-        return statusEntry.set(status, value);
-    }
-
-    public boolean set(DBObjectStatus status, boolean value) {
+    public synchronized boolean set(DBObjectStatus status, boolean value) {
         DBContentType[] subContentTypes = mainContentType.getSubContentTypes();
         if (subContentTypes.length > 0) {
             boolean hasChanged = false;
@@ -80,28 +66,30 @@ public class DBObjectStatusHolder {
                 }
             }
             return hasChanged;
-        } else {
-            return set(mainContentType, status, value);
         }
+        return set(mainContentType, status, value);
     }
 
-    public boolean is(DBObjectStatus status) {
+    public synchronized boolean is(DBObjectStatus status) {
         DBContentType[] subContentTypes = mainContentType.getSubContentTypes();
         Propagation propagation = status.getPropagation();
 
-        if (propagation != Propagation.NONE && subContentTypes.length > 0) {
-            for (DBContentType contentType : subContentTypes) {
-                boolean statusMatch = is(contentType, status);
-                if (propagation == Propagation.ANY) {
-                    // if any of the subcontents matches the status -> true
-                    if (statusMatch) return true;
+        if (subContentTypes.length > 0) {
+            if (propagation != Propagation.NONE) {
+                for (DBContentType contentType : subContentTypes) {
+                    boolean statusMatch = is(contentType, status);
+                    if (propagation == Propagation.ANY) {
+                        // if any of the subcontents matches the status -> true
+                        if (statusMatch) return true;
 
-                } else if (propagation == Propagation.ALL) {
-                    // if at least one of the subcontents does not match the status -> false
-                    if (!statusMatch) return false;
-
+                    } else if (propagation == Propagation.ALL) {
+                        // if at least one of the subcontents does not match the status -> false
+                        if (!statusMatch) return false;
+                    }
                 }
+                return status.getDefaultValue();
             }
+
             return status.getDefaultValue();
         }
 
@@ -112,28 +100,50 @@ public class DBObjectStatusHolder {
         return !is(status);
     }
 
-    public boolean is(DBContentType contentType, DBObjectStatus status) {
-        Entry statusEntry = get(contentType);
-        return statusEntry == null ?
-                status.getDefaultValue() :
-                statusEntry.is(status);
+    public synchronized boolean is(DBContentType contentType, DBObjectStatus status) {
+        if (contentType == mainContentType && contentType.isBundle()) {
+            return is(status);
+        }
+
+        int slot = findSlot(contentType);
+        if (slot < 0) return status.getDefaultValue();
+
+        int mask = status.maskOn() & STATUS_MASK;
+        return (statusBits & (mask << (slot * Short.SIZE))) != 0;
     }
 
     public boolean isNot(DBContentType contentType, DBObjectStatus status) {
         return !is(contentType, status);
     }
 
-    @Getter
-    private static class Entry extends PropertyHolderBase.ShortStore<DBObjectStatus> {
-        private final DBContentType contentType;
+    private int requireSlot(DBContentType contentType) {
+        int slot = findSlot(contentType);
+        if (slot < 0) {
+            throw new IllegalArgumentException(
+                    "Content type " + contentType + " is not supported by " + mainContentType);
+        }
+        return slot;
+    }
 
-        @Override
-        protected DBObjectStatus[] properties() {
-            return DBObjectStatus.VALUES;
+    private int findSlot(DBContentType contentType) {
+        DBContentType[] subContentTypes = mainContentType.getSubContentTypes();
+        if (subContentTypes.length == 0) {
+            return mainContentType == contentType ? 0 : -1;
         }
 
-        Entry(DBContentType contentType) {
-            this.contentType = contentType;
+        for (int i = 0; i < subContentTypes.length; i++) {
+            if (subContentTypes[i] == contentType) return i;
         }
+        return -1;
+    }
+
+    private static int defaultStatusMask() {
+        int mask = 0;
+        for (DBObjectStatus status : DBObjectStatus.VALUES) {
+            if (status.getDefaultValue()) {
+                mask |= status.maskOn() & STATUS_MASK;
+            }
+        }
+        return mask;
     }
 }

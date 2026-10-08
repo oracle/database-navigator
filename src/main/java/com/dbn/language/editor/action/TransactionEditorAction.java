@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import com.dbn.connection.mapping.FileConnectionContextManager;
 import com.dbn.connection.session.DatabaseSession;
 import com.dbn.editor.DBContentType;
 import com.dbn.object.DBTable;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -62,7 +62,7 @@ public abstract class TransactionEditorAction extends ProjectAction {
                 if (!connection.isAutoCommit()) {
                     visible = true;
                     if (virtualFile instanceof DBEditableObjectVirtualFile databaseFile) {
-                        DBSchemaObject object = databaseFile.getObject();
+                        DBObject object = databaseFile.getObject();
                         if (object instanceof DBTable) {
                             EnvironmentManager environmentManager = EnvironmentManager.getInstance(project);
                             visible = !environmentManager.isReadonly(object, DBContentType.DATA);

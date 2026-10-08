@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package com.dbn.ddl.action;
 
 import com.dbn.ddl.DDLFileAttachmentManager;
 import com.dbn.object.action.AnObjectAction;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -27,19 +27,19 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
 
-public class DDLFileAttachAction extends AnObjectAction<DBSchemaObject> {
-    public DDLFileAttachAction(@NotNull DBSchemaObject object) {
+public class DDLFileAttachAction extends AnObjectAction<DBObject> {
+    public DDLFileAttachAction(@NotNull DBObject object) {
         super(object);
     }
 
     @Override
-    protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DBSchemaObject target) {
+    protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DBObject target) {
         DDLFileAttachmentManager fileAttachmentManager = DDLFileAttachmentManager.getInstance(project);
         fileAttachmentManager.attachDDLFiles(target.ref());
     }
 
     @Override
-    protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DBSchemaObject target) {
+    protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DBObject target) {
         presentation.setText(txt("app.ddlFiles.action.AttachFiles"));
     }
 }

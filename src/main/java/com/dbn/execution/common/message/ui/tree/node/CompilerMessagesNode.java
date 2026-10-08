@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import com.dbn.execution.common.message.ui.tree.MessagesTreeBundleNode;
 import com.dbn.execution.common.message.ui.tree.MessagesTreeNode;
 import com.dbn.execution.common.message.ui.tree.MessagesTreeRootNode;
 import com.dbn.execution.compiler.CompilerMessage;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -49,7 +49,7 @@ public class CompilerMessagesNode extends MessagesTreeBundleNode<MessagesTreeRoo
         DBEditableObjectVirtualFile databaseFile = compilerMessage.getDatabaseFile();
         CompilerMessagesObjectNode objectNode = (CompilerMessagesObjectNode) getChildTreeNode(databaseFile);
         if (objectNode == null) {
-            DBObjectRef<DBSchemaObject> objectRef = compilerMessage.getCompilerResult().getObjectRef();
+            DBObjectRef<DBObject> objectRef = compilerMessage.getCompilerResult().getObjectRef();
             objectNode = new CompilerMessagesObjectNode(this, objectRef);
             addChild(objectNode);
             getTreeModel().notifyTreeModelListeners(this, TreeEventType.STRUCTURE_CHANGED);

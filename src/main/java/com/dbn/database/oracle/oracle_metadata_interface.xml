@@ -20,15 +20,19 @@
         <statement>
             select
                 USERNAME as USER_NAME,
+                ORACLE_MAINTAINED as IS_SYSTEM,
                 case when ACCOUNT_STATUS like '%EXPIRED%' then 'Y' else 'N' end as IS_EXPIRED,
-                case when ACCOUNT_STATUS like '%LOCKED%' then 'Y' else 'N' end as IS_LOCKED
+                case when ACCOUNT_STATUS like '%LOCKED%' then 'Y' else 'N' end as IS_LOCKED,
+                'N' as IS_DISABLED
             from DBA_USERS
         </statement>
         <statement>
             select
                 USERNAME as USER_NAME,
+                case when USERNAME in ('SYS', 'SYSTEM') then 'Y' else 'N' end as IS_SYSTEM,
                 'N' as IS_EXPIRED,
-                'N' as IS_LOCKED
+                'N' as IS_LOCKED,
+                'N' as IS_DISABLED
             from ALL_USERS
         </statement>
     </statement-execution-processor>
@@ -279,7 +283,7 @@
                 end as CREDENTIAL_TYPE,
                 USERNAME as USER_NAME,
                 JSON_VALUE(comments, '$.comments') as COMMENTS,
-                DECODE(ENABLED, 'TRUE', 'Y', 'N') as IS_ENABLED
+                DECODE(ENABLED, 'TRUE', 'N', 'Y') as IS_DISABLED
             from [PREFIX]_CREDENTIALS d
             where OWNER = {#0}
             order by CREDENTIAL_NAME asc
@@ -290,7 +294,7 @@
         <statement>
             select
                 p.PROFILE_NAME,
-                DECODE(STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                DECODE(STATUS, 'ENABLED', 'N', 'Y') as IS_DISABLED,
                 DECODE(pa.CONVERSATION, 'true', 'Y', 'N') as IS_CONVERSATION,
                 TO_CHAR(p.DESCRIPTION) AS DESCRIPTION,
                 pa.PROVIDER,
@@ -334,7 +338,7 @@
         <statement>
             select
                 p.PROFILE_NAME,
-                DECODE(STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                DECODE(STATUS, 'ENABLED', 'N', 'Y') as IS_DISABLED,
                 DECODE(pa.CONVERSATION, 'true', 'Y', 'N') as IS_CONVERSATION,
                 TO_CHAR(p.DESCRIPTION) AS DESCRIPTION,
                 pa.PROVIDER,
@@ -379,7 +383,7 @@
             <!--empty fallback for non-cloud databases-->
             select
                 null as PROFILE_NAME,
-                null as IS_ENABLED,
+                null as IS_DISABLED,
                 null as IS_CONVERSATION,
                 null as DESCRIPTION,
                 null as PROVIDER,
@@ -480,6 +484,10 @@
                               from [PREFIX]_MVIEWS mv
                               where mv.OWNER = t.owner
                                 and mv.MVIEW_NAME = t.TABLE_NAME)
+              and not exists (SELECT 1
+                              from [PREFIX]_NESTED_TABLES nt
+                              where nt.OWNER = t.OWNER
+                                and nt.TABLE_NAME = t.TABLE_NAME)
             order by t.TABLE_NAME asc
         </statement>
     </statement-execution-processor>
@@ -520,7 +528,7 @@
               and v.DUALITY_VIEW != 'YES'
             order by v.VIEW_NAME asc
         </statement>
-        <statement prefixes="DBA, ALL">
+        <statement prefixes="DBA, ALL" since-version="11.1">
             select
                 v.VIEW_NAME,
                 v.VIEW_TYPE_OWNER,
@@ -532,6 +540,18 @@
                 inner join [PREFIX]_OBJECTS o
                         on o.OWNER = v.OWNER
                        and o.OBJECT_NAME = v.VIEW_NAME
+            where v.OWNER = {#0}
+            order by v.VIEW_NAME asc
+        </statement>
+        <statement prefixes="DBA, ALL">
+            select
+                v.VIEW_NAME,
+                v.VIEW_TYPE_OWNER,
+                v.VIEW_TYPE,
+                null as COMMENTS,
+                'N' as IS_SYSTEM_VIEW,
+                'N' as IS_EDITIONABLE
+            from [PREFIX]_VIEWS v
             where v.OWNER = {#0}
             order by v.VIEW_NAME asc
         </statement>
@@ -984,10 +1004,24 @@
                 col.DATA_TYPE_OWNER as DECL_TYPE_OWNER,
                 col.DATA_TYPE as DECL_TYPE_NAME,
                 null as DECL_TYPE_PROGRAM,
+                nt.TABLE_NAME as NTBL_NAME,
+                nt.OWNER as NTBL_PARENT_OWNER_NAME,
+                nt.PARENT_TABLE_NAME as NTBL_PARENT_TABLE_NAME,
+                nt.PARENT_TABLE_COLUMN as NTBL_PARENT_COLUMN_NAME,
                 decode(col.DATA_TYPE, 'VECTOR', col.CHAR_LENGTH, col.DATA_LENGTH) as DATA_LENGTH,
                 col.DATA_PRECISION,
                 col.DATA_SCALE,
                 'N' as IS_SET,
+                case
+                    when col.DATA_TYPE in ('TABLE', 'VARRAY') then 'Y'
+                    when exists (
+                        select 1
+                        from [PREFIX]_TYPES typ
+                        where typ.OWNER = col.DATA_TYPE_OWNER
+                          and typ.TYPE_NAME = col.DATA_TYPE
+                          and typ.TYPECODE = 'COLLECTION') then 'Y'
+                    else 'N'
+                end as IS_COLLECTION,
                 col.NULLABLE as IS_NULLABLE,
                 decode (col.HIDDEN_COLUMN, 'YES', 'Y', 'N' ) as IS_HIDDEN,
                 decode (pk.CONSTRAINT_NAME, null, 'N', 'Y') as IS_PRIMARY_KEY,
@@ -1018,6 +1052,17 @@
                         and uk.OWNER = col.OWNER
                         and uk.TABLE_NAME = col.TABLE_NAME
                         and uk.COLUMN_NAME = col.COLUMN_NAME
+                  left outer join (
+                        select distinct
+                            OWNER,
+                            PARENT_TABLE_NAME,
+                            PARENT_TABLE_COLUMN,
+                            TABLE_NAME
+                        from [PREFIX]_NESTED_TABLES
+                        where OWNER = {#0}) nt
+                         on nt.OWNER = col.OWNER
+                        and nt.PARENT_TABLE_NAME = col.TABLE_NAME
+                        and nt.PARENT_TABLE_COLUMN = col.COLUMN_NAME
             where
                 col.OWNER = {#0} and
                 col.TABLE_NAME = {#1}
@@ -1032,10 +1077,24 @@
                 col.DATA_TYPE_OWNER AS DECL_TYPE_OWNER,
                 col.DATA_TYPE as DECL_TYPE_NAME,
                 null as DECL_TYPE_PROGRAM,
+                nt.TABLE_NAME as NTBL_NAME,
+                nt.OWNER as NTBL_PARENT_OWNER_NAME,
+                nt.PARENT_TABLE_NAME as NTBL_PARENT_TABLE_NAME,
+                nt.PARENT_TABLE_COLUMN as NTBL_PARENT_COLUMN_NAME,
                 col.DATA_LENGTH,
                 col.DATA_PRECISION,
                 col.DATA_SCALE,
                 'N' as IS_SET,
+                case
+                    when col.DATA_TYPE in ('TABLE', 'VARRAY') then 'Y'
+                    when exists (
+                        select 1
+                        from [PREFIX]_TYPES typ
+                        where typ.OWNER = col.DATA_TYPE_OWNER
+                          and typ.TYPE_NAME = col.DATA_TYPE
+                          and typ.TYPECODE = 'COLLECTION') then 'Y'
+                    else 'N'
+                end as IS_COLLECTION,
                 col.NULLABLE as IS_NULLABLE,
                 'N' as IS_HIDDEN,
                 decode (pk.CONSTRAINT_NAME, null, 'N', 'Y') as IS_PRIMARY_KEY,
@@ -1087,7 +1146,14 @@
                       con.OWNER = cc.OWNER and
                       con.TABLE_NAME = cc.TABLE_NAME and
                       con.CONSTRAINT_NAME = cc.CONSTRAINT_NAME and
-                      con.CONSTRAINT_TYPE = 'U') uk
+                      con.CONSTRAINT_TYPE = 'U') uk,
+                (select distinct
+                     OWNER,
+                     PARENT_TABLE_NAME,
+                     PARENT_TABLE_COLUMN,
+                     TABLE_NAME
+                 from [PREFIX]_NESTED_TABLES
+                 where OWNER = {#0}) nt
             where
                 col.OWNER = {#0} and
                 col.TABLE_NAME = {#1} and
@@ -1099,7 +1165,10 @@
                 col.COLUMN_NAME = fk.COLUMN_NAME(+) and
                 col.OWNER = uk.OWNER(+) and
                 col.TABLE_NAME = uk.TABLE_NAME(+) and
-                col.COLUMN_NAME = uk.COLUMN_NAME(+)
+                col.COLUMN_NAME = uk.COLUMN_NAME(+) and
+                col.OWNER = nt.OWNER(+) and
+                col.TABLE_NAME = nt.PARENT_TABLE_NAME(+) and
+                col.COLUMN_NAME = nt.PARENT_TABLE_COLUMN(+)
             order by col.COLUMN_NAME asc
         </statement>
     </statement-execution-processor>
@@ -1128,10 +1197,24 @@
                 col.DATA_TYPE_OWNER as DECL_TYPE_OWNER,
                 col.DATA_TYPE as DECL_TYPE_NAME,
                 null as DECL_TYPE_PROGRAM,
+                nt.TABLE_NAME as NTBL_NAME,
+                nt.OWNER as NTBL_PARENT_OWNER_NAME,
+                nt.PARENT_TABLE_NAME as NTBL_PARENT_TABLE_NAME,
+                nt.PARENT_TABLE_COLUMN as NTBL_PARENT_COLUMN_NAME,
                 decode(col.DATA_TYPE, 'VECTOR', col.CHAR_LENGTH, col.DATA_LENGTH) as DATA_LENGTH,
                 col.DATA_PRECISION,
                 col.DATA_SCALE,
                 'N' as IS_SET,
+                case
+                    when col.DATA_TYPE in ('TABLE', 'VARRAY') then 'Y'
+                    when exists (
+                        select 1
+                        from [PREFIX]_TYPES typ
+                        where typ.OWNER = col.DATA_TYPE_OWNER
+                          and typ.TYPE_NAME = col.DATA_TYPE
+                          and typ.TYPECODE = 'COLLECTION') then 'Y'
+                    else 'N'
+                end as IS_COLLECTION,
                 col.NULLABLE as IS_NULLABLE,
                 decode (col.HIDDEN_COLUMN, 'YES', 'Y', 'N' ) as IS_HIDDEN,
                 decode (pk.CONSTRAINT_NAME, null, 'N', 'Y') as IS_PRIMARY_KEY,
@@ -1162,6 +1245,17 @@
                         and uk.OWNER = col.OWNER
                         and uk.TABLE_NAME = col.TABLE_NAME
                         and uk.COLUMN_NAME = col.COLUMN_NAME
+                  left outer join (
+                        select distinct
+                            OWNER,
+                            PARENT_TABLE_NAME,
+                            PARENT_TABLE_COLUMN,
+                            TABLE_NAME
+                        from [PREFIX]_NESTED_TABLES
+                        where OWNER = {#0}) nt
+                         on nt.OWNER = col.OWNER
+                        and nt.PARENT_TABLE_NAME = col.TABLE_NAME
+                        and nt.PARENT_TABLE_COLUMN = col.COLUMN_NAME
             where col.OWNER = {#0}
             order by col.TABLE_NAME asc
         </statement>
@@ -1182,10 +1276,24 @@
                 col.DATA_TYPE_OWNER as DECL_TYPE_OWNER,
                 col.DATA_TYPE as DECL_TYPE_NAME,
                 null as DECL_TYPE_PROGRAM,
+                nt.TABLE_NAME as NTBL_NAME,
+                nt.OWNER as NTBL_PARENT_OWNER_NAME,
+                nt.PARENT_TABLE_NAME as NTBL_PARENT_TABLE_NAME,
+                nt.PARENT_TABLE_COLUMN as NTBL_PARENT_COLUMN_NAME,
                 col.DATA_LENGTH,
                 col.DATA_PRECISION,
                 col.DATA_SCALE,
                 'N' as IS_SET,
+                case
+                    when col.DATA_TYPE in ('TABLE', 'VARRAY') then 'Y'
+                    when exists (
+                        select 1
+                        from [PREFIX]_TYPES typ
+                        where typ.OWNER = col.DATA_TYPE_OWNER
+                          and typ.TYPE_NAME = col.DATA_TYPE
+                          and typ.TYPECODE = 'COLLECTION') then 'Y'
+                    else 'N'
+                end as IS_COLLECTION,
                 col.NULLABLE as IS_NULLABLE,
                 'N' as IS_HIDDEN,
                 decode (pk.CONSTRAINT_NAME, null, 'N', 'Y') as IS_PRIMARY_KEY,
@@ -1240,7 +1348,14 @@
                       con.OWNER = cc.OWNER and
                       con.TABLE_NAME = cc.TABLE_NAME and
                       con.CONSTRAINT_NAME = cc.CONSTRAINT_NAME and
-                      con.CONSTRAINT_TYPE = 'U') uk
+                      con.CONSTRAINT_TYPE = 'U') uk,
+                (select distinct
+                     OWNER,
+                     PARENT_TABLE_NAME,
+                     PARENT_TABLE_COLUMN,
+                     TABLE_NAME
+                 from [PREFIX]_NESTED_TABLES
+                 where OWNER = {#0}) nt
             where
                 col.OWNER = {#0} and
                 col.OWNER = obj.OWNER and
@@ -1253,7 +1368,10 @@
                 col.COLUMN_NAME = fk.COLUMN_NAME(+) and
                 col.OWNER = uk.OWNER(+) and
                 col.TABLE_NAME = uk.TABLE_NAME(+) and
-                col.COLUMN_NAME = uk.COLUMN_NAME(+)
+                col.COLUMN_NAME = uk.COLUMN_NAME(+) and
+                col.OWNER = nt.OWNER(+) and
+                col.TABLE_NAME = nt.PARENT_TABLE_NAME(+) and
+                col.COLUMN_NAME = nt.PARENT_TABLE_COLUMN(+)
             order by col.TABLE_NAME asc
         </statement>
     </statement-execution-processor>
@@ -1371,7 +1489,7 @@
                 end as CONSTRAINT_TYPE,
                 c.R_OWNER as FK_CONSTRAINT_OWNER,
                 c.R_CONSTRAINT_NAME as FK_CONSTRAINT_NAME,
-                decode(c.STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                decode(c.STATUS, 'ENABLED', 'N', 'Y') as IS_DISABLED,
                 c.SEARCH_CONDITION_VC as CHECK_CONDITION
             from [PREFIX]_CONSTRAINTS c
                  inner join [PREFIX]_OBJECTS obj
@@ -1398,7 +1516,7 @@
                 end as CONSTRAINT_TYPE,
                 c.R_OWNER as FK_CONSTRAINT_OWNER,
                 c.R_CONSTRAINT_NAME as FK_CONSTRAINT_NAME,
-                decode(c.STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                decode(c.STATUS, 'ENABLED', 'N', 'Y') as IS_DISABLED,
                 c.SEARCH_CONDITION as CHECK_CONDITION
             from [PREFIX]_CONSTRAINTS c
                  inner join [PREFIX]_OBJECTS obj
@@ -1428,7 +1546,7 @@
                 end as CONSTRAINT_TYPE,
                 c.R_OWNER as FK_CONSTRAINT_OWNER,
                 c.R_CONSTRAINT_NAME as FK_CONSTRAINT_NAME,
-                decode(c.STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                decode(c.STATUS, 'ENABLED', 'N', 'Y') as IS_DISABLED,
                 c.SEARCH_CONDITION_VC as CHECK_CONDITION
             from [PREFIX]_CONSTRAINTS c
                  inner join [PREFIX]_OBJECTS obj
@@ -1455,7 +1573,7 @@
                 end as CONSTRAINT_TYPE,
                 c.R_OWNER as FK_CONSTRAINT_OWNER,
                 c.R_CONSTRAINT_NAME as FK_CONSTRAINT_NAME,
-                decode(c.STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                decode(c.STATUS, 'ENABLED', 'N', 'Y') as IS_DISABLED,
                 c.SEARCH_CONDITION as CHECK_CONDITION
             from [PREFIX]_CONSTRAINTS c
                  inner join [PREFIX]_OBJECTS obj
@@ -1503,13 +1621,108 @@
         <statement prefixes="DBA, ALL">
             select
                 TABLE_NAME as NESTED_TABLE_NAME,
-                PARENT_TABLE_COLUMN as TABLE_COLUMN,
+                PARENT_TABLE_NAME as PARENT_TABLE_NAME,
+                PARENT_TABLE_COLUMN as PARENT_TABLE_COLUMN_NAME,
                 TABLE_TYPE_OWNER as DECL_TYPE_OWNER,
                 TABLE_TYPE_NAME as DECL_TYPE_NAME
                 from [PREFIX]_NESTED_TABLES
             where
                 OWNER = {#0} and
                 PARENT_TABLE_NAME = {#1}
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="nested-table-columns">
+        <statement prefixes="DBA, ALL" since-version="10.1">
+            select
+                nt.TABLE_NAME as STORAGE_TABLE_NAME,
+                nt.PARENT_TABLE_NAME as TABLE_NAME,
+                nt.PARENT_TABLE_NAME as DATASET_NAME,
+                col.COLUMN_NAME,
+                col.COLUMN_ID as POSITION,
+                REGEXP_REPLACE(col.DATA_TYPE, '\([0-9]+\)', '') as DATA_TYPE_NAME,
+                col.DATA_TYPE_OWNER as DECL_TYPE_OWNER,
+                col.DATA_TYPE as DECL_TYPE_NAME,
+                null as DECL_TYPE_PROGRAM,
+                null as NTBL_NAME,
+                null as NTBL_PARENT_OWNER_NAME,
+                null as NTBL_PARENT_TABLE_NAME,
+                null as NTBL_PARENT_COLUMN_NAME,
+                decode(col.DATA_TYPE, 'VECTOR', col.CHAR_LENGTH, col.DATA_LENGTH) as DATA_LENGTH,
+                col.DATA_PRECISION,
+                col.DATA_SCALE,
+                null as COMMENTS,
+                case
+                    when col.DATA_TYPE in ('TABLE', 'VARRAY') then 'Y'
+                    when exists (
+                        select 1
+                        from [PREFIX]_TYPES typ
+                        where typ.OWNER = col.DATA_TYPE_OWNER
+                          and typ.TYPE_NAME = col.DATA_TYPE
+                          and typ.TYPECODE = 'COLLECTION') then 'Y'
+                    else 'N'
+                end as IS_COLLECTION,
+                'N' as IS_PRIMARY_KEY,
+                'N' as IS_FOREIGN_KEY,
+                'N' as IS_UNIQUE_KEY,
+                'N' as IS_IDENTITY,
+                'Y' as IS_NULLABLE,
+                'N' as IS_HIDDEN,
+                'N' as IS_SET
+            from [PREFIX]_NESTED_TABLES nt
+                 inner join [PREFIX]_NESTED_TABLE_COLS col
+                         on col.OWNER = nt.OWNER
+                        and col.TABLE_NAME = nt.TABLE_NAME
+            where
+                nt.OWNER = {#0} and
+                nt.TABLE_NAME = {#1} and
+                col.HIDDEN_COLUMN = 'NO'
+            order by col.COLUMN_ID asc
+        </statement>
+        <statement prefixes="DBA, ALL" comment="Oracle 8.0">
+            select
+                nt.TABLE_NAME as STORAGE_TABLE_NAME,
+                nt.PARENT_TABLE_NAME as TABLE_NAME,
+                nt.PARENT_TABLE_NAME as DATASET_NAME,
+                col.COLUMN_NAME,
+                col.COLUMN_ID as POSITION,
+                REGEXP_REPLACE(col.DATA_TYPE, '\([0-9]+\)', '') as DATA_TYPE_NAME,
+                col.DATA_TYPE_OWNER as DECL_TYPE_OWNER,
+                col.DATA_TYPE as DECL_TYPE_NAME,
+                null as DECL_TYPE_PROGRAM,
+                null as NTBL_NAME,
+                null as NTBL_PARENT_OWNER_NAME,
+                null as NTBL_PARENT_TABLE_NAME,
+                null as NTBL_PARENT_COLUMN_NAME,
+                col.DATA_LENGTH,
+                col.DATA_PRECISION,
+                col.DATA_SCALE,
+                null as COMMENTS,
+                case
+                    when col.DATA_TYPE in ('TABLE', 'VARRAY') then 'Y'
+                    when exists (
+                        select 1
+                        from [PREFIX]_TYPES typ
+                        where typ.OWNER = col.DATA_TYPE_OWNER
+                          and typ.TYPE_NAME = col.DATA_TYPE
+                          and typ.TYPECODE = 'COLLECTION') then 'Y'
+                    else 'N'
+                end as IS_COLLECTION,
+                'N' as IS_PRIMARY_KEY,
+                'N' as IS_FOREIGN_KEY,
+                'N' as IS_UNIQUE_KEY,
+                'N' as IS_IDENTITY,
+                'Y' as IS_NULLABLE,
+                'N' as IS_HIDDEN,
+                'N' as IS_SET
+            from [PREFIX]_NESTED_TABLES nt
+                 inner join [PREFIX]_TAB_COLUMNS col
+                         on col.OWNER = nt.OWNER
+                        and col.TABLE_NAME = nt.TABLE_NAME
+            where
+                nt.OWNER = {#0} and
+                nt.TABLE_NAME = {#1}
+            order by col.COLUMN_ID asc
         </statement>
     </statement-execution-processor>
 
@@ -1548,13 +1761,104 @@
         <statement prefixes="DBA, ALL">
             select
                 TABLE_NAME as NESTED_TABLE_NAME,
-                PARENT_TABLE_NAME as TABLE_NAME,
-                PARENT_TABLE_COLUMN as TABLE_COLUMN,
+                PARENT_TABLE_NAME as PARENT_TABLE_NAME,
+                PARENT_TABLE_COLUMN as PARENT_TABLE_COLUMN_NAME,
                 TABLE_TYPE_OWNER as DECL_TYPE_OWNER,
                 TABLE_TYPE_NAME as DECL_TYPE_NAME
             from [PREFIX]_NESTED_TABLES
             where OWNER = {#0}
             order by PARENT_TABLE_NAME asc
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="all-nested-table-columns" timeout="90">
+        <statement prefixes="DBA, ALL" since-version="10.1">
+            select
+                nt.TABLE_NAME as STORAGE_TABLE_NAME,
+                nt.PARENT_TABLE_NAME as TABLE_NAME,
+                nt.PARENT_TABLE_NAME as DATASET_NAME,
+                col.COLUMN_NAME,
+                col.COLUMN_ID as POSITION,
+                REGEXP_REPLACE(col.DATA_TYPE, '\([0-9]+\)', '') as DATA_TYPE_NAME,
+                col.DATA_TYPE_OWNER as DECL_TYPE_OWNER,
+                col.DATA_TYPE as DECL_TYPE_NAME,
+                null as DECL_TYPE_PROGRAM,
+                null as NTBL_NAME,
+                null as NTBL_PARENT_OWNER_NAME,
+                null as NTBL_PARENT_TABLE_NAME,
+                null as NTBL_PARENT_COLUMN_NAME,
+                decode(col.DATA_TYPE, 'VECTOR', col.CHAR_LENGTH, col.DATA_LENGTH) as DATA_LENGTH,
+                col.DATA_PRECISION,
+                col.DATA_SCALE,
+                null as COMMENTS,
+                case
+                    when col.DATA_TYPE in ('TABLE', 'VARRAY') then 'Y'
+                    when exists (
+                        select 1
+                        from [PREFIX]_TYPES typ
+                        where typ.OWNER = col.DATA_TYPE_OWNER
+                          and typ.TYPE_NAME = col.DATA_TYPE
+                          and typ.TYPECODE = 'COLLECTION') then 'Y'
+                    else 'N'
+                end as IS_COLLECTION,
+                'N' as IS_PRIMARY_KEY,
+                'N' as IS_FOREIGN_KEY,
+                'N' as IS_UNIQUE_KEY,
+                'N' as IS_IDENTITY,
+                'Y' as IS_NULLABLE,
+                'N' as IS_HIDDEN,
+                'N' as IS_SET
+            from [PREFIX]_NESTED_TABLES nt
+                 inner join [PREFIX]_NESTED_TABLE_COLS col
+                         on col.OWNER = nt.OWNER
+                        and col.TABLE_NAME = nt.TABLE_NAME
+            where
+                nt.OWNER = {#0} and
+                col.HIDDEN_COLUMN = 'NO'
+            order by nt.PARENT_TABLE_NAME asc, nt.TABLE_NAME asc, col.COLUMN_ID asc
+        </statement>
+        <statement prefixes="DBA, ALL" comment="Oracle 8.0">
+            select
+                nt.TABLE_NAME as STORAGE_TABLE_NAME,
+                nt.PARENT_TABLE_NAME as TABLE_NAME,
+                nt.PARENT_TABLE_NAME as DATASET_NAME,
+                col.COLUMN_NAME,
+                col.COLUMN_ID as POSITION,
+                REGEXP_REPLACE(col.DATA_TYPE, '\([0-9]+\)', '') as DATA_TYPE_NAME,
+                col.DATA_TYPE_OWNER as DECL_TYPE_OWNER,
+                col.DATA_TYPE as DECL_TYPE_NAME,
+                null as DECL_TYPE_PROGRAM,
+                null as NTBL_NAME,
+                null as NTBL_PARENT_OWNER_NAME,
+                null as NTBL_PARENT_TABLE_NAME,
+                null as NTBL_PARENT_COLUMN_NAME,
+                col.DATA_LENGTH,
+                col.DATA_PRECISION,
+                col.DATA_SCALE,
+                null as COMMENTS,
+                case
+                    when col.DATA_TYPE in ('TABLE', 'VARRAY') then 'Y'
+                    when exists (
+                        select 1
+                        from [PREFIX]_TYPES typ
+                        where typ.OWNER = col.DATA_TYPE_OWNER
+                          and typ.TYPE_NAME = col.DATA_TYPE
+                          and typ.TYPECODE = 'COLLECTION') then 'Y'
+                    else 'N'
+                end as IS_COLLECTION,
+                'N' as IS_PRIMARY_KEY,
+                'N' as IS_FOREIGN_KEY,
+                'N' as IS_UNIQUE_KEY,
+                'N' as IS_IDENTITY,
+                'Y' as IS_NULLABLE,
+                'N' as IS_HIDDEN,
+                'N' as IS_SET
+            from [PREFIX]_NESTED_TABLES nt
+                 inner join [PREFIX]_TAB_COLUMNS col
+                         on col.OWNER = nt.OWNER
+                        and col.TABLE_NAME = nt.TABLE_NAME
+            where nt.OWNER = {#0}
+            order by nt.PARENT_TABLE_NAME asc, nt.TABLE_NAME asc, col.COLUMN_ID asc
         </statement>
     </statement-execution-processor>
 
@@ -1565,7 +1869,11 @@
                 t.TRIGGER_NAME,
                 t.TRIGGER_TYPE,
                 t.TRIGGERING_EVENT,
-                decode(t.STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                trim(t.BASE_OBJECT_TYPE) as TRIGGER_TARGET,
+                null as TARGET_SCHEMA_NAME,
+                null as TRIGGER_FUNCTION_NAME,
+                null as TRIGGER_FUNCTION_SCHEMA_NAME,
+                decode(t.STATUS, 'ENABLED', 'N', 'Y') as IS_DISABLED,
                 decode(nvl(o.STATUS, 'VALID'), 'VALID', 'Y', 'N') as IS_VALID,
                 decode(nvl(o.DEBUGINFO, 'F'), 'T', 'Y', 'N') as IS_DEBUG,
                 case when t.TRIGGER_TYPE like '%EACH ROW%' then 'Y' else 'N' end as IS_FOR_EACH_ROW
@@ -1586,7 +1894,11 @@
                 t.TRIGGER_NAME,
                 t.TRIGGER_TYPE,
                 t.TRIGGERING_EVENT,
-                decode(t.STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                trim(t.BASE_OBJECT_TYPE) as TRIGGER_TARGET,
+                null as TARGET_SCHEMA_NAME,
+                null as TRIGGER_FUNCTION_NAME,
+                null as TRIGGER_FUNCTION_SCHEMA_NAME,
+                decode(t.STATUS, 'ENABLED', 'N', 'Y') as IS_DISABLED,
                 decode(o.STATUS, 'VALID', 'Y', 'N') as IS_VALID,
                 'N' as IS_DEBUG,
                 case when t.TRIGGER_TYPE like '%EACH ROW%' then 'Y' else 'N' end as IS_FOR_EACH_ROW
@@ -1610,7 +1922,11 @@
                 t.TRIGGER_NAME,
                 t.TRIGGER_TYPE,
                 t.TRIGGERING_EVENT,
-                decode(t.STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                trim(t.BASE_OBJECT_TYPE) as TRIGGER_TARGET,
+                null as TARGET_SCHEMA_NAME,
+                null as TRIGGER_FUNCTION_NAME,
+                null as TRIGGER_FUNCTION_SCHEMA_NAME,
+                decode(t.STATUS, 'ENABLED', 'N', 'Y') as IS_DISABLED,
                 decode(nvl(o.STATUS, 'VALID'), 'VALID', 'Y', 'N') as IS_VALID,
                 decode(nvl(o.DEBUGINFO, 'F'), 'T', 'Y', 'N') as IS_DEBUG,
                 case when t.TRIGGER_TYPE like '%EACH ROW%' then 'Y' else 'N' end as IS_FOR_EACH_ROW
@@ -1633,7 +1949,11 @@
                 t.TRIGGER_NAME,
                 t.TRIGGER_TYPE,
                 t.TRIGGERING_EVENT,
-                decode(t.STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                trim(t.BASE_OBJECT_TYPE) as TRIGGER_TARGET,
+                null as TARGET_SCHEMA_NAME,
+                null as TRIGGER_FUNCTION_NAME,
+                null as TRIGGER_FUNCTION_SCHEMA_NAME,
+                decode(t.STATUS, 'ENABLED', 'N', 'Y') as IS_DISABLED,
                 decode(o.STATUS, 'VALID', 'Y', 'N') as IS_VALID,
                 'N' as IS_DEBUG,
                 case when t.TRIGGER_TYPE like '%EACH ROW%' then 'Y' else 'N' end as IS_FOR_EACH_ROW
@@ -1645,7 +1965,7 @@
                 o.OBJECT_NAME = t.TRIGGER_NAME and
                 o.OBJECT_TYPE = 'TRIGGER' and
                 t.TABLE_OWNER = {#0} and
-                trim(t.BASE_OBJECT_TYPE) in ('TABLE', 'VIEW') and
+                trim(t.BASE_OBJECT_TYPE) in ('TABLE', 'VIEW')
             order by
                 TABLE_NAME,
                 TRIGGER_NAME asc
@@ -1658,7 +1978,11 @@
                 t.TRIGGER_NAME,
                 t.TRIGGER_TYPE,
                 t.TRIGGERING_EVENT,
-                decode(t.STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                trim(t.BASE_OBJECT_TYPE) as TRIGGER_TARGET,
+                case when trim(t.BASE_OBJECT_TYPE) = 'SCHEMA' then t.TABLE_OWNER end as TARGET_SCHEMA_NAME,
+                null as TRIGGER_FUNCTION_NAME,
+                null as TRIGGER_FUNCTION_SCHEMA_NAME,
+                decode(t.STATUS, 'ENABLED', 'N', 'Y') as IS_DISABLED,
                 decode(nvl(o.STATUS, 'VALID'), 'VALID', 'Y', 'N') as IS_VALID,
                 decode(nvl(o.DEBUGINFO, 'F'), 'T', 'Y', 'N') as IS_DEBUG,
                 case when t.TRIGGER_TYPE like '%EACH ROW%' then 'Y' else 'N' end as IS_FOR_EACH_ROW
@@ -1679,7 +2003,11 @@
                 t.TRIGGER_NAME,
                 t.TRIGGER_TYPE,
                 t.TRIGGERING_EVENT,
-                decode(t.STATUS, 'ENABLED', 'Y', 'N') as IS_ENABLED,
+                trim(t.BASE_OBJECT_TYPE) as TRIGGER_TARGET,
+                case when trim(t.BASE_OBJECT_TYPE) = 'SCHEMA' then t.TABLE_OWNER end as TARGET_SCHEMA_NAME,
+                null as TRIGGER_FUNCTION_NAME,
+                null as TRIGGER_FUNCTION_SCHEMA_NAME,
+                decode(t.STATUS, 'ENABLED', 'N', 'Y') as IS_DISABLED,
                 decode(o.STATUS, 'VALID', 'Y', 'N') as IS_VALID,
                 'N' as IS_DEBUG,
                 case when t.TRIGGER_TYPE like '%EACH ROW%' then 'Y' else 'N' end as IS_FOR_EACH_ROW
@@ -1691,7 +2019,7 @@
                 o.OBJECT_NAME = t.TRIGGER_NAME and
                 o.OBJECT_TYPE = 'TRIGGER' and
                 t.OWNER = {#0} and
-                trim(t.BASE_OBJECT_TYPE) in ('DATABASE', 'SCHEMA') and
+                trim(t.BASE_OBJECT_TYPE) in ('DATABASE', 'SCHEMA')
             order by
                 TRIGGER_NAME asc
         </statement>
@@ -1970,116 +2298,128 @@
     <statement-execution-processor id="package-procedures">
         <statement prefixes="DBA, ALL">
             select
-                a.OBJECT_NAME as PROCEDURE_NAME,
+                p.PROCEDURE_NAME,
                 p.SUBPROGRAM_ID as POSITION,
-                a.OVERLOAD,
+                p.OVERLOAD,
                 'N' as IS_DETERMINISTIC,
                 'PSQL' as LANGUAGE
             from
-                [PREFIX]_ARGUMENTS a,
                 [PREFIX]_PROCEDURES p
             where
-                a.OWNER = {#0} and
-                a.PACKAGE_NAME = {#1} and
-                a.POSITION = 1 and
-                a.SEQUENCE IN (1, 0) and
-                p.OWNER = a.OWNER and
-                p.OBJECT_NAME = a.PACKAGE_NAME and
-                p.PROCEDURE_NAME = a.OBJECT_NAME and
-                nvl(p.OVERLOAD, 0) = nvl(a.OVERLOAD, 0)
+                p.OWNER = {#0} and
+                p.OBJECT_NAME = {#1} and
+                p.PROCEDURE_NAME is not null and
+                not exists (
+                    select 1
+                    from [PREFIX]_ARGUMENTS a
+                    where
+                        a.OWNER = p.OWNER and
+                        a.PACKAGE_NAME = p.OBJECT_NAME and
+                        a.OBJECT_NAME = p.PROCEDURE_NAME and
+                        nvl(a.OVERLOAD, 0) = nvl(p.OVERLOAD, 0) and
+                        a.POSITION = 0)
             order by
-                a.OBJECT_NAME,
-                a.OVERLOAD asc
+                p.PROCEDURE_NAME,
+                p.OVERLOAD asc
         </statement>
         <statement>
             select
-                a.OBJECT_NAME as PROCEDURE_NAME,
+                p.PROCEDURENAME as PROCEDURE_NAME,
                 p.PROCEDURE# as POSITION,
-                a.OVERLOAD,
+                p.OVERLOAD# as OVERLOAD,
                 'N' as IS_DETERMINISTIC,
                 'PSQL' as LANGUAGE
             from
-                ALL_ARGUMENTS a,
                 SYS.PROCEDUREINFO$ p,
                 SYS.USER$ u,
                 SYS.OBJ$ o
             where
-                a.OWNER = {#0} and
-                a.PACKAGE_NAME = {#1} and
-                a.POSITION = 1 and
-                a.SEQUENCE IN (1, 0) and
-                u.NAME = a.OWNER and
+                u.NAME = {#0} and
                 o.OWNER# = u.USER# and
-                o.NAME = a.PACKAGE_NAME and
+                o.NAME = {#1} and
                 p.OBJ# = o.OBJ# and
-                p.PROCEDURENAME = a.OBJECT_NAME and
-                nvl(p.OVERLOAD#, 0) = nvl(a.OVERLOAD, 0)
+                p.PROCEDURENAME is not null and
+                not exists (
+                    select 1
+                    from ALL_ARGUMENTS a
+                    where
+                        a.OWNER = u.NAME and
+                        a.PACKAGE_NAME = o.NAME and
+                        a.OBJECT_NAME = p.PROCEDURENAME and
+                        nvl(a.OVERLOAD, 0) = nvl(p.OVERLOAD#, 0) and
+                        a.POSITION = 0)
             order by
-                a.OBJECT_NAME,
-                a.OVERLOAD asc
+                p.PROCEDURENAME,
+                p.OVERLOAD# asc
         </statement>
     </statement-execution-processor>
 
     <statement-execution-processor id="all-package-procedures" timeout="90">
         <statement prefixes="DBA, ALL">
             select
-                a.PACKAGE_NAME,
-                a.OBJECT_NAME as PROCEDURE_NAME,
+                p.OBJECT_NAME as PACKAGE_NAME,
+                p.PROCEDURE_NAME,
                 p.SUBPROGRAM_ID as POSITION,
-                a.OVERLOAD,
+                p.OVERLOAD,
                 'N' as IS_DETERMINISTIC,
                 'PSQL' as LANGUAGE
             from
-                [PREFIX]_ARGUMENTS a,
                 [PREFIX]_PROCEDURES p
             where
-                a.OWNER = {#0} and
-                a.POSITION = 1 and
-                a.SEQUENCE IN (1, 0) and
-                a.PACKAGE_NAME in (
+                p.OWNER = {#0} and
+                p.PROCEDURE_NAME is not null and
+                p.OBJECT_NAME in (
                     select OBJECT_NAME
                     from [PREFIX]_OBJECTS
                     where OWNER = {#0} and OBJECT_TYPE = 'PACKAGE') and
-                p.OWNER = a.OWNER and
-                p.OBJECT_NAME = a.PACKAGE_NAME and
-                p.PROCEDURE_NAME = a.OBJECT_NAME and
-                nvl(p.OVERLOAD, 0) = nvl(a.OVERLOAD, 0)
+                not exists (
+                    select 1
+                    from [PREFIX]_ARGUMENTS a
+                    where
+                        a.OWNER = p.OWNER and
+                        a.PACKAGE_NAME = p.OBJECT_NAME and
+                        a.OBJECT_NAME = p.PROCEDURE_NAME and
+                        nvl(a.OVERLOAD, 0) = nvl(p.OVERLOAD, 0) and
+                        a.POSITION = 0)
             order by
-                a.PACKAGE_NAME,
-                a.OBJECT_NAME,
-                a.OVERLOAD asc
+                p.OBJECT_NAME,
+                p.PROCEDURE_NAME,
+                p.OVERLOAD asc
         </statement>
         <statement prefixes="DBA, ALL">
             select
-                a.PACKAGE_NAME,
-                a.OBJECT_NAME as PROCEDURE_NAME,
+                o.NAME as PACKAGE_NAME,
+                p.PROCEDURENAME as PROCEDURE_NAME,
                 p.PROCEDURE# as POSITION,
-                a.OVERLOAD,
+                p.OVERLOAD# as OVERLOAD,
                 'N' as IS_DETERMINISTIC,
                 'PSQL' as LANGUAGE
             from
-                ALL_ARGUMENTS a,
                 SYS.PROCEDUREINFO$ p,
                 SYS.USER$ u,
                 SYS.OBJ$ o
             where
-                a.OWNER = {#0} and
-                a.POSITION = 1 and
-                a.SEQUENCE IN (1, 0) and
-                a.PACKAGE_NAME in (
+                u.NAME = {#0} and
+                o.OWNER# = u.USER# and
+                o.NAME in (
                     select OBJECT_NAME
                     from [PREFIX]_OBJECTS
                     where OWNER = {#0} and OBJECT_TYPE = 'PACKAGE') and
-                u.NAME = a.OWNER and
-                o.OWNER# = u.USER# and
-                o.NAME = a.PACKAGE_NAME and
                 p.OBJ# = o.OBJ# and
-                p.PROCEDURENAME = a.OBJECT_NAME and
-                nvl(p.OVERLOAD#, 0) = nvl(a.OVERLOAD, 0)
+                p.PROCEDURENAME is not null and
+                not exists (
+                    select 1
+                    from ALL_ARGUMENTS a
+                    where
+                        a.OWNER = u.NAME and
+                        a.PACKAGE_NAME = o.NAME and
+                        a.OBJECT_NAME = p.PROCEDURENAME and
+                        nvl(a.OVERLOAD, 0) = nvl(p.OVERLOAD#, 0) and
+                        a.POSITION = 0)
             order by
-                a.PACKAGE_NAME,
-                a.OBJECT_NAME,
-                a.OVERLOAD asc
+                o.NAME,
+                p.PROCEDURENAME,
+                p.OVERLOAD# asc
         </statement>
     </statement-execution-processor>
 
@@ -2144,14 +2484,29 @@
                 t.SUPERTYPE_OWNER,
                 t.SUPERTYPE_NAME,
                 t.TYPECODE,
-                ct.ELEM_TYPE_NAME  as COLLECTION_DATA_TYPE_NAME,
-                ct.ELEM_TYPE_OWNER as COLLECTION_DECL_TYPE_OWNER,
-                ct.ELEM_TYPE_NAME  as COLLECTION_DECL_TYPE_NAME,
-                null               as COLLECTION_DECL_TYPE_PROGRAM,
-                ct.LENGTH          as COLLECTION_DATA_LENGTH,
-                ct.PRECISION       as COLLECTION_DATA_PRECISION,
-                ct.SCALE           as COLLECTION_DATA_SCALE,
-                'N'                as COLLECTION_IS_SET,
+                case when t.TYPECODE = 'COLLECTION' then 'Y' else 'N' end as IS_COLLECTION,
+                null as NTBL_NAME,
+                null as NTBL_PARENT_OWNER_NAME,
+                null as NTBL_PARENT_TABLE_NAME,
+                null as NTBL_PARENT_COLUMN_NAME,
+                ct.ELEM_TYPE_NAME  as COLL_DATA_TYPE_NAME,
+                ct.ELEM_TYPE_OWNER as COLL_DECL_TYPE_OWNER,
+                ct.ELEM_TYPE_NAME  as COLL_DECL_TYPE_NAME,
+                null               as COLL_DECL_TYPE_PROGRAM,
+                null               as COLL_NTBL_NAME,
+                null               as COLL_NTBL_PARENT_OWNER_NAME,
+                null               as COLL_NTBL_PARENT_TABLE_NAME,
+                null               as COLL_NTBL_PARENT_COLUMN_NAME,
+                ct.LENGTH          as COLL_DATA_LENGTH,
+                ct.PRECISION       as COLL_DATA_PRECISION,
+                ct.SCALE           as COLL_DATA_SCALE,
+                'N'                as COLL_IS_SET,
+                case when exists (
+                    select 1
+                    from [PREFIX]_TYPES element_type
+                    where element_type.OWNER = ct.ELEM_TYPE_OWNER
+                      and element_type.TYPE_NAME = ct.ELEM_TYPE_NAME
+                      and element_type.TYPECODE = 'COLLECTION') then 'Y' else 'N' end as COLL_IS_COLLECTION,
                 nvl(s.IS_SPEC_PRESENT, 'N') as IS_SPEC_PRESENT,
                 nvl(b.IS_BODY_PRESENT, 'N') as IS_BODY_PRESENT,
                 s.IS_SPEC_VALID,
@@ -2196,14 +2551,29 @@
                 t.SUPERTYPE_OWNER,
                 t.SUPERTYPE_NAME,
                 t.TYPECODE,
-                ct.ELEM_TYPE_NAME  as COLLECTION_DATA_TYPE_NAME,
-                ct.ELEM_TYPE_OWNER as COLLECTION_DECL_TYPE_OWNER,
-                ct.ELEM_TYPE_NAME  as COLLECTION_DECL_TYPE_NAME,
-                null               as COLLECTION_DECL_TYPE_PROGRAM,
-                ct.LENGTH          as COLLECTION_DATA_LENGTH,
-                ct.PRECISION       as COLLECTION_DATA_PRECISION,
-                ct.SCALE           as COLLECTION_DATA_SCALE,
-                'N'                as COLLECTION_IS_SET,
+                case when t.TYPECODE = 'COLLECTION' then 'Y' else 'N' end as IS_COLLECTION,
+                null as NTBL_NAME,
+                null as NTBL_PARENT_OWNER_NAME,
+                null as NTBL_PARENT_TABLE_NAME,
+                null as NTBL_PARENT_COLUMN_NAME,
+                ct.ELEM_TYPE_NAME  as COLL_DATA_TYPE_NAME,
+                ct.ELEM_TYPE_OWNER as COLL_DECL_TYPE_OWNER,
+                ct.ELEM_TYPE_NAME  as COLL_DECL_TYPE_NAME,
+                null               as COLL_DECL_TYPE_PROGRAM,
+                null               as COLL_NTBL_PARENT_OWNER_NAME,
+                null               as COLL_NTBL_PARENT_TABLE_NAME,
+                null               as COLL_NTBL_PARENT_COLUMN_NAME,
+                null               as COLL_NTBL_NAME,
+                ct.LENGTH          as COLL_DATA_LENGTH,
+                ct.PRECISION       as COLL_DATA_PRECISION,
+                ct.SCALE           as COLL_DATA_SCALE,
+                'N'                as COLL_IS_SET,
+                case when exists (
+                    select 1
+                    from [PREFIX]_TYPES element_type
+                    where element_type.OWNER = ct.ELEM_TYPE_OWNER
+                      and element_type.TYPE_NAME = ct.ELEM_TYPE_NAME
+                      and element_type.TYPECODE = 'COLLECTION') then 'Y' else 'N' end as COLL_IS_COLLECTION,
                 nvl(s.IS_SPEC_PRESENT, 'N') as IS_SPEC_PRESENT,
                 nvl(b.IS_BODY_PRESENT, 'N') as IS_BODY_PRESENT,
                 s.IS_SPEC_VALID,
@@ -2248,14 +2618,24 @@
                 t.SUPERTYPE_OWNER,
                 t.SUPERTYPE_NAME,
                 t.TYPECODE,
-                null as COLLECTION_DATA_TYPE_NAME,
-                null as COLLECTION_DECL_TYPE_OWNER,
-                null as COLLECTION_DECL_TYPE_NAME,
-                null as COLLECTION_DECL_TYPE_PROGRAM,
-                0    as COLLECTION_DATA_LENGTH,
-                0    as COLLECTION_DATA_PRECISION,
-                0    as COLLECTION_DATA_SCALE,
-                'N'  as COLLECTION_IS_SET,
+                case when t.TYPECODE = 'COLLECTION' then 'Y' else 'N' end as IS_COLLECTION,
+                null as NTBL_PARENT_OWNER_NAME,
+                null as NTBL_PARENT_TABLE_NAME,
+                null as NTBL_PARENT_COLUMN_NAME,
+                null as NTBL_NAME,
+                null as COLL_DATA_TYPE_NAME,
+                null as COLL_DECL_TYPE_OWNER,
+                null as COLL_DECL_TYPE_NAME,
+                null as COLL_DECL_TYPE_PROGRAM,
+                null as COLL_NTBL_PARENT_OWNER_NAME,
+                null as COLL_NTBL_PARENT_TABLE_NAME,
+                null as COLL_NTBL_PARENT_COLUMN_NAME,
+                null as COLL_NTBL_NAME,
+                0    as COLL_DATA_LENGTH,
+                0    as COLL_DATA_PRECISION,
+                0    as COLL_DATA_SCALE,
+                'N'  as COLL_IS_SET,
+                'N'  as COLL_IS_COLLECTION,
                 nvl(s.IS_SPEC_PRESENT, 'N') as IS_SPEC_PRESENT,
                 nvl(b.IS_BODY_PRESENT, 'N') as IS_BODY_PRESENT,
                 s.IS_SPEC_VALID,
@@ -2278,11 +2658,25 @@
                  ATTR_TYPE_NAME as DATA_TYPE_NAME,
                  ATTR_TYPE_OWNER as DECL_TYPE_OWNER,
                  ATTR_TYPE_NAME as DECL_TYPE_NAME,
-                 null as DECL_TYPE_PROGRAM,
+                null as DECL_TYPE_PROGRAM,
+                null as NTBL_PARENT_OWNER_NAME,
+                null as NTBL_PARENT_TABLE_NAME,
+                 null as NTBL_PARENT_COLUMN_NAME,
+                 null as NTBL_NAME,
                  LENGTH as DATA_LENGTH,
                  PRECISION as DATA_PRECISION,
                  SCALE as DATA_SCALE,
-                'N' as IS_SET
+                'N' as IS_SET,
+                case
+                    when ATTR_TYPE_NAME in ('TABLE', 'VARRAY') then 'Y'
+                    when exists (
+                        select 1
+                        from [PREFIX]_TYPES typ
+                        where typ.OWNER = ATTR_TYPE_OWNER
+                          and typ.TYPE_NAME = ATTR_TYPE_NAME
+                          and typ.TYPECODE = 'COLLECTION') then 'Y'
+                    else 'N'
+                end as IS_COLLECTION
              from  [PREFIX]_TYPE_ATTRS
              where
                  OWNER = {#0} and
@@ -2300,11 +2694,25 @@
                  ATTR_TYPE_NAME as DATA_TYPE_NAME,
                  ATTR_TYPE_OWNER as DECL_TYPE_OWNER,
                  ATTR_TYPE_NAME as DECL_TYPE_NAME,
-                 null as DECL_TYPE_PROGRAM,
+                null as DECL_TYPE_PROGRAM,
+                null as NTBL_PARENT_OWNER_NAME,
+                null as NTBL_PARENT_TABLE_NAME,
+                 null as NTBL_PARENT_COLUMN_NAME,
+                 null as NTBL_NAME,
                  LENGTH as DATA_LENGTH,
                  PRECISION as DATA_PRECISION,
                  SCALE as DATA_SCALE,
-                 'N' as IS_SET
+                 'N' as IS_SET,
+                 case
+                     when ATTR_TYPE_NAME in ('TABLE', 'VARRAY') then 'Y'
+                     when exists (
+                         select 1
+                         from [PREFIX]_TYPES typ
+                         where typ.OWNER = ATTR_TYPE_OWNER
+                           and typ.TYPE_NAME = ATTR_TYPE_NAME
+                           and typ.TYPECODE = 'COLLECTION') then 'Y'
+                     else 'N'
+                 end as IS_COLLECTION
              from [PREFIX]_TYPE_ATTRS
              where OWNER = {#0}
              order by TYPE_NAME asc
@@ -2320,10 +2728,24 @@
                 ATTR_TYPE_OWNER as DECL_TYPE_OWNER,
                 PACKAGE_NAME as DECL_TYPE_PROGRAM,
                 TYPE_NAME as DECL_TYPE_NAME,
+                null as NTBL_PARENT_OWNER_NAME,
+                null as NTBL_PARENT_TABLE_NAME,
+                null as NTBL_PARENT_COLUMN_NAME,
+                null as NTBL_NAME,
                 LENGTH as DATA_LENGTH,
                 PRECISION as DATA_PRECISION,
                 SCALE as DATA_SCALE,
-                'N' as IS_SET
+                'N' as IS_SET,
+                case
+                    when ATTR_TYPE_NAME in ('TABLE', 'VARRAY') then 'Y'
+                    when exists (
+                        select 1
+                        from [PREFIX]_TYPES typ
+                        where typ.OWNER = ATTR_TYPE_OWNER
+                          and typ.TYPE_NAME = ATTR_TYPE_NAME
+                          and typ.TYPECODE = 'COLLECTION') then 'Y'
+                    else 'N'
+                end as IS_COLLECTION
             from [PREFIX]_PLSQL_TYPE_ATTRS aa1
             where
                 OWNER = {#0} and
@@ -2339,10 +2761,24 @@
                 TYPE_OWNER as DECL_TYPE_OWNER,
                 decode(TYPE_SUBNAME, null, null, TYPE_NAME) as DECL_TYPE_PROGRAM,
                 decode(TYPE_SUBNAME, null, nvl(TYPE_NAME, DATA_TYPE), TYPE_SUBNAME) as DECL_TYPE_NAME,
+                null as NTBL_PARENT_OWNER_NAME,
+                null as NTBL_PARENT_TABLE_NAME,
+                null as NTBL_PARENT_COLUMN_NAME,
+                null as NTBL_NAME,
                 DATA_LENGTH,
                 DATA_PRECISION,
                 DATA_SCALE,
-                'N' as IS_SET
+                'N' as IS_SET,
+                case
+                    when aa1.DATA_TYPE in ('TABLE', 'VARRAY') then 'Y'
+                    when exists (
+                        select 1
+                        from [PREFIX]_TYPES typ
+                        where typ.OWNER = aa1.TYPE_OWNER
+                          and typ.TYPE_NAME = aa1.TYPE_NAME
+                          and typ.TYPECODE = 'COLLECTION') then 'Y'
+                    else 'N'
+                end as IS_COLLECTION
             from [PREFIX]_ARGUMENTS aa1
             where
                 ARGUMENT_NAME is not null and
@@ -2640,11 +3076,25 @@
                 TYPE_OWNER as DECL_TYPE_OWNER,
                 decode(TYPE_SUBNAME, null, null, TYPE_NAME) as DECL_TYPE_PROGRAM,
                 decode(TYPE_SUBNAME, null, nvl(TYPE_NAME, DATA_TYPE), TYPE_SUBNAME) as DECL_TYPE_NAME,
+                null as NTBL_PARENT_OWNER_NAME,
+                null as NTBL_PARENT_TABLE_NAME,
+                null as NTBL_PARENT_COLUMN_NAME,
+                null as NTBL_NAME,
                 DATA_LENGTH,
                 DATA_PRECISION,
                 DATA_SCALE,
-                'N' as IS_SET
-            from [PREFIX]_ARGUMENTS
+                'N' as IS_SET,
+                case
+                    when a.DATA_TYPE in ('TABLE', 'VARRAY') then 'Y'
+                    when exists (
+                        select 1
+                        from [PREFIX]_TYPES typ
+                        where typ.OWNER = a.TYPE_OWNER
+                          and typ.TYPE_NAME = a.TYPE_NAME
+                          and typ.TYPECODE = 'COLLECTION') then 'Y'
+                    else 'N'
+                end as IS_COLLECTION
+            from [PREFIX]_ARGUMENTS a
             where
                 OWNER = {#0} and
                 PACKAGE_NAME is null and
@@ -2674,11 +3124,25 @@
                 TYPE_OWNER as DECL_TYPE_OWNER,
                 decode(TYPE_SUBNAME, null, null, TYPE_NAME) as DECL_TYPE_PROGRAM,
                 decode(TYPE_SUBNAME, null, nvl(TYPE_NAME, DATA_TYPE), TYPE_SUBNAME) as DECL_TYPE_NAME,
+                null as NTBL_PARENT_OWNER_NAME,
+                null as NTBL_PARENT_TABLE_NAME,
+                null as NTBL_PARENT_COLUMN_NAME,
+                null as NTBL_NAME,
                 decode(DATA_TYPE, 'VECTOR', CHAR_LENGTH, DATA_LENGTH) as DATA_LENGTH,
                 DATA_PRECISION,
                 DATA_SCALE,
-                'N' as IS_SET
-            from [PREFIX]_ARGUMENTS
+                'N' as IS_SET,
+                case
+                    when a.DATA_TYPE in ('TABLE', 'VARRAY') then 'Y'
+                    when exists (
+                        select 1
+                        from [PREFIX]_TYPES typ
+                        where typ.OWNER = a.TYPE_OWNER
+                          and typ.TYPE_NAME = a.TYPE_NAME
+                          and typ.TYPECODE = 'COLLECTION') then 'Y'
+                    else 'N'
+                end as IS_COLLECTION
+            from [PREFIX]_ARGUMENTS a
             where
                 OWNER = {#0} and
                 PACKAGE_NAME = {#1} and
@@ -2707,11 +3171,25 @@
                 TYPE_OWNER as DECL_TYPE_OWNER,
                 decode(TYPE_SUBNAME, null, null, TYPE_NAME) as DECL_TYPE_PROGRAM,
                 decode(TYPE_SUBNAME, null, nvl(TYPE_NAME, DATA_TYPE), TYPE_SUBNAME) as DECL_TYPE_NAME,
+                null as NTBL_PARENT_OWNER_NAME,
+                null as NTBL_PARENT_TABLE_NAME,
+                null as NTBL_PARENT_COLUMN_NAME,
+                null as NTBL_NAME,
                 decode(DATA_TYPE, 'VECTOR', CHAR_LENGTH, DATA_LENGTH) as DATA_LENGTH,
                 DATA_PRECISION,
                 DATA_SCALE,
-                'N' as IS_SET
-            from [PREFIX]_ARGUMENTS
+                'N' as IS_SET,
+                case
+                    when a.DATA_TYPE in ('TABLE', 'VARRAY') then 'Y'
+                    when exists (
+                        select 1
+                        from [PREFIX]_TYPES typ
+                        where typ.OWNER = a.TYPE_OWNER
+                          and typ.TYPE_NAME = a.TYPE_NAME
+                          and typ.TYPECODE = 'COLLECTION') then 'Y'
+                    else 'N'
+                end as IS_COLLECTION
+            from [PREFIX]_ARGUMENTS a
             where
                 OWNER = {#0} and
                 DATA_LEVEL = 0 and
@@ -2766,6 +3244,93 @@
                 from [PREFIX]_DEPENDENCIES
                 where
                    (OWNER != REFERENCED_OWNER or NAME != REFERENCED_NAME) and
+                    OWNER = {#0} and
+                    NAME = {#1})
+            order by
+                OBJECT_OWNER,
+                OBJECT_TYPE,
+                OBJECT_NAME asc
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="debug-dependencies">
+        <statement prefixes="DBA, ALL" since-version="12.1">
+            select distinct * from (
+                select
+                    ro.OWNER OBJECT_OWNER,
+                    ro.OBJECT_NAME OBJECT_NAME,
+                    ro.OBJECT_TYPE OBJECT_TYPE
+                from
+                    PUBLIC_DEPENDENCY pd,
+                    [PREFIX]_OBJECTS o,
+                    [PREFIX]_OBJECTS ro
+                where
+                    ro.OBJECT_ID = pd.REFERENCED_OBJECT_ID and
+                    o.OBJECT_ID = pd.OBJECT_ID and
+                    (o.OWNER != ro.OWNER or o.OBJECT_NAME != ro.OBJECT_NAME) and
+                    ro.OWNER in (
+                        select USERNAME
+                        from [PREFIX]_USERS
+                        where ORACLE_MAINTAINED = 'N') and
+                    o.OWNER = {#0} and
+                    o.OBJECT_NAME = {#1})
+            order by
+                OBJECT_OWNER,
+                OBJECT_TYPE,
+                OBJECT_NAME asc
+        </statement>
+        <statement prefixes="DBA, ALL">
+            select distinct * from (
+                select
+                    ro.OWNER OBJECT_OWNER,
+                    ro.OBJECT_NAME OBJECT_NAME,
+                    ro.OBJECT_TYPE OBJECT_TYPE
+                from
+                    PUBLIC_DEPENDENCY pd,
+                    [PREFIX]_OBJECTS o,
+                    [PREFIX]_OBJECTS ro
+                where
+                    ro.OBJECT_ID = pd.REFERENCED_OBJECT_ID and
+                    o.OBJECT_ID = pd.OBJECT_ID and
+                    (o.OWNER != ro.OWNER or o.OBJECT_NAME != ro.OBJECT_NAME) and
+                    ro.OWNER not in ('SYS', 'SYSTEM', 'PUBLIC') and
+                    o.OWNER = {#0} and
+                    o.OBJECT_NAME = {#1})
+            order by
+                OBJECT_OWNER,
+                OBJECT_TYPE,
+                OBJECT_NAME asc
+        </statement>
+        <statement prefixes="DBA, ALL" since-version="12.1">
+            select distinct * from (
+                select
+                    REFERENCED_OWNER as OBJECT_OWNER,
+                    REFERENCED_NAME as OBJECT_NAME,
+                    decode(REFERENCED_TYPE, 'PACKAGE BODY', 'PACKAGE', 'TYPE BODY', 'TYPE', REFERENCED_TYPE) as OBJECT_TYPE
+                from [PREFIX]_DEPENDENCIES
+                where
+                    (OWNER != REFERENCED_OWNER or NAME != REFERENCED_NAME) and
+                    REFERENCED_OWNER in (
+                        select USERNAME
+                        from [PREFIX]_USERS
+                        where ORACLE_MAINTAINED = 'N') and
+                    OWNER = {#0} and
+                    NAME = {#1})
+            order by
+                OBJECT_OWNER,
+                OBJECT_TYPE,
+                OBJECT_NAME asc
+        </statement>
+        <statement prefixes="DBA, ALL">
+            select distinct * from (
+                select
+                    REFERENCED_OWNER as OBJECT_OWNER,
+                    REFERENCED_NAME as OBJECT_NAME,
+                    decode(REFERENCED_TYPE, 'PACKAGE BODY', 'PACKAGE', 'TYPE BODY', 'TYPE', REFERENCED_TYPE) as OBJECT_TYPE
+                from [PREFIX]_DEPENDENCIES
+                where
+                    (OWNER != REFERENCED_OWNER or NAME != REFERENCED_NAME) and
+                    REFERENCED_OWNER not in ('SYS', 'SYSTEM', 'PUBLIC') and
                     OWNER = {#0} and
                     NAME = {#1})
             order by

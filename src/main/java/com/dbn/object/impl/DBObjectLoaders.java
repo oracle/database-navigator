@@ -49,6 +49,7 @@ import com.dbn.database.common.metadata.def.DBJsonViewMetadata;
 import com.dbn.database.common.metadata.def.DBJsonViewTableMetadata;
 import com.dbn.database.common.metadata.def.DBMaterializedViewMetadata;
 import com.dbn.database.common.metadata.def.DBMiningModelMetadata;
+import com.dbn.database.common.metadata.def.DBNestedTableColumnMetadata;
 import com.dbn.database.common.metadata.def.DBNestedTableMetadata;
 import com.dbn.database.common.metadata.def.DBObjectDependencyMetadata;
 import com.dbn.database.common.metadata.def.DBPackageMetadata;
@@ -77,6 +78,7 @@ import com.dbn.object.DBDataset;
 import com.dbn.object.DBDatasetTrigger;
 import com.dbn.object.DBDatasourceConfig;
 import com.dbn.object.DBDimension;
+import com.dbn.object.DBEventTrigger;
 import com.dbn.object.DBFunction;
 import com.dbn.object.DBGrantedPrivilege;
 import com.dbn.object.DBGrantedRole;
@@ -90,6 +92,7 @@ import com.dbn.object.DBJsonView;
 import com.dbn.object.DBMaterializedView;
 import com.dbn.object.DBMethod;
 import com.dbn.object.DBNestedTable;
+import com.dbn.object.DBNestedTableColumn;
 import com.dbn.object.DBObjectPrivilege;
 import com.dbn.object.DBPackage;
 import com.dbn.object.DBPackageFunction;
@@ -146,7 +149,9 @@ import static com.dbn.object.type.DBObjectType.DATASET;
 import static com.dbn.object.type.DBObjectType.DATASET_TRIGGER;
 import static com.dbn.object.type.DBObjectType.DATASOURCE_CONFIG;
 import static com.dbn.object.type.DBObjectType.DBLINK;
+import static com.dbn.object.type.DBObjectType.DEBUG_DEPENDENCY;
 import static com.dbn.object.type.DBObjectType.DIMENSION;
+import static com.dbn.object.type.DBObjectType.EVENT_TRIGGER;
 import static com.dbn.object.type.DBObjectType.FUNCTION;
 import static com.dbn.object.type.DBObjectType.GRANTED_PRIVILEGE;
 import static com.dbn.object.type.DBObjectType.GRANTED_ROLE;
@@ -163,6 +168,7 @@ import static com.dbn.object.type.DBObjectType.JSON_VIEW;
 import static com.dbn.object.type.DBObjectType.MATERIALIZED_VIEW;
 import static com.dbn.object.type.DBObjectType.METHOD;
 import static com.dbn.object.type.DBObjectType.NESTED_TABLE;
+import static com.dbn.object.type.DBObjectType.NESTED_TABLE_COLUMN;
 import static com.dbn.object.type.DBObjectType.OBJECT_PRIVILEGE;
 import static com.dbn.object.type.DBObjectType.OUTGOING_DEPENDENCY;
 import static com.dbn.object.type.DBObjectType.PACKAGE;
@@ -197,6 +203,10 @@ public class DBObjectLoaders {
                 "CONSOLES", null, CONSOLE, true,
                 content -> content.setElements(content.getConnection().getConsoleBundle().getConsoles()));
 
+        DynamicContentResultSetLoader.<DBEventTrigger, DBTriggerMetadata>create(
+                "EVENT_TRIGGERS", null, EVENT_TRIGGER, true, true,
+                (content, conn, mdi) -> mdi.loadEventTriggers(conn),
+                (content, cache, md) -> new DBEventTriggerImpl(content.getConnection(), md));
 
         DynamicContentResultSetLoader.<DBSchema, DBSchemaMetadata>create(
                 "SCHEMAS", null, SCHEMA, true, true,
@@ -447,9 +457,21 @@ public class DBObjectLoaders {
                 "ALL_NESTED_TABLES", SCHEMA, NESTED_TABLE, true, true,
                 (content, conn, mdi) -> mdi.loadAllNestedTables(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> {
-                    String tableName = md.getTableName();
+                    String tableName = md.getParentTableName();
                     DBTable table = valid(cache.get(tableName, () -> ((DBSchema) content.ensureParentEntity()).getTable(tableName)));
                     return new DBNestedTableImpl(table, md);
+                });
+
+        DynamicContentResultSetLoader.<DBNestedTableColumn, DBNestedTableColumnMetadata>create(
+                "ALL_NESTED_TABLE_COLUMNS", SCHEMA, NESTED_TABLE_COLUMN, true, true,
+                (content, conn, mdi) -> mdi.loadAllNestedTableColumns(content.ensureParentEntity().getName(), conn),
+                (content, cache, md) -> {
+                    DBSchema schema = content.ensureParentEntity();
+                    String storageTableName = md.getStorageTableName();
+                    String cacheKey = md.getTableName() + '.' + storageTableName;
+                    DBNestedTable nestedTable = valid(cache.get(cacheKey,
+                            () -> schema.getChildObject(NESTED_TABLE, storageTableName)));
+                    return new DBNestedTableColumnImpl(nestedTable, md);
                 });
 
         DynamicContentResultSetLoader.<DBJavaClass, DBJavaClassMetadata>create(
@@ -709,6 +731,15 @@ public class DBObjectLoaders {
                         "NESTED_TABLES", TABLE, NESTED_TABLE, false, true,
                         (content, conn, mdi) -> mdi.loadNestedTables(content.getParentSchemaName(), content.getParentObjectName(), conn),
                         (content, cache, md) -> new DBNestedTableImpl(valid(content.getParentEntity()), md)));
+
+        DynamicSubcontentLoader.create("NESTED_TABLE_COLUMNS", NESTED_TABLE, NESTED_TABLE_COLUMN,
+                DynamicContentResultSetLoader.<DBNestedTableColumn, DBNestedTableColumnMetadata>create(
+                        "NESTED_TABLE_COLUMNS", NESTED_TABLE, NESTED_TABLE_COLUMN, false, true,
+                        (content, conn, mdi) -> mdi.loadNestedTableColumns(
+                                content.getParentSchemaName(),
+                                content.getParentObjectName(),
+                                conn),
+                        (content, cache, md) -> new DBNestedTableColumnImpl(valid(content.getParentEntity()), md)));
     }
 
     /* Loaders for program child objects (children of DBProgram) */
@@ -829,6 +860,21 @@ public class DBObjectLoaders {
         DynamicContentResultSetLoader.<DBObject, DBObjectDependencyMetadata>create(
                 "OUTGOING_DEPENDENCIES", null, OUTGOING_DEPENDENCY, true, false,
                 (content, conn, mdi) ->  mdi.loadReferencingObjects(content.getParentSchemaName(), content.getParentObjectName(), conn),
+                (content, cache, md) -> {
+                    String objectOwner = md.getObjectOwner();
+                    String objectName = md.getObjectName();
+                    String objectTypeName = md.getObjectType();
+                    DBObjectType objectType = get(objectTypeName);
+                    if (objectType == PACKAGE_BODY) objectType = PACKAGE;
+                    if (objectType == TYPE_BODY) objectType = TYPE;
+
+                    DBSchema schema = getSchema(content, objectOwner);
+                    return schema.getChildObject(objectType, objectName, (short) 0, true);
+                });
+
+        DynamicContentResultSetLoader.<DBObject, DBObjectDependencyMetadata>create(
+                "DEBUG_DEPENDENCIES", null, DEBUG_DEPENDENCY, true, false,
+                (content, conn, mdi) -> mdi.loadDebugDependencies(content.getParentSchemaName(), content.getParentObjectName(), conn),
                 (content, cache, md) -> {
                     String objectOwner = md.getObjectOwner();
                     String objectName = md.getObjectName();

@@ -34,6 +34,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.Icon;
 import javax.swing.JPanel;
 import java.awt.Color;
+import java.util.List;
 
 import static com.dbn.nls.NlsResources.txt;
 
@@ -108,4 +109,24 @@ public abstract class DBObjectFactoryInputForm extends DBNFormBase {
     }
 
     public abstract void focus();
+
+    protected boolean supports(DBObjectAttributeType<?> type) {
+        return input.supports(type);
+    }
+
+    protected boolean requires(DBObjectAttributeType<?> type) {
+        return input.requires(type);
+    }
+
+    protected <T> boolean requires(DBObjectAttributeType<T> type, T value) {
+        return input.requires(type, value);
+    }
+
+    protected boolean allowsMultiple(DBObjectAttributeType<?> type) {
+        return input.allowsMultiple(type);
+    }
+
+    protected  <T> List<T> getSupportedValues(DBObjectAttributeType<T> type) {
+        return input.getSupportedValues(type);
+    }
 }

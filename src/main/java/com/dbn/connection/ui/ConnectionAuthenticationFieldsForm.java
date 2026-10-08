@@ -21,10 +21,10 @@ import com.dbn.common.message.MessageType;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.form.field.JComponentCategory;
 import com.dbn.common.ui.misc.DBNComboBox;
+import com.dbn.common.ui.panel.DBNBanner;
 import com.dbn.common.ui.util.TextFields;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Sockets;
@@ -46,7 +46,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 
-import static com.dbn.common.text.TextContent.plain;
 import static com.dbn.common.ui.form.field.JComponentFilter.accessibleClassifiedAs;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.form.field.JComponentFilter.classifiedAs;
@@ -114,7 +113,7 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
     private TextFieldWithBrowseButton azureClientCertificateFileTextField;
     private JPasswordField azureClientSecretPasswordField;
     private JPasswordField azureClientCertificateFilePasswordField;
-    private DBNHintForm warningHintForm;
+    private final DBNBanner warningBanner;
 
 
     public ConnectionAuthenticationFieldsForm(@NotNull DBNForm parentComponent) {
@@ -138,8 +137,8 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         onSelectionChange(authTypeComboBox, v -> updateFieldAvailability());
         onSelectionChange(tokenTypeComboBox, v -> updateFieldAvailability());
 
-        this.warningHintForm = new DBNHintForm(this, null, MessageType.WARNING, true);
-        warningPanel.add(warningHintForm.getComponent());
+        this.warningBanner = new DBNBanner(MessageType.WARNING);
+        warningPanel.add(warningBanner);
         warningPanel.setVisible(false);
 
         addSingleFileChooser(
@@ -231,7 +230,7 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
             () -> checkSystemWarnings(),
             warningMessage -> {
                 if (warningMessage != null) {
-                    warningHintForm.setHintContent(plain(warningMessage));
+                    warningBanner.setMessage(warningMessage);
                 }
                 warningPanel.setVisible(warningMessage != null);
             }

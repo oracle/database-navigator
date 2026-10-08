@@ -18,7 +18,7 @@ package com.dbn.common.ui.table;
 
 import com.dbn.common.util.Commons;
 import com.intellij.openapi.ide.CopyPasteManager;
-import org.jdesktop.swingx.plaf.basic.core.BasicTransferable;
+import com.intellij.util.ui.TextTransferable;
 import org.jetbrains.annotations.NonNls;
 
 import javax.swing.JComponent;
@@ -84,10 +84,10 @@ public class DBNTableTransferHandler extends TransferHandler {
 
         htmlStr.append("<html>\n<body>\n<table>\n");
 
-        for (int row = 0; row < rows.length; row++) {
+        for (int r : rows) {
             htmlStr.append("<tr>\n");
-            for (int col = 0; col < cols.length; col++) {
-                String presentable = table.getPresentableValueAt(rows[row], cols[col]);
+            for (int c : cols) {
+                String presentable = table.getPresentableValueAt(r, c);
                 String val = Commons.nvl(presentable, "");
                 plainStr.append(neutralizeSpreadsheetFormula(val)).append('\t');
                 htmlStr.append("  <td>").append(val).append("</td>\n");
@@ -101,7 +101,6 @@ public class DBNTableTransferHandler extends TransferHandler {
         plainStr.deleteCharAt(plainStr.length() - 1);
         htmlStr.append("</table>\n</body>\n</html>");
 
-        return new BasicTransferable(plainStr.toString(), htmlStr.toString());
+        return new TextTransferable(htmlStr.toString(), plainStr.toString());
     }
-
 }

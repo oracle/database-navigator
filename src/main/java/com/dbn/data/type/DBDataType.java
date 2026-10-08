@@ -18,15 +18,23 @@ package com.dbn.data.type;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.data.value.ComplexValue;
+import com.dbn.data.value.NestedTableValue;
+import com.dbn.data.value.StructureValue;
+import com.dbn.data.value.ValueAdapter;
 import com.dbn.database.common.metadata.def.DBDataTypeMetadata;
+import com.dbn.object.DBColumn;
+import com.dbn.object.DBNestedTable;
 import com.dbn.object.DBType;
 import com.dbn.object.lookup.DBObjectRef;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Struct;
 import java.sql.Types;
 
 import static com.dbn.data.type.GenericDataType.CLOB;
@@ -38,19 +46,23 @@ import static com.dbn.data.type.GenericDataType.NCLOB;
 public class DBDataType {
     private DBNativeDataType nativeType;
     private DBObjectRef<DBType> declaredType;
+    private DBObjectRef<DBNestedTable> nestedTable;
+    private DBObjectRef<DBColumn> nestedTableColumn;
     private String name;
     private String qualifiedName;
     private long length;
     private int precision;
     private int scale;
     private boolean set;
+    private boolean collection;
+    private boolean table;
 
     public static DBDataType get(ConnectionHandler connection, DBDataTypeMetadata metadata) throws SQLException {
         DBDataTypeDefinition definition = new DBDataTypeDefinition(metadata);
         return connection.getObjectBundle().getDataTypes().getDataType(definition);
     }
 
-    public static DBDataType get(ConnectionHandler connection, String dataTypeName, long length, int precision, int scale, boolean set) {
+    public static DBDataType get(ConnectionHandler connection, String dataTypeName, long length, int precision, int scale, boolean set, boolean collection) {
         String declaredTypeName = null;
         String declaredTypeOwner = null;
         String declaredTypePackage = null;
@@ -67,7 +79,7 @@ public class DBDataType {
                 declaredTypeName = nameChain[2];
             }
         }
-        DBDataTypeDefinition definition = new DBDataTypeDefinition(dataTypeName, declaredTypeName, declaredTypeOwner, declaredTypePackage, length, precision, scale, set);
+        DBDataTypeDefinition definition = new DBDataTypeDefinition(dataTypeName, declaredTypeName, declaredTypeOwner, declaredTypePackage, length, precision, scale, set, collection);
         return connection.getObjectBundle().getDataTypes().getDataType(definition);
     }
 
@@ -125,23 +137,52 @@ public class DBDataType {
     }
 
     public Object getValueFromResultSet(ResultSet resultSet, int columnIndex) throws SQLException {
+        if (nestedTable != null && nestedTableColumn != null) {
+            return new NestedTableValue(nestedTable, nestedTableColumn);
+        }
+
         if (nativeType != null) {
             return nativeType.getValueFromResultSet(resultSet, columnIndex);
-        } else {
-            return new ComplexValue(resultSet, columnIndex);
         }
+
+        if (declaredType != null && !collection) {
+            Object value = resultSet.getObject(columnIndex);
+            String displayValue = resultSet.getString(columnIndex);
+            if (value == null || value instanceof Struct) {
+                return new StructureValue((Struct) value, displayValue);
+            }
+            return new ComplexValue(value, displayValue);
+        }
+
+        return new ComplexValue(resultSet, columnIndex);
     }
 
     public void setValueToResultSet(ResultSet resultSet, int columnIndex, Object value) throws SQLException {
         if (nativeType != null) {
             nativeType.setValueToResultSet(resultSet, columnIndex, value);
+            return;
         }
+
+        ValueAdapter<Object> valueAdapter = ValueAdapter.create(getGenericDataType());
+        if (valueAdapter == null) return;
+
+        Statement statement = resultSet.getStatement();
+        Connection connection = statement == null ? null : statement.getConnection();
+        Object adapterValue = value instanceof ValueAdapter<?> adapter ? adapter.read() : value;
+        valueAdapter.write(connection, resultSet, columnIndex, adapterValue);
     }
 
     public void setValueToPreparedStatement(PreparedStatement preparedStatement, int index, Object value) throws SQLException {
         if (nativeType != null) {
             nativeType.setValueToStatement(preparedStatement, index, value);
+            return;
         }
+
+        ValueAdapter<Object> valueAdapter = ValueAdapter.create(getGenericDataType());
+        if (valueAdapter == null) return;
+
+        Object adapterValue = value instanceof ValueAdapter<?> adapter ? adapter.read() : value;
+        valueAdapter.write(preparedStatement.getConnection(), preparedStatement, index, adapterValue);
     }
 
     public String getQualifiedName() {
@@ -177,7 +218,10 @@ public class DBDataType {
     }
 
     public GenericDataType getGenericDataType() {
-        return nativeType != null ? nativeType.getGenericDataType() : GenericDataType.OBJECT;
+        if (table || nestedTable != null) return GenericDataType.TABLE;
+
+        return nativeType != null ? nativeType.getGenericDataType() :
+                declaredType != null && !collection ? GenericDataType.STRUCTURE : GenericDataType.OBJECT;
     }
 
     public String getContentTypeName() {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import com.dbn.editor.code.ui.SourceCodeOutdatedNotificationPanel;
 import com.dbn.editor.code.ui.SourceCodeReadonlyNotificationPanel;
 import com.dbn.execution.script.ScriptExecutionListener;
 import com.dbn.object.common.DBObject;
-import com.dbn.object.common.DBSchemaObject;
 import com.dbn.vfs.file.DBContentVirtualFile;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
@@ -128,12 +127,12 @@ public class SourceCodeEditorNotificationProvider extends EditorNotificationProv
         if (!(fileEditor instanceof SourceCodeEditor sourceCodeEditor)) return null;
 
         DBObject object = databaseFile.getObject();
-        if (!(object instanceof DBSchemaObject schemaObject)) return null;
+        if (!object.isEditable()) return null;
 
         DBSourceCodeVirtualFile sourceCodeFile = sourceCodeEditor.getVirtualFile();
         Exception sourceLoadException = sourceCodeFile.getSourceLoadException();
         if (sourceLoadException != null) {
-            return new SourceCodeLoadErrorNotificationPanel(schemaObject, fileEditor, sourceLoadException);
+            return new SourceCodeLoadErrorNotificationPanel(object, fileEditor, sourceLoadException);
         }
 
         if (sourceCodeFile.isChangedInDatabase(false)) {
@@ -141,7 +140,7 @@ public class SourceCodeEditorNotificationProvider extends EditorNotificationProv
         }
 
         if (sourceCodeFile.isLoaded() && sourceCodeFile.getEnvironmentType().isReadonlyCode()) {
-            return new SourceCodeReadonlyNotificationPanel(schemaObject, fileEditor, sourceCodeEditor);
+            return new SourceCodeReadonlyNotificationPanel(object, fileEditor, sourceCodeEditor);
         }
         return null;
     }

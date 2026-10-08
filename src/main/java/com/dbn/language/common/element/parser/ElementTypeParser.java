@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,8 @@ import com.intellij.lang.PsiBuilder.Marker;
 
 import java.util.Set;
 
+import static com.dbn.language.common.element.lookup.NextTokenResolver.isNextPossibleToken;
+import static com.dbn.language.common.element.lookup.NextTokenResolver.isNextRequiredToken;
 import static com.dbn.language.common.element.parser.ParseResult.NO_MATCH_RESULT;
 import static com.dbn.language.common.element.parser.ParseResult.match;
 import static com.dbn.language.common.element.parser.ParseResultType.BORROWED_MATCH;
@@ -131,17 +133,17 @@ public abstract class ElementTypeParser<T extends ElementTypeBase> {
             if (nextToken == leftParenthesis) return false;
 
             if (elementType instanceof LeafElementType leafElementType) {
-                return !leafElementType.isNextRequiredToken(leftParenthesis, node);
+                return !isNextRequiredToken(leafElementType, leftParenthesis, node);
             }
         }
 
         ElementTypeBase namedElementType = ElementTypeUtil.getEnclosingNamedElementType(node);
         if (namedElementType != null && namedElementType.cache.containsToken(tokenType)) {
-            return lastResolvedLeaf != null && !lastResolvedLeaf.isNextPossibleToken(tokenType, node);
+            return lastResolvedLeaf != null && !isNextPossibleToken(lastResolvedLeaf, tokenType, node);
         }
 
         if (lastResolvedLeaf != null) {
-            if (lastResolvedLeaf.isNextPossibleToken(tokenType, node)) {
+            if (isNextPossibleToken(lastResolvedLeaf, tokenType, node)) {
                 return false;
             }
         }

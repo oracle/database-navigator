@@ -72,13 +72,9 @@ public class OracleJavaInterface extends DatabaseInterfaceBase implements Databa
 
     @Override
     public void compileJavaClass(String ownerName, String objectName, DBNConnection connection) throws SQLException {
-        try {
-            executeSilentUpdate(connection, "set-java-property", "sun.tools.javac.Main.args", 'g');
-            executeSilentUpdate(connection, "set-java-compiler-option", unquote(objectName), "debug", "true");
-            executeUpdate(connection, "compile-java-source", ownerName, objectName);
-            executeUpdate(connection, "compile-java-class", ownerName, objectName);
-        } finally {
-            executeSilentUpdate(connection, "set-java-compiler-option", unquote(objectName), "debug", "false");
-        }
+        executeSilentUpdate(connection, "set-java-property", "sun.tools.javac.Main.args", 'g');
+        executeSilentUpdate(connection, "set-java-compiler-option", unquote(objectName), "debug", "true");
+        executeUpdate(connection, "compile-java-source", ownerName, objectName);
+        executeUpdate(connection, "compile-java-class", ownerName, objectName);
     }
 }

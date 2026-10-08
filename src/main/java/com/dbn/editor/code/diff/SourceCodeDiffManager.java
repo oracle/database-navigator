@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import com.dbn.connection.ConnectionAction;
 import com.dbn.editor.code.SourceCodeEditor;
 import com.dbn.editor.code.SourceCodeManager;
 import com.dbn.editor.code.content.SourceCodeContent;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.vfs.file.DBObjectContentVirtualFile;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.diff.DiffManager;
@@ -68,7 +68,7 @@ public class SourceCodeDiffManager extends ProjectComponentBase implements Persi
     }
 
     public void openCodeMergeDialog(DBSourceCodeVirtualFile sourceCodeFile, SourceCodeEditor fileEditor, MergeAction mergeAction) {
-        DBSchemaObject object = sourceCodeFile.getObject();
+        DBObject object = sourceCodeFile.getObject();
         ConnectionAction.invoke(txt("msg.codeEditor.title.MergingChanges"), false, sourceCodeFile,
                 action -> Progress.prompt(getProject(), object, true,
                         txt("prc.codeEditor.title.LoadingSourceCode"),
@@ -159,16 +159,14 @@ public class SourceCodeDiffManager extends ProjectComponentBase implements Persi
 
 
     public void openDiffWindow(@NotNull DBSourceCodeVirtualFile sourceCodeFile, String referenceText, @Nls String referenceTitle, @Nls String windowTitle) {
-        DBSchemaObject object = sourceCodeFile.getObject();
+        DBObject object = sourceCodeFile.getObject();
         FileType fileType = sourceCodeFile.getFileType();
         DBObjectContentVirtualFile counterContent = new DBObjectContentVirtualFile(object, referenceText, fileType);
         Project project = getProject();
         DiffContent originalContent = new SourceCodeFileContent(project, sourceCodeFile);
         DiffContent changedContent = new SourceCodeFileContent(project, counterContent);
 
-        String title =
-                object.getSchema().getName() + "." +
-                        object.getName() + " " +
+        String title = object.getQualifiedName() + " " +
                         object.getTypeName() + " - " + windowTitle;
         SimpleDiffRequest diffRequest = new SimpleDiffRequest(
                 title,
@@ -182,7 +180,7 @@ public class SourceCodeDiffManager extends ProjectComponentBase implements Persi
 
 
     public void opedDatabaseDiffWindow(DBSourceCodeVirtualFile sourceCodeFile) {
-        DBSchemaObject object = sourceCodeFile.getObject();
+        DBObject object = sourceCodeFile.getObject();
         ConnectionAction.invoke(txt("msg.codeEditor.title.ComparingChanges"), false, sourceCodeFile,
                 action -> Progress.prompt(getProject(), object, true,
                         txt("prc.codeEditor.title.LoadingSourceCode"),

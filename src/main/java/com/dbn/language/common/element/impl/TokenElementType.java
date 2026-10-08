@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,12 +23,8 @@ import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.TokenTypeCategory;
 import com.dbn.language.common.element.ElementTypeBundle;
-import com.dbn.language.common.element.cache.ElementLookupContext;
-import com.dbn.language.common.element.cache.ElementTypeCache;
 import com.dbn.language.common.element.cache.TokenElementTypeLookupCache;
-import com.dbn.language.common.element.parser.ParserContext;
 import com.dbn.language.common.element.parser.impl.TokenElementTypeParser;
-import com.dbn.language.common.element.path.LanguageNode;
 import com.dbn.language.common.element.util.ElementTypeDefinitionException;
 import com.dbn.language.common.psi.TokenPsiElement;
 import com.intellij.lang.ASTNode;
@@ -38,11 +34,8 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Set;
-
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.language.common.TokenTypeCategory.getCategory;
-import static com.dbn.language.common.element.util.ElementTypeAttribute.ITERATION_SEPARATOR;
 import static com.dbn.language.common.element.util.ElementTypeAttribute.SYNTHETIC;
 
 public class TokenElementType extends LeafElementType implements LookupItemBuilderProvider {
@@ -110,44 +103,6 @@ public class TokenElementType extends LeafElementType implements LookupItemBuild
     @Override
     public String getName() {
         return "token (" + getId() + " - " + tokenType.getId() + ")";
-    }
-
-    @Override
-    public Set<LeafElementType> getNextPossibleLeafs(LanguageNode pathNode, @NotNull ElementLookupContext context) {
-        if (isIterationSeparator()) {
-            if (parent instanceof IterationElementType iterationElementType) {
-                ElementTypeCache<?> lookupCache = iterationElementType.iteratedElement.cache;
-                return lookupCache.captureFirstPossibleLeafs(context);
-            } else if (parent instanceof QualifiedIdentifierElementType){
-                return super.getNextPossibleLeafs(pathNode, context);
-            }
-        }
-        if (parent instanceof WrapperElementType wrapperElementType) {
-            if (this.equals(wrapperElementType.getBeginTokenElement())) {
-                ElementTypeCache<?> lookupCache = wrapperElementType.wrappedElement.cache;
-                return lookupCache.captureFirstPossibleLeafs(context);
-            }
-        }
-
-        return super.getNextPossibleLeafs(pathNode, context);
-    }
-
-    @Override
-    public Set<LeafElementType> getNextRequiredLeafs(LanguageNode pathNode, ParserContext context) {
-        if (isIterationSeparator()) {
-            if (parent instanceof IterationElementType iterationElementType) {
-                return iterationElementType.iteratedElement.cache.getFirstRequiredLeafs();
-            }
-
-            if (parent instanceof QualifiedIdentifierElementType){
-                return super.getNextRequiredLeafs(pathNode, context);
-            }
-        }
-        return super.getNextRequiredLeafs(pathNode, context);
-    }
-
-    public boolean isIterationSeparator() {
-        return is(ITERATION_SEPARATOR);
     }
 
     @Override

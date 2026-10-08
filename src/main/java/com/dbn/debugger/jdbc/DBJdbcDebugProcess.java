@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,12 @@
 
 package com.dbn.debugger.jdbc;
 
+import com.dbn.common.cache.ObjectKey;
 import com.dbn.common.dispose.AlreadyDisposedException;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.notification.NotificationSupport;
+import com.dbn.common.routine.ParametricCallable;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.thread.ThreadContext;
 import com.dbn.common.util.Messages;
@@ -29,10 +31,13 @@ import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.Resources;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.database.common.debug.DebuggerIdentifierInfo;
+import com.dbn.database.common.debug.DebuggerIdentifierModel;
 import com.dbn.database.common.debug.DebuggerRuntimeInfo;
 import com.dbn.database.common.debug.DebuggerSessionInfo;
 import com.dbn.database.common.debug.ExecutionBacktraceInfo;
 import com.dbn.database.interfaces.DatabaseDebuggerInterface;
+import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.debugger.DBDebugConsoleLogger;
 import com.dbn.debugger.DBDebugOperation;
 import com.dbn.debugger.DBDebugTabLayouter;
@@ -50,11 +55,14 @@ import com.dbn.debugger.jdbc.frame.DBJdbcDebugSuspendContext;
 import com.dbn.editor.DBContentType;
 import com.dbn.execution.ExecutionContext;
 import com.dbn.execution.ExecutionInput;
+import com.dbn.object.DBPackage;
 import com.dbn.object.DBSchema;
+import com.dbn.object.DBType;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectBundle;
-import com.dbn.object.common.DBSchemaObject;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBObjectVirtualFile;
+import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.debugger.impl.PrioritizedTask.Priority;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -66,6 +74,7 @@ import com.intellij.xdebugger.breakpoints.XLineBreakpoint;
 import com.intellij.xdebugger.evaluation.XDebuggerEditorsProvider;
 import com.intellij.xdebugger.frame.XSuspendContext;
 import com.intellij.xdebugger.ui.XDebugTabLayouter;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -75,8 +84,14 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
+import static com.dbn.common.Priority.HIGH;
 import static com.dbn.common.notification.NotificationCategory.DEBUGGER;
 import static com.dbn.common.thread.ThreadProperty.DEBUGGER_NAVIGATION;
 import static com.dbn.common.util.Strings.cachedUpperCase;
@@ -95,15 +110,22 @@ import static com.dbn.nls.NlsResources.txt;
 @Getter
 @Setter
 public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebugProcess implements DBDebugProcess, NotificationSupport {
+    private static final DebuggerIdentifierModel EMPTY_IDENTIFIER_MODEL = DebuggerIdentifierModel.empty();
+    private static final long DEBUGGER_PING_INTERVAL_MILLIS = TimeUnit.SECONDS.toMillis(30);
+
     private DBNConnection targetConnection;
     private DBNConnection debuggerConnection;
     private final DBDebugProcessStatusHolder status = new DBDebugProcessStatusHolder();
     private final ConnectionRef connection;
     private final DBBreakpointHandler[] breakpointHandlers;
     private final DBDebugConsoleLogger console;
+    private final Map<ObjectKey, DebuggerIdentifierModel> identifierModels = new ConcurrentHashMap<>();
+    private final DBJdbcDebuggerInspection debuggerInspection = new DBJdbcDebuggerInspection();
 
     private transient DebuggerRuntimeInfo runtimeInfo;
     private transient ExecutionBacktraceInfo backtraceInfo;
+    private transient Timer debuggerPingTimer;
+    private final transient Object debuggerPingLock = new Object();
 
     public DBJdbcDebugProcess(@NotNull XDebugSession session, ConnectionHandler connection) {
         super(session);
@@ -210,33 +232,31 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
                     if (is(PROCESS_TERMINATING) || is(TARGET_EXECUTION_TERMINATED)) {
                         getSession().stop();
                     } else {
-                        set(BREAKPOINT_SETTING_ALLOWED, true);
-                        progress.setText(txt("prc.debugger.text.RegisteringBreakpoints"));
-                        registerBreakpoints(
-                                () -> Progress.background(project, connection, false,
-                                        txt("prc.debugger.text.StartingDebugger"),
-                                        txt("prc.debugger.text.SynchronizingSessions"),
-                                        (progress1) -> {
-                                            DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
-                                            try {
-                                                startTargetProgram();
-                                                if (isNot(TARGET_EXECUTION_THREW_EXCEPTION) && isNot(TARGET_EXECUTION_TERMINATED)) {
-                                                    runtimeInfo = debuggerInterface.synchronizeSession(debuggerConnection);
-                                                    runtimeInfo = debuggerInterface.stepOver(debuggerConnection);
-                                                    progress.setText(txt("prc.debugger.text.SuspendingSession"));
-                                                    console.system(txt("log.debugger.info.DebugSessionSynchronized"));
-                                                    suspendSession();
-                                                }
+                        DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
+                        try {
+                            startTargetProgram();
+                            if (is(TARGET_EXECUTION_THREW_EXCEPTION)) return;
+                            if (is(TARGET_EXECUTION_TERMINATED)) return;
 
-                                            } catch (SQLException e) {
-                                                conditionallyLog(e);
-                                                set(SESSION_INITIALIZATION_THREW_EXCEPTION, true);
-                                                console.system(txt("log.debugger.error.ErrorSynchronizingSession", e.getMessage()));
-                                                Messages.showErrorDialog(getProject(),
-                                                        txt("msg.debugger.error.CouldInitDebugEnvironment",connection.getName()), e);
-                                                getSession().stop();
-                                            }
-                                        }));
+                            runtimeInfo = debuggerInterface.synchronizeSession(debuggerConnection);
+                            console.system(txt("log.debugger.info.DebugSessionSynchronized"));
+
+                            set(BREAKPOINT_SETTING_ALLOWED, true);
+                            progress.setText(txt("prc.debugger.text.RegisteringBreakpoints"));
+                            registerBreakpoints();
+
+                            runtimeInfo = debuggerInterface.stepOver(debuggerConnection);
+                            progress.setText(txt("prc.debugger.text.SuspendingSession"));
+                            suspendSession();
+
+                        } catch (SQLException e) {
+                            conditionallyLog(e);
+                            set(SESSION_INITIALIZATION_THREW_EXCEPTION, true);
+                            console.system(txt("log.debugger.error.ErrorSynchronizingSession", e.getMessage()));
+                            Messages.showErrorDialog(getProject(),
+                                    txt("msg.debugger.error.CouldInitDebugEnvironment",connection.getName()), e);
+                            getSession().stop();
+                        }
                     }
                 });
     }
@@ -278,17 +298,27 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
     protected abstract void executeTarget() throws SQLException;
 
     /**
-     * breakpoints need to be registered after the database session is started,
-     * otherwise they do not get valid ids
+     * Registers breakpoints after the target has reached its initial interpreter event.
+     * Anonymous PL/SQL blocks only become addressable as the current program unit after
+     * the target session has started and the debugger session has synchronized with it.
      */
-    private void registerBreakpoints(Runnable callback) {
+    private void registerBreakpoints() {
         console.system(txt("log.debugger.info.RegisteringBreakpoints"));
         List<XLineBreakpoint<XBreakpointProperties>> breakpoints = getDatabaseBreakpoints();
 
         getBreakpointHandler().registerBreakpoints(breakpoints, null);
+        console.system(txt("log.debugger.info.RegisteringDefaultBreakpoint"));
         registerDefaultBreakpoint();
         console.system(txt("log.debugger.info.DoneRegisteringBreakpoints"));
-        callback.run();
+    }
+
+    /**
+     * Returns the zero-based database source line for a breakpoint, or {@code null} when
+     * the breakpoint is not applicable to this debug target.
+     */
+    @Nullable
+    public Integer resolveBreakpointLine(@NotNull XLineBreakpoint<XBreakpointProperties> breakpoint) {
+        return DBBreakpointUtil.getDatabaseObject(breakpoint) == null ? null : breakpoint.getLine();
     }
 
     protected void registerDefaultBreakpoint() {}
@@ -322,6 +352,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
     public synchronized void stop() {
         if (canStopDebugger()) {
             set(PROCESS_TERMINATING, true);
+            debuggerInspection.invalidateSuspension();
             console.system(txt("log.debugger.info.StoppingDebugger"));
             T input = getExecutionInput();
             ExecutionContext<?> context = input.getExecutionContext();
@@ -335,6 +366,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
     }
 
     private void stopDebugger() {
+        stopDebuggerPing();
         Project project = getProject();
         ConnectionHandler connection = getConnection();
         Progress.background(project, connection, false,
@@ -342,6 +374,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
                 txt("prc.debugger.text.StoppingDebugEnvironment"),
                 progress -> {
                     try {
+                        debuggerInspection.awaitCompletion();
                         unregisterBreakpoints();
                         set(BREAKPOINT_SETTING_ALLOWED, false);
                         rollOutDebugger();
@@ -370,6 +403,8 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
     }
 
     private void releaseDebugConnection() {
+        debuggerInspection.invalidateSuspension();
+        stopDebuggerPing();
         Resources.close(debuggerConnection);
         debuggerConnection = null;
     }
@@ -381,7 +416,10 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
 
     @Override
     public void startStepOver(@Nullable XSuspendContext suspendContext) {
+        debuggerInspection.invalidateSuspension();
         DBDebugOperation.run(getProject(), txt("ntf.debugger.token.Operation_STEP_OVER"), () -> {
+            console.system(txt("log.debugger.info.DebuggerSessionResumed"));
+            prepareDebuggerNavigation();
             DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
             runtimeInfo = debuggerInterface.stepOver(debuggerConnection);
             suspendSession();
@@ -390,7 +428,10 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
 
     @Override
     public void startStepInto(@Nullable XSuspendContext suspendContext) {
+        debuggerInspection.invalidateSuspension();
         DBDebugOperation.run(getProject(), txt("ntf.debugger.token.Operation_STEP_INTO"), () -> {
+            console.system(txt("log.debugger.info.DebuggerSessionResumed"));
+            prepareDebuggerNavigation();
             DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
             runtimeInfo = debuggerInterface.stepInto(debuggerConnection);
             suspendSession();
@@ -400,7 +441,10 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
 
     @Override
     public void startStepOut(@Nullable XSuspendContext suspendContext) {
+        debuggerInspection.invalidateSuspension();
         DBDebugOperation.run(getProject(), txt("ntf.debugger.token.Operation_STEP_OUT"), () -> {
+            console.system(txt("log.debugger.info.DebuggerSessionResumed"));
+            prepareDebuggerNavigation();
             DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
             runtimeInfo = debuggerInterface.stepOut(debuggerConnection);
             suspendSession();
@@ -409,7 +453,10 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
 
     @Override
     public void resume(@Nullable XSuspendContext suspendContext) {
+        debuggerInspection.invalidateSuspension();
         DBDebugOperation.run(getProject(), txt("ntf.debugger.token.Operation_RESUME_EXECUTION"), () -> {
+            console.system(txt("log.debugger.info.DebuggerSessionResumed"));
+            prepareDebuggerNavigation();
             DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
             runtimeInfo = debuggerInterface.resumeExecution(debuggerConnection);
             suspendSession();
@@ -418,12 +465,15 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
 
     @Override
     public void runToPosition(@NotNull XSourcePosition position, @Nullable XSuspendContext suspendContext) {
+        debuggerInspection.invalidateSuspension();
         DBDebugOperation.run(getProject(), txt("ntf.debugger.token.Operation_RUN_TO_POSITION"), () -> {
-            DBSchemaObject object = DBDebugUtil.getObject(position);
+            console.system(txt("log.debugger.info.DebuggerSessionResumed"));
+            prepareDebuggerNavigation();
+            DBObject object = DBDebugUtil.getObject(position);
             if (object != null) {
                 DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
                 runtimeInfo = debuggerInterface.runToPosition(
-                        object.getSchema().getName(),
+                        object.getSchemaName(),
                         object.getName(),
                         cachedUpperCase(object.getObjectType().getName()),
                         position.getLine(),
@@ -437,13 +487,15 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
     @NotNull
     @Override
     public XDebugTabLayouter createTabLayouter() {
-        return new DBDebugTabLayouter();
+        return new DBDebugTabLayouter(getSession());
     }
 
     @Override
     public void startPausing() {
         // NOT SUPPORTED!!!
+        debuggerInspection.invalidateSuspension();
         DBDebugOperation.run(getProject(), txt("ntf.debugger.token.Operation_RUN_TO_POSITION"), () -> {
+            prepareDebuggerNavigation();
             DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
             runtimeInfo = debuggerInterface.synchronizeSession(debuggerConnection);
             suspendSession();
@@ -454,6 +506,11 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
         Messages.showErrorDialog(getProject(), txt("msg.debugger.error.CouldNotPerformOperation"), e);
     }
 
+    private void prepareDebuggerNavigation() {
+        stopDebuggerPing();
+        debuggerInspection.awaitCompletion();
+    }
+
     @ThreadContext(DEBUGGER_NAVIGATION)
     private void suspendSession() {
         if (is(PROCESS_TERMINATING) || is(PROCESS_TERMINATED)) return;
@@ -461,6 +518,8 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
         XDebugSession session = getSession();
         DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
         if (isTerminated()) {
+            debuggerInspection.invalidateSuspension();
+            stopDebuggerPing();
             int reasonCode = runtimeInfo.getReason();
             String reason = debuggerInterface.getRuntimeEventReason(reasonCode);
             sendInfoNotification(DEBUGGER, txt("ntf.debugger.info.SessionTerminated", reasonCode, reason));
@@ -468,21 +527,32 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
             set(PROCESS_STOPPED, true);
             session.stop();
         } else {
+            String location = getSuspensionLocation(runtimeInfo);
+            String lineNumber = getSuspensionLineNumber(runtimeInfo);
+            String suspensionReason = debuggerInterface.getRuntimeEventReason(runtimeInfo.getReason());
+            console.system(txt("log.debugger.info.DebuggerSessionSuspendedAt", location, lineNumber, suspensionReason));
+
             VirtualFile virtualFile = getRuntimeInfoFile(runtimeInfo);
             DBDebugUtil.openEditor(virtualFile);
+            long suspensionId = debuggerInspection.activateSuspension();
+            backtraceInfo = null;
             try {
-                backtraceInfo = debuggerInterface.getExecutionBacktraceInfo(debuggerConnection);
+                backtraceInfo = debuggerInspection.call(
+                        suspensionId,
+                        () -> debuggerInterface.getExecutionBacktraceInfo(debuggerConnection));
+                if (backtraceInfo == null) return;
+
                 List<DebuggerRuntimeInfo> frames = backtraceInfo.getFrames();
                 if (!frames.isEmpty()) {
                     DebuggerRuntimeInfo topRuntimeInfo = frames.get(0);
                     if (runtimeInfo.isTerminated()) {
                         int reasonCode = runtimeInfo.getReason();
-                        String reason = debuggerInterface.getRuntimeEventReason(reasonCode);
-                        sendInfoNotification(DEBUGGER, txt("ntf.debugger.info.SessionTerminated", reasonCode, reason));
+                        String terminationReason = debuggerInterface.getRuntimeEventReason(reasonCode);
+                        sendInfoNotification(DEBUGGER, txt("ntf.debugger.info.SessionTerminated", reasonCode, terminationReason));
                     }
                     if (!runtimeInfo.isSameLocation(topRuntimeInfo)) {
                         runtimeInfo = topRuntimeInfo;
-                        resume();
+                        resume(null);
                         return;
                     }
                 }
@@ -491,7 +561,14 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
                 console.error(txt("log.debugger.error.ErrorSuspendingDebuggerSession", e.getMessage()));
             }
 
-            DBJdbcDebugSuspendContext suspendContext = new DBJdbcDebugSuspendContext(this);
+            if (backtraceInfo != null) {
+                preloadIdentifierModels(backtraceInfo.getFrames());
+            }
+
+            if (!debuggerInspection.isActiveSuspension(suspensionId)) return;
+
+            startDebuggerPing();
+            DBJdbcDebugSuspendContext suspendContext = new DBJdbcDebugSuspendContext(this, suspensionId);
             session.positionReached(suspendContext);
             //navigateInEditor(virtualFile, runtimeInfo.getLineNumber());
         }
@@ -501,30 +578,47 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
         return runtimeInfo.isTerminated();
     }
 
-    protected DBBreakpointHandler<?> getBreakpointHandler() {
-        return getBreakpointHandlers()[0];
+    private String getSuspensionLocation(DebuggerRuntimeInfo runtimeInfo) {
+        String ownerName = runtimeInfo.getOwnerName();
+        String programName = runtimeInfo.getProgramName();
+        if (Strings.isNotEmpty(ownerName) && Strings.isNotEmpty(programName)) {
+            return ownerName + "." + programName;
+        }
+        if (Strings.isNotEmpty(programName)) return programName;
+        if (Strings.isNotEmpty(ownerName)) return ownerName;
+
+        VirtualFile virtualFile = getRuntimeInfoFile(runtimeInfo);
+        return virtualFile == null ? "?" : virtualFile.getPresentableName();
+    }
+
+    private static String getSuspensionLineNumber(DebuggerRuntimeInfo runtimeInfo) {
+        Integer lineNumber = runtimeInfo.getLineNumber();
+        return lineNumber == null ? "?" : Integer.toString(lineNumber + 1);
+    }
+
+    protected DBJdbcBreakpointHandler getBreakpointHandler() {
+        return (DBJdbcBreakpointHandler) getBreakpointHandlers()[0];
     }
 
     @Nullable
     public VirtualFile getRuntimeInfoFile(DebuggerRuntimeInfo runtimeInfo) {
-        DBSchemaObject schemaObject = getDatabaseObject(runtimeInfo);
-        if (schemaObject != null) {
-            DBObjectVirtualFile virtualFile = schemaObject.getVirtualFile();
-            if (virtualFile instanceof DBEditableObjectVirtualFile editableObjectFile) {
-                DBContentType contentType = schemaObject.getContentType();
-                if (contentType == DBContentType.CODE_SPEC_AND_BODY) {
-                    return editableObjectFile.getContentFile(DBContentType.CODE_BODY);
-                } else if (contentType.isOneOf(DBContentType.CODE, DBContentType.CODE_AND_DATA)) {
-                    return editableObjectFile.getContentFile(DBContentType.CODE);
-                }
+        DBObject object = getDatabaseObject(runtimeInfo);
+        if (object == null) return null;
 
+        DBObjectVirtualFile virtualFile = object.getVirtualFile();
+        if (virtualFile instanceof DBEditableObjectVirtualFile editableObjectFile) {
+            DBContentType contentType = object.getContentType();
+            if (contentType == DBContentType.CODE_SPEC_AND_BODY) {
+                return editableObjectFile.getContentFile(DBContentType.CODE_BODY);
+            } else if (contentType.isOneOf(DBContentType.CODE, DBContentType.CODE_AND_DATA)) {
+                return editableObjectFile.getContentFile(DBContentType.CODE);
             }
         }
         return null;
     }
 
     @Nullable
-    protected DBSchemaObject getDatabaseObject(DebuggerRuntimeInfo runtimeInfo) {
+    protected DBObject getDatabaseObject(DebuggerRuntimeInfo runtimeInfo) {
         String ownerName = runtimeInfo.getOwnerName();
         String programName = runtimeInfo.getProgramName();
 
@@ -532,14 +626,15 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
             ConnectionHandler connection = getConnection();
             DBObjectBundle objectBundle = connection.getObjectBundle();
             DBSchema schema = Failsafe.nn(objectBundle.getSchema(ownerName));
-            DBSchemaObject schemaObject = schema.getProgram(programName);
-            if (schemaObject == null) schemaObject = schema.getMethod(programName, (short) 0); // overload 0 is assuming debug is only supported in oracle (no schema method overloading)
-            return schemaObject;
+            DBObject object = schema.getProgram(programName);
+            if (object == null) object = schema.getMethod(programName, (short) 0); // overload 0 is assuming debug is only supported in oracle (no schema method overloading)
+            return object;
         }
         return null;
     }
 
     private void rollOutDebugger() {
+        stopDebuggerPing();
         try {
             long millis = System.currentTimeMillis();
             while (isNot(TARGET_EXECUTION_THREW_EXCEPTION) && runtimeInfo != null && !runtimeInfo.isTerminated()) {
@@ -553,6 +648,71 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
             conditionallyLog(e);
             console.error(txt("log.debugger.error.ErrorStoppingDebuggerSession", e.getMessage()));
         }
+    }
+
+    private void startDebuggerPing() {
+        synchronized (debuggerPingLock) {
+            stopDebuggerPing();
+            if (debuggerConnection == null) return;
+            if (runtimeInfo == null) return;
+            if (runtimeInfo.isTerminated()) return;
+            if (is(PROCESS_TERMINATING)) return;
+            if (is(PROCESS_TERMINATED)) return;
+
+            debuggerPingTimer = new Timer("DBN - Debugger Session Ping", true);
+            pingDebuggerSession();
+            debuggerPingTimer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    pingDebuggerSession();
+                }
+            }, DEBUGGER_PING_INTERVAL_MILLIS, DEBUGGER_PING_INTERVAL_MILLIS);
+        }
+    }
+
+    private void stopDebuggerPing() {
+        synchronized (debuggerPingLock) {
+            if (debuggerPingTimer != null) {
+                debuggerPingTimer.cancel();
+                debuggerPingTimer = null;
+            }
+        }
+    }
+
+    private void pingDebuggerSession() {
+        synchronized (debuggerPingLock) {
+            if (debuggerPingTimer == null) return;
+            if (debuggerConnection == null) return;
+            if (is(PROCESS_TERMINATING)) return;
+            if (is(PROCESS_TERMINATED)) return;
+
+            long startTimestamp = System.currentTimeMillis();
+            try {
+                boolean executed = debuggerInspection.run(
+                        () -> getDebuggerInterface().pingSession(debuggerConnection));
+                if (executed) {
+                    console.system(txt("log.debugger.info.DebuggerKeepAliveCompleted"));
+                }
+            } catch (SQLException e) {
+                conditionallyLog(e);
+                long elapsedMillis = System.currentTimeMillis() - startTimestamp;
+                console.error(txt("log.debugger.error.ErrorDebuggerKeepAlive", elapsedMillis, e.getMessage()));
+            }
+        }
+    }
+
+    /**
+     * Executes an inspection only while the originating suspension is still current.
+     * Calls for different values are serialized on the debugger connection.
+     */
+    @Nullable
+    public <R> R executeDebuggerInspection(long suspensionId, ParametricCallable<DatabaseDebuggerInterface, R, SQLException> callable) throws SQLException {
+        return debuggerInspection.call(suspensionId, () -> callable.call(getDebuggerInterface()));
+    }
+
+    /** Serializes a short debugger-connection operation with active inspections. */
+    <R> R executeDebuggerOperation(ParametricCallable<DatabaseDebuggerInterface, R, SQLException> callable) throws SQLException {
+        return debuggerInspection.execute(() -> callable.call(getDebuggerInterface()));
     }
 
 /*    private void navigateInEditor(final VirtualFile virtualFile, final int line) {
@@ -627,6 +787,87 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
     @Override
     public DatabaseDebuggerInterface getDebuggerInterface() {
         return getConnection().getInterfaces().getDebuggerInterface();
+    }
+
+    /**
+     * Returns the cached PL/Scope identifier model for an object, shared by all stack frames in this debug run.
+     * Identifier models are preloaded before the suspend context is published.
+     *
+     * @param object the database object whose identifiers should be loaded
+     * @param contentType the source content type, such as {@link DBContentType#CODE_BODY}
+     */
+    public DebuggerIdentifierModel getIdentifierModel(DBObject object, DBContentType contentType) {
+        ObjectKey key = ObjectKey.create(object.getSchemaName(), object.getName(), contentType);
+        return identifierModels.getOrDefault(key, EMPTY_IDENTIFIER_MODEL);
+    }
+
+    private void preloadIdentifierModels(List<DebuggerRuntimeInfo> frames) {
+        for (DebuggerRuntimeInfo frame : frames) {
+            DBObject object = getDatabaseObject(frame);
+            if (object == null) continue;
+
+            VirtualFile sourceFile = getRuntimeInfoFile(frame);
+            DBContentType contentType = sourceFile instanceof DBSourceCodeVirtualFile sourceCodeFile
+                    ? sourceCodeFile.getContentType()
+                    : null;
+            DebuggerIdentifierModel model = preloadIdentifierModel(object, contentType);
+            model.preloadTypes(identifier -> resolveType(object, identifier));
+        }
+    }
+
+    private DebuggerIdentifierModel preloadIdentifierModel(DBObject object, DBContentType contentType) {
+        ObjectKey key = ObjectKey.create(object.getSchemaName(), object.getName(), contentType);
+        return identifierModels.computeIfAbsent(key, ignored -> loadIdentifierModel(object, contentType));
+    }
+
+    @Nullable
+    private DBType resolveType(DBObject object, DebuggerIdentifierInfo typeIdentifier) {
+        String typeName = typeIdentifier.getTypeName();
+        if (typeName == null) return null;
+
+        String typeOwner = typeIdentifier.getDeclaredOwner();
+        DBSchema schema = typeOwner == null
+                ? object.getSchema()
+                : getConnection().getObjectBundle().getSchema(typeOwner);
+        if (schema == null) return null;
+
+        String packageName = typeIdentifier.getTypePackageName();
+        return packageName == null
+                ? schema.getType(typeName)
+                : getPackageType(schema, packageName, typeName);
+    }
+
+    @Nullable
+    private DBType getPackageType(DBSchema schema, String packageName, String typeName) {
+        DBPackage packageObject = schema.getPackage(packageName);
+        return packageObject == null ? null : packageObject.getType(typeName);
+    }
+
+    public String getIdentifierObjectType(DBObject object, DBContentType contentType) {
+        String contentQualifier = contentType == null ? null : contentType.getContentQualifier(object.getObjectType());
+        return contentQualifier == null ? cachedUpperCase(object.getObjectType().getName()) : contentQualifier;
+    }
+
+    private DebuggerIdentifierModel loadIdentifierModel(DBObject object, DBContentType contentType) {
+        String objectType = getIdentifierObjectType(object, contentType);
+        try {
+            return DatabaseInterfaceInvoker.load(
+                    HIGH,
+                    getProject(),
+                    getConnection().getConnectionId(),
+                    connection -> {
+                        DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
+                        List<DebuggerIdentifierInfo> identifiers = debuggerInterface.loadObjectIdentifiers(
+                                object.getSchemaName(),
+                                object.getName(),
+                                objectType,
+                                connection);
+                        return new DebuggerIdentifierModel(identifiers);
+                    });
+        } catch (SQLException e) {
+            conditionallyLog(e);
+            return DebuggerIdentifierModel.empty();
+        }
     }
 
     @Nullable

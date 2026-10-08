@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.DefaultListModel;
@@ -39,12 +39,12 @@ public class SelectDDLFileForm extends DBNFormBase {
     private JCheckBox doNotPromptCheckBox;
     private JPanel hintPanel;
 
-    SelectDDLFileForm(DBNDialog<?> parent, DBSchemaObject object, List<VirtualFileInfo> fileInfos, TextContent hint, boolean isFileOpenEvent) {
+    SelectDDLFileForm(DBNDialog<?> parent, DBObject object, List<VirtualFileInfo> fileInfos, TextContent hint, boolean isFileOpenEvent) {
         super(parent);
         DBNHeaderForm headerForm = new DBNHeaderForm(this, object);
         headerPanel.add(headerForm.getComponent());
 
-        DBNHintForm hintForm = new DBNHintForm(this, hint, null, true);
+        DBNHintForm hintForm = new DBNHintForm(this, hint, null);
         hintPanel.add(hintForm.getComponent());
 
         DefaultListModel<VirtualFileInfo> listModel = new DefaultListModel<>();

@@ -34,6 +34,8 @@ import javax.swing.Icon;
 
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.writeCdata;
+import static com.dbn.editor.data.filter.DatasetFilterUtil.addOrderByClause;
+import static com.dbn.editor.data.filter.DatasetFilterUtil.createSimpleSelectStatement;
 
 @Getter
 @Setter
@@ -73,10 +75,10 @@ public class DatasetCustomFilter extends DatasetFilterImpl {
     public String createSelectStatement(DBDataset dataset, SortingState sortingState) {
         setError(null);
         @NonNls StringBuilder buffer = new StringBuilder();
-        DatasetFilterUtil.createSimpleSelectStatement(dataset, buffer);
+        createSimpleSelectStatement(dataset, buffer);
         buffer.append(" where ");
         buffer.append(condition);
-        DatasetFilterUtil.addOrderByClause(dataset, buffer, sortingState);
+        addOrderByClause(dataset, buffer, sortingState);
         return buffer.toString();
     }
 

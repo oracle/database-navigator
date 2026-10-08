@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,8 @@ import org.jetbrains.annotations.NonNls;
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class OracleMethodExecutionProcessor extends MethodExecutionProcessorImpl {
@@ -77,16 +79,18 @@ public class OracleMethodExecutionProcessor extends MethodExecutionProcessorImpl
 
             DBDataType dataType = argument.getDataType();
             if (dataType.isPurelyDeclared()) {
+                DBType declaredType = dataType.getDeclaredType();
+
                 buffer.append("    ");
                 appendVariableName(buffer, argument);
-                buffer.append(" := ").append(dataType.getQualifiedName(true)).append("();\n");
-
-                DBType declaredType = dataType.getDeclaredType();
-                List<DBTypeAttribute> attributes = declaredType.getAttributes();
-                for (DBTypeAttribute attribute : attributes) {
-                    buffer.append("    ");
-                    appendVariableName(buffer, argument);
-                    buffer.append(".").append(attribute.getName(true)).append(" := ?;\n");
+                buffer.append(" := ").append(dataType.getQualifiedName(true));
+                if (declaredType.isCollection()) {
+                    buffer.append("()");
+                    buffer.append(";\n");
+                } else {
+                    appendNullConstructor(buffer, declaredType);
+                    buffer.append(";\n");
+                    appendRecordAttributeInitializations(buffer, appendVariableName(new StringBuilder(), argument).toString(), declaredType);
                 }
             } else if(isBoolean(dataType)) {
                 String stringValue = parseBoolean(argument.getName(true), executionInput.getInputValue(argument));
@@ -135,12 +139,7 @@ public class OracleMethodExecutionProcessor extends MethodExecutionProcessorImpl
                     appendVariableName(buffer, argument);
                     buffer.append(");");
                 } else {
-                    List<DBTypeAttribute> attributes = declaredType.getAttributes();
-                    for (DBTypeAttribute attribute : attributes) {
-                        buffer.append("    ? := ");
-                        appendVariableName(buffer, argument);
-                        buffer.append(".").append(attribute.getName(true)).append(";\n");
-                    }
+                    appendRecordOutput(buffer, appendVariableName(new StringBuilder(), argument).toString(), declaredType);
                 }
             } else if (isBoolean(dataType)) {
                 buffer.append("    ? := case when ");
@@ -173,11 +172,14 @@ public class OracleMethodExecutionProcessor extends MethodExecutionProcessorImpl
             DBDataType dataType = argument.getDataType();
             DBType type = dataType.getDeclaredType();
             if (dataType.isPurelyDeclared()) {
-                List<DBTypeAttribute> attributes = type.getAttributes();
-                for (DBTypeAttribute attribute : attributes) {
-                    String stringValue = executionInput.getInputValue(argument, attribute);
-                    setParameterValue(callableStatement, parameterIndex, attribute.getDataType(), stringValue);
-                    parameterIndex++;
+                if (!type.isCollection()) {
+                    parameterIndex = bindRecordParameters(
+                            executionInput,
+                            callableStatement,
+                            argument,
+                            type,
+                            Collections.emptyList(),
+                            parameterIndex);
                 }
             }
         }
@@ -217,11 +219,7 @@ public class OracleMethodExecutionProcessor extends MethodExecutionProcessorImpl
                     callableStatement.registerOutParameter(parameterIndex, OracleTypes.CURSOR);
                     parameterIndex++;
                 } else {
-                    List<DBTypeAttribute> attributes = declaredType.getAttributes();
-                    for (DBTypeAttribute attribute : attributes) {
-                        callableStatement.registerOutParameter(parameterIndex, attribute.getDataType().getSqlType());
-                        parameterIndex++;
-                    }
+                    parameterIndex = registerRecordOutputParameters(callableStatement, declaredType, parameterIndex);
                 }
             } else if (isBoolean(dataType)){
                 callableStatement.registerOutParameter(parameterIndex, dataType.getSqlType());
@@ -241,7 +239,10 @@ public class OracleMethodExecutionProcessor extends MethodExecutionProcessorImpl
             DBDataType dataType = argument.getDataType();
             if (dataType.isPurelyDeclared()) {
                 if (argument.isInput()) {
-                    parameterIndex = parameterIndex + dataType.getDeclaredType().getAttributes().size();
+                    DBType declaredType = dataType.getDeclaredType();
+                    if (!declaredType.isCollection()) {
+                        parameterIndex += countRecordValues(declaredType);
+                    }
                 }
             }
         }
@@ -288,18 +289,13 @@ public class OracleMethodExecutionProcessor extends MethodExecutionProcessorImpl
                     executionResult.addArgumentValue(argument, result);
                     parameterIndex++;
                 } else {
-                    executionResult.addArgumentValue(argument, null);
-                    List<DBTypeAttribute> attributes = declaredType.getAttributes();
-                    for (DBTypeAttribute attribute : attributes) {
-                        // TODO assuming type attributes are all native
-                        DBNativeDataType nativeDataType = attribute.getDataType().getNativeType();
-                        Object result = nativeDataType == null ?
-                                callableStatement.getObject(parameterIndex) :
-                                nativeDataType.getValueFromStatement(callableStatement, parameterIndex);
-
-                        executionResult.addArgumentValue(argument, attribute, result);
-                        parameterIndex++;
-                    }
+                    parameterIndex = loadRecordValues(
+                            executionResult,
+                            callableStatement,
+                            argument,
+                            declaredType,
+                            Collections.emptyList(),
+                            parameterIndex);
                 }
             } else if (isBoolean(dataType)) {
                 Object result = dataType.getNativeType().getValueFromStatement(callableStatement, parameterIndex);
@@ -312,6 +308,138 @@ public class OracleMethodExecutionProcessor extends MethodExecutionProcessorImpl
 
     private static boolean isBoolean(DBDataType dataType) {
         return dataType.getGenericDataType() == GenericDataType.BOOLEAN;
+    }
+
+    private static boolean isRecord(DBDataType dataType) {
+        DBType declaredType = dataType.getDeclaredType();
+        return dataType.isPurelyDeclared() && declaredType != null && !declaredType.isCollection();
+    }
+
+    private static boolean isScalar(DBDataType dataType) {
+        return dataType.isNative() || dataType.getDeclaredType() == null;
+    }
+
+    private static void appendNullConstructor(StringBuilder buffer, DBType declaredType) {
+        buffer.append("(");
+        List<DBTypeAttribute> attributes = declaredType.getAttributes();
+        for (int i = 0; i < attributes.size(); i++) {
+            if (i > 0) buffer.append(", ");
+            buffer.append("NULL");
+        }
+        buffer.append(")");
+    }
+
+    private static void appendRecordAttributeInitializations(StringBuilder buffer, String variableName, DBType declaredType) {
+        for (DBTypeAttribute attribute : declaredType.getAttributes()) {
+            DBDataType dataType = attribute.getDataType();
+            String attributeName = variableName + "." + attribute.getName(true);
+            if (isRecord(dataType)) {
+                DBType nestedType = dataType.getDeclaredType();
+                buffer.append("    ").append(attributeName).append(" := ")
+                        .append(dataType.getQualifiedName(true));
+                appendNullConstructor(buffer, nestedType);
+                buffer.append(";\n");
+                appendRecordAttributeInitializations(buffer, attributeName, nestedType);
+            } else if (isScalar(dataType)) {
+                buffer.append("    ").append(attributeName).append(" := ?;\n");
+            }
+        }
+    }
+
+    private static void appendRecordOutput(
+            StringBuilder buffer,
+            String variableName,
+            DBType declaredType) {
+        for (DBTypeAttribute attribute : declaredType.getAttributes()) {
+            DBDataType dataType = attribute.getDataType();
+            String attributeName = variableName + "." + attribute.getName(true);
+            if (isRecord(dataType)) {
+                appendRecordOutput(buffer, attributeName, dataType.getDeclaredType());
+            } else if (isScalar(dataType)) {
+                buffer.append("    ? := ").append(attributeName).append(";\n");
+            }
+        }
+    }
+
+    private int bindRecordParameters(
+            MethodExecutionInput executionInput,
+            CallableStatement callableStatement,
+            DBArgument argument,
+            DBType declaredType,
+            List<DBTypeAttribute> attributePath,
+            int parameterIndex) throws SQLException {
+        for (DBTypeAttribute attribute : declaredType.getAttributes()) {
+            DBDataType dataType = attribute.getDataType();
+            List<DBTypeAttribute> nestedPath = new ArrayList<>(attributePath);
+            nestedPath.add(attribute);
+            if (isRecord(dataType)) {
+                parameterIndex = bindRecordParameters(
+                        executionInput,
+                        callableStatement,
+                        argument,
+                        dataType.getDeclaredType(),
+                        nestedPath,
+                        parameterIndex);
+            } else if (isScalar(dataType)) {
+                String stringValue = executionInput.getInputValue(argument, nestedPath);
+                setParameterValue(callableStatement, parameterIndex, dataType, stringValue);
+                parameterIndex++;
+            }
+        }
+        return parameterIndex;
+    }
+
+    private static int registerRecordOutputParameters(CallableStatement callableStatement, DBType declaredType, int parameterIndex) throws SQLException {
+        for (DBTypeAttribute attribute : declaredType.getAttributes()) {
+            DBDataType dataType = attribute.getDataType();
+            if (isRecord(dataType)) {
+                parameterIndex = registerRecordOutputParameters(callableStatement, dataType.getDeclaredType(), parameterIndex);
+            } else if (isScalar(dataType)) {
+                callableStatement.registerOutParameter(parameterIndex, dataType.getSqlType());
+                parameterIndex++;
+            }
+        }
+        return parameterIndex;
+    }
+
+    private static int countRecordValues(DBType declaredType) {
+        int count = 0;
+        for (DBTypeAttribute attribute : declaredType.getAttributes()) {
+            DBDataType dataType = attribute.getDataType();
+            count += isRecord(dataType) ? countRecordValues(dataType.getDeclaredType()) : isScalar(dataType) ? 1 : 0;
+        }
+        return count;
+    }
+
+    private static int loadRecordValues(
+            MethodExecutionResult executionResult,
+            DBNCallableStatement callableStatement,
+            DBArgument argument,
+            DBType declaredType,
+            List<DBTypeAttribute> attributePath,
+            int parameterIndex) throws SQLException {
+        for (DBTypeAttribute attribute : declaredType.getAttributes()) {
+            DBDataType dataType = attribute.getDataType();
+            List<DBTypeAttribute> nestedPath = new ArrayList<>(attributePath);
+            nestedPath.add(attribute);
+            if (isRecord(dataType)) {
+                parameterIndex = loadRecordValues(
+                        executionResult,
+                        callableStatement,
+                        argument,
+                        dataType.getDeclaredType(),
+                        nestedPath,
+                        parameterIndex);
+            } else if (isScalar(dataType)) {
+                DBNativeDataType nativeDataType = dataType.getNativeType();
+                Object result = nativeDataType == null ?
+                        callableStatement.getObject(parameterIndex) :
+                        nativeDataType.getValueFromStatement(callableStatement, parameterIndex);
+                executionResult.addArgumentValue(argument, nestedPath, result);
+                parameterIndex++;
+            }
+        }
+        return parameterIndex;
     }
 
     private static String parseBoolean(String argumentName, String booleanString) throws SQLException {

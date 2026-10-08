@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import com.dbn.event.registration.EventRegistrationCache;
 import com.dbn.event.registration.EventRegistrationManager;
 import com.dbn.object.DBTable;
 import com.dbn.object.action.AnObjectAction;
+import com.dbn.options.general.WorkspaceFeature;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -34,6 +35,11 @@ public class ChangeNotificationsToggleAction extends AnObjectAction<DBTable> {
 
     public ChangeNotificationsToggleAction(@NotNull DBTable table) {
         super(table);
+    }
+
+    @Override
+    protected WorkspaceFeature getFeature() {
+        return WorkspaceFeature.EVENT_MONITOR;
     }
 
     @Override
@@ -51,7 +57,9 @@ public class ChangeNotificationsToggleAction extends AnObjectAction<DBTable> {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DBTable table) {
-        if (table == null) return;
+        boolean visible = table != null && isFeatureEnabled(project);
+        presentation.setVisible(visible);
+        if (!visible) return;
 
         boolean listening = isListening(table);
         presentation.setText(listening ?

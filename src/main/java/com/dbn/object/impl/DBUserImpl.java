@@ -20,9 +20,10 @@ import com.dbn.browser.DatabaseBrowserUtils;
 import com.dbn.browser.model.BrowserTreeNode;
 import com.dbn.browser.ui.HtmlToolTipBuilder;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.common.metadata.def.DBUserMetadata;
+import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
 import com.dbn.object.DBGrantedPrivilege;
 import com.dbn.object.DBGrantedRole;
 import com.dbn.object.DBPrivilege;
@@ -33,7 +34,6 @@ import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.common.DBRootObjectImpl;
 import com.dbn.object.common.list.DBObjectListContainer;
-import com.dbn.object.common.property.DBObjectProperty;
 import com.dbn.object.filter.type.ObjectTypeFilterSettings;
 import com.dbn.object.type.DBObjectRelationType;
 import com.dbn.object.type.DBObjectType;
@@ -45,8 +45,19 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
 
-class DBUserImpl extends DBRootObjectImpl<DBUserMetadata> implements DBUser {
+import static com.dbn.common.util.Strings.equalsIgnoreCase;
+import static com.dbn.object.common.property.DBObjectProperty.DISABLEABLE;
+import static com.dbn.object.common.property.DBObjectProperty.LOCKABLE;
+import static com.dbn.object.common.property.DBObjectProperty.ROOT_OBJECT;
+import static com.dbn.object.common.property.DBObjectProperty.SESSION_USER;
+import static com.dbn.object.common.property.DBObjectProperty.SYSTEM_OBJECT;
+import static com.dbn.object.common.status.DBObjectStatus.DISABLED;
+import static com.dbn.object.common.status.DBObjectStatus.EXPIRED;
+import static com.dbn.object.common.status.DBObjectStatus.LOCKED;
+import static com.dbn.object.event.ObjectChangeAction.DISABLE;
+import static com.dbn.object.event.ObjectChangeAction.LOCK;
 
+class DBUserImpl extends DBRootObjectImpl<DBUserMetadata> implements DBUser {
     DBUserImpl(ConnectionHandler connection, DBUserMetadata metadata) throws SQLException {
         super(connection, metadata);
     }
@@ -60,9 +71,11 @@ class DBUserImpl extends DBRootObjectImpl<DBUserMetadata> implements DBUser {
     @Override
     protected String initObject(ConnectionHandler connection, DBObject parentObject, DBUserMetadata metadata) throws SQLException {
         String name = metadata.getUserName();
-        set(DBObjectProperty.EXPIRED, metadata.isExpired());
-        set(DBObjectProperty.LOCKED, metadata.isLocked());
-        set(DBObjectProperty.SESSION_USER, Strings.equalsIgnoreCase(name, connection.getUserName()));
+        set(SYSTEM_OBJECT, metadata.isSystem());
+        set(SESSION_USER, equalsIgnoreCase(name, connection.getUserName()));
+        setStatus(EXPIRED, metadata.isExpired());
+        setStatus(DISABLED, metadata.isDisabled());
+        setStatus(LOCKED, metadata.isLocked());
         return name;
     }
 
@@ -76,7 +89,12 @@ class DBUserImpl extends DBRootObjectImpl<DBUserMetadata> implements DBUser {
 
     @Override
     protected void initProperties() {
-        properties.set(DBObjectProperty.ROOT_OBJECT, true);
+        properties.set(ROOT_OBJECT, true);
+
+        DatabaseCompatibilityInterface compatibilityInterface = getConnection().getCompatibilityInterface();
+        DatabaseObjectTypeId objectTypeId = getObjectType().getTypeId();
+        properties.set(DISABLEABLE, compatibilityInterface.supportsObjectAction(objectTypeId, DISABLE));
+        properties.set(LOCKABLE, compatibilityInterface.supportsObjectAction( objectTypeId, LOCK));
     }
 
     @NotNull
@@ -92,25 +110,37 @@ class DBUserImpl extends DBRootObjectImpl<DBUserMetadata> implements DBUser {
 
     @Override
     public boolean isExpired() {
-        return is(DBObjectProperty.EXPIRED);
+        return hasStatus(EXPIRED);
+    }
+
+    @Override
+    public boolean isSystemUser() {
+        return is(SYSTEM_OBJECT);
     }
 
     @Override
     public boolean isLocked() {
-        return is(DBObjectProperty.LOCKED);
+        return hasStatus(LOCKED);
+    }
+
+    @Override
+    public boolean isDisabled() {
+        return hasStatus(DISABLED);
     }
 
     @Override
     public boolean isSessionUser() {
-        return is(DBObjectProperty.SESSION_USER);
+        return is(SESSION_USER);
     }
 
     @Nullable
     @Override
     public Icon getIcon() {
-        return isExpired() ?
-               (isLocked() ? Icons.DBO_USER_EXPIRED_LOCKED : Icons.DBO_USER_EXPIRED) :
-               (isLocked() ? Icons.DBO_USER_LOCKED : Icons.DBO_USER);
+        boolean expired = isExpired() || isDisabled();
+        boolean locked = isLocked();
+        return expired ?
+               (locked ? Icons.DBO_USER_EXPIRED_LOCKED : Icons.DBO_USER_EXPIRED) :
+               (locked ? Icons.DBO_USER_LOCKED : Icons.DBO_USER);
     }
 
     @Override
