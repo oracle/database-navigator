@@ -18,6 +18,8 @@ package com.dbn.common.options;
 
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.property.PropertyHolderBase;
+import com.dbn.common.routine.ThrowableCallable;
+import com.dbn.common.routine.ThrowableRunnable;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
@@ -52,6 +54,27 @@ public final class ConfigMonitor {
         }
         propertyHolder.set(activity, value);
     }
+
+    public static <E extends Throwable> void surround(ConfigActivity activity, ThrowableRunnable<E> runnable) throws E {
+        boolean previousState = is(activity);
+        try {
+            set(activity, true);
+            runnable.run();
+        } finally {
+            set(activity, previousState);
+        }
+    }
+
+    public static <T, E extends Throwable> T surround(ConfigActivity activity, ThrowableCallable<T, E> callable) throws E {
+        boolean previousState = is(activity);
+        try {
+            set(activity, true);
+            return callable.call();
+        } finally {
+            set(activity, previousState);
+        }
+    }
+
 
     public static boolean is(ConfigStorage storage) {
         PropertyHolderBase<ConfigStorage> propertyHolder = STORAGES.get();

@@ -51,7 +51,7 @@ public interface DBAIProfileMetadata extends DBObjectMetadata {
 
     String getObjectList() throws SQLException;
 
-    boolean isEnabled() throws SQLException;
+    boolean isDisabled() throws SQLException;
 
     boolean isInteractive() throws SQLException;
 
@@ -70,7 +70,7 @@ public interface DBAIProfileMetadata extends DBObjectMetadata {
         private final String description;
         private final String objectList;
         private final double temperature;
-        private final boolean enabled;
+        private final boolean disabled;
         private final boolean interactive;
     }
 }

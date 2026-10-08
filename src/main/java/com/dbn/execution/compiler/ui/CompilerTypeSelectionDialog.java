@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package com.dbn.execution.compiler.ui;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.execution.compiler.CompileType;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
@@ -35,9 +35,9 @@ import static com.dbn.nls.NlsResources.txt;
 @Getter
 public class CompilerTypeSelectionDialog extends DBNDialog<CompilerTypeSelectionForm> {
     private CompileType selection;
-    private DBObjectRef<DBSchemaObject> object;
+    private final DBObjectRef<DBObject> object;
 
-    public CompilerTypeSelectionDialog(Project project, @Nullable DBSchemaObject object) {
+    public CompilerTypeSelectionDialog(Project project, @Nullable DBObject object) {
         super(project, txt("msg.compiler.title.CompileType"), true);
         setModal(true);
         setResizable(false);
@@ -49,7 +49,7 @@ public class CompilerTypeSelectionDialog extends DBNDialog<CompilerTypeSelection
     @NotNull
     @Override
     protected CompilerTypeSelectionForm createForm() {
-        DBSchemaObject object = DBObjectRef.get(this.object);
+        DBObject object = DBObjectRef.get(this.object);
         return new CompilerTypeSelectionForm(this, object);
     }
 

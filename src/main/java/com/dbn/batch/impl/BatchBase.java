@@ -81,6 +81,11 @@ public abstract class BatchBase<
     }
 
     @Override
+    public String getName() {
+        return getMessenger().getBatchTitle(this);
+    }
+
+    @Override
     public final void init() {
         queue.addAll(input.getSelectedTasks());
         counters.queued().set(queue.size());

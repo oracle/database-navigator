@@ -63,10 +63,10 @@ import static com.dbn.common.util.Editors.updateEditorNotifications;
 import static com.dbn.common.util.GuardedBlocks.createGuardedBlock;
 import static com.dbn.common.util.GuardedBlocks.removeGuardedBlocks;
 import static com.dbn.common.util.Lists.forEach;
+import static com.dbn.common.util.Strings.convertLineSeparators;
 import static com.dbn.common.util.TimeUtil.isOlderThan;
 import static com.intellij.openapi.command.WriteCommandAction.runWriteCommandAction;
 import static com.intellij.openapi.fileEditor.impl.FileDocumentManagerImpl.HARD_REF_TO_DOCUMENT_KEY;
-import static com.intellij.openapi.util.text.StringUtil.convertLineSeparators;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 @UtilityClass

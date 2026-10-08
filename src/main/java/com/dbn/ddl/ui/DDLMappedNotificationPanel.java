@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import com.dbn.common.editor.EditorNotificationPanel;
 import com.dbn.common.message.MessageType;
 import com.dbn.ddl.DDLFileAttachmentManager;
 import com.dbn.editor.DatabaseFileEditorManager;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
@@ -30,9 +30,9 @@ import org.jetbrains.annotations.NotNull;
 import static com.dbn.nls.NlsResources.txt;
 
 public class DDLMappedNotificationPanel extends EditorNotificationPanel {
-    private final DBObjectRef<DBSchemaObject> object;
+    private final DBObjectRef<DBObject> object;
 
-    public DDLMappedNotificationPanel(@NotNull Project project, @NotNull VirtualFile file, @NotNull FileEditor fileEditor, DBSchemaObject object) {
+    public DDLMappedNotificationPanel(@NotNull Project project, @NotNull VirtualFile file, @NotNull FileEditor fileEditor, DBObject object) {
         super(project, file, fileEditor, MessageType.WARNING);
         this.object = DBObjectRef.of(object);
 
@@ -49,7 +49,7 @@ public class DDLMappedNotificationPanel extends EditorNotificationPanel {
 
         DDLFileAttachmentManager attachmentManager = DDLFileAttachmentManager.getInstance(project);
         attachmentManager.detachDDLFile(file);
-        DBSchemaObject object = DBObjectRef.get(this.object);
+        DBObject object = DBObjectRef.get(this.object);
         if (object == null) return;
 
         DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(project);

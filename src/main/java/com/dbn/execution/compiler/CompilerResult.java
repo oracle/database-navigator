@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import com.dbn.editor.DBContentType;
 import com.dbn.object.DBSchema;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.Disposable;
@@ -48,7 +48,7 @@ import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public class CompilerResult implements Disposable, NotificationSupport {
-    private final DBObjectRef<DBSchemaObject> object;
+    private final DBObjectRef<DBObject> object;
     private final List<CompilerMessage> compilerMessages = new ArrayList<>();
     private CompilerAction compilerAction;
     private boolean error = false;
@@ -58,12 +58,12 @@ public class CompilerResult implements Disposable, NotificationSupport {
         init(connection, schema, objectName, objectType, compilerAction, conn);
     }
 
-    public CompilerResult(CompilerAction compilerAction, DBSchemaObject object, @Nullable DBNConnection conn) {
+    public CompilerResult(CompilerAction compilerAction, DBObject object, @Nullable DBNConnection conn) {
         this.object = DBObjectRef.of(object);
         init(object.getConnection(), object.getSchema(), object.getName(), object.getObjectType(), compilerAction, conn);
     }
 
-    public CompilerResult(CompilerAction compilerAction, DBSchemaObject object, DBContentType contentType, String errorMessage) {
+    public CompilerResult(CompilerAction compilerAction, DBObject object, DBContentType contentType, String errorMessage) {
         this.compilerAction = compilerAction;
         this.object = DBObjectRef.of(object);
         CompilerMessage compilerMessage = new CompilerMessage(this, contentType, errorMessage, MessageType.ERROR);
@@ -144,7 +144,7 @@ public class CompilerResult implements Disposable, NotificationSupport {
     }
 
     @Nullable
-    public DBSchemaObject getObject() {
+    public DBObject getObject() {
         return DBObjectRef.get(object);
     }
 
@@ -156,7 +156,7 @@ public class CompilerResult implements Disposable, NotificationSupport {
         return object.getObjectType();
     }
 
-    public DBObjectRef<DBSchemaObject> getObjectRef() {
+    public DBObjectRef<DBObject> getObjectRef() {
         return object;
     }
 
@@ -166,7 +166,7 @@ public class CompilerResult implements Disposable, NotificationSupport {
     }
 
     public Project getProject() {
-        DBSchemaObject object = DBObjectRef.get(this.object);
+        DBObject object = DBObjectRef.get(this.object);
         if (object == null) {
             ConnectionHandler connection = this.object.getConnection();
             if (connection != null) return connection.getProject();

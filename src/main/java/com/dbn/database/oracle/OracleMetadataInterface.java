@@ -37,6 +37,11 @@ public class OracleMetadataInterface extends DatabaseMetadataInterfaceImpl {
     }
 
     @Override
+    public ResultSet loadDebugDependencies(String ownerName, String objectName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "debug-dependencies", ownerName, objectName);
+    }
+
+    @Override
     public ResultSet loadDatasetTriggerSourceCode(String tableOwner, String tableName, String ownerName, String triggerName, DBNConnection connection) throws SQLException {
         return loadObjectSourceCode(ownerName, triggerName, "TRIGGER", connection);
     }

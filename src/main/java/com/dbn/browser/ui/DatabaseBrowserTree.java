@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,6 @@ import com.dbn.object.DBConsole;
 import com.dbn.object.action.ObjectActionGroup;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectBundle;
-import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.list.action.ObjectListActionGroup;
 import com.dbn.object.common.property.DBObjectProperty;
@@ -269,8 +268,7 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
                 editorManager.openDatabaseConsole(console, deliberate);
                 event.consume();
             } else if (object.is(DBObjectProperty.EDITABLE)) {
-                DBSchemaObject schemaObject = (DBSchemaObject) object;
-                editorManager.connectAndOpenEditor(schemaObject, null, false, deliberate);
+                editorManager.connectAndOpenEditor(object, null, false, deliberate);
                 event.consume();
 
             } else if (object.is(DBObjectProperty.NAVIGABLE)) {

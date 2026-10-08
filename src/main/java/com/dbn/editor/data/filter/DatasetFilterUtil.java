@@ -25,6 +25,8 @@ import com.dbn.database.JdbcProperty;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBDataset;
+import com.dbn.object.DBNestedTable;
+import com.dbn.object.DBTable;
 import org.jetbrains.annotations.NonNls;
 
 import java.util.List;
@@ -46,7 +48,7 @@ public class DatasetFilterUtil {
             SortDirection sortDirection = sortingInstruction.getDirection();
             DBColumn column = dataset.getColumn(sortingInstruction.getColumnName());
             if (isValid(column) && !sortDirection.isIndefinite()) {
-                String columnName = column.getName(true);
+                String columnName = getColumnExpression(dataset, column);
                 DatabaseCompatibilityInterface compatibility = column.getCompatibilityInterface();
                 String orderByClause = compatibility.getOrderByClause(columnName, sortDirection, nullsFirst);
                 buffer.append(instructionAdded ? ", " : "");
@@ -71,6 +73,11 @@ public class DatasetFilterUtil {
     }
 
     public static void createSimpleSelectStatement(DBDataset dataset, StringBuilder buffer) {
+        if (dataset instanceof DBNestedTable nestedTable) {
+            createNestedTableSelectStatement(nestedTable, buffer);
+            return;
+        }
+
         DatabaseCompatibility compatibility = dataset.getConnection().getCompatibility();
         // TODO not implemented yet - returning always true at the moment
         boolean aliased = compatibility.isSupported(JdbcProperty.SQL_DATASET_ALIASING);
@@ -86,5 +93,36 @@ public class DatasetFilterUtil {
             buffer.append("select * from ");
             buffer.append(datasetName);
         }
+    }
+
+    public static String getColumnExpression(DBDataset dataset, DBColumn column) {
+        String columnName = column.getName(true);
+        return dataset instanceof DBNestedTable ? "n." + columnName : columnName;
+    }
+
+    private static void createNestedTableSelectStatement(DBNestedTable nestedTable, StringBuilder buffer) {
+        DBTable table = nestedTable.getParentTable();
+        DBColumn parentTableColumn = nestedTable.getParentTableColumn();
+        if (parentTableColumn == null) {
+            throw new IllegalStateException("Nested table collection column is not available");
+        }
+
+        buffer.append("select ");
+        List<DBColumn> primaryKeyColumns = table.getPrimaryKeyColumns();
+        if (primaryKeyColumns.isEmpty()) {
+            buffer.append("n.*");
+        } else {
+            for (int i = 0; i < primaryKeyColumns.size(); i++) {
+                if (i > 0) buffer.append(", ");
+                buffer.append("p.").append(primaryKeyColumns.get(i).getName(true));
+            }
+            buffer.append(", n.*");
+        }
+
+        buffer.append(" from ")
+                .append(table.getQualifiedName(true))
+                .append(" p, table(p.")
+                .append(parentTableColumn.getName(true))
+                .append(") n");
     }
 }

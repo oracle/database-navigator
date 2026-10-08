@@ -16,7 +16,7 @@
 
 package com.dbn.object.factory.adapter;
 
-import com.dbn.object.DBSchema;
+import com.dbn.connection.DatabaseEntity;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.type.DBObjectType;
 
@@ -32,8 +32,8 @@ public class DBFunctionFactoryAdapter extends DBMethodFactoryAdapter {
     }
 
     @Override
-    public DBObjectSpec createInput(DBSchema schema) {
-        DBObjectSpec functionSpec = new DBObjectSpec(schema, FUNCTION);
+    public DBObjectSpec createInput(DatabaseEntity parentEntity) {
+        DBObjectSpec functionSpec = new DBObjectSpec(parentEntity, FUNCTION);
         DBObjectSpec returnArgumentSpec = new DBObjectSpec(functionSpec, ARGUMENT);
         functionSpec.setAttributeValue(RETURN_ARGUMENT, returnArgumentSpec);
         return functionSpec;

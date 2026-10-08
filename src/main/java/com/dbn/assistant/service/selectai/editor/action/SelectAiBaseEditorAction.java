@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.options.general.WorkspaceFeature;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.editor.Editor;
@@ -54,6 +55,11 @@ public abstract class SelectAiBaseEditorAction extends ProjectAction {
     }
 
     @Override
+    protected WorkspaceFeature getFeature() {
+        return WorkspaceFeature.DATABASE_ASSISTANT;
+    }
+
+    @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         Editor editor = getEditor(e);
         if (isNotValid(editor)) return;
@@ -70,7 +76,7 @@ public abstract class SelectAiBaseEditorAction extends ProjectAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Editor editor = getEditor(e);
-        boolean visible = isAssistantAvailable(e);
+        boolean visible = isFeatureEnabled(project) && isAssistantAvailable(e);
         boolean enabled = isAssistantPromptAvailable(editor, null);
 
         ActionPlace actionPlace = getActionPlace(e);

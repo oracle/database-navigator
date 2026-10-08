@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import com.dbn.debugger.DBDebuggerType;
 import com.dbn.execution.java.JavaExecutionManager;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.action.AnObjectAction;
+import com.dbn.options.general.WorkspaceFeature;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -35,6 +36,11 @@ public class JavaMethodExecuteAction extends AnObjectAction<DBJavaMethod> {
     public JavaMethodExecuteAction(DBJavaMethod method, boolean listElement) {
         super(method);
         this.listElement = listElement;
+    }
+
+    @Override
+    protected WorkspaceFeature getFeature() {
+        return WorkspaceFeature.OJVM;
     }
 
     @Override
@@ -57,6 +63,10 @@ public class JavaMethodExecuteAction extends AnObjectAction<DBJavaMethod> {
             @NotNull Presentation presentation,
             @NotNull Project project,
             @Nullable DBJavaMethod target) {
+        boolean featureEnabled = isFeatureEnabled(project);
+        presentation.setVisible(featureEnabled);
+        if (!featureEnabled) return;
+
         if (listElement) {
             super.update(e, presentation, project, target);
         } else {

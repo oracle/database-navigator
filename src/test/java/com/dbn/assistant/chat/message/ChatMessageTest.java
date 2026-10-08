@@ -18,10 +18,16 @@ package com.dbn.assistant.chat.message;
 
 import com.dbn.assistant.chat.context.ChatContextImpl;
 import com.dbn.common.text.TextContent;
+import com.intellij.mock.MockApplication;
+import com.intellij.openapi.Disposable;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.util.Disposer;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -35,6 +41,26 @@ import static com.dbn.assistant.chat.message.AuthorType.AGENT;
 import static com.dbn.common.message.MessageType.NEUTRAL;
 
 public class ChatMessageTest {
+    private static Disposable applicationDisposable;
+
+    @BeforeClass
+    public static void setUpApplication() {
+        if (ApplicationManager.getApplication() != null) return;
+
+        applicationDisposable = Disposer.newDisposable("ChatMessageTest");
+        MockApplication.setUp(applicationDisposable);
+    }
+
+    @AfterClass
+    public static void tearDownApplication() {
+        if (applicationDisposable == null) return;
+
+        try {
+            Disposer.dispose(applicationDisposable);
+        } finally {
+            applicationDisposable = null;
+        }
+    }
 
     @Test
     public void testSample1() throws Exception{

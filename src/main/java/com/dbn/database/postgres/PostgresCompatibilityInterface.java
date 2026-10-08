@@ -27,6 +27,8 @@ import com.dbn.database.common.DatabaseCompatibilityInterfaceImpl;
 import com.dbn.editor.session.SessionStatus;
 import com.dbn.language.common.quotes.QuoteDefinition;
 import com.dbn.language.common.quotes.QuotePair;
+import com.dbn.object.event.ObjectChangeAction;
+import com.dbn.object.factory.model.DBObjectTypeSpec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,7 +46,32 @@ import static com.dbn.database.DatabaseFeature.READONLY_CONNECTIVITY;
 import static com.dbn.database.DatabaseFeature.SESSION_BROWSING;
 import static com.dbn.database.DatabaseFeature.SESSION_CURRENT_SQL;
 import static com.dbn.database.DatabaseFeature.SESSION_KILL;
+import static com.dbn.database.DatabaseFeature.TRANSACTIONAL_DDL;
 import static com.dbn.database.DatabaseFeature.UPDATABLE_RESULT_SETS;
+import static com.dbn.database.DatabaseObjectTypeId.MATERIALIZED_VIEW;
+import static com.dbn.database.DatabaseObjectTypeId.USER;
+import static com.dbn.object.event.ObjectChangeAction.DISABLE;
+import static com.dbn.object.event.ObjectChangeAction.ENABLE;
+import static com.dbn.object.event.ObjectChangeAction.REFRESH;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_BODY;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_BODY_TEMPLATE;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_EVENTS;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_FOR_EACH_ROW;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_FUNCTION_NAME;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_FUNCTION_SCHEMA;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TARGET;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TARGET_DATASET;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TYPE;
+import static com.dbn.object.type.DBTriggerEvent.DDL;
+import static com.dbn.object.type.DBTriggerEvent.DELETE;
+import static com.dbn.object.type.DBTriggerEvent.DROP;
+import static com.dbn.object.type.DBTriggerEvent.INSERT;
+import static com.dbn.object.type.DBTriggerEvent.TRUNCATE;
+import static com.dbn.object.type.DBTriggerEvent.UPDATE;
+import static com.dbn.object.type.DBTriggerTarget.DATABASE;
+import static com.dbn.object.type.DBTriggerType.AFTER;
+import static com.dbn.object.type.DBTriggerType.BEFORE;
+import static com.dbn.object.type.DBTriggerType.INSTEAD_OF;
 
 public class PostgresCompatibilityInterface extends DatabaseCompatibilityInterfaceImpl {
 
@@ -59,16 +86,59 @@ public class PostgresCompatibilityInterface extends DatabaseCompatibilityInterfa
                 DatabaseObjectTypeId.SCHEMA,
                 DatabaseObjectTypeId.TABLE,
                 DatabaseObjectTypeId.VIEW,
+                DatabaseObjectTypeId.MATERIALIZED_VIEW,
                 DatabaseObjectTypeId.COLUMN,
                 DatabaseObjectTypeId.CONSTRAINT,
                 DatabaseObjectTypeId.INDEX,
                 DatabaseObjectTypeId.DATASET_TRIGGER,
-                //DATABASE_TRIGGER,
+                DatabaseObjectTypeId.EVENT_TRIGGER,
                 DatabaseObjectTypeId.FUNCTION,
                 DatabaseObjectTypeId.ARGUMENT,
                 DatabaseObjectTypeId.SEQUENCE,
                 DatabaseObjectTypeId.SYSTEM_PRIVILEGE,
                 DatabaseObjectTypeId.GRANTED_PRIVILEGE);
+    }
+
+    @Override
+    public DBObjectTypeSpec getObjectTypeSpec(DatabaseObjectTypeId objectTypeId) {
+        return switch (objectTypeId) {
+            case DATASET_TRIGGER ->
+                    DBObjectTypeSpec.create(objectTypeId)
+                            .withAttribute(TRIGGER_TYPE, List.of(BEFORE, AFTER, INSTEAD_OF), false, true)
+                            .withAttribute(TRIGGER_EVENTS, List.of(INSERT, UPDATE, DELETE, TRUNCATE), true, true)
+                            .withAttribute(TRIGGER_FUNCTION_NAME, null, true)
+                            .withAttribute(TRIGGER_TARGET_DATASET, null, true)
+                            .withAttribute(TRIGGER_FOR_EACH_ROW, List.of(false, true), false, false)
+                            .withAttribute(TRIGGER_BODY_TEMPLATE, "begin\n    return new;\nend;", false)
+                            .withAttribute(TRIGGER_BODY, null, true);
+            case EVENT_TRIGGER ->
+                    DBObjectTypeSpec.create(objectTypeId)
+                            .withAttribute(TRIGGER_EVENTS, List.of(DDL, DROP), false, true)
+                            .withAttribute(TRIGGER_FUNCTION_NAME, null, true)
+                            .withAttribute(TRIGGER_FUNCTION_SCHEMA, null, true)
+                            .withAttribute(TRIGGER_TARGET, DATABASE, true)
+                            .withAttribute(TRIGGER_BODY_TEMPLATE, "begin\n\nend;", false)
+                            .withAttribute(TRIGGER_BODY, null, true);
+            //...
+            default -> super.getObjectTypeSpec(objectTypeId);
+        };
+    }
+
+    @Override
+    public boolean supportsObjectType(DatabaseObjectTypeId objectTypeId, double databaseVersion) {
+        return switch (objectTypeId) {
+            case MATERIALIZED_VIEW -> databaseVersion >= 9.3;
+            case EVENT_TRIGGER -> databaseVersion >= 9.3;
+            default -> supportsObjectType(objectTypeId);
+        };
+    }
+
+    @Override
+    public boolean supportsObjectAction(DatabaseObjectTypeId objectTypeId, ObjectChangeAction action) {
+        if (objectTypeId == USER && action.isOneOf(ENABLE, DISABLE)) return true;
+        if (objectTypeId == MATERIALIZED_VIEW && action == REFRESH) return true;
+
+        return super.supportsObjectAction(objectTypeId, action);
     }
 
     @Override
@@ -79,6 +149,7 @@ public class PostgresCompatibilityInterface extends DatabaseCompatibilityInterfa
                 SESSION_CURRENT_SQL,
                 UPDATABLE_RESULT_SETS,
                 OBJECT_SOURCE_EDITING,
+                TRANSACTIONAL_DDL,
                 CURRENT_SCHEMA,
                 CHANGE_PASSWORD,
                 CONSTRAINT_MANIPULATION,

@@ -29,7 +29,6 @@ import com.dbn.object.DBCredential;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObjectImpl;
-import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.google.gson.Gson;
@@ -54,6 +53,7 @@ import static com.dbn.object.common.DBObjectUtil.jsonToObjectList;
 import static com.dbn.object.common.DBObjectUtil.objectToAttributes;
 import static com.dbn.object.common.property.DBObjectProperty.DISABLEABLE;
 import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
+import static com.dbn.object.common.status.DBObjectStatus.DISABLED;
 
 @Getter
 public class DBAIProfileImpl extends DBSchemaObjectImpl<DBAIProfileMetadata> implements DBAIProfile {
@@ -101,7 +101,7 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBAIProfileMetadata> imp
                 .description(description)
                 .objectList(objectList)
                 .temperature(temperature)
-                .enabled(enabled)
+                .disabled(!enabled)
                 .interactive(interactive)
                 .build());
     }
@@ -165,8 +165,7 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBAIProfileMetadata> imp
 
     @Override
     public void initStatus(DBAIProfileMetadata metadata) throws SQLException {
-        boolean enabled = metadata.isEnabled();
-        getStatus().set(DBObjectStatus.ENABLED, enabled);
+        setStatus(DISABLED, metadata.isDisabled());
     }
 
 

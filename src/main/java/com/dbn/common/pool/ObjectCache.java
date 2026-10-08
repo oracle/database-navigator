@@ -26,9 +26,8 @@ public interface ObjectCache<K, V, E extends Throwable> {
     @NotNull
     V ensure(K key) throws E;
 
-    void drop(K key);
-
-    void release(K key);
+    /** Removes the entry and releases its resources only if it contains this exact instance. */
+    void discard(V object);
 
     int size();
 

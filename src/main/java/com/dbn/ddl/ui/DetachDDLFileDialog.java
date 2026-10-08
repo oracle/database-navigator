@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.ddl.DDLFileAttachmentManager;
 import com.dbn.help.HelpTopic;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,11 +35,11 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class DetachDDLFileDialog extends DBNDialog<SelectDDLFileForm> {
     private final List<VirtualFileInfo> fileInfos;
-    private final DBObjectRef<DBSchemaObject> objectRef;
-    public DetachDDLFileDialog(@NotNull List<VirtualFileInfo> fileInfos, @NotNull DBSchemaObject object) {
+    private final DBObjectRef<DBObject> object;
+    public DetachDDLFileDialog(@NotNull List<VirtualFileInfo> fileInfos, @NotNull DBObject object) {
         super(object.getProject(), txt("msg.ddlFiles.title.DetachDdlFiles"), true);
         this.fileInfos = fileInfos;
-        this.objectRef = DBObjectRef.of(object);
+        this.object = DBObjectRef.of(object);
         setDefaultSize(700, 400);
         init();
     }
@@ -47,7 +47,7 @@ public class DetachDDLFileDialog extends DBNDialog<SelectDDLFileForm> {
     @NotNull
     @Override
     protected SelectDDLFileForm createForm() {
-        DBSchemaObject object = objectRef.ensure();
+        DBObject object = this.object.ensure();
         TextContent hintText = plain(
                 txt("msg.ddlFiles.hint.DetachDdlFiles",
                         object.getQualifiedNameWithType(),

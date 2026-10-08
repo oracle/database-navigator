@@ -88,7 +88,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     LEVEL(DatabaseObjectTypeId.LEVEL, "level", "levels", null, null, null, false),
     DISKGROUP(DatabaseObjectTypeId.DISKGROUP, "diskgroup", "diskgroups", null, null, null, false),
     DOMAIN(DatabaseObjectTypeId.DOMAIN, "domain", "domains", null, null, null, false),
-    EVENT_TRIGGER(DatabaseObjectTypeId.EVENT_TRIGGER, "event trigger", "event triggers", null, null, null, false),
+    EVENT_TRIGGER(DatabaseObjectTypeId.EVENT_TRIGGER, "event trigger", "event triggers", Icons.DBO_DATABASE_TRIGGER, Icons.DBO_DATABASE_TRIGGER_DISABLED, Icons.DBO_DATABASE_TRIGGERS, false),
     EDITION(DatabaseObjectTypeId.EDITION, "edition", "editions", null, null, null, false),
     ENGINE(DatabaseObjectTypeId.ENGINE, "engine", "engines", null, null, null, false),
     EVENT(DatabaseObjectTypeId.EVENT, "event", "events", null, null, null, false),
@@ -116,7 +116,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     MODEL(DatabaseObjectTypeId.MODEL, "model", "models", null, null, null, false),
     MODULE(DatabaseObjectTypeId.MODULE, "module", "modules", null, null, null, false),
     NESTED_TABLE(DatabaseObjectTypeId.NESTED_TABLE, "nested table", "nested tables", Icons.DBO_NESTED_TABLE, null, Icons.DBO_NESTED_TABLES, false),
-    NESTED_TABLE_COLUMN(DatabaseObjectTypeId.NESTED_TABLE_COLUMN, "nested table column", "nested table columns", null, null, null, false),
+    NESTED_TABLE_COLUMN(DatabaseObjectTypeId.NESTED_TABLE_COLUMN, "column", "columns", Icons.DBO_COLUMN, null, Icons.DBO_COLUMNS, false),
     OPERATOR(DatabaseObjectTypeId.OPERATOR, "operator", "operators", null, null, null, false),
     OPERATOR_CLASS(DatabaseObjectTypeId.OPERATOR_CLASS, "operator class", "operator classes", null, null, null, false),
     OPERATOR_FAMILY(DatabaseObjectTypeId.OPERATOR_FAMILY, "operator family", "operator families", null, null, null, false),
@@ -201,7 +201,8 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     NON_EXISTENT(DatabaseObjectTypeId.NON_EXISTENT, "non-existent", null, null, null, null, true),
 
     INCOMING_DEPENDENCY(DatabaseObjectTypeId.INCOMING_DEPENDENCY, "incoming dependency", "incoming dependencies", null, null, null, true),
-    OUTGOING_DEPENDENCY(DatabaseObjectTypeId.INCOMING_DEPENDENCY, "outgoing dependency", "outgoing dependencies", null, null, null, true);
+    OUTGOING_DEPENDENCY(DatabaseObjectTypeId.INCOMING_DEPENDENCY, "outgoing dependency", "outgoing dependencies", null, null, null, true),
+    DEBUG_DEPENDENCY(DatabaseObjectTypeId.DEBUG_DEPENDENCY, "debug dependency", "debug dependencies", null, null, null, true);
 
     private final DatabaseObjectTypeId typeId;
     private final String name;
@@ -245,6 +246,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
             DBObjectType.CONSTRAINT,
             DBObjectType.DATASET_TRIGGER,
             DBObjectType.DATABASE_TRIGGER,
+            DBObjectType.EVENT_TRIGGER,
             DBObjectType.SYNONYM,
             DBObjectType.SEQUENCE,
             DBObjectType.PROCEDURE,
@@ -529,7 +531,9 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         INDEX.addParent(SCHEMA);
         JSON_VIEW.addParent(SCHEMA);
         MATERIALIZED_VIEW.addParent(SCHEMA);
+        NESTED_TABLE.addParent(SCHEMA);
         NESTED_TABLE.addParent(TABLE);
+        NESTED_TABLE.addParent(DATASET);
         NESTED_TABLE_COLUMN.addParent(NESTED_TABLE);
         PACKAGE.addParent(SCHEMA);
         PACKAGE_BODY.addParent(SCHEMA);
@@ -578,6 +582,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         FUNCTION.contentType = DBContentType.CODE;
         PROCEDURE.contentType = DBContentType.CODE;
         TABLE.contentType = DBContentType.DATA;
+        NESTED_TABLE.contentType = DBContentType.DATA;
         VIEW.contentType = DBContentType.CODE_AND_DATA;
         ANALYTIC_VIEW.contentType = DBContentType.CODE_AND_DATA;
         MATERIALIZED_VIEW.contentType = DBContentType.CODE_AND_DATA;
@@ -588,6 +593,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         TRIGGER.contentType = DBContentType.CODE;
         DATASET_TRIGGER.contentType = DBContentType.CODE;
         DATABASE_TRIGGER.contentType = DBContentType.CODE;
+        EVENT_TRIGGER.contentType = DBContentType.CODE;
         JAVA_CLASS.contentType = DBContentType.CODE;
         JAVA_RESOURCE.contentType = DBContentType.CODE;
     }
@@ -599,6 +605,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         TRIGGER.addDdlFileType(DBContentType.CODE, DDLFileTypeId.TRIGGER);
         DATASET_TRIGGER.addDdlFileType(DBContentType.CODE, DDLFileTypeId.TRIGGER);
         DATABASE_TRIGGER.addDdlFileType(DBContentType.CODE, DDLFileTypeId.TRIGGER);
+        EVENT_TRIGGER.addDdlFileType(DBContentType.CODE, DDLFileTypeId.TRIGGER);
         FUNCTION.addDdlFileType(DBContentType.CODE, DDLFileTypeId.FUNCTION);
         PROCEDURE.addDdlFileType(DBContentType.CODE, DDLFileTypeId.PROCEDURE);
 
@@ -620,6 +627,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         TABLE.addTreeChild(INDEX);
         TABLE.addTreeChild(DATASET_TRIGGER);
         TABLE.addTreeChild(NESTED_TABLE);
+        NESTED_TABLE.addTreeChild(COLUMN);
 
         VIEW.addTreeChild(COLUMN);
         VIEW.addTreeChild(CONSTRAINT);

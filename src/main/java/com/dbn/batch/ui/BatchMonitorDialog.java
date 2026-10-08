@@ -33,7 +33,7 @@ public class BatchMonitorDialog extends DBNDialog<BatchMonitorForm> implements B
     private final Batch batch;
 
     public BatchMonitorDialog(Batch batch) {
-        super(batch.getProject(), batch.getMessenger().getBatchTitle(batch), false);
+        super(batch.getProject(), batch.getName(), false);
         this.setModal(false);
         this.batch = batch;
         this.batch.addEventListener(this);

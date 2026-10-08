@@ -17,11 +17,9 @@
 package com.dbn.common.ui;
 
 import com.dbn.common.action.BasicAction;
-import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.property.PropertyHolder;
 import com.dbn.common.ui.panel.DBNButtonPanel;
-import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Listeners;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.ui.util.Popups;
@@ -35,7 +33,6 @@ import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.util.NlsContexts.Label;
 import com.intellij.util.IconUtil;
 import com.intellij.util.ui.JBUI;
-import com.intellij.util.ui.UIUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -53,8 +50,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static com.dbn.common.color.Colors.getLabelDisabledForeground;
+import static com.dbn.common.color.Colors.getPanelBackground;
+import static com.dbn.common.color.Colors.getTextFieldForeground;
+import static com.dbn.common.color.Colors.lafDarker;
 import static com.dbn.common.property.PropertyHolderBase.intBase;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.ui.util.Cursors.defaultCursor;
+import static com.dbn.common.ui.util.Cursors.handCursor;
 
 @Getter
 @Setter
@@ -93,14 +96,14 @@ public abstract class ValueSelector<T extends Presentable> extends DBNButtonPane
         setAccessibleName(this, text);
 
         label = new JLabel(text, cropIcon(icon), SwingConstants.LEFT);
-        label.setCursor(Cursors.handCursor());
+        label.setCursor(handCursor());
         label.setBorder(JBUI.Borders.empty(4, 6));
 
         setBorder(DEFAULT_BORDER);
 
         innerPanel = new JPanel(new BorderLayout());
         innerPanel.add(label, BorderLayout.WEST);
-        innerPanel.setCursor(Cursors.handCursor());
+        innerPanel.setCursor(handCursor());
         add(innerPanel, BorderLayout.CENTER);
 
         setMinimumSize(new Dimension(0, 30));
@@ -126,12 +129,12 @@ public abstract class ValueSelector<T extends Presentable> extends DBNButtonPane
 
     @Override
     public void setEnabled(boolean enabled) {
-        label.setCursor(enabled ? Cursors.handCursor(): Cursors.defaultCursor());
-        innerPanel.setCursor(enabled ? Cursors.handCursor() : Cursors.defaultCursor());
+        label.setCursor(enabled ? handCursor(): defaultCursor());
+        innerPanel.setCursor(enabled ? handCursor() : defaultCursor());
 
-        innerPanel.setBackground(Colors.getPanelBackground());
+        innerPanel.setBackground(getPanelBackground());
         innerPanel.setFocusable(enabled);
-        label.setForeground(enabled ? Colors.getTextFieldForeground() : UIUtil.getLabelDisabledForeground());
+        label.setForeground(enabled ? getTextFieldForeground() : getLabelDisabledForeground());
         super.setEnabled(enabled);
     }
 
@@ -146,14 +149,14 @@ public abstract class ValueSelector<T extends Presentable> extends DBNButtonPane
                     if (popup != null) return;
 
                     JPanel innerPanel = getInnerPanel();
-                    innerPanel.setBackground(Colors.lafDarker(Colors.getPanelBackground(), 4));
+                    innerPanel.setBackground(lafDarker(getPanelBackground(), 4));
                     UserInterface.repaint(ValueSelector.this);
                 }).
                 onExit(e -> {
                     if (popup != null) return;
 
                     JPanel innerPanel = getInnerPanel();
-                    innerPanel.setBackground(Colors.getPanelBackground());
+                    innerPanel.setBackground(getPanelBackground());
                     UserInterface.repaint(ValueSelector.this);
                 });
     }
@@ -169,8 +172,8 @@ public abstract class ValueSelector<T extends Presentable> extends DBNButtonPane
     }
 
     private void showPopup() {
-        innerPanel.setCursor(Cursors.defaultCursor());
-        label.setCursor(Cursors.defaultCursor());
+        innerPanel.setCursor(defaultCursor());
+        label.setCursor(defaultCursor());
         DefaultActionGroup actionGroup = new DefaultActionGroup();
 
         if (emptyValueFactory != null) {
@@ -201,9 +204,9 @@ public abstract class ValueSelector<T extends Presentable> extends DBNButtonPane
     private void adjustSelector() {
         popup = null;
 
-        innerPanel.setBackground(Colors.getPanelBackground());
-        innerPanel.setCursor(Cursors.handCursor());
-        label.setCursor(Cursors.handCursor());
+        innerPanel.setBackground(getPanelBackground());
+        innerPanel.setCursor(handCursor());
+        label.setCursor(handCursor());
 
         UserInterface.repaint(ValueSelector.this);
     }

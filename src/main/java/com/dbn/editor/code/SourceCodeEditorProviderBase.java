@@ -24,7 +24,7 @@ import com.dbn.common.util.Editors;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.DatabaseFileEditorManager;
 import com.dbn.editor.EditorProviderId;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.editor.Document;
@@ -115,7 +115,7 @@ abstract class SourceCodeEditorProviderBase extends BasicTextEditorProvider impl
 
     private void openMainFileEditor(DBEditableObjectVirtualFile databaseFile) {
         Project project = databaseFile.getProject();
-        DBSchemaObject object = databaseFile.getObject();
+        DBObject object = databaseFile.getObject();
         DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(project);
         editorManager.connectAndOpenEditor(object, getEditorProviderId(), false, true);
         throw new ProcessDeferredException();

@@ -128,6 +128,13 @@
             end;
         </statement>
     </statement-execution-processor>
+    <statement-execution-processor id="ping-session" timeout="20">
+        <statement>
+            begin
+                SYS.DBMS_DEBUG.ping();
+            end;
+        </statement>
+    </statement-execution-processor>
     <statement-execution-processor id="step-over">
         <statement>
             declare
@@ -525,6 +532,76 @@
             end;
         </statement>
     </statement-execution-processor>
+
+    <statement-execution-processor id="object-identifiers">
+        <statement prefixes="DBA, ALL" since-version="11.1">
+            select
+                OWNER,
+                NAME,
+                SIGNATURE,
+                TYPE,
+                OBJECT_NAME,
+                OBJECT_TYPE,
+                USAGE,
+                USAGE_ID,
+                LINE,
+                COL,
+                USAGE_CONTEXT_ID,
+                DECLARED_OWNER,
+                DECLARED_OBJECT_NAME,
+                DECLARED_OBJECT_TYPE
+            from [PREFIX]_IDENTIFIERS
+            where
+                OWNER = {#0} and
+                OBJECT_NAME = {#1} and
+                OBJECT_TYPE = {#2}
+            order by USAGE_ID
+        </statement>
+        <statement prefixes="USER" since-version="11.1">
+            select
+                USER as OWNER,
+                NAME,
+                SIGNATURE,
+                TYPE,
+                OBJECT_NAME,
+                OBJECT_TYPE,
+                USAGE,
+                USAGE_ID,
+                LINE,
+                COL,
+                USAGE_CONTEXT_ID,
+                DECLARED_OWNER,
+                DECLARED_OBJECT_NAME,
+                DECLARED_OBJECT_TYPE
+            from USER_IDENTIFIERS
+            where
+                USER = {#0} and
+                OBJECT_NAME = {#1} and
+                OBJECT_TYPE = {#2}
+            order by USAGE_ID
+        </statement>
+        <statement>
+            <!--empty fallback for databases without PL/Scope support-->
+            select
+                null as OWNER,
+                null as NAME,
+                null as SIGNATURE,
+                null as TYPE,
+                null as OBJECT_NAME,
+                null as OBJECT_TYPE,
+                null as USAGE,
+                null as USAGE_ID,
+                null as LINE,
+                null as COL,
+                null as USAGE_CONTEXT_ID,
+                null as DECLARED_OWNER,
+                null as DECLARED_OBJECT_NAME,
+                null as DECLARED_OBJECT_TYPE
+            from dual
+            where 1 = 0
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="set-variable-value">
         <statement>
             declare

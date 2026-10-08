@@ -225,7 +225,7 @@ public class CheckBoxList<T extends Selectable> extends JList<CheckBoxList.Entry
             boolean hasFocus = cellHasFocus || (list.getSelectedIndices().length > 1 && UserInterface.hasChildComponent(entry, c -> hasFocus()));
             boolean isEnabled = list.isEnabled() && entry.getCheckBox().isEnabled();
 
-            Color foreground = isSelected ? UIUtil.getListSelectionForeground(hasFocus) : isEnabled ? UIUtil.getListForeground() : UIUtil.getLabelDisabledForeground();
+            Color foreground = isSelected ? UIUtil.getListSelectionForeground(hasFocus) : isEnabled ? UIUtil.getListForeground() : Colors.getLabelDisabledForeground();
             Color background = isSelected ? UIUtil.getListSelectionBackground(hasFocus) : UIUtil.getListBackground();
 
             entry.setBackground(background);

@@ -32,11 +32,19 @@ public class DBUserMetadataImpl extends DBObjectMetadataBase implements DBUserMe
         return getString("USER_NAME");
     }
 
+    public boolean isSystem() throws SQLException {
+        return isYesFlag("IS_SYSTEM");
+    }
+
     public boolean isExpired() throws SQLException {
         return isYesFlag("IS_EXPIRED");
     }
 
     public boolean isLocked() throws SQLException {
         return isYesFlag("IS_LOCKED");
+    }
+
+    public boolean isDisabled() throws SQLException {
+        return isYesFlag("IS_DISABLED");
     }
 }

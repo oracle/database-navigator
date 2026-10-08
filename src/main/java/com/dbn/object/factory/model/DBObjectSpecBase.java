@@ -18,6 +18,7 @@ package com.dbn.object.factory.model;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.DatabaseEntity;
 import com.dbn.connection.SchemaId;
 import com.dbn.object.DBSchema;
 import com.intellij.openapi.project.Project;
@@ -29,23 +30,32 @@ import org.jetbrains.annotations.Nullable;
 @Setter
 public class DBObjectSpecBase {
     private final DBObjectSpec parent;
+    private final DatabaseEntity parentEntity;
     private ConnectionId connectionId;
     private SchemaId schemaId;
 
     public DBObjectSpecBase(@Nullable DBObjectSpec parent) {
         this.parent = parent;
+        this.parentEntity = null;
+    }
+
+    public DBObjectSpecBase(DatabaseEntity parentEntity) {
+        this.parent = null;
+        this.parentEntity = parentEntity;
     }
 
     public ConnectionHandler getConnection() {
-        return parent == null ?
-                ConnectionHandler.ensure(connectionId) :
-                parent.getConnection();
+        if (parent != null) return parent.getConnection();
+        if (parentEntity != null) return parentEntity.getConnection();
+
+        return ConnectionHandler.ensure(connectionId);
     }
 
     public DBSchema getSchema() {
-        return parent == null ?
-                getConnection().getSchema(schemaId) :
-                parent.getSchema();
+        if (parent != null) return parent.getSchema();
+        if (parentEntity != null) return parentEntity.getSchema();
+
+        return getConnection().getSchema(schemaId);
     }
 
     public Project getProject() {

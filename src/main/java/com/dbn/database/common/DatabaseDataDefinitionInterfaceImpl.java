@@ -34,7 +34,10 @@ import java.text.MessageFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.dbn.common.exception.Exceptions.notImplemented;
 import static com.dbn.common.util.Strings.cachedUpperCase;
+import static com.dbn.common.util.Strings.isEmptyOrSpaces;
+import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.language.common.quotes.QuoteEscaping.DATABASE;
 
 @NonNls
@@ -47,6 +50,11 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
 
     public DatabaseDataDefinitionInterfaceImpl(String fileName, DatabaseInterfaces provider) {
         super(fileName, provider);
+    }
+
+    protected static void appendOption(StringBuilder builder, String keyword, String value) {
+        if (isEmptyOrSpaces(value)) return;
+        builder.append(keyword).append(value.trim());
     }
 
     @Override
@@ -73,12 +81,41 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
         executeUpdate(connection, "create-object", code);
     }
 
+    @Override
+    public void createSequence(DBObjectSpec sequenceSpec, DBNConnection connection) throws SQLException {
+        notImplemented();
+    }
+
+    @Override
+    public void createSynonym(DBObjectSpec synonymSpec, DBNConnection connection) throws SQLException {
+        notImplemented();
+    }
+
+    @Override
+    public void createTrigger(DBObjectSpec triggerSpec, DBNConnection connection) throws SQLException {
+        notImplemented();
+    }
+
     /*********************************************************
      *                   CHANGE statements                   *
      *********************************************************/
     @Override
     public void updateView(String ownerName, String viewName, String code, boolean editionable, DBNConnection connection) throws SQLException {
         executeUpdate(connection, "change-view", ownerName, viewName, code);
+    }
+
+    @Override
+    public void updateMaterializedView(String ownerName, String viewName, String oldCode, String newCode, DBNConnection connection) throws SQLException {
+        String objectType = "materialized view";
+        String objectQualifier = objectType + " " + ownerName + "." + viewName;
+        dropObject(objectType, ownerName, viewName, connection);
+        try {
+            createObject(objectQualifier + " as\n" + newCode, connection);
+        } catch (SQLException e) {
+            conditionallyLog(e);
+            createObject(objectQualifier + " as\n" + oldCode, connection);
+            throw e;
+        }
     }
 
     @Override
@@ -92,6 +129,11 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
     @Override
     public void dropObject(String objectType, String ownerName, String objectName, DBNConnection connection) throws SQLException {
         executeUpdate(connection, "drop-object", objectType, ownerName, objectName);
+    }
+
+    @Override
+    public void dropUser(String userName, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "drop-user", userName);
     }
 
     public void dropObjectIfExists(String objectType, String objectOwner, String objectName, DBNConnection connection) throws SQLException {
@@ -163,16 +205,49 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
      *********************************************************/
     @Override
     public void createMethod(DBObjectSpec methodSpec, DBNConnection connection) throws SQLException {
-        throw new UnsupportedOperationException("Not implemented");
+        notImplemented();
     }
 
     @Override
     public void createTable(DBObjectSpec tableSpec, DBNConnection connection) throws SQLException {
-        throw new UnsupportedOperationException("Not implemented");
+        notImplemented();
     }
 
     @Override
     public void createIndex(DBObjectSpec indexSpec, DBNConnection connection) throws SQLException {
-        throw new UnsupportedOperationException("Not implemented");
+        notImplemented();
+    }
+
+    /*********************************************************
+     *                  STATUS statements                    *
+     *********************************************************/
+
+    @Override
+    public void enableUser(String userName, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "enable-user", userName);
+    }
+
+    @Override
+    public void disableUser(String userName, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "disable-user", userName);
+    }
+
+    @Override
+    public void lockUser(String userName, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "lock-user", userName);
+    }
+
+    @Override
+    public void unlockUser(String userName, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "unlock-user", userName);
+    }
+
+    /*********************************************************
+     *                  REFRESH statements                  *
+     *********************************************************/
+
+    @Override
+    public void refreshMaterializedView(String ownerName, String viewName, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "refresh-materialized-view", ownerName, viewName);
     }
 }

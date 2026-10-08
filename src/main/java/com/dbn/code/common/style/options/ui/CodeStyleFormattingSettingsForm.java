@@ -22,8 +22,7 @@ import com.dbn.code.common.style.presets.CodeStylePreset;
 import com.dbn.common.Pair;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
-import com.dbn.common.text.TextContent;
-import com.dbn.common.ui.form.DBNHintForm;
+import com.dbn.common.ui.panel.DBNBanner;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.uiDesigner.core.GridConstraints;
@@ -39,6 +38,7 @@ import javax.swing.JPanel;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.common.message.MessageType.*;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
@@ -55,11 +55,8 @@ public class CodeStyleFormattingSettingsForm extends ConfigurationEditorForm<Cod
         super(settings);
         CodeStyleFormattingOption[] options = settings.getOptions();
         settingsPanel.setLayout(new GridLayoutManager(options.length + 1, 2, JBUI.insets(4), -1, -1));
-        TextContent hintText = TextContent.plain(
-                txt("cfg.codeStyle.hint.ExperimentalFormatting"));
-        DBNHintForm hintForm = new DBNHintForm(this, hintText, MessageType.WARNING, true);
-
-        hintPanel.add(hintForm.getComponent());
+        DBNBanner banner = new DBNBanner(txt("cfg.codeStyle.hint.ExperimentalFormatting"), WARNING);
+        hintPanel.add(banner);
         for (int i=0; i< options.length; i++) {
             CodeStyleFormattingOption option = options[i];
             JLabel label = new JLabel(option.getDisplayName());

@@ -34,7 +34,7 @@ import java.net.UnknownHostException;
 import static com.dbn.common.options.setting.Settings.getEnum;
 import static com.dbn.common.options.setting.Settings.getString;
 import static com.dbn.common.options.setting.Settings.setEnum;
-import static com.dbn.common.options.setting.Settings.setSensitiveString;
+import static com.dbn.common.options.setting.Settings.setString;
 import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 import static com.dbn.credentials.SecretType.DEBUGGER_SSH_TUNNEL_KEY_PASSPHRASE;
 import static com.dbn.credentials.SecretType.DEBUGGER_SSH_TUNNEL_PASSWORD;
@@ -81,14 +81,14 @@ public class ReverseSshTunnelConfiguration  extends BasicConfiguration <Connecti
 
     @Override
     public void writeConfiguration(Element element) {
-        setSensitiveString(element, "host", host);
-        setSensitiveString(element, "port", port);
-        setSensitiveString(element, "bind-host", bindHost);
-        setSensitiveString(element, "bind-port", bindPort);
+        setString(element, "host", host);
+        setString(element, "port", port);
+        setString(element, "bind-host", bindHost);
+        setString(element, "bind-port", bindPort);
 
         setEnum(element, "auth-type", authType);
-        setSensitiveString(element, "user", user);
-        setSensitiveString(element, "key-file", keyFile);
+        setString(element, "user", user);
+        setString(element, "key-file", keyFile);
 
         if (isTransientContext()) {
             // transfer secrets outside transient config xml

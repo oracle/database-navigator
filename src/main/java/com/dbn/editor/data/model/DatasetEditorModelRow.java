@@ -53,7 +53,7 @@ public class DatasetEditorModelRow extends ResultSetDataModelRow<DatasetEditorMo
     }
 
     @Nullable
-    DatasetEditorModelCell getCellForColumn(DBColumn column) {
+    public DatasetEditorModelCell getCellForColumn(DBColumn column) {
         int columnIndex = getModel().getHeader().indexOfColumn(column);
         return getCellAtIndex(columnIndex);
     }

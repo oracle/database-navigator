@@ -72,7 +72,7 @@ public class PrerequisiteVerificationAction extends ActionGroup {
 
         boolean isVisible(AnActionEvent e) {
             Project project = e.getProject();
-            if (project == null) return false;
+            if (project == null || !operation.areWorkspaceFeaturesEnabled(project)) return false;
 
             ConnectionManager connectionManager = ConnectionManager.getInstance(project);
             List<ConnectionHandler> connections = connectionManager.getConnections();

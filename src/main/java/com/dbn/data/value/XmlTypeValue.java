@@ -16,9 +16,12 @@
 
 package com.dbn.data.value;
 
+import com.dbn.common.data.Data;
 import com.dbn.common.reflection.ObjectProxies;
 import com.dbn.common.reflection.ProxyObject;
 import com.dbn.common.util.Safe;
+import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.data.type.DBDataType;
 import com.dbn.data.type.GenericDataType;
 import com.dbn.database.oracle.jdbc.OracleCallableStatement;
 import com.dbn.database.oracle.jdbc.OracleResultSet;
@@ -68,6 +71,12 @@ public class XmlTypeValue extends LargeObjectValue {
     @Override
     public GenericDataType getGenericDataType() {
         return GenericDataType.XMLTYPE;
+    }
+
+    @Override
+    @Nullable
+    protected String convertUserValue(@Nullable Object userValue, DBDataType dataType, DBNConnection connection) {
+        return Data.asString(userValue);
     }
 
     @Override

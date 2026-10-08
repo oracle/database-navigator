@@ -50,6 +50,7 @@ import com.dbn.language.sql.SQLLanguage;
 import com.dbn.object.DBCharset;
 import com.dbn.object.DBConsole;
 import com.dbn.object.DBDatasourceConfig;
+import com.dbn.object.DBEventTrigger;
 import com.dbn.object.DBObjectPrivilege;
 import com.dbn.object.DBPrivilege;
 import com.dbn.object.DBRole;
@@ -93,6 +94,7 @@ import static com.dbn.object.type.DBObjectType.CHARSET;
 import static com.dbn.object.type.DBObjectType.CONNECTION;
 import static com.dbn.object.type.DBObjectType.CONSOLE;
 import static com.dbn.object.type.DBObjectType.DATASOURCE_CONFIG;
+import static com.dbn.object.type.DBObjectType.EVENT_TRIGGER;
 import static com.dbn.object.type.DBObjectType.ROLE;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
 import static com.dbn.object.type.DBObjectType.SYNONYM;
@@ -114,6 +116,7 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
     private final DBObjectList<DBRole> roles;
     private final DBObjectList<DBSystemPrivilege> systemPrivileges;
     private final DBObjectList<DBObjectPrivilege> objectPrivileges = null; // TODO
+    private final DBObjectList<DBEventTrigger> eventTriggers;
     private final DBObjectList<DBCharset> charsets;
 
     private final DBDataTypeBundle dataTypes;
@@ -137,8 +140,15 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
         this.schemas = objectLists.createObjectList(SCHEMA, this);
         this.roles = objectLists.createObjectList(ROLE, this);
         this.systemPrivileges = objectLists.createObjectList(SYSTEM_PRIVILEGE, this);
+        this.eventTriggers = objectLists.createObjectList(EVENT_TRIGGER, this);
         this.charsets = objectLists.createObjectList(CHARSET, this);
-        this.allPossibleTreeChildren = DatabaseBrowserUtils.createList(consoles, schemas, users, roles, systemPrivileges, charsets);
+        this.allPossibleTreeChildren = DatabaseBrowserUtils.createList(
+                consoles,
+                schemas,
+                users, roles,
+                systemPrivileges,
+                eventTriggers,
+                charsets);
 
         this.objectLists.createObjectRelationList(USER_ROLE, this, users, roles, GROUPED);
         this.objectLists.createObjectRelationList(USER_PRIVILEGE, this, users, systemPrivileges, GROUPED);
@@ -222,6 +232,12 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
     @Override
     public List<DBConsole> getConsoles() {
         return this.getConnection().getConsoleBundle().getConsoles();
+    }
+
+    @Override
+    @Nullable
+    public List<DBEventTrigger> getEventTriggers() {
+        return DBObjectListImpl.getObjects(eventTriggers);
     }
 
     @Override
@@ -583,6 +599,7 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
         if (objectType == ROLE) return getRole(name);
         if (objectType == CHARSET) return getCharset(name);
         if (objectType == SYSTEM_PRIVILEGE) return getSystemPrivilege(name);
+        if (objectType == EVENT_TRIGGER) return DBObjectListImpl.getObject(eventTriggers, name);
         if (objectType.isSchemaObject()) {
             for (DBSchema schema : getPublicSchemas()) {
                 DBObject childObject = schema.getChildObject(objectType, name, overload, true);
@@ -603,6 +620,7 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
         if (!getConnectionObjectTypeFilter().accepts(objectType)) return;
 
         if (objectType == SCHEMA) consumer.acceptAll(getSchemas()); else
+        if (objectType == EVENT_TRIGGER) consumer.acceptAll(getEventTriggers()); else
         if (objectType == USER) consumer.acceptAll(getUsers()); else
         if (objectType == ROLE) consumer.acceptAll(getRoles()); else
         if (objectType == CHARSET) consumer.acceptAll(getCharsets());

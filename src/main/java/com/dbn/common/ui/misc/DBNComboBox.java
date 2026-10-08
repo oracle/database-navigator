@@ -17,7 +17,6 @@
 package com.dbn.common.ui.misc;
 
 import com.dbn.common.action.BasicAction;
-import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.property.PropertyHolder;
 import com.dbn.common.property.PropertyHolderBase;
@@ -28,9 +27,6 @@ import com.dbn.common.ui.ValueFactory;
 import com.dbn.common.ui.ValueSelectorListener;
 import com.dbn.common.ui.ValueSelectorOption;
 import com.dbn.common.ui.util.Listeners;
-import com.dbn.common.ui.util.Mouse;
-import com.dbn.common.ui.util.Popups;
-import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
@@ -39,21 +35,14 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.ui.popup.ListPopup;
 import lombok.experimental.Delegate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.ComboBoxEditor;
 import javax.swing.ComboBoxModel;
 import javax.swing.Icon;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
 import javax.swing.border.Border;
-import java.awt.Color;
-import java.awt.Component;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseListener;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -74,14 +63,12 @@ import static com.dbn.common.ui.util.ClientProperty.VISITED;
 import static com.dbn.common.ui.util.ComboBoxes.getEmptyOptionsText;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBoxRenderer;
 import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
-import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Lists.first;
 import static com.dbn.common.util.Strings.isNotEmpty;
 
-public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<ValueSelectorOption> {
+public class DBNComboBox<T> extends DBNActionComboBox<T> implements PropertyHolder<ValueSelectorOption> {
 
     private final Listeners<ValueSelectorListener<T>> listeners = Listeners.create();
-    private ListPopup popup;
     private ValueFactory<T> valueFactory;
     private Supplier<List<T>> valueLoader;
     private Predicate<T> valuePreselector;
@@ -101,18 +88,6 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
 
     public DBNComboBox() {
         super(new DBNComboBoxModel<>());
-        Mouse.removeMouseListeners(this);
-
-        MouseListener mouseListener = Mouse
-                .listener()
-                .onPress(e -> when(isEnabled(), () -> showPopup()));
-
-        addMouseListener(mouseListener);
-        Color background = Colors.getTextFieldBackground();
-        for (Component component : getComponents()) {
-            component.addMouseListener(mouseListener);
-        }
-        setBackground(background);
         initComboBoxRenderer(this);
     }
 
@@ -122,50 +97,12 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
     }
 
     @Override
-    public void setBackground(Color background) {
-        super.setBackground(background);
-        ComboBoxEditor editor = getEditor();
-        if (editor != null) {
-            editor.getEditorComponent().setBackground(background);
-        }
-    }
-
-    @Override
-    public void setPopupVisible(boolean visible) {
-        if (visible && !isPopupVisible()) {
-            displayPopup();
-        }
-    }
-
-    @Override
-    public boolean isPopupVisible() {
-        return popup != null;
-    }
-
-    private void displayPopup() {
-        ActionGroup actionGroup = createActionGroup();
-
-        JLabel label = UserInterface.getComponentLabel(this);
-        String title = label == null ? null : label.getText();
-        popup = Popups.popupBuilder(actionGroup, this).
-                withTitle(title).
-                withTitleVisible(false).
-                withHint(getHint()).
-                withMaxRowCount(10).
-                withSpeedSearch().
-                withDisposeCallback(() -> disposePopup()).
-                withPreselectCondition(a -> preselectAction(a)).
-                build();
-
-
-        Popups.showUnderneathOf(popup, this, 3, 200);
-    }
-
     protected String getHint() {
         return null;
     }
 
-    private ActionGroup createActionGroup() {
+    @Override
+    protected ActionGroup createActionGroup() {
         DefaultActionGroup actionGroup = new DefaultActionGroup();
         List<T> values = getModel().getItems();
 
@@ -189,12 +126,8 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
 
     }
 
-    private void disposePopup() {
-        popup = null;
-        UserInterface.repaintAndFocus(this);
-    }
-
-    private boolean preselectAction(AnAction a) {
+    @Override
+    protected boolean preselectAction(AnAction a) {
         if (a instanceof DBNComboBox.SelectValueAction) {
             SelectValueAction action = (SelectValueAction) a;
             T value = action.value;

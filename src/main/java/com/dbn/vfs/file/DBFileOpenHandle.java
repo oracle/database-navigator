@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,8 @@ import com.dbn.editor.DatabaseEditorStateManager;
 import com.dbn.editor.EditorProviderId;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.object.type.DBObjectType;
+import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -62,8 +64,10 @@ public final class DBFileOpenHandle {
 
     public EditorProviderId getEditorProviderId() {
         if (editorProviderId == null) {
-            DatabaseEditorStateManager editorStateManager = DatabaseEditorStateManager.getInstance(getObject().getProject());
-            editorProviderId = editorStateManager.getEditorProvider(object.getObjectType());
+            Project project = getObject().getProject();
+            DBObjectType objectType = object.getObjectType();
+            DatabaseEditorStateManager editorStateManager = DatabaseEditorStateManager.getInstance(project);
+            editorProviderId = editorStateManager.getEditorProvider(objectType);
         }
         return editorProviderId;
     }

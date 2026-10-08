@@ -29,7 +29,7 @@ import java.util.List;
 
 import static com.dbn.common.compatibility.CompatibilityUtil.addUndoRedoActions;
 import static com.dbn.common.util.Commons.nvl;
-import static com.intellij.openapi.util.text.StringUtil.convertLineSeparators;
+import static com.dbn.common.util.Strings.convertLineSeparators;
 
 /**
  * Expandable text field for prose values that may contain line breaks and blank lines.

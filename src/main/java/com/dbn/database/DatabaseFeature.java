@@ -50,6 +50,7 @@ public enum DatabaseFeature {
     SESSION_KILL(txt("app.database.const.DatabaseFeature_SESSION_KILL")),
     SESSION_DISCONNECT(txt("app.database.const.DatabaseFeature_SESSION_DISCONNECT")),
     SESSION_INTERRUPTION_TIMING(txt("app.database.const.DatabaseFeature_SESSION_INTERRUPTION_TIMING")),
+    TRANSACTIONAL_DDL(txt("app.database.const.DatabaseFeature_TRANSACTIONAL_DDL")),
     CONNECTION_ERROR_RECOVERY(txt("app.database.const.DatabaseFeature_CONNECTION_ERROR_RECOVERY")),
     CHANGE_PASSWORD(txt("app.database.const.DatabaseFeature_CHANGE_PASSWORD")),
     CHANGE_EXPIRED_PASSWORD(txt("app.database.const.DatabaseFeature_CHANGE_EXPIRED_PASSWORD")),

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,7 +83,7 @@ public class DBObjectSelectionForm<T extends DBObject> extends DBNFormBase {
         if (hint == null) {
             hintPanel.setVisible(false);
         } else {
-            DBNHintForm hintForm = new DBNHintForm(this, hint, null, true);
+            DBNHintForm hintForm = new DBNHintForm(this, hint, null);
             hintPanel.add(hintForm.getComponent());
         }
     }

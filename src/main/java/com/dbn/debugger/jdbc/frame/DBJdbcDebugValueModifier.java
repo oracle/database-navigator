@@ -38,7 +38,7 @@ public class DBJdbcDebugValueModifier extends XValueModifier {
     @Override
     public void setValue(@NotNull XExpression expr, @NotNull XModificationCallback callback) {
         String expression = expr.getExpression();
-        DBJdbcDebugProcess debugProcess = value.getDebugProcess();
+        DBJdbcDebugProcess<?> debugProcess = value.getDebugProcess();
         try {
             if (Strings.isNotEmpty(expression)) {
                 while (expression.charAt(0) == '\'') {
@@ -49,11 +49,19 @@ public class DBJdbcDebugValueModifier extends XValueModifier {
                     expression = expression.substring(0, expression.length() -1);
                 }
             }
-            BasicOperationInfo operationInfo = debugProcess.getDebuggerInterface().setVariableValue(
-                    value.getVariableName(),
-                    0,
-                    expression,
-                    debugProcess.getDebuggerConnection());
+            String variableValue = expression;
+            DBJdbcDebugStackFrame stackFrame = value.getStackFrame();
+            BasicOperationInfo operationInfo = debugProcess.executeDebuggerInspection(
+                    stackFrame.getSuspensionId(),
+                    d -> d.setVariableValue(
+                            value.getVariablePath(),
+                            0,
+                            variableValue,
+                            debugProcess.getDebuggerConnection()));
+            if (operationInfo == null) {
+                callback.valueModified();
+                return;
+            }
 
             if (operationInfo.getError() != null) {
                 callback.errorOccurred("Could not change value. " + operationInfo.getError());

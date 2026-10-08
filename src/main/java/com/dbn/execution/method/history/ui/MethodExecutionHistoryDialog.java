@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import com.dbn.debugger.DatabaseDebuggerManager;
 import com.dbn.execution.method.MethodExecutionInput;
 import com.dbn.execution.method.MethodExecutionManager;
 import com.dbn.help.HelpTopic;
+import com.dbn.options.general.WorkspaceFeature;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,8 +33,10 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import java.awt.event.ActionEvent;
 
+import static com.dbn.database.DatabaseFeature.*;
 import static com.dbn.help.HelpTopic.METHOD_EXECUTION_HISTORY;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.*;
 
 public class MethodExecutionHistoryDialog extends DBNDialog<MethodExecutionHistoryForm> {
     private SelectAction selectAction;
@@ -86,11 +89,9 @@ public class MethodExecutionHistoryDialog extends DBNDialog<MethodExecutionHisto
             saveAction = new SaveAction();
             saveAction.setEnabled(false);
             closeAction = new CloseAction();
-            return actions(
-                    executeAction,
-                    debugAction,
-                    saveAction,
-                    closeAction);
+            return DEBUGGER.isEnabled(getProject()) ?
+                    actions(executeAction, debugAction, saveAction, closeAction) :
+                    actions(executeAction, saveAction, closeAction);
         } else {
             selectAction = new SelectAction();
             selectAction.setEnabled(false);
@@ -202,7 +203,7 @@ public class MethodExecutionHistoryDialog extends DBNDialog<MethodExecutionHisto
             if (selectAction != null) selectAction.setEnabled(false);
         } else {
             if (executeAction != null) executeAction.setEnabled(true);
-            if (debugAction != null) debugAction.setEnabled(DatabaseFeature.DEBUGGING.isSupported(selection));
+            if (debugAction != null) debugAction.setEnabled(DEBUGGER.isEnabled(getProject()) && DEBUGGING.isSupported(selection));
             if (selectAction != null) selectAction.setEnabled(true);
         }
     }

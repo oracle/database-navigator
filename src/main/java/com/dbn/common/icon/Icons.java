@@ -50,7 +50,7 @@ public class Icons {
     public static final Icon COMMON_ERROR             = load("/img/common/Error.svg");
     public static final Icon COMMON_WARNING           = load("/img/common/Warning.svg");
     public static final Icon COMMON_PAUSED            = AllIcons.RunConfigurations.TestPaused;
-    public static final Icon COMMON_SUCCES            = load("/img/common/Success.svg");
+    public static final Icon COMMON_SUCCESS           = load("/img/common/Success.svg");
     public static final Icon COMMON_INFO_INACTIVE     = load("/img/common/InformationInactive.svg");
     public static final Icon COMMON_INFO_OUTLINE      = AllIcons.General.ShowInfos;
     public static final Icon COMMON_ERROR_INACTIVE    = load("/img/common/ErrorInactive.svg");

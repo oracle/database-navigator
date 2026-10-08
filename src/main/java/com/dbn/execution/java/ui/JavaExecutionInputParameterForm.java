@@ -162,7 +162,7 @@ public class JavaExecutionInputParameterForm extends DBNFormBase {
 		JavaExecutionInput executionInput = getExecutionInput();
 		String value = executionInput.getInputValue(getParameterName(), ExecutionInputMode.FIELDS);
 
-		TextFieldWithPopup<?> inputField = new TextFieldWithPopup<>(project);
+		TextFieldWithPopup inputField = new TextFieldWithPopup(project);
 		inputField.setPreferredSize(new Dimension(240, -1));
 
 		inputTextField = inputField.getTextField();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.dbn.common.icon.Icons;
 import com.dbn.ml.DatabaseMLManager;
 import com.dbn.object.DBMiningModel;
 import com.dbn.object.action.AnObjectAction;
+import com.dbn.options.general.WorkspaceFeature;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -42,6 +43,11 @@ public class AIModelPredictAction extends AnObjectAction<DBMiningModel> {
     }
 
     @Override
+    protected WorkspaceFeature getFeature() {
+        return WorkspaceFeature.MACHINE_LEARNING;
+    }
+
+    @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DBMiningModel model) {
         DatabaseMLManager.getInstance(project).openPredictionDialog(model.getConnection(), model.getName(), null);
     }
@@ -50,7 +56,8 @@ public class AIModelPredictAction extends AnObjectAction<DBMiningModel> {
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DBMiningModel target) {
         presentation.setText(txt("app.machineLearning.action.Predict"));
         presentation.setIcon(Icons.ACTION_EXECUTE);
-        presentation.setVisible(target != null);
-        presentation.setEnabled(target != null);
+        boolean visible = target != null && isFeatureEnabled(project);
+        presentation.setVisible(visible);
+        presentation.setEnabled(visible);
     }
 }

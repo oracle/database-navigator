@@ -59,23 +59,25 @@ public class DBNConnectionCache extends ObjectCacheBase<SessionId, DBNConnection
     @NotNull
     @Override
     protected DBNConnection create(SessionId sessionId) throws SQLException {
-        ConnectionHandler connection = getConnection();
-        DBNConnection conn = ConnectionUtil.connect(connection, sessionId);
+        return ConnectionUtil.connect(getConnection(), sessionId);
+    }
 
-        Project project = connection.getProject();
-        String connectionName = connection.getConnectionName(conn);
-        sendInfoNotification(
-                project,
-                NotificationCategory.SESSION,
-                txt("ntf.connection.info.ConnectedToDatabase", connectionName));
-
-        return conn;
+    @NotNull
+    @Override
+    protected SessionId getKey(DBNConnection conn) {
+        return conn.getSessionId();
     }
 
     @Override
     protected DBNConnection whenCreated(DBNConnection conn) {
         ConnectionHandler connection = getConnection();
         Project project = connection.getProject();
+
+        String connectionName = connection.getConnectionName(conn);
+        sendInfoNotification(
+                project,
+                NotificationCategory.SESSION,
+                txt("ntf.connection.info.ConnectedToDatabase", connectionName));
 
         ConnectionId connectionId = connection.getConnectionId();
         SessionId sessionId = conn.getSessionId();
@@ -86,7 +88,7 @@ public class DBNConnectionCache extends ObjectCacheBase<SessionId, DBNConnection
     }
 
     @Override
-    protected DBNConnection whenDropped(DBNConnection conn) {
+    protected DBNConnection whenDiscarded(DBNConnection conn) {
         Background.run(() -> Resources.close(conn));
         return conn;
     }
