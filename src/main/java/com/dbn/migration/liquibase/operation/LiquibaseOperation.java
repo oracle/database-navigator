@@ -28,11 +28,11 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 
 import static com.dbn.migration.liquibase.operation.LiquibaseOperationCategory.CHANGELOG;
-import static com.dbn.migration.liquibase.operation.LiquibaseOperationCategory.DEPLOY;
-import static com.dbn.migration.liquibase.operation.LiquibaseOperationCategory.INSPECT;
+import static com.dbn.migration.liquibase.operation.LiquibaseOperationCategory.DEPLOYMENT;
+import static com.dbn.migration.liquibase.operation.LiquibaseOperationCategory.INSPECTION;
 import static com.dbn.migration.liquibase.operation.LiquibaseOperationCategory.MAINTENANCE;
-import static com.dbn.migration.liquibase.operation.LiquibaseOperationCategory.MORE;
-import static com.dbn.migration.liquibase.operation.LiquibaseOperationCategory.PREVIEW_SQL;
+import static com.dbn.migration.liquibase.operation.LiquibaseOperationCategory.OTHER;
+import static com.dbn.migration.liquibase.operation.LiquibaseOperationCategory.SQL_PREVIEW;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
@@ -44,30 +44,30 @@ import static com.dbn.nls.NlsResources.txt;
 @Getter
 public enum LiquibaseOperation implements Constant<LiquibaseOperation>, LiquibaseTask, DatabaseMigrationOperation {
     GENERATE_CHANGELOG(CHANGELOG),
-    GENERATE_DATABASE_DOCUMENTATION(INSPECT),
-    SNAPSHOT_DATABASE(INSPECT),
+    GENERATE_DATABASE_DOCUMENTATION(INSPECTION),
+    SNAPSHOT_DATABASE(INSPECTION),
     VALIDATE_CHANGELOG(CHANGELOG),
-    COMPARE_SCHEMAS(INSPECT),
+    COMPARE_SCHEMAS(INSPECTION),
     GENERATE_DIFF_CHANGELOG(CHANGELOG),
-    SHOW_CHANGELOG_STATUS(INSPECT),
-    SHOW_CHANGELOG_HISTORY(INSPECT),
-    UNEXPECTED_CHANGESETS(INSPECT),
+    SHOW_CHANGELOG_STATUS(INSPECTION),
+    SHOW_CHANGELOG_HISTORY(INSPECTION),
+    UNEXPECTED_CHANGESETS(INSPECTION),
     SYNCHRONIZE_CHANGELOG(MAINTENANCE),
     SYNCHRONIZE_CHANGELOG_TO_TAG(MAINTENANCE),
-    SYNCHRONIZE_CHANGELOG_SQL(PREVIEW_SQL),
-    UPDATE_DATABASE(DEPLOY),
-    UPDATE_TESTING_ROLLBACK(DEPLOY),
-    UPDATE_SQL(PREVIEW_SQL),
-    FUTURE_ROLLBACK(PREVIEW_SQL),
-    TAG_DATABASE(DEPLOY),
+    SYNCHRONIZE_CHANGELOG_SQL(SQL_PREVIEW),
+    UPDATE_DATABASE(DEPLOYMENT),
+    UPDATE_TESTING_ROLLBACK(DEPLOYMENT),
+    UPDATE_SQL(SQL_PREVIEW),
+    FUTURE_ROLLBACK(SQL_PREVIEW),
+    TAG_DATABASE(DEPLOYMENT),
     MARK_NEXT_CHANGESET_RAN(MAINTENANCE),
     RELEASE_LOCKS(MAINTENANCE),
     CLEAR_CHECKSUMS(MAINTENANCE),
     LIST_LOCKS(MAINTENANCE),
     CALCULATE_CHECKSUMS(MAINTENANCE),
-    DROP_ALL(MORE),
-    ROLLBACK_CHANGESETS(DEPLOY),
-    ROLLBACK_SQL(PREVIEW_SQL);
+    DROP_ALL(OTHER),
+    ROLLBACK_CHANGESETS(DEPLOYMENT),
+    ROLLBACK_SQL(SQL_PREVIEW);
 
     @Getter
     private final LiquibaseOperationCategory category;

@@ -14,24 +14,23 @@
  * limitations under the License.
  */
 
-package com.dbn.migration.liquibase.operation;
+package com.dbn.migration.flyway.operation;
 
 import com.dbn.migration.shared.operation.DatabaseMigrationOperationCategory;
 
 import static com.dbn.nls.NlsResources.txt;
 
 /**
- * Groups Liquibase operations by their primary user intent.
+ * Groups Flyway operations by their primary user intent.
  */
-public enum LiquibaseOperationCategory implements DatabaseMigrationOperationCategory {
-    CHANGELOG,
-    DEPLOYMENT,
+public enum FlywayOperationCategory implements DatabaseMigrationOperationCategory {
+    PROJECT,
     INSPECTION,
-    MAINTENANCE,
-    SQL_PREVIEW,
-    OTHER;
+    DEPLOYMENT,
+    MAINTENANCE;
 
+    @Override
     public String getName() {
-        return txt("app.liquibase.const.OperationCategory_" + name());
+        return txt("app.flyway.const.OperationCategory_" + name());
     }
 }
