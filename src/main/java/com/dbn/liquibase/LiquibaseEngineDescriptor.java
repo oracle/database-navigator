@@ -32,30 +32,17 @@ import static com.dbn.nls.NlsResources.txt;
  * used by dashboard views.</p>
  */
 public final class LiquibaseEngineDescriptor
-        implements DatabaseMigrationEngineDescriptor<LiquibaseOperation, LiquibaseWorkflow> {
-    private static final List<LiquibaseOperation> OPERATIONS = List.of(LiquibaseOperation.values());
-    private static final List<LiquibaseWorkflow> WORKFLOWS = List.of(LiquibaseWorkflow.values());
+        extends DatabaseMigrationEngineDescriptor<LiquibaseOperation, LiquibaseWorkflow> {
 
     public LiquibaseEngineDescriptor() {
-    }
-
-    @Override
-    public @NotNull String getId() {
-        return "liquibase";
+        super(
+                "liquibase",
+                List.of(LiquibaseOperation.values()),
+                List.of(LiquibaseWorkflow.values()));
     }
 
     @Override
     public @NotNull String getName() {
         return txt("app.liquibase.action.Liquibase");
-    }
-
-    @Override
-    public @NotNull List<LiquibaseOperation> getOperations() {
-        return OPERATIONS;
-    }
-
-    @Override
-    public @NotNull List<LiquibaseWorkflow> getWorkflows() {
-        return WORKFLOWS;
     }
 }

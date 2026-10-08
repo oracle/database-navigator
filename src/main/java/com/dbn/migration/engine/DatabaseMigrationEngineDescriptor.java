@@ -33,18 +33,33 @@ import java.util.List;
  * operation catalogue that the engine exposes. Execution contexts, processors, settings,
  * and persistence remain owned by the concrete engine.</p>
  */
-public interface DatabaseMigrationEngineDescriptor<
+public abstract class DatabaseMigrationEngineDescriptor<
         O extends DatabaseMigrationOperation,
-        W extends DatabaseMigrationWorkflow> extends ExtensionPoint {
-    ExtensionPointName<DatabaseMigrationEngineDescriptor<?, ?>> EP =
+        W extends DatabaseMigrationWorkflow> implements ExtensionPoint {
+    public static final ExtensionPointName<DatabaseMigrationEngineDescriptor<?, ?>> EP =
             ExtensionPointName.create("com.dbn.databaseMigrationEngine");
+
+    private final String id;
+    private final List<O> operations;
+    private final List<W> workflows;
+
+    protected DatabaseMigrationEngineDescriptor(
+            @NotNull @NonNls String id,
+            @NotNull List<O> operations,
+            @NotNull List<W> workflows) {
+        this.id = id;
+        this.operations = List.copyOf(operations);
+        this.workflows = List.copyOf(workflows);
+    }
 
     @NotNull
     @NonNls
-    String getId();
+    public final String getId() {
+        return id;
+    }
 
     @NotNull
-    String getName();
+    public abstract String getName();
 
     /**
      * Returns the operations exposed by this engine in their preferred presentation order.
@@ -53,7 +68,9 @@ public interface DatabaseMigrationEngineDescriptor<
      * on the {@link DatabaseMigrationOperation} contract when it does not know the engine.</p>
      */
     @NotNull
-    List<O> getOperations();
+    public final List<O> getOperations() {
+        return operations;
+    }
 
     /**
      * Returns the workflows exposed by this engine in their preferred presentation order.
@@ -62,9 +79,11 @@ public interface DatabaseMigrationEngineDescriptor<
      * on the {@link DatabaseMigrationWorkflow} contract when it does not know the engine.</p>
      */
     @NotNull
-    List<W> getWorkflows();
+    public final List<W> getWorkflows() {
+        return workflows;
+    }
 
-    default boolean supports(@NotNull O operation) {
+    public boolean supports(@NotNull O operation) {
         return getOperations().contains(operation);
     }
 }

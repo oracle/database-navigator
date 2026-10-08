@@ -16,12 +16,11 @@
 
 package com.dbn.liquibase.workspace;
 
-import com.dbn.common.index.Identifiable;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Cloneable;
-import com.dbn.common.util.UUIDs;
 import com.dbn.connection.DatabaseType;
+import com.dbn.migration.workspace.DatabaseMigrationWorkspace;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -41,7 +40,7 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
  */
 @Getter
 @Setter
-public class LiquibaseWorkspace implements PersistentStateElement, Presentable, Cloneable<LiquibaseWorkspace>, Identifiable<String> {
+public class LiquibaseWorkspace extends DatabaseMigrationWorkspace implements PersistentStateElement, Presentable, Cloneable<LiquibaseWorkspace> {
     public static final String DEFAULT_ROOT_PATH = "db/liquibase";
     public static final String DEFAULT_CHANGELOG_DIRECTORY = "changes";
     public static final String DEFAULT_SQL_DIRECTORY = "sql";
@@ -49,17 +48,18 @@ public class LiquibaseWorkspace implements PersistentStateElement, Presentable, 
     public static final String DEFAULT_MASTER_CHANGELOG = "db.changelog-master.yaml";
     public static final String DEFAULT_PROPERTIES_FILE = "liquibase.properties";
 
-    private String id = UUIDs.regular();
-    private String name;
-    private DatabaseType databaseType;
     private String contentRootPath;
-    private String rootPath = DEFAULT_ROOT_PATH;
     private String changelogDirectory = DEFAULT_CHANGELOG_DIRECTORY;
     private String sqlDirectory = DEFAULT_SQL_DIRECTORY;
     private String documentationDirectory = DEFAULT_DOCUMENTATION_DIRECTORY;
     private LiquibaseChangelogFormat changelogFormat = LiquibaseChangelogFormat.YAML;
     private String masterChangelog = DEFAULT_MASTER_CHANGELOG;
     private String propertiesFile = DEFAULT_PROPERTIES_FILE;
+
+    public LiquibaseWorkspace() {
+        super(DEFAULT_ROOT_PATH);
+    }
+
     public boolean usesSameContentRoot(@NotNull LiquibaseWorkspace other) {
         return Objects.equals(contentRootPath, other.contentRootPath);
     }
@@ -71,32 +71,32 @@ public class LiquibaseWorkspace implements PersistentStateElement, Presentable, 
 
     @Override
     public void readState(@NotNull Element element) {
-        id = stringAttribute(element, "id", id);
-        name = stringAttribute(element, "name", name);
-        databaseType = enumAttribute(element, "database-type", DatabaseType.GENERIC);
-        contentRootPath = stringAttribute(element, "content-root-path", contentRootPath);
-        rootPath = stringAttribute(element, "root-path", rootPath);
-        changelogDirectory = stringAttribute(element, "changelog-directory", changelogDirectory);
-        sqlDirectory = stringAttribute(element, "sql-directory", sqlDirectory);
-        documentationDirectory = stringAttribute(element, "documentation-directory", documentationDirectory);
-        masterChangelog = stringAttribute(element, "master-changelog", masterChangelog);
-        changelogFormat = enumAttribute(element, "changelog-format", changelogFormat);
-        propertiesFile = stringAttribute(element, "properties-file", propertiesFile);
+        setId(stringAttribute(element, "id", getId()));
+        setName(stringAttribute(element, "name", getName()));
+        setDatabaseType(enumAttribute(element, "database-type", DatabaseType.GENERIC));
+        setContentRootPath(stringAttribute(element, "content-root-path", getContentRootPath()));
+        setRootPath(stringAttribute(element, "root-path", getRootPath()));
+        setChangelogDirectory(stringAttribute(element, "changelog-directory", getChangelogDirectory()));
+        setSqlDirectory(stringAttribute(element, "sql-directory", getSqlDirectory()));
+        setDocumentationDirectory(stringAttribute(element, "documentation-directory", getDocumentationDirectory()));
+        setMasterChangelog(stringAttribute(element, "master-changelog", getMasterChangelog()));
+        setChangelogFormat(enumAttribute(element, "changelog-format", getChangelogFormat()));
+        setPropertiesFile(stringAttribute(element, "properties-file", getPropertiesFile()));
     }
 
     @Override
     public void writeState(@NotNull Element element) {
-        setStringAttribute(element, "id", id);
-        setStringAttribute(element, "name", name);
-        setEnumAttribute(element, "database-type", databaseType);
-        setStringAttribute(element, "content-root-path", contentRootPath);
-        setStringAttribute(element, "root-path", rootPath);
-        setStringAttribute(element, "changelog-directory", changelogDirectory);
-        setStringAttribute(element, "sql-directory", sqlDirectory);
-        setStringAttribute(element, "documentation-directory", documentationDirectory);
-        setEnumAttribute(element, "changelog-format", changelogFormat);
-        setStringAttribute(element, "master-changelog", masterChangelog);
-        setStringAttribute(element, "properties-file", propertiesFile);
+        setStringAttribute(element, "id", getId());
+        setStringAttribute(element, "name", getName());
+        setEnumAttribute(element, "database-type", getDatabaseType());
+        setStringAttribute(element, "content-root-path", getContentRootPath());
+        setStringAttribute(element, "root-path", getRootPath());
+        setStringAttribute(element, "changelog-directory", getChangelogDirectory());
+        setStringAttribute(element, "sql-directory", getSqlDirectory());
+        setStringAttribute(element, "documentation-directory", getDocumentationDirectory());
+        setEnumAttribute(element, "changelog-format", getChangelogFormat());
+        setStringAttribute(element, "master-changelog", getMasterChangelog());
+        setStringAttribute(element, "properties-file", getPropertiesFile());
     }
 
     @Override
