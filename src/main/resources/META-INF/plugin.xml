@@ -240,7 +240,7 @@
         <projectService serviceImplementation="com.dbn.editor.DatabaseEditorStateManager"/>
         <projectService serviceImplementation="com.dbn.vector.DatabaseVectorManager"/>
         <projectService serviceImplementation="com.dbn.ml.DatabaseMLManager"/>
-        <projectService serviceImplementation="com.dbn.liquibase.DatabaseLiquibaseManager"/>
+        <projectService serviceImplementation="com.dbn.migration.liquibase.DatabaseLiquibaseManager"/>
         <projectService serviceImplementation="com.dbn.scheduler.DatabaseSchedulerManager"/>
         <projectService serviceImplementation="com.dbn.editor.code.SourceCodeManager"/>
         <projectService serviceImplementation="com.dbn.editor.code.diff.SourceCodeDiffManager"/>
@@ -273,27 +273,27 @@
         <fileIconPatcher implementation="com.dbn.vfs.DBFileIconPatcher"/>
     </extensions>
     <extensionPoints>
-        <extensionPoint name="cloudConfigProviderHandler" qualifiedName="com.dbn.cloudConfigProviderHandler" interface="com.dbn.connection.config.provider.impl.CloudConfigProviderHandler" dynamic="true"/>
-        <extensionPoint name="objectFilter" qualifiedName="com.dbn.objectFilter" interface="com.dbn.object.cache.DBObjectFilter" dynamic="true"/>
-        <extensionPoint name="objectPropertiesProvider" qualifiedName="com.dbn.objectPropertiesProvider" interface="com.dbn.object.properties.DBObjectPropertiesProvider" dynamic="true"/>
-        <extensionPoint name="objectNavigationInfoProvider" qualifiedName="com.dbn.objectNavigationInfoProvider" interface="com.dbn.object.navigation.DBObjectNavigationInfoProvider" dynamic="true"/>
-        <extensionPoint name="objectFactoryAdapter" qualifiedName="com.dbn.objectFactoryAdapter" interface="com.dbn.object.factory.ObjectFactoryAdapter" dynamic="true"/>
-        <extensionPoint name="objectManagementAdapter" qualifiedName="com.dbn.objectManagementAdapter" interface="com.dbn.object.management.ObjectManagementAdapterExtension" dynamic="true"/>
-        <extensionPoint name="objectSourceCodeAdapter" qualifiedName="com.dbn.objectSourceCodeAdapter" interface="com.dbn.editor.code.source.DBObjectSourceCodeAdapter" dynamic="true"/>
+        <extensionPoint qualifiedName="com.dbn.cloudConfigProviderHandler" interface="com.dbn.connection.config.provider.impl.CloudConfigProviderHandler" dynamic="true"/>
+        <extensionPoint qualifiedName="com.dbn.objectFilter" interface="com.dbn.object.cache.DBObjectFilter" dynamic="true"/>
+        <extensionPoint qualifiedName="com.dbn.objectPropertiesProvider" interface="com.dbn.object.properties.DBObjectPropertiesProvider" dynamic="true"/>
+        <extensionPoint qualifiedName="com.dbn.objectNavigationInfoProvider" interface="com.dbn.object.navigation.DBObjectNavigationInfoProvider" dynamic="true"/>
+        <extensionPoint qualifiedName="com.dbn.objectFactoryAdapter" interface="com.dbn.object.factory.ObjectFactoryAdapter" dynamic="true"/>
+        <extensionPoint qualifiedName="com.dbn.objectManagementAdapter" interface="com.dbn.object.management.ObjectManagementAdapterExtension" dynamic="true"/>
+        <extensionPoint qualifiedName="com.dbn.objectSourceCodeAdapter" interface="com.dbn.editor.code.source.DBObjectSourceCodeAdapter" dynamic="true"/>
 
-        <extensionPoint name="assistantAdapter" qualifiedName="com.dbn.assistantAdapter" interface="com.dbn.assistant.adapter.AssistantAdapter" dynamic="true"/>
-        <extensionPoint name="assistantModelFactory" qualifiedName="com.dbn.assistantModelFactory" interface="com.dbn.assistant.service.generic.model.AssistantModelFactory" dynamic="true"/>
-        <extensionPoint name="assistantModelInvoker" qualifiedName="com.dbn.assistantModelInvoker" interface="com.dbn.assistant.service.generic.model.AssistantModelInvoker" dynamic="true"/>
-        <extensionPoint name="assistantToolFactory" qualifiedName="com.dbn.assistantToolFactory" interface="com.dbn.assistant.tool.AssistantToolFactory" dynamic="true"/>
-        <extensionPoint name="assistantToolFeature" qualifiedName="com.dbn.assistantToolFeature" interface="com.dbn.assistant.tool.feature.AssistantToolFeature" dynamic="true"/>
-        <extensionPoint name="userApprovalAdapter" qualifiedName="com.dbn.userApprovalAdapter" interface="com.dbn.common.approval.UserApprovalAdapter" dynamic="true"/>
-        <extensionPoint name="presentationProvider" qualifiedName="com.dbn.presentationProvider" interface="com.dbn.common.presentation.PresentationProvider" dynamic="true"/>
-        <extensionPoint name="dataExportProcessor" qualifiedName="com.dbn.dataExportProcessor" interface="com.dbn.data.export.processor.DataExportProcessor" dynamic="true"/>
-        <extensionPoint name="databaseMigrationEngine" qualifiedName="com.dbn.databaseMigrationEngine" interface="com.dbn.migration.engine.DatabaseMigrationEngineDescriptor" dynamic="true"/>
-        <extensionPoint name="liquibaseExecutionProcessor" qualifiedName="com.dbn.liquibaseExecutionProcessor" interface="com.dbn.liquibase.execution.LiquibaseExecutionProcessor" dynamic="true"/>
+        <extensionPoint qualifiedName="com.dbn.assistantAdapter" interface="com.dbn.assistant.adapter.AssistantAdapter" dynamic="true"/>
+        <extensionPoint qualifiedName="com.dbn.assistantModelFactory" interface="com.dbn.assistant.service.generic.model.AssistantModelFactory" dynamic="true"/>
+        <extensionPoint qualifiedName="com.dbn.assistantModelInvoker" interface="com.dbn.assistant.service.generic.model.AssistantModelInvoker" dynamic="true"/>
+        <extensionPoint qualifiedName="com.dbn.assistantToolFactory" interface="com.dbn.assistant.tool.AssistantToolFactory" dynamic="true"/>
+        <extensionPoint qualifiedName="com.dbn.assistantToolFeature" interface="com.dbn.assistant.tool.feature.AssistantToolFeature" dynamic="true"/>
+        <extensionPoint qualifiedName="com.dbn.userApprovalAdapter" interface="com.dbn.common.approval.UserApprovalAdapter" dynamic="true"/>
+        <extensionPoint qualifiedName="com.dbn.presentationProvider" interface="com.dbn.common.presentation.PresentationProvider" dynamic="true"/>
+        <extensionPoint qualifiedName="com.dbn.dataExportProcessor" interface="com.dbn.data.export.processor.DataExportProcessor" dynamic="true"/>
+        <extensionPoint qualifiedName="com.dbn.databaseMigrationEngine" interface="com.dbn.migration.shared.engine.DatabaseMigrationEngineDescriptor" dynamic="true"/>
+        <extensionPoint qualifiedName="com.dbn.liquibaseExecutionProcessor" interface="com.dbn.migration.liquibase.execution.LiquibaseExecutionProcessor" dynamic="true"/>
 
-        <extensionPoint name="prerequisiteDefinitionProvider" qualifiedName="com.dbn.prerequisiteDefinitionProvider" interface="com.dbn.prerequisite.definition.PrerequisiteDefinitionProvider" dynamic="true"/>
-        <extensionPoint name="prerequisiteRequirementEvaluator" qualifiedName="com.dbn.prerequisiteRequirementEvaluator" interface="com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluator" dynamic="true"/>
+        <extensionPoint qualifiedName="com.dbn.prerequisiteDefinitionProvider" interface="com.dbn.prerequisite.definition.PrerequisiteDefinitionProvider" dynamic="true"/>
+        <extensionPoint qualifiedName="com.dbn.prerequisiteRequirementEvaluator" interface="com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluator" dynamic="true"/>
     </extensionPoints>
     <extensions defaultExtensionNs="com.dbn">
         <cloudConfigProviderHandler implementation="com.dbn.connection.config.provider.impl.AzureConfigProviderHandler"/>
@@ -315,34 +315,34 @@
         <dataExportProcessor implementation="com.dbn.data.export.processor.CustomDataExportProcessor"/>
 
         <!-- Database migration engines -->
-        <databaseMigrationEngine implementation="com.dbn.liquibase.LiquibaseEngineDescriptor"/>
+        <databaseMigrationEngine implementation="com.dbn.migration.liquibase.LiquibaseEngineDescriptor"/>
 
         <!-- Liquibase execution processors -->
-        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseGenerateChangelogProcessor"/>
-        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseGenerateDatabaseDocumentationProcessor"/>
-        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseSnapshotDatabaseProcessor"/>
-        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseValidateChangelogProcessor"/>
-        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseCompareSchemasProcessor"/>
-        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseGenerateDiffChangelogProcessor"/>
-        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseShowChangelogStatusProcessor"/>
-        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseShowChangelogHistoryProcessor"/>
-        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseUnexpectedChangesetsProcessor"/>
-        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseSynchronizeChangelogProcessor"/>
-        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseSynchronizeChangelogToTagProcessor"/>
-        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseSynchronizeChangelogSqlProcessor"/>
-        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseUpdateDatabaseProcessor"/>
-        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseUpdateTestingRollbackProcessor"/>
-        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseUpdateSqlProcessor"/>
-        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseFutureRollbackProcessor"/>
-        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseTagDatabaseProcessor"/>
-        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseMarkNextChangesetRanProcessor"/>
-        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseReleaseLocksProcessor"/>
-        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseClearChecksumsProcessor"/>
-        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseListLocksProcessor"/>
-        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseCalculateChecksumsProcessor"/>
-        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseDropAllProcessor"/>
-        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseRollbackChangesetsProcessor"/>
-        <liquibaseExecutionProcessor implementation="com.dbn.liquibase.execution.processor.LiquibaseRollbackSqlProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.migration.liquibase.execution.processor.LiquibaseGenerateChangelogProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.migration.liquibase.execution.processor.LiquibaseGenerateDatabaseDocumentationProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.migration.liquibase.execution.processor.LiquibaseSnapshotDatabaseProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.migration.liquibase.execution.processor.LiquibaseValidateChangelogProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.migration.liquibase.execution.processor.LiquibaseCompareSchemasProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.migration.liquibase.execution.processor.LiquibaseGenerateDiffChangelogProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.migration.liquibase.execution.processor.LiquibaseShowChangelogStatusProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.migration.liquibase.execution.processor.LiquibaseShowChangelogHistoryProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.migration.liquibase.execution.processor.LiquibaseUnexpectedChangesetsProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.migration.liquibase.execution.processor.LiquibaseSynchronizeChangelogProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.migration.liquibase.execution.processor.LiquibaseSynchronizeChangelogToTagProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.migration.liquibase.execution.processor.LiquibaseSynchronizeChangelogSqlProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.migration.liquibase.execution.processor.LiquibaseUpdateDatabaseProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.migration.liquibase.execution.processor.LiquibaseUpdateTestingRollbackProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.migration.liquibase.execution.processor.LiquibaseUpdateSqlProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.migration.liquibase.execution.processor.LiquibaseFutureRollbackProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.migration.liquibase.execution.processor.LiquibaseTagDatabaseProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.migration.liquibase.execution.processor.LiquibaseMarkNextChangesetRanProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.migration.liquibase.execution.processor.LiquibaseReleaseLocksProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.migration.liquibase.execution.processor.LiquibaseClearChecksumsProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.migration.liquibase.execution.processor.LiquibaseListLocksProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.migration.liquibase.execution.processor.LiquibaseCalculateChecksumsProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.migration.liquibase.execution.processor.LiquibaseDropAllProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.migration.liquibase.execution.processor.LiquibaseRollbackChangesetsProcessor"/>
+        <liquibaseExecutionProcessor implementation="com.dbn.migration.liquibase.execution.processor.LiquibaseRollbackSqlProcessor"/>
 
         <!--object filters-->
         <objectFilter implementation="com.dbn.vector.model.request.EmbeddingStagingTableFilter"/>
@@ -832,11 +832,11 @@
             <action id="DBN.Execution.Method.Result.Settings" class="com.dbn.execution.method.result.action.ExecutionEngineSettingsAction" icon="AllIcons.General.GearPlain"/>
         </group>
         <group id="DBN.Execution.Liquibase.Result">
-            <action id="DBN.Execution.Liquibase.Result.Close" class="com.dbn.liquibase.task.action.LiquibaseTaskResultCloseAction" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
-            <action id="DBN.Execution.Liquibase.Result.Stop" class="com.dbn.liquibase.task.action.LiquibaseTaskResultStopAction" icon="com.dbn.common.icon.Icons.ACTION_STOP"/>
-            <action id="DBN.Execution.Liquibase.Result.Rerun" class="com.dbn.liquibase.task.action.LiquibaseTaskResultRerunAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_RERUN"/>
+            <action id="DBN.Execution.Liquibase.Result.Close" class="com.dbn.migration.liquibase.task.action.LiquibaseTaskResultCloseAction" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
+            <action id="DBN.Execution.Liquibase.Result.Stop" class="com.dbn.migration.liquibase.task.action.LiquibaseTaskResultStopAction" icon="com.dbn.common.icon.Icons.ACTION_STOP"/>
+            <action id="DBN.Execution.Liquibase.Result.Rerun" class="com.dbn.migration.liquibase.task.action.LiquibaseTaskResultRerunAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_RERUN"/>
             <separator/>
-            <action id="DBN.Execution.Liquibase.Result.Settings" class="com.dbn.liquibase.task.action.LiquibaseTaskResultSettingsAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_OPTIONS"/>
+            <action id="DBN.Execution.Liquibase.Result.Settings" class="com.dbn.migration.liquibase.task.action.LiquibaseTaskResultSettingsAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_OPTIONS"/>
         </group>
         <group id="DBN.Vector.Embedding.Result">
             <action id="DBN.Vector.Embedding.Result.Close" class="com.dbn.vector.action.VectorEmbeddingCloseAction" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>

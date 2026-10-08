@@ -1,0 +1,39 @@
+/*
+ * Copyright 2026 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dbn.migration.liquibase.task;
+
+import com.dbn.migration.liquibase.DatabaseLiquibaseManager;
+import com.dbn.migration.shared.task.DatabaseMigrationTaskContext;
+import org.jetbrains.annotations.NotNull;
+
+/**
+ * Execution context for a Liquibase task.
+ *
+ * <p>Provides the project-scoped manager used by Liquibase execution and rerun flows.</p>
+ */
+public abstract class LiquibaseTaskContext<I extends LiquibaseTaskInput>
+        extends DatabaseMigrationTaskContext<I> {
+
+    protected LiquibaseTaskContext(@NotNull I input) {
+        super(input);
+    }
+
+    @NotNull
+    public DatabaseLiquibaseManager getLiquibaseManager() {
+        return DatabaseLiquibaseManager.getInstance(getProject());
+    }
+}

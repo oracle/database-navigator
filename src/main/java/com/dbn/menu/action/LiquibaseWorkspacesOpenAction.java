@@ -1,7 +1,7 @@
 package com.dbn.menu.action;
 
 import com.dbn.common.action.ProjectAction;
-import com.dbn.liquibase.DatabaseLiquibaseManager;
+import com.dbn.migration.liquibase.DatabaseLiquibaseManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
