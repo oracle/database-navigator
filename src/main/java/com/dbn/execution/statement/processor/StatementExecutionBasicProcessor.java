@@ -18,7 +18,6 @@ package com.dbn.execution.statement.processor;
 
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.dispose.StatefulDisposableBase;
-import com.dbn.common.editor.BasicTextEditor;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.interceptor.InterceptorBundle;
 import com.dbn.common.latent.Latent;
@@ -45,7 +44,6 @@ import com.dbn.connection.session.DatabaseSession;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.database.DatabaseMessage;
 import com.dbn.editor.DBContentType;
-import com.dbn.editor.EditorProviderId;
 import com.dbn.execution.ExecutionManager;
 import com.dbn.execution.ExecutionOption;
 import com.dbn.execution.compiler.CompileManagerListener;
@@ -81,6 +79,8 @@ import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileEditor;
+import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -112,10 +112,8 @@ import static com.dbn.object.event.ObjectChangeAction.UNSPECIFIED;
 @Getter
 public class StatementExecutionBasicProcessor extends StatefulDisposableBase implements StatementExecutionProcessor {
     private final ProjectRef project;
-    private final WeakRef<FileEditor> fileEditor;
     private PsiFileRef<DBLanguagePsiFile> psiFile;
     private PsiElementRef<ExecutablePsiElement> cachedExecutable;
-    private EditorProviderId editorProviderId;
     private transient CancellableDatabaseCall<StatementExecutionResult> databaseCall;
 
     private StatementExecutionInput executionInput;
@@ -142,11 +140,10 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
         return resultName != null && resultName.matches("[a-zA-Z0-9$#,.:;_\\- ]+");
     }
 
-    public StatementExecutionBasicProcessor(@NotNull Project project, @NotNull FileEditor fileEditor, @NotNull ExecutablePsiElement psiElement, int index) {
+    public StatementExecutionBasicProcessor(@NotNull Project project, @NotNull ExecutablePsiElement psiElement, int index) {
         DBLanguagePsiFile psiFile = psiElement.getFile();
 
         this.project = ProjectRef.of(project);
-        this.fileEditor = WeakRef.of(fileEditor);
         this.psiFile = PsiFileRef.of(psiFile);
 
         this.cachedExecutable = PsiElementRef.of(psiElement);
@@ -157,12 +154,10 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
         String rawStatementText = psiElement.getText();
         String statementText = psiElement.getExecutableStatementText();
         this.executionInput = new StatementExecutionInput(rawStatementText, statementText, this);
-        initEditorProviderId(fileEditor);
     }
 
-    StatementExecutionBasicProcessor(@NotNull Project project, @NotNull FileEditor fileEditor, @NotNull DBLanguagePsiFile psiFile, String sqlStatement, int index) {
+    StatementExecutionBasicProcessor(@NotNull Project project, @NotNull DBLanguagePsiFile psiFile, String sqlStatement, int index) {
         this.project = ProjectRef.of(project);
-        this.fileEditor = WeakRef.of(fileEditor);
         this.psiFile = PsiFileRef.of(psiFile);
         this.name = psiFile.getName();
         this.icon = psiFile.getIcon();
@@ -172,13 +167,6 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
         // String executableStatement = removeTrailingContent(originalStatement, ";");
 
         this.executionInput = new StatementExecutionInput(statementText, statementText, this);
-        initEditorProviderId(fileEditor);
-    }
-
-    private void initEditorProviderId(FileEditor fileEditor) {
-        if (fileEditor instanceof BasicTextEditor<?> basicTextEditor) {
-            editorProviderId = basicTextEditor.getEditorProviderId();
-        }
     }
 
     @Override
@@ -237,7 +225,17 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
     @Nullable
     @Override
     public FileEditor getFileEditor() {
-        return fileEditor.get();
+        VirtualFile virtualFile = getVirtualFile();
+        if (virtualFile == null) return null;
+
+        Project project = getProject();
+        FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
+        FileEditor[] fileEditors = fileEditorManager.getEditors(virtualFile);
+        for (FileEditor fileEditor : fileEditors) {
+            if (fileEditor instanceof TextEditor textEditor) return textEditor;
+        }
+
+        return null;
     }
 
     @Override
@@ -814,12 +812,12 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
     public void navigateToEditor(NavigationInstructions instructions) {
         FileEditor fileEditor = getFileEditor();
         ExecutablePsiElement cachedExecutable = getCachedExecutable();
-        if (cachedExecutable != null) {
-            if (fileEditor != null) {
-                cachedExecutable.navigateInEditor(fileEditor, instructions);
-            } else {
-                cachedExecutable.navigate(instructions.isFocus());
-            }
+        if (cachedExecutable == null) return;
+
+        if (fileEditor != null) {
+            cachedExecutable.navigateInEditor(fileEditor, instructions);
+        } else {
+            cachedExecutable.navigate(instructions.isFocus());
         }
     }
 

@@ -108,7 +108,6 @@ import static com.dbn.browser.DatabaseBrowserUtils.unmarkSkipBrowserAutoscroll;
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.ui.util.Components.onComponentResized;
 import static com.dbn.common.util.Documents.onDocumentChanged;
-import static com.dbn.common.util.Documents.onDocumentChanged;
 import static com.intellij.openapi.editor.EditorModificationUtil.setReadOnlyHint;
 
 @Slf4j
@@ -510,10 +509,15 @@ public class Editors {
     }
 
     public static void updateAllNotifications(@NotNull Project project) {
-        updateNotifications(project, null);
+        updateEditorNotifications(project, null);
     }
 
-    public static void updateNotifications(@NotNull Project project, @Nullable VirtualFile file) {
+    public static void updateEditorNotifications(@Nullable PsiFile file) {
+        if  (file == null) return;
+        Project project = file.getProject();
+        updateEditorNotifications(project, file.getVirtualFile());
+    }
+    public static void updateEditorNotifications(@NotNull Project project, @Nullable VirtualFile file) {
         EditorNotifications notifications = getNotifications(project);
         if (file == null)
             notifications.updateAllNotifications(); else
@@ -567,7 +571,7 @@ public class Editors {
                 FileEditor[] fileEditors = fileEditorManager.openFile(file, focus);
                 if (callback != null) callback.accept(fileEditors);
 
-                if (!wasOpen) updateNotifications(project, file);
+                if (!wasOpen) updateEditorNotifications(project, file);
             } finally {
                 unmarkSkipBrowserAutoscroll(file);
             }

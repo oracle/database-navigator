@@ -109,11 +109,11 @@ public class DebugStatementIntentionAction extends EditorIntentionAction {
                 () -> ConnectionAction.invoke(null, false, databasePsiFile,
                         action -> {
                             StatementExecutionManager executionManager = StatementExecutionManager.getInstance(project);
-                            StatementExecutionProcessor executionProcessor = executionManager.getExecutionProcessor(fileEditor, executable, true);
-                            if (executionProcessor != null) {
-                                DatabaseDebuggerManager debuggerManager = DatabaseDebuggerManager.getInstance(project);
-                                debuggerManager.startStatementDebugger(executionProcessor);
-                            }
+                            StatementExecutionProcessor executionProcessor = executionManager.getExecutionProcessor(executable, true);
+                            if (executionProcessor == null) return;
+
+                            DatabaseDebuggerManager debuggerManager = DatabaseDebuggerManager.getInstance(project);
+                            debuggerManager.startStatementDebugger(executionProcessor);
                         }));
     }
 }

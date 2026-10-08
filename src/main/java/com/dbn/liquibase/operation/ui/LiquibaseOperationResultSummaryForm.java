@@ -91,8 +91,11 @@ public class LiquibaseOperationResultSummaryForm extends DBNFormBase {
     private JLabel targetSchemaCaptionLabel;
     private JLabel targetSchemaLabel;
     private JLabel operationLabel;
+    private JLabel workspaceCaptionLabel;
     private JLabel workspaceLabel;
+    private JLabel workspaceFormatCaptionLabel;
     private JLabel workspaceFormatLabel;
+    private JLabel environmentProfileCaptionLabel;
     private JLabel environmentProfileLabel;
     private JLabel processedItemsCaptionLabel;
     private JLabel processedItemsLabel;
@@ -170,6 +173,18 @@ public class LiquibaseOperationResultSummaryForm extends DBNFormBase {
     private void updateWorkspaceInfo(@NotNull LiquibaseOperationResult result) {
         LiquibaseOperationInput input = result.getInput();
         var workspace = input.getWorkspace();
+
+        LiquibaseOperationSupport operationSupport = result.getOperation().getSupport();
+        boolean visible = operationSupport.requires(WORKSPACE) && workspace != null;
+
+        workspaceCaptionLabel.setVisible(visible);
+        workspaceLabel.setVisible(visible);
+        workspaceFormatCaptionLabel.setVisible(visible);
+        workspaceFormatLabel.setVisible(visible);
+        environmentProfileCaptionLabel.setVisible(visible);
+        environmentProfileLabel.setVisible(visible);
+        if (!visible) return;
+
         var profile = input.getEnvironmentProfile();
 
         workspaceLabel.setText(workspace.getName());

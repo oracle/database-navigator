@@ -18,14 +18,15 @@ package com.dbn.credentials;
 
 import com.dbn.common.thread.Background;
 import com.dbn.common.util.Chars;
-import com.intellij.openapi.application.Application;
-import com.intellij.openapi.application.ApplicationManager;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 
+import static com.dbn.common.thread.ThreadMonitor.isDispatchThread;
+import static com.dbn.common.thread.ThreadMonitor.isReadActionThread;
+import static com.dbn.common.thread.ThreadMonitor.isWriteActionThread;
 import static com.dbn.common.util.Commons.nvl;
 import static java.util.Arrays.copyOf;
 
@@ -114,8 +115,9 @@ public final class Secret {
     private void loadIfAllowed() {
         if (loaded) return;
 
-        Application application = ApplicationManager.getApplication();
-        if (application != null && application.isDispatchThread()) {
+        if (isDispatchThread() ||
+                isReadActionThread() ||
+                isWriteActionThread()) {
             queueLoad();
             return;
         }

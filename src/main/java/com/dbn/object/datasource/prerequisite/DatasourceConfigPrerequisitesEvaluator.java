@@ -26,7 +26,7 @@ import static com.dbn.common.operation.DatabaseOperation.CREATE_DATASOURCE_CONFI
 import static com.dbn.common.operation.DatabaseOperation.MANAGE_DATASOURCE_CONFIGS;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.prerequisite.shared.PrerequisiteTypes.CREATE_DATA_SOURCE_CONFIG;
-import static com.dbn.prerequisite.shared.PrerequisiteTypes.DATABASE_VERSION_26_0;
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.DATABASE_VERSION_23_26;
 import static com.dbn.prerequisite.shared.PrerequisiteTypes.EXECUTE_DBMS_DATA_SOURCE_CONFIG;
 
 public class DatasourceConfigPrerequisitesEvaluator extends PrerequisiteRequirementEvaluatorBase {
@@ -38,7 +38,7 @@ public class DatasourceConfigPrerequisitesEvaluator extends PrerequisiteRequirem
 
     @Override
     protected void createMandates(List<PrerequisiteMandate> mandates, DatabaseOperation operation) {
-        createMandate(mandates, DATABASE_VERSION_26_0, txt("msg.prerequisite.text.Reason_DATABASE_VERSION_26_0"));
+        createMandate(mandates, DATABASE_VERSION_23_26, txt("msg.prerequisite.text.Reason_DATABASE_VERSION_23_26"));
         createMandate(mandates, EXECUTE_DBMS_DATA_SOURCE_CONFIG, txt("msg.prerequisite.text.Reason_EXECUTE_DBMS_DATA_SOURCE_CONFIG"));
 
         if (operation == CREATE_DATASOURCE_CONFIG) {
