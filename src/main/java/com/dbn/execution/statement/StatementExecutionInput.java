@@ -17,6 +17,7 @@
 package com.dbn.execution.statement;
 
 import com.dbn.common.latent.Latent;
+import com.dbn.common.thread.Read;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
@@ -35,6 +36,8 @@ import com.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dbn.language.common.psi.ExecutableBundlePsiElement;
 import com.dbn.language.common.psi.ExecutablePsiElement;
 import com.dbn.language.sql.SQLLanguage;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.RangeMarker;
 import com.intellij.psi.PsiElement;
 import lombok.Getter;
 import lombok.Setter;
@@ -57,6 +60,7 @@ public class StatementExecutionInput extends LocalExecutionInput {
     private String rawStatementText;
     private String statementText;
     private boolean bulkExecution = false;
+    private transient volatile RangeMarker executableRangeMarker;
 
     private final Latent<String> previewStatementText = Latent.basic(() -> initPreviewStatementText());
     private final Latent<String> executableStatementText = Latent.basic(() -> initExecutableStatementText());
@@ -143,7 +147,22 @@ public class StatementExecutionInput extends LocalExecutionInput {
     }
 
     public int getExecutableLineNumber() {
-        return executionProcessor == null ? 0 : executionProcessor.getExecutableLineNumber();
+        return Read.call(() -> {
+            RangeMarker rangeMarker = executableRangeMarker;
+            if (rangeMarker != null && rangeMarker.isValid()) {
+                Document document = rangeMarker.getDocument();
+                int startOffset = rangeMarker.getStartOffset();
+                return document.getLineNumber(startOffset);
+            }
+
+            return executionProcessor == null ? 0 : executionProcessor.getExecutableLineNumber();
+        });
+    }
+
+    public void clearExecutableRangeMarker(RangeMarker rangeMarker) {
+        if (executableRangeMarker == rangeMarker) {
+            executableRangeMarker = null;
+        }
     }
 
     public void updateStatementText(ExecutablePsiElement executablePsiElement) {

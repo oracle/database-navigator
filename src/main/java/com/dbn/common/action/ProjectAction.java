@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.dbn.common.action;
 
+import com.dbn.options.general.WorkspaceFeature;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsActions.ActionDescription;
@@ -71,9 +72,18 @@ public abstract class ProjectAction extends BasicAction {
         return null;
     }
 
+    @Nullable
+    protected WorkspaceFeature getFeature() {
+        return null;
+    }
+
+    protected boolean isFeatureEnabled(@NotNull Project project) {
+        WorkspaceFeature feature = getFeature();
+        return feature == null || feature.isEnabled(project);
+    }
+
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
     }
 
     protected abstract void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project);
 }
-

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import com.dbn.ddl.DDLFileType;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.EditorProviderId;
 import com.dbn.language.sql.SQLFileType;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.DatabaseFileSystem;
@@ -55,7 +55,7 @@ import static com.dbn.vfs.file.status.DBFileStatus.SAVING;
 
 @Getter
 @Setter
-public class DBEditableObjectVirtualFile extends DBObjectVirtualFile<DBSchemaObject>/* implements VirtualFileWindow*/ {
+public class DBEditableObjectVirtualFile extends DBObjectVirtualFile<DBObject>/* implements VirtualFileWindow*/ {
     private static final List<DBContentVirtualFile> EMPTY_CONTENT_FILES = Collections.emptyList();
     private final Latent<List<DBContentVirtualFile>> contentFiles = Latent.basic(() -> computeContentFiles());
     private transient EditorProviderId selectedEditorProviderId;
@@ -208,7 +208,7 @@ public class DBEditableObjectVirtualFile extends DBObjectVirtualFile<DBSchemaObj
     }
 
     public DBContentType getMainContentType() {
-        DBObjectRef<DBSchemaObject> objectRef = getObjectRef();
+        DBObjectRef<DBObject> objectRef = getObjectRef();
         DBObjectType objectType = objectRef.getObjectType();
         DBContentType contentType = objectType.getContentType();
         return

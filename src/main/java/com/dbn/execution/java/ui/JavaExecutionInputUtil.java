@@ -47,14 +47,14 @@ public class JavaExecutionInputUtil {
         return UI_PREFERRED;
     }
 
-    public static void setupSingleDimArrayEditor(TextFieldWithPopup<?> inputField, DBJavaField javaField) {
+    public static void setupSingleDimArrayEditor(TextFieldWithPopup inputField, DBJavaField javaField) {
         setupSingleDimArrayEditor(
                 javaField,
                 javaField.getJavaClassRef(),
                 inputField);
     }
 
-    public static void setupSingleDimArrayEditor(TextFieldWithPopup<?> inputField, DBJavaParameter javaParameter) {
+    public static void setupSingleDimArrayEditor(TextFieldWithPopup inputField, DBJavaParameter javaParameter) {
         setupSingleDimArrayEditor(
                 javaParameter,
                 javaParameter.getJavaClassRef(),
@@ -64,7 +64,7 @@ public class JavaExecutionInputUtil {
     private static void setupSingleDimArrayEditor(
             DBObject argument,
             DBObjectRef<DBJavaClass> argumentJavaClass,
-            TextFieldWithPopup<?> inputField) {
+            TextFieldWithPopup inputField) {
 
         DBObjectType argumentType = argument.getObjectType();
         Class<?> argumentClass = resolveArgumentType(argumentJavaClass);

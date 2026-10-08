@@ -35,6 +35,10 @@
         <statement>drop {0} {1}.{2}</statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="drop-user">
+        <statement>drop user {0}</statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="drop-object-if-exists">
         <statement>drop {0} if exists {1}.{2}</statement>
     </statement-execution-processor>

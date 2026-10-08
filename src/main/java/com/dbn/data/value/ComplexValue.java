@@ -16,6 +16,9 @@
 
 package com.dbn.data.value;
 
+import com.dbn.common.data.Data;
+import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.data.type.DBDataType;
 import com.dbn.data.type.GenericDataType;
 import org.jetbrains.annotations.Nullable;
 
@@ -47,9 +50,20 @@ public class ComplexValue extends ValueAdapter<String> implements Comparable<Com
         this.displayValue = resultSet.getString(columnIndex);
     }
 
+    public ComplexValue(Object value, String displayValue) {
+        this.value = value;
+        this.displayValue = displayValue;
+    }
+
     @Override
     public GenericDataType getGenericDataType() {
         return GenericDataType.COMPLEX;
+    }
+
+    @Override
+    @Nullable
+    protected String convertUserValue(@Nullable Object userValue, DBDataType dataType, DBNConnection connection) {
+        return Data.asString(userValue);
     }
 
     @Nullable
@@ -96,6 +110,15 @@ public class ComplexValue extends ValueAdapter<String> implements Comparable<Com
     @Override
     public String getDisplayValue() {
         return displayValue;
+    }
+
+    public boolean isNull() {
+        return value == null;
+    }
+
+    @Nullable
+    public Object getObjectValue() {
+        return value;
     }
 
     @Override

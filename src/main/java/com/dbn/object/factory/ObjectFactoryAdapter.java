@@ -17,7 +17,7 @@
 package com.dbn.object.factory;
 
 import com.dbn.common.ui.component.DBNComponent;
-import com.dbn.object.DBSchema;
+import com.dbn.connection.DatabaseEntity;
 import com.dbn.object.common.extension.DBObjectExtensionPoint;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.ui.common.DBObjectFactoryInputForm;
@@ -29,7 +29,7 @@ import java.util.List;
 public interface ObjectFactoryAdapter extends DBObjectExtensionPoint {
     ExtensionPointName<ObjectFactoryAdapter> EP = ExtensionPointName.create("com.dbn.objectFactoryAdapter");
 
-    DBObjectSpec createInput(DBSchema schema);
+    DBObjectSpec createInput(DatabaseEntity parentEntity);
 
     DBObjectFactoryInputForm createInputForm(DBNComponent parent, DBObjectSpec input);
 

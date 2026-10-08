@@ -629,6 +629,12 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
         }
 
         if (connectionId != null && objectType != null) {
+            // Non-schema objects (for example users) belong to the connection-level object lists.
+            // Do not associate their DDL events with the currently selected schema, otherwise the
+            // object bundle monitor routes the event to a schema child list that cannot contain them.
+            if (!objectType.isSchemaObject()) {
+                schemaId = null;
+            }
             ObjectChangeEvent.notify(UNSPECIFIED, objectType, connectionId, schemaId);
 
         }

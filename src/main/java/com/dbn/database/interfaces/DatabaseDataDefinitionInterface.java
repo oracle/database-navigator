@@ -60,10 +60,18 @@ public interface DatabaseDataDefinitionInterface extends DatabaseInterface {
 
     void createObject(String code, DBNConnection connection) throws SQLException;
 
+    void createSequence(DBObjectSpec sequenceSpec, DBNConnection connection) throws SQLException;
+
+    void createSynonym(DBObjectSpec synonymSpec, DBNConnection connection) throws SQLException;
+
+    void createTrigger(DBObjectSpec triggerSpec, DBNConnection connection) throws SQLException;
+
     /*********************************************************
      *                   UPDATE statements                   *
      *********************************************************/
     void updateView(String ownerName, String viewName, String code, boolean editionable, DBNConnection connection) throws SQLException;
+
+    void updateMaterializedView(String ownerName, String viewName, String oldCode, String newCode, DBNConnection connection) throws SQLException;
 
     void updateJsonView(String ownerName, String viewName, String code, boolean editionable, DBNConnection connection) throws SQLException;
 
@@ -75,6 +83,20 @@ public interface DatabaseDataDefinitionInterface extends DatabaseInterface {
     *                   DROP statements                     *
     *********************************************************/
     void dropObject(String objectType, String ownerName, String objectName, DBNConnection connection) throws SQLException;
+
+    default void dropDatasetTrigger(String ownerName, String tableName, String triggerName, DBNConnection connection) throws SQLException {
+        dropObject("trigger", ownerName, triggerName, connection);
+    }
+
+    default void dropDatabaseTrigger(String ownerName, String triggerName, DBNConnection connection) throws SQLException {
+        dropObject("trigger", ownerName, triggerName, connection);
+    }
+
+    default void dropEventTrigger(String triggerName, DBNConnection connection) throws SQLException {
+        dropObject("event trigger", null, triggerName, connection);
+    }
+
+    void dropUser(String userName, DBNConnection connection) throws SQLException;
 
     void dropConstraint(String ownerName, String tableName, String constraintName, DBConstraintType constraintType, DBNConnection connection) throws SQLException;
 
@@ -88,4 +110,21 @@ public interface DatabaseDataDefinitionInterface extends DatabaseInterface {
 
     void compileObjectBody(String ownerName, String objectName, String objectType, boolean debug, DBNConnection connection) throws SQLException;
 
+    /*********************************************************
+     *                   STATUS statements                   *
+     *********************************************************/
+
+    void enableUser(String userName, DBNConnection connection) throws SQLException;
+
+    void disableUser(String userName, DBNConnection connection) throws SQLException;
+
+    void lockUser(String userName, DBNConnection connection) throws SQLException;
+
+    void unlockUser(String userName, DBNConnection connection) throws SQLException;
+
+    /*********************************************************
+     *                  REFRESH statements                  *
+     *********************************************************/
+
+    void refreshMaterializedView(String ownerName, String viewName, DBNConnection connection) throws SQLException;
 }

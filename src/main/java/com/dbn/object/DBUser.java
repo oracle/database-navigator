@@ -23,6 +23,8 @@ import java.util.List;
 public interface DBUser extends DBRoleGrantee, DBPrivilegeGrantee, DBRootObject {
     boolean isExpired();
     boolean isLocked();
+    boolean isDisabled();
+    boolean isSystemUser();
     boolean isSessionUser();
 
     List<DBGrantedPrivilege> getPrivileges();

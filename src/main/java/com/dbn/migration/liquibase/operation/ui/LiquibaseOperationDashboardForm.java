@@ -35,7 +35,6 @@ import com.dbn.object.common.ui.DBObjectSelector;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.Box;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -86,7 +85,7 @@ public class LiquibaseOperationDashboardForm extends DBNFormBase {
     }
 
     private void initHintPanel() {
-        hintPanel.add(new DBNHintForm(this, TextContent.plain(txt("app.liquibase.hint.OperationDashboard")), null, true).getComponent(), BorderLayout.CENTER);
+        hintPanel.add(new DBNHintForm(this, TextContent.plain(txt("app.liquibase.hint.OperationDashboard")), null).getComponent(), BorderLayout.CENTER);
     }
 
     private void initHyperlinkPanel() {
@@ -138,12 +137,13 @@ public class LiquibaseOperationDashboardForm extends DBNFormBase {
     }
 
     private void addCategory(@NotNull LiquibaseOperationCategory category) {
-        JPanel itemsPanel = new JPanel();
-        verticalBoxLayout(itemsPanel);
+        JPanel itemsPanel = new JPanel(new BorderLayout());
+        JPanel itemsListPanel = new JPanel();
+        verticalBoxLayout(itemsListPanel);
         for (LiquibaseOperation operation : LiquibaseOperation.values()) {
-            if (operation.getCategory() == category) addOperation(itemsPanel, operation);
+            if (operation.getCategory() == category) addOperation(itemsListPanel, operation);
         }
-        itemsPanel.add(Box.createVerticalGlue());
+        itemsPanel.add(itemsListPanel, BorderLayout.NORTH);
 
         JScrollPane scrollPane = new JScrollPane(itemsPanel);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);

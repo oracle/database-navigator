@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import com.dbn.common.environment.EnvironmentManager;
 import com.dbn.common.message.MessageType;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.SourceCodeEditor;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.options.ConfigId;
 import com.dbn.options.ProjectSettingsManager;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
@@ -33,7 +33,7 @@ import static com.dbn.common.util.Messages.showQuestionDialog;
 import static com.dbn.nls.NlsResources.txt;
 
 public class SourceCodeReadonlyNotificationPanel extends SourceCodeEditorNotificationPanel{
-    public SourceCodeReadonlyNotificationPanel(DBSchemaObject object, @NotNull FileEditor fileEditor, SourceCodeEditor sourceCodeEditor) {
+    public SourceCodeReadonlyNotificationPanel(DBObject object, @NotNull FileEditor fileEditor, SourceCodeEditor sourceCodeEditor) {
         super(object, fileEditor, getMessageType(sourceCodeEditor));
         DBSourceCodeVirtualFile sourceCodeFile = sourceCodeEditor.getVirtualFile();
         String environmentName = sourceCodeFile.getEnvironmentType().getName();

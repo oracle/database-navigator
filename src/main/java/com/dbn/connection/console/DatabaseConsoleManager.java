@@ -41,9 +41,6 @@ import com.dbn.connection.session.SessionManagerListener;
 import com.dbn.editor.code.options.CodeEditorChangesOption;
 import com.dbn.editor.code.options.CodeEditorConfirmationSettings;
 import com.dbn.object.DBConsole;
-import com.dbn.object.common.DBObjectBundle;
-import com.dbn.object.common.list.DBObjectList;
-import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.vfs.DBConsoleType;
 import com.dbn.vfs.DatabaseFileManager;
 import com.dbn.vfs.file.DBConsoleVirtualFile;
@@ -95,7 +92,6 @@ import static com.dbn.editor.code.options.CodeEditorChangesOption.DISCARD;
 import static com.dbn.editor.code.options.CodeEditorChangesOption.SAVE;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.event.ObjectChangeAction.UPDATE;
-import static com.dbn.object.type.DBObjectType.CONSOLE;
 
 @State(
     name = DatabaseConsoleManager.COMPONENT_NAME,
@@ -200,11 +196,10 @@ public class DatabaseConsoleManager extends ProjectComponentBase implements Pers
                 txt("prc.consoles.title.CreatingConsole"),
                 txt("prc.consoles.text.CreatingConsole", type.getName(), name),
                 indicator -> {
-                    DBConsole console = connection.getConsoleBundle().createConsole(name, type, true);
+                    DBConsole console = connection.getConsoleBundle().createConsole(name, type);
                     DBConsoleVirtualFile consoleFile = console.getVirtualFile();
                     consoleFile.setContent(content);
 
-                    reloadConsoles(connection);
                     if (consumer != null) {
                         consumer.accept(console);
                     }
@@ -222,8 +217,6 @@ public class DatabaseConsoleManager extends ProjectComponentBase implements Pers
         DBConsoleVirtualFile virtualFile = console.getVirtualFile();
         VFileEvent renameEvent = createFileRenameEvent(virtualFile, oldName, newName);
         notifiedFileChange(renameEvent, () -> consoleBundle.renameConsole(oldName, newName));
-
-        reloadConsoles(connection);
     }
 
     public void deleteConsole(DBConsole console) {
@@ -248,16 +241,6 @@ public class DatabaseConsoleManager extends ProjectComponentBase implements Pers
 
         VFileEvent deleteEvent = createFileDeleteEvent(consoleFile);
         notifiedFileChange(deleteEvent, () -> consoleBundle.removeConsole(console));
-
-        reloadConsoles(connection);
-    }
-
-    private void reloadConsoles(@NotNull ConnectionHandler connection) {
-        DBObjectBundle objectBundle = connection.getObjectBundle();
-        DBObjectList<?> objectList = objectBundle.getObjectList(CONSOLE);
-        if (objectList == null) return;
-
-        objectList.markDirty();
     }
 
     public void saveConsoleToFile(DBConsoleVirtualFile consoleFile) {
@@ -367,6 +350,7 @@ public class DatabaseConsoleManager extends ProjectComponentBase implements Pers
             if (isNotValid(connection)) continue;
 
             DatabaseConsoleBundle consoleBundle = connection.getConsoleBundle();
+            consoleBundle.clear();
             for (Element consoleElement : connectionElement.getChildren()) {
                 String consoleName = stringAttribute(consoleElement, "name");
 
@@ -401,7 +385,7 @@ public class DatabaseConsoleManager extends ProjectComponentBase implements Pers
                 file.setDatabaseSession(databaseSession);
             }
 
-            ObjectChangeEvent.notify(UPDATE, CONSOLE, connectionId, null);
+            consoleBundle.notifyChanges(UPDATE);
         }
     }
 }

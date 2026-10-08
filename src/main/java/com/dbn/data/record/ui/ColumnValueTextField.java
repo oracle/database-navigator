@@ -94,7 +94,6 @@ class ColumnValueTextField extends JTextField {
         if (column == null) return null;
 
         for (DBConstraint constraint : column.getConstraints()) {
-            constraint = constraint.getUndisposedEntity();
             if (constraint == null || !constraint.isForeignKey()) continue;
 
             DBConstraint fkConstraint = constraint.getForeignKeyConstraint();
@@ -104,15 +103,14 @@ class ColumnValueTextField extends JTextField {
             DatasetFilterInput filterInput = null;
 
             for (DBColumn constraintColumn : constraint.getColumns()) {
-                constraintColumn = constraintColumn.getUndisposedEntity();
-                if (constraintColumn != null) {
-                    DBColumn foreignKeyColumn = constraintColumn.getForeignKeyColumn();
-                    if (foreignKeyColumn != null) {
-                        Object value = record.getColumnValue(constraintColumn);
-                        filterInput = nvl(filterInput, () -> new DatasetFilterInput(fkDataset));
-                        filterInput.setColumnValue(foreignKeyColumn, value);
-                    }
-                }
+                if (constraintColumn == null) continue;
+
+                DBColumn foreignKeyColumn = constraintColumn.getForeignKeyColumn();
+                if (foreignKeyColumn == null) continue;
+
+                Object value = record.getColumnValue(constraintColumn);
+                filterInput = nvl(filterInput, () -> new DatasetFilterInput(fkDataset));
+                filterInput.setColumnValue(foreignKeyColumn, value);
             }
             return filterInput;
         }

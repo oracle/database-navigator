@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,9 +35,10 @@ import com.dbn.editor.data.filter.DatasetFilterInput;
 import com.dbn.editor.data.filter.DatasetFilterManager;
 import com.dbn.editor.data.options.DataEditorSettings;
 import com.dbn.object.DBDataset;
+import com.dbn.object.DBNestedTable;
 import com.dbn.object.DBTable;
 import com.dbn.object.DBView;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.components.State;
@@ -99,12 +100,13 @@ public class DatasetEditorManager extends ProjectComponentBase implements Persis
             @Override
             public void whenFileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
                 if (file instanceof DBEditableObjectVirtualFile editableObjectFile) {
-                    DBSchemaObject object = editableObjectFile.getObject();
+                    DBObject object = editableObjectFile.getObject();
                     if (object instanceof DBDataset) {
                         FileEditor[] fileEditors = source.getEditors(file);
                         for (FileEditor fileEditor : fileEditors) {
                             if (fileEditor instanceof DatasetEditor datasetEditor) {
-                                if (object instanceof DBTable || editableObjectFile.getSelectedEditorProviderId() == EditorProviderId.DATA) {
+                                if (object instanceof DBTable || object instanceof DBNestedTable ||
+                                        editableObjectFile.getSelectedEditorProviderId() == EditorProviderId.DATA) {
                                     datasetEditor.loadData(INITIAL_LOAD_INSTRUCTIONS);
                                 }
                             }

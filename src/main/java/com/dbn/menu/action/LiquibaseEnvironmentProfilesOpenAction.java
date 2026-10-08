@@ -18,6 +18,7 @@ package com.dbn.menu.action;
 
 import com.dbn.common.action.ProjectAction;
 import com.dbn.migration.liquibase.DatabaseLiquibaseManager;
+import com.dbn.options.general.WorkspaceFeature;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -31,7 +32,17 @@ public class LiquibaseEnvironmentProfilesOpenAction extends ProjectAction {
     }
 
     @Override
+    protected WorkspaceFeature getFeature() {
+        return WorkspaceFeature.LIQUIBASE;
+    }
+
+    @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         DatabaseLiquibaseManager.getInstance(project).openEnvironmentProfiles();
+    }
+
+    @Override
+    protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
+        e.getPresentation().setVisible(isFeatureEnabled(project));
     }
 }

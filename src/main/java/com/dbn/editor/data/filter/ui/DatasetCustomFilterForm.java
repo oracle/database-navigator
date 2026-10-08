@@ -47,6 +47,7 @@ import static com.dbn.common.ui.util.ClientProperty.NO_INDENT;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.GuardedBlocks.createGuardedBlock;
 import static com.dbn.editor.code.content.GuardedBlockType.READONLY_DOCUMENT_SECTION;
+import static com.dbn.editor.data.filter.DatasetFilterUtil.createSimpleSelectStatement;
 import static com.dbn.nls.NlsResources.txt;
 
 public class DatasetCustomFilterForm extends ConfigurationEditorForm<DatasetCustomFilter> {
@@ -78,9 +79,8 @@ public class DatasetCustomFilterForm extends ConfigurationEditorForm<DatasetCust
 
     private void initSelectStatement(DBDataset dataset, DatasetCustomFilter filter) {
         @NonNls
-        StringBuilder selectStatement = new StringBuilder("select * from ");
-        selectStatement.append(dataset.getSchemaName(true)).append('.');
-        selectStatement.append(dataset.getName(true));
+        StringBuilder selectStatement = new StringBuilder();
+        createSimpleSelectStatement(dataset, selectStatement);
         selectStatement.append(" where ");
         conditionOffset = selectStatement.length();
 

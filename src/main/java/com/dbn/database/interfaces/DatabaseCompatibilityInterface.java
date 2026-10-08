@@ -33,6 +33,8 @@ import com.dbn.editor.session.SessionStatus;
 import com.dbn.language.common.quotes.QuoteDefinition;
 import com.dbn.language.common.quotes.QuotePair;
 import com.dbn.object.common.DBObject;
+import com.dbn.object.event.ObjectChangeAction;
+import com.dbn.object.factory.model.DBObjectTypeSpec;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -68,6 +70,12 @@ public interface DatabaseCompatibilityInterface extends DatabaseInterface {
     default boolean supportsObjectType(DatabaseObjectTypeId objectTypeId, double databaseVersion) {
         return supportsObjectType(objectTypeId);
     }
+
+    default DBObjectTypeSpec getObjectTypeSpec(DatabaseObjectTypeId objectTypeId) {
+        return DBObjectTypeSpec.create(objectTypeId);
+    }
+
+    boolean supportsObjectAction(DatabaseObjectTypeId objectTypeId, ObjectChangeAction action);
 
     boolean supportsFeature(DatabaseFeature feature);
 

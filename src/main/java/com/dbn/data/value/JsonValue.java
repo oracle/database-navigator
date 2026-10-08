@@ -16,7 +16,11 @@
 
 package com.dbn.data.value;
 
+import com.dbn.common.data.Data;
+import com.dbn.common.util.Json;
+import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.jdbc.ValueReaders;
+import com.dbn.data.type.DBDataType;
 import com.dbn.data.type.GenericDataType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -53,6 +57,12 @@ public class JsonValue extends LargeObjectValue{
     @Override
     public GenericDataType getGenericDataType() {
         return GenericDataType.JSON;
+    }
+
+    @Override
+    @Nullable
+    protected String convertUserValue(@Nullable Object userValue, DBDataType dataType, DBNConnection connection) {
+        return Data.asString(userValue);
     }
 
     @Override
@@ -107,7 +117,7 @@ public class JsonValue extends LargeObjectValue{
 
     @Override
     public String getDisplayValue() {
-        return data;
+        return Json.createJsonPreview(data, 2);
     }
 
     @Override

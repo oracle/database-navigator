@@ -21,13 +21,15 @@ import com.intellij.xdebugger.frame.XSuspendContext;
 import lombok.Getter;
 
 public class DBJdbcDebugSuspendContext extends XSuspendContext{
-    private final DBJdbcDebugProcess debugProcess;
+    private final DBJdbcDebugProcess<?> debugProcess;
+    private final long suspensionId;
 
     @Getter(lazy = true)
-    private final DBJdbcDebugExecutionStack executionStack = new DBJdbcDebugExecutionStack(debugProcess);
+    private final DBJdbcDebugExecutionStack executionStack = new DBJdbcDebugExecutionStack(debugProcess, suspensionId);
 
-    public DBJdbcDebugSuspendContext(DBJdbcDebugProcess debugProcess) {
+    public DBJdbcDebugSuspendContext(DBJdbcDebugProcess<?> debugProcess, long suspensionId) {
         this.debugProcess = debugProcess;
+        this.suspensionId = suspensionId;
     }
 
     @Override

@@ -26,7 +26,11 @@ public interface DBUserMetadata extends DBObjectMetadata {
     @ObjectIdentifier
     String getUserName() throws SQLException;
 
+    boolean isSystem() throws SQLException;
+
     boolean isExpired() throws SQLException;
 
     boolean isLocked() throws SQLException;
+
+    boolean isDisabled() throws SQLException;
 }

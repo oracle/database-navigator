@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package com.dbn.prerequisite.ui;
 
-import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.text.HiddenCaret;
@@ -32,7 +31,6 @@ import com.dbn.prerequisite.model.PrerequisiteStatus;
 import com.dbn.prerequisite.model.PrerequisiteType;
 import com.intellij.util.ui.AsyncProcessIcon;
 import com.intellij.util.ui.JBUI;
-import com.intellij.util.ui.UIUtil;
 
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -42,6 +40,7 @@ import javax.swing.JTextPane;
 import java.awt.Color;
 import java.awt.Font;
 
+import static com.dbn.common.color.Colors.getContextHelpForeground;
 import static com.dbn.nls.NlsResources.txt;
 
 public class PrerequisiteDetailForm extends DBNFormBase implements PrerequisiteEventListener {
@@ -62,7 +61,7 @@ public class PrerequisiteDetailForm extends DBNFormBase implements PrerequisiteE
 
         parent.getPrerequisiteGroup().addEventListener(this);
 
-        Color greyContent = Colors.faded(UIUtil.getLabelForeground());
+        Color greyContent = getContextHelpForeground();
         Font largerFont = Fonts.regular(1);
 
         PrerequisiteDefinition definition = prerequisite.getDefinition();

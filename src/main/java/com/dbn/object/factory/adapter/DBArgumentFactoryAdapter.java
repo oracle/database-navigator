@@ -18,7 +18,7 @@ package com.dbn.object.factory.adapter;
 
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.util.Strings;
-import com.dbn.object.DBSchema;
+import com.dbn.connection.DatabaseEntity;
 import com.dbn.object.factory.ObjectFactoryAdapter;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.ui.DBArgumentFactoryInputForm;
@@ -38,7 +38,7 @@ public class DBArgumentFactoryAdapter implements ObjectFactoryAdapter {
         return ARGUMENT;
     }
 
-    public DBObjectSpec createInput(DBSchema schema) {
+    public DBObjectSpec createInput(DatabaseEntity parentEntity) {
         //return new DBArgumentFactoryInput(schema);
         return null; // TODO
     }
@@ -58,12 +58,12 @@ public class DBArgumentFactoryAdapter implements ObjectFactoryAdapter {
             errors.add(txt("msg.objects.error.ArgumentNameInvalidAtIndex", position, objectName));
         }
 
-        String dataType = DATA_TYPE.of(argumentSpec);
+        String dataType = DATA_TYPE.value(argumentSpec);
         if (Strings.isEmptyOrSpaces(dataType)){
-            if (objectName.length() > 0) {
-                errors.add(txt("msg.objects.error.ArgumentDataTypeMissingForName", objectName));
-            } else {
+            if (objectName.isEmpty()) {
                 errors.add(txt("msg.objects.error.ArgumentDataTypeMissingAtIndex", position));
+            } else {
+                errors.add(txt("msg.objects.error.ArgumentDataTypeMissingForName", objectName));
             }
         }
     }

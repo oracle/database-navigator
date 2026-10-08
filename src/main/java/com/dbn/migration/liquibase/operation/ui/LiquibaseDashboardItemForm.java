@@ -16,35 +16,29 @@
 
 package com.dbn.migration.liquibase.operation.ui;
 
-import com.dbn.common.color.Colors;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.info.DBNTextBlock;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
-import com.dbn.common.ui.util.Components;
 import com.dbn.common.ui.util.Fonts;
 import com.dbn.common.util.Strings;
 import com.dbn.migration.liquibase.task.LiquibaseTask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextPane;
-import java.awt.Dimension;
 
 import static com.dbn.common.ui.link.Hyperlinks.initHyperlink;
 import static com.dbn.nls.NlsResources.txt;
-import static com.intellij.util.ui.UIUtil.getLabelForeground;
 
 /** Operation dashboard item form presenting one Liquibase operation and its documentation link. */
 public class LiquibaseDashboardItemForm extends DBNFormBase {
     private JPanel mainPanel;
     private JLabel nameLabel;
-    private JTextPane descriptionTextPane;
+    private DBNTextBlock descriptionLabel;
     private JButton openButton;
     private DBNHyperlinkLabel moreHyperlinkLabel;
-    private int descriptionWidth;
 
     public LiquibaseDashboardItemForm(
             @NotNull DBNFormBase parent,
@@ -62,10 +56,8 @@ public class LiquibaseDashboardItemForm extends DBNFormBase {
         super(parent);
 
         nameLabel.setText(name);
-        descriptionTextPane.setText(description);
+        descriptionLabel.setText(description);
         nameLabel.setFont(Fonts.regular(1));
-        descriptionTextPane.setFocusable(false);
-        descriptionTextPane.setForeground(Colors.faded(getLabelForeground()));
         openButton.setEnabled(false);
         openButton.addActionListener(e -> action.run());
 
@@ -74,32 +66,6 @@ public class LiquibaseDashboardItemForm extends DBNFormBase {
         } else {
             initHyperlink(moreHyperlinkLabel, txt("app.shared.link.ShowMore"), documentationUrl);
         }
-
-        whenFirstShown(() -> installDescriptionResizer());
-    }
-
-    private void installDescriptionResizer() {
-        if (!(mainPanel.getParent() instanceof JPanel parent)) return;
-        if (!(parent.getLayout() instanceof BoxLayout)) return;
-
-        Components.onComponentResized(parent, e -> dispatch(this::resizeDescription));
-        resizeDescription();
-    }
-
-    private void resizeDescription() {
-        int width = descriptionTextPane.getWidth();
-        if (width <= 0 || width == descriptionWidth) return;
-
-        descriptionTextPane.setPreferredSize(null);
-        descriptionTextPane.setSize(width, Integer.MAX_VALUE);
-        int height = descriptionTextPane.getPreferredSize().height;
-        descriptionTextPane.setPreferredSize(new Dimension(150, height));
-        descriptionTextPane.revalidate();
-
-        Dimension maximumSize = mainPanel.getMaximumSize();
-        mainPanel.setMaximumSize(new Dimension(maximumSize.width, mainPanel.getPreferredSize().height));
-        mainPanel.revalidate();
-        descriptionWidth = width;
     }
 
     public void setOperationAvailable(boolean available) {

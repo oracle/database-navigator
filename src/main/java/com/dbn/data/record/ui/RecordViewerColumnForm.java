@@ -16,7 +16,6 @@
 
 package com.dbn.data.record.ui;
 
-import com.dbn.common.color.Colors;
 import com.dbn.common.locale.Formatter;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -37,6 +36,9 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
+import static com.dbn.common.color.Colors.getLabelDisabledForeground;
+import static com.dbn.common.color.Colors.getLabelForeground;
+import static com.dbn.common.color.Colors.getTextFieldBackground;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 
 public class RecordViewerColumnForm extends DBNFormBase {
@@ -60,7 +62,7 @@ public class RecordViewerColumnForm extends DBNFormBase {
 
         columnLabel.setIcon(column.getIcon());
         columnLabel.setText(column.getName());
-        columnLabel.setForeground(auditColumn ? UIUtil.getLabelDisabledForeground() : UIUtil.getLabelForeground());
+        columnLabel.setForeground(auditColumn ? getLabelDisabledForeground() : getLabelForeground());
 
         dataTypeLabel.setText(dataType.getQualifiedName());
         dataTypeLabel.setForeground(UIUtil.getInactiveTextColor());
@@ -72,7 +74,7 @@ public class RecordViewerColumnForm extends DBNFormBase {
         valueFieldPanel.add(valueTextField, BorderLayout.CENTER);
         valueTextField.setEditable(false);
         valueTextField.setCursor(Cursors.textCursor());
-        valueTextField.setBackground(Colors.getTextFieldBackground());
+        valueTextField.setBackground(getTextFieldBackground());
         columnLabel.setLabelFor(valueTextField);
 
         updateColumnValue(column);

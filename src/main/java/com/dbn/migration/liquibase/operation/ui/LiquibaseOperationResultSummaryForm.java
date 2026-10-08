@@ -16,7 +16,6 @@
 
 package com.dbn.migration.liquibase.operation.ui;
 
-import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.message.TitledMessage;
@@ -42,7 +41,6 @@ import com.dbn.object.common.DBObject;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -54,6 +52,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 
+import static com.dbn.common.color.Colors.getLabelErrorForeground;
+import static com.dbn.common.color.Colors.getLabelForeground;
+import static com.dbn.common.color.Colors.getLabelSuccessForeground;
+import static com.dbn.common.color.Colors.getLabelWarningForeground;
 import static com.dbn.common.task.TaskStatus.BYPASSED;
 import static com.dbn.common.task.TaskStatus.CANCELLED;
 import static com.dbn.common.task.TaskStatus.DONE;
@@ -505,13 +507,13 @@ public class LiquibaseOperationResultSummaryForm extends DBNFormBase {
 
     @NotNull
     private static Color getStatusColor(@NotNull TaskStatus status) {
-        if (true) return UIUtil.getLabelForeground();
+        if (true) return getLabelForeground();
         // todo cleanup (too colorful)
         return switch (status) {
-            case DONE -> Colors.getLabelSuccessForeground();
-            case FAILED -> Colors.getLabelErrorForeground();
-            case CANCELLED, SKIPPED, BYPASSED -> Colors.getLabelWarningForeground();
-            default -> UIUtil.getLabelForeground();
+            case DONE -> getLabelSuccessForeground();
+            case FAILED -> getLabelErrorForeground();
+            case CANCELLED, SKIPPED, BYPASSED -> getLabelWarningForeground();
+            default -> getLabelForeground();
         };
     }
 

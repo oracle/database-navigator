@@ -81,8 +81,7 @@ public class LiquibaseEnvironmentProfileForm extends DBNFormBase {
         hintPanel.add(new DBNHintForm(
                 this,
                 TextContent.plain(txt("app.liquibase.hint.EnvironmentProfile")),
-                null,
-                true).getComponent());
+                null).getComponent());
     }
 
     private void updateProfileName() {

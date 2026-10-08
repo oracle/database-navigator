@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,12 @@ import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.icon.Icons;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.debugger.DatabaseDebuggerManager;
+import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
 import com.dbn.object.action.AnObjectAction;
 import com.dbn.object.common.DBObject;
+import com.dbn.options.general.WorkspaceFeature;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -41,6 +43,11 @@ public class ProgramMethodDebugAction extends ProgramMethodLaunchAction {
     }
 
     @Override
+    protected WorkspaceFeature getFeature() {
+        return WorkspaceFeature.DEBUGGER;
+    }
+
+    @Override
     protected AnAction createExecutionAction(DBObject method) {
         if (method instanceof DBMethod programMethod) {
             return new DebugMethodAction(programMethod);
@@ -54,7 +61,11 @@ public class ProgramMethodDebugAction extends ProgramMethodLaunchAction {
 
     @Override
     public void update(@NotNull AnActionEvent e, @NotNull Project project) {
-        boolean visible = isVisible(e);
+        boolean visible = isFeatureEnabled(project) && isVisible(e);
+        DBSourceCodeVirtualFile sourceCodeFile = getSourcecodeFile(e);
+        if (visible && sourceCodeFile != null && sourceCodeFile.getObject() instanceof DBJavaClass) {
+            visible = WorkspaceFeature.OJVM.isEnabled(project);
+        }
 
         Presentation presentation = e.getPresentation();
         presentation.setVisible(visible);

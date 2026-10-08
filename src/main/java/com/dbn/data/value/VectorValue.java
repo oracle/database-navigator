@@ -17,7 +17,10 @@
 package com.dbn.data.value;
 
 import com.dbn.common.data.Data;
+import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.data.type.DBDataType;
 import com.dbn.data.type.GenericDataType;
+import com.dbn.database.oracle.OracleTypes;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,6 +35,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.dbn.common.data.Data.asDoubleList;
+import static com.dbn.common.data.Data.asDoublePrimitiveArray;
 import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
@@ -59,6 +63,12 @@ public class VectorValue extends ValueAdapter<List<Double>>{
     }
 
     @Override
+    @Nullable
+    protected List<Double> convertUserValue(@Nullable Object userValue, DBDataType dataType, DBNConnection connection) {
+        return asDoubleList(userValue);
+    }
+
+    @Override
     public List<Double> read() throws SQLException {
         return values;
     }
@@ -73,7 +83,12 @@ public class VectorValue extends ValueAdapter<List<Double>>{
     public void write(Connection connection, PreparedStatement preparedStatement, int parameterIndex, List<Double> values) throws SQLException {
         try {
             this.values = asDoubleList(values);
-            preparedStatement.setObject(parameterIndex, values);
+            if (values == null || values.isEmpty()) {
+                preparedStatement.setNull(parameterIndex, OracleTypes.VECTOR_FLOAT64);
+            } else {
+                double[] vectorValues = asDoublePrimitiveArray(values);
+                preparedStatement.setObject(parameterIndex, vectorValues, OracleTypes.VECTOR_FLOAT64);
+            }
         } catch (Throwable e) {
             conditionallyLog(e);
             throw toSqlException(e, txt("msg.data.exception.CouldNotWriteArrayValue"));
@@ -88,7 +103,8 @@ public class VectorValue extends ValueAdapter<List<Double>>{
             if (values == null || values.isEmpty()) {
                 resultSet.updateObject(columnIndex, null);
             } else {
-                resultSet.updateString(columnIndex, Objects.toString(values));
+                double[] vectorValues = asDoublePrimitiveArray(values);
+                resultSet.updateObject(columnIndex, vectorValues, OracleTypes.VECTOR_FLOAT64);
             }
         } catch (Throwable e) {
             conditionallyLog(e);

@@ -16,8 +16,7 @@
 
 package com.dbn.object.action;
 
-import com.dbn.object.common.DBSchemaObject;
-import com.dbn.object.common.status.DBObjectStatus;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.event.ObjectChangeAction;
 import com.dbn.object.management.ObjectManagementService;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -28,9 +27,10 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.object.common.status.DBObjectStatus.DISABLED;
 
-public class ObjectEnableDisableAction extends AnObjectAction<DBSchemaObject> {
-    ObjectEnableDisableAction(DBSchemaObject object) {
+public class ObjectEnableDisableAction extends AnObjectAction<DBObject> {
+    ObjectEnableDisableAction(DBObject object) {
         super(object);
     }
 
@@ -38,13 +38,15 @@ public class ObjectEnableDisableAction extends AnObjectAction<DBSchemaObject> {
     protected void actionPerformed(
             @NotNull AnActionEvent e,
             @NotNull Project project,
-            @NotNull DBSchemaObject object) {
+            @NotNull DBObject object) {
 
         ObjectManagementService objectManagementService = ObjectManagementService.getInstance(project);
 
         if (objectManagementService.supports(object)) {
-            boolean enabled = object.getStatus().is(DBObjectStatus.ENABLED);
-            ObjectChangeAction changeAction = enabled ? ObjectChangeAction.DISABLE : ObjectChangeAction.ENABLE;
+            boolean disabled = object.hasStatus(DISABLED);
+            ObjectChangeAction changeAction = disabled ?
+                    ObjectChangeAction.ENABLE :
+                    ObjectChangeAction.DISABLE;
             objectManagementService.changeObject(object, changeAction,null);
         } else {
             throw new UnsupportedOperationException();
@@ -57,11 +59,11 @@ public class ObjectEnableDisableAction extends AnObjectAction<DBSchemaObject> {
             @NotNull AnActionEvent e,
             @NotNull Presentation presentation,
             @NotNull Project project,
-            @Nullable DBSchemaObject target) {
+            @Nullable DBObject target) {
 
         if (isValid(target)) {
-            boolean enabled = target.getStatus().is(DBObjectStatus.ENABLED);
-            String text = !enabled ?
+            boolean disabled = target.hasStatus(DISABLED);
+            String text = disabled ?
                     txt("app.shared.action.Enable") :
                     txt("app.shared.action.Disable");
 

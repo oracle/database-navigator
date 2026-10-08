@@ -156,12 +156,7 @@ public final class ConnectionPool extends ConnectionComponentBase implements Not
     }
 
     void closeConnection(DBNConnection connection) {
-        SessionId sessionId = connection.getSessionId();
-        if (sessionId == SessionId.POOL) {
-            getConnectionPool().drop(connection);
-        } else {
-            getConnectionCache().drop(sessionId);
-        }
+        discard(connection);
     }
 
     public int getSize() {
@@ -190,11 +185,12 @@ public final class ConnectionPool extends ConnectionComponentBase implements Not
         return false;
     }
 
-    public void release(DBNConnection connection) {
+    /** Removes a connection and schedules resource cleanup. */
+    public void discard(DBNConnection connection) {
         if (connection.isPoolConnection()) {
-            getConnectionPool().release(connection);
+            getConnectionPool().discard(connection);
         } else {
-            getConnectionCache().release(connection.getSessionId());
+            getConnectionCache().discard(connection);
         }
     }
 

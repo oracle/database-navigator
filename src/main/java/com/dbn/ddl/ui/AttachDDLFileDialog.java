@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.ddl.DDLFileAttachmentManager;
 import com.dbn.help.HelpTopic;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -36,11 +36,11 @@ import static com.dbn.common.text.TextContent.plain;
 import static com.dbn.nls.NlsResources.txt;
 
 public class AttachDDLFileDialog extends DBNDialog<SelectDDLFileForm> {
-    private final DBObjectRef<DBSchemaObject> object;
+    private final DBObjectRef<DBObject> object;
     private final boolean showLookupOption;
     private final List<VirtualFileInfo> fileInfos;
 
-    public AttachDDLFileDialog(List<VirtualFileInfo> fileInfos, @NotNull DBSchemaObject object, boolean showLookupOption) {
+    public AttachDDLFileDialog(List<VirtualFileInfo> fileInfos, @NotNull DBObject object, boolean showLookupOption) {
         super(object.getProject(), txt("msg.ddlFiles.title.AttachDdlFile"), true);
         this.fileInfos = fileInfos;
         this.object = DBObjectRef.of(object);
@@ -52,7 +52,7 @@ public class AttachDDLFileDialog extends DBNDialog<SelectDDLFileForm> {
     @NotNull
     @Override
     protected SelectDDLFileForm createForm() {
-        DBSchemaObject object = getObject();
+        DBObject object = getObject();
         String typeName = object.getTypeName();
         TextContent hintText = plain(
                 txt("msg.ddlFiles.hint.AttachDdlFiles",
@@ -78,7 +78,7 @@ public class AttachDDLFileDialog extends DBNDialog<SelectDDLFileForm> {
     }
 
     @NotNull
-    public DBSchemaObject getObject() {
+    public DBObject getObject() {
         return DBObjectRef.ensure(object);
     }
 
@@ -114,7 +114,7 @@ public class AttachDDLFileDialog extends DBNDialog<SelectDDLFileForm> {
     @Override
     protected void doOKAction() {
         SelectDDLFileForm component = getForm();
-        DBSchemaObject object = getObject();
+        DBObject object = getObject();
         Project project = object.getProject();
         DDLFileAttachmentManager fileAttachmentManager = DDLFileAttachmentManager.getInstance(project);
         List<VirtualFileInfo> fileInfos = component.getSelection();

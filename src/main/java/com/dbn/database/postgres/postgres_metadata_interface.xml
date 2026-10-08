@@ -20,7 +20,7 @@
         <statement>
             select
                 NSPNAME as SCHEMA_NAME,
-                case when lower(NSPNAME)='public' then 'Y' else 'N' end as IS_PUBLIC,
+                'N' as IS_PUBLIC,
                 case when lower(NSPNAME) = 'information_schema' or lower(NSPNAME) like 'pg_%' then 'Y' else 'N' end as IS_SYSTEM,
                 'N' as IS_EMPTY
             from PG_CATALOG.PG_NAMESPACE
@@ -29,8 +29,8 @@
         <statement>
             select
                 SCHEMA_NAME,
-                case when lower(SCHEMA_NAME)='pg_catalog' then 'Y' else 'N' end as IS_PUBLIC,
-                case when lower(SCHEMA_NAME)='information_schema' then 'Y' else 'N' end as IS_SYSTEM,
+                'N' as IS_PUBLIC,
+                case when lower(SCHEMA_NAME) = 'information_schema' or lower(SCHEMA_NAME) like 'pg_%' then 'Y' else 'N' end as IS_SYSTEM,
                 'N' as IS_EMPTY
             from INFORMATION_SCHEMA.SCHEMATA
             order by SCHEMA_NAME asc
@@ -38,10 +38,22 @@
     </statement-execution-processor>
     <statement-execution-processor id="users">
         <statement>
+            select
+                ROLNAME as USER_NAME,
+                case when ROLNAME like 'pg_%' then 'Y' else 'N' end as IS_SYSTEM,
+                'N' as IS_EXPIRED,
+                'N' as IS_LOCKED,
+                case when ROLCANLOGIN then 'N' else 'Y' end as IS_DISABLED
+            from PG_CATALOG.PG_ROLES
+            order by ROLNAME asc
+        </statement>
+        <statement>
             select distinct
                 GRANTEE as USER_NAME,
+                'N' as IS_SYSTEM,
                 'N' as IS_EXPIRED,
-                'N' as IS_LOCKED
+                'N' as IS_LOCKED,
+                'N' as IS_DISABLED
             from INFORMATION_SCHEMA.USAGE_PRIVILEGES
             order by GRANTEE asc
         </statement>
@@ -106,6 +118,21 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="materialized-views">
+        <statement>
+            select
+                matviewname as VIEW_NAME,
+                null as VIEW_TYPE_OWNER,
+                null as VIEW_TYPE,
+                null as COMMENTS,
+                case when schemaname = 'information_schema' or schemaname like 'pg_%' then 'Y' else 'N' end as IS_SYSTEM_VIEW,
+                'N' as IS_EDITIONABLE
+            from pg_catalog.pg_matviews
+            where schemaname = {#0}
+            order by matviewname asc
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="dataset-columns">
         <statement>
             select
@@ -116,10 +143,15 @@
                 null as DECL_TYPE_OWNER,
                 null as DECL_TYPE_PROGRAM,
                 null as DECL_TYPE_NAME,
+                null as NTBL_NAME,
+                null as NTBL_PARENT_OWNER_NAME,
+                null as NTBL_PARENT_TABLE_NAME,
+                null as NTBL_PARENT_COLUMN_NAME,
                 col.CHARACTER_MAXIMUM_LENGTH as DATA_LENGTH,
                 col.NUMERIC_PRECISION as DATA_PRECISION,
                 col.NUMERIC_SCALE as DATA_SCALE,
                 'N' as IS_SET,
+                case when col.DATA_TYPE = 'ARRAY' then 'Y' else 'N' end as IS_COLLECTION,
                 left(col.IS_NULLABLE, 1) as IS_NULLABLE,
                 'N' as IS_HIDDEN,
                 case when pk.COLUMN_NAME is null then 'N' else 'Y' end as IS_PRIMARY_KEY,
@@ -158,7 +190,41 @@
             where
                 col.TABLE_SCHEMA = {#0} and
                 col.TABLE_NAME = {#1}
-            order by col.COLUMN_NAME asc
+            union all
+            select
+                a.attname as COLUMN_NAME,
+                a.attnum as "POSITION",
+                col_description(a.attrelid, a.attnum) as COMMENTS,
+                replace(format_type(a.atttypid, a.atttypmod), '"', '') as DATA_TYPE_NAME,
+                null as DECL_TYPE_OWNER,
+                null as DECL_TYPE_PROGRAM,
+                null as DECL_TYPE_NAME,
+                null as NTBL_NAME,
+                null as NTBL_PARENT_OWNER_NAME,
+                null as NTBL_PARENT_TABLE_NAME,
+                null as NTBL_PARENT_COLUMN_NAME,
+                null as DATA_LENGTH,
+                null as DATA_PRECISION,
+                null as DATA_SCALE,
+                'N' as IS_SET,
+                case when format_type(a.atttypid, a.atttypmod) like '%[]' then 'Y' else 'N' end as IS_COLLECTION,
+                case when a.attnotnull then 'N' else 'Y' end as IS_NULLABLE,
+                'N' as IS_HIDDEN,
+                'N' as IS_PRIMARY_KEY,
+                'N' as IS_FOREIGN_KEY,
+                'N' as IS_UNIQUE_KEY,
+                'N' as IS_IDENTITY
+            from pg_catalog.pg_attribute a
+                join pg_catalog.pg_class c on c.oid = a.attrelid
+                join pg_catalog.pg_namespace n on n.oid = c.relnamespace
+            where
+                n.nspname = {#0} and
+                c.relname = {#1} and
+                c.relkind = 'm' and
+                a.attnum > 0 and
+                not a.attisdropped and
+                (pg_has_role(c.relowner, 'USAGE') or has_column_privilege(c.oid, a.attnum, 'SELECT, INSERT, UPDATE, REFERENCES'))
+            order by COLUMN_NAME asc
         </statement>
     </statement-execution-processor>
 
@@ -173,10 +239,15 @@
                 null as DECL_TYPE_OWNER,
                 null as DECL_TYPE_PROGRAM,
                 null as DECL_TYPE_NAME,
+                null as NTBL_NAME,
+                null as NTBL_PARENT_OWNER_NAME,
+                null as NTBL_PARENT_TABLE_NAME,
+                null as NTBL_PARENT_COLUMN_NAME,
                 col.CHARACTER_MAXIMUM_LENGTH as DATA_LENGTH,
                 col.NUMERIC_PRECISION as DATA_PRECISION,
                 col.NUMERIC_SCALE as DATA_SCALE,
                 'N' as IS_SET,
+                case when col.DATA_TYPE = 'ARRAY' then 'Y' else 'N' end as IS_COLLECTION,
                 left(col.IS_NULLABLE, 1) as IS_NULLABLE,
                 'N' as IS_HIDDEN,
                 case when pk.COLUMN_NAME is null then 'N' else 'Y' end as IS_PRIMARY_KEY,
@@ -214,9 +285,43 @@
                     using (TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
             where
                 col.TABLE_SCHEMA = {#0}
+            union all
+            select
+                a.attname as COLUMN_NAME,
+                c.relname as DATASET_NAME,
+                a.attnum as "POSITION",
+                col_description(a.attrelid, a.attnum) as COMMENTS,
+                replace(format_type(a.atttypid, a.atttypmod), '"', '') as DATA_TYPE_NAME,
+                null as DECL_TYPE_OWNER,
+                null as DECL_TYPE_PROGRAM,
+                null as DECL_TYPE_NAME,
+                null as NTBL_NAME,
+                null as NTBL_PARENT_OWNER_NAME,
+                null as NTBL_PARENT_TABLE_NAME,
+                null as NTBL_PARENT_COLUMN_NAME,
+                null as DATA_LENGTH,
+                null as DATA_PRECISION,
+                null as DATA_SCALE,
+                'N' as IS_SET,
+                case when format_type(a.atttypid, a.atttypmod) like '%[]' then 'Y' else 'N' end as IS_COLLECTION,
+                case when a.attnotnull then 'N' else 'Y' end as IS_NULLABLE,
+                'N' as IS_HIDDEN,
+                'N' as IS_PRIMARY_KEY,
+                'N' as IS_FOREIGN_KEY,
+                'N' as IS_UNIQUE_KEY,
+                'N' as IS_IDENTITY
+            from pg_catalog.pg_attribute a
+                join pg_catalog.pg_class c on c.oid = a.attrelid
+                join pg_catalog.pg_namespace n on n.oid = c.relnamespace
+            where
+                n.nspname = {#0} and
+                c.relkind = 'm' and
+                a.attnum > 0 and
+                not a.attisdropped and
+                (pg_has_role(c.relowner, 'USAGE') or has_column_privilege(c.oid, a.attnum, 'SELECT, INSERT, UPDATE, REFERENCES'))
             order by
-                col.TABLE_NAME,
-                col.COLUMN_NAME asc
+                DATASET_NAME,
+                COLUMN_NAME asc
         </statement>
     </statement-execution-processor>
 
@@ -228,7 +333,7 @@
                 tc.CONSTRAINT_TYPE,
                 rc.UNIQUE_CONSTRAINT_SCHEMA as FK_CONSTRAINT_OWNER,
                 rc.UNIQUE_CONSTRAINT_NAME as FK_CONSTRAINT_NAME,
-                'Y' as IS_ENABLED,
+                'N' as IS_DISABLED,
                 check_clause as CHECK_CONDITION
             from
                 INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc left join
@@ -250,7 +355,7 @@
                 tc.CONSTRAINT_TYPE,
                 rc.UNIQUE_CONSTRAINT_SCHEMA as FK_CONSTRAINT_OWNER,
                 rc.UNIQUE_CONSTRAINT_NAME as FK_CONSTRAINT_NAME,
-                'Y' as IS_ENABLED,
+                'N' as IS_DISABLED,
                 check_clause as CHECK_CONDITION
             from
                 INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc left join
@@ -372,11 +477,28 @@
     <statement-execution-processor id="column-index-relations">
         <statement>
             select
+                a.attname as COLUMN_NAME,
+                i.relname as INDEX_NAME
+            from pg_catalog.pg_index x
+                join pg_catalog.pg_class t on t.oid = x.indrelid
+                join pg_catalog.pg_class i on i.oid = x.indexrelid
+                join pg_catalog.pg_namespace n on n.oid = t.relnamespace
+                cross join lateral generate_subscripts(x.indkey, 1) s(position)
+                join pg_catalog.pg_attribute a on a.attrelid = t.oid and a.attnum = x.indkey[s.position]
+            where
+                n.nspname = {#0} and
+                t.relname = {#1} and
+                t.relkind in ('r', 'm', 'p') and
+                not a.attisdropped
+            order by i.relname, s.position asc
+        </statement>
+        <statement>
+            <!-- fallback for PostgreSQL-compatible databases exposing the information schema view -->
+            select
                 COLUMN_NAME,
                 INDEX_NAME
             from INFORMATION_SCHEMA.STATISTICS
-            where
-                TABLE_SCHEMA = {#0} and
+            where TABLE_SCHEMA = {#0} and
                 TABLE_NAME = {#1}
             order by COLUMN_NAME asc
         </statement>
@@ -384,6 +506,24 @@
 
     <statement-execution-processor id="all-column-index-relations">
         <statement>
+            select
+                t.relname as TABLE_NAME,
+                a.attname as COLUMN_NAME,
+                i.relname as INDEX_NAME
+            from pg_catalog.pg_index x
+                join pg_catalog.pg_class t on t.oid = x.indrelid
+                join pg_catalog.pg_class i on i.oid = x.indexrelid
+                join pg_catalog.pg_namespace n on n.oid = t.relnamespace
+                cross join lateral generate_subscripts(x.indkey, 1) s(position)
+                join pg_catalog.pg_attribute a on a.attrelid = t.oid and a.attnum = x.indkey[s.position]
+            where
+                n.nspname = {#0} and
+                t.relkind in ('r', 'm', 'p') and
+                not a.attisdropped
+            order by t.relname, i.relname, s.position asc
+        </statement>
+        <statement>
+            <!-- fallback for PostgreSQL-compatible databases exposing the information schema view -->
             select
                 TABLE_NAME,
                 COLUMN_NAME,
@@ -403,26 +543,86 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="event-triggers">
+        <statement>
+            select
+                e.evtname as TRIGGER_NAME,
+                '' as TRIGGER_TYPE,
+                case e.evtevent
+                    when 'ddl_command_start' then 'DDL'
+                    when 'ddl_command_end' then 'DDL'
+                    when 'table_rewrite' then 'DDL'
+                    when 'sql_drop' then 'DROP'
+                    when 'login' then 'LOGON'
+                    else upper(e.evtevent)
+                end as TRIGGERING_EVENT,
+                'DATABASE' as TRIGGER_TARGET,
+                null as TARGET_SCHEMA_NAME,
+                p.proname as TRIGGER_FUNCTION_NAME,
+                n.nspname as TRIGGER_FUNCTION_SCHEMA_NAME,
+                case when e.evtenabled = 'D' then 'Y' else 'N' end as IS_DISABLED,
+                'Y' as IS_VALID,
+                'N' as IS_DEBUG,
+                'N' as IS_FOR_EACH_ROW
+            from pg_catalog.pg_event_trigger e
+            join pg_catalog.pg_proc p on p.oid = e.evtfoid
+            join pg_catalog.pg_namespace n on n.oid = p.pronamespace
+            order by e.evtname asc
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="event-trigger-source-code">
+        <statement>
+          select concat(
+              'event trigger ',
+              quote_ident(e.evtname),
+                ' on ',
+                e.evtevent,
+                ' execute function ',
+                quote_ident(n.nspname),
+                '.',
+                quote_ident(p.proname),
+                '();'
+            ) as SOURCE_CODE
+            from pg_catalog.pg_event_trigger e
+            join pg_catalog.pg_proc p on p.oid = e.evtfoid
+            join pg_catalog.pg_namespace n on n.oid = p.pronamespace
+            where e.evtname = {#0}
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="dataset-triggers">
         <statement>
             select distinct
                 EVENT_OBJECT_TABLE as DATASET_NAME,
                 TRIGGER_NAME as TRIGGER_NAME,
                 ACTION_TIMING as TRIGGER_TYPE,
-                string_agg(EVENT_MANIPULATION, ' or ') as TRIGGERING_EVENT,
-                'Y' as IS_ENABLED,
+                string_agg(EVENT_MANIPULATION, ' or ' order by EVENT_MANIPULATION) as TRIGGERING_EVENT,
+                'TABLE' as TRIGGER_TARGET,
+                null as TARGET_SCHEMA_NAME,
+                p.proname as TRIGGER_FUNCTION_NAME,
+                fn.nspname as TRIGGER_FUNCTION_SCHEMA_NAME,
+                'N' as IS_DISABLED,
                 'Y' as IS_VALID,
                 'N' as IS_DEBUG,
-                'Y' as IS_FOR_EACH_ROW
-            from INFORMATION_SCHEMA.TRIGGERS
+                case when ACTION_ORIENTATION = 'ROW' then 'Y' else 'N' end as IS_FOR_EACH_ROW
+            from INFORMATION_SCHEMA.TRIGGERS t
+            join pg_catalog.pg_namespace n on n.nspname = t.EVENT_OBJECT_SCHEMA
+            join pg_catalog.pg_class c on c.relnamespace = n.oid and c.relname = t.EVENT_OBJECT_TABLE
+            join pg_catalog.pg_trigger tr on tr.tgrelid = c.oid and tr.tgname = t.TRIGGER_NAME
+            join pg_catalog.pg_proc p on p.oid = tr.tgfoid
+            join pg_catalog.pg_namespace fn on fn.oid = p.pronamespace
             where
-                EVENT_OBJECT_SCHEMA = {#0} and
-                EVENT_OBJECT_TABLE = {#1}
+                t.EVENT_OBJECT_SCHEMA = {#0} and
+                t.EVENT_OBJECT_TABLE = {#1}
             group by
-                EVENT_OBJECT_TABLE,
-                TRIGGER_NAME,
-                ACTION_TIMING
-            order by TRIGGER_NAME asc
+                t.EVENT_OBJECT_TABLE,
+                t.TRIGGER_NAME,
+                t.ACTION_TIMING,
+                t.ACTION_ORIENTATION,
+                p.proname,
+                fn.nspname
+            order by t.TRIGGER_NAME asc
         </statement>
     </statement-execution-processor>
 
@@ -432,20 +632,32 @@
                 EVENT_OBJECT_TABLE as DATASET_NAME,
                 TRIGGER_NAME as TRIGGER_NAME,
                 ACTION_TIMING as TRIGGER_TYPE,
-                string_agg(EVENT_MANIPULATION, ' or ') as TRIGGERING_EVENT,
-                'Y' as IS_ENABLED,
+                string_agg(EVENT_MANIPULATION, ' or ' order by EVENT_MANIPULATION) as TRIGGERING_EVENT,
+                'TABLE' as TRIGGER_TARGET,
+                null as TARGET_SCHEMA_NAME,
+                p.proname as TRIGGER_FUNCTION_NAME,
+                fn.nspname as TRIGGER_FUNCTION_SCHEMA_NAME,
+                'N' as IS_DISABLED,
                 'Y' as IS_VALID,
                 'N' as IS_DEBUG,
-                'Y' as IS_FOR_EACH_ROW
-            from INFORMATION_SCHEMA.TRIGGERS
-            where EVENT_OBJECT_SCHEMA = {#0}
+                case when ACTION_ORIENTATION = 'ROW' then 'Y' else 'N' end as IS_FOR_EACH_ROW
+            from INFORMATION_SCHEMA.TRIGGERS t
+            join pg_catalog.pg_namespace n on n.nspname = t.EVENT_OBJECT_SCHEMA
+            join pg_catalog.pg_class c on c.relnamespace = n.oid and c.relname = t.EVENT_OBJECT_TABLE
+            join pg_catalog.pg_trigger tr on tr.tgrelid = c.oid and tr.tgname = t.TRIGGER_NAME
+            join pg_catalog.pg_proc p on p.oid = tr.tgfoid
+            join pg_catalog.pg_namespace fn on fn.oid = p.pronamespace
+            where t.EVENT_OBJECT_SCHEMA = {#0}
             group by
-                EVENT_OBJECT_TABLE,
-                TRIGGER_NAME,
-                ACTION_TIMING
+                t.EVENT_OBJECT_TABLE,
+                t.TRIGGER_NAME,
+                t.ACTION_TIMING,
+                t.ACTION_ORIENTATION,
+                p.proname,
+                fn.nspname
             order by
-                EVENT_OBJECT_TABLE,
-                TRIGGER_NAME asc
+                t.EVENT_OBJECT_TABLE,
+                t.TRIGGER_NAME asc
         </statement>
     </statement-execution-processor>
 
@@ -539,10 +751,15 @@
                 null as DECL_TYPE_OWNER,
                 null as DECL_TYPE_PROGRAM,
                 null as DECL_TYPE_NAME,
+                null as NTBL_NAME,
+                null as NTBL_PARENT_OWNER_NAME,
+                null as NTBL_PARENT_TABLE_NAME,
+                null as NTBL_PARENT_COLUMN_NAME,
                 0 as DATA_LENGTH,
                 0 as DATA_PRECISION,
                 0 as DATA_SCALE,
-                case when prc.PRORETSET then 'Y' else 'N' end as IS_SET
+                case when prc.PRORETSET then 'Y' else 'N' end as IS_SET,
+                case when r.DATA_TYPE = 'ARRAY' then 'Y' else 'N' end as IS_COLLECTION
             from r,
                 pg_catalog.pg_proc prc,
                 pg_catalog.pg_namespace schm
@@ -565,10 +782,15 @@
                 null as DECL_TYPE_OWNER,
                 null as DECL_TYPE_PROGRAM,
                 null as DECL_TYPE_NAME,
+                null as NTBL_NAME,
+                null as NTBL_PARENT_OWNER_NAME,
+                null as NTBL_PARENT_TABLE_NAME,
+                null as NTBL_PARENT_COLUMN_NAME,
                 0 as DATA_LENGTH,
                 0 as DATA_PRECISION,
                 0 as DATA_SCALE,
-                'N' as IS_SET
+                'N' as IS_SET,
+                case when p.DATA_TYPE = 'ARRAY' then 'Y' else 'N' end as IS_COLLECTION
             from
                 INFORMATION_SCHEMA.PARAMETERS p, r
             where
@@ -634,11 +856,16 @@
                     'OUT' as IN_OUT,
                     null as DECL_TYPE_OWNER,
                     null as DECL_TYPE_PROGRAM,
-                    null as DECL_TYPE_NAME,
+                null as DECL_TYPE_NAME,
+                null as NTBL_PARENT_OWNER_NAME,
+                null as NTBL_PARENT_TABLE_NAME,
+                    null as NTBL_PARENT_COLUMN_NAME,
+                    null as NTBL_NAME,
                     0 as DATA_LENGTH,
                     0 as DATA_PRECISION,
                     0 as DATA_SCALE,
-                    case when prc.PRORETSET then 'Y' else 'N' end as IS_SET
+                    case when prc.PRORETSET then 'Y' else 'N' end as IS_SET,
+                    case when r.DATA_TYPE = 'ARRAY' then 'Y' else 'N' end as IS_COLLECTION
                 from r,
                     pg_catalog.pg_proc prc,
                     pg_catalog.pg_namespace schm
@@ -661,11 +888,16 @@
                     p.PARAMETER_MODE as IN_OUT,
                     null as DECL_TYPE_OWNER,
                     null as DECL_TYPE_PROGRAM,
-                    null as DECL_TYPE_NAME,
+                null as DECL_TYPE_NAME,
+                null as NTBL_PARENT_OWNER_NAME,
+                null as NTBL_PARENT_TABLE_NAME,
+                    null as NTBL_PARENT_COLUMN_NAME,
+                    null as NTBL_NAME,
                     0 as DATA_LENGTH,
                     0 as DATA_PRECISION,
                     0 as DATA_SCALE,
-                    'N' as IS_SET
+                    'N' as IS_SET,
+                    case when p.DATA_TYPE = 'ARRAY' then 'Y' else 'N' end as IS_COLLECTION
                 from
                     INFORMATION_SCHEMA.PARAMETERS p, r
                 where
@@ -725,17 +957,27 @@
         </statement>
     </statement-execution-processor>    
 
+    <statement-execution-processor id="materialized-view-source-code">
+        <statement>
+            select definition as SOURCE_CODE
+            from pg_catalog.pg_matviews
+            where
+                schemaname = {#0} and
+                matviewname = {#1}
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="dataset-trigger-source-code">
         <statement>
             select concat(
                 'trigger ',
                 TRIGGER_NAME,
-                E'$$DBN_GUARDED_BLOCK_END_OFFSET$$\n\r', lower(ACTION_TIMING), ' ',
-                string_agg(lower(EVENT_MANIPULATION), ' or '),
-                E'\n\r    on ',
+                E'$$DBN_GUARDED_BLOCK_END_OFFSET$$\n', lower(ACTION_TIMING), ' ',
+                string_agg(lower(EVENT_MANIPULATION), ' or ' order by EVENT_MANIPULATION),
+                E'\n    on ',
                 EVENT_OBJECT_SCHEMA, '.', EVENT_OBJECT_TABLE,
-                E'\n\r for each row ',
-                E'\n\r', ACTION_STATEMENT) as SOURCE_CODE
+                E'\n for each ', lower(ACTION_ORIENTATION), ' ',
+                E'\n', ACTION_STATEMENT) as SOURCE_CODE
             from INFORMATION_SCHEMA.TRIGGERS
             where
                 EVENT_OBJECT_SCHEMA = {#0} and
@@ -746,6 +988,7 @@
                 TRIGGER_NAME,
                 ACTION_TIMING,
                 ACTION_STATEMENT,
+                ACTION_ORIENTATION,
                 EVENT_OBJECT_SCHEMA,
                 EVENT_OBJECT_TABLE
         </statement>
@@ -764,23 +1007,23 @@
                                     p.SPECIFIC_NAME = r.SPECIFIC_NAME
                                 order by p.ORDINAL_POSITION), ', ' )),
                     ')',
-                    case when {#2}='FUNCTION' then E'\n\r\treturns '||
+                    case when {#2}='FUNCTION' then E'\n\treturns '||
                                 (case when prc.PRORETSET then 'setof ' else '' end) ||
                                 (case when r.DATA_TYPE = 'USER-DEFINED' then r.TYPE_UDT_NAME else r.DATA_TYPE end) else '' end,
                     ' as ',
                     E'\n\$BODY$ ',
                     r.ROUTINE_DEFINITION,
                     '$BODY$ ',
-                    E'\n\rlanguage ', r.EXTERNAL_LANGUAGE,
+                    E'\nlanguage ', r.EXTERNAL_LANGUAGE,
                     case when prc.PROVOLATILE = 'v' then ' volatile'
                          when prc.PROVOLATILE = 'i' then ' immutable'
                          when prc.PROVOLATILE = 's' then ' stable' else '' end,
                     case when prc.PROISSTRICT then ' strict' else '' end,
                     case when prc.PROSECDEF then ' security definer' else '' end,
-                    case when prc.PROCOST > 0 then E'\n\rcost '||prc.PROCOST end,
-                    case when prc.PROROWS > 0 then E'\n\rrows '||prc.PROROWS end,
+                    case when prc.PROCOST > 0 then E'\ncost '||prc.PROCOST end,
+                    case when prc.PROROWS > 0 then E'\nrows '||prc.PROROWS end,
                         ';',
-                    E'\n\ralter function ', r.ROUTINE_NAME,
+                    E'\nalter function ', r.ROUTINE_NAME,
                     '(', (select array_to_string( array(
                                     select p.PARAMETER_MODE||' '||(case when p.PARAMETER_NAME is not null then p.PARAMETER_NAME||' ' else '' end)||p.DATA_TYPE from INFORMATION_SCHEMA.PARAMETERS p where
                                         p.SPECIFIC_SCHEMA = r.SPECIFIC_SCHEMA and

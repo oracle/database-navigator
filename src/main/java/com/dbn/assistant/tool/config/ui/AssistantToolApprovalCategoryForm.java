@@ -23,22 +23,20 @@ import com.dbn.assistant.tool.approval.AssistantToolApprovalStatus;
 import com.dbn.assistant.tool.approval.AssistantToolApprovalUtil;
 import com.dbn.assistant.tool.approval.AssistantToolApprovals;
 import com.dbn.assistant.tool.config.AssistantToolSettings;
-import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.Layouts;
 import com.dbn.common.ui.info.DBNInfoLabel;
+import com.dbn.common.ui.info.DBNTextBlock;
 import com.dbn.common.ui.misc.DBNToggleButton;
 import com.dbn.common.ui.util.Fonts;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.ui.UIUtil;
 
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextPane;
 import java.util.List;
 import java.util.Map;
 
@@ -48,6 +46,8 @@ import static com.dbn.assistant.tool.AssistantToolData.getToolTypes;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.APPROVED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.BLOCKED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.PROMPTED;
+import static com.dbn.common.color.Colors.getContextHelpForeground;
+import static com.dbn.common.color.Colors.getLabelDisabledForeground;
 import static com.dbn.common.constant.Constant.array;
 
 public class AssistantToolApprovalCategoryForm extends AssistantToolApprovalItemForm {
@@ -55,7 +55,7 @@ public class AssistantToolApprovalCategoryForm extends AssistantToolApprovalItem
     private JLabel nameLabel;
     private DBNInfoLabel infoLabel;
     private JPanel toolTypesPanel;
-    private JTextPane descriptionTextPane;
+    private DBNTextBlock descriptionBlock;
     private DBNToggleButton<AssistantToolApprovalStatus> statusToggle;
 
     private final AssistantToolCategory category;
@@ -95,9 +95,9 @@ public class AssistantToolApprovalCategoryForm extends AssistantToolApprovalItem
     }
 
     private void initDescriptionPanel() {
-        descriptionTextPane.setForeground(Colors.faded(UIUtil.getLabelForeground()));
-        descriptionTextPane.setText(category.getDescription());
-        descriptionTextPane.setVisible(false); // TODO overcrowds the tool approval screens
+        descriptionBlock.setForeground(getContextHelpForeground());
+        descriptionBlock.setText(category.getDescription());
+        descriptionBlock.setVisible(false); // TODO overcrowds the tool approval screens
     }
 
     private void initToolTypesPanel() {
@@ -151,9 +151,9 @@ public class AssistantToolApprovalCategoryForm extends AssistantToolApprovalItem
         Icon infoIcon = enabled ? Icons.ACTION_INFO : IconLoader.getDisabledIcon(Icons.ACTION_INFO);
         infoLabel.setIcon(infoIcon);
 
-        descriptionTextPane.setForeground(enabled ?
-                Colors.faded(UIUtil.getLabelForeground()) :
-                UIUtil.getLabelDisabledForeground());
+        descriptionBlock.setForeground(enabled ?
+                getContextHelpForeground() :
+                getLabelDisabledForeground());
 
         for (AssistantToolApprovalTypeForm toolTypeForm : toolTypeForms.values()) {
             toolTypeForm.refreshState();

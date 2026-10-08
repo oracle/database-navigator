@@ -115,6 +115,7 @@ public abstract class SqliteColumnsResultSet extends SqliteDatasetInfoResultSetS
                 Objects.equals(columnLabel, "IS_IDENTITY") ? "N" :
                 Objects.equals(columnLabel, "IS_HIDDEN") ? "N" :
                 Objects.equals(columnLabel, "IS_SET") ? "N" :
+                Objects.equals(columnLabel, "IS_COLLECTION") ? "N" :
                 Objects.equals(columnLabel, "IS_NULLABLE") ? toFlag(element.nullable) :
                 Objects.equals(columnLabel, "IS_PRIMARY_KEY") ? toFlag(element.primaryKey) : null;
     }

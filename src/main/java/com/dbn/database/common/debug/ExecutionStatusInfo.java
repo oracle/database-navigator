@@ -16,25 +16,24 @@
 
 package com.dbn.database.common.debug;
 
-import com.dbn.database.common.statement.CallableStatementOutput;
+import com.dbn.database.common.statement.CallableStatementOutputBase;
+import lombok.Getter;
 
 import java.sql.CallableStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 
-public class ExecutionStatusInfo implements CallableStatementOutput {
-    private boolean isRunning;
+@Getter
+public class ExecutionStatusInfo extends CallableStatementOutputBase {
+    private boolean running;
+
     @Override
     public void registerParameters(CallableStatement statement) throws SQLException {
-        statement.registerOutParameter(1, Types.INTEGER);
+        registerOutParameter(statement, 1, Types.INTEGER);
     }
 
     @Override
     public void read(CallableStatement statement) throws SQLException {
-        isRunning = statement.getInt(1) == 1;
-    }
-
-    public boolean isRunning() {
-        return isRunning;
+        running = getInt(statement, 1) == 1;
     }
 }

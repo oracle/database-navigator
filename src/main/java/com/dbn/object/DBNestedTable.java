@@ -16,13 +16,10 @@
 
 package com.dbn.object;
 
-import com.dbn.object.common.DBObject;
-
-import java.util.List;
-
-public interface DBNestedTable extends DBObject {
-    List<DBNestedTableColumn> getColumns();
+public interface DBNestedTable extends DBDataset {
     DBNestedTableColumn getColumn(String name);
 
-    DBTable getTable();
+    DBTable getParentTable();
+
+    DBColumn getParentTableColumn();
 }

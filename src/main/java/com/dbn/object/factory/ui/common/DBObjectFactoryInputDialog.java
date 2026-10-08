@@ -17,19 +17,19 @@
 package com.dbn.object.factory.ui.common;
 
 import com.dbn.common.message.InteractiveMessage;
+import com.dbn.common.ref.WeakRef;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.thread.ProgressRunnable;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.util.Conditional;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
+import com.dbn.connection.DatabaseEntity;
 import com.dbn.diagnostics.Diagnostics;
-import com.dbn.object.DBSchema;
 import com.dbn.object.factory.DatabaseObjectFactory;
 import com.dbn.object.factory.ObjectFactoryAdapter;
 import com.dbn.object.factory.ObjectFactoryAdapters;
 import com.dbn.object.factory.model.DBObjectSpec;
-import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
@@ -46,13 +46,13 @@ import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public class DBObjectFactoryInputDialog extends DBNDialog<DBObjectFactoryInputForm> {
-    private final DBObjectRef<DBSchema> schema;
+    private final WeakRef<DatabaseEntity> parentEntity;
     private final DBObjectType objectType;
     private final DBObjectSpec initialInput;
 
-    public DBObjectFactoryInputDialog(@NotNull Project project, DBSchema schema, DBObjectType objectType, DBObjectSpec initialInput) {
+    public DBObjectFactoryInputDialog(@NotNull Project project, DatabaseEntity parentEntity, DBObjectType objectType, DBObjectSpec initialInput) {
         super(project, txt("msg.objects.title.CreateObject", objectType.getDisplayName()), true);
-        this.schema = DBObjectRef.of(schema);
+        this.parentEntity = WeakRef.of(parentEntity);
         this.objectType = objectType;
         this.initialInput = initialInput;
 //        setModal(false);
@@ -65,13 +65,13 @@ public class DBObjectFactoryInputDialog extends DBNDialog<DBObjectFactoryInputFo
     protected DBObjectFactoryInputForm createForm() {
         ObjectFactoryAdapter factoryAdapter = ObjectFactoryAdapters.get(objectType);
 
-        DBSchema schema = getSchema();
-        DBObjectSpec input = nvl(initialInput, () -> factoryAdapter.createInput(schema));
+        DatabaseEntity parentEntity = getParentEntity();
+        DBObjectSpec input = nvl(initialInput, () -> factoryAdapter.createInput(parentEntity));
         return factoryAdapter.createInputForm(this, input);
     }
 
-    private DBSchema getSchema() {
-        return this.schema.ensure();
+    private DatabaseEntity getParentEntity() {
+        return this.parentEntity.ensure();
     }
 
     public String getObjectName() {
@@ -95,7 +95,7 @@ public class DBObjectFactoryInputDialog extends DBNDialog<DBObjectFactoryInputFo
     @Override
     public void doOKAction() {
         Project project = getProject();
-        DBSchema schema = getSchema();
+        DatabaseEntity parentEntity = getParentEntity();
         DBObjectType objectType = getObjectType();
 
         DBObjectFactoryInputForm form = getForm();
@@ -111,17 +111,17 @@ public class DBObjectFactoryInputDialog extends DBNDialog<DBObjectFactoryInputFo
 
         String title = txt("prc.object.title.CreatingObject", input.getObjectTypeName());
         String text = txt("prc.object.text.CreatingObjectDescription", input.getObjectDescription());
-        ProgressRunnable invoker = p -> invokeObjectFactory(project, schema, objectType, input);
+        ProgressRunnable invoker = p -> invokeObjectFactory(project, parentEntity, objectType, input);
 
         if (isRootDialog()) {
             // allow operation to be sent to the background
-            Progress.prompt(project, schema, true, title, text, invoker);
+            Progress.prompt(project, parentEntity, true, title, text, invoker);
         } else {
-            Progress.modal(project, schema, true, title, text, invoker);
+            Progress.modal(project, parentEntity, true, title, text, invoker);
         }
     }
 
-    private void invokeObjectFactory(Project project, DBSchema schema, DBObjectType objectType, DBObjectSpec input) {
+    private void invokeObjectFactory(Project project, DatabaseEntity parentEntity, DBObjectType objectType, DBObjectSpec input) {
         DatabaseObjectFactory factory = DatabaseObjectFactory.getInstance(project);
         try {
             factory.createObject(input);
@@ -134,14 +134,14 @@ public class DBObjectFactoryInputDialog extends DBNDialog<DBObjectFactoryInputFo
                             txt("msg.objects.error.ObjectCreationFailed", input.getObjectTypeName())).
                     withException(e).
                     withOptions(Messages.OPTIONS_RETRY_CANCEL, 0).
-                    withCallback(o -> Conditional.when(o == 0, () -> reopenInputDialog(project, schema, objectType, input)));
+                    withCallback(o -> Conditional.when(o == 0, () -> reopenInputDialog(project, parentEntity, objectType, input)));
             Messages.showMessageDialog(project, message);
         }
 
     }
 
-    private static void reopenInputDialog(Project project, DBSchema schema, DBObjectType objectType, DBObjectSpec input) {
-        Dialogs.show(() -> new DBObjectFactoryInputDialog(project, schema, objectType, input));
+    private static void reopenInputDialog(Project project, DatabaseEntity parentEntity, DBObjectType objectType, DBObjectSpec input) {
+        Dialogs.show(() -> new DBObjectFactoryInputDialog(project, parentEntity, objectType, input));
     }
 
     @Override

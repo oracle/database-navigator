@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ public class PluginConflictResolutionForm extends DBNFormBase {
         super(dialog);
         String content = TextResources.getLocalizable(this, "plugin_conflict_resolution.html.ft");
         TextContent hintText = html(content);
-        DBNHintForm disclaimerForm = new DBNHintForm(this, hintText, null, true);
+        DBNHintForm disclaimerForm = new DBNHintForm(this, hintText, null);
         disclaimerForm.setHighlighted(true);
         hintPanel.add(disclaimerForm.getComponent());
 

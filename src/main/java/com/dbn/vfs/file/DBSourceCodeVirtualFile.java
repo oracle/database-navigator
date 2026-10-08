@@ -39,8 +39,7 @@ import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.language.common.psi.PsiUtil;
-import com.dbn.object.common.DBSchemaObject;
-import com.dbn.object.common.status.DBObjectStatus;
+import com.dbn.object.common.DBObject;
 import com.dbn.vfs.DBParseableVirtualFile;
 import com.dbn.vfs.DatabaseFileViewProvider;
 import com.intellij.notebook.editor.BackedVirtualFile;
@@ -65,6 +64,7 @@ import static com.dbn.common.util.GuardedBlocks.createGuardedBlocks;
 import static com.dbn.common.util.GuardedBlocks.removeGuardedBlocks;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.object.common.status.DBObjectStatus.PRESENT;
 import static com.dbn.vfs.file.status.DBFileStatus.LATEST;
 import static com.dbn.vfs.file.status.DBFileStatus.MERGED;
 import static com.dbn.vfs.file.status.DBFileStatus.MODIFIED;
@@ -137,7 +137,7 @@ public class DBSourceCodeVirtualFile extends DBContentVirtualFile implements DBP
 
         try {
             set(REFRESHING, true);
-            DBSchemaObject object = getObject();
+            DBObject object = getObject();
 
             if (!is(LATEST) && !is(MERGED)) return;
 
@@ -220,7 +220,7 @@ public class DBSourceCodeVirtualFile extends DBContentVirtualFile implements DBP
     }
 
     public void loadSourceFromDatabase() throws SQLException {
-        DBSchemaObject object = getObject();
+        DBObject object = getObject();
         Project project = object.getProject();
         SourceCodeManager sourceCodeManager = SourceCodeManager.getInstance(project);
         SourceCodeContent newContent = sourceCodeManager.loadSourceFromDatabase(object, contentType);
@@ -229,7 +229,7 @@ public class DBSourceCodeVirtualFile extends DBContentVirtualFile implements DBP
         updateFileContent(newContent, null);
         originalContent.setText(newContent.getText());
         originalContent.setWritable(newContent.isWritable());
-        object.getStatus().set(contentType, DBObjectStatus.PRESENT, newContent.length() > 0);
+        object.setStatus(contentType, PRESENT, newContent.length() > 0);
 
         databaseContent = null;
         sourceLoadException = null;
@@ -240,7 +240,7 @@ public class DBSourceCodeVirtualFile extends DBContentVirtualFile implements DBP
 
     @ThreadContext(ThreadProperty.CODE_SAVE)
     public void saveSourceToDatabase() throws SQLException {
-        DBSchemaObject object = getObject();
+        DBObject object = getObject();
         Project project = object.getProject();
 
         String oldContent = getOriginalContent().toString();

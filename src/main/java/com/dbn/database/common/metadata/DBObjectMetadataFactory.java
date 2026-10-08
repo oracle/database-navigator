@@ -44,6 +44,7 @@ import com.dbn.database.common.metadata.impl.DBJsonViewMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBJsonViewTableMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBMaterializedViewMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBMiningModelMetaDataImpl;
+import com.dbn.database.common.metadata.impl.DBNestedTableColumnMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBNestedTableMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBObjectDependencyMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBPackageMetadataImpl;
@@ -117,6 +118,7 @@ public class DBObjectMetadataFactory {
             case JSON_VIEW -> new DBJsonViewMetadataImpl(resultSet);
             case TABLE -> new DBTableMetadataImpl(resultSet);
             case NESTED_TABLE -> new DBNestedTableMetadataImpl(resultSet);
+            case NESTED_TABLE_COLUMN -> new DBNestedTableColumnMetadataImpl(resultSet);
             case MATERIALIZED_VIEW -> new DBMaterializedViewMetadataImpl(resultSet);
             case SYNONYM -> new DBSynonymMetadataImpl(resultSet);
             case SEQUENCE -> new DBSequenceMetadataImpl(resultSet);
@@ -124,6 +126,7 @@ public class DBObjectMetadataFactory {
             case COLUMN -> new DBColumnMetadataImpl(resultSet);
             case CONSTRAINT -> new DBConstraintMetadataImpl(resultSet);
             case ARGUMENT -> new DBArgumentMetadataImpl(resultSet);
+            case EVENT_TRIGGER -> new DBTriggerMetadataImpl(resultSet);
             case DATABASE_TRIGGER -> new DBTriggerMetadataImpl(resultSet);
             case DATASET_TRIGGER -> new DBTriggerMetadataImpl(resultSet);
             case JAVA_PRIMITIVE -> new DBJavaClassMetadataImpl(resultSet);
@@ -135,6 +138,7 @@ public class DBObjectMetadataFactory {
             case JAVA_RESOURCE -> new DBJavaResourceMetadataImpl(resultSet);
             case INCOMING_DEPENDENCY -> new DBObjectDependencyMetadataImpl(resultSet);
             case OUTGOING_DEPENDENCY -> new DBObjectDependencyMetadataImpl(resultSet);
+            case DEBUG_DEPENDENCY -> new DBObjectDependencyMetadataImpl(resultSet);
             default -> throw new UnsupportedOperationException("No metadata provider defined for " + objectType);
         };
     }

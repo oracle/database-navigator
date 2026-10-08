@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import com.dbn.editor.data.filter.DatasetFilterInput;
 import com.dbn.editor.data.filter.DatasetFilterManager;
 import com.dbn.object.DBDataset;
 import com.dbn.object.DBJsonView;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
@@ -79,7 +79,7 @@ public class JsonDataEditorManager extends ProjectComponentBase implements Persi
             @Override
             public void whenFileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
                 if (file instanceof DBEditableObjectVirtualFile editableObjectFile) {
-                    DBSchemaObject object = editableObjectFile.getObject();
+                    DBObject object = editableObjectFile.getObject();
                     if (object instanceof DBJsonView) {
                         FileEditor[] fileEditors = source.getEditors(file);
                         for (FileEditor fileEditor : fileEditors) {

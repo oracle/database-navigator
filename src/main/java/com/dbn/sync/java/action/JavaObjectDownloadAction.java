@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import com.dbn.common.util.Java;
 import com.dbn.object.DBSchema;
 import com.dbn.object.action.AnObjectAction;
 import com.dbn.object.common.DBObject;
+import com.dbn.options.general.WorkspaceFeature;
 import com.dbn.sync.java.download.JavaDownloadManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -34,6 +35,11 @@ public class JavaObjectDownloadAction extends AnObjectAction<DBObject> {
 
 	public JavaObjectDownloadAction(DBObject sourceObject) {
 		super(sourceObject);
+	}
+
+	@Override
+	protected WorkspaceFeature getFeature() {
+		return WorkspaceFeature.OJVM;
 	}
 
 	@Override
@@ -51,7 +57,7 @@ public class JavaObjectDownloadAction extends AnObjectAction<DBObject> {
 
 			presentation.setText(txt("app.java.action.DownloadToProject"));
 			presentation.setIcon(Icons.ACTION_DOWNLOAD);
-			presentation.setVisible(isVisible());
+			presentation.setVisible(isFeatureEnabled(project) && isVisible());
 	}
 
 	private boolean isVisible() {

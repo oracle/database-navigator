@@ -30,7 +30,6 @@ import java.util.List;
 public class SelectionListDialog<T> extends DBNDialog<SelectionListForm<T>> {
     private final List<T> elements;
     private final T initialSelection;
-    private final Object contextObject;
     private final TextContent hintContent;
     private final HelpTopic helpTopic;
 
@@ -45,9 +44,9 @@ public class SelectionListDialog<T> extends DBNDialog<SelectionListForm<T>> {
         super(project, title, false);
         this.elements = elements;
         this.initialSelection = initialSelection;
-        this.contextObject = contextObject;
         this.hintContent = hintContent;
         this.helpTopic = helpTopic;
+        setContextObject(contextObject);
         init();
     }
 
@@ -58,7 +57,7 @@ public class SelectionListDialog<T> extends DBNDialog<SelectionListForm<T>> {
     @NotNull
     @Override
     protected SelectionListForm<T> createForm() {
-        return new SelectionListForm<>(this, contextObject, hintContent);
+        return new SelectionListForm<>(this, hintContent);
     }
 
     public List<T> getSelection() {

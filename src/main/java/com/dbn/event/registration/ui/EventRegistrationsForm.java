@@ -22,6 +22,7 @@ import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.thread.Background;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNScrollPane;
+import com.dbn.common.ui.panel.DBNLoadingPanel;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Actions;
 import com.dbn.connection.ConnectionHandler;
@@ -44,17 +45,18 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.util.List;
 
+import static com.dbn.common.ui.panel.DBNLoadingPanel.newLoadingPanel;
 import static com.dbn.common.ui.util.Borderless.markBorderless;
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.nls.NlsResources.txt;
 
 public class EventRegistrationsForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel controlPanel;
     private JPanel actionsPanel;
-    private JLabel loadingLabel;
-    private JPanel loadingIconPanel;
     private JPanel searchPanel;
     private DBNScrollPane listenersScrollPane;
+    private JPanel loadingPanel;
 
     private @Getter EventRegistrationsTable registrationsTable;
     private @Getter volatile boolean loading;
@@ -81,9 +83,8 @@ public class EventRegistrationsForm extends DBNFormBase {
     }
 
     private void initLoadIndicator() {
-        loadingIconPanel.add(new AsyncProcessIcon("Loading"));
-        loadingIconPanel.setVisible(false);
-        loadingLabel.setVisible(false);
+        newLoadingPanel(this, txt("app.eventRegistration.text.LoadingRegistrations"))
+                .installOn(this.loadingPanel, false);
     }
 
     private void initActionToolbar() {
@@ -124,8 +125,7 @@ public class EventRegistrationsForm extends DBNFormBase {
 
     private void updateLoadingState() {
         dispatch(() -> {
-            loadingIconPanel.setVisible(loading);
-            loadingLabel.setVisible(loading);
+            loadingPanel.setVisible(loading);
             registrationsTable.setLoading(loading);
         });
     }

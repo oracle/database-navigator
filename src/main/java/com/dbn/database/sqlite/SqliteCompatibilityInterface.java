@@ -29,6 +29,7 @@ import com.dbn.database.common.DatabaseCompatibilityInterfaceImpl;
 import com.dbn.editor.session.SessionStatus;
 import com.dbn.language.common.quotes.QuoteDefinition;
 import com.dbn.language.common.quotes.QuotePair;
+import com.dbn.object.factory.model.DBObjectTypeSpec;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
@@ -45,6 +46,18 @@ import static com.dbn.database.DatabaseFeature.CONNECTION_ERROR_RECOVERY;
 import static com.dbn.database.DatabaseFeature.OBJECT_SOURCE_EDITING;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_BODY;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_BODY_TEMPLATE;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_EVENTS;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_FOR_EACH_ROW;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TARGET_DATASET;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TYPE;
+import static com.dbn.object.type.DBTriggerEvent.DELETE;
+import static com.dbn.object.type.DBTriggerEvent.INSERT;
+import static com.dbn.object.type.DBTriggerEvent.UPDATE;
+import static com.dbn.object.type.DBTriggerType.AFTER;
+import static com.dbn.object.type.DBTriggerType.BEFORE;
+import static com.dbn.object.type.DBTriggerType.INSTEAD_OF;
 
 class SqliteCompatibilityInterface extends DatabaseCompatibilityInterfaceImpl {
 
@@ -68,6 +81,20 @@ class SqliteCompatibilityInterface extends DatabaseCompatibilityInterfaceImpl {
                 DatabaseObjectTypeId.INDEX,
                 DatabaseObjectTypeId.SAVEPOINT,
                 DatabaseObjectTypeId.DATASET_TRIGGER);
+    }
+
+    @Override
+    public DBObjectTypeSpec getObjectTypeSpec(DatabaseObjectTypeId objectTypeId) {
+        return switch (objectTypeId) {
+            case DATASET_TRIGGER -> new DBObjectTypeSpec(objectTypeId)
+                    .withAttribute(TRIGGER_TYPE, List.of(BEFORE, AFTER, INSTEAD_OF), false, true)
+                    .withAttribute(TRIGGER_EVENTS, List.of(INSERT, UPDATE, DELETE), false, true)
+                    .withAttribute(TRIGGER_TARGET_DATASET, List.of(), false, true)
+                    .withAttribute(TRIGGER_FOR_EACH_ROW, true, true)
+                    .withAttribute(TRIGGER_BODY_TEMPLATE, "begin\n\nend;", false)
+                    .withAttribute(TRIGGER_BODY, List.of(), false, true);
+            default -> super.getObjectTypeSpec(objectTypeId);
+        };
     }
 
     @Override

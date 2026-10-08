@@ -137,7 +137,7 @@ public class DBMethodFactoryInputForm extends DBSchemaObjectFactoryInputForm {
         input.setIdentifierCase(getSelectedIdentifierCase());
         argumentListForm.applyFormChanges();
 
-        DBObjectSpec returnArgument = RETURN_ARGUMENT.of(input);
+        DBObjectSpec returnArgument = RETURN_ARGUMENT.value(input);
         if (returnArgument != null) {
             String dataType = getReturnDataTypeEditor().getDataTypeRepresentation();
             returnArgument.setAttributeValue(DATA_TYPE, dataType);
@@ -149,9 +149,9 @@ public class DBMethodFactoryInputForm extends DBSchemaObjectFactoryInputForm {
         nameTextField.setText(input.getObjectName());
         argumentListForm.resetFormChanges();
 
-        DBObjectSpec returnArgument = RETURN_ARGUMENT.of(input);
+        DBObjectSpec returnArgument = RETURN_ARGUMENT.value(input);
         if (returnArgument != null) {
-            String dataType = DATA_TYPE.of(returnArgument);
+            String dataType = DATA_TYPE.value(returnArgument);
             getReturnDataTypeEditor().setText(dataType);
         }
     }

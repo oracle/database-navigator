@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package com.dbn.connection.action;
 import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.DatabaseFeature;
+import com.dbn.options.general.WorkspaceFeature;
 import com.dbn.vector.DatabaseVectorManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -26,6 +27,7 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.database.DatabaseFeature.*;
 import static com.dbn.nls.NlsResources.txt;
 
 public class VectorToolboxOpenAction extends AbstractConnectionAction {
@@ -34,8 +36,14 @@ public class VectorToolboxOpenAction extends AbstractConnectionAction {
     }
 
     @Override
+    protected WorkspaceFeature getFeature() {
+        return WorkspaceFeature.VECTOR_TOOLBOX;
+    }
+
+    @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable ConnectionHandler target) {
-        boolean supported = DatabaseFeature.VECTOR_EMBEDDING.isSupported(target);
+        boolean supported = isFeatureEnabled(project) &&
+                VECTOR_EMBEDDING.isSupported(target);
 
         presentation.setVisible(supported);
         presentation.setText(txt("app.connection.action.OpenVectorToolbox"));

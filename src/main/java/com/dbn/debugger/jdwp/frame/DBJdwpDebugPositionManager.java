@@ -55,7 +55,6 @@ public class DBJdwpDebugPositionManager implements PositionManager {
         location = check(location);
         int lineNumber = location.lineNumber() - 1;
 
-        String ownerName = DBJdwpDebugUtil.getOwnerName(location);
         DBJdwpDebugProcess debugProcess = getDebugProcess();
 
         VirtualFile virtualFile = debugProcess.getVirtualFile(location);
@@ -65,7 +64,7 @@ public class DBJdwpDebugPositionManager implements PositionManager {
 
         if (psiFile == null) return null;
 
-        if (ownerName == null) {
+        if (debugProcess.isDeclaredBlock(location) || DBJdwpDebugUtil.getOwnerName(location) == null) {
             ExecutionInput executionInput = debugProcess.getExecutionInput();
             if (executionInput instanceof StatementExecutionInput statementExecutionInput) {
                 lineNumber += statementExecutionInput.getExecutableLineNumber();

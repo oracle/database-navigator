@@ -57,7 +57,7 @@ public abstract class TextFieldPopupProviderForm extends DBNFormBase implements 
     private JBPopup popup;
     private final Set<AnAction> actions = ContainerUtil.createWeakSet();
 
-    protected TextFieldPopupProviderForm(TextFieldWithPopup<?> editorComponent, boolean autoPopup, boolean buttonVisible) {
+    protected TextFieldPopupProviderForm(TextFieldWithPopup editorComponent, boolean autoPopup, boolean buttonVisible) {
         super(editorComponent, editorComponent.getProject());
         this.editorComponent = WeakRef.of(editorComponent);
         this.autoPopup = autoPopup;
@@ -75,7 +75,7 @@ public abstract class TextFieldPopupProviderForm extends DBNFormBase implements 
         };
     }
 
-    public TextFieldWithPopup<?> getEditorComponent() {
+    public TextFieldWithPopup getEditorComponent() {
         return editorComponent.ensure();
     }
 

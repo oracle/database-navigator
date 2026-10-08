@@ -80,7 +80,7 @@
           </grid>
         </constraints>
         <properties/>
-        <border type="line" title-resource-bundle="messages/DBNResources" title-key="app.mcp.title.QueryResults"/>
+        <border type="none"/>
         <children>
           <scrollpane id="outputScroll01" class="com.dbn.common.ui.misc.DBNTableScrollPane" binding="outputScrollPane">
             <constraints>
