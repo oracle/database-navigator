@@ -23,10 +23,11 @@ import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.state.StateCategory;
 import com.dbn.common.state.StateContainer;
-import com.dbn.common.thread.Background;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.DatabaseType;
 import com.dbn.execution.ExecutionManager;
+import com.dbn.migration.DatabaseMigrationManager;
+import com.dbn.migration.flyway.execution.FlywayExecutionProcessor;
 import com.dbn.migration.flyway.execution.processor.FlywayExecutionProcessors;
 import com.dbn.migration.flyway.operation.FlywayOperationContext;
 import com.dbn.migration.flyway.operation.FlywayOperationInput;
@@ -91,10 +92,15 @@ public class DatabaseFlywayManager extends ProjectComponentBase implements Persi
         FlywayOperationResult result = context.getResult();
         result.setPrevious(previousResult);
 
-        ExecutionManager.getInstance(getProject()).addExecutionResult(result);
-        Background.run(() -> FlywayExecutionProcessors
-                .get(input.getOperation())
-                .execute(context));
+        Project project = getProject();
+        ExecutionManager executionManager = ExecutionManager.getInstance(project);
+        executionManager.addExecutionResult(result);
+
+        FlywayExecutionProcessor processor = FlywayExecutionProcessors.get(input.getOperation());
+        DatabaseMigrationManager migrationManager = DatabaseMigrationManager.getInstance(project);
+        migrationManager.runMigrationTask(
+                () -> processor.execute(context),
+                () -> cancelTask(result));
     }
 
     public void cancelTask(@NotNull FlywayTaskResult<?, ?, ?> result) {

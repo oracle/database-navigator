@@ -240,6 +240,7 @@
         <projectService serviceImplementation="com.dbn.editor.DatabaseEditorStateManager"/>
         <projectService serviceImplementation="com.dbn.vector.DatabaseVectorManager"/>
         <projectService serviceImplementation="com.dbn.ml.DatabaseMLManager"/>
+        <projectService serviceImplementation="com.dbn.migration.DatabaseMigrationManager"/>
         <projectService serviceImplementation="com.dbn.migration.flyway.DatabaseFlywayManager"/>
         <projectService serviceImplementation="com.dbn.migration.liquibase.DatabaseLiquibaseManager"/>
         <projectService serviceImplementation="com.dbn.scheduler.DatabaseSchedulerManager"/>

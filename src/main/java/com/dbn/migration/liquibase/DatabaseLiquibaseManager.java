@@ -27,13 +27,13 @@ import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.state.StateCategory;
 import com.dbn.common.state.StateContainer;
-import com.dbn.common.thread.Background;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.execution.ExecutionManager;
+import com.dbn.migration.DatabaseMigrationManager;
 import com.dbn.migration.liquibase.execution.LiquibaseExecutionHistory;
 import com.dbn.migration.liquibase.execution.LiquibaseExecutionProcessor;
 import com.dbn.migration.liquibase.execution.processor.LiquibaseExecutionProcessors;
@@ -210,17 +210,23 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
     }
 
     public void resumeOperation(@NotNull LiquibaseOperationResult result) {
+        DatabaseMigrationManager migrationManager = DatabaseMigrationManager.getInstance(getProject());
         LiquibaseWorkflowResult workflowResult = result.getWorkflowResult();
         if (workflowResult != null) {
             LiquibaseWorkflowContext context = workflowResult.getContext();
             LiquibaseWorkflowExecutor executor = context.getExecutor();
-            Background.run(() -> executor.resume(result));
+
+            migrationManager.runMigrationTask(
+                    () -> executor.resume(result),
+                    () -> cancelTask(result));
         } else {
             LiquibaseOperationContext context = result.getContext();
             if (context == null) return;
 
             LiquibaseExecutionProcessor processor = LiquibaseExecutionProcessors.get(result.getOperation());
-            Background.run(() -> processor.execute(context));
+            migrationManager.runMigrationTask(
+                    () -> processor.execute(context),
+                    () -> cancelTask(result));
         }
     }
 
@@ -242,9 +248,14 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
         LiquibaseOperationResult result = context.getResult();
         result.setPrevious(previousResult);
 
-        ExecutionManager executionManager = ExecutionManager.getInstance(getProject());
+        Project project = getProject();
+        ExecutionManager executionManager = ExecutionManager.getInstance(project);
         executionManager.addExecutionResult(result);
-        Background.run(() -> processor.execute(context));
+
+        DatabaseMigrationManager migrationManager = DatabaseMigrationManager.getInstance(project);
+        migrationManager.runMigrationTask(
+                () -> processor.execute(context),
+                () -> cancelTask(result));
     }
 
     public void executeWorkflow(
@@ -254,11 +265,15 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
         LiquibaseWorkflowResult result = context.getResult();
         result.setPrevious(previousResult);
 
-        ExecutionManager executionManager = ExecutionManager.getInstance(getProject());
+        Project project = getProject();
+        ExecutionManager executionManager = ExecutionManager.getInstance(project);
         executionManager.addExecutionResult(result);
 
         LiquibaseWorkflowExecutor executor = context.getExecutor();
-        Background.run(() -> executor.execute());
+        DatabaseMigrationManager migrationManager = DatabaseMigrationManager.getInstance(project);
+        migrationManager.runMigrationTask(
+                () -> executor.execute(),
+                () -> cancelTask(result));
     }
 
     public void openWorkspaceCreationDialog(
