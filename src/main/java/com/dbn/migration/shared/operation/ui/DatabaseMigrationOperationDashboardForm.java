@@ -1,0 +1,119 @@
+/*
+ * Copyright 2026 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dbn.migration.shared.operation.ui;
+
+import com.dbn.common.dispose.DisposableContainers;
+import com.dbn.common.text.TextContent;
+import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.form.DBNHintForm;
+import com.dbn.common.ui.link.HyperLinkForm;
+import com.dbn.migration.shared.operation.DatabaseMigrationOperation;
+import com.dbn.migration.shared.operation.DatabaseMigrationOperationCategory;
+import com.dbn.migration.shared.task.ui.DatabaseMigrationTaskItemForm;
+import org.jetbrains.annotations.NotNull;
+
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import java.awt.BorderLayout;
+import java.util.List;
+
+import static com.dbn.common.ui.Layouts.verticalBoxLayout;
+
+/**
+ * Project-level dashboard for grouping and starting database migration operations.
+ */
+public class DatabaseMigrationOperationDashboardForm<
+        O extends DatabaseMigrationOperation,
+        C extends DatabaseMigrationOperationCategory> extends DBNFormBase {
+    private JPanel mainPanel;
+    private JPanel hintPanel;
+    private JPanel hyperlinkPanel;
+    private JTabbedPane operationsPanel;
+
+    private final List<DatabaseMigrationTaskItemForm> operationForms = DisposableContainers.list(this);
+
+    public DatabaseMigrationOperationDashboardForm(
+            @NotNull DatabaseMigrationOperationDashboardDialog<O, C> parent) {
+        super(parent);
+
+        initHintPanel();
+        initHyperlinkPanel();
+        initOperationsPanel();
+    }
+
+    private void initHintPanel() {
+        DatabaseMigrationOperationDashboardDialog<O, C> dialog = ensureParentDialog();
+        hintPanel.add(new DBNHintForm(this, TextContent.plain(dialog.getDashboardHint()), null).getComponent(), BorderLayout.CENTER);
+    }
+
+    private void initHyperlinkPanel() {
+        DatabaseMigrationOperationDashboardDialog<O, C> dialog = ensureParentDialog();
+        HyperLinkForm hyperlinkForm = HyperLinkForm.create(
+                "",
+                dialog.getDocumentationLabel(),
+                dialog.getDocumentationUrl());
+        hyperlinkPanel.add(hyperlinkForm.getComponent(), BorderLayout.EAST);
+    }
+
+    private void initOperationsPanel() {
+        DatabaseMigrationOperationDashboardDialog<O, C> dialog = ensureParentDialog();
+        for (C category : dialog.getCategories()) {
+            addCategory(category);
+        }
+    }
+
+    private void addCategory(@NotNull C category) {
+        DatabaseMigrationOperationDashboardDialog<O, C> dialog = ensureParentDialog();
+        JPanel itemsPanel = new JPanel(new BorderLayout());
+        JPanel itemsListPanel = new JPanel();
+        verticalBoxLayout(itemsListPanel);
+        for (O operation : dialog.getOperations()) {
+            if (operation.getCategory() == category) addOperation(itemsListPanel, operation);
+        }
+        itemsPanel.add(itemsListPanel, BorderLayout.NORTH);
+
+        JScrollPane scrollPane = new JScrollPane(itemsPanel);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setBorder(null);
+        operationsPanel.addTab(category.getName(), scrollPane);
+    }
+
+    private void addOperation(@NotNull JPanel parent, @NotNull O operation) {
+        DatabaseMigrationOperationDashboardDialog<O, C> dialog = ensureParentDialog();
+        DatabaseMigrationTaskItemForm form = new DatabaseMigrationTaskItemForm(
+                this,
+                operation,
+                () -> {
+                    dialog.doCancelAction();
+                    dialog.startOperation(operation);
+                });
+        parent.add(form.getComponent());
+        operationForms.add(form);
+    }
+
+    @Override
+    protected JComponent getMainComponent() {
+        return mainPanel;
+    }
+
+    @Override
+    public JComponent getPreferredFocusedComponent() {
+        return operationsPanel;
+    }
+}

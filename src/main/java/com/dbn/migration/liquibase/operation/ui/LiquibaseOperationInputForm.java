@@ -17,6 +17,7 @@
 package com.dbn.migration.liquibase.operation.ui;
 
 import com.dbn.common.environment.EnvironmentTypeId;
+import com.dbn.common.message.MessageType;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.text.TextContent;
@@ -30,10 +31,10 @@ import com.dbn.common.ui.form.field.FieldState;
 import com.dbn.common.ui.info.DBNInfoLabel;
 import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.common.ui.misc.DBNComboBox;
+import com.dbn.common.ui.panel.DBNBanner;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionManager;
-import com.dbn.connection.DatabaseType;
 import com.dbn.data.editor.ui.ListPopupValuesProvider;
 import com.dbn.data.editor.ui.TextFieldWithPopup;
 import com.dbn.data.editor.ui.calendar.CalendarPopupType;
@@ -106,6 +107,7 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel headerPanel;
     private JPanel hintPanel;
+    private JPanel workspaceAvailabilityPanel;
     private JPanel rollbackDateFieldPanel;
     private JPanel rollbackTagFieldPanel;
     private JPanel hyperlinkPanel;
@@ -150,6 +152,8 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
     private TextFieldWithPopup rollbackTagField;
 
     private final LiquibaseOperationInput executionInput;
+    private DBNBanner workspaceAvailabilityBanner;
+    private boolean workspaceSelectorInitialized;
 
     LiquibaseOperationInputForm(@NotNull LiquibaseOperationInputDialog parent) {
         this(parent, parent.getExecutionInput());
@@ -166,14 +170,17 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
         initHyperlinkPanel();
         initInfoLabels();
         initContextLabels();
+        initSourceContextSelectors();
+        initTargetContextSelectors();
+        initWorkspaceAvailabilityBanner();
         initWorkspaceSelector();
         initOperationTagField();
         initUpdateFields();
         initRollbackFields();
-        initSourceContextSelectors();
-        initTargetContextSelectors();
         initEnvironmentProfileSelector();
+        updateHeaderPanel();
         executionInput.setWorkspace(workspaceSelector.getSelectedValue());
+        updateWorkspaceAvailability();
     }
 
     private void initHyperlinkPanel() {
@@ -364,8 +371,17 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
     }
 
     private void initHeaderPanel() {
-        ConnectionHandler connection = executionInput.getRelevantConnection();
-        headerPanel.add(new DBNHeaderForm(this, connection).getComponent());
+        headerPanel.removeAll();
+    }
+
+    private void updateHeaderPanel() {
+        headerPanel.removeAll();
+        ConnectionHandler connection = getRelevantContextConnection();
+        if (connection != null) {
+            headerPanel.add(new DBNHeaderForm(this, connection).getComponent());
+        }
+        headerPanel.revalidate();
+        headerPanel.repaint();
     }
 
     private void initHintPanel() {
@@ -400,24 +416,11 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
         workspaceSelector.setVisible(visible);
         if (!visible) return;
 
-        LiquibaseWorkspaceBundle workspaces = executionInput.getWorkspaces();
-        ConnectionHandler connection = executionInput.getRelevantConnection();
-        DBSchema schema = executionInput.getRelevantSchema();
-
-        DatabaseType databaseType = connection.getDatabaseType();
-        List<LiquibaseWorkspace> availableWorkspaces = workspaces.getWorkspaces(databaseType);
-
-        LiquibaseWorkspace selectedWorkspace = workspaces.getSelectedWorkspace(
-                schema.getConnectionId(),
-                schema.getSchemaId());
-        workspaceSelector.setValues(availableWorkspaces);
-        workspaceSelector.setSelectedValue(availableWorkspaces.contains(selectedWorkspace) ? selectedWorkspace : null);
         if (support.supports(WORKSPACE_CREATION)) {
-            workspaceSelector.withValueFactory(workspaceFactory(connection));
-        } else if (availableWorkspaces.isEmpty()) {
-            setEmptyOptionsText(workspaceSelector, getNoWorkspacesMessage());
+            workspaceSelector.withValueFactory(workspaceFactory());
         }
-        updateWorkspacePath();
+        workspaceSelectorInitialized = true;
+        reloadWorkspaceSelector();
         onSelectionChange(workspaceSelector, value -> {
             updateWorkspacePath();
             updateTargetConnections();
@@ -425,10 +428,42 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
         });
     }
 
-    private @NotNull ValueFactory<LiquibaseWorkspace> workspaceFactory(ConnectionHandler connection) {
+    private void initWorkspaceAvailabilityBanner() {
+        workspaceAvailabilityBanner = new DBNBanner(MessageType.ERROR);
+        workspaceAvailabilityPanel.add(workspaceAvailabilityBanner);
+        workspaceAvailabilityPanel.setVisible(false);
+    }
+
+    private void reloadWorkspaceSelector() {
+        if (!workspaceSelectorInitialized) return;
+
+        LiquibaseFeatureSupport support = executionInput.getSupport();
+        LiquibaseWorkspaceBundle workspaces = executionInput.getWorkspaces();
+        ConnectionHandler connection = getRelevantContextConnection();
+        DBSchema schema = getRelevantContextSchema();
+        List<LiquibaseWorkspace> availableWorkspaces = connection == null
+                ? emptyList()
+                : workspaces.getWorkspaces(connection.getDatabaseType());
+
+        LiquibaseWorkspace selectedWorkspace = schema == null ? null : workspaces.getSelectedWorkspace(
+                schema.getConnectionId(),
+                schema.getSchemaId());
+        workspaceSelector.setValues(availableWorkspaces);
+        workspaceSelector.setSelectedValue(availableWorkspaces.contains(selectedWorkspace) ? selectedWorkspace : null);
+        if (!support.supports(WORKSPACE_CREATION) && availableWorkspaces.isEmpty() && connection != null) {
+            setEmptyOptionsText(workspaceSelector, getNoWorkspacesMessage(connection));
+        }
+        updateWorkspacePath();
+        updateWorkspaceAvailability();
+    }
+
+    private @NotNull ValueFactory<LiquibaseWorkspace> workspaceFactory() {
         return new ValueFactory<>(txt("app.liquibase.action.NewWorkspace")) {
             @Override
             public void createValue(Consumer<LiquibaseWorkspace> consumer) {
+                ConnectionHandler connection = getRelevantContextConnection();
+                if (connection == null) return;
+
                 DatabaseLiquibaseManager liquibaseManager = getLiquibaseManager();
                 liquibaseManager.openWorkspaceCreationDialog(
                         connection.getDatabaseType(),
@@ -483,9 +518,12 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
         ConnectionHandler connection = getRelevantContextConnection();
         if (connection == null) return null;
 
+        DBSchema schema = getRelevantContextSchema();
+        if (schema == null) return null;
+
         ConnectionId connectionId = connection.getConnectionId();
         LiquibaseEnvironmentProfileBundle environmentProfiles = executionInput.getEnvironmentProfiles();
-        return environmentProfiles.getSelectedProfile(connectionId, executionInput.getRelevantSchemaId());
+        return environmentProfiles.getSelectedProfile(connectionId, schema.getSchemaId());
     }
 
     @NotNull
@@ -505,15 +543,48 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
         return target == null ? source : target;
     }
 
+    @Nullable
+    private DBSchema getRelevantContextSchema() {
+        if (executionInput.getOperation().requires(SOURCE_SCHEMA)) {
+            DBSchema source = getSourceSchema();
+            return source == null ? getTargetSchema() : source;
+        }
+        DBSchema target = getTargetSchema();
+        return target == null ? getSourceSchema() : target;
+    }
+
     @NotNull
-    private String getNoWorkspacesMessage() {
+    private String getNoWorkspacesMessage(@NotNull ConnectionHandler connection) {
         return txt(
                 "msg.liquibase.message.NoWorkspacesAvailable",
-                executionInput.getRelevantConnection().getDatabaseType().getName());
+                connection.getDatabaseType().getName());
+    }
+
+    private void updateWorkspaceAvailability() {
+        if (workspaceAvailabilityBanner == null) return;
+
+        LiquibaseFeatureSupport support = executionInput.getSupport();
+        ConnectionHandler connection = getRelevantContextConnection();
+        boolean unavailable = support.requires(WORKSPACE) &&
+                !support.supports(WORKSPACE_CREATION) &&
+                connection != null &&
+                executionInput.getWorkspaces().getWorkspaces(connection.getDatabaseType()).isEmpty();
+
+        if (unavailable) {
+            workspaceAvailabilityBanner.setMessage(txt(
+                    "msg.liquibase.error.NoWorkspaceAvailableForOperation",
+                    executionInput.getOperation().getName(),
+                    connection.getDatabaseType().getName()));
+        }
+        workspaceAvailabilityPanel.setVisible(unavailable);
+        workspaceAvailabilityPanel.revalidate();
+        workspaceAvailabilityPanel.repaint();
     }
 
     private void initSourceContextSelectors() {
-        FieldState state = executionInput.getSupport().getSourceContextState();
+        FieldState state = getContextState(
+                executionInput.getSupport().getSourceContextState(),
+                executionInput.getSourceSchema());
         initConnectionSelector(
                 sourceConnectionLabel,
                 sourceConnectionSelector,
@@ -531,7 +602,9 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
     }
 
     private void initTargetContextSelectors() {
-        FieldState state = executionInput.getSupport().getTargetContextState();
+        FieldState state = getContextState(
+                executionInput.getSupport().getTargetContextState(),
+                executionInput.getTargetSchema());
         initConnectionSelector(
                 targetConnectionLabel,
                 targetConnectionSelector,
@@ -553,11 +626,19 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
         if (!support.supports(DISTINCT_SCHEMAS)) return;
 
         ConnectionHandler targetConnection = getTargetConnection();
-        FieldState state = support.getTargetContextState();
+        FieldState state = getContextState(support.getTargetContextState(), executionInput.getTargetSchema());
         List<ConnectionHandler> connections = getSupportedConnections(getConnections(), state);
         targetConnectionSelector.setValues(connections);
         targetConnectionSelector.setSelectedValue(connections.contains(targetConnection) ? targetConnection : null);
         targetSchemaSelector.reloadValues();
+    }
+
+    private static FieldState getContextState(
+            @NotNull FieldState state,
+            @Nullable DBSchema initialSchema) {
+        return state == FieldState.VISIBLE && initialSchema == null
+                ? FieldState.EDITABLE
+                : state;
     }
 
     @NotNull
@@ -565,6 +646,7 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
             @NotNull List<ConnectionHandler> connections,
             @NotNull FieldState state) {
         if (!state.isEditable()) return connections;
+        if (workspaceSelector == null) return connections;
         LiquibaseWorkspace workspace = workspaceSelector.getSelectedValue();
         if (workspace == null) return connections;
 
@@ -594,6 +676,8 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
                 schemaSelector.reloadValues();
                 envProfileSelector.withValuePreselector(p -> p == getSelectedEnvironmentProfile());
                 envProfileSelector.reloadValues();
+                updateHeaderPanel();
+                reloadWorkspaceSelector();
                 markFormChanged();
             });
         }
@@ -628,6 +712,15 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
                 });
 
         selector.triggerLoad();
+        if (enabled) {
+            onSelectionChange(selector, value -> {
+                envProfileSelector.withValuePreselector(p -> p == getSelectedEnvironmentProfile());
+                envProfileSelector.reloadValues();
+                updateHeaderPanel();
+                reloadWorkspaceSelector();
+                markFormChanged();
+            });
+        }
         setFormFieldEnabled(selector, "CONDITIONAL_AVAILABILITY", enabled);
         //selector.setEnabled(enabled);
     }
@@ -729,16 +822,19 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
         executionInput.setCheckpointTag(getText(checkpointTagTextField));
 
         LiquibaseEnvironmentProfileBundle environmentProfiles = executionInput.getEnvironmentProfiles();
-        environmentProfiles.rememberProfile(
-                executionInput.getRelevantConnectionId(),
-                executionInput.getRelevantSchemaId(),
-                environmentProfile);
-
         LiquibaseWorkspaceBundle workspaces = executionInput.getWorkspaces();
-        workspaces.rememberWorkspace(
-                executionInput.getRelevantConnectionId(),
-                executionInput.getRelevantSchemaId(),
-                workspace);
+        ConnectionHandler connection = getRelevantContextConnection();
+        DBSchema schema = getRelevantContextSchema();
+        if (connection != null && schema != null) {
+            environmentProfiles.rememberProfile(
+                    connection.getConnectionId(),
+                    schema.getSchemaId(),
+                    environmentProfile);
+            workspaces.rememberWorkspace(
+                    connection.getConnectionId(),
+                    schema.getSchemaId(),
+                    workspace);
+        }
     }
 
     @Nullable

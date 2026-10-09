@@ -696,6 +696,8 @@
             <group id="DBN.MainMenu.Migration" popup="true">
                 <group id="DBN.MainMenu.Flyway" class="com.dbn.menu.action.FlywayActionGroup" popup="true">
                     <action id="DBN.MainMenu.FlywayWorkspaces" class="com.dbn.menu.action.FlywayWorkspacesOpenAction"/>
+                    <separator/>
+                    <action id="DBN.MainMenu.FlywayOperationDashboard" class="com.dbn.menu.action.FlywayOperationDashboardOpenAction"/>
                 </group>
                 <group id="DBN.MainMenu.Liquibase" popup="true">
                     <action id="DBN.MainMenu.LiquibaseWorkspaces" class="com.dbn.menu.action.LiquibaseWorkspacesOpenAction"/>

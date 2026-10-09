@@ -148,12 +148,19 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
     }
 
     public void openWorkspaceSettings() {
+        openWorkspaceSettings(null);
+    }
+
+    public void openWorkspaceSettings(@Nullable Runnable onUpdate) {
         Dialogs.show(() -> new DatabaseMigrationWorkspacesDialog<>(
                         workspaces,
                         DatabaseMigrationEngineType.LIQUIBASE,
                         workspaces::clone,
                         LiquibaseWorkspaceForm::new),
-                whenOk(d -> workspaces.replaceWorkspaces(d.getWorkspaces())));
+                whenOk(d -> {
+                    workspaces.replaceWorkspaces(d.getWorkspaces());
+                    if (onUpdate != null) onUpdate.run();
+                }));
     }
 
     public void openEnvironmentProfiles() {

@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.dbn.migration.liquibase.operation.ui;
+package com.dbn.migration.shared.task.ui;
 
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.info.DBNTextBlock;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.util.Fonts;
 import com.dbn.common.util.Strings;
-import com.dbn.migration.liquibase.task.LiquibaseTask;
+import com.dbn.migration.shared.task.DatabaseMigrationTask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,22 +32,24 @@ import javax.swing.JPanel;
 import static com.dbn.common.ui.link.Hyperlinks.initHyperlink;
 import static com.dbn.nls.NlsResources.txt;
 
-/** Operation dashboard item form presenting one Liquibase operation and its documentation link. */
-public class LiquibaseDashboardItemForm extends DBNFormBase {
+/**
+ * Dashboard item form presenting one migration task and its documentation link.
+ */
+public class DatabaseMigrationTaskItemForm extends DBNFormBase {
     private JPanel mainPanel;
     private JLabel nameLabel;
     private DBNTextBlock descriptionLabel;
     private JButton openButton;
     private DBNHyperlinkLabel moreHyperlinkLabel;
 
-    public LiquibaseDashboardItemForm(
+    public DatabaseMigrationTaskItemForm(
             @NotNull DBNFormBase parent,
-            @NotNull LiquibaseTask item,
+            @NotNull DatabaseMigrationTask item,
             @NotNull Runnable action) {
         this(parent, item.getDashboardName(), item.getDashboardDescription(), item.getDashboardDocumentationUrl(), action);
     }
 
-    private LiquibaseDashboardItemForm(
+    private DatabaseMigrationTaskItemForm(
             @NotNull DBNFormBase parent,
             @NotNull String name,
             @NotNull String description,
@@ -58,7 +60,6 @@ public class LiquibaseDashboardItemForm extends DBNFormBase {
         nameLabel.setText(name);
         descriptionLabel.setText(description);
         nameLabel.setFont(Fonts.regular(1));
-        openButton.setEnabled(false);
         openButton.addActionListener(e -> action.run());
 
         if (Strings.isEmpty(documentationUrl)) {

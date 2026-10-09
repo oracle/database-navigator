@@ -16,21 +16,29 @@
 
 package com.dbn.migration.liquibase.operation.ui;
 
-import com.dbn.common.ui.dialog.DBNDialog;
+import com.dbn.common.util.Dialogs;
+import com.dbn.migration.liquibase.DatabaseLiquibaseManager;
 import com.dbn.object.DBSchema;
-import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.migration.liquibase.operation.LiquibaseOperation;
+import com.dbn.migration.liquibase.operation.LiquibaseOperationCategory;
+import com.dbn.migration.liquibase.workspace.LiquibaseWorkspaceBundle;
+import com.dbn.migration.shared.operation.ui.DatabaseMigrationOperationDashboardDialog;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.Action;
+import java.util.Arrays;
+import java.util.List;
 
+import static com.dbn.common.util.Dialogs.whenOk;
 import static com.dbn.nls.NlsResources.txt;
 
-/** Non-modal dialog displaying the grouped Liquibase operations for a project. */
-public class LiquibaseOperationDashboardDialog extends DBNDialog<LiquibaseOperationDashboardForm> {
-    private final DBObjectRef<DBSchema> initialSchema;
-
+/**
+ * Non-modal dialog displaying the grouped Liquibase operations for a project.
+ */
+public class LiquibaseOperationDashboardDialog extends DatabaseMigrationOperationDashboardDialog<
+        LiquibaseOperation,
+        LiquibaseOperationCategory> {
     public LiquibaseOperationDashboardDialog(@NotNull Project project) {
         this(project, null);
     }
@@ -40,28 +48,46 @@ public class LiquibaseOperationDashboardDialog extends DBNDialog<LiquibaseOperat
     }
 
     private LiquibaseOperationDashboardDialog(@NotNull Project project, @Nullable DBSchema initialSchema) {
-        super(project, txt("msg.liquibase.title.OperationDashboard"), false);
-        this.initialSchema = DBObjectRef.of(initialSchema);
-        setDefaultSize(640, 860);
-        setModal(false);
-        init();
-    }
-
-    @Nullable
-    public DBSchema getInitialSchema() {
-        return DBObjectRef.get(initialSchema);
+        super(project, initialSchema, txt("msg.liquibase.title.OperationDashboard"), 860);
     }
 
     @NotNull
     @Override
-    protected LiquibaseOperationDashboardForm createForm() {
-        return new LiquibaseOperationDashboardForm(this);
+    public List<LiquibaseOperation> getOperations() {
+        return Arrays.asList(LiquibaseOperation.values());
+    }
+
+    @NotNull
+    @Override
+    public List<LiquibaseOperationCategory> getCategories() {
+        return Arrays.asList(LiquibaseOperationCategory.values());
+    }
+
+    @NotNull
+    @Override
+    public String getDashboardHint() {
+        return txt("app.liquibase.hint.OperationDashboard");
+    }
+
+    @NotNull
+    @Override
+    public String getDocumentationLabel() {
+        return txt("app.liquibase.link.LiquibaseDocumentation");
+    }
+
+    @NotNull
+    @Override
+    public String getDocumentationUrl() {
+        return txt("app.liquibase.url.OperationDashboard");
     }
 
     @Override
-    @NotNull
-    protected Action[] initializeActions() {
-        renameAction(getCancelAction(), txt("msg.shared.button.Close"));
-        return actions(getCancelAction());
+    public void startOperation(@NotNull LiquibaseOperation operation) {
+        Project project = getProject();
+        DatabaseLiquibaseManager manager = DatabaseLiquibaseManager.getInstance(project);
+        LiquibaseWorkspaceBundle workspaces = manager.getWorkspaces();
+        Dialogs.show(() -> new LiquibaseOperationInputDialog(getInitialSchema(), operation, workspaces),
+                whenOk(dialog -> manager.executeOperation(dialog.getExecutionInput(), null)));
     }
+
 }

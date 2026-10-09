@@ -26,9 +26,9 @@ import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.migration.liquibase.DatabaseLiquibaseManager;
-import com.dbn.migration.liquibase.operation.ui.LiquibaseDashboardItemForm;
 import com.dbn.migration.liquibase.workflow.LiquibaseWorkflow;
 import com.dbn.migration.liquibase.workflow.LiquibaseWorkflowCategory;
+import com.dbn.migration.shared.task.ui.DatabaseMigrationTaskItemForm;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.ui.DBObjectSelector;
 import com.intellij.openapi.project.Project;
@@ -71,7 +71,7 @@ public class LiquibaseWorkflowDashboardForm extends DBNFormBase {
     private DBObjectSelector<DBSchema> schemaSelector;
     private JTabbedPane workflowsPanel;
 
-    private final List<LiquibaseDashboardItemForm> workflowForms = DisposableContainers.list(this);
+    private final List<DatabaseMigrationTaskItemForm> workflowForms = DisposableContainers.list(this);
 
     public LiquibaseWorkflowDashboardForm(@NotNull LiquibaseWorkflowDashboardDialog parent) {
         super(parent);
@@ -140,7 +140,7 @@ public class LiquibaseWorkflowDashboardForm extends DBNFormBase {
         verticalBoxLayout(itemsListPanel);
         for (LiquibaseWorkflow workflow : LiquibaseWorkflow.values()) {
             if (workflow.getCategory() != category) continue;
-            LiquibaseDashboardItemForm form = new LiquibaseDashboardItemForm(
+            DatabaseMigrationTaskItemForm form = new DatabaseMigrationTaskItemForm(
                     this,
                     workflow,
                     () -> executeWorkflow(workflow));

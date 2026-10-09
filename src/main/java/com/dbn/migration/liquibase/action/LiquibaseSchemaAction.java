@@ -17,7 +17,6 @@
 package com.dbn.migration.liquibase.action;
 
 import com.dbn.common.action.ProjectAction;
-import com.dbn.connection.ConnectionHandler;
 import com.dbn.migration.liquibase.DatabaseLiquibaseManager;
 import com.dbn.migration.liquibase.operation.LiquibaseOperation;
 import com.dbn.migration.liquibase.operation.LiquibaseOperationInput;
@@ -30,9 +29,10 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.util.Dialogs.show;
 import static com.dbn.common.util.Dialogs.whenOk;
-import static com.dbn.migration.liquibase.operation.LiquibaseOperationConfirmations.confirmWorkspaceAvailable;
 
-/** Base action for Liquibase operations scoped to one database schema. */
+/**
+ * Base action for Liquibase operations scoped to one database schema.
+ */
 public abstract class LiquibaseSchemaAction extends ProjectAction {
     private final DBObjectRef<DBSchema> schema;
 
@@ -43,11 +43,6 @@ public abstract class LiquibaseSchemaAction extends ProjectAction {
     @NotNull
     protected DBSchema getSchema() {
         return DBObjectRef.ensure(schema);
-    }
-
-    @NotNull
-    protected ConnectionHandler getConnection() {
-        return getSchema().getConnection();
     }
 
     @NotNull
@@ -62,10 +57,6 @@ public abstract class LiquibaseSchemaAction extends ProjectAction {
         DBSchema schema = getSchema();
         DatabaseLiquibaseManager manager = getManager(project);
         LiquibaseWorkspaceBundle workspaces = manager.getWorkspaces();
-
-        if (!confirmWorkspaceAvailable(getConnection(), operation.getSupport())) {
-            return;
-        }
 
         show(() -> new LiquibaseOperationInputDialog(schema, operation, workspaces),
                 whenOk(dialog -> {

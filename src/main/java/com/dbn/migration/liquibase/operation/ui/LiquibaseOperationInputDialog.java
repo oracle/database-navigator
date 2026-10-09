@@ -23,6 +23,7 @@ import com.dbn.migration.liquibase.workspace.LiquibaseWorkspaceBundle;
 import com.dbn.object.DBSchema;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
 
@@ -31,23 +32,25 @@ import static com.dbn.migration.liquibase.operation.LiquibaseFeature.TARGET_SCHE
 import static com.dbn.migration.liquibase.operation.LiquibaseOperationConfirmations.confirm;
 import static com.dbn.nls.NlsResources.txt;
 
-/** Input dialog shown before executing a Liquibase operation for a database schema. */
+/**
+ * Input dialog shown before executing a Liquibase operation for a database schema.
+ */
 @Getter
 public class LiquibaseOperationInputDialog extends DBNDialog<LiquibaseOperationInputForm> {
     private final LiquibaseWorkspaceBundle workspaces;
     private final LiquibaseOperationInput executionInput;
 
     public LiquibaseOperationInputDialog(
-            @NotNull DBSchema schema,
+            @Nullable DBSchema schema,
             @NotNull LiquibaseOperation operation,
             @NotNull LiquibaseWorkspaceBundle workspaces) {
-        super(schema.getProject(), txt("app.liquibase.title.Operation_" + operation.name()), true);
+        super(workspaces.getProject(), txt("app.liquibase.title.Operation_" + operation.name()), true);
         this.executionInput = new LiquibaseOperationInput(getProject(), operation);
         this.workspaces = workspaces;
-        if (operation.requires(SOURCE_SCHEMA)) {
+        if (schema != null && operation.requires(SOURCE_SCHEMA)) {
             executionInput.setSourceSchema(schema);
         }
-        if (operation.requires(TARGET_SCHEMA) && !operation.requires(SOURCE_SCHEMA)) {
+        if (schema != null && operation.requires(TARGET_SCHEMA) && !operation.requires(SOURCE_SCHEMA)) {
             executionInput.setTargetSchema(schema);
         }
         setDefaultSize(600, 320);
