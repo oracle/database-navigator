@@ -20,6 +20,9 @@ import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.Components;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
+import com.dbn.common.state.StateAttributes;
+import com.dbn.common.state.StateCategory;
+import com.dbn.common.state.StateContainer;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.DatabaseType;
 import com.dbn.migration.flyway.ui.FlywayTaskStarter;
@@ -33,6 +36,7 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,6 +52,7 @@ import static com.dbn.common.util.Dialogs.whenOk;
 public class DatabaseFlywayManager extends ProjectComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Project.DatabaseFlywayManager";
 
+    private final StateContainer states = new StateContainer();
     private final FlywayWorkspaceBundle workspaces;
     private final FlywayTaskStarter taskStarter;
 
@@ -70,6 +75,11 @@ public class DatabaseFlywayManager extends ProjectComponentBase implements Persi
     @NotNull
     public FlywayTaskStarter getTaskStarter() {
         return taskStarter;
+    }
+
+    @NotNull
+    public StateAttributes getState(@NonNls @NotNull String category) {
+        return states.ensureAttributes(StateCategory.get(category));
     }
 
     public void openWorkspaceSettings() {
@@ -102,12 +112,14 @@ public class DatabaseFlywayManager extends ProjectComponentBase implements Persi
     @Override
     public Element getComponentState() {
         Element element = newStateElement();
+        states.writeState(element);
         workspaces.writeState(element, "workspaces");
         return element;
     }
 
     @Override
     public void loadComponentState(@NotNull Element element) {
+        states.readState(element);
         workspaces.readState(element, "workspaces");
     }
 }

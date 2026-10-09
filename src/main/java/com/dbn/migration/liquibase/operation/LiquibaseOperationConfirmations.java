@@ -20,8 +20,10 @@ import com.dbn.common.exception.RequestCancelledException;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.migration.liquibase.DatabaseLiquibaseManager;
+import com.dbn.migration.liquibase.workflow.LiquibaseWorkflow;
 import com.dbn.migration.liquibase.workflow.LiquibaseWorkflowInput;
 import com.dbn.migration.liquibase.workspace.LiquibaseEnvironmentProfile;
+import com.dbn.migration.shared.task.DatabaseMigrationTask;
 import com.dbn.object.DBSchema;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -69,6 +71,7 @@ public final class LiquibaseOperationConfirmations {
 
     public static boolean confirmWorkspaceAvailable(
             @NotNull ConnectionHandler connection,
+            @NotNull DatabaseMigrationTask task,
             @NotNull LiquibaseFeatureSupport support) {
         if (!support.requires(LiquibaseFeature.WORKSPACE)) return true;
         if (support.supports(LiquibaseFeature.WORKSPACE_CREATION)) return true;
@@ -77,15 +80,13 @@ public final class LiquibaseOperationConfirmations {
         DatabaseLiquibaseManager manager = DatabaseLiquibaseManager.getInstance(project);
         if (!manager.getWorkspaces().getWorkspaces(connection.getDatabaseType()).isEmpty()) return true;
 
+        String key = task instanceof LiquibaseWorkflow
+                ? "msg.liquibase.error.NoWorkspaceAvailableForWorkflow"
+                : "msg.liquibase.error.NoWorkspaceAvailableForOperation";
         Messages.showInfoDialog(
                 project,
                 txt("msg.liquibase.title.WorkspaceRequired"),
-                txt("msg.liquibase.message.NoWorkspacesAvailable", connection.getDatabaseType().getName()),
-                new String[]{
-                        txt("msg.liquibase.button.OpenWorkspaces"),
-                        txt("msg.shared.button.Cancel")},
-                0,
-                option -> { if (option == 0) manager.openWorkspaceSettings(); });
+                txt(key, task.getName()));
         return false;
     }
 

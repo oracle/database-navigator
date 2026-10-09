@@ -17,10 +17,12 @@
 package com.dbn.migration.shared.workflow.ui;
 
 import com.dbn.common.dispose.DisposableContainers;
+import com.dbn.common.state.StateAttributes;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.link.HyperLinkForm;
+import com.dbn.common.ui.util.TabbedPanes;
 import com.dbn.migration.shared.engine.DatabaseMigrationEngineDescriptor;
 import com.dbn.migration.shared.engine.DatabaseMigrationEngineDescriptors;
 import com.dbn.migration.shared.engine.DatabaseMigrationEngineType;
@@ -46,6 +48,9 @@ import static com.dbn.common.ui.Layouts.verticalBoxLayout;
 public class DatabaseMigrationWorkflowDashboardForm<
         W extends DatabaseMigrationWorkflow,
         C extends DatabaseMigrationWorkflowCategory> extends DBNFormBase {
+    private static final String DASHBOARD_STATE_CATEGORY = "MIGRATION_DASHBOARD";
+    private static final String SELECTED_CATEGORY = "WORKFLOW_CATEGORY";
+
     private JPanel mainPanel;
     private JPanel headerPanel;
     private JPanel hintPanel;
@@ -83,6 +88,10 @@ public class DatabaseMigrationWorkflowDashboardForm<
         for (C category : dialog.getCategories()) {
             addCategory(category);
         }
+        TabbedPanes.installStatePreservation(
+                workflowsPanel,
+                getDashboardState(),
+                SELECTED_CATEGORY);
     }
 
     private void addCategory(@NotNull C category) {
@@ -115,11 +124,23 @@ public class DatabaseMigrationWorkflowDashboardForm<
     }
 
     @NotNull
+    private StateAttributes getDashboardState() {
+        DatabaseMigrationEngineDescriptor<?, ?> engineDescriptor = getEngineDescriptor();
+        return engineDescriptor.getState(
+                ensureProject(),
+                DASHBOARD_STATE_CATEGORY);
+    }
+
+    @NotNull
     private DatabaseMigrationTaskStarter getTaskStarter() {
+        DatabaseMigrationEngineDescriptor<?, ?> engineDescriptor = getEngineDescriptor();
+        return engineDescriptor.getTaskStarter(ensureProject());
+    }
+
+    private @NotNull DatabaseMigrationEngineDescriptor<?, ?> getEngineDescriptor() {
         DatabaseMigrationWorkflowDashboardDialog<W, C> dialog = ensureParentDialog();
         DatabaseMigrationEngineType engineType = dialog.getEngineType();
-        DatabaseMigrationEngineDescriptor<?, ?> engineDescriptor = DatabaseMigrationEngineDescriptors.get(engineType);
-        return engineDescriptor.getTaskStarter(ensureProject());
+        return DatabaseMigrationEngineDescriptors.get(engineType);
     }
 
 

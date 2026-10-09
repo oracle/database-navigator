@@ -16,6 +16,7 @@
 
 package com.dbn.migration.flyway;
 
+import com.dbn.common.state.StateAttributes;
 import com.dbn.migration.flyway.operation.FlywayOperation;
 import com.dbn.migration.flyway.ui.FlywayTaskStarter;
 import com.dbn.migration.flyway.workflow.FlywayWorkflow;
@@ -53,5 +54,12 @@ public final class FlywayEngineDescriptor
     public @NotNull FlywayTaskStarter getTaskStarter(@NotNull Project project) {
         DatabaseFlywayManager flywayManager = DatabaseFlywayManager.getInstance(project);
         return flywayManager.getTaskStarter();
+    }
+
+    @Override
+    public @NotNull StateAttributes getState(
+            @NotNull Project project,
+            @NotNull String category) {
+        return DatabaseFlywayManager.getInstance(project).getState(category);
     }
 }

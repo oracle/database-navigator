@@ -17,13 +17,13 @@
 package com.dbn.migration.shared.operation.ui;
 
 import com.dbn.common.dispose.DisposableContainers;
+import com.dbn.common.state.StateAttributes;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.migration.shared.engine.DatabaseMigrationEngineDescriptor;
 import com.dbn.migration.shared.engine.DatabaseMigrationEngineDescriptors;
-import com.dbn.migration.shared.engine.DatabaseMigrationEngineType;
 import com.dbn.migration.shared.operation.DatabaseMigrationOperation;
 import com.dbn.migration.shared.operation.DatabaseMigrationOperationCategory;
 import com.dbn.migration.shared.task.ui.DatabaseMigrationTaskItemForm;
@@ -39,6 +39,7 @@ import java.awt.BorderLayout;
 import java.util.List;
 
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
+import static com.dbn.common.ui.util.TabbedPanes.installStatePreservation;
 
 /**
  * Project-level dashboard for grouping and starting database migration operations.
@@ -46,6 +47,9 @@ import static com.dbn.common.ui.Layouts.verticalBoxLayout;
 public class DatabaseMigrationOperationDashboardForm<
         O extends DatabaseMigrationOperation,
         C extends DatabaseMigrationOperationCategory> extends DBNFormBase {
+    private static final String DASHBOARD_STATE_CATEGORY = "MIGRATION_DASHBOARD";
+    private static final String SELECTED_CATEGORY = "OPERATION_CATEGORY";
+
     private JPanel mainPanel;
     private JPanel headerPanel;
     private JPanel hintPanel;
@@ -83,6 +87,10 @@ public class DatabaseMigrationOperationDashboardForm<
         for (C category : dialog.getCategories()) {
             addCategory(category);
         }
+        installStatePreservation(
+                operationsPanel,
+                getDashboardState(),
+                SELECTED_CATEGORY);
     }
 
     private void addCategory(@NotNull C category) {
@@ -115,11 +123,22 @@ public class DatabaseMigrationOperationDashboardForm<
     }
 
     @NotNull
+    private StateAttributes getDashboardState() {
+        DatabaseMigrationEngineDescriptor<?, ?> engineDescriptor = getEngineDescriptor();
+        return engineDescriptor.getState(
+                ensureProject(),
+                DASHBOARD_STATE_CATEGORY);
+    }
+
+    @NotNull
     private DatabaseMigrationTaskStarter getTaskStarter() {
-        DatabaseMigrationOperationDashboardDialog<O, C> dialog = ensureParentDialog();
-        DatabaseMigrationEngineType engineType = dialog.getEngineType();
-        DatabaseMigrationEngineDescriptor<?, ?> engineDescriptor = DatabaseMigrationEngineDescriptors.get(engineType);
+        DatabaseMigrationEngineDescriptor<?, ?> engineDescriptor = getEngineDescriptor();
         return engineDescriptor.getTaskStarter(ensureProject());
+    }
+
+    private @NotNull DatabaseMigrationEngineDescriptor<?, ?> getEngineDescriptor() {
+        DatabaseMigrationOperationDashboardDialog<O, C> dialog = ensureParentDialog();
+        return DatabaseMigrationEngineDescriptors.get(dialog.getEngineType());
     }
 
     @Override

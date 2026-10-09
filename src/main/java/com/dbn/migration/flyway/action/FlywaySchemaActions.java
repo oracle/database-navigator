@@ -18,9 +18,15 @@ package com.dbn.migration.flyway.action;
 
 import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.common.icon.Icons;
-import com.dbn.migration.flyway.operation.action.FlywayOperationDashboardAction;
-import com.dbn.migration.flyway.workflow.action.FlywayWorkflowDashboardAction;
 import com.dbn.menu.action.FlywayWorkspacesOpenAction;
+import com.dbn.migration.flyway.operation.FlywayOperation;
+import com.dbn.migration.flyway.operation.FlywayOperationCategory;
+import com.dbn.migration.flyway.operation.action.FlywayOperationDashboardAction;
+import com.dbn.migration.flyway.operation.action.FlywayOperationStartAction;
+import com.dbn.migration.flyway.workflow.FlywayWorkflow;
+import com.dbn.migration.flyway.workflow.FlywayWorkflowCategory;
+import com.dbn.migration.flyway.workflow.action.FlywayWorkflowDashboardAction;
+import com.dbn.migration.flyway.workflow.action.FlywayWorkflowStartAction;
 import com.dbn.object.DBSchema;
 import org.jetbrains.annotations.NotNull;
 
@@ -34,8 +40,29 @@ public class FlywaySchemaActions extends DefaultActionGroup {
         super(txt("app.flyway.action.Flyway"), true);
         getTemplatePresentation().setIcon(Icons.DB_FLYWAY);
         add(new FlywayWorkspacesOpenAction(txt("app.flyway.action.Workspaces"), Icons.ACTION_OPTIONS));
+        DefaultActionGroup workflowActions = new DefaultActionGroup(txt("app.flyway.group.Workflows"), true);
+        workflowActions.add(new FlywayWorkflowDashboardAction(schema));
+        workflowActions.addSeparator();
+        FlywayWorkflowCategory workflowCategory = null;
+        for (FlywayWorkflow workflow : FlywayWorkflow.values()) {
+            if (workflowCategory != workflow.getCategory()) {
+                workflowCategory = workflow.getCategory();
+                workflowActions.addSeparator(workflowCategory.getName());
+            }
+            workflowActions.add(new FlywayWorkflowStartAction(schema, workflow));
+        }
+        add(workflowActions);
         addSeparator();
+
         add(new FlywayOperationDashboardAction(schema));
-        add(new FlywayWorkflowDashboardAction(schema));
+        for (FlywayOperationCategory operationCategory : FlywayOperationCategory.values()) {
+            DefaultActionGroup operationActions = new DefaultActionGroup(operationCategory.getName(), true);
+            for (FlywayOperation operation : FlywayOperation.values()) {
+                if (operation.getCategory() == operationCategory) {
+                    operationActions.add(new FlywayOperationStartAction(schema, operation));
+                }
+            }
+            add(operationActions);
+        }
     }
 }

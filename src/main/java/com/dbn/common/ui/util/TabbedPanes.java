@@ -17,19 +17,24 @@
 package com.dbn.common.ui.util;
 
 import com.dbn.common.dispose.Disposer;
+import com.dbn.common.state.StateAttributes;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.util.Strings;
 import com.intellij.ui.components.JBTabbedPane;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
+import javax.swing.JTabbedPane;
 import java.awt.Component;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.IntConsumer;
+import java.util.function.IntSupplier;
 import java.util.stream.IntStream;
 
 import static org.jetbrains.annotations.Nls.Capitalization.Title;
@@ -93,6 +98,33 @@ public class TabbedPanes {
 
             consumer.accept(index);
         });
+    }
+
+    public static void installStatePreservation(
+            JTabbedPane tabbedPane,
+            IntSupplier stateReader,
+            IntConsumer stateWriter) {
+        int selectedIndex = stateReader.getAsInt();
+        if (selectedIndex >= 0 && selectedIndex < tabbedPane.getTabCount()) {
+            tabbedPane.setSelectedIndex(selectedIndex);
+        }
+
+        tabbedPane.addChangeListener(e -> {
+            int index = tabbedPane.getSelectedIndex();
+            if (index >= 0) {
+                stateWriter.accept(index);
+            }
+        });
+    }
+
+    public static void installStatePreservation(
+            JTabbedPane tabbedPane,
+            StateAttributes state,
+            @NonNls String attribute) {
+        installStatePreservation(
+                tabbedPane,
+                () -> Strings.parseInt(state.getAttribute(attribute), 0),
+                index -> state.setAttribute(attribute, Integer.toString(index)));
     }
 
     public void removeAllTabs(JBTabbedPane tabbedPane, boolean disposeContents) {

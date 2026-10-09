@@ -18,10 +18,13 @@ package com.dbn.migration.liquibase.action;
 
 import com.dbn.common.action.ProjectAction;
 import com.dbn.migration.liquibase.DatabaseLiquibaseManager;
+import com.dbn.migration.liquibase.operation.LiquibaseFeatureSupport;
 import com.dbn.migration.liquibase.operation.LiquibaseOperation;
+import com.dbn.migration.liquibase.operation.LiquibaseOperationConfirmations;
 import com.dbn.migration.liquibase.operation.LiquibaseOperationInput;
 import com.dbn.migration.liquibase.operation.ui.LiquibaseOperationInputDialog;
 import com.dbn.migration.liquibase.workspace.LiquibaseWorkspaceBundle;
+import com.dbn.migration.shared.task.DatabaseMigrationTask;
 import com.dbn.object.DBSchema;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
@@ -50,11 +53,23 @@ public abstract class LiquibaseSchemaAction extends ProjectAction {
         return DatabaseLiquibaseManager.getInstance(project);
     }
 
+    protected boolean confirmWorkspaceAvailable(
+            @NotNull DBSchema schema,
+            @NotNull DatabaseMigrationTask task,
+            @NotNull LiquibaseFeatureSupport support) {
+        return LiquibaseOperationConfirmations.confirmWorkspaceAvailable(
+                schema.getConnection(),
+                task,
+                support);
+    }
+
     protected void executeOperation(
             @NotNull Project project,
             @NotNull LiquibaseOperation operation) {
 
         DBSchema schema = getSchema();
+        if (!confirmWorkspaceAvailable(schema, operation, operation.getSupport())) return;
+
         DatabaseLiquibaseManager manager = getManager(project);
         LiquibaseWorkspaceBundle workspaces = manager.getWorkspaces();
 

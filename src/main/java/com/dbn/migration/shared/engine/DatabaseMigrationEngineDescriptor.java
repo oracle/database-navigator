@@ -17,6 +17,7 @@
 package com.dbn.migration.shared.engine;
 
 import com.dbn.common.extension.ExtensionPoint;
+import com.dbn.common.state.StateAttributes;
 import com.dbn.migration.shared.operation.DatabaseMigrationOperation;
 import com.dbn.migration.shared.task.ui.DatabaseMigrationTaskStarter;
 import com.dbn.migration.shared.workflow.DatabaseMigrationWorkflow;
@@ -31,7 +32,8 @@ import java.util.List;
  *
  * <p>The descriptor provides a stable identity for engine-neutral code, presentation
  * metadata for shared dashboards, the ordered operation and workflow catalogues exposed by
- * the engine, and the bridge to the engine-specific task starter.</p>
+ * the engine, the bridge to the engine-specific task starter, and access to manager-backed
+ * state used by shared migration screens.</p>
  */
 public abstract class DatabaseMigrationEngineDescriptor<
         O extends DatabaseMigrationOperation,
@@ -59,6 +61,11 @@ public abstract class DatabaseMigrationEngineDescriptor<
 
     @NotNull
     public abstract DatabaseMigrationTaskStarter getTaskStarter(@NotNull Project project);
+
+    @NotNull
+    public abstract StateAttributes getState(
+            @NotNull Project project,
+            @NotNull String category);
 
     @NotNull
     public abstract String getName();

@@ -16,6 +16,7 @@
 
 package com.dbn.migration.liquibase;
 
+import com.dbn.common.state.StateAttributes;
 import com.dbn.migration.liquibase.operation.LiquibaseOperation;
 import com.dbn.migration.liquibase.ui.LiquibaseTaskStarter;
 import com.dbn.migration.liquibase.workflow.LiquibaseWorkflow;
@@ -53,5 +54,12 @@ public final class LiquibaseEngineDescriptor
     public @NotNull LiquibaseTaskStarter getTaskStarter(@NotNull Project project) {
         DatabaseLiquibaseManager liquibaseManager = DatabaseLiquibaseManager.getInstance(project);
         return liquibaseManager.getTaskStarter();
+    }
+
+    @Override
+    public @NotNull StateAttributes getState(
+            @NotNull Project project,
+            @NotNull String category) {
+        return DatabaseLiquibaseManager.getInstance(project).getState(category);
     }
 }

@@ -27,7 +27,6 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.util.Dialogs.show;
 import static com.dbn.common.util.Dialogs.whenOk;
-import static com.dbn.migration.liquibase.operation.LiquibaseOperationConfirmations.confirmWorkspaceAvailable;
 import static com.dbn.nls.NlsResources.txt;
 
 /** Entry point for a reusable Liquibase workflow scoped to a database schema. */
@@ -43,9 +42,7 @@ public class LiquibaseWorkflowStartAction extends LiquibaseSchemaAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        if (!confirmWorkspaceAvailable(
-                getSchema().getConnection(),
-                workflow.getSupport())) return;
+        if (!confirmWorkspaceAvailable(getSchema(), workflow, workflow.getSupport())) return;
 
         show(() -> new LiquibaseWorkflowInputDialog(getSchema(), workflow),
                 whenOk(dialog -> getManager(project).executeWorkflow(dialog.getWorkflowInput(), null)));
