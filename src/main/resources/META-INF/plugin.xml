@@ -698,6 +698,7 @@
                     <action id="DBN.MainMenu.FlywayWorkspaces" class="com.dbn.menu.action.FlywayWorkspacesOpenAction"/>
                     <separator/>
                     <action id="DBN.MainMenu.FlywayOperationDashboard" class="com.dbn.menu.action.FlywayOperationDashboardOpenAction"/>
+                    <action id="DBN.MainMenu.FlywayWorkflowDashboard" class="com.dbn.menu.action.FlywayWorkflowDashboardOpenAction"/>
                 </group>
                 <group id="DBN.MainMenu.Liquibase" popup="true">
                     <action id="DBN.MainMenu.LiquibaseWorkspaces" class="com.dbn.menu.action.LiquibaseWorkspacesOpenAction"/>

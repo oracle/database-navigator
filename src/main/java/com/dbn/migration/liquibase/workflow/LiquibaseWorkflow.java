@@ -37,10 +37,10 @@ import static com.dbn.migration.liquibase.operation.LiquibaseOperation.UNEXPECTE
 import static com.dbn.migration.liquibase.operation.LiquibaseOperation.UPDATE_DATABASE;
 import static com.dbn.migration.liquibase.operation.LiquibaseOperation.UPDATE_SQL;
 import static com.dbn.migration.liquibase.operation.LiquibaseOperation.VALIDATE_CHANGELOG;
-import static com.dbn.migration.liquibase.workflow.LiquibaseWorkflowCategory.DEPLOY;
-import static com.dbn.migration.liquibase.workflow.LiquibaseWorkflowCategory.PREPARE;
-import static com.dbn.migration.liquibase.workflow.LiquibaseWorkflowCategory.RECOVER;
-import static com.dbn.migration.liquibase.workflow.LiquibaseWorkflowCategory.REVIEW;
+import static com.dbn.migration.liquibase.workflow.LiquibaseWorkflowCategory.DEPLOYMENT;
+import static com.dbn.migration.liquibase.workflow.LiquibaseWorkflowCategory.INSPECTION;
+import static com.dbn.migration.liquibase.workflow.LiquibaseWorkflowCategory.PREPARATION;
+import static com.dbn.migration.liquibase.workflow.LiquibaseWorkflowCategory.RECOVERY;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
@@ -48,47 +48,47 @@ import static com.dbn.nls.NlsResources.txt;
  */
 @Getter
 public enum LiquibaseWorkflow implements LiquibaseTask, DatabaseMigrationWorkflow {
-    DIAGNOSE_DATABASE(REVIEW,
+    DIAGNOSE_DATABASE(INSPECTION,
             VALIDATE_CHANGELOG,
             SHOW_CHANGELOG_STATUS,
             UNEXPECTED_CHANGESETS,
             CALCULATE_CHECKSUMS,
             LIST_LOCKS),
-    VALIDATE_AND_PREVIEW(REVIEW,
+    VALIDATE_AND_PREVIEW(INSPECTION,
             VALIDATE_CHANGELOG,
             SHOW_CHANGELOG_STATUS,
             UPDATE_SQL),
-    DRIFT_AUDIT(REVIEW,
+    DRIFT_AUDIT(INSPECTION,
             COMPARE_SCHEMAS,
             GENERATE_DIFF_CHANGELOG,
             VALIDATE_CHANGELOG),
-    COMPARE_AND_GENERATE(PREPARE,
+    COMPARE_AND_GENERATE(PREPARATION,
             COMPARE_SCHEMAS,
             GENERATE_DIFF_CHANGELOG),
-    GENERATE_AND_DOCUMENT(PREPARE,
+    GENERATE_AND_DOCUMENT(PREPARATION,
             GENERATE_CHANGELOG,
             VALIDATE_CHANGELOG,
             GENERATE_DATABASE_DOCUMENTATION),
-    COMPARE_GENERATE_AND_APPLY(DEPLOY,
+    COMPARE_GENERATE_AND_APPLY(DEPLOYMENT,
             COMPARE_SCHEMAS,
             GENERATE_DIFF_CHANGELOG,
             VALIDATE_CHANGELOG,
             UPDATE_DATABASE),
-    VALIDATE_AND_APPLY(DEPLOY,
+    VALIDATE_AND_APPLY(DEPLOYMENT,
             VALIDATE_CHANGELOG,
             SHOW_CHANGELOG_STATUS,
             UPDATE_SQL,
             UPDATE_DATABASE),
-    DEPLOY_AND_VERIFY(DEPLOY,
+    DEPLOY_AND_VERIFY(DEPLOYMENT,
             VALIDATE_CHANGELOG,
             UPDATE_SQL,
             UPDATE_DATABASE,
             SHOW_CHANGELOG_STATUS),
-    RELEASE_CHECKPOINT(DEPLOY,
+    RELEASE_CHECKPOINT(DEPLOYMENT,
             VALIDATE_CHANGELOG,
             UPDATE_DATABASE,
             SHOW_CHANGELOG_HISTORY),
-    ROLLBACK_SAFELY(RECOVER,
+    ROLLBACK_SAFELY(RECOVERY,
             SHOW_CHANGELOG_HISTORY,
             ROLLBACK_SQL,
             ROLLBACK_CHANGESETS);

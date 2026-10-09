@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package com.dbn.migration.liquibase.workflow;
+package com.dbn.migration.flyway.workflow;
 
 import com.dbn.migration.shared.workflow.DatabaseMigrationWorkflowCategory;
 
 import static com.dbn.nls.NlsResources.txt;
 
 /**
- * Groups Liquibase workflows by their primary user intent.
+ * Groups Flyway workflows by their primary user intent.
  */
-public enum LiquibaseWorkflowCategory implements DatabaseMigrationWorkflowCategory {
+public enum FlywayWorkflowCategory implements DatabaseMigrationWorkflowCategory {
     PREPARATION,
-    INSPECTION,
     DEPLOYMENT,
-    RECOVERY;
+    MAINTENANCE;
 
+    @Override
     public String getName() {
-        return txt("app.liquibase.const.WorkflowCategory_" + name());
+        return txt("app.flyway.const.WorkflowCategory_" + name());
     }
 }

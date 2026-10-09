@@ -19,6 +19,7 @@ package com.dbn.migration.flyway.action;
 import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.common.icon.Icons;
 import com.dbn.migration.flyway.operation.action.FlywayOperationDashboardAction;
+import com.dbn.migration.flyway.workflow.action.FlywayWorkflowDashboardAction;
 import com.dbn.menu.action.FlywayWorkspacesOpenAction;
 import com.dbn.object.DBSchema;
 import org.jetbrains.annotations.NotNull;
@@ -35,5 +36,6 @@ public class FlywaySchemaActions extends DefaultActionGroup {
         add(new FlywayWorkspacesOpenAction(txt("app.flyway.action.Workspaces"), Icons.ACTION_OPTIONS));
         addSeparator();
         add(new FlywayOperationDashboardAction(schema));
+        add(new FlywayWorkflowDashboardAction(schema));
     }
 }
