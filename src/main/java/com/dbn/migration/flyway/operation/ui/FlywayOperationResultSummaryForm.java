@@ -19,22 +19,32 @@ package com.dbn.migration.flyway.operation.ui;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.message.TitledMessage;
 import com.dbn.common.task.TaskStatus;
+import com.dbn.common.thread.Background;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.messages.DBNMessageForm;
+import com.dbn.common.ui.window.ProjectViews;
+import com.dbn.common.util.Editors;
 import com.dbn.common.util.TimeUtil;
 import com.dbn.migration.flyway.operation.FlywayOperationResult;
 import com.dbn.migration.flyway.workspace.FlywayWorkspace;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VirtualFile;
 import org.flywaydb.core.api.output.ValidateResult;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.Timer;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static com.dbn.common.task.TaskStatus.CANCELLED;
 import static com.dbn.common.task.TaskStatus.DONE;
 import static com.dbn.common.task.TaskStatus.RUNNING;
+import static com.dbn.common.ui.link.Hyperlinks.onHyperlinkAccess;
+import static com.dbn.common.ui.util.Tooltips.setToolTipText;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
@@ -46,7 +56,9 @@ public class FlywayOperationResultSummaryForm extends DBNFormBase {
     private JLabel connectionLabel;
     private JLabel schemaLabel;
     private JLabel workspaceLabel;
-    private JLabel migrationsPathLabel;
+    private DBNHyperlinkLabel migrationsPathLink;
+    private JLabel configurationFileLabel;
+    private DBNHyperlinkLabel configurationFileLink;
     private JLabel validationStatusLabel;
     private JLabel validatedMigrationsLabel;
     private JLabel invalidMigrationsLabel;
@@ -67,6 +79,8 @@ public class FlywayOperationResultSummaryForm extends DBNFormBase {
 
         initMessageForm();
         initLabels();
+        onHyperlinkAccess(migrationsPathLink, e -> openMigrationsPath());
+        onHyperlinkAccess(configurationFileLink, e -> openConfigurationFile());
         result.addListener(() -> dispatch(this::updateForm));
     }
 
@@ -77,6 +91,7 @@ public class FlywayOperationResultSummaryForm extends DBNFormBase {
         schemaLabel.setIcon(result.getInput().getRelevantSchema().getIcon());
         schemaLabel.setText(result.getInput().getRelevantSchema().getName());
         updateWorkspaceLabels();
+        updateConfigurationFileLink();
         updateForm();
     }
 
@@ -84,12 +99,59 @@ public class FlywayOperationResultSummaryForm extends DBNFormBase {
         FlywayWorkspace workspace = result.getInput().getWorkspace();
         if (workspace == null) {
             workspaceLabel.setText("");
-            migrationsPathLabel.setText("");
+            migrationsPathLink.setHyperlinkText("");
+            setToolTipText(migrationsPathLink, null);
+            migrationsPathLink.setVisible(false);
             return;
         }
 
         workspaceLabel.setText(workspace.getName());
-        migrationsPathLabel.setText(result.getInput().getWorkspacePaths().getMigrationsPath().toString());
+        Path migrationsPath = result.getInput().getWorkspacePaths().getMigrationsPath();
+        if (!Files.isDirectory(migrationsPath)) {
+            migrationsPathLink.setHyperlinkText("");
+            setToolTipText(migrationsPathLink, null);
+            migrationsPathLink.setVisible(false);
+            return;
+        }
+
+        String relativePath = result.getInput().getWorkspacePaths().getRelativePath(migrationsPath);
+        migrationsPathLink.setHyperlinkText(relativePath.isEmpty() ? "." : relativePath);
+        setToolTipText(migrationsPathLink, migrationsPath.toString());
+        migrationsPathLink.setVisible(true);
+    }
+
+    private void openMigrationsPath() {
+        Path migrationsPath = result.getInput().getWorkspacePaths().getMigrationsPath();
+        if (!Files.isDirectory(migrationsPath)) return;
+
+        ProjectViews.selectPath(result.getProject(), migrationsPath);
+    }
+
+    private void updateConfigurationFileLink() {
+        FlywayWorkspace workspace = result.getInput().getWorkspace();
+        configurationFileLabel.setVisible(workspace != null);
+        configurationFileLink.setVisible(false);
+        configurationFileLink.setHyperlinkText("");
+        configurationFileLink.setToolTipText(null);
+        if (workspace == null) return;
+
+        Path configurationPath = result.getInput().getWorkspacePaths().getConfigurationFilePath();
+        if (!Files.isRegularFile(configurationPath)) return;
+
+        configurationFileLink.setHyperlinkText(configurationPath.getFileName().toString());
+        configurationFileLink.setToolTipText(configurationPath.toString());
+        configurationFileLink.setVisible(true);
+    }
+
+    private void openConfigurationFile() {
+        Path configurationPath = result.getInput().getWorkspacePaths().getConfigurationFilePath();
+        Background.run(() -> {
+            LocalFileSystem fileSystem = LocalFileSystem.getInstance();
+            VirtualFile file = fileSystem.refreshAndFindFileByIoFile(configurationPath.toFile());
+            if (file == null) return;
+
+            Editors.openFileEditor(result.getProject(), file, true);
+        });
     }
 
     private void initMessageForm() {
@@ -100,6 +162,7 @@ public class FlywayOperationResultSummaryForm extends DBNFormBase {
     private void updateForm() {
         if (isDisposed()) return;
         updateWorkspaceLabels();
+        updateConfigurationFileLink();
         updateValidationLabels();
         messageForm.setMessage(createMessage());
         updateDuration();

@@ -40,7 +40,7 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 @Getter
 @Setter
 public class FlywayWorkspace extends DatabaseMigrationWorkspace implements Presentable, Cloneable<FlywayWorkspace> {
-    public static final String DEFAULT_ROOT_PATH = ".";
+    public static final String DEFAULT_ROOT_PATH = "db/flyway";
     public static final String DEFAULT_MIGRATIONS_DIRECTORY = "migrations";
     public static final String DEFAULT_CONFIGURATION_FILE = "flyway.toml";
     public static final String DEFAULT_USER_CONFIGURATION_FILE = "flyway.user.toml";
