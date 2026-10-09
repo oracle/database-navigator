@@ -292,6 +292,7 @@
         <extensionPoint qualifiedName="com.dbn.dataExportProcessor" interface="com.dbn.data.export.processor.DataExportProcessor" dynamic="true"/>
         <extensionPoint qualifiedName="com.dbn.databaseMigrationEngine" interface="com.dbn.migration.shared.engine.DatabaseMigrationEngineDescriptor" dynamic="true"/>
         <extensionPoint qualifiedName="com.dbn.liquibaseExecutionProcessor" interface="com.dbn.migration.liquibase.execution.LiquibaseExecutionProcessor" dynamic="true"/>
+        <extensionPoint qualifiedName="com.dbn.flywayExecutionProcessor" interface="com.dbn.migration.flyway.execution.FlywayExecutionProcessor" dynamic="true"/>
 
         <extensionPoint qualifiedName="com.dbn.prerequisiteDefinitionProvider" interface="com.dbn.prerequisite.definition.PrerequisiteDefinitionProvider" dynamic="true"/>
         <extensionPoint qualifiedName="com.dbn.prerequisiteRequirementEvaluator" interface="com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluator" dynamic="true"/>
@@ -318,6 +319,10 @@
         <!-- Database migration engines -->
         <databaseMigrationEngine implementation="com.dbn.migration.liquibase.LiquibaseEngineDescriptor"/>
         <databaseMigrationEngine implementation="com.dbn.migration.flyway.FlywayEngineDescriptor"/>
+
+        <!-- Flyway execution processors -->
+        <flywayExecutionProcessor implementation="com.dbn.migration.flyway.execution.processor.FlywayInitializeProjectProcessor"/>
+        <flywayExecutionProcessor implementation="com.dbn.migration.flyway.execution.processor.FlywayValidateMigrationsProcessor"/>
 
         <!-- Liquibase execution processors -->
         <liquibaseExecutionProcessor implementation="com.dbn.migration.liquibase.execution.processor.LiquibaseGenerateChangelogProcessor"/>
@@ -859,6 +864,13 @@
             <action id="DBN.Execution.Liquibase.Result.Rerun" class="com.dbn.migration.liquibase.task.action.LiquibaseTaskResultRerunAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_RERUN"/>
             <separator/>
             <action id="DBN.Execution.Liquibase.Result.Settings" class="com.dbn.migration.liquibase.task.action.LiquibaseTaskResultSettingsAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_OPTIONS"/>
+        </group>
+        <group id="DBN.Execution.Flyway.Result">
+            <action id="DBN.Execution.Flyway.Result.Close" class="com.dbn.migration.flyway.task.action.FlywayTaskResultCloseAction" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
+            <action id="DBN.Execution.Flyway.Result.Stop" class="com.dbn.migration.flyway.task.action.FlywayTaskResultStopAction" icon="com.dbn.common.icon.Icons.ACTION_STOP"/>
+            <action id="DBN.Execution.Flyway.Result.Rerun" class="com.dbn.migration.flyway.task.action.FlywayTaskResultRerunAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_RERUN"/>
+            <separator/>
+            <action id="DBN.Execution.Flyway.Result.Settings" class="com.dbn.migration.flyway.task.action.FlywayTaskResultSettingsAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_OPTIONS"/>
         </group>
         <group id="DBN.Vector.Embedding.Result">
             <action id="DBN.Vector.Embedding.Result.Close" class="com.dbn.vector.action.VectorEmbeddingCloseAction" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>

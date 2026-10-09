@@ -16,26 +16,39 @@
 
 package com.dbn.migration.flyway.ui;
 
+import com.dbn.common.util.Dialogs;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionManager;
+import com.dbn.connection.DatabaseType;
 import com.dbn.connection.context.DatabaseContextSelection;
+import com.dbn.migration.flyway.DatabaseFlywayManager;
+import com.dbn.migration.flyway.operation.FlywayFeatureSupport;
 import com.dbn.migration.flyway.operation.FlywayOperation;
+import com.dbn.migration.flyway.operation.ui.FlywayOperationInputDialog;
 import com.dbn.migration.flyway.workflow.FlywayWorkflow;
+import com.dbn.migration.flyway.workspace.FlywayWorkspaceBundle;
 import com.dbn.migration.shared.operation.DatabaseMigrationOperation;
 import com.dbn.migration.shared.task.DatabaseMigrationTask;
 import com.dbn.migration.shared.task.ui.DatabaseMigrationTaskStarter;
 import com.dbn.migration.shared.workflow.DatabaseMigrationWorkflow;
 import com.dbn.object.DBSchema;
-import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.common.util.Dialogs.whenOk;
+import static com.dbn.migration.flyway.operation.FlywayFeature.WORKSPACE;
+import static com.dbn.migration.flyway.operation.FlywayFeature.WORKSPACE_CREATION;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Starts Flyway operations and workflows after their database context is selected.
  */
 public class FlywayTaskStarter extends DatabaseMigrationTaskStarter {
-    public FlywayTaskStarter(@NotNull Project project) {
-        super(project);
+    private final DatabaseFlywayManager manager;
+
+    public FlywayTaskStarter(@NotNull DatabaseFlywayManager manager) {
+        super(manager.getProject());
+        this.manager = manager;
     }
 
     @Override
@@ -43,7 +56,13 @@ public class FlywayTaskStarter extends DatabaseMigrationTaskStarter {
             @NotNull DatabaseMigrationOperation task,
             @NotNull DBSchema schema) {
         FlywayOperation operation = ensureOperation(task);
-        throw new UnsupportedOperationException("Flyway operation is not implemented: " + operation.name());
+        if (operation != FlywayOperation.INITIALIZE_PROJECT && operation != FlywayOperation.VALIDATE_MIGRATIONS) {
+            throw new UnsupportedOperationException("Flyway operation is not implemented: " + operation.name());
+        }
+
+        Dialogs.show(
+                () -> new FlywayOperationInputDialog(schema, operation, manager.getWorkspaces()),
+                whenOk(dialog -> manager.executeOperation(dialog.getExecutionInput(), null)));
     }
 
     @Override
@@ -67,7 +86,19 @@ public class FlywayTaskStarter extends DatabaseMigrationTaskStarter {
     protected String verifyContext(
             @NotNull DatabaseMigrationTask task,
             @NotNull DatabaseContextSelection selection) {
-        return null;
+        FlywayFeatureSupport support = getSupport(task);
+        if (support == null) return null;
+        if (!support.requires(WORKSPACE)) return null;
+        if (support.supports(WORKSPACE_CREATION)) return null;
+
+        ConnectionHandler connection = getConnection(selection.connectionId());
+        if (connection == null) return null;
+
+        DatabaseType databaseType = connection.getDatabaseType();
+        FlywayWorkspaceBundle workspaces = manager.getWorkspaces();
+        if (workspaces.containsWorkspaces(databaseType)) return null;
+
+        return txt("msg.flyway.error.NoWorkspaceAvailableForOperation", task.getName());
     }
 
     @NotNull
@@ -80,5 +111,11 @@ public class FlywayTaskStarter extends DatabaseMigrationTaskStarter {
     private static FlywayWorkflow ensureWorkflow(@NotNull DatabaseMigrationWorkflow task) {
         if (task instanceof FlywayWorkflow workflow) return workflow;
         throw new IllegalArgumentException("Unsupported Flyway workflow: " + task);
+    }
+
+    @Nullable
+    private static FlywayFeatureSupport getSupport(@NotNull DatabaseMigrationTask task) {
+        if (task instanceof FlywayOperation operation) return operation.getSupport();
+        return null;
     }
 }

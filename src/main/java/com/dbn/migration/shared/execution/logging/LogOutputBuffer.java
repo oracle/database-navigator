@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.migration.liquibase.execution.logging;
+package com.dbn.migration.shared.execution.logging;
 
 import com.dbn.common.project.ProjectRef;
 import com.dbn.connection.ConnectionHandler;
@@ -31,7 +31,9 @@ import java.util.List;
 
 import static com.dbn.common.util.Strings.isEmpty;
 
-/** Thread-safe ordered buffer for Liquibase console output. */
+/**
+ * Thread-safe ordered buffer for database migration console output.
+ */
 @Getter
 @Setter
 public class LogOutputBuffer {

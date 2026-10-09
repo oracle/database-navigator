@@ -17,6 +17,7 @@
 package com.dbn.migration.liquibase.workspace;
 
 import com.dbn.common.util.Strings;
+import com.dbn.migration.shared.workspace.DatabaseMigrationWorkspacePaths;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -26,7 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /** Resolves and validates filesystem paths derived from a Liquibase workspace. */
-public class LiquibaseWorkspacePaths {
+public class LiquibaseWorkspacePaths implements DatabaseMigrationWorkspacePaths<LiquibaseWorkspace> {
     private final LiquibaseWorkspace workspace;
 
     public LiquibaseWorkspacePaths(@NotNull LiquibaseWorkspace workspace) {
@@ -34,6 +35,13 @@ public class LiquibaseWorkspacePaths {
     }
 
     @NotNull
+    @Override
+    public LiquibaseWorkspace getWorkspace() {
+        return workspace;
+    }
+
+    @NotNull
+    @Override
     public Path getContentRootPath() {
         String contentRootPath = requirePath(workspace.getContentRootPath(), "Content root");
         try {
@@ -91,6 +99,7 @@ public class LiquibaseWorkspacePaths {
     }
 
     @NotNull
+    @Override
     public String getRelativePath(@NotNull Path path) {
         Path contentRoot = getContentRootPath();
         Path normalizedPath = path.toAbsolutePath().normalize();

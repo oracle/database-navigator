@@ -19,6 +19,7 @@ package com.dbn.migration.flyway.operation;
 import com.dbn.common.constant.Constant;
 import com.dbn.migration.shared.operation.DatabaseMigrationOperation;
 import lombok.Getter;
+import lombok.experimental.Delegate;
 
 import static com.dbn.migration.flyway.operation.FlywayOperationCategory.DEPLOYMENT;
 import static com.dbn.migration.flyway.operation.FlywayOperationCategory.INSPECTION;
@@ -47,6 +48,8 @@ public enum FlywayOperation implements Constant<FlywayOperation>, DatabaseMigrat
     private final FlywayOperationCategory category;
     private final boolean mutating;
     private final boolean destructive;
+    @Delegate
+    private final FlywayOperationSupport support = new FlywayOperationSupport(this);
 
     FlywayOperation(
             String command,

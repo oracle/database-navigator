@@ -18,7 +18,8 @@ package com.dbn.migration.liquibase.ui;
 
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionManager;
+import com.dbn.connection.ConnectionId;
+import com.dbn.connection.DatabaseType;
 import com.dbn.connection.context.DatabaseContextSelection;
 import com.dbn.migration.liquibase.DatabaseLiquibaseManager;
 import com.dbn.migration.liquibase.operation.LiquibaseFeatureSupport;
@@ -26,6 +27,7 @@ import com.dbn.migration.liquibase.operation.LiquibaseOperation;
 import com.dbn.migration.liquibase.operation.ui.LiquibaseOperationInputDialog;
 import com.dbn.migration.liquibase.workflow.LiquibaseWorkflow;
 import com.dbn.migration.liquibase.workflow.ui.LiquibaseWorkflowInputDialog;
+import com.dbn.migration.liquibase.workspace.LiquibaseWorkspaceBundle;
 import com.dbn.migration.shared.operation.DatabaseMigrationOperation;
 import com.dbn.migration.shared.task.DatabaseMigrationTask;
 import com.dbn.migration.shared.task.ui.DatabaseMigrationTaskStarter;
@@ -84,15 +86,17 @@ public class LiquibaseTaskStarter extends DatabaseMigrationTaskStarter {
             @NotNull DatabaseMigrationTask task,
             @NotNull DatabaseContextSelection selection) {
         LiquibaseFeatureSupport support = getSupport(task);
-        if (support == null || !support.requires(WORKSPACE) || support.supports(WORKSPACE_CREATION)) {
-            return null;
-        }
+        if (support == null) return null;
+        if (!support.requires(WORKSPACE)) return null;
+        if (support.supports(WORKSPACE_CREATION)) return null;
 
-        ConnectionHandler connection = ConnectionManager.getInstance(manager.getProject())
-                .getConnection(selection.connectionId());
-        if (connection == null || manager.getWorkspaces().containsWorkspaces(connection.getDatabaseType())) {
-            return null;
-        }
+        ConnectionId connectionId = selection.connectionId();
+        ConnectionHandler connection = getConnection(connectionId);
+        if (connection == null) return null;
+
+        DatabaseType databaseType = connection.getDatabaseType();
+        LiquibaseWorkspaceBundle workspaces = manager.getWorkspaces();
+        if (workspaces.containsWorkspaces(databaseType)) return null;
 
         String key = task instanceof LiquibaseWorkflow
                 ? "msg.liquibase.error.NoWorkspaceAvailableForWorkflow"

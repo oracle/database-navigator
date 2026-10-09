@@ -17,7 +17,9 @@
 package com.dbn.migration.shared.task.ui;
 
 import com.dbn.common.component.ProjectUnit;
+import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.context.DatabaseContextSelection;
 import com.dbn.connection.context.ui.DatabaseContextSelector;
@@ -43,6 +45,10 @@ import java.util.function.Consumer;
 public abstract class DatabaseMigrationTaskStarter extends ProjectUnit {
     protected DatabaseMigrationTaskStarter(@NotNull Project project) {
         super(project);
+    }
+
+    protected @NotNull ConnectionManager getConnectionManager() {
+        return ConnectionManager.getInstance(getProject());
     }
 
     public final void startOperation(
@@ -88,9 +94,19 @@ public abstract class DatabaseMigrationTaskStarter extends ProjectUnit {
             @Nullable DBSchema initialSchema,
             @NotNull JComponent aroundComponent,
             @NotNull Consumer<DBSchema> callback) {
+        if (initialSchema != null) {
+            DatabaseContextSelection selection = toSelection(initialSchema);
+            String verificationError = verifyContext(task, selection);
+            if (verificationError != null) {
+                Messages.showErrorDialog(getProject(), verificationError);
+                return;
+            }
+            callback.accept(initialSchema);
+            return;
+        }
+
         DatabaseContextSelectorInput input = new DatabaseContextSelectorInput()
                 .withTitle(getContextTitle(task))
-                .withInitialSelection(toSelection(initialSchema))
                 .withVerification(selection -> verifyContext(task, selection))
                 .withContinueCallback(selection -> {
                     DBSchema schema = resolveSchema(selection);
@@ -100,9 +116,9 @@ public abstract class DatabaseMigrationTaskStarter extends ProjectUnit {
         DatabaseContextSelector.create(getProject(), input).showPopup(aroundComponent);
     }
 
-    @Nullable
-    private DatabaseContextSelection toSelection(@Nullable DBSchema schema) {
-        return schema == null ? null : new DatabaseContextSelection(
+    @NotNull
+    private DatabaseContextSelection toSelection(@NotNull DBSchema schema) {
+        return new DatabaseContextSelection(
                 schema.getConnectionId(),
                 schema.getSchemaId(),
                 null);
@@ -113,5 +129,10 @@ public abstract class DatabaseMigrationTaskStarter extends ProjectUnit {
         ConnectionHandler connection = ConnectionManager.getInstance(getProject())
                 .getConnection(selection.connectionId());
         return connection == null ? null : connection.getSchema(selection.schemaId());
+    }
+
+    @Nullable
+    protected ConnectionHandler getConnection(ConnectionId connectionId) {
+        return getConnectionManager().getConnection(connectionId);
     }
 }

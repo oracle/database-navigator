@@ -17,13 +17,10 @@
 package com.dbn.migration.liquibase.operation;
 
 import com.dbn.common.ui.form.field.FieldState;
-import org.jetbrains.annotations.NotNull;
+import com.dbn.migration.shared.operation.DatabaseMigrationFeatureSupport;
 
 /** Common feature and context contract shared by operation and workflow inputs. */
-public interface LiquibaseFeatureSupport {
-    boolean supports(@NotNull LiquibaseFeature feature);
-
-    boolean requires(@NotNull LiquibaseFeature feature);
+public interface LiquibaseFeatureSupport extends DatabaseMigrationFeatureSupport<LiquibaseFeature> {
 
     FieldState getSourceContextState();
 

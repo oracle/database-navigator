@@ -23,8 +23,15 @@ import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.state.StateCategory;
 import com.dbn.common.state.StateContainer;
+import com.dbn.common.thread.Background;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.DatabaseType;
+import com.dbn.execution.ExecutionManager;
+import com.dbn.migration.flyway.execution.processor.FlywayExecutionProcessors;
+import com.dbn.migration.flyway.operation.FlywayOperationContext;
+import com.dbn.migration.flyway.operation.FlywayOperationInput;
+import com.dbn.migration.flyway.operation.FlywayOperationResult;
+import com.dbn.migration.flyway.task.FlywayTaskResult;
 import com.dbn.migration.flyway.ui.FlywayTaskStarter;
 import com.dbn.migration.flyway.workspace.FlywayWorkspace;
 import com.dbn.migration.flyway.workspace.FlywayWorkspaceBundle;
@@ -59,7 +66,7 @@ public class DatabaseFlywayManager extends ProjectComponentBase implements Persi
     private DatabaseFlywayManager(@NotNull Project project) {
         super(project, COMPONENT_NAME);
         workspaces = new FlywayWorkspaceBundle(project);
-        taskStarter = new FlywayTaskStarter(project);
+        taskStarter = new FlywayTaskStarter(this);
     }
 
     @NotNull
@@ -75,6 +82,31 @@ public class DatabaseFlywayManager extends ProjectComponentBase implements Persi
     @NotNull
     public FlywayTaskStarter getTaskStarter() {
         return taskStarter;
+    }
+
+    public void executeOperation(
+            @NotNull FlywayOperationInput input,
+            @Nullable FlywayOperationResult previousResult) {
+        FlywayOperationContext context = new FlywayOperationContext(input);
+        FlywayOperationResult result = context.getResult();
+        result.setPrevious(previousResult);
+
+        ExecutionManager.getInstance(getProject()).addExecutionResult(result);
+        Background.run(() -> FlywayExecutionProcessors
+                .get(input.getOperation())
+                .execute(context));
+    }
+
+    public void cancelTask(@NotNull FlywayTaskResult<?, ?, ?> result) {
+        if (result instanceof FlywayOperationResult operationResult) {
+            operationResult.getContext().cancel();
+        }
+    }
+
+    public void rerunTask(@NotNull FlywayTaskResult<?, ?, ?> previousResult) {
+        if (previousResult instanceof FlywayOperationResult operationResult) {
+            executeOperation(operationResult.getInput(), operationResult);
+        }
     }
 
     @NotNull
