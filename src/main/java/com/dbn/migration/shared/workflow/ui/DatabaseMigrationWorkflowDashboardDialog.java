@@ -17,11 +17,12 @@
 package com.dbn.migration.shared.workflow.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
+import com.dbn.migration.shared.engine.DatabaseMigrationEngineType;
 import com.dbn.migration.shared.workflow.DatabaseMigrationWorkflow;
 import com.dbn.migration.shared.workflow.DatabaseMigrationWorkflowCategory;
 import com.dbn.object.DBSchema;
-import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,19 +34,21 @@ import static com.dbn.nls.NlsResources.txt;
 /**
  * Shared project-level dialog for grouped database migration workflows.
  */
+@Getter
 public abstract class DatabaseMigrationWorkflowDashboardDialog<
         W extends DatabaseMigrationWorkflow,
         C extends DatabaseMigrationWorkflowCategory>
         extends DBNDialog<DatabaseMigrationWorkflowDashboardForm<W, C>> {
-    private final DBObjectRef<DBSchema> initialSchema;
-
+    private final DatabaseMigrationEngineType engineType;
     protected DatabaseMigrationWorkflowDashboardDialog(
             @NotNull Project project,
-            @Nullable DBSchema initialSchema,
+            @Nullable DBSchema schema,
+            @NotNull DatabaseMigrationEngineType engineType,
             @NotNull String title,
             int height) {
         super(project, title, false);
-        this.initialSchema = DBObjectRef.of(initialSchema);
+        setContextObject(schema);
+        this.engineType = engineType;
         setDefaultSize(640, height);
         setModal(false);
         init();
@@ -65,13 +68,6 @@ public abstract class DatabaseMigrationWorkflowDashboardDialog<
 
     @NotNull
     public abstract String getDocumentationUrl();
-
-    public abstract void startWorkflow(@NotNull W workflow);
-
-    @Nullable
-    public DBSchema getInitialSchema() {
-        return DBObjectRef.get(initialSchema);
-    }
 
     @NotNull
     @Override

@@ -102,8 +102,8 @@ public class Dialogs {
         Window window = (Window) rootPane.getParent();
         int oldWidth = window.getSize().width;
 
-        component.doLayout();
-        component.revalidate();
+        rootPane.revalidate();
+        rootPane.doLayout();
 
         int newWidth = component.getPreferredSize().width;
         int delta = newWidth - oldWidth;

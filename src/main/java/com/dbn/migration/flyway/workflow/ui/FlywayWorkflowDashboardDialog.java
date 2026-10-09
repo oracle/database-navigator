@@ -18,6 +18,7 @@ package com.dbn.migration.flyway.workflow.ui;
 
 import com.dbn.migration.flyway.workflow.FlywayWorkflow;
 import com.dbn.migration.flyway.workflow.FlywayWorkflowCategory;
+import com.dbn.migration.shared.engine.DatabaseMigrationEngineType;
 import com.dbn.migration.shared.workflow.ui.DatabaseMigrationWorkflowDashboardDialog;
 import com.dbn.object.DBSchema;
 import com.intellij.openapi.project.Project;
@@ -46,8 +47,10 @@ public class FlywayWorkflowDashboardDialog extends DatabaseMigrationWorkflowDash
 
     private FlywayWorkflowDashboardDialog(
             @NotNull Project project,
-            @Nullable DBSchema initialSchema) {
-        super(project, initialSchema, txt("msg.flyway.title.WorkflowDashboard"), 640);
+            @Nullable DBSchema schema) {
+        super(project, schema,
+                DatabaseMigrationEngineType.FLYWAY,
+                txt("msg.flyway.title.WorkflowDashboard"), 640);
     }
 
     @NotNull
@@ -80,8 +83,4 @@ public class FlywayWorkflowDashboardDialog extends DatabaseMigrationWorkflowDash
         return txt("app.flyway.url.WorkflowDashboard");
     }
 
-    @Override
-    public void startWorkflow(@NotNull FlywayWorkflow workflow) {
-        throw new UnsupportedOperationException("Flyway workflow is not implemented: " + workflow.name());
-    }
 }

@@ -17,8 +17,11 @@
 package com.dbn.migration.liquibase;
 
 import com.dbn.migration.liquibase.operation.LiquibaseOperation;
+import com.dbn.migration.liquibase.ui.LiquibaseTaskStarter;
 import com.dbn.migration.liquibase.workflow.LiquibaseWorkflow;
 import com.dbn.migration.shared.engine.DatabaseMigrationEngineDescriptor;
+import com.dbn.migration.shared.engine.DatabaseMigrationEngineType;
+import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -36,7 +39,7 @@ public final class LiquibaseEngineDescriptor
 
     public LiquibaseEngineDescriptor() {
         super(
-                "liquibase",
+                DatabaseMigrationEngineType.LIQUIBASE,
                 List.of(LiquibaseOperation.values()),
                 List.of(LiquibaseWorkflow.values()));
     }
@@ -44,5 +47,11 @@ public final class LiquibaseEngineDescriptor
     @Override
     public @NotNull String getName() {
         return txt("app.liquibase.action.Liquibase");
+    }
+
+    @Override
+    public @NotNull LiquibaseTaskStarter getTaskStarter(@NotNull Project project) {
+        DatabaseLiquibaseManager liquibaseManager = DatabaseLiquibaseManager.getInstance(project);
+        return liquibaseManager.getTaskStarter();
     }
 }

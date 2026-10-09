@@ -317,6 +317,7 @@
 
         <!-- Database migration engines -->
         <databaseMigrationEngine implementation="com.dbn.migration.liquibase.LiquibaseEngineDescriptor"/>
+        <databaseMigrationEngine implementation="com.dbn.migration.flyway.FlywayEngineDescriptor"/>
 
         <!-- Liquibase execution processors -->
         <liquibaseExecutionProcessor implementation="com.dbn.migration.liquibase.execution.processor.LiquibaseGenerateChangelogProcessor"/>
@@ -693,22 +694,21 @@
                 <action id="DBN.MainMenu.EventMonitor" class="com.dbn.menu.action.MonitorDataChangeOpenAction"/>
                 <!--<action class="com.dbn.action.menu.PendingTransactionsOpenAction" id="DBN.MainMenu.PendingTransactions"/>-->
             </group>
-            <group id="DBN.MainMenu.Migration" popup="true">
-                <group id="DBN.MainMenu.Flyway" class="com.dbn.menu.action.FlywayActionGroup" popup="true">
-                    <action id="DBN.MainMenu.FlywayWorkspaces" class="com.dbn.menu.action.FlywayWorkspacesOpenAction"/>
-                    <separator/>
-                    <action id="DBN.MainMenu.FlywayOperationDashboard" class="com.dbn.menu.action.FlywayOperationDashboardOpenAction"/>
-                    <action id="DBN.MainMenu.FlywayWorkflowDashboard" class="com.dbn.menu.action.FlywayWorkflowDashboardOpenAction"/>
-                </group>
-                <group id="DBN.MainMenu.Liquibase" popup="true">
-                    <action id="DBN.MainMenu.LiquibaseWorkspaces" class="com.dbn.menu.action.LiquibaseWorkspacesOpenAction"/>
-                    <action id="DBN.MainMenu.LiquibaseEnvironmentProfiles" class="com.dbn.menu.action.LiquibaseEnvironmentProfilesOpenAction"/>
-                    <separator/>
-                    <action id="DBN.MainMenu.LiquibaseOperationDashboard" class="com.dbn.menu.action.LiquibaseOperationDashboardOpenAction"/>
-                    <action id="DBN.MainMenu.LiquibaseWorkflowDashboard" class="com.dbn.menu.action.LiquibaseWorkflowDashboardOpenAction"/>
-                </group>
-            </group>
             <group class="com.dbn.prerequisite.action.PrerequisiteVerificationAction" popup="true" id="DBN.MainMenu.PrerequisiteVerification"/> />
+            <separator/>
+            <group id="DBN.MainMenu.Flyway" class="com.dbn.menu.action.FlywayActionGroup" popup="true">
+                <action id="DBN.MainMenu.FlywayWorkspaces" class="com.dbn.menu.action.FlywayWorkspacesOpenAction"/>
+                <separator/>
+                <action id="DBN.MainMenu.FlywayOperationDashboard" class="com.dbn.menu.action.FlywayOperationDashboardOpenAction"/>
+                <action id="DBN.MainMenu.FlywayWorkflowDashboard" class="com.dbn.menu.action.FlywayWorkflowDashboardOpenAction"/>
+            </group>
+            <group id="DBN.MainMenu.Liquibase" popup="true">
+                <action id="DBN.MainMenu.LiquibaseWorkspaces" class="com.dbn.menu.action.LiquibaseWorkspacesOpenAction"/>
+                <action id="DBN.MainMenu.LiquibaseEnvironmentProfiles" class="com.dbn.menu.action.LiquibaseEnvironmentProfilesOpenAction"/>
+                <separator/>
+                <action id="DBN.MainMenu.LiquibaseOperationDashboard" class="com.dbn.menu.action.LiquibaseOperationDashboardOpenAction"/>
+                <action id="DBN.MainMenu.LiquibaseWorkflowDashboard" class="com.dbn.menu.action.LiquibaseWorkflowDashboardOpenAction"/>
+            </group>
             <separator/>
             <action id="DBN.MainMenu.Settings" class="com.dbn.menu.action.ProjectSettingsOpenAction"/>
             <group id="DBN.MainMenu.DefaultSettings" popup="true">

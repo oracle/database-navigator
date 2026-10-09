@@ -21,9 +21,14 @@ import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.link.HyperLinkForm;
+import com.dbn.migration.shared.engine.DatabaseMigrationEngineDescriptor;
+import com.dbn.migration.shared.engine.DatabaseMigrationEngineDescriptors;
+import com.dbn.migration.shared.engine.DatabaseMigrationEngineType;
 import com.dbn.migration.shared.task.ui.DatabaseMigrationTaskItemForm;
+import com.dbn.migration.shared.task.ui.DatabaseMigrationTaskStarter;
 import com.dbn.migration.shared.workflow.DatabaseMigrationWorkflow;
 import com.dbn.migration.shared.workflow.DatabaseMigrationWorkflowCategory;
+import com.dbn.object.DBSchema;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
@@ -42,6 +47,7 @@ public class DatabaseMigrationWorkflowDashboardForm<
         W extends DatabaseMigrationWorkflow,
         C extends DatabaseMigrationWorkflowCategory> extends DBNFormBase {
     private JPanel mainPanel;
+    private JPanel headerPanel;
     private JPanel hintPanel;
     private JPanel hyperlinkPanel;
     private JTabbedPane workflowsPanel;
@@ -52,6 +58,7 @@ public class DatabaseMigrationWorkflowDashboardForm<
             @NotNull DatabaseMigrationWorkflowDashboardDialog<W, C> parent) {
         super(parent);
 
+        installContextHeader(headerPanel);
         initHintPanel();
         initHyperlinkPanel();
         initWorkflowsPanel();
@@ -96,16 +103,25 @@ public class DatabaseMigrationWorkflowDashboardForm<
 
     private void addWorkflow(@NotNull JPanel parent, @NotNull W workflow) {
         DatabaseMigrationWorkflowDashboardDialog<W, C> dialog = ensureParentDialog();
+        DBSchema schema = getContextObject() instanceof DBSchema contextSchema ? contextSchema : null;
         DatabaseMigrationTaskItemForm form = new DatabaseMigrationTaskItemForm(
                 this,
                 workflow,
-                () -> {
-                    dialog.doCancelAction();
-                    dialog.startWorkflow(workflow);
-                });
+                getTaskStarter(),
+                schema,
+                () -> dialog.doCancelAction());
         parent.add(form.getComponent());
         workflowForms.add(form);
     }
+
+    @NotNull
+    private DatabaseMigrationTaskStarter getTaskStarter() {
+        DatabaseMigrationWorkflowDashboardDialog<W, C> dialog = ensureParentDialog();
+        DatabaseMigrationEngineType engineType = dialog.getEngineType();
+        DatabaseMigrationEngineDescriptor<?, ?> engineDescriptor = DatabaseMigrationEngineDescriptors.get(engineType);
+        return engineDescriptor.getTaskStarter(ensureProject());
+    }
+
 
     @Override
     protected JComponent getMainComponent() {

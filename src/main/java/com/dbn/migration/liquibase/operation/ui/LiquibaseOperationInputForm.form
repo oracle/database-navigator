@@ -335,14 +335,13 @@
         </constraints>
         <properties/>
       </component>
-      <grid id="workspaceAvailability" binding="workspaceAvailabilityPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
+      <vspacer id="57eac">
         <constraints>
-          <grid row="9" column="1" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="9" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false">
+            <preferred-size width="-1" height="16"/>
+          </grid>
         </constraints>
-        <properties/>
-        <border type="none"/>
-        <children/>
-      </grid>
+      </vspacer>
     </children>
   </grid>
 </form>

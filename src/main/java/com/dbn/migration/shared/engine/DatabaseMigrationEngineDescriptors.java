@@ -25,17 +25,16 @@ import java.util.List;
  * Provides access to migration engine descriptors registered by DBN plugins.
  */
 public final class DatabaseMigrationEngineDescriptors
-        extends ExtensionPointCache<String, DatabaseMigrationEngineDescriptor<?, ?>> {
-    private static final DatabaseMigrationEngineDescriptors INSTANCE =
-            new DatabaseMigrationEngineDescriptors();
+        extends ExtensionPointCache<DatabaseMigrationEngineType, DatabaseMigrationEngineDescriptor<?, ?>> {
+    private static final DatabaseMigrationEngineDescriptors INSTANCE = new DatabaseMigrationEngineDescriptors();
 
     private DatabaseMigrationEngineDescriptors() {
-        super(DatabaseMigrationEngineDescriptor.EP, DatabaseMigrationEngineDescriptor::getId);
+        super(DatabaseMigrationEngineDescriptor.EP, d -> d.getEngineType());
     }
 
     @NotNull
-    public static DatabaseMigrationEngineDescriptor<?, ?> get(@NotNull String id) {
-        return INSTANCE.find(id);
+    public static DatabaseMigrationEngineDescriptor<?, ?> get(@NotNull DatabaseMigrationEngineType engineType) {
+        return INSTANCE.find(engineType);
     }
 
     @NotNull

@@ -42,6 +42,7 @@ import com.dbn.migration.liquibase.operation.LiquibaseOperationContext;
 import com.dbn.migration.liquibase.operation.LiquibaseOperationInput;
 import com.dbn.migration.liquibase.operation.LiquibaseOperationResult;
 import com.dbn.migration.liquibase.task.LiquibaseTaskResult;
+import com.dbn.migration.liquibase.ui.LiquibaseTaskStarter;
 import com.dbn.migration.liquibase.workflow.LiquibaseWorkflowContext;
 import com.dbn.migration.liquibase.workflow.LiquibaseWorkflowExecutor;
 import com.dbn.migration.liquibase.workflow.LiquibaseWorkflowInput;
@@ -84,12 +85,14 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
     private final StateContainer states = new StateContainer();
     private final LiquibaseWorkspaceBundle workspaces;
     private final LiquibaseEnvironmentProfileBundle environmentProfiles;
+    private final LiquibaseTaskStarter taskStarter;
     private final LiquibaseExecutionHistory executionHistory = new LiquibaseExecutionHistory();
 
     private DatabaseLiquibaseManager(@NotNull Project project) {
         super(project, COMPONENT_NAME);
         workspaces = new LiquibaseWorkspaceBundle(project);
         environmentProfiles = new LiquibaseEnvironmentProfileBundle(project);
+        taskStarter = new LiquibaseTaskStarter(this);
         ProjectEvents.subscribe(project, this, ConnectionConfigListener.TOPIC,
                 whenRemoved(c -> executionHistory.removeConnection(c)));
         ProjectEvents.subscribe(project, this, EnvironmentManagerListener.TOPIC,
@@ -119,6 +122,11 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
     @NotNull
     public LiquibaseEnvironmentProfileBundle getEnvironmentProfiles() {
         return environmentProfiles;
+    }
+
+    @NotNull
+    public LiquibaseTaskStarter getTaskStarter() {
+        return taskStarter;
     }
 
     @NotNull

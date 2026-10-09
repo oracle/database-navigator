@@ -47,6 +47,7 @@ Use this map as a source-discovery starting point. Package roots are not exhaust
 ## Default Posture
 
 - Keep edits localized and idiomatic. DBN has many small domain-specific base classes; use them.
+- Prefer one canonical constructor and one canonical method shape for a component. Do not add a collection of overloaded constructors, same-name methods with different parameter lists, or boolean-flag variants just to thread optional behavior through callers. First look for an existing input/configuration object, or introduce one when the options are cohesive. Add an overload only when an established external caller genuinely requires it and the alternative has a clearly distinct use case.
 - Do not introduce a generic helper if an equivalent exists under `com.dbn.common`.
 - For localization/NLS work, use `dbn-localization-guide`.
 - Do not hold strong references to long-lived project, connection, object, or UI objects when nearby code uses `ProjectRef`, `ConnectionRef`, `DBObjectRef`, or `WeakRef`.

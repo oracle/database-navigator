@@ -39,6 +39,16 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class Popups {
+    public static void resizeToFitContent(@NotNull JBPopup popup) {
+        if (!popup.isVisible()) return;
+
+        JComponent popupContent = popup.getContent();
+        popupContent.revalidate();
+        popupContent.doLayout();
+        popup.pack(true, true);
+        popup.moveToFitScreen();
+    }
+
     public static void showUnderneathOf(@NotNull JBPopup popup, @NotNull Component sourceComponent, int verticalShift, int maxHeight) {
         JComponent popupContent = popup.getContent();
         Dimension preferredSize = popupContent.getPreferredSize();

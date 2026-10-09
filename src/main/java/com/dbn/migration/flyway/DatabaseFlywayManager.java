@@ -22,6 +22,7 @@ import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.DatabaseType;
+import com.dbn.migration.flyway.ui.FlywayTaskStarter;
 import com.dbn.migration.flyway.workspace.FlywayWorkspace;
 import com.dbn.migration.flyway.workspace.FlywayWorkspaceBundle;
 import com.dbn.migration.flyway.workspace.ui.FlywayWorkspaceDialog;
@@ -48,10 +49,12 @@ public class DatabaseFlywayManager extends ProjectComponentBase implements Persi
     public static final String COMPONENT_NAME = "DBNavigator.Project.DatabaseFlywayManager";
 
     private final FlywayWorkspaceBundle workspaces;
+    private final FlywayTaskStarter taskStarter;
 
     private DatabaseFlywayManager(@NotNull Project project) {
         super(project, COMPONENT_NAME);
         workspaces = new FlywayWorkspaceBundle(project);
+        taskStarter = new FlywayTaskStarter(project);
     }
 
     @NotNull
@@ -62,6 +65,11 @@ public class DatabaseFlywayManager extends ProjectComponentBase implements Persi
     @NotNull
     public FlywayWorkspaceBundle getWorkspaces() {
         return workspaces;
+    }
+
+    @NotNull
+    public FlywayTaskStarter getTaskStarter() {
+        return taskStarter;
     }
 
     public void openWorkspaceSettings() {

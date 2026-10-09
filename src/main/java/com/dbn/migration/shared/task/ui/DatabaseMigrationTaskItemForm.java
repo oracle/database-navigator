@@ -21,13 +21,17 @@ import com.dbn.common.ui.info.DBNTextBlock;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.util.Fonts;
 import com.dbn.common.util.Strings;
+import com.dbn.migration.shared.operation.DatabaseMigrationOperation;
 import com.dbn.migration.shared.task.DatabaseMigrationTask;
+import com.dbn.migration.shared.workflow.DatabaseMigrationWorkflow;
+import com.dbn.object.DBSchema;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import java.util.function.Consumer;
 
 import static com.dbn.common.ui.link.Hyperlinks.initHyperlink;
 import static com.dbn.nls.NlsResources.txt;
@@ -46,7 +50,43 @@ public class DatabaseMigrationTaskItemForm extends DBNFormBase {
             @NotNull DBNFormBase parent,
             @NotNull DatabaseMigrationTask item,
             @NotNull Runnable action) {
+        this(parent, item.getDashboardName(), item.getDashboardDescription(), item.getDashboardDocumentationUrl(), button -> action.run());
+    }
+
+    public DatabaseMigrationTaskItemForm(
+            @NotNull DBNFormBase parent,
+            @NotNull DatabaseMigrationTask item,
+            @NotNull Consumer<JButton> action) {
         this(parent, item.getDashboardName(), item.getDashboardDescription(), item.getDashboardDocumentationUrl(), action);
+    }
+
+    public DatabaseMigrationTaskItemForm(
+            @NotNull DBNFormBase parent,
+            @NotNull DatabaseMigrationTask item,
+            @NotNull DatabaseMigrationTaskStarter taskStarter,
+            @Nullable DBSchema initialSchema,
+            @NotNull Runnable onContextSelected) {
+        this(parent, item, button -> selectTaskContext(
+                item,
+                taskStarter,
+                initialSchema,
+                button,
+                onContextSelected));
+    }
+
+    private static void selectTaskContext(
+            @NotNull DatabaseMigrationTask task,
+            @NotNull DatabaseMigrationTaskStarter taskStarter,
+            @Nullable DBSchema initialSchema,
+            @NotNull JButton aroundComponent,
+            @NotNull Runnable onContextSelected) {
+        if (task instanceof DatabaseMigrationOperation operation) {
+            taskStarter.startOperation(operation, initialSchema, aroundComponent, onContextSelected);
+        } else if (task instanceof DatabaseMigrationWorkflow workflow) {
+            taskStarter.startWorkflow(workflow, initialSchema, aroundComponent, onContextSelected);
+        } else {
+            throw new IllegalArgumentException("Unsupported migration task: " + task);
+        }
     }
 
     private DatabaseMigrationTaskItemForm(
@@ -54,13 +94,13 @@ public class DatabaseMigrationTaskItemForm extends DBNFormBase {
             @NotNull String name,
             @NotNull String description,
             @Nullable String documentationUrl,
-            @NotNull Runnable action) {
+            @NotNull Consumer<JButton> action) {
         super(parent);
 
         nameLabel.setText(name);
         descriptionLabel.setText(description);
         nameLabel.setFont(Fonts.regular(1));
-        openButton.addActionListener(e -> action.run());
+        openButton.addActionListener(e -> action.accept(openButton));
 
         if (Strings.isEmpty(documentationUrl)) {
             moreHyperlinkLabel.setVisible(false);

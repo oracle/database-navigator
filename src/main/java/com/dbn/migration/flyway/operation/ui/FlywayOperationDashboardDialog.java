@@ -18,6 +18,7 @@ package com.dbn.migration.flyway.operation.ui;
 
 import com.dbn.migration.flyway.operation.FlywayOperation;
 import com.dbn.migration.flyway.operation.FlywayOperationCategory;
+import com.dbn.migration.shared.engine.DatabaseMigrationEngineType;
 import com.dbn.migration.shared.operation.ui.DatabaseMigrationOperationDashboardDialog;
 import com.dbn.object.DBSchema;
 import com.intellij.openapi.project.Project;
@@ -46,8 +47,10 @@ public class FlywayOperationDashboardDialog extends DatabaseMigrationOperationDa
 
     private FlywayOperationDashboardDialog(
             @NotNull Project project,
-            @Nullable DBSchema initialSchema) {
-        super(project, initialSchema, txt("msg.flyway.title.OperationDashboard"), 640);
+            @Nullable DBSchema schema) {
+        super(project, schema,
+                DatabaseMigrationEngineType.FLYWAY,
+                txt("msg.flyway.title.OperationDashboard"), 640);
     }
 
     @NotNull
@@ -80,8 +83,4 @@ public class FlywayOperationDashboardDialog extends DatabaseMigrationOperationDa
         return txt("app.flyway.url.OperationDashboard");
     }
 
-    @Override
-    public void startOperation(@NotNull FlywayOperation operation) {
-        throw new UnsupportedOperationException("Flyway operation is not implemented: " + operation.name());
-    }
 }

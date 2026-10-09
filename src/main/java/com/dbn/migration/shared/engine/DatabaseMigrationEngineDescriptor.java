@@ -18,9 +18,10 @@ package com.dbn.migration.shared.engine;
 
 import com.dbn.common.extension.ExtensionPoint;
 import com.dbn.migration.shared.operation.DatabaseMigrationOperation;
+import com.dbn.migration.shared.task.ui.DatabaseMigrationTaskStarter;
 import com.dbn.migration.shared.workflow.DatabaseMigrationWorkflow;
 import com.intellij.openapi.extensions.ExtensionPointName;
-import org.jetbrains.annotations.NonNls;
+import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -28,10 +29,9 @@ import java.util.List;
 /**
  * Describes a database migration engine without exposing its execution implementation.
  *
- * <p>The descriptor is intentionally metadata-only. It provides a stable identity for
- * engine-neutral code, presentation metadata for shared dashboards, and the ordered
- * operation catalogue that the engine exposes. Execution contexts, processors, settings,
- * and persistence remain owned by the concrete engine.</p>
+ * <p>The descriptor provides a stable identity for engine-neutral code, presentation
+ * metadata for shared dashboards, the ordered operation and workflow catalogues exposed by
+ * the engine, and the bridge to the engine-specific task starter.</p>
  */
 public abstract class DatabaseMigrationEngineDescriptor<
         O extends DatabaseMigrationOperation,
@@ -39,24 +39,26 @@ public abstract class DatabaseMigrationEngineDescriptor<
     public static final ExtensionPointName<DatabaseMigrationEngineDescriptor<?, ?>> EP =
             ExtensionPointName.create("com.dbn.databaseMigrationEngine");
 
-    private final String id;
+    private final DatabaseMigrationEngineType engineType;
     private final List<O> operations;
     private final List<W> workflows;
 
     protected DatabaseMigrationEngineDescriptor(
-            @NotNull @NonNls String id,
+            @NotNull DatabaseMigrationEngineType engineType,
             @NotNull List<O> operations,
             @NotNull List<W> workflows) {
-        this.id = id;
+        this.engineType = engineType;
         this.operations = List.copyOf(operations);
         this.workflows = List.copyOf(workflows);
     }
 
     @NotNull
-    @NonNls
-    public final String getId() {
-        return id;
+    public final DatabaseMigrationEngineType getEngineType() {
+        return engineType;
     }
+
+    @NotNull
+    public abstract DatabaseMigrationTaskStarter getTaskStarter(@NotNull Project project);
 
     @NotNull
     public abstract String getName();

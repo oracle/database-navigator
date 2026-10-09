@@ -23,7 +23,6 @@ import com.dbn.migration.liquibase.workspace.LiquibaseWorkspaceBundle;
 import com.dbn.object.DBSchema;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
 
@@ -41,16 +40,16 @@ public class LiquibaseOperationInputDialog extends DBNDialog<LiquibaseOperationI
     private final LiquibaseOperationInput executionInput;
 
     public LiquibaseOperationInputDialog(
-            @Nullable DBSchema schema,
+            @NotNull DBSchema schema,
             @NotNull LiquibaseOperation operation,
             @NotNull LiquibaseWorkspaceBundle workspaces) {
-        super(workspaces.getProject(), txt("app.liquibase.title.Operation_" + operation.name()), true);
+        super(schema.getProject(), txt("app.liquibase.title.Operation_" + operation.name()), true);
         this.executionInput = new LiquibaseOperationInput(getProject(), operation);
         this.workspaces = workspaces;
-        if (schema != null && operation.requires(SOURCE_SCHEMA)) {
+        if (operation.requires(SOURCE_SCHEMA)) {
             executionInput.setSourceSchema(schema);
         }
-        if (schema != null && operation.requires(TARGET_SCHEMA) && !operation.requires(SOURCE_SCHEMA)) {
+        if (operation.requires(TARGET_SCHEMA) && !operation.requires(SOURCE_SCHEMA)) {
             executionInput.setTargetSchema(schema);
         }
         setDefaultSize(600, 320);

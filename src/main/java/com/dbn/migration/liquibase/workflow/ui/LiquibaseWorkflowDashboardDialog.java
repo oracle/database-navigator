@@ -16,21 +16,26 @@
 
 package com.dbn.migration.liquibase.workflow.ui;
 
-import com.dbn.common.ui.dialog.DBNDialog;
+import com.dbn.migration.liquibase.workflow.LiquibaseWorkflow;
+import com.dbn.migration.liquibase.workflow.LiquibaseWorkflowCategory;
+import com.dbn.migration.shared.engine.DatabaseMigrationEngineType;
+import com.dbn.migration.shared.workflow.ui.DatabaseMigrationWorkflowDashboardDialog;
 import com.dbn.object.DBSchema;
-import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.Action;
+import java.util.Arrays;
+import java.util.List;
 
 import static com.dbn.nls.NlsResources.txt;
 
-/** Non-modal dialog displaying the available Liquibase workflows. */
-public class LiquibaseWorkflowDashboardDialog extends DBNDialog<LiquibaseWorkflowDashboardForm> {
-    private final DBObjectRef<DBSchema> initialSchema;
-
+/**
+ * Non-modal dialog displaying the grouped Liquibase workflows for a project.
+ */
+public class LiquibaseWorkflowDashboardDialog extends DatabaseMigrationWorkflowDashboardDialog<
+        LiquibaseWorkflow,
+        LiquibaseWorkflowCategory> {
     public LiquibaseWorkflowDashboardDialog(@NotNull Project project) {
         this(project, null);
     }
@@ -39,29 +44,40 @@ public class LiquibaseWorkflowDashboardDialog extends DBNDialog<LiquibaseWorkflo
         this(schema.getProject(), schema);
     }
 
-    private LiquibaseWorkflowDashboardDialog(@NotNull Project project, @Nullable DBSchema initialSchema) {
-        super(project, txt("msg.liquibase.title.WorkflowDashboard"), false);
-        this.initialSchema = DBObjectRef.of(initialSchema);
-        setDefaultSize(640, 720);
-        setModal(false);
-        init();
-    }
-
-    @Nullable
-    public DBSchema getInitialSchema() {
-        return DBObjectRef.get(initialSchema);
+    private LiquibaseWorkflowDashboardDialog(@NotNull Project project, @Nullable DBSchema schema) {
+        super(project, schema,
+                DatabaseMigrationEngineType.LIQUIBASE,
+                txt("msg.liquibase.title.WorkflowDashboard"), 720);
     }
 
     @NotNull
     @Override
-    protected LiquibaseWorkflowDashboardForm createForm() {
-        return new LiquibaseWorkflowDashboardForm(this);
+    public List<LiquibaseWorkflow> getWorkflows() {
+        return Arrays.asList(LiquibaseWorkflow.values());
     }
 
-    @Override
     @NotNull
-    protected Action[] initializeActions() {
-        renameAction(getCancelAction(), txt("msg.shared.button.Close"));
-        return actions(getCancelAction());
+    @Override
+    public List<LiquibaseWorkflowCategory> getCategories() {
+        return Arrays.asList(LiquibaseWorkflowCategory.values());
     }
+
+    @NotNull
+    @Override
+    public String getDashboardHint() {
+        return txt("app.liquibase.hint.Workflows");
+    }
+
+    @NotNull
+    @Override
+    public String getDocumentationLabel() {
+        return txt("app.liquibase.link.LiquibaseDocumentation");
+    }
+
+    @NotNull
+    @Override
+    public String getDocumentationUrl() {
+        return txt("app.liquibase.url.OperationDashboard");
+    }
+
 }

@@ -16,13 +16,11 @@
 
 package com.dbn.migration.liquibase.operation.ui;
 
-import com.dbn.common.util.Dialogs;
-import com.dbn.migration.liquibase.DatabaseLiquibaseManager;
-import com.dbn.object.DBSchema;
 import com.dbn.migration.liquibase.operation.LiquibaseOperation;
 import com.dbn.migration.liquibase.operation.LiquibaseOperationCategory;
-import com.dbn.migration.liquibase.workspace.LiquibaseWorkspaceBundle;
+import com.dbn.migration.shared.engine.DatabaseMigrationEngineType;
 import com.dbn.migration.shared.operation.ui.DatabaseMigrationOperationDashboardDialog;
+import com.dbn.object.DBSchema;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -30,7 +28,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.dbn.common.util.Dialogs.whenOk;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
@@ -47,8 +44,10 @@ public class LiquibaseOperationDashboardDialog extends DatabaseMigrationOperatio
         this(schema.getProject(), schema);
     }
 
-    private LiquibaseOperationDashboardDialog(@NotNull Project project, @Nullable DBSchema initialSchema) {
-        super(project, initialSchema, txt("msg.liquibase.title.OperationDashboard"), 860);
+    private LiquibaseOperationDashboardDialog(@NotNull Project project, @Nullable DBSchema schema) {
+        super(project, schema,
+                DatabaseMigrationEngineType.LIQUIBASE,
+                txt("msg.liquibase.title.OperationDashboard"), 860);
     }
 
     @NotNull
@@ -79,15 +78,6 @@ public class LiquibaseOperationDashboardDialog extends DatabaseMigrationOperatio
     @Override
     public String getDocumentationUrl() {
         return txt("app.liquibase.url.OperationDashboard");
-    }
-
-    @Override
-    public void startOperation(@NotNull LiquibaseOperation operation) {
-        Project project = getProject();
-        DatabaseLiquibaseManager manager = DatabaseLiquibaseManager.getInstance(project);
-        LiquibaseWorkspaceBundle workspaces = manager.getWorkspaces();
-        Dialogs.show(() -> new LiquibaseOperationInputDialog(getInitialSchema(), operation, workspaces),
-                whenOk(dialog -> manager.executeOperation(dialog.getExecutionInput(), null)));
     }
 
 }

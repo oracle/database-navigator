@@ -17,11 +17,12 @@
 package com.dbn.migration.shared.operation.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
+import com.dbn.migration.shared.engine.DatabaseMigrationEngineType;
 import com.dbn.migration.shared.operation.DatabaseMigrationOperation;
 import com.dbn.migration.shared.operation.DatabaseMigrationOperationCategory;
 import com.dbn.object.DBSchema;
-import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,22 +34,24 @@ import static com.dbn.nls.NlsResources.txt;
 /**
  * Shared project-level dialog for grouped database migration operations.
  *
- * <p>The optional schema is only an initial context for the engine-specific input
- * dialog. The dashboard itself remains independent of a database connection.</p>
+ * <p>The optional schema is exposed as the dialog context object. It is displayed by the
+ * shared form and supplied as the initial context for engine-specific task input.</p>
  */
+@Getter
 public abstract class DatabaseMigrationOperationDashboardDialog<
         O extends DatabaseMigrationOperation,
         C extends DatabaseMigrationOperationCategory>
-        extends DBNDialog<DatabaseMigrationOperationDashboardForm<O, C>> {
-    private final DBObjectRef<DBSchema> initialSchema;
-
+    extends DBNDialog<DatabaseMigrationOperationDashboardForm<O, C>> {
+    private final DatabaseMigrationEngineType engineType;
     protected DatabaseMigrationOperationDashboardDialog(
             @NotNull Project project,
-            @Nullable DBSchema initialSchema,
+            @Nullable DBSchema schema,
+            @NotNull DatabaseMigrationEngineType engineType,
             @NotNull String title,
             int height) {
         super(project, title, false);
-        this.initialSchema = DBObjectRef.of(initialSchema);
+        setContextObject(schema);
+        this.engineType = engineType;
         setDefaultSize(640, height);
         setModal(false);
         init();
@@ -68,13 +71,6 @@ public abstract class DatabaseMigrationOperationDashboardDialog<
 
     @NotNull
     public abstract String getDocumentationUrl();
-
-    public abstract void startOperation(@NotNull O operation);
-
-    @Nullable
-    public DBSchema getInitialSchema() {
-        return DBObjectRef.get(initialSchema);
-    }
 
     @NotNull
     @Override
