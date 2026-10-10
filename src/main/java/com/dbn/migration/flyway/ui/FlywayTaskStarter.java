@@ -18,10 +18,10 @@ package com.dbn.migration.flyway.ui;
 
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.context.DatabaseContextSelection;
 import com.dbn.migration.flyway.DatabaseFlywayManager;
+import com.dbn.migration.flyway.execution.processor.FlywayExecutionProcessors;
 import com.dbn.migration.flyway.operation.FlywayFeatureSupport;
 import com.dbn.migration.flyway.operation.FlywayOperation;
 import com.dbn.migration.flyway.operation.ui.FlywayOperationInputDialog;
@@ -56,9 +56,7 @@ public class FlywayTaskStarter extends DatabaseMigrationTaskStarter {
             @NotNull DatabaseMigrationOperation task,
             @NotNull DBSchema schema) {
         FlywayOperation operation = ensureOperation(task);
-        if (operation != FlywayOperation.INITIALIZE_PROJECT && operation != FlywayOperation.VALIDATE_MIGRATIONS) {
-            throw new UnsupportedOperationException("Flyway operation is not implemented: " + operation.name());
-        }
+        FlywayExecutionProcessors.get(operation);
 
         Dialogs.show(
                 () -> new FlywayOperationInputDialog(schema, operation, manager.getWorkspaces()),

@@ -23,6 +23,7 @@ import com.dbn.migration.flyway.operation.ui.FlywayOperationResultForm;
 import com.dbn.migration.flyway.task.FlywayTaskResult;
 import com.dbn.migration.shared.execution.logging.LogOutputBuffer;
 import com.dbn.migration.shared.operation.DatabaseMigrationOperationResult;
+import org.flywaydb.core.api.output.InfoResult;
 import org.flywaydb.core.api.output.ValidateResult;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -42,7 +43,18 @@ public class FlywayOperationResult extends FlywayTaskResult<
         FlywayOperation, FlywayOperationInput, FlywayOperationContext> {
     private final LogOutputBuffer output;
     private final ExecutionTiming timing = new ExecutionTiming();
+    private InfoResult infoResult;
     private ValidateResult validationResult;
+
+    @Nullable
+    public InfoResult getInfoResult() {
+        return infoResult;
+    }
+
+    public void setInfoResult(@Nullable InfoResult infoResult) {
+        this.infoResult = infoResult;
+        notifyChanged();
+    }
 
     public FlywayOperationResult(@NotNull FlywayOperationContext context) {
         super(context);

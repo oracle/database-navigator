@@ -19,6 +19,10 @@ package com.dbn.migration.flyway.operation;
 import com.dbn.common.ui.form.field.FieldState;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.migration.flyway.operation.FlywayOperation.INITIALIZE_PROJECT;
+import static com.dbn.migration.flyway.operation.FlywayOperation.SHOW_MIGRATION_INFO;
+import static com.dbn.migration.flyway.operation.FlywayOperation.VALIDATE_MIGRATIONS;
+
 /**
  * Defines the context and result capabilities of a Flyway operation.
  */
@@ -43,19 +47,26 @@ public final class FlywayOperationSupport implements FlywayFeatureSupport {
     public boolean supports(@NotNull FlywayFeature feature) {
         return switch (feature) {
             case SCHEMA, WORKSPACE -> requires(feature);
-            case WORKSPACE_CREATION -> operation == FlywayOperation.INITIALIZE_PROJECT;
-            case MIGRATION_ITEMS -> operation == FlywayOperation.VALIDATE_MIGRATIONS;
-            case RERUN_ON_SUCCESS -> operation == FlywayOperation.VALIDATE_MIGRATIONS;
+            case WORKSPACE_CREATION -> operation == INITIALIZE_PROJECT;
+            case MIGRATION_ITEMS ->
+                    operation == VALIDATE_MIGRATIONS ||
+                    operation == SHOW_MIGRATION_INFO;
+            case MIGRATION_INFO -> operation == SHOW_MIGRATION_INFO;
+            case RERUN_ON_SUCCESS ->
+                    operation == VALIDATE_MIGRATIONS ||
+                    operation == SHOW_MIGRATION_INFO;
         };
     }
 
     @Override
     public boolean requires(@NotNull FlywayFeature feature) {
         return switch (feature) {
-            case SCHEMA, WORKSPACE -> operation == FlywayOperation.INITIALIZE_PROJECT ||
-                    operation == FlywayOperation.VALIDATE_MIGRATIONS;
+            case SCHEMA, WORKSPACE ->
+                    operation == INITIALIZE_PROJECT ||
+                    operation == VALIDATE_MIGRATIONS ||
+                    operation == SHOW_MIGRATION_INFO;
             case WORKSPACE_CREATION -> false;
-            case MIGRATION_ITEMS, RERUN_ON_SUCCESS -> false;
+            case MIGRATION_ITEMS, MIGRATION_INFO, RERUN_ON_SUCCESS -> false;
         };
     }
 }

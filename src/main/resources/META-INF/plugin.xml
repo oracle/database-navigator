@@ -323,6 +323,7 @@
 
         <!-- Flyway execution processors -->
         <flywayExecutionProcessor implementation="com.dbn.migration.flyway.execution.processor.FlywayInitializeProjectProcessor"/>
+        <flywayExecutionProcessor implementation="com.dbn.migration.flyway.execution.processor.FlywayShowMigrationInfoProcessor"/>
         <flywayExecutionProcessor implementation="com.dbn.migration.flyway.execution.processor.FlywayValidateMigrationsProcessor"/>
 
         <!-- Liquibase execution processors -->

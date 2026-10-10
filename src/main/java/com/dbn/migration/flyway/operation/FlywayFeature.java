@@ -24,5 +24,6 @@ public enum FlywayFeature {
     WORKSPACE,
     WORKSPACE_CREATION,
     MIGRATION_ITEMS,
+    MIGRATION_INFO,
     RERUN_ON_SUCCESS
 }

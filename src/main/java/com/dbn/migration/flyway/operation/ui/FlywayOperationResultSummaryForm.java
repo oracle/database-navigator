@@ -31,6 +31,7 @@ import com.dbn.migration.flyway.workspace.FlywayWorkspace;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import org.flywaydb.core.api.output.InfoResult;
 import org.flywaydb.core.api.output.ValidateResult;
 import org.jetbrains.annotations.NotNull;
 
@@ -45,10 +46,11 @@ import static com.dbn.common.task.TaskStatus.DONE;
 import static com.dbn.common.task.TaskStatus.RUNNING;
 import static com.dbn.common.ui.link.Hyperlinks.onHyperlinkAccess;
 import static com.dbn.common.ui.util.Tooltips.setToolTipText;
+import static com.dbn.migration.flyway.operation.FlywayFeature.MIGRATION_INFO;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
- * Summary panel for Flyway migration validation.
+ * Summary panel for a Flyway operation.
  */
 public class FlywayOperationResultSummaryForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -56,11 +58,14 @@ public class FlywayOperationResultSummaryForm extends DBNFormBase {
     private JLabel connectionLabel;
     private JLabel schemaLabel;
     private JLabel workspaceLabel;
+    private JLabel validationStatusTitleLabel;
     private DBNHyperlinkLabel migrationsPathLink;
     private JLabel configurationFileLabel;
     private DBNHyperlinkLabel configurationFileLink;
     private JLabel validationStatusLabel;
+    private JLabel validatedMigrationsTitleLabel;
     private JLabel validatedMigrationsLabel;
+    private JLabel invalidMigrationsTitleLabel;
     private JLabel invalidMigrationsLabel;
     private JLabel durationLabel;
     private JPanel messagePanel;
@@ -169,6 +174,21 @@ public class FlywayOperationResultSummaryForm extends DBNFormBase {
     }
 
     private void updateValidationLabels() {
+        boolean infoOperation = result.getOperation().getSupport().supports(MIGRATION_INFO);
+        validationStatusTitleLabel.setText(txt(infoOperation ? "app.flyway.label.Status" : "app.flyway.label.ValidationStatus"));
+        validatedMigrationsTitleLabel.setText(txt(infoOperation ? "app.flyway.label.Migrations" : "app.flyway.label.ValidatedMigrations"));
+        invalidMigrationsTitleLabel.setVisible(!infoOperation);
+        invalidMigrationsLabel.setVisible(!infoOperation);
+
+        InfoResult infoResult = result.getInfoResult();
+        if (infoOperation) {
+            validationStatusLabel.setText(result.getStatus().getName());
+            validatedMigrationsLabel.setText(infoResult == null || infoResult.migrations == null
+                    ? "0"
+                    : Integer.toString(infoResult.migrations.size()));
+            return;
+        }
+
         ValidateResult validationResult = result.getValidationResult();
         validationStatusLabel.setText(validationResult == null
                 ? result.getStatus().getName()

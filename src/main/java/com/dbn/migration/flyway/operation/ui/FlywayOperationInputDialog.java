@@ -40,10 +40,6 @@ public class FlywayOperationInputDialog extends DBNDialog<FlywayOperationInputFo
             @NotNull FlywayOperation operation,
             @NotNull FlywayWorkspaceBundle workspaces) {
         super(schema.getProject(), txt("app.flyway.title.Operation_" + operation.name()), true);
-        if (operation != FlywayOperation.INITIALIZE_PROJECT && operation != FlywayOperation.VALIDATE_MIGRATIONS) {
-            throw new UnsupportedOperationException("Flyway operation is not implemented: " + operation.name());
-        }
-
         executionInput = new FlywayOperationInput(getProject(), operation);
         executionInput.setSchema(schema);
         setDefaultSize(600, 320);

@@ -88,6 +88,7 @@ public class DatabaseFlywayManager extends ProjectComponentBase implements Persi
     public void executeOperation(
             @NotNull FlywayOperationInput input,
             @Nullable FlywayOperationResult previousResult) {
+        FlywayExecutionProcessor processor = FlywayExecutionProcessors.get(input.getOperation());
         FlywayOperationContext context = new FlywayOperationContext(input);
         FlywayOperationResult result = context.getResult();
         result.setPrevious(previousResult);
@@ -96,7 +97,6 @@ public class DatabaseFlywayManager extends ProjectComponentBase implements Persi
         ExecutionManager executionManager = ExecutionManager.getInstance(project);
         executionManager.addExecutionResult(result);
 
-        FlywayExecutionProcessor processor = FlywayExecutionProcessors.get(input.getOperation());
         DatabaseMigrationManager migrationManager = DatabaseMigrationManager.getInstance(project);
         migrationManager.runMigrationTask(
                 () -> processor.execute(context),
