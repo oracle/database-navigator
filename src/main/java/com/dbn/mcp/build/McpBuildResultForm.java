@@ -81,7 +81,9 @@ public class McpBuildResultForm extends DBNFormBase {
     private JBTabbedPane createConfigTabs() {
         boolean httpTransport = isHttpTransport();
         JBTabbedPane tabs = new JBTabbedPane();
-        tabs.addTab(httpTransport ? txt("app.mcp.title.Claude") : txt("app.mcp.title.McpConfig"), createConfigTab(result.getClaudeSnippetJson()));
+        if (!httpTransport) {
+            tabs.addTab(txt("app.mcp.title.McpConfig"), createConfigTab(result.getClaudeSnippetJson()));
+        }
         String clineSnippetJson = result.getClineSnippetJson();
         if (httpTransport && clineSnippetJson != null) {
             tabs.addTab(txt("app.mcp.title.Cline"), createConfigTab(clineSnippetJson));
