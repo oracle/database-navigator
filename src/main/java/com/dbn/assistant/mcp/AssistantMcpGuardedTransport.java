@@ -26,6 +26,7 @@ import dev.langchain4j.mcp.client.transport.McpTransport;
 import dev.langchain4j.mcp.protocol.McpClientMessage;
 import dev.langchain4j.mcp.protocol.McpClientMethod;
 import dev.langchain4j.mcp.protocol.McpInitializeRequest;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
@@ -36,7 +37,8 @@ import static com.dbn.assistant.mcp.model.AssistantMcpToolMetadataGuard.MAX_TOOL
 import static com.dbn.assistant.mcp.model.AssistantMcpToolMetadataGuard.MAX_TOTAL_TOOL_METADATA_LENGTH;
 
 /**
- * Bounds MCP tools/list metadata before LangChain4j materializes it into tool specifications.
+ * Checks STDIO command files before launch and bounds MCP tools/list metadata before
+ * LangChain4j materializes it into tool specifications.
  * <p>
  * The wrapped LangChain4j transports still parse the raw server response into a {@link JsonNode}
  * before this guard runs. This guard prevents the next amplification step - unbounded
@@ -45,13 +47,18 @@ import static com.dbn.assistant.mcp.model.AssistantMcpToolMetadataGuard.MAX_TOTA
  */
 class AssistantMcpGuardedTransport implements McpTransport {
     private final McpTransport delegate;
+    private final AssistantMcpCommand command;
 
-    AssistantMcpGuardedTransport(McpTransport delegate) {
+    AssistantMcpGuardedTransport(
+            McpTransport delegate,
+            @Nullable AssistantMcpCommand command) {
         this.delegate = delegate;
+        this.command = command;
     }
 
     @Override
     public void start(McpOperationHandler messageHandler) {
+        AssistantMcpCommandSignature.verify(command);
         delegate.start(messageHandler);
     }
 
