@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.util.ui.JBUI;
-import com.intellij.util.ui.UIUtil;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -60,7 +59,7 @@ public class WrapperNameEditorForm extends DBNFormBase {
     }
 
     private void initStatusLabel() {
-        statusLabel.setForeground(Colors.faded(UIUtil.getLabelForeground()));
+        statusLabel.setForeground(Colors.getContextHelpForeground());
         statusLabel.setHorizontalAlignment(JLabel.RIGHT);
         updateStatusLabel();
     }
@@ -73,7 +72,7 @@ public class WrapperNameEditorForm extends DBNFormBase {
         statusLabel.setText(txt("msg.java.label.IdentifierLength", length));
 
         Color foreground = length > 0 && length <= maxLength ?
-                Colors.faded(UIUtil.getLabelForeground()) :
+                Colors.getContextHelpForeground() :
                 Colors.getLabelErrorForeground();
         statusLabel.setForeground(foreground);
     }

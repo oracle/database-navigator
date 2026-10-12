@@ -17,6 +17,8 @@
 package com.dbn.connection.config.ui;
 
 import com.dbn.common.options.ui.ConfigurationEditorForm;
+import com.dbn.common.thread.Dispatch;
+import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.ConnectionDebuggerSettings;
 import com.dbn.connection.config.ReverseSshTunnelConfiguration;
 import com.dbn.debugger.JDWPTunnelType;
@@ -44,6 +46,8 @@ import static com.dbn.debugger.JDWPTunnelType.TCP_DRIVER_TUNNEL;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<ConnectionDebuggerSettings> {
+    private static final Object REVERSE_SSH_TUNNEL_HOST_RESOLUTION = new Object();
+
     private JPanel mainPanel;
     private JCheckBox compileDependenciesCheckBox;
     private JTextField tcpHostTextBox;
@@ -115,6 +119,25 @@ public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<Conn
         JDWPTunnelType tunnelType = getSelection(tunnelTypeComboBox);
         tcpAddressPanel.setVisible(!classic && tunnelType != TCP_DRIVER_TUNNEL);
         reverseSshTunnelPanel.setVisible(!classic && tunnelType == SSH_REVERSE_TUNNEL);
+
+        if (!classic && tunnelType == SSH_REVERSE_TUNNEL) {
+            initializeReverseSshTunnelHost();
+        }
+    }
+
+    private void initializeReverseSshTunnelHost() {
+        if (!reverseSshTunnelForm.isHostEmpty()) return;
+
+        ConnectionDatabaseSettings databaseSettings = getConfiguration().ensureParent().getDatabaseSettings();
+        Dispatch.asyncOnce(
+                mainPanel,
+                REVERSE_SSH_TUNNEL_HOST_RESOLUTION,
+                () -> databaseSettings.resolveHost(),
+                host -> {
+                    if (getSelection(tunnelTypeComboBox) == SSH_REVERSE_TUNNEL) {
+                        reverseSshTunnelForm.initializeHost(host);
+                    }
+                });
     }
 
     @Override

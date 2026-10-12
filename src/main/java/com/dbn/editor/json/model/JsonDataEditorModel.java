@@ -81,7 +81,7 @@ public class JsonDataEditorModel
 
     private final List<JsonDataEditorModelRow> changedRows = new ArrayList<>();
 
-    public JsonDataEditorModel(JsonDataEditor jsonDataEditor) throws SQLException {
+    public JsonDataEditorModel(JsonDataEditor jsonDataEditor) {
         super(jsonDataEditor.getConnection());
         Project project = getProject();
         this.jsonDataEditor = WeakRef.of(jsonDataEditor);

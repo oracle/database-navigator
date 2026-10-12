@@ -52,9 +52,10 @@ package com.dbn.editor.data.ui.table.cell;
  import static com.dbn.common.ui.table.Tables.isFirstCellSelected;
  import static com.dbn.common.ui.table.Tables.isLastCellSelected;
  import static com.dbn.common.ui.util.TextFields.getText;
+ import static com.dbn.common.util.Unsafe.cast;
  import static com.dbn.nls.NlsResources.txt;
 
- public class DatasetTableCellEditor extends AbstractDatasetTableCellEditor implements KeyListener{
+ public class DatasetTableCellEditor<T extends DataEditorComponent> extends AbstractDatasetTableCellEditor<T> implements KeyListener{
     private static final Border ERROR_BORDER = new LineBorder(JBColor.RED, 1);
     private static final Border POPUP_BORDER = new LineBorder(JBColor.BLUE, 1);
 
@@ -63,11 +64,7 @@ package com.dbn.editor.data.ui.table.cell;
     public static final int HIGHLIGHT_TYPE_ERROR = 2;
 
     DatasetTableCellEditor(DatasetEditorTable table) {
-        this(table, new BasicDataEditorComponent());
-    }
-
-    DatasetTableCellEditor(DatasetEditorTable table, DataEditorComponent editorComponent) {
-        super(table, editorComponent);
+        super(table);
         JTextField textField = getTextField();
         textField.addKeyListener(this);
         textField.addMouseListener(mouseListener);
@@ -78,6 +75,11 @@ package com.dbn.editor.data.ui.table.cell;
         updateTextField();
         Colors.subscribe(this, () -> updateTextField());
     }
+
+     @Override
+     protected T createEditorComponent(DatasetEditorTable table) {
+        return cast(new BasicDataEditorComponent());
+     }
 
      private void updateTextField() {
          JTextField textField = getTextField();

@@ -16,6 +16,9 @@
 
 package com.dbn.data.value;
 
+import com.dbn.common.data.Data;
+import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.data.type.DBDataType;
 import com.dbn.data.type.GenericDataType;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
@@ -117,6 +120,12 @@ public class BlobValue extends LargeObjectValue {
     @Override
     public GenericDataType getGenericDataType() {
         return GenericDataType.BLOB;
+    }
+
+    @Override
+    @Nullable
+    protected String convertUserValue(@Nullable Object userValue, DBDataType dataType, DBNConnection connection) {
+        return Data.asString(userValue);
     }
 
     @Override

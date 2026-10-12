@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import com.dbn.ddl.action.DDLFileCreateAction;
 import com.dbn.ddl.action.DDLFileDetachAction;
 import com.dbn.ddl.action.DDLFileSettingsAction;
 import com.dbn.editor.DBContentType;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -62,7 +62,7 @@ public class CodeEditorDDLFileAction extends ProjectPopupAction {
         DBSourceCodeVirtualFile sourceCodeFile = getSourcecodeFile(e);
         if (sourceCodeFile == null) return AnAction.EMPTY_ARRAY;
 
-        DBSchemaObject object = sourceCodeFile.getObject();
+        DBObject object = sourceCodeFile.getObject();
         return new AnAction[]{
                 new DDLFileCreateAction(object),
                 new DDLFileAttachAction(object),
@@ -76,7 +76,7 @@ public class CodeEditorDDLFileAction extends ProjectPopupAction {
         DBSourceCodeVirtualFile sourceCodeFile = getSourcecodeFile(e);
         if (sourceCodeFile == null) return false;
 
-        DBSchemaObject object = sourceCodeFile.getObject();
+        DBObject object = sourceCodeFile.getObject();
         DBContentType contentType = sourceCodeFile.getContentType();
         DBObjectType objectType = object.getObjectType();
 

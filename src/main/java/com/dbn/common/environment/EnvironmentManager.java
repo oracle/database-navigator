@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import com.dbn.common.environment.options.listener.EnvironmentManagerListener;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.util.Editors;
 import com.dbn.editor.DBContentType;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.vfs.file.DBContentVirtualFile;
 import com.intellij.openapi.components.State;
@@ -77,8 +77,8 @@ public class EnvironmentManager extends ProjectComponentBase implements Persiste
         return isReadonly(contentFile.getObject(), contentFile.getContentType());
     }
 
-    public boolean isEnvironmentReadonly(@NotNull DBSchemaObject schemaObject, @NotNull DBContentType contentType) {
-        EnvironmentType environmentType = schemaObject.getEnvironmentType();
+    public boolean isEnvironmentReadonly(@NotNull DBObject object, @NotNull DBContentType contentType) {
+        EnvironmentType environmentType = object.getEnvironmentType();
 
         if (contentType.isOneOf(DATA, JSON)) {
             return environmentType.isReadonlyData();
@@ -91,22 +91,22 @@ public class EnvironmentManager extends ProjectComponentBase implements Persiste
         return false;
     }
 
-    public boolean isReadonly(@NotNull DBSchemaObject schemaObject, @NotNull DBContentType contentType) {
+    public boolean isReadonly(@NotNull DBObject object, @NotNull DBContentType contentType) {
         // content transiently marked as editable
-        boolean transientlyEditable = isTransientlyEditable(schemaObject, contentType);
+        boolean transientlyEditable = isTransientlyEditable(object, contentType);
         if (transientlyEditable) return false;
 
-        return isEnvironmentReadonly(schemaObject, contentType);
+        return isEnvironmentReadonly(object, contentType);
     }
 
-    public static boolean isTransientlyEditable(@NotNull DBSchemaObject schemaObject, @NotNull DBContentType contentType) {
-        DBObjectStatusHolder objectStatus = schemaObject.getStatus();
+    public static boolean isTransientlyEditable(@NotNull DBObject object, @NotNull DBContentType contentType) {
+        DBObjectStatusHolder objectStatus = object.getStatus();
         return objectStatus.is(contentType, EDITABLE);
     }
 
-    public void enableEditing(@NotNull DBSchemaObject schemaObject, @NotNull DBContentType contentType) {
-        schemaObject.getStatus().set(contentType, EDITABLE, true);
-        DBContentVirtualFile contentFile = schemaObject.getEditableVirtualFile().getContentFile(contentType);
+    public void enableEditing(@NotNull DBObject object, @NotNull DBContentType contentType) {
+        object.setStatus(contentType, EDITABLE, true);
+        DBContentVirtualFile contentFile = object.getEditableVirtualFile().getContentFile(contentType);
         if (isNotValid(contentFile)) return;
 
         Editors.setEditorsReadonly(contentFile, false);
@@ -117,13 +117,13 @@ public class EnvironmentManager extends ProjectComponentBase implements Persiste
                 (listener) -> listener.editModeChanged(project, contentFile));
     }
 
-    public void disableEditing(@NotNull DBSchemaObject schemaObject, @NotNull DBContentType contentType) {
-        schemaObject.getStatus().set(contentType, EDITABLE, false);
+    public void disableEditing(@NotNull DBObject object, @NotNull DBContentType contentType) {
+        object.setStatus(contentType, EDITABLE, false);
 
-        DBContentVirtualFile contentFile = schemaObject.getEditableVirtualFile().getContentFile(contentType);
+        DBContentVirtualFile contentFile = object.getEditableVirtualFile().getContentFile(contentType);
         if (isNotValid(contentFile)) return;
 
-        boolean readonly = isReadonly(schemaObject, contentType);
+        boolean readonly = isReadonly(object, contentType);
         Editors.setEditorsReadonly(contentFile, readonly);
 
         Project project = getProject();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ public class DBStatementRunConfigForm extends DBProgramRunConfigForm<DBStatement
         super(configuration.getProject(), configuration.getDebuggerType());
         if (configuration.getCategory() != DBRunConfigCategory.CUSTOM) {
             headerPanel.setVisible(false);
-            DBNHintForm hintForm = new DBNHintForm(this, ExecutionConfigManager.GENERIC_STATEMENT_RUNNER_HINT, null, true);
+            DBNHintForm hintForm = new DBNHintForm(this, ExecutionConfigManager.GENERIC_STATEMENT_RUNNER_HINT, null);
             hintPanel.setVisible(true);
             hintPanel.add(hintForm.getComponent());
         } else {

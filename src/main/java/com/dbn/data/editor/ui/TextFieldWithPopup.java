@@ -17,6 +17,7 @@
 package com.dbn.data.editor.ui;
 
 import com.dbn.common.dispose.DisposableContainers;
+import com.dbn.common.ui.table.DBNTable;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.data.editor.ui.array.ArrayEditorPopupProviderForm;
 import com.dbn.data.editor.ui.calendar.CalendarPopupProviderForm;
@@ -26,6 +27,7 @@ import com.dbn.object.common.DBObject;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -51,37 +53,31 @@ import static com.dbn.common.util.Lists.firstElement;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.nls.NlsResources.txt;
 
-public class TextFieldWithPopup<T extends JComponent> extends TextFieldWithButtons {
+public class TextFieldWithPopup extends TextFieldWithButtons {
     private final JPanel buttonsPanel;
 
     private final List<TextFieldPopupProvider> popupProviders = DisposableContainers.list(this);
-    private T parentComponent;
 
     public TextFieldWithPopup(Project project) {
         this(project, null);
-
     }
-    public TextFieldWithPopup(Project project, @Nullable T parentComponent) {
-        super(project);
-        this.parentComponent = parentComponent;
+
+    public TextFieldWithPopup(Project project, @Nullable DBNTable parentTable) {
+        super(project, parentTable);
 
         JTextField textField = getTextField();
         Dimension preferredSize = textField.getPreferredSize();
         Dimension maximumSize = new Dimension((int) preferredSize.getWidth(), (int) preferredSize.getHeight());
 
-        buttonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 0));
+        buttonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         buttonsPanel.setMaximumSize(maximumSize);
+        buttonsPanel.setVisible(false);
         add(buttonsPanel, BorderLayout.EAST);
 
         textField.addKeyListener(keyListener);
         textField.addFocusListener(focusListener);
 
         customizeTextField(super.getTextField());
-    }
-
-    @Nullable
-    public T getParentComponent() {
-        return parentComponent;
     }
 
     @Override
@@ -155,8 +151,11 @@ public class TextFieldWithPopup<T extends JComponent> extends TextFieldWithButto
         addButtonListener(popupProvider, button);
 
 
-        int index = buttonsPanel.getComponentCount();
-        buttonsPanel.add(button, index);
+        if (buttonsPanel.getComponentCount() > 0) {
+            buttonsPanel.add(Box.createHorizontalStrut(2));
+        }
+        buttonsPanel.add(button);
+        buttonsPanel.setVisible(true);
         popupProvider.setButton(button);
     }
 
@@ -284,6 +283,5 @@ public class TextFieldWithPopup<T extends JComponent> extends TextFieldWithButto
     @Override
     public void disposeInner() {
         super.disposeInner();
-        parentComponent = null;
     }
 }

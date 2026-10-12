@@ -25,6 +25,7 @@ import com.dbn.common.locale.Formatter;
 import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.alignment.FieldAlignerData;
+import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.component.DBNComponentBase;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
@@ -53,6 +54,7 @@ import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
@@ -88,10 +90,22 @@ public abstract class DBNFormBase
 
     public DBNFormBase(@Nullable Disposable parent) {
         super(parent);
+        if (parent instanceof DBNComponent component) {
+            setContextObject(component.getContextObject());
+        }
     }
 
     public DBNFormBase(@Nullable Disposable parent, @Nullable Project project) {
         super(parent, project);
+    }
+
+    protected void installContextHeader(JPanel headerPanel) {
+        Object contextObject = getContextObject();
+        if (contextObject == null) {
+            headerPanel.setVisible(false);
+        } else {
+            new DBNHeaderForm(this, contextObject).installOn(headerPanel);
+        }
     }
 
     @NotNull
@@ -299,7 +313,7 @@ public abstract class DBNFormBase
 
     public void resetFormChanges() {}
 
-    protected void updateActionToolbars() {
+    public void updateActionToolbars() {
         dispatch(() -> UserInterface.updateActionToolbars(getMainComponent()));
     }
 

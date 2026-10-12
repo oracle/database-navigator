@@ -21,7 +21,6 @@ import com.dbn.common.thread.Background;
 import com.dbn.common.util.Strings;
 import com.dbn.debugger.common.evaluation.DBDebuggerEvaluator;
 import com.dbn.debugger.common.process.DBDebugProcess;
-import com.intellij.xdebugger.evaluation.XDebuggerEvaluator;
 import com.intellij.xdebugger.frame.XCompositeNode;
 import com.intellij.xdebugger.frame.XNamedValue;
 import com.intellij.xdebugger.frame.XValueChildrenList;
@@ -34,6 +33,8 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import java.util.List;
+
+import static com.dbn.common.util.Unsafe.cast;
 
 @Getter
 @Setter
@@ -67,11 +68,11 @@ public abstract class DBDebugValue<T extends DBDebugStackFrame> extends XNamedVa
 
     @Override
     public void computePresentation(@NotNull final XValueNode node, @NotNull final XValuePlace place) {
-        // enabling this will show always variables as changed
+        // Do not publish a placeholder presentation. IntelliJ treats any presentation
+        // as the completed value and performs change detection against it.
         //node.setPresentation(icon, null, "", childVariableNames != null);
         Background.run(() -> {
-            XDebuggerEvaluator evaluator1 = getStackFrame().getEvaluator();
-            DBDebuggerEvaluator<? extends DBDebugStackFrame, DBDebugValue> evaluator = (DBDebuggerEvaluator<? extends DBDebugStackFrame, DBDebugValue>) evaluator1;
+            DBDebuggerEvaluator<? extends DBDebugStackFrame, DBDebugValue> evaluator = cast(getStackFrame().getEvaluator());
             evaluator.computePresentation(DBDebugValue.this, node, place);
         });
     }
@@ -100,6 +101,12 @@ public abstract class DBDebugValue<T extends DBDebugStackFrame> extends XNamedVa
         return getName();
     }
 
+    public String getVariablePath() {
+        return parentValue == null
+                ? getVariableName()
+                : parentValue.getVariablePath() + "." + getVariableName();
+    }
+
     public String getDisplayValue() {
         if (value == null) return childVariableNames == null ? "null" : "";
         return isLiteral() && false ? "'" + value + "'" : value;
@@ -126,4 +133,3 @@ public abstract class DBDebugValue<T extends DBDebugStackFrame> extends XNamedVa
         return getName().compareTo(remote.getName());
     }
 }
-

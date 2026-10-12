@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import com.dbn.common.util.Strings;
 import com.dbn.connection.DatabaseType;
 import com.dbn.execution.script.CmdLineInterface;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
-import org.jdesktop.swingx.util.OS;
+import com.intellij.openapi.util.SystemInfo;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JPanel;
@@ -65,7 +65,7 @@ public class CmdLineInterfaceInputForm extends DBNFormBase {
     private void initHintPanel() {
         TextContent hintText = TextContent.plain(
                 txt("msg.execution.hint.CommandLineInterfaceInput"));
-        DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
+        DBNHintForm hintForm = new DBNHintForm(this, hintText, null);
         hintPanel.add(hintForm.getComponent(), BorderLayout.CENTER);
     }
 
@@ -83,7 +83,7 @@ public class CmdLineInterfaceInputForm extends DBNFormBase {
         executableTextField.setText(executablePath);
 
         CmdLineInterface defaultClient = CmdLineInterface.getDefault(databaseType);
-        String extension = OS.isWindows() ? ".exe" : "";
+        String extension = SystemInfo.isWindows ? ".exe" : "";
         addSingleFileChooser(
                 getProject(), executableTextField,
                 txt("cfg.execution.title.SelectCommandLineClient"),

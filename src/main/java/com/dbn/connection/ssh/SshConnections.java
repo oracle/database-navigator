@@ -16,13 +16,63 @@
 
 package com.dbn.connection.ssh;
 
+import com.dbn.common.database.DatabaseInfo;
 import com.dbn.common.network.NetworkAddress;
+import com.dbn.connection.config.ConnectionDatabaseSettings;
+import com.dbn.connection.config.ConnectionSettings;
+import com.dbn.connection.config.ConnectionSshTunnelSettings;
 import lombok.experimental.UtilityClass;
 import org.apache.sshd.common.util.net.SshdSocketAddress;
+import org.jetbrains.annotations.NotNull;
 
 @UtilityClass
 public class SshConnections {
     public static SshdSocketAddress toSshdSocketAddress(NetworkAddress networkAddress) {
         return new SshdSocketAddress(networkAddress.getHost(), networkAddress.getPort());
+    }
+
+    @NotNull
+    public static SshTunnelConfig createTunnelConfig(ConnectionSettings connectionSettings) {
+        ConnectionDatabaseSettings databaseSettings = connectionSettings.getDatabaseSettings();
+        ConnectionSshTunnelSettings sshSettings = connectionSettings.getSshTunnelSettings();
+        DatabaseInfo databaseInfo = databaseSettings.getDatabaseInfo();
+
+        NetworkAddress proxyAddress = new NetworkAddress(sshSettings.getHost(), sshSettings.getPort());
+        NetworkAddress remoteAddress = new NetworkAddress(databaseInfo.getHost(), databaseInfo.getPort());
+
+        return new SshTunnelConfig(
+                proxyAddress,
+                remoteAddress,
+                sshSettings.getAuthType(),
+                sshSettings.getUser(),
+                sshSettings.getPassword(),
+                sshSettings.getKeyFile(),
+                sshSettings.getKeyPassphrase());
+    }
+
+    /**
+     * Verifies that an SSH tunnel can be established using the given configuration.
+     * The tunnel is disconnected immediately after the connection attempt completes.
+     */
+    public static void testTunnelConnection(SshTunnelConfig config) throws Exception {
+        testTunnelConnection(new SshTunnelConnector(config));
+    }
+
+    /**
+     * Verifies that a reverse SSH tunnel can be established using the given configuration.
+     * The tunnel is disconnected immediately after the connection attempt completes.
+     */
+    public static void testReverseTunnelConnection(SshTunnelConfig config) throws Exception {
+        SshTunnelConnector connector = new SshTunnelConnector(config);
+        connector.setReverseTunnel(true);
+        testTunnelConnection(connector);
+    }
+
+    private static void testTunnelConnection(SshTunnelConnector connector) throws Exception {
+        try {
+            connector.connect();
+        } finally {
+            connector.disconnect();
+        }
     }
 }

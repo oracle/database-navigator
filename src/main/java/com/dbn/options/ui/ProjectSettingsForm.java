@@ -36,6 +36,7 @@ import com.dbn.navigation.options.NavigationSettings;
 import com.dbn.options.ConfigId;
 import com.dbn.options.ProjectSettings;
 import com.dbn.options.general.GeneralProjectSettings;
+import com.dbn.options.general.WorkspaceSettings;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.components.JBScrollPane;
@@ -91,6 +92,7 @@ public class ProjectSettingsForm extends CompositeConfigurationEditorForm<Projec
         DDLFileSettings ddlFileSettings = projectSettings.getDdlFileSettings();
         AssistantSettings assistantSettings = projectSettings.getAssistantSettings();
         GeneralProjectSettings generalSettings = projectSettings.getGeneralSettings();
+        WorkspaceSettings workspaceSettings = projectSettings.getWorkspaceSettings();
 
         configListModel.addElement(connectionSettings);
         configListModel.addElement(browserSettings);
@@ -104,6 +106,7 @@ public class ProjectSettingsForm extends CompositeConfigurationEditorForm<Projec
         configListModel.addElement(ddlFileSettings);
         configListModel.addElement(assistantSettings);
         configListModel.addElement(generalSettings);
+        configListModel.addElement(workspaceSettings);
 
         projectSettings.reset();
         configsPanel.setFocusable(true);

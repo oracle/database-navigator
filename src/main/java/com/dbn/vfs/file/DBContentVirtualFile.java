@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.psql.PSQLLanguage;
 import com.dbn.language.sql.SQLLanguage;
 import com.dbn.object.DBSchema;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.DBVirtualFileBase;
@@ -59,7 +59,7 @@ public abstract class DBContentVirtualFile extends DBVirtualFileBase implements 
         this.mainDatabaseFile = WeakRef.of(mainDatabaseFile);
         this.contentType = contentType;
 
-        DBObjectRef<DBSchemaObject> objectRef = mainDatabaseFile.getObjectRef();
+        DBObjectRef<DBObject> objectRef = mainDatabaseFile.getObjectRef();
 
         Project project = getProject();
         DDLFileManager ddlFileManager = DDLFileManager.getInstance(project);
@@ -105,12 +105,12 @@ public abstract class DBContentVirtualFile extends DBVirtualFileBase implements 
     }
 
     @NotNull
-    public DBSchemaObject getObject() {
+    public DBObject getObject() {
         return getMainDatabaseFile().getObject();
     }
 
     @NotNull
-    public DBObjectRef<DBSchemaObject> getObjectRef() {
+    public DBObjectRef<DBObject> getObjectRef() {
         return getMainDatabaseFile().getObjectRef();
     }
 
@@ -145,7 +145,7 @@ public abstract class DBContentVirtualFile extends DBVirtualFileBase implements 
      *********************************************************/
     @NotNull
     public String getPresentablePath() {
-        DBObjectRef<DBSchemaObject> object = getMainDatabaseFile().getObjectRef();
+        DBObjectRef<DBObject> object = getMainDatabaseFile().getObjectRef();
         return getConnection().getName() + File.separatorChar +
                 object.getObjectType().getListName() + File.separatorChar +
                 object.getQualifiedName() + " - " + getContentType().getDescription();
@@ -154,7 +154,7 @@ public abstract class DBContentVirtualFile extends DBVirtualFileBase implements 
     @NotNull
     @Override
     public String getPresentableName() {
-        DBObjectRef<DBSchemaObject> object = getMainDatabaseFile().getObjectRef();
+        DBObjectRef<DBObject> object = getMainDatabaseFile().getObjectRef();
         return object.getObjectName() + " - " + getContentType().getDescription();
     }
 
@@ -167,6 +167,12 @@ public abstract class DBContentVirtualFile extends DBVirtualFileBase implements 
     @Nullable
     public VirtualFile getParent() {
         if (!isValid()) return null;
+
+        // Java source files are parsed by the IntelliJ Java plugin as PsiJavaFile instances.
+        // The database file system does not expose a consistent VirtualFile child hierarchy,
+        // so attaching such a file to a synthetic database directory produces an invalid PSI
+        // tree (the Java debugger expects the file to be among its parent's children).
+        if (getObjectType() == DBObjectType.JAVA_CLASS) return null;
 
         DBObjectRef parentObject = getObjectRef().getParentRef();
         if (parentObject == null) return null;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package com.dbn.object.action;
 import com.dbn.common.icon.Icons;
 import com.dbn.editor.DatabaseFileEditorManager;
 import com.dbn.editor.EditorProviderId;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -28,19 +28,19 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
 
-public class ObjectEditCodeAction extends AnObjectAction<DBSchemaObject> {
-    ObjectEditCodeAction(DBSchemaObject object) {
+public class ObjectEditCodeAction extends AnObjectAction<DBObject> {
+    ObjectEditCodeAction(DBObject object) {
         super(object);
     }
 
     @Override
-    protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DBSchemaObject object) {
+    protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DBObject object) {
         presentation.setText(txt("app.objects.action.EditCode"));
         presentation.setIcon(Icons.OBJECT_EDIT_SOURCE);
     }
 
     @Override
-    protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DBSchemaObject object) {
+    protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DBObject object) {
         DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(project);
         editorManager.connectAndOpenEditor(object, EditorProviderId.CODE, false, true);
     }

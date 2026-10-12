@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -105,7 +105,7 @@ public class ObjectFilterDetailsForm extends DBNFormBase {
         hintText.initField("SUPPORTED_ATTRIBUTES", supportedAttributes);
         hintText.initField("SAMPLE_EXPRESSION", sampleExpression);
 
-        DBNHintForm disclaimerForm = new DBNHintForm(this, hintText, null, true);
+        DBNHintForm disclaimerForm = new DBNHintForm(this, hintText, null);
         hintPanel.add(disclaimerForm.getComponent());
     }
 

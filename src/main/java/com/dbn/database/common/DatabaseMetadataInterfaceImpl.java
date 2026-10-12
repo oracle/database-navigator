@@ -25,6 +25,7 @@ import com.dbn.database.common.statement.output.ClobOutput;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -49,6 +50,12 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     @Override
     public void setCurrentSchema(String schemaName, DBNConnection connection) throws SQLException {
         executeUpdate(connection, "set-current-schema", schemaName);
+    }
+
+    @Override
+    @Nullable
+    public String getCurrentSchema(DBNConnection connection) throws SQLException {
+        return connection.getSchema();
     }
 
     @Override
@@ -218,8 +225,18 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     }
 
     @Override
+    public ResultSet loadNestedTableColumns(String ownerName, String tableName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "nested-table-columns", ownerName, tableName);
+    }
+
+    @Override
     public ResultSet loadAllNestedTables(String ownerName, DBNConnection connection) throws SQLException {
         return executeQuery(connection, "all-nested-tables", ownerName);
+    }
+
+    @Override
+    public ResultSet loadAllNestedTableColumns(String ownerName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "all-nested-table-columns", ownerName);
     }
 
     @Override
@@ -235,6 +252,16 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     @Override
     public ResultSet loadDatabaseTriggers(String ownerName, DBNConnection connection) throws SQLException {
         return executeQuery(connection, "database-triggers", ownerName);
+    }
+
+    @Override
+    public ResultSet loadEventTriggers(DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "event-triggers");
+    }
+
+    @Override
+    public ResultSet loadEventTriggerSourceCode(String triggerName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "event-trigger-source-code", triggerName);
     }
 
     @Override

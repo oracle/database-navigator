@@ -25,6 +25,7 @@ import com.dbn.common.message.ui.MessageBundleDialogConfig;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.state.StateCategory;
 import com.dbn.common.state.StateContainer;
+import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
@@ -62,8 +63,13 @@ public class DatabaseBatchManager extends ProjectComponentBase implements Persis
 
 
 	public void startBatchProcess(Batch<?, ?> batch) {
-		batch.init();
-		openBatchMonitor(batch);
+		Progress.prompt(getProject(), batch.getConnection(), true,
+				txt("prc.batch.title.StartingBatchProcess"),
+				txt("prc.batch.text.StartingBatchProcess", batch.getName()),
+				progress -> {
+					batch.init();
+					openBatchMonitor(batch);
+				});
 	}
 
 

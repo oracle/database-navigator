@@ -30,6 +30,7 @@ import com.dbn.language.common.quotes.QuoteDefinition;
 import com.dbn.language.common.quotes.QuotePair;
 import lombok.Getter;
 import lombok.SneakyThrows;
+import lombok.experimental.Delegate;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -47,7 +48,7 @@ import static com.dbn.language.common.quotes.QuoteEscaping.DATABASE;
 @Getter
 public abstract class DatabaseInterfaceBase implements DatabaseInterface{
     private final String fileName;
-    private final DatabaseInterfaces interfaces;
+    private final @Delegate DatabaseInterfaces interfaces;
     protected Map<String, StatementExecutionProcessor> processors = new HashMap<>();
 
     public DatabaseInterfaceBase(String fileName, DatabaseInterfaces interfaces) {
@@ -149,12 +150,12 @@ public abstract class DatabaseInterfaceBase implements DatabaseInterface{
         nd(connection.getProject());
     }
 
-    protected final boolean getBooleanValue(DBNConnection connection, @NonNls String statementId, Object... arguments) throws SQLException {
+    protected final boolean getBooleanValue(DBNConnection connection, @NonNls String statementId, @NonNls Object... arguments) throws SQLException {
         return Data.asBooleanPrimitive(getSingleValue(connection, statementId, arguments));
     }
 
 
-    protected final String getSingleValue(DBNConnection connection, @NonNls String statementId, Object... arguments) throws SQLException {
+    protected final String getSingleValue(DBNConnection connection, @NonNls String statementId, @NonNls Object... arguments) throws SQLException {
         ResultSet resultSet = null;
         try {
             resultSet = executeQuery(connection, statementId, arguments);

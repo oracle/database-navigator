@@ -28,7 +28,9 @@ import com.dbn.editor.data.options.DataEditorSettings;
 import com.dbn.editor.data.options.DataEditorValueListPopupSettings;
 import com.dbn.editor.data.ui.table.DatasetEditorTable;
 import com.dbn.object.DBColumn;
+import com.dbn.object.DBType;
 import com.intellij.openapi.Disposable;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.table.TableCellEditor;
 import java.util.HashMap;
@@ -45,15 +47,15 @@ public class DatasetTableCellEditorFactory implements Disposable {
     private final Map<ColumnInfo, TableCellEditor> cache = new HashMap<>();
 
     public TableCellEditor getCellEditor(ColumnInfo columnInfo, DatasetEditorTable table) {
-        TableCellEditor tableCellEditor = cache.get(columnInfo);
-        if (tableCellEditor == null) {
-            DBDataType dataType = columnInfo.getDataType();
-            tableCellEditor =
-                dataType.isNative() ? createEditorForNativeType(columnInfo, table) :
-                dataType.isDeclared() ? createEditorForDeclaredType(columnInfo, table) : null;
-            cache.put(columnInfo, tableCellEditor);
-        }
-        return tableCellEditor;
+        return cache.computeIfAbsent(columnInfo, c -> createCellEditor(c, table, c.getDataType()));
+    }
+
+    private @Nullable TableCellEditor createCellEditor(ColumnInfo columnInfo, DatasetEditorTable table, DBDataType dataType) {
+        if (dataType.isTable()) return createEditorForTableType(columnInfo, table);
+        if (dataType.isNative()) return createEditorForNativeType(columnInfo, table);
+        if (dataType.isDeclared()) return createEditorForDeclaredType(columnInfo, table);
+
+        return null;
     }
 
     private static TableCellEditor createEditorForNativeType(ColumnInfo columnInfo, DatasetEditorTable table) {
@@ -63,19 +65,22 @@ public class DatasetTableCellEditorFactory implements Disposable {
         if (genericDataType == NUMERIC) {
             return new DatasetTableCellEditor(table);
         }
-        else if (genericDataType == DATE_TIME) {
+
+        if (genericDataType == DATE_TIME) {
             DatasetTableCellEditorWithPopup tableCellEditor = new DatasetTableCellEditorWithPopup(table);
             tableCellEditor.getEditorComponent().createCalendarPopup(false);
             return tableCellEditor;
         }
-        else if (genericDataType == ARRAY) {
+
+        if (genericDataType == ARRAY) {
             DatasetTableCellEditorWithPopup tableCellEditor = new DatasetTableCellEditorWithPopup(table);
             tableCellEditor.getEditorComponent().createArrayEditorPopup(false);
             return tableCellEditor;
         }
-        else if (genericDataType == VECTOR) {
+
+        if (genericDataType == VECTOR) {
             DatasetTableCellEditorWithPopup tableCellEditor = new DatasetTableCellEditorWithPopup(table);
-            TextFieldWithPopup<?> editorComponent = tableCellEditor.getEditorComponent();
+            TextFieldWithPopup editorComponent = tableCellEditor.getEditorComponent();
 
             // VECTOR arrays with length > 0 are expected to be fixed-length (non-editable)
             boolean editable = dataType.getLength() == 0;
@@ -85,7 +90,8 @@ public class DatasetTableCellEditorFactory implements Disposable {
 
             return tableCellEditor;
         }
-        else if (genericDataType == LITERAL) {
+
+        if (genericDataType == LITERAL) {
             long dataLength = dataType.getLength();
 
 
@@ -111,16 +117,26 @@ public class DatasetTableCellEditorFactory implements Disposable {
                 return tableCellEditor;
             }
 
-        } else if (genericDataType.isLOB()) {
+        }
+
+        if (genericDataType.isLOB()) {
             DatasetTableCellEditorWithTextEditor tableCellEditor = new DatasetTableCellEditorWithTextEditor(table);
             tableCellEditor.setEditable(false);
             return tableCellEditor;
         }
+
         return null;
     }
 
+    private static TableCellEditor createEditorForTableType(ColumnInfo columnInfo, DatasetEditorTable table) {
+        return new DatasetTableCellEditorWithTableEditor(table);
+    }
+
     private TableCellEditor createEditorForDeclaredType(ColumnInfo columnInfo, DatasetEditorTable table) {
-        return null;
+        DBType declaredType = columnInfo.getDataType().getDeclaredType();
+        if (declaredType == null || declaredType.isCollection()) return null;
+
+        return new DatasetTableCellEditorWithTypeEditor(table);
     }
 
     @Override

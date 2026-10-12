@@ -16,7 +16,10 @@
 
 package com.dbn.data.value;
 
+import com.dbn.common.data.Data;
 import com.dbn.common.util.Strings;
+import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.data.type.DBDataType;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
@@ -68,6 +71,12 @@ abstract class ClobValueBase<T extends Clob> extends LargeObjectValue {
     protected abstract T read(ResultSet resultSet, int columnIndex) throws SQLException;
     protected abstract void write(PreparedStatement preparedStatement, int parameterIndex, T clob) throws SQLException;
     protected abstract void write(ResultSet resultSet, int columnIndex, T clob) throws SQLException;
+
+    @Override
+    @Nullable
+    protected final String convertUserValue(@Nullable Object userValue, DBDataType dataType, DBNConnection connection) {
+        return Data.asString(userValue);
+    }
 
     @Override
     public final void write(Connection connection, PreparedStatement preparedStatement, int parameterIndex, @Nullable String value) throws SQLException {

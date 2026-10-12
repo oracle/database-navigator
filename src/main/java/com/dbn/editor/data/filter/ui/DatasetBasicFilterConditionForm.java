@@ -72,7 +72,7 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
     private DBNComboBox<ConditionOperator> operatorSelector;
     private DBObjectSelector<DBColumn> columnSelector;
 
-    private TextFieldWithPopup<?> editorComponent;
+    private TextFieldWithPopup editorComponent;
     private DatasetBasicFilterForm filterForm;
     private final DBObjectRef<DBDataset> dataset;
 
@@ -99,7 +99,7 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
                 .triggerLoad();
 
 
-        editorComponent = new TextFieldWithPopup<>(dataset.getProject());
+        editorComponent = new TextFieldWithPopup(dataset.getProject());
         editorComponent.createCalendarPopup(false);
         editorComponent.setPopupEnabled(TextFieldPopupType.CALENDAR, dataType == GenericDataType.DATE_TIME);
         

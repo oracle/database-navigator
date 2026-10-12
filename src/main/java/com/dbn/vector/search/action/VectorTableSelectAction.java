@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,14 +25,17 @@ import com.dbn.object.DBTable;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.type.DBObjectType;
+import com.dbn.options.general.WorkspaceFeature;
 import com.dbn.vector.DatabaseVectorManager;
 import com.dbn.vector.search.VectorSearchConsole;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.project.Project;
 
 import java.util.List;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.*;
 import static java.util.Collections.emptyList;
 
 @BackgroundUpdate
@@ -96,6 +99,15 @@ public class VectorTableSelectAction extends SelectDropdownAction<DBTable> imple
         if (schema == null) return false;
 
         return true;
+    }
+
+    @Override
+    protected boolean isVisible(AnActionEvent e) {
+        VectorSearchConsole console = getConsole(e);
+        if (console == null) return false;
+
+        Project project = console.getProject();
+        return VECTOR_TOOLBOX.isEnabled(project);
     }
 
     @Override

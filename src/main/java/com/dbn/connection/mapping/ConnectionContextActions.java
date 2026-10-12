@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@ import com.dbn.connection.session.DatabaseSession;
 import com.dbn.connection.session.DatabaseSessionManager;
 import com.dbn.object.DBSchema;
 import com.dbn.object.action.AnObjectAction;
-import com.dbn.options.ConfigId;
 import com.dbn.options.ProjectSettingsManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -108,7 +107,7 @@ public class ConnectionContextActions {
         @Override
         protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
             ProjectSettingsManager settingsManager = ProjectSettingsManager.getInstance(project);
-            settingsManager.openProjectSettings(ConfigId.CONNECTIONS);
+            settingsManager.openConnectionConfig();
         }
 
         @Nullable

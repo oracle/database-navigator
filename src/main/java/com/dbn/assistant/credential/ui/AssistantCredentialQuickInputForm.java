@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,7 +91,7 @@ public class AssistantCredentialQuickInputForm extends DBNFormBase {
                         txt("cfg.assistant.hint.OciConfigRequiredToConnect") :
                         txt("cfg.assistant.hint.ApiKeyRequiredToConnect", providerName, ideName));
 
-        DBNHintForm hintForm = new DBNHintForm(this, hintContent, null, true);
+        DBNHintForm hintForm = new DBNHintForm(this, hintContent, null);
         hintPanel.add(hintForm.getComponent());
     }
 

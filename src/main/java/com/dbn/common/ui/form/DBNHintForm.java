@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,6 @@ import com.dbn.common.ui.util.LookAndFeel;
 import com.intellij.ui.BrowserHyperlinkListener;
 import com.intellij.ui.HyperlinkLabel;
 import com.intellij.ui.RoundedLineBorder;
-import com.intellij.uiDesigner.core.GridLayoutManager;
-import com.intellij.util.ui.JBUI;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -53,30 +51,28 @@ public class DBNHintForm extends DBNFormBase {
     private JTextPane hintTextPane;
     private HyperlinkLabel actionLink;
 
-    private final boolean boxed;
     private boolean highlighted;
     private TextContent content;
 
-    public DBNHintForm(DBNForm parent, @Nullable TextContent hintContent, MessageType messageType, boolean boxed) {
-        this(parent, hintContent, messageType, boxed, null, null);
+    public DBNHintForm(DBNForm parent, @Nullable TextContent hintContent, MessageType messageType) {
+        this(parent, hintContent, messageType, null, null);
     }
 
-    public DBNHintForm(DBNForm parent, @Nullable TextContent hintContent, MessageType messageType, boolean boxed, String actionText, Runnable action) {
+    public DBNHintForm(
+            DBNForm parent,
+            @Nullable TextContent hintContent,
+            MessageType messageType,
+            String actionText,
+            Runnable action) {
         super(parent);
-        this.boxed = boxed;
         iconLabel.setText("");
         setMessageType(messageType);
         setHintContent(hintContent);
 
         updateComponentColors();
-        if (boxed) {
-            mainPanel.setBorder(new RoundedLineBorder(Colors.getOutlineColor(), 2));
-            //mainPanel.setBorder(new RoundedLineBorder(UIManager.getColor("TextField.borderColor"), 3));
-            //mainPanel.setBorder(UIUtil.getTextFieldBorder());
-        } else {
-            GridLayoutManager gridLayoutManager = (GridLayoutManager) contentPanel.getLayout();
-            gridLayoutManager.setMargin(JBUI.emptyInsets());
-        }
+        mainPanel.setBorder(new RoundedLineBorder(Colors.getOutlineColor(), 2));
+        //mainPanel.setBorder(new RoundedLineBorder(UIManager.getColor("TextField.borderColor"), 3));
+        //mainPanel.setBorder(UIUtil.getTextFieldBorder());
 
         if (actionText != null) {
             actionLink.setVisible(true);
@@ -148,17 +144,13 @@ public class DBNHintForm extends DBNFormBase {
     @NotNull
     private Color getBackground() {
         if (highlighted) return Colors.getTextFieldBackground();
-        if (boxed) {
-            return LookAndFeel.isDarkMode() ?
-                    Colors.lafDarker(Colors.getPanelBackground(), 1) :
-                    Colors.lafBrighter(Colors.getPanelBackground(), 1);
-        }
-
-        return Colors.getPanelBackground();
+        return LookAndFeel.isDarkMode() ?
+                Colors.lafDarker(Colors.getPanelBackground(), 1) :
+                Colors.lafBrighter(Colors.getPanelBackground(), 1);
     }
 
     private Color getForeground() {
-        return boxed ? Colors.lafBrighter(Colors.getLabelForeground(), 1) : Colors.HINT_COLOR;
+        return Colors.lafBrighter(Colors.getLabelForeground(), 1);
     }
 
     public void setHighlighted(boolean highlighted) {

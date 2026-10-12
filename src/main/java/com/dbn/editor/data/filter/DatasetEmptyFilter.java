@@ -17,15 +17,18 @@
 package com.dbn.editor.data.filter;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.connection.ConnectionId;
 import com.dbn.data.sorting.SortingState;
 import com.dbn.object.DBDataset;
+import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.options.ConfigurationException;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
 import javax.swing.JComponent;
+
+import static com.dbn.editor.data.filter.DatasetFilterUtil.addOrderByClause;
+import static com.dbn.editor.data.filter.DatasetFilterUtil.createSimpleSelectStatement;
 
 public class DatasetEmptyFilter implements DatasetFilter{
 
@@ -54,15 +57,13 @@ public class DatasetEmptyFilter implements DatasetFilter{
     public String createSelectStatement(DBDataset dataset, SortingState sortingState) {
         setError(null);
         StringBuilder buffer = new StringBuilder();
-        DatasetFilterUtil.createSimpleSelectStatement(dataset, buffer);
-        DatasetFilterUtil.addOrderByClause(dataset, buffer, sortingState);
+        createSimpleSelectStatement(dataset, buffer);
+        addOrderByClause(dataset, buffer, sortingState);
         return buffer.toString();
     }
 
     @Override
-    public ConnectionId getConnectionId() { return null; }
-    @Override
-    public String getDatasetName() { return null; }
+    public DBObjectRef<DBDataset> getDatasetRef() { return null; }
 
     @Override
     public boolean isPersisted() {

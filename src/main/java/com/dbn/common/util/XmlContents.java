@@ -24,13 +24,14 @@ import org.jdom.Element;
 import org.jdom.input.JDOMParseException;
 import org.jdom.input.SAXBuilder;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
-import org.xml.sax.SAXParseException;
 import org.jetbrains.annotations.Nullable;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXParseException;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
@@ -67,6 +68,18 @@ public final class XmlContents {
 
     private static @NotNull SAXBuilder createBuilder() {
         SAXBuilder builder = new SAXBuilder();
+        builder.setEntityResolver((publicId, systemId) -> {
+            if (systemId == null) return null;
+
+            URI uri = URI.create(systemId);
+            if (!uri.isAbsolute()) return null;
+
+            URL url = uri.toURL();
+            InputSource source = new InputSource(url.openStream());
+            source.setPublicId(publicId);
+            source.setSystemId(systemId);
+            return source;
+        });
 /*
         builder.setFeature(
                 "http://apache.org/xml/features/disallow-doctype-decl",
@@ -75,16 +88,17 @@ public final class XmlContents {
         return builder;
     }
 
-    private static Document streamToDocument(InputStream inputStream, URL url) throws Exception{
+    static Document streamToDocument(InputStream inputStream, URL url) throws Exception{
         try (inputStream) {
             byte[] bytes = inputStream.readAllBytes();
+            String systemId = url.toURI().toASCIIString();
             try {
-                return createBuilder().build(new ByteArrayInputStream(bytes), url.toExternalForm());
+                return createBuilder().build(new ByteArrayInputStream(bytes), systemId);
             } catch (JDOMParseException e) {
                 log.warn("Failed to parse document from {}", url, e);
 
                 if (!isDocTypeDisallowed(e)) throw e;
-                return createBuilder().build(new ByteArrayInputStream(stripDocType(bytes)), url.toExternalForm());
+                return createBuilder().build(new ByteArrayInputStream(stripDocType(bytes)), systemId);
             }
         }
     }

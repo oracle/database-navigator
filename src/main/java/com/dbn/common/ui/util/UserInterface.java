@@ -70,8 +70,9 @@ import java.awt.PointerInfo;
 import java.awt.Window;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.HierarchyEvent;
+import java.awt.event.HierarchyListener;
 import java.awt.event.InputEvent;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 
 import static com.dbn.common.Reflection.invokeMethod;
@@ -82,6 +83,8 @@ import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.common.util.Unsafe.logged;
 import static com.dbn.common.util.Unsafe.silent;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.intellij.ui.ComponentUtil.getWindow;
+import static java.awt.event.HierarchyEvent.PARENT_CHANGED;
 
 @UtilityClass
 public class UserInterface {
@@ -131,20 +134,35 @@ public class UserInterface {
 
     public static void whenShown(JComponent component, Runnable runnable, boolean first) {
         // invocation of the runnable when the component is shown
-        AtomicReference<AncestorListener> listenerRef = new AtomicReference<>();
         AncestorListener listener = new AncestorListenerAdapter() {
             @Override
             public void ancestorAdded(AncestorEvent event) {
                 if (first) {
                     // remove the listener if only the first time is to be considered
-                    AncestorListener listener = listenerRef.get();
-                    component.removeAncestorListener(listener);
+                    component.removeAncestorListener(this);
                 }
                 runnable.run();
             }
         };
-        listenerRef.set(listener);
         component.addAncestorListener(listener);
+    }
+
+    public static void whenAttachedToWindow(Component component, Runnable runnable) {
+        if (getWindow(component) != null) {
+            runnable.run();
+            return;
+        }
+
+        component.addHierarchyListener(new HierarchyListener() {
+            @Override
+            public void hierarchyChanged(HierarchyEvent event) {
+                if ((event.getChangeFlags() & PARENT_CHANGED) == 0) return;
+                if (getWindow(component) == null) return;
+
+                component.removeHierarchyListener(this);
+                runnable.run();
+            }
+        });
     }
 
 

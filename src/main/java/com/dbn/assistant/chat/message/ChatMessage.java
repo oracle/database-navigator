@@ -57,6 +57,7 @@ import static com.dbn.common.options.setting.Settings.setLongAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.state.StateEncryptionScopes.ASSISTANT_CHAT_MESSAGE_CONTENT;
+import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Lists.first;
 import static com.dbn.common.util.Lists.last;
 import static com.dbn.common.util.Lists.lastElement;
@@ -106,7 +107,7 @@ public class ChatMessage implements PersistentStateElement, Identifiable<String>
 
     @NotNull
     public String getContent() {
-        return content.get();
+        return nvl(content.get(), "");
     }
 
     public void setContent(String content) {

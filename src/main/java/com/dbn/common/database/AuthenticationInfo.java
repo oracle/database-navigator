@@ -41,7 +41,6 @@ import java.util.regex.Pattern;
 import static com.dbn.common.options.setting.Settings.getEnum;
 import static com.dbn.common.options.setting.Settings.getString;
 import static com.dbn.common.options.setting.Settings.setEnum;
-import static com.dbn.common.options.setting.Settings.setSensitiveString;
 import static com.dbn.common.options.setting.Settings.setString;
 import static com.dbn.common.util.Commons.match;
 import static com.dbn.common.util.Strings.isNotEmpty;
@@ -273,7 +272,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         }
 
         setEnum(element, "token-type", tokenType);
-        setSensitiveString(element, "token-config-file", tokenConfigFile);
+        setString(element, "token-config-file", tokenConfigFile);
         setString(element, "token-profile", tokenProfile);
         setString(element, "adb-compartment-ocid", compartmentOcid);
         setString(element, "adb-database-ocid", databaseOcid);
@@ -281,7 +280,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         setString(element, "azure-token-database-id-uri", azureDatabaseApplicationIdUri);
         setString(element, "azure-token-tenant-id", azureTenantId);
         setString(element, "azure-token-client-id", azureClientId);
-        setSensitiveString(element, "azure-token-client-certificate-file", azureClientCertificateFile);
+        setString(element, "azure-token-client-certificate-file", azureClientCertificateFile);
     }
 
     @Override

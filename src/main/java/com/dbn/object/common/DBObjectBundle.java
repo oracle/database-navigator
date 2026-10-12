@@ -27,6 +27,7 @@ import com.dbn.database.DatabaseObjectIdentifier;
 import com.dbn.object.DBCharset;
 import com.dbn.object.DBConsole;
 import com.dbn.object.DBDatasourceConfig;
+import com.dbn.object.DBEventTrigger;
 import com.dbn.object.DBPrivilege;
 import com.dbn.object.DBRole;
 import com.dbn.object.DBSchema;
@@ -60,6 +61,9 @@ public interface DBObjectBundle extends BrowserTreeNode, StatefulDisposable, Dat
 
     @Nullable
     List<DBSystemPrivilege> getSystemPrivileges();
+
+    @Nullable
+    List<DBEventTrigger> getEventTriggers();
 
     @Nullable
     List<DBCharset> getCharsets();

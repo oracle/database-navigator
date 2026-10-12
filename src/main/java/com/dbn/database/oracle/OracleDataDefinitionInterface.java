@@ -31,8 +31,11 @@ import com.dbn.ddl.options.DDLFileSettings;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.language.sql.SQLLanguage;
+import com.dbn.object.factory.ObjectFactoryIdentifiers;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.model.DBObjectSpecList;
+import com.dbn.object.type.DBTriggerEvent;
+import com.dbn.object.type.DBTriggerTarget;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -64,14 +67,43 @@ import static com.dbn.object.factory.model.DBObjectAttributeType.IS_OUTPUT;
 import static com.dbn.object.factory.model.DBObjectAttributeType.IS_PRIMARY_KEY;
 import static com.dbn.object.factory.model.DBObjectAttributeType.OBJECT_DETAIL;
 import static com.dbn.object.factory.model.DBObjectAttributeType.RETURN_ARGUMENT;
+import static com.dbn.object.factory.model.DBObjectAttributeType.SEQUENCE_CACHE_SIZE;
+import static com.dbn.object.factory.model.DBObjectAttributeType.SEQUENCE_CYCLE;
+import static com.dbn.object.factory.model.DBObjectAttributeType.SEQUENCE_INCREMENT_BY;
+import static com.dbn.object.factory.model.DBObjectAttributeType.SEQUENCE_MAX_VALUE;
+import static com.dbn.object.factory.model.DBObjectAttributeType.SEQUENCE_MIN_VALUE;
+import static com.dbn.object.factory.model.DBObjectAttributeType.SEQUENCE_START_WITH;
+import static com.dbn.object.factory.model.DBObjectAttributeType.SYNONYM_TARGET_OBJECT_NAME;
+import static com.dbn.object.factory.model.DBObjectAttributeType.SYNONYM_TARGET_SCHEMA;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_BODY;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_EVENTS;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_FOR_EACH_ROW;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TARGET;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TARGET_DATASET;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TARGET_SCHEMA;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TYPE;
 import static com.dbn.object.type.DBObjectType.ARGUMENT;
 import static com.dbn.object.type.DBObjectType.COLUMN;
 import static com.dbn.object.type.DBObjectType.CONSTRAINT;
 import static com.dbn.object.type.DBObjectType.FUNCTION;
 
 public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfaceImpl {
+    private static final String DEBUG_COMPILE_PARAMETERS = "PLSCOPE_SETTINGS='IDENTIFIERS:ALL'";
+
     public OracleDataDefinitionInterface(DatabaseInterfaces provider) {
         super("oracle_ddl_interface.xml", provider);
+    }
+
+    @Override
+    public void compileObject(String ownerName, String objectName, String objectType, boolean debug, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "compile-object", ownerName, objectName, objectType,
+                debug ? "DEBUG" : "", debug ? DEBUG_COMPILE_PARAMETERS : "");
+    }
+
+    @Override
+    public void compileObjectBody(String ownerName, String objectName, String objectType, boolean debug, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "compile-object-body", ownerName, objectName, objectType,
+                debug ? "DEBUG" : "", debug ? DEBUG_COMPILE_PARAMETERS : "");
     }
 
     @Override
@@ -187,6 +219,81 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
      *                   CREATE statements                   *
      *********************************************************/
     @Override
+    public void createSequence(DBObjectSpec sequenceSpec, DBNConnection connection) throws SQLException {
+        @NonNls
+        StringBuilder builder = new StringBuilder("sequence ")
+                .append(sequenceSpec.getSchemaName(true))
+                .append('.')
+                .append(sequenceSpec.getAdjustedObjectName());
+
+        appendOption(builder, " start with ", SEQUENCE_START_WITH.value(sequenceSpec));
+        appendOption(builder, " increment by ", SEQUENCE_INCREMENT_BY.value(sequenceSpec));
+        appendOption(builder, " minvalue ", SEQUENCE_MIN_VALUE.value(sequenceSpec));
+        appendOption(builder, " maxvalue ", SEQUENCE_MAX_VALUE.value(sequenceSpec));
+        appendOption(builder, " cache ", SEQUENCE_CACHE_SIZE.value(sequenceSpec));
+        if (SEQUENCE_CYCLE.is(sequenceSpec)) builder.append(" cycle");
+
+        createObject(builder.toString(), connection);
+    }
+
+    @Override
+    public void createSynonym(DBObjectSpec synonymSpec, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "create-synonym",
+                synonymSpec.getSchemaName(),
+                synonymSpec.getAdjustedObjectName(),
+                SYNONYM_TARGET_SCHEMA.value(synonymSpec),
+                SYNONYM_TARGET_OBJECT_NAME.value(synonymSpec));
+    }
+
+    @Override
+    public void createTrigger(DBObjectSpec triggerSpec, DBNConnection connection) throws SQLException {
+        @NonNls
+        StringBuilder builder = new StringBuilder("trigger ");
+        builder.append(triggerSpec.getSchemaName(true));
+        builder.append('.');
+        builder.append(triggerSpec.getAdjustedObjectName());
+        builder.append('\n');
+        builder.append(TRIGGER_TYPE.value(triggerSpec).getName());
+        builder.append(' ');
+
+        DBTriggerEvent[] triggerEvents = TRIGGER_EVENTS.values(triggerSpec);
+        for (int i = 0; i < triggerEvents.length; i++) {
+            if (i > 0) builder.append(" or ");
+            builder.append(triggerEvents[i].getName());
+        }
+
+        DBTriggerTarget triggerTarget = TRIGGER_TARGET.value(triggerSpec);
+        if (triggerTarget == null) {
+            triggerTarget = triggerSpec.getObjectTypeId() == DATASET_TRIGGER ?
+                    DBTriggerTarget.DATASET :
+                    DBTriggerTarget.DATABASE;
+        }
+
+        switch (triggerTarget) {
+            case DATASET -> {
+                builder.append(" on ");
+                builder.append(triggerSpec.getSchemaName(true));
+                builder.append('.');
+                builder.append(ObjectFactoryIdentifiers.quoteIdentifier(
+                        triggerSpec.getConnection(),
+                        TRIGGER_TARGET_DATASET.value(triggerSpec)));
+                if (TRIGGER_FOR_EACH_ROW.is(triggerSpec)) {
+                    builder.append("\nfor each row");
+                }
+            }
+            case SCHEMA -> builder.append(" on ")
+                    .append(ObjectFactoryIdentifiers.quoteIdentifier(
+                            triggerSpec.getConnection(),
+                            TRIGGER_TARGET_SCHEMA.value(triggerSpec)))
+                    .append(".schema");
+            case DATABASE, UNKNOWN -> builder.append(" on database");
+        }
+
+        builder.append('\n').append(TRIGGER_BODY.value(triggerSpec));
+        createObject(builder.toString(), connection);
+    }
+
+    @Override
     public void createMethod(@NotNull DBObjectSpec methodSpec, DBNConnection connection) throws SQLException {
         Project project = methodSpec.getSchema().getProject();
         CodeStyleCaseSettings styleCaseSettings = PSQLCodeStyle.caseSettings(project);
@@ -226,7 +333,7 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
                     out ? kco.format("out") : "";
             buffer.append(direction);
             buffer.append(Strings.repeatSymbol(' ', maxArgDirectionLength - direction.length() + 1));
-            buffer.append(dco.format(DATA_TYPE.of(argument)));
+            buffer.append(dco.format(DATA_TYPE.value(argument)));
             if (argument != Lists.lastElement(arguments)) {
                 buffer.append(",");
             }
@@ -234,9 +341,9 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
 
         buffer.append(")\n");
         if (function) {
-            DBObjectSpec returnArgument = RETURN_ARGUMENT.of(methodSpec);
+            DBObjectSpec returnArgument = RETURN_ARGUMENT.value(methodSpec);
             buffer.append(kco.format("return "));
-            buffer.append(dco.format(DATA_TYPE.of(returnArgument)));
+            buffer.append(dco.format(DATA_TYPE.value(returnArgument)));
             buffer.append("\n");
         }
         buffer.append(kco.format("is\nbegin\n\n"));
@@ -266,15 +373,15 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
             builder.append("    ");
             builder.append(columnSpec.getAdjustedObjectName());
             builder.append(" ");
-            builder.append(DATA_TYPE.of(columnSpec));
+            builder.append(DATA_TYPE.value(columnSpec));
             builder.append(IS_NOT_NULL.is(columnSpec) ? " not null" : "");
             builder.append(IS_PRIMARY_KEY.is(columnSpec) ? " primary key" : "");
         }
 
         DBObjectSpecList constraintSpecs = tableSpec.getChildren(CONSTRAINT);
         for (DBObjectSpec constraintSpec : constraintSpecs) {
-            String constraintType = CONSTRAINT_TYPE.of(constraintSpec);
-            String[] constraintColumns = CONSTRAINT_COLUMNS.of(constraintSpec);
+            String constraintType = CONSTRAINT_TYPE.value(constraintSpec);
+            String[] constraintColumns = CONSTRAINT_COLUMNS.values(constraintSpec);
 
             builder.append(",\n");
             builder.append("    ");
@@ -287,7 +394,7 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         }
 
         builder.append(")\n");
-        builder.append(nvl(OBJECT_DETAIL.of(tableSpec), ""));
+        builder.append(nvl(OBJECT_DETAIL.value(tableSpec), ""));
 
         createObject(builder.toString(), connection);
     }
@@ -314,11 +421,11 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         builder.append(tableName);
         builder.append("\n(");
 
-        String indexDefinition = INDEX_DEFINITION.of(indexSpec);
-        String[] indexColumns = INDEX_COLUMNS.of(indexSpec);
+        String indexDefinition = INDEX_DEFINITION.value(indexSpec);
+        String[] indexColumns = INDEX_COLUMNS.values(indexSpec);
         if (Strings.isNotEmpty(indexDefinition)) {
             builder.append(indexDefinition);
-        } else if (indexColumns != null) {
+        } else {
             builder.append(toCsv(Arrays.asList(indexColumns), s -> s));
         }
 

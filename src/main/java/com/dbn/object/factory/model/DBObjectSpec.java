@@ -18,9 +18,11 @@ package com.dbn.object.factory.model;
 
 import com.dbn.common.data.Data;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.DatabaseEntity;
 import com.dbn.database.DatabaseIdentifierCase;
+import com.dbn.database.DatabaseObjectTypeId;
+import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
 import com.dbn.language.common.quotes.QuotePair;
-import com.dbn.object.DBSchema;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,6 +36,7 @@ import java.util.Objects;
 
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.language.common.quotes.QuoteEscaping.DATABASE;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.factory.ObjectFactoryIdentifiers.canUseDefaultCase;
 import static com.dbn.object.factory.ObjectFactoryIdentifiers.quoteIdentifier;
 import static com.dbn.object.factory.model.DBObjectAttributeType.IDENTIFIER_CASE;
@@ -48,7 +51,7 @@ public final class DBObjectSpec extends DBObjectSpecBase{
     private final Map<DBObjectType, DBObjectSpecList> children = new EnumMap<>(DBObjectType.class);
     private final Map<DBObjectAttributeType, DBObjectAttribute> attributes = new HashMap<>();
 
-    public DBObjectSpec(DBObjectSpec parent) {
+    DBObjectSpec(DBObjectSpec parent) {
         super(parent);
     }
 
@@ -57,14 +60,10 @@ public final class DBObjectSpec extends DBObjectSpecBase{
         setObjectType(objectType);
     }
 
-    public DBObjectSpec(DBSchema schema) {
-        super(null);
-        setConnectionId(schema.getConnectionId());
-        setSchemaId(schema.getSchemaId());
-    }
-
-    public DBObjectSpec(DBSchema schema, DBObjectType objectType) {
-        this(schema);
+    public DBObjectSpec(DatabaseEntity parentEntity, DBObjectType objectType) {
+        super(parentEntity);
+        setConnectionId(parentEntity.getConnectionId());
+        setSchemaId(parentEntity.getSchemaId());
         setObjectType(objectType);
     }
 
@@ -118,6 +117,34 @@ public final class DBObjectSpec extends DBObjectSpecBase{
         return getAttributeValue(OBJECT_TYPE);
     }
 
+    public DatabaseObjectTypeId getObjectTypeId() {
+        return getObjectType().getTypeId();
+    }
+
+    public DBObjectTypeSpec getObjectTypeSpec() {
+        return getCompatibilityInterface().getObjectTypeSpec(getObjectTypeId());
+    }
+
+    public boolean supports(DBObjectAttributeType<?> type) {
+        return getObjectTypeSpec().supports(type);
+    }
+
+    public boolean requires(DBObjectAttributeType<?> type) {
+        return getObjectTypeSpec().requires(type);
+    }
+
+    public <T> boolean requires(DBObjectAttributeType<T> type, T value) {
+        return getObjectTypeSpec().requires(type, value);
+    }
+
+    public boolean allowsMultiple(DBObjectAttributeType<?> type) {
+        return getObjectTypeSpec().allowsMultiple(type);
+    }
+
+    public <T> List<T> getSupportedValues(DBObjectAttributeType<T> type) {
+        return getObjectTypeSpec().getAttributeValues(type);
+    }
+
     public String getObjectTypeName() {
         return getObjectType().getDisplayName();
     }
@@ -134,7 +161,7 @@ public final class DBObjectSpec extends DBObjectSpecBase{
         String objectName = getObjectName();
         if (!quoted) return objectName;
 
-        QuotePair quotes = getConnection().getCompatibilityInterface().getDefaultIdentifierQuotes();
+        QuotePair quotes = getCompatibilityInterface().getDefaultIdentifierQuotes();
         return quotes.quote(objectName, DATABASE);
     }
 
@@ -163,7 +190,7 @@ public final class DBObjectSpec extends DBObjectSpecBase{
     }
 
     public DatabaseIdentifierCase getIdentifierCase() {
-        DatabaseIdentifierCase identifierCase = IDENTIFIER_CASE.of(this);
+        DatabaseIdentifierCase identifierCase = IDENTIFIER_CASE.value(this);
         if (identifierCase != null) return identifierCase;
 
         DBObjectSpec parent = getParent();
@@ -175,7 +202,7 @@ public final class DBObjectSpec extends DBObjectSpecBase{
     }
 
     public String getObjectDescription() {
-        return getObjectTypeName() + " \"" + getObjectPath() + "\"";
+        return txt("app.object.token.QualifiedNameWithType", getObjectTypeName(), getObjectPath());
     }
 
     @Override
@@ -210,9 +237,24 @@ public final class DBObjectSpec extends DBObjectSpecBase{
         DBObjectAttribute<T> attribute = getAttribute(type);
         return attribute == null ? null : attribute.getValue();
     }
+    @Nullable
+    public <T> T[] getAttributeValues(DBObjectAttributeType<T> type) {
+        if (!type.isArray()) throw new IllegalArgumentException("Attribute is not an array: " + type.id());
+
+        DBObjectAttribute<T[]> attribute = cast(attributes.get(type));
+        return attribute == null ? null : attribute.getValue();
+    }
 
     public <T> DBObjectAttribute<T> setAttributeValue(DBObjectAttributeType<T> type, T value) {
         DBObjectAttribute<T> attribute = cast(attributes.computeIfAbsent(type, t -> new DBObjectAttribute<>(this)));
+        attribute.setValue(value);
+        return attribute;
+    }
+
+    public <T> DBObjectAttribute<T[]> setAttributeValues(DBObjectAttributeType<T> type, T[] value) {
+        if (!type.isArray()) throw new IllegalArgumentException("Attribute is not an array: " + type.id());
+
+        DBObjectAttribute<T[]> attribute = cast(attributes.computeIfAbsent(type, t -> new DBObjectAttribute<>(this)));
         attribute.setValue(value);
         return attribute;
     }
@@ -221,4 +263,9 @@ public final class DBObjectSpec extends DBObjectSpecBase{
         DBObjectAttribute<T> attribute = findAttribute(attributeId);
         return attribute == null ? null : attribute.getValue();
     }
+
+    private DatabaseCompatibilityInterface getCompatibilityInterface() {
+        return getConnection().getCompatibilityInterface();
+    }
+
 }

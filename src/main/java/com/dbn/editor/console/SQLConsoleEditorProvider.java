@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ public class SQLConsoleEditorProvider extends BasicTextEditorProvider implements
         SQLConsoleEditor editor = new SQLConsoleEditor(project, consoleFile, txt("app.codeEditor.title.SqlConsole"), getEditorProviderId());
 
         Document document = editor.getEditor().getDocument();
-        document.addDocumentListener(consoleFile, editor);
+        consoleFile.registerDocument(document);
 
         return editor;
     }

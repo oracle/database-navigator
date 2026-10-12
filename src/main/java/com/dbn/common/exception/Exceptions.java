@@ -94,6 +94,10 @@ public class Exceptions {
         throw new UnsupportedOperationException();
     }
 
+    public static <T> T notImplemented() {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
     public static <T, E extends Enum> T unsupported(E enumeration) {
         throw new UnsupportedOperationException(
                 txt("msg.shared.exception.UnsupportedEnumeration", simpleClassName(enumeration), enumeration));

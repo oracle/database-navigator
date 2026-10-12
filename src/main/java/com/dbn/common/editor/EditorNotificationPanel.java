@@ -19,6 +19,7 @@ package com.dbn.common.editor;
 import com.dbn.common.color.Colors;
 import com.dbn.common.compatibility.Workaround;
 import com.dbn.common.dispose.ComponentDisposer;
+import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.StatefulDisposable;
 import com.dbn.common.file.VirtualFileRef;
 import com.dbn.common.message.MessageType;
@@ -81,6 +82,8 @@ public class EditorNotificationPanel extends com.intellij.ui.EditorNotificationP
         this.myLabel.setHorizontalAlignment(RIGHT);
         this.myLabel.setIconTextGap(hgap);
         this.myLabel.setBorder(null);
+
+        Disposer.register(project, this);
     }
 
     @Override

@@ -75,6 +75,7 @@ import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.util.ContextLookup.getConnectionId;
 import static com.dbn.common.util.Modality.nonModal;
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_ASSISTANT;
 
 /**
  * Main database AI-Assistance management component
@@ -170,6 +171,8 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     }
 
     public void showToolWindow(@Nullable ConnectionId connectionId, @Nullable AssistantType assistantType) {
+        if (!isFeatureEnabled(DATABASE_ASSISTANT)) return;
+
         ToolWindow toolWindow = nn(ToolWindows.getToolWindow(getProject(), TOOL_WINDOW_ID));
         toolWindow.show(null);
         switchContext(connectionId, assistantType);
@@ -218,6 +221,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
      * @param connectionId the new selected connection
      */
     public void switchContext(@Nullable ConnectionId connectionId) {
+        if (!isFeatureEnabled(DATABASE_ASSISTANT)) return;
         if (connectionId == null) return; // do not switch away if switched to a non-db context
 
         AssistantType assistantType = getSelectedAssistantType(connectionId);
@@ -225,6 +229,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     }
 
     public void switchContext(@Nullable ConnectionId connectionId, AssistantType assistantType) {
+        if (!isFeatureEnabled(DATABASE_ASSISTANT)) return;
         if (connectionId == null) return; // do not switch away if switched to a non-db context
 
         ToolWindow toolWindow = getToolWindow();
@@ -238,12 +243,13 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
 
         selectedAssistantTypes.put(connectionId, assistantType);
         boolean initialized = container.initCard(connectionId, assistantType);
-        if (initialized) {
+        if (initialized && isFeatureEnabled(DATABASE_ASSISTANT)) {
             toolWindow.setAvailable(true);
         }
     }
 
     public void startAssistantChat(String sourceId, ConnectionId connectionId, AssistantType assistantType, AssistantMode assistantMode, DBObjectRef<DBTable> embeddingTable) {
+        if (!isFeatureEnabled(DATABASE_ASSISTANT)) return;
         switchContext(connectionId, assistantType);
         AssistantState assistantState = getAssistantState(connectionId, assistantType);
 

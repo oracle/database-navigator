@@ -25,6 +25,7 @@ import lombok.Getter;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Types;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -40,15 +41,20 @@ public class ResultSetColumnInfo extends BasicColumnInfo {
         name = translateName(metaData.getColumnName(resultSetIndex).intern(), connection);
 
         String dataTypeName = metaData.getColumnTypeName(resultSetIndex);
+        int sqlType = metaData.getColumnType(resultSetIndex);
         int precision = getPrecision(metaData);
         int scale = metaData.getScale(resultSetIndex);
 
-        dataType = DBDataType.get(connection, dataTypeName, precision, precision, scale, false);
+        dataType = DBDataType.get(connection, dataTypeName, precision, precision, scale, false, sqlType == Types.ARRAY);
     }
 
     public ResultSetColumnInfo(String name, DBDataType dataType, int columnIndex, int resultSetIndex) {
         super(name, dataType, columnIndex);
         this.resultSetIndex = resultSetIndex;
+    }
+
+    public Object getValueFromResultSet(ResultSet resultSet) throws SQLException {
+        return getDataType().getValueFromResultSet(resultSet, resultSetIndex);
     }
 
 

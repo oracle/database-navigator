@@ -30,7 +30,6 @@ import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NonNls;
 
 import javax.swing.Icon;
-import java.util.Set;
 
 public interface ElementType extends PropertyHolder<ElementTypeAttribute>, Comparable<ElementType>, Identifiable<String> {
 
@@ -75,8 +74,6 @@ public interface ElementType extends PropertyHolder<ElementTypeAttribute>, Compa
     int getIndexInParent(LanguageNodeBase node);
 
     TokenType getTokenType();
-
-    default void collectAnonymousLeafs(Set<LeafElementType> leafElementTypes) {};
 
     @Override
     default int compareTo(ElementType elementType) {

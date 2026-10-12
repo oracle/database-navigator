@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import com.dbn.common.environment.EnvironmentType;
 import com.dbn.common.ref.WeakRefCache;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.string.StringDeBuilder;
+import com.dbn.common.thread.Synchronized;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
@@ -54,6 +55,8 @@ import com.dbn.object.common.property.DBObjectProperty;
 import com.dbn.object.filter.type.ObjectTypeFilterSettings;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
+import com.dbn.vfs.DatabaseFileSystem;
+import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBObjectVirtualFile;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
@@ -74,6 +77,7 @@ import java.util.stream.Collectors;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.object.common.property.DBObjectProperty.DISPOSED;
+import static com.dbn.object.common.property.DBObjectProperty.EDITABLE;
 import static com.dbn.object.common.property.DBObjectProperty.LISTS_LOADED;
 import static com.dbn.object.common.property.DBObjectProperty.REFRESHING;
 import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
@@ -322,10 +326,15 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
 
     @Nullable
     @Override
-    public synchronized DBObjectListContainer getChildObjects() {
+    public DBObjectListContainer getChildObjects() {
         if (isNot(LISTS_LOADED)) {
-            initLists(getConnection());
-            set(LISTS_LOADED, true);
+            return Synchronized.on(this, DBObjectListContainer.class, object -> {
+                if (object.isNot(LISTS_LOADED)) {
+                    object.initLists(object.getConnection());
+                    object.set(LISTS_LOADED, true);
+                }
+                return childObjects.get(object);
+            });
         }
         return childObjects.get(this);
     }
@@ -342,13 +351,19 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
 
     @Override
     public boolean isEditable() {
-        if (isNot(DBObjectProperty.SCHEMA_OBJECT)) return false;
+        if (isNot(EDITABLE)) return false;
 
         DBContentType contentType = getContentType();
         if (contentType.has(DBContentType.DATA)) return true;
 
         if (DatabaseFeature.OBJECT_SOURCE_EDITING.isSupported(this)) return true;
         return false;
+    }
+
+    @Nullable
+    @Override
+    public DBEditableObjectVirtualFile getCachedVirtualFile() {
+        return DatabaseFileSystem.getInstance().findDatabaseFile(this);
     }
 
     @Override
@@ -493,17 +508,19 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
     }
 
     @Override
-    public synchronized final void refresh() {
-        if (is(REFRESHING)) return;
-        try {
-            set(REFRESHING, true);
-            DBObjectListContainer childObjects = getChildObjects();
-            if (childObjects == null) return;
+    public final void refresh() {
+        Synchronized.on(this, DBObjectImpl.class, object -> {
+            if (object.is(REFRESHING)) return;
+            try {
+                object.set(REFRESHING, true);
+                DBObjectListContainer childObjects = object.getChildObjects();
+                if (childObjects == null) return;
 
-            childObjects.refreshObjects();
-        } finally {
-            set(REFRESHING, false);
-        }
+                childObjects.refreshObjects();
+            } finally {
+                object.set(REFRESHING, false);
+            }
+        });
     }
 
     public final void refresh(@NotNull DBObjectType childObjectType) {
@@ -683,5 +700,16 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
         DBObjectListContainer childObjects = DBObjectImpl.childObjects.remove(this);
         Disposer.dispose(childObjects);
         nullify();
+    }
+
+    @Override
+    public DBEditableObjectVirtualFile getEditableVirtualFile() {
+        return null;
+    }
+
+    @Nullable
+    @Override
+    public String getCodeParseRootId(DBContentType contentType) {
+        return null;
     }
 }

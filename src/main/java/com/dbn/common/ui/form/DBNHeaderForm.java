@@ -78,6 +78,10 @@ public class DBNHeaderForm extends DBNFormBase {
         update(contextObject);
     }
 
+    public void installOn(JPanel panel) {
+        panel.add(getComponent());
+    }
+
     public void update(@NotNull Object contextObject) {
         if (contextObject instanceof ConnectionHandler connection) update(connection); else
             updatePresentation(contextObject);

@@ -20,7 +20,6 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.tab.DBNTabs;
 import com.dbn.common.ui.util.TabbedPanes;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.DatabaseFeature;
@@ -62,9 +61,7 @@ public class SessionBrowserDetailsForm extends DBNFormBase {
 
 
         JComponent component = currentSqlPanel.getComponent();
-        DBNTabs.initTabComponent(component, Icons.FILE_SQL_CONSOLE, null, currentSqlPanel);
-
-        detailsTabbedPane.addTab(txt("app.sessionBrowser.title.CurrentStatement"), component);
+        detailsTabbedPane.addTab(txt("app.sessionBrowser.title.CurrentStatement"), Icons.FILE_SQL_CONSOLE, component);
 
         ConnectionHandler connection = getConnection();
         String explainPlanTitle = txt("app.sessionBrowser.title.ExplainPlan");

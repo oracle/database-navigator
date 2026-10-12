@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,7 +37,7 @@ public class CompilerTypeSelectionForm extends DBNFormBase {
     private JCheckBox rememberSelectionCheckBox;
     private JPanel hintPanel;
 
-    CompilerTypeSelectionForm(final CompilerTypeSelectionDialog parent, @Nullable DBSchemaObject object) {
+    CompilerTypeSelectionForm(final CompilerTypeSelectionDialog parent, @Nullable DBObject object) {
         super(parent);
         if (object == null) {
             headerPanel.setVisible(false);
@@ -47,7 +47,7 @@ public class CompilerTypeSelectionForm extends DBNFormBase {
         }
         TextContent hintText = plain(
                 txt("msg.compiler.hint.CompileTypeSelection"));
-        DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
+        DBNHintForm hintForm = new DBNHintForm(this, hintText, null);
         hintPanel.add(hintForm.getComponent(), BorderLayout.CENTER);
 
         parent.registerRememberSelectionCheckBox(rememberSelectionCheckBox);

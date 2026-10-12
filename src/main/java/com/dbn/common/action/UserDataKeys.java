@@ -28,6 +28,7 @@ import com.dbn.common.outcome.MessageOutcomeHandler;
 import com.dbn.common.outcome.NotificationOutcomeHandler;
 import com.dbn.common.project.ModuleRef;
 import com.dbn.common.project.ProjectRef;
+import com.dbn.common.ref.WeakRef;
 import com.dbn.common.thread.Synchronized;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.connection.ConnectionRef;
@@ -76,6 +77,7 @@ public class UserDataKeys {
 
     public static final Key<MessageOutcomeHandler> MESSAGE_OUTCOME_HANDLER = Key.create("DBNavigator.MessageOutcomeHandler");
     public static final Key<Map<NotificationCategory, NotificationOutcomeHandler>> NOTIFICATION_OUTCOME_HANDLERS = Key.create("DBNavigator.NotificationOutcomeHandlers");
+    public static final Key<WeakRef<Object>> CONTEXT_OBJECT = Key.create("DBNavigator.ContextObject");
 
     public static boolean isUserData(UserDataHolder dataHolder, Key<Boolean> key) {
         return Data.asBooleanPrimitive( dataHolder.getUserData(key));

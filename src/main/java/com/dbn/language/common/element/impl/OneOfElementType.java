@@ -147,14 +147,4 @@ public class OneOfElementType extends ElementTypeBase {
     public ElementTypeRef getFirstChild() {
         return children[0];
     }
-
-    @Override
-    public void collectAnonymousLeafs(Set<LeafElementType> bucket) {
-        super.collectAnonymousLeafs(bucket);
-        if (!basic) return;
-
-        for (ElementTypeRef child : children) {
-            bucket.add((LeafElementType) child.elementType);
-        }
-    }
 }

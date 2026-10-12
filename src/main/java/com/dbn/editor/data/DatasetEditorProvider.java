@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import com.dbn.editor.DBContentType;
 import com.dbn.editor.EditorProviderId;
 import com.dbn.editor.data.state.DatasetEditorState;
 import com.dbn.object.DBDataset;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.file.DBDatasetVirtualFile;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
@@ -56,7 +56,7 @@ public class DatasetEditorProvider implements FileEditorProvider, NamedComponent
         DBContentType contentType = databaseFile.getContentType();
         if (!contentType.has(DBContentType.DATA)) return false;
 
-        DBSchemaObject object = silent(null, databaseFile, f -> f.getObject());
+        DBObject object = silent(null, databaseFile, f -> f.getObject());
         if (object == null) return false;
 
         return true;

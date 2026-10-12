@@ -329,7 +329,8 @@ public class DatasetEditor extends DataEditorBase<DBDataset> {
         if (status.set(LOADING, loading)) {
             DatasetEditorTable editorTable = getEditorTable();
             editorTable.setLoading(loading);
-            UserInterface.repaint(editorTable);
+            updateActionToolbars();
+            repaintEditorTable();
         }
     }
 
@@ -410,6 +411,7 @@ public class DatasetEditor extends DataEditorBase<DBDataset> {
             // cancel editing if toggle is locking
             getEditorTable().cancelEditing();
         }
+        updateActionToolbars();
     }
 
     public boolean isEditingLocked() {
@@ -453,8 +455,8 @@ public class DatasetEditor extends DataEditorBase<DBDataset> {
                 editorTable.cancelEditing();
                 editorTable.updateBackground(true);
             }
-            editorTable.revalidate();
-            editorTable.repaint();
+            updateActionToolbars();
+            repaintEditorTable();
         });
     };
 
@@ -504,8 +506,10 @@ public class DatasetEditor extends DataEditorBase<DBDataset> {
             if (action == TransactionAction.DISCONNECT) {
                 editorTable.stopCellEditing();
                 model.revertChanges();
-                UserInterface.repaint(editorTable);
+                repaintEditorTable();
             }
+
+            updateActionToolbars();
         }
     };
 
@@ -553,6 +557,14 @@ public class DatasetEditor extends DataEditorBase<DBDataset> {
             return datasetEditor;
         }
         return null;
+    }
+
+    public void updateActionToolbars() {
+        getEditorForm().updateActionToolbars();
+    }
+
+    private void repaintEditorTable() {
+        UserInterface.repaint(getEditorTable());
     }
 
     @Override

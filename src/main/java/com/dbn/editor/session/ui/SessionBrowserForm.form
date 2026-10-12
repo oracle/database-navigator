@@ -81,7 +81,6 @@
               </grid>
             </constraints>
             <properties>
-              <font style="1"/>
               <foreground swing-color="ArrowButton.arrowColor"/>
               <text resource-bundle="messages/DBNResources" key="app.sessionBrowser.text.LoadingSessions"/>
             </properties>

@@ -20,9 +20,7 @@ import com.dbn.common.action.DataKeys;
 import com.dbn.common.data.Data;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.ui.form.DBNForm;
-import com.dbn.common.ui.tab.DBNTabs;
 import com.dbn.common.ui.util.Borders;
-import com.dbn.common.ui.util.ClientProperty;
 import com.dbn.common.ui.util.TabbedPanes;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
@@ -54,13 +52,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
-import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
+import static com.dbn.common.ui.util.TabbedPanes.selectTab;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -216,35 +213,13 @@ public class JavaExecutionResultForm extends ExecutionResultFormBase<JavaExecuti
         boolean select = outputTabs.getTabCount() == 0;
         String title = parameter.getName();
         JComponent component = form.getComponent();
-        DBNTabs.initTabComponent(component, parameter.getIcon(), null, form);
 
-        outputTabs.addTab(title, component);
+        outputTabs.addTab(title, parameter.getIcon(), component);
         if (select) outputTabs.setSelectedIndex(0);
     }
 
     void selectArgumentOutputTab(DBJavaParameter parameter) {
-        for (int index = 0; index < outputTabs.getTabCount(); index++) {
-            Component component = outputTabs.getComponent(index);
-            DBNForm content = ClientProperty.FORM.get(component);
-
-            if (content instanceof JavaExecutionResultDetailForm detailForm) {
-                if (Objects.equals(detailForm.getValuePath(), parameter.getName())) {
-                    outputTabs.setSelectedIndex(index);
-                    break;
-                }
-            }
-            if (content instanceof JavaExecutionCursorResultForm cursorResultForm) {
-                if (Objects.equals(cursorResultForm.getParameter(), parameter)) {
-                    outputTabs.setSelectedIndex(index);
-                    break;
-                }
-            } else if (content instanceof JavaExecutionLargeValueResultForm largeValueResultForm) {
-                if (Objects.equals(largeValueResultForm.getParameter(), parameter)) {
-                    outputTabs.setSelectedIndex(index);
-                    break;
-                }
-            }
-        }
+        selectTab(outputTabs, parameter.getName());
     }
 
     private void updateStatusBarLabels() {

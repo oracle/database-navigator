@@ -31,6 +31,7 @@ import com.dbn.common.util.Context;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
+import com.dbn.common.util.Strings;
 import com.dbn.common.util.UserDataUtil;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
@@ -83,7 +84,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -175,16 +175,17 @@ public class StatementExecutionManager extends ProjectComponentBase implements P
     }
 
     private void refreshEditorExecutionProcessors(@NotNull FileEditor textEditor) {
-        Collection<StatementExecutionProcessor> executionProcessors = getExecutionProcessors(textEditor);
+        VirtualFile virtualFile = textEditor.getFile();
+        List<StatementExecutionProcessor> executionProcessors = getExecutionProcessors(virtualFile);
         if (executionProcessors.isEmpty()) return;
 
         for (StatementExecutionProcessor executionProcessor : executionProcessors) {
             executionProcessor.unbind();
         }
 
-        bindExecutionProcessors(textEditor, MatchType.STRONG);
-        bindExecutionProcessors(textEditor, MatchType.CACHED);
-        bindExecutionProcessors(textEditor, MatchType.SOFT);
+        bindExecutionProcessors(virtualFile, MatchType.STRONG);
+        bindExecutionProcessors(virtualFile, MatchType.CACHED);
+        bindExecutionProcessors(virtualFile, MatchType.SOFT);
 
         List<StatementExecutionProcessor> removeList = null;
         for (StatementExecutionProcessor executionProcessor : executionProcessors) {
@@ -200,16 +201,15 @@ public class StatementExecutionManager extends ProjectComponentBase implements P
     }
 
     @NotNull
-    private List<StatementExecutionProcessor> getExecutionProcessors(@NotNull FileEditor textEditor) {
+    private List<StatementExecutionProcessor> getExecutionProcessors(@NotNull VirtualFile virtualFile) {
         return UserDataUtil.ensure(
-                textEditor,
+                virtualFile,
                 UserDataKeys.STATEMENT_EXECUTION_PROCESSORS,
                 () -> CollectionUtil.createConcurrentList());
     }
 
-    private void bindExecutionProcessors(FileEditor fileEditor, MatchType matchType) {
-        Editor editor = Editors.getEditor(fileEditor);
-        PsiFile psiFile = Documents.getFile(editor);
+    private void bindExecutionProcessors(VirtualFile virtualFile, MatchType matchType) {
+        PsiFile psiFile = PsiUtil.getPsiFile(getProject(), virtualFile);
         if (psiFile == null) return;
 
         PsiElement child = psiFile.getFirstChild();
@@ -222,7 +222,7 @@ public class StatementExecutionManager extends ProjectComponentBase implements P
                             executionProcessor.bind(executable);
                         }
                     } else {
-                        StatementExecutionProcessor executionProcessor = findExecutionProcessor(executable, fileEditor, matchType);
+                        StatementExecutionProcessor executionProcessor = findExecutionProcessor(executable, virtualFile, matchType);
                         if (executionProcessor != null) {
                             executionProcessor.bind(executable);
                         }
@@ -233,8 +233,8 @@ public class StatementExecutionManager extends ProjectComponentBase implements P
         }
     }
 
-    private StatementExecutionProcessor findExecutionProcessor(ExecutablePsiElement executablePsiElement, FileEditor fileEditor, MatchType matchType) {
-        Collection<StatementExecutionProcessor> executionProcessors = getExecutionProcessors(fileEditor);
+    private StatementExecutionProcessor findExecutionProcessor(ExecutablePsiElement executablePsiElement, VirtualFile virtualFile, MatchType matchType) {
+        List<StatementExecutionProcessor> executionProcessors = getExecutionProcessors(virtualFile);
 
         for (StatementExecutionProcessor executionProcessor : executionProcessors) {
             if (executionProcessor.isBound()) continue;
@@ -468,19 +468,16 @@ public class StatementExecutionManager extends ProjectComponentBase implements P
         PsiFile psiFile = Documents.getFile(editor);
         if (psiFile instanceof DBLanguagePsiFile file) {
             String selection = editor.getSelectionModel().getSelectedText();
-            if (selection != null) {
-                return new StatementExecutionCursorProcessor(getProject(), fileEditor, file, selection, RESULT_SEQUENCE.incrementAndGet());
+            if (Strings.isNotEmptyOrSpaces(selection)) {
+                return new StatementExecutionCursorProcessor(getProject(), file, selection, RESULT_SEQUENCE.incrementAndGet());
             }
 
             ExecutablePsiElement executablePsiElement = PsiUtil.lookupExecutableAtCaret(editor, true);
             if (executablePsiElement != null) {
-                return getExecutionProcessor(fileEditor, executablePsiElement, true);
+                return getExecutionProcessor(executablePsiElement, true);
             }
-            return null;
-        } else {
-            return null;
         }
-
+        return null;
     }
 
     private List<StatementExecutionProcessor> getExecutionProcessorsFromOffset(@NotNull FileEditor fileEditor, int offset) {
@@ -495,7 +492,7 @@ public class StatementExecutionManager extends ProjectComponentBase implements P
             while (child != null) {
                 if (child instanceof ChameleonPsiElement chameleonPsiElement) {
                     for (ExecutablePsiElement executable : chameleonPsiElement.getExecutablePsiElements()) {
-                        StatementExecutionProcessor executionProcessor = getExecutionProcessor(fileEditor, executable, true);
+                        StatementExecutionProcessor executionProcessor = getExecutionProcessor(executable, true);
                         executionProcessors.add(executionProcessor);
                     }
 
@@ -504,7 +501,7 @@ public class StatementExecutionManager extends ProjectComponentBase implements P
 
                     for (ExecutablePsiElement executable: root.getExecutablePsiElements()) {
                         if (executable.getTextOffset() > offset) {
-                            StatementExecutionProcessor executionProcessor = getExecutionProcessor(fileEditor, executable, true);
+                            StatementExecutionProcessor executionProcessor = getExecutionProcessor(executable, true);
                             executionProcessors.add(executionProcessor);
                         }
                     }
@@ -517,24 +514,25 @@ public class StatementExecutionManager extends ProjectComponentBase implements P
     }
 
     @Nullable
-    public StatementExecutionProcessor getExecutionProcessor(@NotNull FileEditor fileEditor, @NotNull ExecutablePsiElement executablePsiElement, boolean create) {
-        List<StatementExecutionProcessor> executionProcessors = getExecutionProcessors(fileEditor);
+    public StatementExecutionProcessor getExecutionProcessor(@NotNull ExecutablePsiElement executablePsiElement, boolean create) {
+        VirtualFile virtualFile = executablePsiElement.getFile().getVirtualFile();
+        List<StatementExecutionProcessor> executionProcessors = getExecutionProcessors(virtualFile);
         for (StatementExecutionProcessor executionProcessor : executionProcessors) {
             if (executablePsiElement == executionProcessor.getCachedExecutable()) {
                 return executionProcessor;
             }
         }
 
-        return create ? createExecutionProcessor(fileEditor, executionProcessors, executablePsiElement) : null;
+        return create ? createExecutionProcessor(executionProcessors, executablePsiElement) : null;
     }
 
-    private StatementExecutionProcessor createExecutionProcessor(@NotNull FileEditor fileEditor, List<StatementExecutionProcessor> executionProcessors, @NotNull ExecutablePsiElement executablePsiElement) {
+    private StatementExecutionProcessor createExecutionProcessor(List<StatementExecutionProcessor> executionProcessors, @NotNull ExecutablePsiElement executablePsiElement) {
         Project project = getProject();
         int index = RESULT_SEQUENCE.incrementAndGet();
         StatementExecutionBasicProcessor executionProcessor =
                 executablePsiElement.isQuery() ?
-                        new StatementExecutionCursorProcessor(project, fileEditor, executablePsiElement, index) :
-                        new StatementExecutionBasicProcessor(project, fileEditor, executablePsiElement, index);
+                        new StatementExecutionCursorProcessor(project, executablePsiElement, index) :
+                        new StatementExecutionBasicProcessor(project, executablePsiElement, index);
         executionProcessors.add(executionProcessor);
         executablePsiElement.setExecutionProcessor(executionProcessor);
         return executionProcessor;

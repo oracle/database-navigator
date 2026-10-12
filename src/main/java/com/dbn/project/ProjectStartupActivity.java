@@ -34,6 +34,8 @@ import kotlin.coroutines.Continuation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.language.editor.DBLanguageFileEditorListener.ensureEditorToolbars;
+
 @Compatibility
 public class ProjectStartupActivity implements ProjectActivity {
 
@@ -53,6 +55,7 @@ public class ProjectStartupActivity implements ProjectActivity {
         initializeDatabaseAssistant(project);
         initializeStateEncryption();
         reopenDatabaseEditors(project);
+        ensureEditorToolbars(project);
         return null;
     }
 

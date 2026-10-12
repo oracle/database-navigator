@@ -16,6 +16,7 @@
 
 package com.dbn.data.editor.text.ui;
 
+import com.dbn.common.ref.WeakRef;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.util.Dialogs;
@@ -27,6 +28,7 @@ import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
 
@@ -37,9 +39,11 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class TextEditorDialog extends DBNDialog<TextEditorForm> {
     private final DataEditorComponent textEditorAdapter;
-    private TextEditorDialog(Project project, DataEditorComponent textEditorAdapter){
+
+    private TextEditorDialog(Project project, DataEditorComponent textEditorAdapter, @Nullable Object contextObject) {
         super(project, getTitle(textEditorAdapter), true);
         this.textEditorAdapter = textEditorAdapter;
+        setContextObject(contextObject);
         getOKAction().setEnabled(false);
         setModal(true);
         init();
@@ -66,7 +70,11 @@ public class TextEditorDialog extends DBNDialog<TextEditorForm> {
     }
 
     public static void show(Project project, DataEditorComponent textEditorAdapter) {
-        Dialogs.show(() -> new TextEditorDialog(project, textEditorAdapter));
+        show(project, textEditorAdapter, null);
+    }
+
+    public static void show(Project project, DataEditorComponent textEditorAdapter, @Nullable Object contextObject) {
+        Dialogs.show(() -> new TextEditorDialog(project, textEditorAdapter, contextObject));
     }
 
     @Override

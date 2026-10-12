@@ -92,6 +92,8 @@ public class DBJavaJdwpDebugProcess extends DBJdwpDebugProcess<JavaExecutionInpu
 
     @Override
     protected void registerDefaultBreakpoint() {
+        getConsole().system(txt("log.debugger.info.RegisteringDefaultBreakpoint"));
+
         JavaExecutionInput executionInput = getExecutionInput();
         if (executionInput == null) return;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,15 +38,19 @@ import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.common.list.DBObjectListVisitor;
 import com.dbn.object.common.property.DBObjectProperty;
+import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
+import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBObjectVirtualFile;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import java.nio.charset.Charset;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -175,5 +179,30 @@ public interface DBObject extends
 
     default DBObjectStatusHolder getStatus() {
         return Exceptions.unsupported();
-    };
+    }
+
+    default boolean setStatus(DBObjectStatus status, boolean value) {
+        return getStatus().set(status, value);
+    }
+
+    default boolean setStatus(DBContentType contentType, DBObjectStatus status, boolean value) {
+        return getStatus().set(contentType, status, value);
+    }
+
+    default boolean hasStatus(DBObjectStatus status) {
+        return getStatus().is(status);
+    }
+
+    default boolean hasStatus(DBContentType contentType, DBObjectStatus status) {
+        return getStatus().is(contentType, status);
+    }
+
+    @NonNls
+    @Nullable
+    String getCodeParseRootId(DBContentType contentType);
+
+    @Nullable
+    DBEditableObjectVirtualFile getCachedVirtualFile();
+
+    DBEditableObjectVirtualFile getEditableVirtualFile();
 }

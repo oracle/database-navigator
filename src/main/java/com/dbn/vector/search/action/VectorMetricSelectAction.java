@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,16 @@ package com.dbn.vector.search.action;
 
 import com.dbn.common.action.SelectDropdownAction;
 import com.dbn.object.type.DBVectorDistanceMetric;
+import com.dbn.options.general.WorkspaceFeature;
 import com.dbn.vector.search.VectorSearchConsole;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.project.Project;
 
 import java.util.List;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.*;
 
 public class VectorMetricSelectAction extends SelectDropdownAction<DBVectorDistanceMetric> implements VectorActionSupport{
     public VectorMetricSelectAction() {
@@ -75,5 +78,14 @@ public class VectorMetricSelectAction extends SelectDropdownAction<DBVectorDista
         if (console.isSearching()) return false;
 
         return true;
+    }
+
+    @Override
+    protected boolean isVisible(AnActionEvent e) {
+        VectorSearchConsole console = getConsole(e);
+        if (console == null) return false;
+
+        Project project = console.getProject();
+        return VECTOR_TOOLBOX.isEnabled(project);
     }
 }

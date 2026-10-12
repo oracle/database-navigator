@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,8 @@ import com.dbn.common.util.Editors;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.mapping.FileConnectionContextListener;
+import com.dbn.options.general.WorkspaceFeature;
+import com.dbn.options.general.listener.WorkspaceSettingsListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
@@ -39,6 +41,7 @@ import static com.dbn.common.icon.Icons.WINDOW_DATABASE_ASSISTANT;
 import static com.dbn.common.util.ContextLookup.getConnectionId;
 import static com.dbn.help.HelpTopic.DATABASE_ASSISTANT;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.*;
 
 /**
  * Tool window factory for the Database AI-Assistant chat box
@@ -57,6 +60,7 @@ public class DatabaseAssistantToolWindowFactory extends DBNToolWindowFactory {
 
     @Override
     public void createContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
+        toolWindow.setAvailable(WorkspaceFeature.DATABASE_ASSISTANT.isEnabled(project), null);
         createContentPanel(toolWindow);
         toolWindow.setToHideOnEmptyContent(true);
         toolWindow.setAutoHide(false);
@@ -70,6 +74,15 @@ public class DatabaseAssistantToolWindowFactory extends DBNToolWindowFactory {
         ProjectEvents.subscribe(project, manager,
                 ToolWindowManagerListener.TOPIC,
                 createToolWindowListener(project));
+
+        ProjectEvents.subscribe(project, manager,
+                WorkspaceSettingsListener.TOPIC,
+                createWorkspaceSettingsListener(toolWindow));
+    }
+
+    @Override
+    public boolean shouldBeAvailable(@NotNull Project project) {
+        return WorkspaceFeature.DATABASE_ASSISTANT.isEnabled(project);
     }
 
     private static void createContentPanel(@NotNull ToolWindow toolWindow) {
@@ -109,6 +122,16 @@ public class DatabaseAssistantToolWindowFactory extends DBNToolWindowFactory {
                 DatabaseAssistantManager assistantManager = DatabaseAssistantManager.getInstance(project);
                 assistantManager.switchContext(connectionId);
             }
+        };
+    }
+
+    private static WorkspaceSettingsListener createWorkspaceSettingsListener(ToolWindow toolWindow) {
+        return project -> {
+            boolean enabled = WorkspaceFeature.DATABASE_ASSISTANT.isEnabled(project);
+            if (!enabled && toolWindow.isVisible()) {
+                toolWindow.hide(null);
+            }
+            toolWindow.setAvailable(enabled, null);
         };
     }
 

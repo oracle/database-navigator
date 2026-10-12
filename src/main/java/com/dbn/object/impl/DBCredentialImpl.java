@@ -23,7 +23,6 @@ import com.dbn.object.DBCredential;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObjectImpl;
-import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.type.DBAttributeType;
 import com.dbn.object.type.DBCredentialType;
 import com.dbn.object.type.DBObjectType;
@@ -36,6 +35,7 @@ import java.util.Map;
 
 import static com.dbn.object.common.property.DBObjectProperty.DISABLEABLE;
 import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
+import static com.dbn.object.common.status.DBObjectStatus.DISABLED;
 
 @Getter
 public class DBCredentialImpl extends DBSchemaObjectImpl<DBCredentialMetadata> implements DBCredential {
@@ -51,7 +51,7 @@ public class DBCredentialImpl extends DBSchemaObjectImpl<DBCredentialMetadata> i
                 .credentialType(type.name())
                 .userName("")
                 .comments("")
-                .enabled(enabled)
+                .disabled(!enabled)
                 .build());
     }
 
@@ -77,8 +77,7 @@ public class DBCredentialImpl extends DBSchemaObjectImpl<DBCredentialMetadata> i
 
     @Override
     public void initStatus(DBCredentialMetadata metadata) throws SQLException {
-        boolean enabled = metadata.isEnabled();
-        getStatus().set(DBObjectStatus.ENABLED, enabled);
+        setStatus(DISABLED, metadata.isDisabled());
     }
 
 

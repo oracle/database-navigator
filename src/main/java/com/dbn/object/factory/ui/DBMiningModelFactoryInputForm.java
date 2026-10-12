@@ -128,7 +128,7 @@ public class DBMiningModelFactoryInputForm extends DBSchemaObjectFactoryInputFor
         schemaComboBox.setEnabled(false); // TODO support connection switch
 
         // model source combo-box
-        DBMiningModelSourceType sourceType = MINING_MODEL_SOURCE_TYPE.of(input);
+        DBMiningModelSourceType sourceType = MINING_MODEL_SOURCE_TYPE.value(input);
         initComboBox(sourceComboBox, DBMiningModelSourceType.values());
         setSelection(sourceComboBox, sourceType == null ? MODEL_FILE : sourceType);
         onSelectionChange(sourceComboBox, e -> updateFieldAvailability());
@@ -259,7 +259,7 @@ public class DBMiningModelFactoryInputForm extends DBSchemaObjectFactoryInputFor
     @Override
     public void resetFormChanges() {
         nameTextField.setText(input.getObjectName());
-        modelFileTextField.setText(MINING_MODEL_SOURCE_LOCATION.of(input));
+        modelFileTextField.setText(MINING_MODEL_SOURCE_LOCATION.value(input));
     }
 
     private DBMiningModelSourceType getModelSourceType() {

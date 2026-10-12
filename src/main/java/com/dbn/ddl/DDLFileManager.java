@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import com.dbn.ddl.options.DDLFileExtensionSettings;
 import com.dbn.ddl.options.DDLFileSettings;
 import com.dbn.editor.DBContentType;
 import com.dbn.language.common.DBLanguageFileType;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
@@ -101,7 +101,7 @@ public class DDLFileManager extends ProjectComponentBase implements PersistentSt
     }
 
     String createDDLStatement(DBSourceCodeVirtualFile sourceCodeFile, DBContentType contentType) {
-        DBSchemaObject object = sourceCodeFile.getObject();
+        DBObject object = sourceCodeFile.getObject();
         String content = sourceCodeFile.getOriginalContent().toString().trim();
         if (content.isEmpty()) return "";
 
@@ -111,7 +111,7 @@ public class DDLFileManager extends ProjectComponentBase implements PersistentSt
         return dataDefinition.createDDLStatement(getProject(),
                 object.getObjectType().getTypeId(),
                 connection.getUserName(),
-                object.getSchema().getName(true),
+                object.getSchemaName(true),
                 object.getName(true),
                 contentType,
                 content,

@@ -16,6 +16,9 @@
 
 package com.dbn.data.value;
 
+import com.dbn.common.data.Data;
+import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.data.type.DBDataType;
 import com.dbn.data.type.GenericDataType;
 import org.jetbrains.annotations.Nullable;
 
@@ -66,6 +69,12 @@ public class ArrayValue extends ValueAdapter<List<String>>{
     @Override
     public GenericDataType getGenericDataType() {
         return GenericDataType.ARRAY;
+    }
+
+    @Override
+    @Nullable
+    protected List<String> convertUserValue(@Nullable Object userValue, DBDataType dataType, DBNConnection connection) {
+        return Data.asStringList(userValue);
     }
 
     @Nullable

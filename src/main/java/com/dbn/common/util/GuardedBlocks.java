@@ -36,6 +36,17 @@ import java.util.List;
 @UtilityClass
 public class GuardedBlocks {
 
+    public static List<RangeMarker> getGuardedBlocks(Document document, boolean persistent) {
+        if (!(document instanceof DocumentEx documentEx)) return List.of();
+
+        return documentEx.getGuardedBlocks().stream()
+                .filter(block -> {
+                    GuardedBlockType type = block.getUserData(GuardedBlockType.KEY);
+                    return type != null && type.isPersistent() == persistent;
+                })
+                .toList();
+    }
+
     public static void createGuardedBlock(Document document, GuardedBlockType type, @Nullable @Nls String reason, boolean highlight) {
         Write.run(() -> {
             doCreateGuardedBlock(document, type, 0, document.getTextLength(), reason);

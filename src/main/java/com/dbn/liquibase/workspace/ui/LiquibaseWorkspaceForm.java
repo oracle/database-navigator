@@ -126,7 +126,7 @@ public class LiquibaseWorkspaceForm extends DBNFormBase {
 
     private void initHintPanel() {
         TextContent hint = plain(txt("cfg.liquibase.hint.WorkspaceSettings"));
-        hintPanel.add(new DBNHintForm(this, hint, null, true).getComponent());
+        hintPanel.add(new DBNHintForm(this, hint, null).getComponent());
     }
 
     private void initHyperlinksPanel() {

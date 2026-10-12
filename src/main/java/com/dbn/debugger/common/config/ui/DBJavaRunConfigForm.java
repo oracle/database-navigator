@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,7 +68,7 @@ public class DBJavaRunConfigForm extends DBProgramRunConfigForm<DBJavaRunConfig>
             methodArgumentsPanel.setVisible(false);
             headerPanel.setVisible(false);
             hintPanel.setVisible(true);
-            DBNHintForm hintForm = new DBNHintForm(this, ExecutionConfigManager.GENERIC_METHOD_RUNNER_HINT, null, true);
+            DBNHintForm hintForm = new DBNHintForm(this, ExecutionConfigManager.GENERIC_METHOD_RUNNER_HINT, null);
             hintPanel.add(hintForm.getComponent());
         } else {
             ActionToolbar actionToolbar = Actions.createActionToolbar(selectMethodActionPanel, true, new SelectMethodAction());

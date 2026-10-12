@@ -68,8 +68,6 @@ public class ExecutionVariable implements PersistentStateElement, Cloneable<Exec
     }
 
     public void setValue(String value) {
-        if (value == null) return;
-
         getContainer().setValue(value);
     }
     

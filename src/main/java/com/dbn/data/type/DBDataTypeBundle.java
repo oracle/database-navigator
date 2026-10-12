@@ -21,14 +21,17 @@ import com.dbn.common.dispose.StatefulDisposableBase;
 import com.dbn.common.dispose.UnlistedDisposable;
 import com.dbn.common.latent.Latent;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.database.interfaces.DatabaseInterfaces;
+import com.dbn.object.DBColumn;
+import com.dbn.object.DBNestedTable;
 import com.dbn.object.DBProgram;
 import com.dbn.object.DBSchema;
+import com.dbn.object.DBTable;
 import com.dbn.object.DBType;
 import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.lookup.DBObjectRef;
-import com.dbn.object.type.DBObjectType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -37,6 +40,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.util.Strings.cachedUpperCase;
+import static com.dbn.object.type.DBObjectType.COLUMN;
+import static com.dbn.object.type.DBObjectType.NESTED_TABLE;
+import static com.dbn.object.type.DBObjectType.PROGRAM;
+import static com.dbn.object.type.DBObjectType.SCHEMA;
+import static com.dbn.object.type.DBObjectType.TABLE;
+import static com.dbn.object.type.DBObjectType.TYPE;
 
 public final class DBDataTypeBundle extends StatefulDisposableBase implements UnlistedDisposable {
     private final ConnectionRef connection;
@@ -107,13 +116,14 @@ public final class DBDataTypeBundle extends StatefulDisposableBase implements Un
         String declaredTypeName = def.getDeclaredTypeName();
         String dataTypeName = def.getDataTypeName();
 
+        ConnectionId connectionId = getConnection().getConnectionId();
         if (declaredTypeOwner != null) {
-            DBObjectRef<DBSchema> schema = new DBObjectRef<>(getConnection().getConnectionId(), DBObjectType.SCHEMA, declaredTypeOwner);
+            DBObjectRef<DBSchema> schema = new DBObjectRef<>(connectionId, SCHEMA, declaredTypeOwner);
             if (declaredTypeProgram != null) {
-                DBObjectRef<DBProgram> program = new DBObjectRef<>(schema, DBObjectType.PROGRAM, declaredTypeProgram);
-                declaredType = new DBObjectRef<>(program, DBObjectType.TYPE, declaredTypeName);
+                DBObjectRef<DBProgram> program = new DBObjectRef<>(schema, PROGRAM, declaredTypeProgram);
+                declaredType = new DBObjectRef<>(program, TYPE, declaredTypeName);
             } else {
-                declaredType = new DBObjectRef<>(schema, DBObjectType.TYPE, declaredTypeName);
+                declaredType = new DBObjectRef<>(schema, TYPE, declaredTypeName);
             }
 
             name = declaredTypeName;
@@ -127,14 +137,31 @@ public final class DBDataTypeBundle extends StatefulDisposableBase implements Un
             if (nativeDataType == null) name = dataTypeName;
         }
 
+
+        DBObjectRef<DBNestedTable> nestedTable = null;
+        DBObjectRef<DBColumn> nestedTableColumn = null;
+        String nestedTableName = def.getNestedTableName();
+        if (nestedTableName != null) {
+            DBObjectRef<DBSchema> schema = new DBObjectRef<>(connectionId, SCHEMA, def.getNestedTableParentOwnerName());
+            DBObjectRef<DBTable> table = new DBObjectRef<>(schema, TABLE, def.getNestedTableParentTableName());
+            nestedTable = new DBObjectRef<>(table, NESTED_TABLE, nestedTableName);
+            nestedTableColumn = new DBObjectRef<>(table, COLUMN, def.getNestedTableParentColumnName());
+        }
+
         DBDataType dataType = new DBDataType();
         dataType.setNativeType(nativeDataType);
         dataType.setDeclaredType(declaredType);
+        dataType.setNestedTable(nestedTable);
+        dataType.setNestedTableColumn(nestedTableColumn);
+
         dataType.setName(name);
         dataType.setLength(def.getLength());
         dataType.setPrecision(def.getPrecision());
         dataType.setScale(def.getScale());
         dataType.setSet(def.isSet());
+        dataType.setCollection(nativeDataType == null ? def.isCollection() : nativeDataType.isCollection());
+        dataType.setTable(nestedTable != null);
+
         return dataType;
     }
 

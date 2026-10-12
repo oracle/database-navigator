@@ -25,14 +25,17 @@ import com.dbn.object.DBIndex;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObjectImpl;
 import com.dbn.object.common.list.DBObjectListContainer;
-import com.dbn.object.common.property.DBObjectProperty;
-import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.type.DBObjectRelationType;
 import com.dbn.object.type.DBObjectType;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
 import java.util.List;
+
+import static com.dbn.object.common.property.DBObjectProperty.INVALIDABLE;
+import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
+import static com.dbn.object.common.property.DBObjectProperty.UNIQUE;
+import static com.dbn.object.common.status.DBObjectStatus.VALID;
 
 class DBIndexImpl extends DBSchemaObjectImpl<DBIndexMetadata> implements DBIndex {
     DBIndexImpl(DBDataset dataset, DBIndexMetadata metadata) throws SQLException {
@@ -42,20 +45,19 @@ class DBIndexImpl extends DBSchemaObjectImpl<DBIndexMetadata> implements DBIndex
     @Override
     protected String initObject(ConnectionHandler connection, DBObject parentObject, DBIndexMetadata metadata) throws SQLException {
         String name = metadata.getIndexName();
-        set(DBObjectProperty.UNIQUE, metadata.isUnique());
+        set(UNIQUE, metadata.isUnique());
         return name;
     }
 
     @Override
     public void initStatus(DBIndexMetadata metadata) throws SQLException {
-        boolean valid = metadata.isValid();
-        getStatus().set(DBObjectStatus.VALID, valid);
+        setStatus(VALID, metadata.isValid());
     }
 
     @Override
     public void initProperties() {
-        properties.set(DBObjectProperty.SCHEMA_OBJECT, true);
-        properties.set(DBObjectProperty.INVALIDABLE, true);
+        properties.set(SCHEMA_OBJECT, true);
+        properties.set(INVALIDABLE, true);
     }
 
     @Override
@@ -92,7 +94,7 @@ class DBIndexImpl extends DBSchemaObjectImpl<DBIndexMetadata> implements DBIndex
 
     @Override
     public boolean isUnique() {
-        return is(DBObjectProperty.UNIQUE);
+        return is(UNIQUE);
     }
 
     @Override

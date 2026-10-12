@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,6 @@ import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.psi.PsiUtil;
 import com.dbn.object.common.DBObject;
-import com.dbn.object.common.DBSchemaObject;
 import com.dbn.vfs.file.DBConsoleVirtualFile;
 import com.dbn.vfs.file.DBContentVirtualFile;
 import com.dbn.vfs.file.DBDatasetVirtualFile;
@@ -105,10 +104,11 @@ import java.util.stream.Collectors;
 
 import static com.dbn.browser.DatabaseBrowserUtils.markSkipBrowserAutoscroll;
 import static com.dbn.browser.DatabaseBrowserUtils.unmarkSkipBrowserAutoscroll;
+import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.ui.util.Components.onComponentResized;
 import static com.dbn.common.util.Documents.onDocumentChanged;
-import static com.dbn.common.util.Documents.onDocumentChanged;
+import static com.dbn.common.util.Modality.nonModal;
 import static com.intellij.openapi.editor.EditorModificationUtil.setReadOnlyHint;
 
 @Slf4j
@@ -119,7 +119,7 @@ public class Editors {
         if (fileEditor != null) {
             if (fileEditor instanceof DDLFileEditor) {
                 DDLFileAttachmentManager attachmentManager = DDLFileAttachmentManager.getInstance(project);
-                DBSchemaObject editableObject = attachmentManager.getMappedObject(file);
+                DBObject editableObject = attachmentManager.getMappedObject(file);
                 if (editableObject != null) {
                     file = editableObject.getVirtualFile();
                 }
@@ -185,9 +185,9 @@ public class Editors {
         if (selectedEditor == null) {
             if (file.isInLocalFileSystem()) {
                 DDLFileAttachmentManager ddlFileAttachmentManager = DDLFileAttachmentManager.getInstance(project);
-                DBSchemaObject schemaObject = ddlFileAttachmentManager.getMappedObject(file);
-                if (schemaObject != null) {
-                    DBEditableObjectVirtualFile objectVirtualFile = schemaObject.getEditableVirtualFile();
+                DBObject object = ddlFileAttachmentManager.getMappedObject(file);
+                if (object != null) {
+                    DBEditableObjectVirtualFile objectVirtualFile = object.getEditableVirtualFile();
                     selectedEditor = fileEditorManager.getSelectedEditor(objectVirtualFile);
                 }
             }
@@ -399,17 +399,17 @@ public class Editors {
             }
         }
         DDLFileAttachmentManager fileAttachmentManager = DDLFileAttachmentManager.getInstance(project);
-        DBSchemaObject schemaObject = fileAttachmentManager.getMappedObject(file);
-        if (schemaObject != null) {
-            DBEditableObjectVirtualFile editableObjectFile = schemaObject.getEditableVirtualFile();
-            fileEditors = editorManager.getAllEditors(editableObjectFile);
-            for (FileEditor fileEditor : fileEditors) {
-                if (fileEditor instanceof DDLFileEditor ddlFileEditor) {
-                    Editor editor = ddlFileEditor.getEditor();
-                    PsiFile psiFile = PsiUtil.getPsiFile(project, editor.getDocument());
-                    if (psiFile != null && psiFile.getVirtualFile().equals(file)) {
-                        scriptFileEditors.add(ddlFileEditor);
-                    }
+        DBObject object = fileAttachmentManager.getMappedObject(file);
+        if (object == null) return scriptFileEditors;
+
+        DBEditableObjectVirtualFile editableObjectFile = object.getEditableVirtualFile();
+        fileEditors = editorManager.getAllEditors(editableObjectFile);
+        for (FileEditor fileEditor : fileEditors) {
+            if (fileEditor instanceof DDLFileEditor ddlFileEditor) {
+                Editor editor = ddlFileEditor.getEditor();
+                PsiFile psiFile = PsiUtil.getPsiFile(project, editor.getDocument());
+                if (psiFile != null && psiFile.getVirtualFile().equals(file)) {
+                    scriptFileEditors.add(ddlFileEditor);
                 }
             }
         }
@@ -510,14 +510,29 @@ public class Editors {
     }
 
     public static void updateAllNotifications(@NotNull Project project) {
-        updateNotifications(project, null);
+        updateEditorNotifications(project, null);
     }
 
-    public static void updateNotifications(@NotNull Project project, @Nullable VirtualFile file) {
-        EditorNotifications notifications = getNotifications(project);
-        if (file == null)
-            notifications.updateAllNotifications(); else
-            notifications.updateNotifications(file);
+    public static void updateEditorNotifications(@Nullable PsiFile file) {
+        if  (file == null) return;
+        updateEditorNotifications(
+                file.getProject(),
+                file.getVirtualFile());
+    }
+
+    public static void updateEditorNotifications(@NotNull Project project, @Nullable VirtualFile file) {
+        if (isNotValid(project)) return;
+
+        Dispatch.run(nonModal(), () -> {
+            if (isNotValid(project)) return;
+
+            EditorNotifications notifications = getNotifications(project);
+            if (file == null){
+                notifications.updateAllNotifications();
+            } else {
+                notifications.updateNotifications(file);
+            }
+        });
     }
 
     public static boolean isDdlFileEditor(FileEditor fileEditor) {
@@ -556,7 +571,7 @@ public class Editors {
         DDLFileAttachmentManager attachmentManager = DDLFileAttachmentManager.getInstance(project);
         attachmentManager.warmUpAttachedDDLFiles(file);
 
-        Dispatch.run(Modality.nonModal(), () -> {
+        Dispatch.run(nonModal(), () -> {
             try {
                 if (!file.exists()) return;
 
@@ -567,7 +582,7 @@ public class Editors {
                 FileEditor[] fileEditors = fileEditorManager.openFile(file, focus);
                 if (callback != null) callback.accept(fileEditors);
 
-                if (!wasOpen) updateNotifications(project, file);
+                if (!wasOpen) updateEditorNotifications(project, file);
             } finally {
                 unmarkSkipBrowserAutoscroll(file);
             }
@@ -600,7 +615,7 @@ public class Editors {
         if (editorProviderId == null) return;
 
         FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
-        Dispatch.run(Modality.nonModal(), () -> fileEditorManager.setSelectedEditor(file, editorProviderId.getId()));
+        Dispatch.run(nonModal(), () -> fileEditorManager.setSelectedEditor(file, editorProviderId.getId()));
     }
 
     @Workaround

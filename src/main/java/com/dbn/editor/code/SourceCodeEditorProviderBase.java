@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import com.dbn.common.util.Editors;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.DatabaseFileEditorManager;
 import com.dbn.editor.EditorProviderId;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.editor.Document;
@@ -103,7 +103,7 @@ abstract class SourceCodeEditorProviderBase extends BasicTextEditorProvider impl
 
 
         Document document = editor.getDocument();
-        document.addDocumentListener(sourceCodeFile, sourceCodeEditor);
+        sourceCodeFile.registerDocument(document);
 
         Icon icon = getIcon();
         if (icon != null) {
@@ -115,7 +115,7 @@ abstract class SourceCodeEditorProviderBase extends BasicTextEditorProvider impl
 
     private void openMainFileEditor(DBEditableObjectVirtualFile databaseFile) {
         Project project = databaseFile.getProject();
-        DBSchemaObject object = databaseFile.getObject();
+        DBObject object = databaseFile.getObject();
         DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(project);
         editorManager.connectAndOpenEditor(object, getEditorProviderId(), false, true);
         throw new ProcessDeferredException();

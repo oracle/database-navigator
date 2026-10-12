@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import com.dbn.common.message.MessageType;
 import com.dbn.connection.ConnectionId;
 import com.dbn.editor.DBContentType;
 import com.dbn.execution.common.message.ConsoleMessage;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.vfs.file.DBContentVirtualFile;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.intellij.openapi.project.Project;
@@ -97,9 +97,9 @@ public class CompilerMessage extends ConsoleMessage implements Comparable<Compil
 
     @Nullable
     public DBEditableObjectVirtualFile getDatabaseFile() {
-        DBSchemaObject schemaObject = compilerResult.getObject();
-        if (databaseFile == null && schemaObject != null) {
-            databaseFile = schemaObject.getEditableVirtualFile();
+        DBObject object = compilerResult.getObject();
+        if (databaseFile == null && object != null) {
+            databaseFile = object.getEditableVirtualFile();
         }
         return databaseFile;
     }
@@ -115,7 +115,7 @@ public class CompilerMessage extends ConsoleMessage implements Comparable<Compil
         return contentFile;
     }
 
-    public DBSchemaObject getObject() {
+    public DBObject getObject() {
         return compilerResult.getObject();
     }
 

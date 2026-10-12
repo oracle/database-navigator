@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,23 +21,19 @@ import com.dbn.language.common.element.cache.QualifiedIdentifierElementCache;
 import com.dbn.language.common.element.parser.impl.QualifiedIdentifierElementTypeParser;
 import com.dbn.language.common.element.util.ElementTypeDefinitionException;
 import com.dbn.language.common.psi.QualifiedIdentifierPsiElement;
-import com.dbn.object.type.DBObjectType;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 public final class QualifiedIdentifierElementType extends ElementTypeBase {
     public final TokenElementType separatorToken;
     public final List<LeafElementType[]> variants = new ArrayList<>();
-    private final Set<DBObjectType> objectTypeCache = EnumSet.noneOf(DBObjectType.class);
     private int maxLength;
 
     public QualifiedIdentifierElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id, Element def) throws ElementTypeDefinitionException {
@@ -45,13 +41,6 @@ public final class QualifiedIdentifierElementType extends ElementTypeBase {
         List<Element> children = def.getChildren();
         for (Element child : children) {
             List<LeafElementType[]> childVariants = createVariants(child);
-            for (LeafElementType[] childVariant : childVariants) {
-                for (LeafElementType leafElementType : childVariant) {
-                    if (leafElementType instanceof IdentifierElementType identifierElementType) {
-                        objectTypeCache.add(identifierElementType.getObjectType());
-                    }
-                }
-            }
             variants.addAll(childVariants);
         }
         String separatorId = stringAttribute(def, "separator", "CHR_DOT");
@@ -141,9 +130,4 @@ public final class QualifiedIdentifierElementType extends ElementTypeBase {
     public boolean isLeaf() {
         return false;
     }
-
-    public boolean containsObjectType(DBObjectType objectType) {
-        return objectTypeCache.contains(objectType);
-    }
-
 }

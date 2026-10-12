@@ -28,14 +28,14 @@ public class VariableInfo extends BasicOperationInfo {
 
     @Override
     public void registerParameters(CallableStatement statement) throws SQLException {
-        statement.registerOutParameter(1, Types.VARCHAR);
-        statement.registerOutParameter(2, Types.VARCHAR);
+        registerOutParameter(statement, 1, Types.VARCHAR);
+        registerOutParameter(statement, 2, Types.VARCHAR);
     }
 
     @Override
     public void read(CallableStatement statement) throws SQLException {
-        value = statement.getString(1);
-        error = statement.getString(2);
+        value = getString(statement, 1);
+        error = getString(statement, 2);
     }
 
     @Override

@@ -44,6 +44,7 @@ import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.editor.data.filter.DatasetFilterUtil.getColumnExpression;
 
 @Getter
 @Setter
@@ -113,7 +114,7 @@ public class DatasetBasicFilterCondition extends BasicConfiguration<DatasetBasic
             return;
         }
 
-        buffer.append(column.getName(true));
+        buffer.append(getColumnExpression(dataset, column));
         buffer.append(" ");
         buffer.append(operator.getText());
         if (!renderedValue.isEmpty()) {

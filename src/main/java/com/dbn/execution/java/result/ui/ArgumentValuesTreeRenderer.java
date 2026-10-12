@@ -56,7 +56,7 @@ class ArgumentValuesTreeRenderer extends DBNColoredTreeCellRenderer {
         renderValue(treeNode);
 
         // data type qualification
-        renderDataType(object);
+        renderDataType(object, treeNode);
 
     }
 
@@ -91,7 +91,7 @@ class ArgumentValuesTreeRenderer extends DBNColoredTreeCellRenderer {
         }
     }
 
-    private void renderDataType(DBObject object) {
+    private void renderDataType(DBObject object, ArgumentValuesTreeNode treeNode) {
         if (object instanceof DBJavaParameter parameter) {
             String dataType = getCanonicalName(parameter.getJavaClassRef());
             String arrayBrackets = arrayBrackets(parameter.getArrayDepth());
@@ -105,7 +105,7 @@ class ArgumentValuesTreeRenderer extends DBNColoredTreeCellRenderer {
             append(" (" + dataType + arrayBrackets + ")", GRAY_ATTRIBUTES);
             setIcon(object.getIcon());
         } else if (object instanceof DBJavaClass javaClass) {
-            append(" (" + javaClass.getCanonicalName() + ")", GRAY_ATTRIBUTES);
+            append(" (" + javaClass.getCanonicalName() + arrayBrackets(treeNode.getArrayDepth()) + ")", GRAY_ATTRIBUTES);
         }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ public class WrapperResultForm extends DBNFormBase {
     private void initHintPanel(WrapperModel model) {
         DBObjectType objectType = model.getSourceObject().getObjectType();
         TextContent hintText = TextContent.plain(txt("msg.java.hint.WrapperResult", objectType.getName()));
-        DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
+        DBNHintForm hintForm = new DBNHintForm(this, hintText, null);
         hintPanel.add(hintForm.getComponent());
     }
 

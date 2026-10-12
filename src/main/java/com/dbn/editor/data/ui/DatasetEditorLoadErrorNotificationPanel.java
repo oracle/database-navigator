@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,14 @@
 package com.dbn.editor.data.ui;
 
 import com.dbn.common.message.MessageType;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.intellij.openapi.fileEditor.FileEditor;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
 
 public class DatasetEditorLoadErrorNotificationPanel extends DatasetEditorNotificationPanel {
-    public DatasetEditorLoadErrorNotificationPanel(DBSchemaObject object, @NotNull FileEditor fileEditor, String sourceLoadError) {
+    public DatasetEditorLoadErrorNotificationPanel(DBObject object, @NotNull FileEditor fileEditor, String sourceLoadError) {
         super(object, fileEditor, MessageType.ERROR);
         setText(txt("ntf.dataEditor.error.CouldNotLoadData", object.getQualifiedNameWithType(), sourceLoadError.replace("\n", " ")));
     }

@@ -192,25 +192,25 @@ public class DBCredentialFactoryInputForm extends DBSchemaObjectFactoryInputForm
     public void resetFormChanges() {
         super.resetFormChanges();
 
-        DBCredentialType credentialType = CREDENTIAL_TYPE.of(input);
+        DBCredentialType credentialType = CREDENTIAL_TYPE.value(input);
         setSelection(credentialTypeComboBox, credentialType);
 
         if (credentialType == null) return;
 
         switch (credentialType) {
             case PASSWORD -> {
-                setText(passwordCredentialUserField, USER_NAME.of(input));
-                setPassword(passwordCredentialPasswordField, PASSWORD.of(input));
+                setText(passwordCredentialUserField, USER_NAME.value(input));
+                setPassword(passwordCredentialPasswordField, PASSWORD.value(input));
             }
             case TOKEN -> {
                 // special case of credentials created for the vector framework
-                setPassword(tokenCredentialPasswordField, PASSWORD.of(input));
+                setPassword(tokenCredentialPasswordField, PASSWORD.value(input));
             }
             case OCI -> {
-                setText(ociCredentialUserOcidField, USER_OCID.of(input));
-                setText(ociCredentialTenancyOcidField, TENANCY_OCID.of(input));
-                setText(ociCredentialPrivateKeyField, PRIVATE_KEY.of(input));
-                setText(ociCredentialFingerprintField, FINGERPRINT.of(input));
+                setText(ociCredentialUserOcidField, USER_OCID.value(input));
+                setText(ociCredentialTenancyOcidField, TENANCY_OCID.value(input));
+                setText(ociCredentialPrivateKeyField, PRIVATE_KEY.value(input));
+                setText(ociCredentialFingerprintField, FINGERPRINT.value(input));
             }
         }
 
@@ -227,12 +227,12 @@ public class DBCredentialFactoryInputForm extends DBSchemaObjectFactoryInputForm
         switch (credentialType) {
             case PASSWORD -> {
                 input.setAttributeValue(USER_NAME, getText(passwordCredentialUserField));
-                input.setAttributeValue(PASSWORD, getPassword(passwordCredentialPasswordField, PASSWORD.of(input)));
+                input.setAttributeValue(PASSWORD, getPassword(passwordCredentialPasswordField, PASSWORD.value(input)));
             }
             case TOKEN -> {
                 // special case of credentials created for the vector framework
                 input.setAttributeValue(USER_NAME, "access_token");
-                input.setAttributeValue(PASSWORD, getPassword(tokenCredentialPasswordField, PASSWORD.of(input)));
+                input.setAttributeValue(PASSWORD, getPassword(tokenCredentialPasswordField, PASSWORD.value(input)));
             }
             case OCI -> {
                 input.setAttributeValue(USER_OCID, getText(ociCredentialUserOcidField));
