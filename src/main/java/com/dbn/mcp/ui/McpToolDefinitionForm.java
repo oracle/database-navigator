@@ -186,7 +186,6 @@ public class McpToolDefinitionForm extends DBNFormBase {
         verifiedLabel.setForeground(getContextHelpForeground());
         verifiedLabel.setIcon(Icons.COMMON_CHECK);
 
-
         verifyHyperlink.setHyperlinkText(txt("msg.mcp.link.Verify"));
         onHyperlinkAccess(verifyHyperlink, e -> {
             if (getSqlStatement().isBlank()) {
@@ -335,7 +334,7 @@ public class McpToolDefinitionForm extends DBNFormBase {
     protected void initFieldAvailability() {
         DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
         fieldAdapter.initFieldsVisibility(() -> isStatementVerified(), array(verifiedLabel));
-        fieldAdapter.initFieldsVisibility(() -> isNotEmptyOrSpaces(getSqlStatement()) && !isStatementVerified(), array(verifyHyperlink));
+        fieldAdapter.initFieldsVisibility(() -> isNotEmptyOrSpaces(getSqlStatement()), array(verifyHyperlink));
     }
 
     @NotNull
