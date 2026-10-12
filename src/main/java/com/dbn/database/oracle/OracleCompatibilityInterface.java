@@ -105,7 +105,6 @@ import static com.dbn.database.DatabaseObjectTypeId.CREDENTIAL;
 import static com.dbn.database.DatabaseObjectTypeId.JAVA_CLASS;
 import static com.dbn.database.DatabaseObjectTypeId.JAVA_RESOURCE;
 import static com.dbn.database.DatabaseObjectTypeId.MATERIALIZED_VIEW;
-import static com.dbn.database.DatabaseObjectTypeId.USER;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.event.ObjectChangeAction.LOCK;
@@ -340,7 +339,7 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
 
     @Override
     public boolean supportsObjectAction(DatabaseObjectTypeId objectTypeId, ObjectChangeAction action) {
-        if (objectTypeId == USER && action.isOneOf(LOCK, UNLOCK)) return true;
+        if (objectTypeId == DatabaseObjectTypeId.USER && action.isOneOf(LOCK, UNLOCK)) return true;
         if (objectTypeId == MATERIALIZED_VIEW && action == REFRESH) return true;
 
         return super.supportsObjectAction(objectTypeId, action);
