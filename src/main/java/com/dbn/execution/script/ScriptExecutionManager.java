@@ -22,7 +22,9 @@ import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.routine.Consumer;
+import com.dbn.common.thread.Background;
 import com.dbn.common.thread.CancellableDatabaseCall;
+import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.FileChoosers;
 import com.dbn.common.util.Messages;
@@ -41,6 +43,7 @@ import com.dbn.execution.logging.LogOutputContext;
 import com.dbn.execution.script.options.ScriptExecutionSettings;
 import com.dbn.execution.script.ui.CmdLineInterfaceInputDialog;
 import com.dbn.execution.script.ui.ScriptExecutionInputDialog;
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
@@ -73,6 +76,7 @@ import static com.dbn.common.approval.UserApprovalAction.COMMAND_LINE_EXECUTION;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.exception.Exceptions.getLocalizedMessage;
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
+import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.newStateElement;
@@ -85,6 +89,7 @@ import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.common.util.Messages.showInfoDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.execution.logging.LogOutput.createSysOutput;
+import static com.dbn.execution.script.CmdLineExecutableSignature.getApprovalSignature;
 import static com.dbn.execution.script.ScriptExecutionProcessHandler.startProcess;
 import static com.dbn.nls.NlsResources.txt;
 import static com.intellij.openapi.ui.DialogWrapper.OK_EXIT_CODE;
@@ -220,6 +225,9 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                     executionManager.writeLogOutput(outputContext, createSysOutput(txt("log.execution.info.ExecutingCommand", commandLine)));
                     executionManager.writeLogOutput(outputContext, createSysOutput(""));
 
+                    if (!approvalManager.isApproved(COMMAND_LINE_EXECUTION, cmdLineInterface)) {
+                        throw new IllegalStateException(txt("msg.execution.error.CommandLineExecutableChanged"));
+                    }
                     ScriptExecutionProcessHandler processHandler = startProcess(executionInput);
                     processHandler.whenOutputted(e -> consumeProcessOutput(e.getText(), outputContext));
 
@@ -265,6 +273,8 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
 
                 @Override
                 public void handleException(Throwable e) {
+                    if (e instanceof ProcessCanceledException) return;
+
                     showErrorDialog(project,
                             txt("msg.execution.title.ScriptExecutionError"),
                             txt("msg.execution.error.ScriptExecutionError", sourceFile.getPath(), getLocalizedMessage(e)),
@@ -316,8 +326,8 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
         if (virtualFile == null) return;
 
         Project project = getProject();
-        ExecutionEngineSettings executionEngineSettings = ExecutionEngineSettings.getInstance(project);
         if (bannedNames == null) {
+            ExecutionEngineSettings executionEngineSettings = ExecutionEngineSettings.getInstance(project);
             bannedNames = executionEngineSettings.getScriptExecutionSettings().getCommandLineInterfaces().getInterfaceNames();
             updateSettings = true;
         }
@@ -327,14 +337,33 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
         dialog.show();
         if (dialog.getExitCode() != OK_EXIT_CODE) return;
 
-        consumer.accept(cmdLineInterface);
         if (updateSettings) {
-            CmdLineInterfaceBundle commandLineInterfaces = executionEngineSettings.getScriptExecutionSettings().getCommandLineInterfaces();
-            commandLineInterfaces.add(cmdLineInterface);
-
-            UserApprovalManager approvalManager = UserApprovalManager.getInstance();
-            approvalManager.approve(COMMAND_LINE_EXECUTION, cmdLineInterface);
+            approveCmdLineInterface(consumer, cmdLineInterface);
+        } else {
+            consumer.accept(cmdLineInterface);
         }
+    }
+
+    private void approveCmdLineInterface(@NotNull Consumer<CmdLineInterface> consumer, CmdLineInterface cmdLineInterface) {
+        ExecutionEngineSettings executionEngineSettings = ExecutionEngineSettings.getInstance(getProject());
+        CmdLineInterfaceBundle commandLineInterfaces = executionEngineSettings.getScriptExecutionSettings().getCommandLineInterfaces();
+        Background.run(() -> {
+            String approvalSignature = null;
+            try {
+                approvalSignature = getApprovalSignature(cmdLineInterface);
+            } catch (Exception e) {
+                conditionallyLog(e);
+            }
+
+            if (approvalSignature != null) {
+                UserApprovalManager.getInstance().approveWithSignature(COMMAND_LINE_EXECUTION, cmdLineInterface, approvalSignature);
+            }
+
+            Dispatch.run(ModalityState.any(), () -> {
+                consumer.accept(cmdLineInterface);
+                commandLineInterfaces.add(cmdLineInterface);
+            });
+        });
     }
 
     @Nullable
@@ -410,13 +439,10 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
         recentlyUsedInterfaces.clear();
         clearOutputOption = booleanAttribute(element, "clear-outputs", clearOutputOption);
         Element interfacesElement = element.getChild("recently-used-interfaces");
-        if (interfacesElement != null) {
-            for (Element child : interfacesElement.getChildren()) {
-                DatabaseType databaseType = enumAttribute(child, "database-type", DatabaseType.class);
-                String interfaceId = stringAttribute(child, "interface-id");
-                recentlyUsedInterfaces.put(databaseType, interfaceId);
-            }
-
+        for (Element child : childrenOf(interfacesElement)) {
+            DatabaseType databaseType = enumAttribute(child, "database-type", DatabaseType.class);
+            String interfaceId = stringAttribute(child, "interface-id");
+            recentlyUsedInterfaces.put(databaseType, interfaceId);
         }
     }
 }
