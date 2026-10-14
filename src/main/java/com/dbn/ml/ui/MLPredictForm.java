@@ -41,6 +41,7 @@ import com.dbn.language.sql.SQLFileType;
 import com.dbn.language.sql.SQLLanguage;
 import com.dbn.ml.backend.model.MLPredictionAttribute;
 import com.dbn.ml.model.MLTaskType;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ex.EditorEx;
@@ -138,7 +139,7 @@ public class MLPredictForm extends DBNFormBase {
             gbc.fill = GridBagConstraints.HORIZONTAL;
             gbc.weightx = 1.0;
             JTextField field = new JTextField(20);
-            field.setToolTipText(attribute.getDisplayDataType());
+            Tooltips.setToolTipText(field, attribute.getDisplayDataType());
             onTextChange(field, e -> updateSqlPreview());
             inputFields.add(field);
             fieldsPanel.add(field, gbc);

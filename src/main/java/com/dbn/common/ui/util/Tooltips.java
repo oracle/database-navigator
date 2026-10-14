@@ -38,4 +38,16 @@ public final class Tooltips {
         // HelpTooltipKt.setToolTipText(component, HtmlChunk.text(text));
         component.setToolTipText(HtmlChunk.text(text).toString());
     }
+
+    @SuppressWarnings("UseHtmlChunkToolTip")
+    public static void setPreformattedToolTipText(@NotNull JComponent component, @Nullable String text) {
+        if (isEmpty(text)) {
+            component.setToolTipText(null);
+            return;
+        }
+
+        String escapedText = HtmlChunk.text(text).toString();
+        String html = "<html><pre>" + escapedText + "</pre></html>";
+        component.setToolTipText(HtmlChunk.raw(html).toString());
+    }
 }

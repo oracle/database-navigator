@@ -43,6 +43,7 @@ import com.dbn.connection.config.ConnectionPropertiesSettings;
 import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.config.ConnectionSshTunnelSettings;
 import com.dbn.connection.config.export.ConfigProviderExportManager;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBScrollPane;
@@ -141,9 +142,9 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
     private void initActionLinks() {
         initHyperlink(testLink, txt("cfg.connection.link.TestConnection"), this::testConnection);
         initHyperlink(infoLink, txt("cfg.connection.link.Info"), this::showConnectionInfo);
-        infoLink.setToolTipText(txt("cfg.connection.link.DatabaseInfo"));
+        Tooltips.setToolTipText(infoLink, txt("cfg.connection.link.DatabaseInfo"));
         initHyperlink(exportLink, txt("cfg.connection.link.Export"), this::exportConnection);
-        exportLink.setToolTipText(txt("cfg.connection.link.ExportConfiguration"));
+        Tooltips.setToolTipText(exportLink, txt("cfg.connection.link.ExportConfiguration"));
     }
 
     void updateJsonExportVisibility(DatabaseType databaseType, DatabaseUrlType urlType) {

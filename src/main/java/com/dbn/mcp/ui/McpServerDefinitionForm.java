@@ -40,6 +40,7 @@ import com.dbn.mcp.model.McpServerImplementation;
 import com.dbn.mcp.model.McpToolDefinition;
 import com.dbn.mcp.model.McpTransportType;
 import com.dbn.mcp.util.McpServerName;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileChooserFactory;
@@ -305,7 +306,7 @@ public class McpServerDefinitionForm extends DBNFormBase {
 
         configFileTextField.setText(displayConfigFilePath);
         if (!configFilePath.equals(displayConfigFilePath)) {
-            configFileTextField.setToolTipText(configFilePath);
+            Tooltips.setToolTipText(configFileTextField, configFilePath);
         }
         updateFieldAvailability();
     }

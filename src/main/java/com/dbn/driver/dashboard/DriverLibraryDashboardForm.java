@@ -37,6 +37,7 @@ import com.dbn.driver.download.DriverPackageDownloader;
 import com.dbn.driver.download.DriverPackageMetadataRefresh;
 import com.dbn.driver.download.metadata.DriverPackage;
 import com.dbn.driver.download.ui.DriverPackageInfoDialog;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Separator;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
@@ -130,7 +131,7 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
                 downloadLocation,
                 txt("cfg.connection.title.SelectDriverLibrary"),
                 txt("cfg.connection.text.LibraryDriverClasses"));
-        downloadLocation.setToolTipText(txt("app.driver.text.DownloadLocationHint"));
+        Tooltips.setToolTipText(downloadLocation, txt("app.driver.text.DownloadLocationHint"));
     }
 
     private void initLayoutComponents() {
@@ -200,7 +201,7 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
         table.setLoading(true);
         refreshProgressLabel.setText(reloadingInventory ?
                 txt("app.driver.text.ReloadingMetadata") : txt("app.driver.text.RefreshingMetadata"));
-        refreshProgressLabel.setToolTipText(null);
+        Tooltips.setToolTipText(refreshProgressLabel, null);
         progressContainer.setVisible(true);
         updateActions();
 
@@ -239,7 +240,7 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
                     getRefreshProgressText(running.text()),
                     details);
             refreshProgressLabel.setText(progressText);
-            refreshProgressLabel.setToolTipText(progressText);
+            Tooltips.setToolTipText(refreshProgressLabel, progressText);
             updateActions();
             return;
         }

@@ -19,6 +19,7 @@ package com.dbn.driver.dashboard;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.table.DBNColoredTableCellRenderer;
 import com.dbn.common.ui.table.DBNTable;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.ui.AsyncProcessIcon;
 import org.jetbrains.annotations.NotNull;
@@ -82,7 +83,7 @@ class DriverLibraryDashboardTable extends DBNTable<DriverLibraryDashboardTableMo
 
             processIcon.setVisible(row.status() == DriverLibraryDashboardStatus.DOWNLOADING);
             label.setText(model.getPresentableValue(row, columnIndex));
-            label.setToolTipText(row.errorMessage());
+            Tooltips.setToolTipText(label, row.errorMessage());
             panel.setBackground(selected ? dashboardTable.getSelectionBackground() : dashboardTable.getBackground());
             label.setForeground(selected ? dashboardTable.getSelectionForeground() : dashboardTable.getForeground());
             return panel;

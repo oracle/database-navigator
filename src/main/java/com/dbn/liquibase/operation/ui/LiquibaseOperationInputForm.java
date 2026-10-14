@@ -51,6 +51,7 @@ import com.dbn.liquibase.workspace.LiquibaseWorkspaceBundle;
 import com.dbn.liquibase.workspace.LiquibaseWorkspacePaths;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.ui.DBObjectSelector;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.openapi.project.Project;
 import org.apache.commons.lang3.SystemProperties;
 import org.jetbrains.annotations.NonNls;
@@ -77,7 +78,6 @@ import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.setEmptyOptionsText;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.setText;
-import static com.dbn.common.ui.util.Tooltips.setToolTipText;
 import static com.dbn.common.util.Lists.filter;
 import static com.dbn.liquibase.operation.LiquibaseFeature.CHANGELOG_AUTHOR;
 import static com.dbn.liquibase.operation.LiquibaseFeature.CHANGELOG_TAG;
@@ -440,14 +440,14 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
     private void updateWorkspacePath() {
         LiquibaseWorkspace workspace = workspaceSelector.getSelectedValue();
         if (workspace == null) {
-            setToolTipText(workspaceSelector, null);
+            Tooltips.setToolTipText(workspaceSelector, null);
             return;
         }
 
         try {
-            setToolTipText(workspaceSelector, new LiquibaseWorkspacePaths(workspace).getLiquibaseRootPath().toString());
+            Tooltips.setToolTipText(workspaceSelector, new LiquibaseWorkspacePaths(workspace).getLiquibaseRootPath().toString());
         } catch (IllegalArgumentException e) {
-            setToolTipText(workspaceSelector, null);
+            Tooltips.setToolTipText(workspaceSelector, null);
         }
     }
 

@@ -37,6 +37,7 @@ import com.dbn.object.DBColumn;
 import com.dbn.object.DBDataset;
 import com.dbn.object.common.ui.DBObjectSelector;
 import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.ui.SimpleTextAttributes;
@@ -117,7 +118,7 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
         operatorSelector.addListener(createOperatorSelectorListener());
         columnSelector.addListener(createColumnSelectorListener());
 
-        valueTextField.setToolTipText(txt("app.dataEditor.tooltip.ChangeBasicFilterInput"));
+        Tooltips.setToolTipText(valueTextField, txt("app.dataEditor.tooltip.ChangeBasicFilterInput"));
 
 
         Disposer.register(this, editorComponent);

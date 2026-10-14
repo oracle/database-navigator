@@ -27,6 +27,7 @@ import com.dbn.object.DBColumn;
 import com.dbn.object.DBConstraint;
 import com.dbn.object.DBDataset;
 import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.SimpleTextAttributes;
 import lombok.Getter;
@@ -76,12 +77,12 @@ class ColumnValueTextField extends JTextField {
                 setCursor(Cursors.handCursor());
                 DBColumn foreignKeyColumn = column.getForeignKeyColumn();
                 if (foreignKeyColumn != null) {
-                    setToolTipText(txt("app.dataEditor.tooltip.ShowReferencedRecord", foreignKeyColumn.getDataset().getQualifiedName()));
+                    Tooltips.setToolTipText(this, txt("app.dataEditor.tooltip.ShowReferencedRecord", foreignKeyColumn.getDataset().getQualifiedName()));
                 }
             } else {
                 super.processMouseMotionEvent(e);
                 setCursor(Cursors.defaultCursor());
-                setToolTipText(null);
+                Tooltips.setToolTipText(this, null);
             }
         } else {
             super.processMouseMotionEvent(e);

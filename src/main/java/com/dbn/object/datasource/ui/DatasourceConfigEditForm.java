@@ -32,6 +32,7 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.common.ui.DBObjectSelector;
 import com.dbn.object.impl.DBDatasourceConfigImpl;
 import com.dbn.object.management.ObjectManagementService;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
@@ -179,8 +180,8 @@ public class DatasourceConfigEditForm extends DBNFormBase {
             disableFormField(ownerComboBox, READ_ONLY);
         }
         configNameTextField.setEnabled(creating);
-        ownerComboBox.setToolTipText(txt("cfg.datasourceConfig.text.OwnerFieldTooltip"));
-        configNameTextField.setToolTipText(txt("cfg.datasourceConfig.text.ConfigNameFieldTooltip"));
+        Tooltips.setToolTipText(ownerComboBox, txt("cfg.datasourceConfig.text.OwnerFieldTooltip"));
+        Tooltips.setToolTipText(configNameTextField, txt("cfg.datasourceConfig.text.ConfigNameFieldTooltip"));
         if (entry != null && value != null) {
             Documents.setText(getProject(), jsonEditor.getDocument(), value);
         }

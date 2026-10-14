@@ -28,6 +28,7 @@ import com.dbn.data.sorting.SortingState;
 import com.dbn.editor.data.model.DatasetEditorModel;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBDataset;
+import com.dbn.common.ui.util.Tooltips;
 import org.jetbrains.annotations.NonNls;
 
 import javax.swing.Icon;
@@ -126,12 +127,12 @@ public class DatasetEditorTableHeaderRenderer extends DBNTableHeaderRenderer {
                     toolTipText += "<br>" + attributes + "";
                 }
 
-                mainPanel.setToolTipText(toolTipText);
+                Tooltips.setToolTipText(mainPanel, toolTipText);
             } else {
-                mainPanel.setToolTipText(null);
+                Tooltips.setToolTipText(mainPanel, null);
             }
         } else {
-            mainPanel.setToolTipText(null);
+            Tooltips.setToolTipText(mainPanel, null);
         }
     }
 }

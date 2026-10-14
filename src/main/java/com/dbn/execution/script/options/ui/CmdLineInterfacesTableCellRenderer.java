@@ -21,6 +21,7 @@ import com.dbn.common.ui.table.DBNColoredTableCellRenderer;
 import com.dbn.common.ui.table.DBNTable;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.DatabaseType;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.ui.AnimatedIcon;
 
 import static com.dbn.nls.NlsResources.txt;
@@ -32,7 +33,7 @@ public class CmdLineInterfacesTableCellRenderer extends DBNColoredTableCellRende
     @Override
     protected void customizeCellRenderer(DBNTable table, Object value, boolean selected, boolean hasFocus, int row, int column) {
         setIcon(null);
-        setToolTipText(null);
+        Tooltips.setToolTipText(this, null);
         if (value instanceof DatabaseType databaseType) {
             setIcon(databaseType.getIcon());
             append(databaseType.getName());
@@ -52,15 +53,15 @@ public class CmdLineInterfacesTableCellRenderer extends DBNColoredTableCellRende
             case CALCULATING -> {
                 setIcon(AnimatedIcon.Default.INSTANCE);
                 append(txt("cfg.execution.const.FileFingerprintStatus_CALCULATING"), GRAY_ITALIC_ATTRIBUTES);
-                setToolTipText(txt("cfg.execution.tooltip.ExecutableFingerprintCalculating"));
+                Tooltips.setToolTipText(this, txt("cfg.execution.tooltip.ExecutableFingerprintCalculating"));
             }
             case READY -> {
                 append(txt("cfg.execution.const.FileFingerprintStatus_READY"), REGULAR_ATTRIBUTES);
-                setToolTipText(txt("cfg.execution.tooltip.ExecutableFingerprintReady"));
+                Tooltips.setToolTipText(this, txt("cfg.execution.tooltip.ExecutableFingerprintReady"));
             }
             case FAILED -> {
                 append(txt("cfg.execution.const.FileFingerprintStatus_FAILED"), ERROR_ATTRIBUTES);
-                setToolTipText(txt("cfg.execution.tooltip.ExecutableFingerprintFailed"));
+                Tooltips.setToolTipText(this, txt("cfg.execution.tooltip.ExecutableFingerprintFailed"));
             }
             case EMPTY -> {
             }

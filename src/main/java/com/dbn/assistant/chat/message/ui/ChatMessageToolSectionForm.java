@@ -60,6 +60,7 @@ import com.dbn.common.util.Actions;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.util.text.StringUtil;
@@ -192,7 +193,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
             summary = StringUtil.first(summary, 24, true);
         }
         toolSummaryLabel.setText(summary);
-        toolSummaryLabel.setToolTipText(summaryTooltip);
+        Tooltips.setToolTipText(toolSummaryLabel, summaryTooltip);
         toolSummaryLabel.setForeground(getContextHelpForeground());
     }
 

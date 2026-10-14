@@ -12,6 +12,7 @@ import com.dbn.data.editor.ui.TextFieldWithPopup;
 import com.dbn.data.type.GenericDataType;
 import com.dbn.execution.statement.variables.StatementExecutionVariable;
 import com.dbn.execution.statement.variables.VariableValueProvider;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -93,7 +94,7 @@ public class McpToolVerificationParamForm extends DBNFormBase {
             validateInput(textField);
         });
 
-        textField.setToolTipText(txt("app.shared.tooltip.ChangeVariableDataType"));
+        Tooltips.setToolTipText(textField, txt("app.shared.tooltip.ChangeVariableDataType"));
         Disposer.register(this, editorComponent);
     }
 

@@ -26,6 +26,7 @@ import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Mouse;
+import com.dbn.common.ui.util.Tooltips;
 import com.dbn.common.util.Actions;
 import com.dbn.data.grid.options.DataGridAuditColumnSettings;
 import com.dbn.data.grid.ui.table.basic.BasicTableCellRenderer;
@@ -473,13 +474,13 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
                 DBColumn column = cell.getColumn();
                 DBColumn foreignKeyColumn = column.getForeignKeyColumn();
                 if (foreignKeyColumn != null) {
-                    setToolTipText(txt("app.dataEditor.tooltip.ShowReferencedRecord", foreignKeyColumn.getDataset().getQualifiedName()));
+                    Tooltips.setToolTipText(this, txt("app.dataEditor.tooltip.ShowReferencedRecord", foreignKeyColumn.getDataset().getQualifiedName()));
                 }
             }
         } else {
             super.processMouseMotionEvent(e);
             setCursor(Cursors.defaultCursor());
-            setToolTipText(null);
+            Tooltips.setToolTipText(this, null);
         }
     }
 

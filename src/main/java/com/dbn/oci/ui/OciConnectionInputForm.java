@@ -6,6 +6,7 @@ import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.util.PasswordFields;
 import com.dbn.oci.util.WalletPathValidator;
 import com.dbn.oci.util.WalletPathValidator.WalletValidationResult;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
@@ -86,7 +87,7 @@ public class OciConnectionInputForm extends DBNFormBase {
 
     private void initForm(boolean isMtlsRequired, String parentCompartment) {
         walletLocationField.setText(walletDefaultPath);
-        walletLocationField.setToolTipText(txt("cfg.oci.tooltip.WalletLocation"));
+        Tooltips.setToolTipText(walletLocationField, txt("cfg.oci.tooltip.WalletLocation"));
 
         if (isMtlsRequired) {
             authenticationTypeComboBox.setEnabled(false);

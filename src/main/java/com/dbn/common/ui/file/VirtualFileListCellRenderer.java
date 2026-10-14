@@ -17,11 +17,13 @@
 package com.dbn.common.ui.file;
 
 import com.dbn.common.ui.list.ColoredListCellRenderer;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JList;
+
 
 class VirtualFileListCellRenderer extends ColoredListCellRenderer<VirtualFile> {
     @Override
@@ -30,6 +32,6 @@ class VirtualFileListCellRenderer extends ColoredListCellRenderer<VirtualFile> {
                 SimpleTextAttributes.REGULAR_ATTRIBUTES:
                 SimpleTextAttributes.GRAY_ATTRIBUTES);
         setIcon(value.getFileType().getIcon());
-        setToolTipText(value.getPath());
+        Tooltips.setToolTipText(this, value.getPath());
     }
 }

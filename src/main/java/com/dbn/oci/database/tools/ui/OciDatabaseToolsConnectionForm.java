@@ -28,6 +28,7 @@ import com.dbn.oci.config.OciAuthenticationConfig;
 import com.dbn.oci.database.tools.OciCompartmentInfo;
 import com.dbn.oci.database.tools.OciDatabaseToolsConnectionInfo;
 import com.dbn.oci.database.tools.OciDatabaseToolsConnectionLoader;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
 
@@ -175,7 +176,7 @@ class OciDatabaseToolsConnectionForm extends DBNFormBase {
                 String name = compartment.getName();
                 if (isTenancyOcid(compartment.getId())) name += " (root)";
                 append(name, SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                setToolTipText(compartment.getId());
+                Tooltips.setToolTipText(this, compartment.getId());
             }
         }
     }
@@ -185,7 +186,7 @@ class OciDatabaseToolsConnectionForm extends DBNFormBase {
         protected void customize(@NotNull JList<? extends OciDatabaseToolsConnectionInfo> list,
                 OciDatabaseToolsConnectionInfo connection, int index, boolean selected, boolean hasFocus) {
             append(connection.getDisplayName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-            setToolTipText(connection.getId());
+            Tooltips.setToolTipText(this, connection.getId());
         }
     }
 }
