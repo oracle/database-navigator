@@ -698,6 +698,8 @@
             </group>
             <group class="com.dbn.prerequisite.action.PrerequisiteVerificationAction" popup="true" id="DBN.MainMenu.PrerequisiteVerification"/> />
             <separator/>
+            <action class="com.dbn.driver.dashboard.DriverLibraryDashboardOpenAction" id="DBN.MainMenu.DriverLibraryDashboard"/>
+            <separator/>
             <action id="DBN.MainMenu.Settings" class="com.dbn.menu.action.ProjectSettingsOpenAction"/>
             <group id="DBN.MainMenu.DefaultSettings" popup="true">
                 <action id="DBN.MainMenu.DefaultSettings.Open" class="com.dbn.menu.action.ProjectDefaultSettingsOpenAction"/>

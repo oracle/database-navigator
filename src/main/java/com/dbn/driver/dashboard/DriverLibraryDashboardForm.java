@@ -1,0 +1,637 @@
+/*
+ * Copyright 2026 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dbn.driver.dashboard;
+
+import com.dbn.common.action.BasicAction;
+import com.dbn.common.color.Colors;
+import com.dbn.common.icon.Icons;
+import com.dbn.common.message.MessageType;
+import com.dbn.common.thread.Background;
+import com.dbn.common.thread.Dispatch;
+import com.dbn.common.thread.Progress;
+import com.dbn.common.thread.ProgressInfo;
+import com.dbn.common.ui.Presentable;
+import com.dbn.common.ui.dialog.DBNDialog;
+import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.panel.DBNBanner;
+import com.dbn.common.ui.select.DBNComboBoxRenderer;
+import com.dbn.common.ui.util.Mouse;
+import com.dbn.connection.DatabaseType;
+import com.dbn.connection.config.provider.CloudConfigProviderFamily;
+import com.dbn.driver.download.DriverDownloadManager;
+import com.dbn.driver.download.DriverPackageDownloader;
+import com.dbn.driver.download.DriverPackageMetadataRefresh;
+import com.dbn.driver.download.metadata.DriverPackage;
+import com.dbn.driver.download.ui.DriverPackageInfoDialog;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Separator;
+import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.ui.ToolbarDecorator;
+import com.intellij.util.ui.AsyncProcessIcon;
+import com.intellij.util.ui.JBUI;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import javax.swing.Icon;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
+import java.awt.event.ItemEvent;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
+
+import static com.dbn.common.message.MessageType.*;
+import static com.dbn.common.ui.util.Mouse.*;
+import static com.dbn.common.util.FileChoosers.addSingleFolderChooser;
+import static com.dbn.common.util.Messages.OPTIONS_YES_NO;
+import static com.dbn.common.util.Messages.showConfirmationDialog;
+import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.common.util.Strings.isEmptyOrSpaces;
+import static com.dbn.common.ui.util.Decorators.createToolbarDecorator;
+import static com.dbn.common.ui.util.Decorators.createToolbarDecoratorComponent;
+import static com.dbn.nls.NlsResources.txt;
+
+/** Driver package inventory and management UI. */
+public class DriverLibraryDashboardForm extends DBNFormBase {
+    private final DriverLibraryDashboardOptions options;
+    private final DriverLibraryDashboardTableModel tableModel = new DriverLibraryDashboardTableModel();
+    private JPanel mainPanel;
+    private JPanel progressContainer;
+    private JPanel messageContainer;
+    private JPanel tableContainer;
+    private JComboBox<DatabaseTypeOption> databaseTypeSelector;
+    private TextFieldWithBrowseButton downloadLocation;
+    private DBNBanner messageBanner;
+    private JLabel refreshProgressLabel;
+    private DriverLibraryDashboardTable table;
+    private final Map<String, String> downloadFailures = new HashMap<>();
+    private final Map<DriverPackageMetadataRefresh, Consumer<ProgressInfo>> refreshListeners = new HashMap<>();
+    private final AtomicLong inventoryGeneration = new AtomicLong();
+    private List<DriverPackage> currentPackages = List.of();
+    private List<DriverPackageMetadataRefresh> activeRefreshes = List.of();
+    private boolean loadingInventory;
+    private boolean reloadingInventory;
+    private boolean deletingPackage;
+
+    public DriverLibraryDashboardForm(DBNDialog<?> parent, DriverLibraryDashboardOptions options) {
+        super(parent);
+        this.options = options;
+        this.table = new DriverLibraryDashboardTable(this, tableModel);
+
+        initDatabaseTypeSelector();
+        initDownloadLocation();
+        initLayoutComponents();
+        installListeners();
+        updateActions();
+        whenFirstShown(() -> reloadInventory(false));
+    }
+
+    private void initDatabaseTypeSelector() {
+        if (!options.isDatabaseTypeFixed()) databaseTypeSelector.addItem(new DatabaseTypeOption(null));
+        for (DatabaseType type : DatabaseType.NATIVELY_SUPPORTED) {
+            databaseTypeSelector.addItem(new DatabaseTypeOption(type));
+        }
+        DatabaseType contextualType = options.databaseType();
+        if (options.isDatabaseTypeFixed() && contextualType != null &&
+                Arrays.stream(DatabaseType.NATIVELY_SUPPORTED).noneMatch(type -> type == contextualType)) {
+            databaseTypeSelector.addItem(new DatabaseTypeOption(contextualType));
+        }
+        databaseTypeSelector.setRenderer(new DBNComboBoxRenderer<>(databaseTypeSelector));
+        setSelectedDatabaseType(options.databaseType());
+        databaseTypeSelector.setEnabled(!options.isDatabaseTypeFixed());
+    }
+
+    private void initDownloadLocation() {
+        addSingleFolderChooser(
+                getProject(),
+                downloadLocation,
+                txt("cfg.connection.title.SelectDriverLibrary"),
+                txt("cfg.connection.text.LibraryDriverClasses"));
+        downloadLocation.setToolTipText(txt("app.driver.text.DownloadLocationHint"));
+    }
+
+    private void initLayoutComponents() {
+        progressContainer.setLayout(new BorderLayout(JBUI.scale(6), 0));
+        progressContainer.add(new AsyncProcessIcon(txt("app.shared.action.Loading")), BorderLayout.WEST);
+        refreshProgressLabel = new JLabel(txt("app.driver.text.RefreshingMetadata"));
+        refreshProgressLabel.setForeground(Colors.getContextHelpForeground());
+        progressContainer.add(refreshProgressLabel, BorderLayout.CENTER);
+        progressContainer.setVisible(false);
+        messageContainer.setLayout(new BorderLayout());
+        messageBanner = new DBNBanner(INFO);
+        messageContainer.add(messageBanner, BorderLayout.CENTER);
+        clearMessage();
+        tableContainer.setLayout(new BorderLayout());
+        tableContainer.add(initTableComponent(), BorderLayout.CENTER);
+        mainPanel.setPreferredSize(JBUI.size(1050, 560));
+    }
+
+    private JPanel initTableComponent() {
+        ToolbarDecorator decorator = createToolbarDecorator(table);
+        decorator.setAddAction(null);
+        decorator.setRemoveAction(null);
+        decorator.setEditAction(null);
+        decorator.setMoveUpAction(null);
+        decorator.setMoveDownAction(null);
+        decorator.addExtraAction(reloadAction);
+        decorator.addExtraAction(Separator.getInstance());
+        decorator.addExtraAction(infoAction);
+        decorator.addExtraAction(downloadAction);
+        decorator.addExtraAction(deleteAction);
+        return createToolbarDecoratorComponent(decorator, table);
+    }
+
+    private void installListeners() {
+        databaseTypeSelector.addItemListener(event -> {
+            if (event.getStateChange() == ItemEvent.SELECTED) reloadInventory(false);
+        });
+        table.getSelectionModel().addListSelectionListener(event -> {
+            if (!event.getValueIsAdjusting()) {
+                updateDownloadLocation();
+                updateActions();
+            }
+        });
+        onMouseDoubleClick(table, event -> {
+            if (options.canSelectLibrary()) {
+                if (canSelectSelectedPackage()) selectSelectedPackage();
+            } else {
+                showSelectedPackageInfo();
+            }
+        });
+    }
+
+    private void reloadInventory(boolean forceReload) {
+        if (getProject() == null || getProject().isDisposed()) return;
+        detachRefreshListeners();
+        long generation = inventoryGeneration.incrementAndGet();
+        loadingInventory = true;
+        clearMessage();
+        DatabaseType selectedType = getSelectedDatabaseType();
+        List<DatabaseType> types = DriverLibraryDashboardStatus.typesToRefresh(selectedType);
+        List<CloudConfigProviderFamily> providerFamilies = getProviderFamilies();
+        DriverDownloadManager manager = DriverDownloadManager.getInstance();
+        List<DriverPackage> cachedPackages = readCachedPackages(manager, selectedType, types, providerFamilies);
+        currentPackages = cachedPackages;
+        reloadingInventory = !cachedPackages.isEmpty();
+        applyRows(createRows(manager, cachedPackages, Map.copyOf(downloadFailures), Map.of()));
+        table.setLoading(true);
+        refreshProgressLabel.setText(reloadingInventory ?
+                txt("app.driver.text.ReloadingMetadata") : txt("app.driver.text.RefreshingMetadata"));
+        refreshProgressLabel.setToolTipText(null);
+        progressContainer.setVisible(true);
+        updateActions();
+
+        activeRefreshes = types.stream()
+                .map(type -> manager.refreshDriverPackageInventory(getProject(), type, forceReload))
+                .toList();
+
+        for (DriverPackageMetadataRefresh refresh : activeRefreshes) {
+            Consumer<ProgressInfo> listener = progress -> Dispatch.run(mainPanel, () ->
+                    updateRefreshProgress(generation, selectedType, types, providerFamilies));
+            refreshListeners.put(refresh, listener);
+            refresh.addListener(listener);
+        }
+    }
+
+    private void updateRefreshProgress(
+            long generation,
+            @Nullable DatabaseType selectedType,
+            List<DatabaseType> types,
+            List<CloudConfigProviderFamily> providerFamilies) {
+        if (inventoryGeneration.get() != generation || !loadingInventory) return;
+
+        List<ProgressInfo> progresses = activeRefreshes.stream()
+                .map(DriverPackageMetadataRefresh::getProgress)
+                .toList();
+        long completed = progresses.stream().filter(progress -> !progress.running()).count();
+        ProgressInfo running = progresses.stream().filter(ProgressInfo::running).findFirst().orElse(null);
+        if (running != null) {
+            String details = txt(
+                    "app.driver.text.RefreshProgressDetails",
+                    running.detail(),
+                    completed,
+                    progresses.size());
+            String progressText = txt(
+                    "app.driver.text.RefreshProgressLabel",
+                    getRefreshProgressText(running.text()),
+                    details);
+            refreshProgressLabel.setText(progressText);
+            refreshProgressLabel.setToolTipText(progressText);
+            updateActions();
+            return;
+        }
+
+        detachRefreshListeners();
+        DriverDownloadManager manager = DriverDownloadManager.getInstance();
+        List<String> metadataErrors = progresses.stream()
+                .flatMap(progress -> progress.errors().stream())
+                .toList();
+        Map<String, String> resolutionErrors = new HashMap<>();
+        progresses.forEach(progress -> resolutionErrors.putAll(progress.groupedErrors()));
+        boolean canceled = progresses.stream().anyMatch(ProgressInfo::canceled);
+        List<DriverPackage> packages = readCachedPackages(manager, selectedType, types, providerFamilies);
+        List<DriverLibraryDashboardTableModel.Row> rows = createRows(
+                manager, packages, Map.copyOf(downloadFailures), resolutionErrors);
+
+        currentPackages = packages;
+        applyRows(rows);
+        loadingInventory = false;
+        table.setLoading(false);
+        progressContainer.setVisible(false);
+        if (!metadataErrors.isEmpty()) {
+            showMessage(WARNING,
+                    txt("app.driver.text.MetadataRefreshFailed", metadataErrors.size()),
+                    String.join("\n", metadataErrors));
+        } else if (canceled) {
+            showMessage(WARNING, txt("app.driver.text.RefreshCanceled"), null);
+        } else if (packages.isEmpty()) {
+            showMessage(INFO, txt("app.driver.text.NoPackagesFound"), null);
+        } else {
+            clearMessage();
+        }
+        updateActions();
+    }
+
+    private String getRefreshProgressText(String text) {
+        if (!reloadingInventory) return text;
+        if (text.equals(txt("app.driver.text.RefreshingMetadata"))) {
+            return txt("app.driver.text.ReloadingMetadata");
+        }
+        if (text.equals(txt("app.driver.text.ResolvingDriverPackageDetails"))) {
+            return txt("app.driver.text.ReloadingDriverPackageDetails");
+        }
+        return text;
+    }
+
+    private void showMessage(MessageType messageType, String message, @Nullable String details) {
+        messageBanner
+                .setMessageType(messageType)
+                .setMessage(message, details);
+        messageContainer.setVisible(true);
+    }
+
+    private void clearMessage() {
+        messageBanner.setMessage(null);
+        messageContainer.setVisible(false);
+    }
+
+    private void detachRefreshListeners() {
+        refreshListeners.forEach(DriverPackageMetadataRefresh::removeListener);
+        refreshListeners.clear();
+    }
+
+    private List<CloudConfigProviderFamily> getProviderFamilies() {
+        if (options.providerFamily() != null) return List.of(options.providerFamily());
+        return List.of(CloudConfigProviderFamily.values());
+    }
+
+    private List<DriverPackage> readCachedPackages(
+            DriverDownloadManager manager,
+            @Nullable DatabaseType selectedType,
+            List<DatabaseType> types,
+            List<CloudConfigProviderFamily> providerFamilies) {
+        Map<String, DriverPackage> packages = new LinkedHashMap<>();
+        for (DatabaseType type : types) {
+            for (CloudConfigProviderFamily family : providerFamilies) {
+                for (DriverPackage driverPackage : manager.getCachedDriverPackages(type, family)) {
+                    if (selectedType != null && !driverPackage.matches(selectedType)) continue;
+                    packages.put(driverPackage.getId(), driverPackage);
+                }
+            }
+        }
+        return packages.values().stream()
+                .sorted(Comparator.comparing((DriverPackage p) -> p.getDatabaseType() == null ? "" : p.getDatabaseType().getName())
+                        .thenComparing(p -> p.getName() == null ? p.getId() : p.getName()))
+                .toList();
+    }
+
+    private List<DriverLibraryDashboardTableModel.Row> createRows(
+            DriverDownloadManager manager,
+            List<DriverPackage> packages,
+            Map<String, String> downloadErrors,
+            Map<String, String> resolutionErrors) {
+        List<DriverLibraryDashboardTableModel.Row> rows = new ArrayList<>();
+        for (DriverPackage driverPackage : packages) {
+            String packageId = driverPackage.getId();
+            String failure = downloadErrors.get(packageId);
+            if (failure == null) failure = resolutionErrors.get(packageId);
+            boolean downloaded = manager.isPackageDownloaded(driverPackage);
+            boolean downloading = manager.isPackageDownloading(packageId);
+            boolean resolving = !driverPackage.isDetailsAvailable() || driverPackage.isDetailsResolving();
+            DriverLibraryDashboardStatus status = DriverLibraryDashboardStatus.resolve(
+                    failure != null,
+                    resolving,
+                    downloading,
+                    downloaded,
+                    driverPackage.isObsolete());
+            String location = manager.getDownloadPath(packageId);
+            if (location == null) location = DriverDownloadManager.getDriverPackageLocation(packageId);
+            rows.add(new DriverLibraryDashboardTableModel.Row(driverPackage, status, location, failure));
+        }
+        return rows;
+    }
+
+    private void downloadSelectedPackage() {
+        DriverLibraryDashboardTableModel.Row row = getSelectedRow();
+        if (row == null || !row.driverPackage().isDetailsAvailable()) return;
+        String location = downloadLocation.getText().trim();
+        if (isEmptyOrSpaces(location)) {
+            showErrorDialog(getProject(), txt("app.driver.error.DownloadLocationRequired"));
+            return;
+        }
+
+        DriverPackage driverPackage = row.driverPackage();
+        DriverDownloadManager manager = DriverDownloadManager.getInstance();
+        manager.setDownloadPath(driverPackage.getId(), location);
+        downloadFailures.remove(driverPackage.getId());
+
+        DriverPackageDownloader downloader = new DriverPackageDownloader();
+        boolean started = downloader.downloadDriverPackageInBackground(getProject(), driverPackage, result ->
+                Dispatch.run(mainPanel, () -> {
+                    if (result != null && !result.isBlank()) {
+                        downloadFailures.put(driverPackage.getId(), result);
+                    } else {
+                        downloadFailures.remove(driverPackage.getId());
+                    }
+                    rebuildRowsAsync();
+                }));
+        if (!started) {
+            downloadFailures.put(driverPackage.getId(), txt("app.driver.error.DownloadAlreadyRunning"));
+        }
+        rebuildRowsAsync();
+    }
+
+    void selectSelectedPackage() {
+        DriverLibraryDashboardTableModel.Row row = getSelectedRow();
+        if (row == null || !options.canSelectLibrary()) return;
+
+        DriverDownloadManager manager = DriverDownloadManager.getInstance();
+        if (!manager.isPackageDownloaded(row.driverPackage())) return;
+        String path = manager.getDownloadPath(row.driverPackage().getId());
+        if (path == null) return;
+
+        options.selectLibrary(path);
+        ensureParentDialog().close(com.intellij.openapi.ui.DialogWrapper.OK_EXIT_CODE);
+    }
+
+    private void deleteSelectedPackage() {
+        DriverLibraryDashboardTableModel.Row row = getSelectedRow();
+        if (row == null) return;
+        DriverPackage driverPackage = row.driverPackage();
+        DriverDownloadManager manager = DriverDownloadManager.getInstance();
+        if (manager.isPackageDownloading(driverPackage.getId())) {
+            showErrorDialog(getProject(), txt("app.driver.error.PackageIsDownloading"));
+            return;
+        }
+        if (manager.isPackageReferenced(getProject(), driverPackage)) {
+            showErrorDialog(getProject(), txt("app.driver.error.PackageInUse"));
+            return;
+        }
+
+        String packageName = driverPackage.getName() == null ? driverPackage.getId() : driverPackage.getName();
+        int result = showConfirmationDialog(
+                getProject(),
+                txt("msg.driver.title.DeleteDriverPackage"),
+                txt("msg.driver.question.DeleteDriverPackage", packageName, row.location()),
+                OPTIONS_YES_NO,
+                1);
+        if (result != 0) return;
+
+        deletingPackage = true;
+        updateActions();
+        Progress.background(getProject(), null, false,
+                txt("prc.driver.title.DeleteLibrary"),
+                txt("prc.driver.text.DeleteLibrary", packageName),
+                indicator -> {
+                    DriverDownloadManager.PackageDeletionResult deletion = manager.deleteDownloadedPackage(getProject(), driverPackage);
+                    Dispatch.run(mainPanel, () -> {
+                        deletingPackage = false;
+                        if (!deletion.deleted()) {
+                            showDeletionError(deletion);
+                            if (deletion.block() == DriverDownloadManager.DeletionBlock.DELETE_FAILED) {
+                                downloadFailures.put(driverPackage.getId(), String.join("\n", deletion.failures()));
+                            }
+                        } else {
+                            downloadFailures.remove(driverPackage.getId());
+                        }
+                        rebuildRowsAsync();
+                    });
+                });
+    }
+
+    private void showDeletionError(DriverDownloadManager.PackageDeletionResult result) {
+        String message = switch (result.block()) {
+            case DOWNLOADING -> txt("app.driver.error.PackageIsDownloading");
+            case IN_USE -> txt("app.driver.error.PackageInUse");
+            case NOT_DOWNLOADED -> txt("app.driver.error.PackageNotDownloaded");
+            case DELETE_FAILED -> txt("app.driver.error.DeleteFailed", String.join("\n", result.failures()));
+            case NONE -> "";
+        };
+        if (!message.isBlank()) showErrorDialog(getProject(), txt("app.driver.title.LibraryDashboard"), message);
+    }
+
+    private void rebuildRowsAsync() {
+        List<DriverPackage> packages = currentPackages;
+        Map<String, String> failures = Map.copyOf(downloadFailures);
+        Background.run(() -> {
+            List<DriverLibraryDashboardTableModel.Row> rows = createRows(
+                    DriverDownloadManager.getInstance(), packages, failures, Map.of());
+            Dispatch.run(mainPanel, () -> {
+                applyRows(rows);
+                updateActions();
+            });
+        });
+    }
+
+    private void applyRows(List<DriverLibraryDashboardTableModel.Row> rows) {
+        DriverLibraryDashboardTableModel.Row selectedRow = getSelectedRow();
+        String selectedPackageId = selectedRow == null ? null : selectedRow.driverPackage().getId();
+        tableModel.setRows(rows);
+        if (selectedPackageId != null) {
+            for (int modelIndex = 0; modelIndex < tableModel.getRowCount(); modelIndex++) {
+                DriverLibraryDashboardTableModel.Row candidate = tableModel.getRow(modelIndex);
+                if (candidate == null || !selectedPackageId.equals(candidate.driverPackage().getId())) continue;
+                int viewIndex = table.convertRowIndexToView(modelIndex);
+                if (viewIndex >= 0) table.setRowSelectionInterval(viewIndex, viewIndex);
+                break;
+            }
+        }
+    }
+
+    private void showSelectedPackageInfo() {
+        DriverLibraryDashboardTableModel.Row row = getSelectedRow();
+        if (row == null || !row.driverPackage().isDetailsAvailable()) return;
+        com.dbn.common.util.Dialogs.show(() -> new DriverPackageInfoDialog(
+                getProject(), txt("app.driver.title.PackageInfo"), true, row.driverPackage()));
+    }
+
+    private DriverLibraryDashboardTableModel.Row getSelectedRow() {
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow < 0) return null;
+        return tableModel.getRow(table.convertRowIndexToModel(selectedRow));
+    }
+
+    private void updateDownloadLocation() {
+        DriverLibraryDashboardTableModel.Row row = getSelectedRow();
+        if (row == null) {
+            downloadLocation.setText("");
+            return;
+        }
+        DriverDownloadManager manager = DriverDownloadManager.getInstance();
+        String location = manager.getDownloadPath(row.driverPackage().getId());
+        downloadLocation.setText(location == null ? DriverDownloadManager.getDriverPackageLocation(row.driverPackage().getId()) : location);
+    }
+
+    private void updateActions() {
+        databaseTypeSelector.setEnabled(!options.isDatabaseTypeFixed() && !loadingInventory);
+        if (options.canSelectLibrary()) {
+            ensureParentDialog().setOKActionEnabled(canSelectSelectedPackage());
+        }
+    }
+
+    private boolean canDownloadSelectedPackage() {
+        DriverLibraryDashboardTableModel.Row row = getSelectedRow();
+        if (row == null || !row.driverPackage().isDetailsAvailable() || loadingInventory || deletingPackage) return false;
+        DriverDownloadManager manager = DriverDownloadManager.getInstance();
+        return !isDownloaded(row) && !manager.isPackageDownloading(row.driverPackage().getId());
+    }
+
+    private boolean canDeleteSelectedPackage() {
+        DriverLibraryDashboardTableModel.Row row = getSelectedRow();
+        if (row == null || loadingInventory || deletingPackage) return false;
+        DriverDownloadManager manager = DriverDownloadManager.getInstance();
+        return !manager.isPackageDownloading(row.driverPackage().getId()) &&
+                (isDownloaded(row) || manager.isPackageTrackedForDeletion(row.driverPackage()));
+    }
+
+    private boolean canSelectSelectedPackage() {
+        DriverLibraryDashboardTableModel.Row row = getSelectedRow();
+        return options.canSelectLibrary() && row != null && !loadingInventory && isDownloaded(row);
+    }
+
+    private static boolean isDownloaded(DriverLibraryDashboardTableModel.Row row) {
+        return row.status() == DriverLibraryDashboardStatus.DOWNLOADED ||
+                row.status() == DriverLibraryDashboardStatus.OBSOLETE;
+    }
+
+    private final BasicAction reloadAction = new BasicAction(txt("app.driver.action.ReloadMetadata"), null, Icons.ACTION_REFRESH) {
+        @Override
+        public void actionPerformed(@NotNull AnActionEvent e) {
+            reloadInventory(true);
+        }
+
+        @Override
+        public void update(@NotNull AnActionEvent e) {
+            e.getPresentation().setEnabled(!loadingInventory);
+        }
+    };
+
+    private final BasicAction infoAction = new BasicAction(txt("app.driver.action.PackageInfo"), null, Icons.ACTION_INFO) {
+        @Override
+        public void actionPerformed(@NotNull AnActionEvent e) {
+            showSelectedPackageInfo();
+        }
+
+        @Override
+        public void update(@NotNull AnActionEvent e) {
+            DriverLibraryDashboardTableModel.Row row = getSelectedRow();
+            e.getPresentation().setEnabled(row != null && row.driverPackage().isDetailsAvailable());
+        }
+    };
+
+    private final BasicAction downloadAction = new BasicAction(txt("app.driver.action.Download"), null, Icons.ACTION_DOWNLOAD) {
+        @Override
+        public void actionPerformed(@NotNull AnActionEvent e) {
+            downloadSelectedPackage();
+        }
+
+        @Override
+        public void update(@NotNull AnActionEvent e) {
+            e.getPresentation().setEnabled(canDownloadSelectedPackage());
+        }
+    };
+
+    private final BasicAction deleteAction = new BasicAction(txt("app.driver.action.Delete"), null, Icons.ACTION_DELETE) {
+        @Override
+        public void actionPerformed(@NotNull AnActionEvent e) {
+            deleteSelectedPackage();
+        }
+
+        @Override
+        public void update(@NotNull AnActionEvent e) {
+            e.getPresentation().setEnabled(canDeleteSelectedPackage());
+        }
+    };
+
+    private void setSelectedDatabaseType(@Nullable DatabaseType type) {
+        for (int i = 0; i < databaseTypeSelector.getItemCount(); i++) {
+            if (databaseTypeSelector.getItemAt(i).databaseType() == type) {
+                databaseTypeSelector.setSelectedIndex(i);
+                return;
+            }
+        }
+    }
+
+    @Nullable
+    private DatabaseType getSelectedDatabaseType() {
+        DatabaseTypeOption option = (DatabaseTypeOption) databaseTypeSelector.getSelectedItem();
+        return option == null ? null : option.databaseType();
+    }
+
+    @Override
+    protected JComponent getMainComponent() {
+        return mainPanel;
+    }
+
+    @Override
+    public void disposeInner() {
+        detachRefreshListeners();
+        super.disposeInner();
+    }
+
+    @Override
+    public JComponent getPreferredFocusedComponent() {
+        return databaseTypeSelector;
+    }
+
+    private record DatabaseTypeOption(@Nullable DatabaseType databaseType) implements Presentable {
+        @NotNull
+        @Override
+        public String getName() {
+            return databaseType == null ? txt("app.driver.text.AllDatabaseTypes") : databaseType.getName();
+        }
+
+        @Override
+        public Icon getIcon() {
+            return databaseType == null ? null : databaseType.getIcon();
+        }
+
+        @Override
+        public String toString() {
+            return getName();
+        }
+    }
+}

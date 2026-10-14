@@ -41,12 +41,12 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 @Getter
 @Setter
 @NoArgsConstructor
-public class DriverPackageStatus implements PersistentStateElement {
+public class DriverPackageDownloadInfo implements PersistentStateElement {
     private final Map<String, LibraryStatus> libraryStatuses = new ConcurrentHashMap<>();
     private String packageId;
     private String downloadPath;
 
-    DriverPackageStatus(String packageId){
+    DriverPackageDownloadInfo(String packageId){
         this.packageId = packageId;
     }
 
@@ -64,6 +64,13 @@ public class DriverPackageStatus implements PersistentStateElement {
         return libraryIds.stream()
                 .map(libraryStatuses::get)
                 .allMatch(s -> s != null && s.downloadStatus.equals(DownloadStatus.DONE));
+    }
+
+    public void clearDownloadStatuses() {
+        for (LibraryStatus libraryStatus : libraryStatuses.values()) {
+            libraryStatus.setDownloadStatus(DownloadStatus.NEW);
+            libraryStatus.setDownloadTimestamp(0);
+        }
     }
 
     public void retainLibraryStatuses(Collection<String> libraryIds) {
@@ -94,7 +101,7 @@ public class DriverPackageStatus implements PersistentStateElement {
         setStringAttribute(element, "id", packageId);
         setStringAttribute(element, "download-path", this.downloadPath);
 
-        for (DriverPackageStatus.LibraryStatus jarEntry : this.getLibraryStatuses()) {
+        for (DriverPackageDownloadInfo.LibraryStatus jarEntry : this.getLibraryStatuses()) {
             Element jarElement = newElement(element, "library");
             jarEntry.writeState(jarElement);
         }

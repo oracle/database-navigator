@@ -34,6 +34,7 @@ import com.dbn.connection.config.provider.CloudConfigProviderType;
 import com.dbn.driver.DatabaseDriverManager;
 import com.dbn.driver.DriverBundle;
 import com.dbn.driver.DriverSource;
+import com.dbn.driver.dashboard.DriverLibraryDashboardOptions;
 import com.dbn.driver.download.DriverDownloadManager;
 import com.dbn.driver.download.metadata.DriverPackage;
 import com.intellij.icons.AllIcons;
@@ -205,6 +206,8 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
     }
 
     private void initDriverDownloadFields() {
+        // Legacy popup call site retained below for reference; the dashboard owns this entry now.
+        /*
         downloadButton.addActionListener(e -> {
             DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
             CloudConfigProviderFamily providerFamily = getCloudConfigProviderFamily();
@@ -219,6 +222,27 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
                 Background.run(() -> showDownloadPopup(providerFamily));
             }
         });
+        */
+        downloadButton.addActionListener(e -> openDriverLibraryDashboard());
+    }
+
+    private void openDriverLibraryDashboard() {
+        DatabaseType databaseType = getDatabaseType();
+        CloudConfigProviderFamily providerFamily = getCloudConfigProviderFamily();
+        DriverDownloadManager.getInstance().openLibraryDashboard(
+                ensureProject(),
+                createDashboardOptions(databaseType, providerFamily));
+    }
+
+    private @NotNull DriverLibraryDashboardOptions createDashboardOptions(DatabaseType databaseType, CloudConfigProviderFamily providerFamily) {
+        return new DriverLibraryDashboardOptions(databaseType, providerFamily, path -> {
+            String currentPath = driverLibraryTextField.getText();
+            if (Objects.equals(currentPath, path)) {
+                reloadDrivers();
+            } else {
+                setText(driverLibraryTextField, path);
+            }
+        });
     }
 
     private void useExternalLibrary() {
@@ -227,6 +251,8 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
         downloadButton.doClick();
     }
 
+    /** @deprecated Use the driver library dashboard. Kept for compatibility with the old popup flow. */
+    @Deprecated
     private void showDownloadPopup(@Nullable CloudConfigProviderFamily providerFamily) {
         try {
             DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
@@ -410,6 +436,8 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
         setSelection(driverComboBox, DriverOption.get(driverOptions, configuration.getDriver()));
     }
 
+    /** @deprecated Legacy package popup retained while external callers migrate. */
+    @Deprecated
     private void showDownloadPopup(
             JButton button,
             List<DriverPackage> driverPackages,
@@ -456,6 +484,8 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
         return downloadManager.getDownloadPath(driverPackage.getId());
     }
 
+    /** @deprecated Use the driver library dashboard. */
+    @Deprecated
     private void initDownloadManagerDialog(@Nullable CloudConfigProviderFamily providerFamily) {
         Project project = ensureProject();
         DatabaseType databaseType = getDatabaseType();

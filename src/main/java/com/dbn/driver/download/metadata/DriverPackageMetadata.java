@@ -75,6 +75,8 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
  */
 @Setter
 public class DriverPackageMetadata implements PersistentStateElement {
+    public enum RefreshMode { NORMAL, FORCE }
+
     private static final int METADATA_VERSION = 4;
     private static final int REFRESH_INTERVAL = 7;
     private static final TimeUnit REFRESH_INTERVAL_UNIT = TimeUnit.DAYS;
@@ -83,21 +85,20 @@ public class DriverPackageMetadata implements PersistentStateElement {
     private final Map<String, Long> lastRefresh = new ConcurrentHashMap<>();
     private final Map<String, DriverPackage> driverPackages = new ConcurrentHashMap<>();
 
+    /** Refreshes package metadata, optionally ignoring the normal freshness interval. */
     @SneakyThrows
-    public synchronized void refreshDriverPackages(DatabaseType databaseType) {
-        refreshDriverPackages(databaseType, null);
-    }
-
-    @SneakyThrows
-    public synchronized void refreshDriverPackages(DatabaseType databaseType, @Nullable CloudConfigProviderFamily providerFamily) {
+    public synchronized void refreshDriverPackages(
+            DatabaseType databaseType,
+            @Nullable CloudConfigProviderFamily providerFamily,
+            @NotNull RefreshMode refreshMode) {
         if (providerFamily == null) {
             for (CloudConfigProviderFamily family : CloudConfigProviderFamily.values()) {
-                refreshDriverPackages(databaseType, family);
+                refreshDriverPackages(databaseType, family, refreshMode);
             }
             return;
         }
 
-        if (!isOutdated(databaseType, providerFamily)) return;
+        if (refreshMode == RefreshMode.NORMAL && !isOutdated(databaseType, providerFamily)) return;
 
         ProgressIndicator indicator = ProgressMonitor.getProgressIndicator();
         DownloadSession session = new DownloadSession(indicator);
@@ -108,7 +109,8 @@ public class DriverPackageMetadata implements PersistentStateElement {
 
         // Mark packages obsolete only for the refreshed database type/provider family.
         this.driverPackages.values().stream()
-                .filter(p -> p.matches(databaseType))
+                // GENERIC is a wildcard in package queries, but a metadata refresh is exact-type.
+                .filter(p -> p.getDatabaseType() == databaseType)
                 .filter(p -> p.matches(providerFamily))
                 .forEach(p -> p.setObsolete(!packageIds.contains(p.getId())));
         this.driverPackages.putAll(driverPackages);
@@ -144,7 +146,15 @@ public class DriverPackageMetadata implements PersistentStateElement {
             DatabaseType databaseType,
             @Nullable CloudConfigProviderFamily providerFamily,
             Predicate<DriverPackage> predicate) {
-        refreshDriverPackages(databaseType, providerFamily);
+        refreshDriverPackages(databaseType, providerFamily, RefreshMode.NORMAL);
+        return getCachedDriverPackages(databaseType, providerFamily, predicate);
+    }
+
+    /** Returns matching metadata already in memory without triggering a network refresh. */
+    public List<DriverPackage> getCachedDriverPackages(
+            DatabaseType databaseType,
+            @Nullable CloudConfigProviderFamily providerFamily,
+            Predicate<DriverPackage> predicate) {
         return driverPackages.values().stream()
                 .sorted()
                 .filter(p -> p.matches(databaseType))
@@ -184,9 +194,9 @@ public class DriverPackageMetadata implements PersistentStateElement {
      * @throws Exception If any I/O or related errors occur during verification.
      */
     private void verifyDriverPackages() throws Exception {
-        // Check if there's any package status to process
+        // Check if there's any package download state to process
         DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
-        if (downloadManager.getPackagesStatus().isEmpty()) return;
+        if (downloadManager.getPackageDownloadStates().isEmpty()) return;
 
         for (DriverPackage driverPackage : driverPackages.values()) {
             verifyDriverPackage(driverPackage);
@@ -206,14 +216,14 @@ public class DriverPackageMetadata implements PersistentStateElement {
         File packageDir = new File(downloadPath);
         PackageChecksumData checksumData = downloadManager.getChecksumData(packageId);
         List<String> libraryIds = driverPackage.getLibraryIds();
-        downloadManager.reconcilePackageStatus(driverPackage);
+        downloadManager.reconcilePackageDownloadState(driverPackage);
 
         // If no checksum file exists, all libraries are set to NEW
         if (checksumData.fileExists()) {
             checksumData.readChecksums();
             boolean checksumsValid = checksumData.verifyChecksums(packageDir, libraryIds);
             if (!checksumsValid) {
-                downloadManager.cleanupPackage(packageId);
+                downloadManager.resetPackageDownloadStatuses(packageId);
             }
         } else {
             for (String libraryId : libraryIds) {

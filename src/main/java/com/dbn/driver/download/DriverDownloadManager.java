@@ -19,16 +19,25 @@ import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.ApplicationComponentBase;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.routine.Consumer;
+import com.dbn.common.thread.ProgressInfo;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.DatabaseType;
+import com.dbn.connection.config.ConnectionBundleSettings;
+import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.config.provider.CloudConfigProviderFamily;
+import com.dbn.driver.DriverSource;
+import com.dbn.driver.dashboard.DriverLibraryDashboardDialog;
+import com.dbn.driver.dashboard.DriverLibraryDashboardOptions;
 import com.dbn.driver.download.metadata.DriverPackage;
 import com.dbn.driver.download.metadata.DriverPackageMetadata;
+import com.dbn.driver.download.metadata.Library;
 import com.dbn.driver.download.ui.DriverDownloadDialog;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.util.io.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
@@ -36,13 +45,19 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.applicationService;
+import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Files.getPluginDeploymentRoot;
@@ -70,8 +85,8 @@ import static com.dbn.nls.NlsResources.txt;
 public class DriverDownloadManager extends ApplicationComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Application.DriverDownloadManager";
 
-    private final Map<String, DriverPackageStatus> packageDownloadStatuses = new ConcurrentHashMap<>();
-    private final Map<String, PackageChecksumData> packageChecksums = new ConcurrentHashMap<>();
+    private final Map<String, DriverPackageDownloadState> downloadStates = new ConcurrentHashMap<>();
+    private final Map<DatabaseType, DriverPackageMetadataRefresh> metadataRefreshes = new ConcurrentHashMap<>();
 
     private final DriverPackageMetadata driverPackageMetadata = new DriverPackageMetadata();
 
@@ -105,10 +120,10 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
      * @param jarId     Unique ID of the JAR (e.g., "artifactId-version")
      */
     public DownloadStatus getDownloadStatus(String packageId, String jarId) {
-        DriverPackageStatus packageStatus = getPackageStatus(packageId);
-        if (packageStatus == null) return NEW;
+        DriverPackageDownloadState downloadState = getPackageDownloadState(packageId);
+        if (downloadState == null) return NEW;
 
-        DriverPackageStatus.LibraryStatus libraryStatus = packageStatus.getLibraryStatus(jarId);
+        DriverPackageDownloadInfo.LibraryStatus libraryStatus = downloadState.getDownloadInfo().getLibraryStatus(jarId);
         if (libraryStatus == null) return NEW;
 
         return libraryStatus.getDownloadStatus();
@@ -117,7 +132,7 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
     public void setDownloadStatus(String packageId, String libraryId, DownloadStatus status) {
         log.info("Download status for package {} JAR {}: {}", packageId, libraryId, status);
 
-        DriverPackageStatus.LibraryStatus libraryStatus = ensurePackageStatus(packageId).ensureLibraryStatus(libraryId);
+        DriverPackageDownloadInfo.LibraryStatus libraryStatus = ensurePackageDownloadState(packageId).getDownloadInfo().ensureLibraryStatus(libraryId);
         libraryStatus.setDownloadStatus(status);
         if (status == DONE) {
             libraryStatus.setDownloadTimestamp(System.currentTimeMillis());
@@ -125,40 +140,43 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
     }
 
     @Nullable
-    private DriverPackageStatus getPackageStatus(String packageId) {
-        return packageDownloadStatuses.get(packageId);
+    private DriverPackageDownloadState getPackageDownloadState(String packageId) {
+        return downloadStates.get(packageId);
     }
 
     @NotNull
-    private DriverPackageStatus ensurePackageStatus(String packageId) {
-        return packageDownloadStatuses.computeIfAbsent(packageId, k -> new DriverPackageStatus(packageId));
+    private DriverPackageDownloadState ensurePackageDownloadState(String packageId) {
+        return downloadStates.computeIfAbsent(packageId, DriverPackageDownloadState::new);
     }
 
     @Nullable
     public String getDownloadPath(String packageId) {
-        DriverPackageStatus packageStatus = packageDownloadStatuses.get(packageId);
-        return packageStatus == null ? null : packageStatus.getDownloadPath() ;
+        DriverPackageDownloadState downloadState = getPackageDownloadState(packageId);
+        return downloadState == null ? null : downloadState.getDownloadInfo().getDownloadPath() ;
     }
 
     public void setDownloadPath(String packageId, String path) {
-        DriverPackageStatus packageStatus = ensurePackageStatus(packageId);
-        if (!Objects.equals(packageStatus.getDownloadPath(), path)) {
-            cleanupPackage(packageId);
+        DriverPackageDownloadState downloadState = ensurePackageDownloadState(packageId);
+        DriverPackageDownloadInfo downloadInfo = downloadState.getDownloadInfo();
+        if (!Objects.equals(downloadInfo.getDownloadPath(), path)) {
+            resetPackageDownloadStatuses(packageId);
         }
-        packageStatus.setDownloadPath(path);
+        downloadInfo.setDownloadPath(path);
     }
 
-    public Collection<DriverPackageStatus> getPackagesStatus() {
-        return packageDownloadStatuses.values();
+    public Collection<DriverPackageDownloadState> getPackageDownloadStates() {
+        return downloadStates.values().stream()
+                .filter(DriverPackageDownloadState::hasPersistedDownloadInfo)
+                .toList();
     }
 
     @NotNull
     public PackageChecksumData getChecksumData(String packageId) {
-        return packageChecksums.computeIfAbsent(packageId, p -> new PackageChecksumData(p));
+        return ensurePackageDownloadState(packageId).getChecksumData();
     }
 
     public void setChecksumData(String packageId, PackageChecksumData checksumData) {
-        packageChecksums.put(packageId, checksumData);
+        ensurePackageDownloadState(packageId).setChecksumData(checksumData);
     }
 
     /**
@@ -177,22 +195,22 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
         if (driverPackage == null) return false;
         if (!driverPackage.isDetailsAvailable()) return false;
 
-        DriverPackageStatus status = getPackageStatus(driverPackage.getId());
-        if (status == null) return false;
+        DriverPackageDownloadState downloadState = getPackageDownloadState(driverPackage.getId());
+        if (downloadState == null) return false;
 
         List<String> libraryIds = driverPackage.getLibraryIds();
-        reconcilePackageStatus(driverPackage);
-        return status.isComplete(libraryIds) && hasVerifiedChecksumManifest(driverPackage, status);
+        reconcilePackageDownloadState(driverPackage);
+        return downloadState.getDownloadInfo().isComplete(libraryIds) && hasVerifiedChecksumManifest(driverPackage, downloadState);
     }
 
-    public void reconcilePackageStatus(DriverPackage driverPackage) {
-        DriverPackageStatus status = getPackageStatus(driverPackage.getId());
-        if (status == null) return;
+    public void reconcilePackageDownloadState(DriverPackage driverPackage) {
+        DriverPackageDownloadState downloadState = getPackageDownloadState(driverPackage.getId());
+        if (downloadState == null) return;
 
         List<String> libraryIds = driverPackage.getLibraryIds();
-        status.retainLibraryStatuses(libraryIds);
+        downloadState.getDownloadInfo().retainLibraryStatuses(libraryIds);
 
-        String downloadPath = status.getDownloadPath();
+        String downloadPath = downloadState.getDownloadInfo().getDownloadPath();
         if (downloadPath == null) return;
 
         PackageChecksumData checksumData = getChecksumData(driverPackage.getId());
@@ -205,8 +223,8 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
         }
     }
 
-    private boolean hasVerifiedChecksumManifest(DriverPackage driverPackage, DriverPackageStatus status) {
-        String downloadPath = status.getDownloadPath();
+    private boolean hasVerifiedChecksumManifest(DriverPackage driverPackage, DriverPackageDownloadState downloadState) {
+        String downloadPath = downloadState.getDownloadInfo().getDownloadPath();
         if (downloadPath == null) return false;
 
         PackageChecksumData checksumData = getChecksumData(driverPackage.getId());
@@ -218,11 +236,11 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
         return checksumData.verifyChecksums(packageDir, libraryIds);
     }
 
-    public void cleanupPackage(String packageId) {
-        DriverPackageStatus packageStatus = getPackageStatus(packageId);
-        if (packageStatus == null) return;
+    public void resetPackageDownloadStatuses(String packageId) {
+        DriverPackageDownloadState downloadState = getPackageDownloadState(packageId);
+        if (downloadState == null) return;
 
-        packageStatus.getLibraryStatuses().forEach(libraryStatus->libraryStatus.setDownloadStatus(NEW));
+        downloadState.getDownloadInfo().getLibraryStatuses().forEach(libraryStatus->libraryStatus.setDownloadStatus(NEW));
    }
 
     public List<DriverPackage> getDownloadedDriverPackages(DatabaseType databaseType) {
@@ -245,6 +263,45 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
         return driverPackageMetadata.getDriverPackages(databaseType, providerFamily, p -> !p.isObsolete() || isPackageDownloaded(p));
     }
 
+    public List<DriverPackage> getCachedDriverPackages(
+            DatabaseType databaseType,
+            @Nullable CloudConfigProviderFamily providerFamily) {
+        return driverPackageMetadata.getCachedDriverPackages(databaseType, providerFamily, p -> !p.isObsolete() || isPackageDownloaded(p));
+    }
+
+    public void refreshDriverPackageMetadata(
+            DatabaseType databaseType,
+            @Nullable CloudConfigProviderFamily providerFamily,
+            DriverPackageMetadata.RefreshMode refreshMode) {
+        driverPackageMetadata.refreshDriverPackages(databaseType, providerFamily, refreshMode);
+    }
+
+    /**
+     * Returns a shared metadata and package-detail refresh for this database type.
+     * It refreshes all provider families so settings and menu contexts can observe the same process.
+     */
+    public DriverPackageMetadataRefresh refreshDriverPackageInventory(
+            Project project,
+            DatabaseType databaseType,
+            boolean forceReload) {
+        List<CloudConfigProviderFamily> providerFamilies = List.of(CloudConfigProviderFamily.values());
+        return metadataRefreshes.compute(databaseType, (ignored, current) -> {
+            if (current != null && current.isRunning()) return current;
+            boolean metadataOutdated = providerFamilies.stream()
+                    .anyMatch(family -> isDriverPackageMetadataOutdated(databaseType, family));
+            if (current != null && !forceReload) {
+                ProgressInfo lastProgress = current.getProgress();
+                boolean failed = !lastProgress.errors().isEmpty() ||
+                        !lastProgress.groupedErrors().isEmpty() || lastProgress.canceled();
+                if (failed || !metadataOutdated) return current;
+            }
+
+            DriverPackageMetadataRefresh refresh = new DriverPackageMetadataRefresh(databaseType, providerFamilies, forceReload);
+            refresh.start(project);
+            return refresh;
+        });
+    }
+
     public boolean isDriverPackageMetadataOutdated(DatabaseType databaseType) {
         return isDriverPackageMetadataOutdated(databaseType, null);
     }
@@ -259,10 +316,142 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
         return driverPackageMetadata.resolveDriverPackageDetails(driverPackage, session);
     }
 
+    public void openLibraryDashboard(Project project, DriverLibraryDashboardOptions options) {
+        Dialogs.show(() -> new DriverLibraryDashboardDialog(project, options));
+    }
+
+    public boolean beginPackageDownload(String packageId) {
+        return ensurePackageDownloadState(packageId).beginPackageDownload();
+    }
+
+    public void endPackageDownload(String packageId) {
+        DriverPackageDownloadState downloadState = getPackageDownloadState(packageId);
+        if (downloadState != null) downloadState.endPackageDownload();
+    }
+
+    public boolean isPackageDownloading(String packageId) {
+        DriverPackageDownloadState downloadState = getPackageDownloadState(packageId);
+        return downloadState != null && downloadState.isPackageDownloading();
+    }
+
+    /** Returns whether this package has a complete tracked download record, even if a prior cleanup partially removed files. */
+    public boolean isPackageTrackedForDeletion(DriverPackage driverPackage) {
+        if (driverPackage == null || driverPackage.getLibraryIds().isEmpty()) return false;
+        DriverPackageDownloadState downloadState = getPackageDownloadState(driverPackage.getId());
+        return downloadState != null &&
+                downloadState.getDownloadInfo().getDownloadPath() != null &&
+                downloadState.getDownloadInfo().isComplete(driverPackage.getLibraryIds());
+    }
+
+    public boolean isPackageReferenced(Project currentProject, DriverPackage driverPackage) {
+        DriverPackageDownloadState downloadState = getPackageDownloadState(driverPackage.getId());
+        if (downloadState == null || downloadState.getDownloadInfo().getDownloadPath() == null) return false;
+
+        Set<Project> projects = new HashSet<>(List.of(ProjectManager.getInstance().getOpenProjects()));
+        if (currentProject != null && !currentProject.isDisposed()) projects.add(currentProject);
+
+        for (Project project : projects) {
+            if (project.isDisposed()) continue;
+            for (ConnectionSettings connection : ConnectionBundleSettings.getInstance(project).getConnections()) {
+                if (connection.getDatabaseSettings().getDriverSource() != DriverSource.EXTERNAL) continue;
+                File libraryFile = connection.getDatabaseSettings().getDriverLibraryFile();
+                if (libraryFile == null) continue;
+                if (isPackagePathReferenced(libraryFile.getPath(), downloadState.getDownloadInfo().getDownloadPath())) return true;
+            }
+        }
+        return false;
+    }
+
+    public PackageDeletionResult deleteDownloadedPackage(Project currentProject, DriverPackage driverPackage) {
+        String packageId = driverPackage.getId();
+        if (isPackageDownloading(packageId)) return new PackageDeletionResult(false, DeletionBlock.DOWNLOADING, List.of());
+        if (isPackageReferenced(currentProject, driverPackage)) return new PackageDeletionResult(false, DeletionBlock.IN_USE, List.of());
+        if (!isPackageTrackedForDeletion(driverPackage)) return new PackageDeletionResult(false, DeletionBlock.NOT_DOWNLOADED, List.of());
+
+        DriverPackageDownloadState downloadState = getPackageDownloadState(packageId);
+        File packageDirectory = new File(downloadState.getDownloadInfo().getDownloadPath());
+        Set<Path> sharedArtifacts = getSharedTrackedArtifacts(driverPackage, packageDirectory);
+        List<String> failures = new ArrayList<>();
+
+        for (Library library : driverPackage.getLibraries()) {
+            File libraryFile = new File(packageDirectory, library.getLibraryId() + ".jar");
+            if (!libraryFile.exists() || sharedArtifacts.contains(normalizedPath(libraryFile.getPath()))) continue;
+            if (!libraryFile.isFile()) {
+                failures.add(libraryFile.getAbsolutePath());
+                continue;
+            }
+            if (!FileUtil.delete(libraryFile)) failures.add(libraryFile.getAbsolutePath());
+        }
+
+        if (!failures.isEmpty()) {
+            return new PackageDeletionResult(false, DeletionBlock.DELETE_FAILED, failures);
+        }
+
+        PackageChecksumData checksumData = getChecksumData(packageId);
+        if (!checksumData.clearChecksums()) failures.add(checksumData.getFile().getAbsolutePath());
+        if (!failures.isEmpty()) return new PackageDeletionResult(false, DeletionBlock.DELETE_FAILED, failures);
+
+        downloadState.getDownloadInfo().clearDownloadStatuses();
+        return new PackageDeletionResult(true, DeletionBlock.NONE, List.of());
+    }
+
+    private Set<Path> getSharedTrackedArtifacts(DriverPackage selectedPackage, File selectedDirectory) {
+        Set<Path> sharedArtifacts = new HashSet<>();
+        Path selectedPath = normalizedPath(selectedDirectory.getPath());
+        List<DriverPackageDownloadInfo> packageInfos = downloadStates.values().stream()
+                .map(DriverPackageDownloadState::getDownloadInfo)
+                .toList();
+        for (Library library : selectedPackage.getLibraries()) {
+            String libraryId = library.getLibraryId();
+            if (isTrackedArtifactShared(selectedPackage.getId(), libraryId, selectedPath, packageInfos)) {
+                sharedArtifacts.add(normalizedPath(new File(selectedDirectory, libraryId + ".jar").getPath()));
+            }
+        }
+        return sharedArtifacts;
+    }
+
+    static boolean isTrackedArtifactShared(
+            String selectedPackageId,
+            String libraryId,
+            Path selectedDirectory,
+            Collection<? extends DriverPackageDownloadInfo> downloadInfos) {
+        for (DriverPackageDownloadInfo otherDownloadInfo : downloadInfos) {
+            if (Objects.equals(otherDownloadInfo.getPackageId(), selectedPackageId)) continue;
+            if (!Objects.equals(normalizedPath(otherDownloadInfo.getDownloadPath()), selectedDirectory)) continue;
+
+            DriverPackageDownloadInfo.LibraryStatus libraryStatus = otherDownloadInfo.getLibraryStatus(libraryId);
+            if (libraryStatus != null && libraryStatus.getDownloadStatus() == DONE) return true;
+        }
+        return false;
+    }
+
+    static Path normalizedPath(String path) {
+        if (path == null) return Path.of("");
+        try {
+            return new File(path).getCanonicalFile().toPath().normalize();
+        } catch (IOException e) {
+            return new File(path).toPath().toAbsolutePath().normalize();
+        }
+    }
+
+    static boolean isPackagePathReferenced(String configuredPath, String packagePath) {
+        Path configured = normalizedPath(configuredPath);
+        Path packageDirectory = normalizedPath(packagePath);
+        return configured.equals(packageDirectory) || configured.startsWith(packageDirectory);
+    }
+
+    public enum DeletionBlock { NONE, DOWNLOADING, IN_USE, NOT_DOWNLOADED, DELETE_FAILED }
+
+    public record PackageDeletionResult(boolean deleted, DeletionBlock block, List<String> failures) {}
+
+    /** @deprecated Use {@link #openLibraryDashboard(Project, DriverLibraryDashboardOptions)}. */
+    @Deprecated
     public void openDownloadDialog(Project project, DatabaseType databaseType, Consumer<String> successCallback) {
         openDownloadDialog(project, databaseType, null, successCallback);
     }
 
+    /** @deprecated Use {@link #openLibraryDashboard(Project, DriverLibraryDashboardOptions)}. */
+    @Deprecated
     public void openDownloadDialog(
             Project project,
             DatabaseType databaseType,
@@ -283,9 +472,11 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
         Element element = new Element("state");
         Element downloadsElement = newElement(element, "package-downloads");
         Element metadataElement = newElement(element, "package-metadata");
-        for (DriverPackageStatus packageStatus : packageDownloadStatuses.values()) {
+        for (DriverPackageDownloadState downloadState : downloadStates.values()) {
+            if (!downloadState.hasPersistedDownloadInfo()) continue;
             Element packageElement = newElement(downloadsElement, "package");
-            packageStatus.writeState(packageElement);
+            DriverPackageDownloadInfo downloadInfo = downloadState.getDownloadInfo();
+            downloadInfo.writeState(packageElement);
         }
 
         driverPackageMetadata.writeState(metadataElement);
@@ -295,12 +486,11 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
     @Override
     public void loadComponentState(@NotNull Element element) {
         Element downloadsElement = element.getChild("package-downloads");
-        if (downloadsElement != null) {
-            for (Element packageElement : downloadsElement.getChildren("package")) {
-                DriverPackageStatus packageStatus = new DriverPackageStatus();
-                packageStatus.readState(packageElement);
-                packageDownloadStatuses.put(packageStatus.getPackageId(), packageStatus);
-            }
+        for (Element packageElement : childrenOf(downloadsElement, "package")) {
+            DriverPackageDownloadState downloadState = new DriverPackageDownloadState();
+            DriverPackageDownloadInfo downloadInfo = downloadState.getDownloadInfo();
+            downloadInfo.readState(packageElement);
+            downloadStates.put(downloadInfo.getPackageId(), downloadState);
         }
         Element metadataElement = element.getChild("package-metadata");
         driverPackageMetadata.readState(metadataElement);
