@@ -22,8 +22,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
-import java.nio.file.InvalidPathException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 
 import static com.dbn.common.util.Messages.showErrorDialog;
@@ -32,7 +32,6 @@ import static com.dbn.nls.NlsResources.txt;
 
 class DriverPackageDownloadDialog extends DBNDialog<DriverPackageDownloadForm> {
     private final DriverPackage driverPackage;
-    private String downloadRoot;
     private String downloadPath;
 
     DriverPackageDownloadDialog(Project project, DriverPackage driverPackage) {
@@ -105,17 +104,12 @@ class DriverPackageDownloadDialog extends DBNDialog<DriverPackageDownloadForm> {
                 return false;
             }
 
-            downloadRoot = root.toString();
             downloadPath = target.toString();
             return true;
         } catch (InvalidPathException e) {
             showErrorDialog(getProject(), txt("app.driver.error.InvalidPackageFolder"));
             return false;
         }
-    }
-
-    String getDownloadRoot() {
-        return downloadRoot;
     }
 
     String getDownloadPath() {

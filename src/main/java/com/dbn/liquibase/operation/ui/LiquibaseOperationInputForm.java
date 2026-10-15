@@ -30,6 +30,7 @@ import com.dbn.common.ui.form.field.FieldState;
 import com.dbn.common.ui.info.DBNInfoLabel;
 import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.common.ui.misc.DBNComboBox;
+import com.dbn.common.ui.util.Tooltips;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionManager;
@@ -51,7 +52,6 @@ import com.dbn.liquibase.workspace.LiquibaseWorkspaceBundle;
 import com.dbn.liquibase.workspace.LiquibaseWorkspacePaths;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.ui.DBObjectSelector;
-import com.dbn.common.ui.util.Tooltips;
 import com.intellij.openapi.project.Project;
 import org.apache.commons.lang3.SystemProperties;
 import org.jetbrains.annotations.NonNls;
@@ -211,7 +211,7 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
         changelogAuthorTextField.setVisible(supported);
         if (supported) {
             DatabaseLiquibaseManager liquibaseManager = getLiquibaseManager();
-            StateAttributes state = liquibaseManager.getState("EXECUTION_INPUT");
+            StateAttributes state = liquibaseManager.getUserInterfaceState("EXECUTION_INPUT");
             initPersistence(changelogAuthorTextField, state, ATTR_CHANGELOG_AUTHOR, SystemProperties.getUserName());
         }
     }
@@ -250,7 +250,7 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
         LiquibaseFeatureSupport support = executionInput.getSupport();
         if (!support.supports(UPDATE_INSTRUCTION)) return;
 
-        StateAttributes state = getLiquibaseManager().getState("EXECUTION_INPUT");
+        StateAttributes state = getLiquibaseManager().getUserInterfaceState("EXECUTION_INPUT");
         updateTypeSelector.setValues(List.of(LiquibaseUpdateType.values()));
         initPersistence(updateTypeSelector, state, ATTR_UPDATE_TYPE, ALL.id());
 
@@ -289,7 +289,7 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
         rollbackDateField.createCalendarPopup(false, CalendarPopupType.DATE);
 
         DatabaseLiquibaseManager liquibaseManager = getLiquibaseManager();
-        StateAttributes state = liquibaseManager.getState("EXECUTION_INPUT");
+        StateAttributes state = liquibaseManager.getUserInterfaceState("EXECUTION_INPUT");
         rollbackTypeSelector.setValues(List.of(LiquibaseRollbackType.values()));
         initPersistence(rollbackTypeSelector, state, ATTR_ROLLBACK_TYPE, COUNT.id());
 

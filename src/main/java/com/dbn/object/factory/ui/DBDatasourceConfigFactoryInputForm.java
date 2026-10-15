@@ -29,7 +29,6 @@ import com.dbn.common.util.Json;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.DatabaseIdentifierCase;
-import com.dbn.object.factory.ObjectFactoryManager;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
@@ -130,7 +129,7 @@ public class DBDatasourceConfigFactoryInputForm extends DBSchemaObjectFactoryInp
 
     @Override
     protected void initStatePersistence() {
-        StateAttributes state = ObjectFactoryManager.getInstance(ensureProject()).getState(getObjectType());
+        StateAttributes state = getUserInterfaceState();
         initPersistence(preserveCaseCheckBox, state, "preserve-identifier-case");
     }
 

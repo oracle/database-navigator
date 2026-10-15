@@ -151,7 +151,7 @@ public class ConfigProviderExportForm extends DBNFormBase {
     @Override
     protected void initStatePersistence() {
         ConfigProviderExportManager exportManager = ConfigProviderExportManager.getInstance();
-        StateAttributes state = exportManager.getExportFormState();
+        StateAttributes state = exportManager.getUserInterfaceState("EXPORT_FORM");
 
         initPersistence(wrapperKeyTextField, state, "last-wrapper-key");
         initPersistence(destinationFileTextField, state, "last-output-file");

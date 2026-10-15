@@ -43,7 +43,6 @@ import static com.dbn.common.approval.UserApprovalManager.COMPONENT_NAME;
 import static com.dbn.common.component.Components.applicationService;
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Commons.NOT_NULL;
 
 /**
@@ -323,10 +322,9 @@ public class UserApprovalManager extends ApplicationComponentBase implements Per
         }
     }
 
-    @Nullable
     @Override
-    public Element getComponentState() {
-        Element element = newStateElement();
+    public void writeState(Element element) {
+        super.writeState(element);
         Element approvalsElement = newElement(element, "approvals");
         for (Map.Entry<String, UserApprovalData> entry : approvalData.entrySet()) {
             UserApprovalData data = entry.getValue();
@@ -335,11 +333,11 @@ public class UserApprovalManager extends ApplicationComponentBase implements Per
             Element approvalElement = newElement(approvalsElement, "approval");
             data.writeState(approvalElement);
         }
-        return element;
     }
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
+    public void readState(@NotNull Element element) {
+        super.readState(element);
         approvalData.clear();
 
         Element approvalsElement = element.getChild("approvals");

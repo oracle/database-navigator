@@ -33,9 +33,7 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import lombok.Getter;
-import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -129,18 +127,4 @@ public class JavaExecutionWrapperManager extends ProjectComponentBase implements
     public void showWrapperResult(WrapperModel model) {
         Dialogs.show(() -> new WrapperResultDialog(getProject(), model));
     }
-
-	/****************************************
-	 *       PersistentStateComponent       *
-	 *****************************************/
-	@Nullable
-	@Override
-	public Element getComponentState() {
-		Element element = new Element("state");
-		return element;
-	}
-
-	@Override
-	public void loadComponentState(@NotNull Element element) {
-	}
 }

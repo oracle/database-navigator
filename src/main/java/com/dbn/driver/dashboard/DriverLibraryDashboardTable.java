@@ -22,7 +22,6 @@ import com.dbn.common.ui.table.DBNColoredTableCellRenderer;
 import com.dbn.common.ui.table.DBNTable;
 import com.dbn.common.ui.util.Tooltips;
 import com.intellij.ui.SimpleTextAttributes;
-import com.intellij.util.ui.AsyncProcessIcon;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.BorderFactory;
@@ -70,17 +69,11 @@ class DriverLibraryDashboardTable extends DBNTable<DriverLibraryDashboardTableMo
     }
 
     private class StatusCellRenderer implements TableCellRenderer {
-        private final JPanel panel = new JPanel(new BorderLayout(5, 0));
-        private final AsyncProcessIcon processIcon = new AsyncProcessIcon("Downloading driver library");
+        private final JPanel panel = new JPanel(new BorderLayout());
         private final JLabel label = new JLabel();
-        private boolean animationActive;
 
         private StatusCellRenderer() {
-            processIcon.setOpaque(false);
-            processIcon.setPaintPassiveIcon(false);
-            processIcon.suspend();
             panel.setBorder(BorderFactory.createEmptyBorder(0, 4, 0, 4));
-            panel.add(processIcon, BorderLayout.WEST);
             panel.add(label, BorderLayout.CENTER);
         }
 
@@ -91,11 +84,7 @@ class DriverLibraryDashboardTable extends DBNTable<DriverLibraryDashboardTableMo
             DriverLibraryDashboardTableModel.Row row = (DriverLibraryDashboardTableModel.Row) value;
             if (row == null) return panel;
 
-            boolean active = row.status() == DriverLibraryDashboardStatus.DOWNLOADING ||
-                    row.status() == DriverLibraryDashboardStatus.RESOLVING;
             boolean resolving = row.status() == DriverLibraryDashboardStatus.RESOLVING;
-            processIcon.setVisible(active);
-            setAnimationActive(model.hasBusyRows());
             label.setText(model.getPresentableValue(row, columnIndex));
             Tooltips.setToolTipText(label, row.errorMessage());
             panel.setBackground(selected ? dashboardTable.getSelectionBackground() : dashboardTable.getBackground());
@@ -103,16 +92,6 @@ class DriverLibraryDashboardTable extends DBNTable<DriverLibraryDashboardTableMo
             label.setForeground(resolving ? Colors.getContextHelpForeground() :
                     selected ? dashboardTable.getSelectionForeground() : dashboardTable.getForeground());
             return panel;
-        }
-
-        private void setAnimationActive(boolean active) {
-            if (animationActive == active) return;
-            animationActive = active;
-            if (active) {
-                processIcon.resume();
-            } else {
-                processIcon.suspend();
-            }
         }
     }
 }

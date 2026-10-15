@@ -365,21 +365,20 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
         executionManager.addExecutionResult(executionResult);
     }
 
-    @Nullable
     @Override
-    public Element getComponentState() {
-        Element element = new Element("state");
+    public void writeState(Element element) {
+        super.writeState(element);
         Element templatesElement = newElement(element, "request-templates");
         for (Map.Entry<ConnectionId, MLRequest> entry : requestTemplates.entrySet()) {
             Element templateElement = newElement(templatesElement, "request-template");
             setConstantAttribute(templateElement, "connection-id", entry.getKey());
             entry.getValue().writeState(templateElement);
         }
-        return element;
     }
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
+    public void readState(@NotNull Element element) {
+        super.readState(element);
         Element templatesElement = element.getChild("request-templates");
         if (templatesElement == null) return;
         for (Element templateElement : childrenOf(templatesElement, "request-template")) {

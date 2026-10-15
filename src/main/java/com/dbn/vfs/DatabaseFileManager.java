@@ -60,7 +60,6 @@ import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -229,39 +228,6 @@ public class DatabaseFileManager extends ProjectComponentBase implements Persist
         }
     }
 
-    /*********************************************
-     *            PersistentStateComponent       *
-     *********************************************/
-    @Nullable
-    @Override
-    public Element getComponentState() {
-        Element element = newElement("state");
-        Element filesElement = newElement(element, "open-files");
-        for (DBObjectVirtualFile<?> openFile : openFiles) {
-            DBObjectRef<?> objectRef = openFile.getObjectRef();
-            Element fileElement = newElement(filesElement, "object");
-            objectRef.writeState(fileElement);
-        }
-
-        return element;
-    }
-
-    @Override
-    public void loadComponentState(@NotNull @NonNls Element element) {
-        Element openFilesElement = element.getChild("open-files");
-        if (openFilesElement == null || pendingOpenFiles == null) return;
-
-        List<Element> fileElements = openFilesElement.getChildren();
-        for (Element fileElement : fileElements) {
-            DBObjectRef<DBObject> objectRef = DBObjectRef.from(fileElement);
-            if (objectRef == null) continue;
-
-            ConnectionId connectionId = objectRef.getConnectionId();
-            var objectRefs = pendingOpenFiles.computeIfAbsent(connectionId, id -> new ArrayList<>());
-            objectRefs.add(objectRef);
-        }
-    }
-
     public void reopenDatabaseEditors() {
         if (pendingOpenFiles == null) return;
         if (pendingOpenFiles.isEmpty()) return;
@@ -332,6 +298,37 @@ public class DatabaseFileManager extends ProjectComponentBase implements Persist
             } else {
                 editorManager.openEditor(object, null, false, false);
             }
+        }
+    }
+
+    /*********************************************
+     *            PersistentStateComponent       *
+     *********************************************/
+    @Override
+    public void writeState(Element element) {
+        super.writeState(element);
+        Element filesElement = newElement(element, "open-files");
+        for (DBObjectVirtualFile<?> openFile : openFiles) {
+            DBObjectRef<?> objectRef = openFile.getObjectRef();
+            Element fileElement = newElement(filesElement, "object");
+            objectRef.writeState(fileElement);
+        }
+    }
+
+    @Override
+    public void readState(@NotNull @NonNls Element element) {
+        super.readState(element);
+        Element openFilesElement = element.getChild("open-files");
+        if (openFilesElement == null || pendingOpenFiles == null) return;
+
+        List<Element> fileElements = openFilesElement.getChildren();
+        for (Element fileElement : fileElements) {
+            DBObjectRef<DBObject> objectRef = DBObjectRef.from(fileElement);
+            if (objectRef == null) continue;
+
+            ConnectionId connectionId = objectRef.getConnectionId();
+            var objectRefs = pendingOpenFiles.computeIfAbsent(connectionId, id -> new ArrayList<>());
+            objectRefs.add(objectRef);
         }
     }
 }

@@ -62,7 +62,7 @@ public class EventRegistrationInputForm extends DBNFormBase {
         Project project = ensureProject();
         EventRegistrationManager registrationManager = EventRegistrationManager.getInstance(project);
 
-        StateAttributes state = registrationManager.getState("REGISTRATION_INPUT");
+        StateAttributes state = registrationManager.getUserInterfaceState("REGISTRATION_INPUT");
         initPersistence(insertCheckBox, state, "insert-selected");
         initPersistence(updateCheckBox, state, "update-selected");
         initPersistence(deleteCheckBox, state, "delete-selected");

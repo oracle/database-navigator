@@ -106,12 +106,6 @@ class DriverLibraryDashboardTableModel extends StatefulDisposableBase implements
         return rowIndex < 0 || rowIndex >= rows.size() ? null : rows.get(rowIndex);
     }
 
-    boolean hasBusyRows() {
-        return rows.stream().anyMatch(row ->
-                row.status() == DriverLibraryDashboardStatus.DOWNLOADING ||
-                        row.status() == DriverLibraryDashboardStatus.RESOLVING);
-    }
-
     @Override
     public void addTableModelListener(TableModelListener listener) {
         listeners.add(listener);

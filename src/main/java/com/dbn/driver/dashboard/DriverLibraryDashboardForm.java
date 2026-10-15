@@ -29,7 +29,6 @@ import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.panel.DBNBanner;
 import com.dbn.common.ui.select.DBNComboBoxRenderer;
-import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.ui.util.Tooltips;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.provider.CloudConfigProviderFamily;
@@ -66,13 +65,14 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
-import static com.dbn.common.message.MessageType.*;
-import static com.dbn.common.ui.util.Mouse.*;
+import static com.dbn.common.message.MessageType.INFO;
+import static com.dbn.common.message.MessageType.WARNING;
+import static com.dbn.common.ui.util.Decorators.createToolbarDecorator;
+import static com.dbn.common.ui.util.Decorators.createToolbarDecoratorComponent;
+import static com.dbn.common.ui.util.Mouse.onMouseDoubleClick;
 import static com.dbn.common.util.Messages.OPTIONS_YES_NO;
 import static com.dbn.common.util.Messages.showConfirmationDialog;
 import static com.dbn.common.util.Messages.showErrorDialog;
-import static com.dbn.common.ui.util.Decorators.createToolbarDecorator;
-import static com.dbn.common.ui.util.Decorators.createToolbarDecoratorComponent;
 import static com.dbn.nls.NlsResources.txt;
 
 /** Driver package inventory and management UI. */
@@ -223,9 +223,8 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
         for (int index = 0; index < progresses.size(); index++) {
             ProgressInfo progress = progresses.get(index);
             DatabaseType databaseType = types.get(index);
-            boolean packageDetailsResolving = progress.running() && activeRefreshes.get(index).isResolvingPackageDetails();
             boolean refreshComplete = !progress.running() && displayedRefreshTypes.add(databaseType);
-            if (packageDetailsResolving || refreshComplete) {
+            if (progress.running() || refreshComplete) {
                 updateRowsForType(manager, selectedType, databaseType, providerFamilies, resolutionErrors);
             }
         }
@@ -381,7 +380,8 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
             boolean downloading = manager.isPackageDownloading(packageId);
             boolean resolving = !driverPackage.isDetailsAvailable() ||
                     driverPackage.isDetailsResolving() ||
-                    isPackageResolving(driverPackage);
+                    isPackageResolving(driverPackage) ||
+                    (!downloading && isDatabaseTypeRefreshing(driverPackage.getDatabaseType()));
             DriverLibraryDashboardStatus status = DriverLibraryDashboardStatus.resolve(
                     failure != null,
                     resolving,
@@ -401,6 +401,11 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
                         refresh.isPackageResolving(driverPackage.getId()));
     }
 
+    private boolean isDatabaseTypeRefreshing(@Nullable DatabaseType databaseType) {
+        return databaseType != null && activeRefreshes.stream().anyMatch(refresh ->
+                refresh.getDatabaseType() == databaseType && refresh.isRunning());
+    }
+
     private void downloadSelectedPackage() {
         DriverLibraryDashboardTableModel.Row row = getSelectedRow();
         if (row == null || !row.driverPackage().isDetailsAvailable()) return;
@@ -411,7 +416,6 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
                     if (exitCode != DialogWrapper.OK_EXIT_CODE) return;
 
                     DriverDownloadManager manager = DriverDownloadManager.getInstance();
-                    manager.setDriverPackageDownloadRoot(dialog.getDownloadRoot());
                     manager.setDownloadPath(driverPackage.getId(), dialog.getDownloadPath());
                     downloadFailures.remove(driverPackage.getId());
 

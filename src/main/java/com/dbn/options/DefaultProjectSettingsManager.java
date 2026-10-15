@@ -25,10 +25,8 @@ import com.intellij.openapi.components.Storage;
 import lombok.Getter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.component.Components.applicationService;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 
 @Getter
 @State(
@@ -51,17 +49,16 @@ public class DefaultProjectSettingsManager extends ApplicationComponentBase impl
     /****************************************
      *       PersistentStateComponent       *
      *****************************************/
-    @Nullable
     @Override
-    public Element getComponentState() {
-        Element element = newStateElement();
+    public void writeState(Element element) {
+        super.writeState(element);
         projectSettings.writeConfiguration(element);
-        return element;
     }
 
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
+    public void readState(@NotNull Element element) {
+        super.readState(element);
         projectSettings.readConfiguration(element);
     }
 }

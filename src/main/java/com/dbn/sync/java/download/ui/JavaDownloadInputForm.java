@@ -123,7 +123,7 @@ public class JavaDownloadInputForm extends DBNFormBase {
         Project project = ensureProject();
         JavaDownloadManager javaDownloadManager = JavaDownloadManager.getInstance(project);
 
-        StateAttributes state = javaDownloadManager.getState("DOWNLOAD_INPUT");
+        StateAttributes state = javaDownloadManager.getUserInterfaceState("DOWNLOAD_INPUT");
 
         initPersistence(moduleComboBox, state, "module-selection");
         initPersistence(contentRootComboBox, state, "content-root-selection");

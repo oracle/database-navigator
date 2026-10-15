@@ -384,8 +384,8 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
      *********************************************/
 
     @Override
-    public Element getComponentState() {
-        Element element = newElement("state");
+    public void writeState(Element element) {
+        super.writeState(element);
         Element statesElement = newElement(element, "assistants");
         for (ConnectionId connectionId : assistantStates.keySet()) {
             Map<AssistantType, AssistantState> assistantStates = this.assistantStates.get(connectionId);
@@ -401,11 +401,12 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
         Element selectionElement = newElement(element, "selection-state");
         selectionState.writeState(selectionElement);
 
-        return element;
+
     }
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
+    public void readState(@NotNull Element element) {
+        super.readState(element);
         Element statesElement = element.getChild("assistants");
         List<Element> stateElements = childrenOf(statesElement, "assistant-state", MAX_ASSISTANT_STATE_COUNT);
         for (Element stateElement : stateElements) {
@@ -424,5 +425,6 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
 
         Element selectionElement = element.getChild("selection-state");
         selectionState.readState(selectionElement);
+
     }
 }

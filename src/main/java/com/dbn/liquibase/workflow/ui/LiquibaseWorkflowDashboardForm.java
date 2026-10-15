@@ -100,7 +100,7 @@ public class LiquibaseWorkflowDashboardForm extends DBNFormBase {
         DBSchema initialSchema = dialog.getInitialSchema();
         ConnectionManager connectionManager = ConnectionManager.getInstance(ensureProject());
         DatabaseLiquibaseManager liquibaseManager = DatabaseLiquibaseManager.getInstance(ensureProject());
-        StateAttributes state = liquibaseManager.getState(STATE_CATEGORY);
+        StateAttributes state = liquibaseManager.getUserInterfaceState(STATE_CATEGORY);
 
         if (initialSchema != null) {
             state.setAttribute(ATTR_CONNECTION, initialSchema.getConnection().getName());

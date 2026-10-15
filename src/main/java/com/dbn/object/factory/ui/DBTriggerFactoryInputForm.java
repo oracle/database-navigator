@@ -34,7 +34,6 @@ import com.dbn.language.psql.PSQLLanguage;
 import com.dbn.object.DBDataset;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.ui.DBObjectSelector;
-import com.dbn.object.factory.ObjectFactoryManager;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.object.type.DBTriggerEvent;
@@ -435,7 +434,7 @@ public class DBTriggerFactoryInputForm extends DBSchemaObjectFactoryInputForm {
 
     @Override
     protected void initStatePersistence() {
-        StateAttributes state = ObjectFactoryManager.getInstance(ensureProject()).getState(getObjectType());
+        StateAttributes state = getUserInterfaceState();
         initPersistence(preserveCaseCheckBox, state, "preserve-identifier-case");
         if (supports(TRIGGER_TYPE)) {
             initPersistence(triggerTypeComboBox, state, "trigger-type");

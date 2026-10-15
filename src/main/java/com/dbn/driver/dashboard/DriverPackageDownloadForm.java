@@ -33,6 +33,7 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 
+import static com.dbn.common.ui.form.DBNFormState.initPersistence;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.FileChoosers.addSingleFolderChooser;
 import static com.dbn.nls.NlsResources.txt;
@@ -46,7 +47,6 @@ class DriverPackageDownloadForm extends DBNFormBase {
 
     DriverPackageDownloadForm(DriverPackageDownloadDialog parent, DriverPackage driverPackage) {
         super(parent);
-        downloadRootField.setText(DriverDownloadManager.getInstance().getDriverPackageDownloadRoot());
         packageFolderField.setText(driverPackage.getId());
 
         String packageName = driverPackage.getName() == null ? driverPackage.getId() : driverPackage.getName();
@@ -68,6 +68,16 @@ class DriverPackageDownloadForm extends DBNFormBase {
     @Override
     protected JComponent getMainComponent() {
         return mainPanel;
+    }
+
+    @Override
+    protected void initStatePersistence() {
+        DriverDownloadManager manager = DriverDownloadManager.getInstance();
+        initPersistence(
+                downloadRootField,
+                manager.getUserInterfaceState("DOWNLOAD_FORM"),
+                "download-root",
+                DriverDownloadManager.getDriverPackagesLocation());
     }
 
     @Override

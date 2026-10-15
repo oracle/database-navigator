@@ -59,8 +59,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.dbn.common.component.Components.applicationService;
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.setStringAttribute;
-import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Files.getPluginDeploymentRoot;
 import static com.dbn.common.util.Messages.showErrorDialog;
@@ -89,9 +87,7 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
 
     private final Map<String, DriverPackageDownloadState> downloadStates = new ConcurrentHashMap<>();
     private final Map<DatabaseType, DriverPackageMetadataRefresh> metadataRefreshes = new ConcurrentHashMap<>();
-
     private final DriverPackageMetadata driverPackageMetadata = new DriverPackageMetadata();
-    private volatile String driverPackageDownloadRoot;
 
     public static DriverDownloadManager getInstance() {
         return applicationService(DriverDownloadManager.class);
@@ -109,16 +105,6 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
     @NonNls
     public static String getDriverPackageLocation(String packageId) {
         return getDriverPackagesLocation() + File.separator + packageId;
-    }
-
-    @NotNull
-    public String getDriverPackageDownloadRoot() {
-        String downloadRoot = driverPackageDownloadRoot;
-        return downloadRoot == null ? getDriverPackagesLocation() : downloadRoot;
-    }
-
-    public void setDriverPackageDownloadRoot(@NotNull String downloadRoot) {
-        driverPackageDownloadRoot = downloadRoot;
     }
 
     @NonNls
@@ -481,9 +467,9 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
     }
 
     @Override
-    public Element getComponentState() {
-        Element element = new Element("state");
-        setStringAttribute(element, "package-download-root", driverPackageDownloadRoot);
+    public void writeState(Element element) {
+        super.writeState(element);
+
         Element downloadsElement = newElement(element, "package-downloads");
         Element metadataElement = newElement(element, "package-metadata");
         for (DriverPackageDownloadState downloadState : downloadStates.values()) {
@@ -494,12 +480,12 @@ public class DriverDownloadManager extends ApplicationComponentBase implements P
         }
 
         driverPackageMetadata.writeState(metadataElement);
-        return element;
     }
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
-        driverPackageDownloadRoot = stringAttribute(element, "package-download-root");
+    public void readState(@NotNull Element element) {
+        super.readState(element);
+
         Element downloadsElement = element.getChild("package-downloads");
         for (Element packageElement : childrenOf(downloadsElement, "package")) {
             DriverPackageDownloadState downloadState = new DriverPackageDownloadState();

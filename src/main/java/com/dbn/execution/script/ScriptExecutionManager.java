@@ -79,7 +79,6 @@ import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Conditional.when;
@@ -418,10 +417,9 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
     /****************************************
      *       PersistentStateComponent       *
      *****************************************/
-    @Nullable
     @Override
-    public Element getComponentState() {
-        Element element = newStateElement();
+    public void writeState(Element element) {
+        super.writeState(element);
         setBooleanAttribute(element, "clear-outputs", clearOutputOption);
         Element interfacesElement = newElement(element, "recently-used-interfaces");
         for (var entry : recentlyUsedInterfaces.entrySet()) {
@@ -431,11 +429,11 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
             interfaceElement.setAttribute("database-type", databaseType.name());
             interfaceElement.setAttribute("interface-id", interfaceId);
         }
-        return element;
     }
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
+    public void readState(@NotNull Element element) {
+        super.readState(element);
         recentlyUsedInterfaces.clear();
         clearOutputOption = booleanAttribute(element, "clear-outputs", clearOutputOption);
         Element interfacesElement = element.getChild("recently-used-interfaces");

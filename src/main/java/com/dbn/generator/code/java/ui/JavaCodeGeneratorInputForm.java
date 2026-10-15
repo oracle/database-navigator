@@ -93,7 +93,7 @@ public class JavaCodeGeneratorInputForm<I extends JavaCodeGeneratorInput> extend
         CodeGeneratorCategory generatorCategory = getGeneratorCategory();
         CodeGeneratorManager codeGeneratorManager = CodeGeneratorManager.getInstance(project);
 
-        StateAttributes state = codeGeneratorManager.getState(generatorCategory);
+        StateAttributes state = codeGeneratorManager.getUserInterfaceState(generatorCategory);
 
         initPersistence(moduleComboBox, state, "module-selection");
         initPersistence(contentRootComboBox, state, "content-root-selection");
