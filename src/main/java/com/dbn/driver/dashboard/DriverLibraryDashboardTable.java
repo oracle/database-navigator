@@ -16,6 +16,7 @@
 
 package com.dbn.driver.dashboard;
 
+import com.dbn.common.color.Colors;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.table.DBNColoredTableCellRenderer;
 import com.dbn.common.ui.table.DBNTable;
@@ -32,9 +33,11 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 import java.awt.BorderLayout;
+import java.awt.Font;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.nls.NlsResources.txt;
+import static com.intellij.ui.SimpleTextAttributes.GRAY_ITALIC_ATTRIBUTES;
 
 class DriverLibraryDashboardTable extends DBNTable<DriverLibraryDashboardTableModel> {
     DriverLibraryDashboardTable(@NotNull DBNComponent parent, DriverLibraryDashboardTableModel model) {
@@ -59,7 +62,10 @@ class DriverLibraryDashboardTable extends DBNTable<DriverLibraryDashboardTableMo
         protected void customizeCellRenderer(DBNTable table, Object value, boolean selected, boolean hasFocus, int rowIndex, int columnIndex) {
             DriverLibraryDashboardTableModel.Row row = (DriverLibraryDashboardTableModel.Row) value;
             String presentableValue = getModel().getPresentableValue(row, columnIndex);
-            append(presentableValue == null ? "" : presentableValue, SimpleTextAttributes.REGULAR_ATTRIBUTES);
+            SimpleTextAttributes attributes = row.status() == DriverLibraryDashboardStatus.RESOLVING ?
+                    GRAY_ITALIC_ATTRIBUTES :
+                    SimpleTextAttributes.REGULAR_ATTRIBUTES;
+            append(presentableValue == null ? "" : presentableValue, attributes);
         }
     }
 
@@ -67,8 +73,12 @@ class DriverLibraryDashboardTable extends DBNTable<DriverLibraryDashboardTableMo
         private final JPanel panel = new JPanel(new BorderLayout(5, 0));
         private final AsyncProcessIcon processIcon = new AsyncProcessIcon("Downloading driver library");
         private final JLabel label = new JLabel();
+        private boolean animationActive;
 
         private StatusCellRenderer() {
+            processIcon.setOpaque(false);
+            processIcon.setPaintPassiveIcon(false);
+            processIcon.suspend();
             panel.setBorder(BorderFactory.createEmptyBorder(0, 4, 0, 4));
             panel.add(processIcon, BorderLayout.WEST);
             panel.add(label, BorderLayout.CENTER);
@@ -81,12 +91,28 @@ class DriverLibraryDashboardTable extends DBNTable<DriverLibraryDashboardTableMo
             DriverLibraryDashboardTableModel.Row row = (DriverLibraryDashboardTableModel.Row) value;
             if (row == null) return panel;
 
-            processIcon.setVisible(row.status() == DriverLibraryDashboardStatus.DOWNLOADING);
+            boolean active = row.status() == DriverLibraryDashboardStatus.DOWNLOADING ||
+                    row.status() == DriverLibraryDashboardStatus.RESOLVING;
+            boolean resolving = row.status() == DriverLibraryDashboardStatus.RESOLVING;
+            processIcon.setVisible(active);
+            setAnimationActive(model.hasBusyRows());
             label.setText(model.getPresentableValue(row, columnIndex));
             Tooltips.setToolTipText(label, row.errorMessage());
             panel.setBackground(selected ? dashboardTable.getSelectionBackground() : dashboardTable.getBackground());
-            label.setForeground(selected ? dashboardTable.getSelectionForeground() : dashboardTable.getForeground());
+            label.setFont(resolving ? dashboardTable.getFont().deriveFont(Font.ITALIC) : dashboardTable.getFont());
+            label.setForeground(resolving ? Colors.getContextHelpForeground() :
+                    selected ? dashboardTable.getSelectionForeground() : dashboardTable.getForeground());
             return panel;
+        }
+
+        private void setAnimationActive(boolean active) {
+            if (animationActive == active) return;
+            animationActive = active;
+            if (active) {
+                processIcon.resume();
+            } else {
+                processIcon.suspend();
+            }
         }
     }
 }

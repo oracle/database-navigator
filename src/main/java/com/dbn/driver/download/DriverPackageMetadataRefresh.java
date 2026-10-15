@@ -25,24 +25,36 @@ import com.dbn.driver.download.metadata.DriverPackageMetadata.RefreshMode;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
+@Getter
 public final class DriverPackageMetadataRefresh {
+    private static final DateTimeFormatter STDOUT_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+    private static final AtomicInteger ACTIVE_PACKAGE_DETAIL_RESOLUTIONS = new AtomicInteger();
+
     private final DatabaseType databaseType;
     private final List<CloudConfigProviderFamily> providerFamilies;
     private final boolean forceReload;
     private final List<java.util.function.Consumer<ProgressInfo>> listeners = new CopyOnWriteArrayList<>();
+    private final Set<String> resolvingPackageIds = ConcurrentHashMap.newKeySet();
     private volatile ProgressInfo progress;
+    private volatile boolean resolvingPackageDetails;
 
     DriverPackageMetadataRefresh(
             DatabaseType databaseType,
@@ -85,7 +97,7 @@ public final class DriverPackageMetadataRefresh {
     private void run(ProgressIndicator indicator) {
         DriverDownloadManager driverDownloadManager = DriverDownloadManager.getInstance();
         List<String> metadataErrors = new ArrayList<>();
-        Map<String, String> resolutionErrors = new HashMap<>();
+        Map<String, String> resolutionErrors = new ConcurrentHashMap<>();
         boolean canceled = false;
         try {
             indicator.setIndeterminate(true);
@@ -108,30 +120,58 @@ public final class DriverPackageMetadataRefresh {
             Map<String, DriverPackage> packages = new LinkedHashMap<>();
             for (CloudConfigProviderFamily providerFamily : providerFamilies) {
                 for (DriverPackage driverPackage : driverDownloadManager.getCachedDriverPackages(databaseType, providerFamily)) {
+                    if (driverPackage.getDatabaseType() != databaseType) continue;
                     packages.put(driverPackage.getId(), driverPackage);
                 }
             }
 
-            for (DriverPackage driverPackage : packages.values()) {
-                indicator.checkCanceled();
-                if (driverPackage.isDetailsAvailable()) continue;
+            String resolvingDetails = txt("app.driver.text.ResolvingDriverPackageDetails");
+            resolvingPackageDetails = true;
+            publish(indicator, resolvingDetails, databaseType.getName(), metadataErrors, resolutionErrors, true, false);
+            AtomicBoolean resolutionCanceled = new AtomicBoolean();
+            DownloadSession downloadSession = new DownloadSession(indicator).withDownloadSize(Math.max(packages.size(), 1));
+            List<DriverPackage> unresolvedPackages = packages.values().stream()
+                    .filter(driverPackage -> !driverPackage.isDetailsAvailable())
+                    .toList();
+            DriverPackageTaskExecutor.map(unresolvedPackages, driverPackage -> {
                 String detail = driverPackage.getName() == null ? driverPackage.getId() : driverPackage.getName();
-                publish(
-                        indicator,
-                        txt("app.driver.text.ResolvingDriverPackageDetails"),
-                        detail,
-                        metadataErrors,
-                        resolutionErrors,
-                        true,
-                        false);
+                resolvingPackageIds.add(driverPackage.getId());
+                publish(indicator, resolvingDetails, detail, metadataErrors, resolutionErrors, true, false);
+                long startedAt = System.nanoTime();
+                int activeResolutions = ACTIVE_PACKAGE_DETAIL_RESOLUTIONS.incrementAndGet();
+                String threadName = Thread.currentThread().getName();
+                logInfoAndPrint("[DBN] Driver package detail resolution started: databaseType=" + databaseType +
+                        ", package=" + detail + ", active=" + activeResolutions + ", thread=" + threadName);
+                String outcome = "completed";
                 try {
-                    driverDownloadManager.resolveDriverPackageDetails(driverPackage, new DownloadSession(indicator).withDownloadSize(1));
+                    indicator.checkCanceled();
+                    driverDownloadManager.resolveDriverPackageDetails(driverPackage, downloadSession);
                 } catch (ProcessCanceledException e) {
-                    throw e;
+                    resolutionCanceled.set(true);
+                    outcome = "canceled";
                 } catch (Exception e) {
                     resolutionErrors.put(driverPackage.getId(), errorText(e));
+                    outcome = "failed";
+                } finally {
+                    resolvingPackageIds.remove(driverPackage.getId());
+                    long elapsedMillis = (System.nanoTime() - startedAt) / 1_000_000;
+                    int activeAfterResolution = ACTIVE_PACKAGE_DETAIL_RESOLUTIONS.decrementAndGet();
+                    logInfoAndPrint("[DBN] Driver package detail resolution " + outcome +
+                            ": databaseType=" + databaseType +
+                            ", package=" + detail +
+                            ", detailsAvailable=" + driverPackage.isDetailsAvailable() +
+                            ", elapsed=" + elapsedMillis + "ms" +
+                            ", active=" + activeAfterResolution +
+                            ", thread=" + threadName);
                 }
-            }
+                return detail;
+            }, detail -> {
+                if (!indicator.isCanceled()) {
+                    publish(indicator, resolvingDetails, detail, metadataErrors, resolutionErrors, true, false);
+                }
+            });
+            if (resolutionCanceled.get()) throw new ProcessCanceledException();
+            indicator.checkCanceled();
         } catch (ProcessCanceledException e) {
             canceled = true;
         } catch (Exception e) {
@@ -181,8 +221,8 @@ public final class DriverPackageMetadataRefresh {
         return progress.running();
     }
 
-    public ProgressInfo getProgress() {
-        return progress;
+    public boolean isPackageResolving(String packageId) {
+        return resolvingPackageIds.contains(packageId);
     }
 
     public void addListener(java.util.function.Consumer<ProgressInfo> listener) {
@@ -196,6 +236,12 @@ public final class DriverPackageMetadataRefresh {
 
     private static String errorText(Exception exception) {
         return exception.getLocalizedMessage() == null ? exception.toString() : exception.getLocalizedMessage();
+    }
+
+    // TEMP: mirror package-resolution diagnostics to stdout while comparing the IDE log and run consoles.
+    private static void logInfoAndPrint(String message) {
+        log.info(message);
+        System.out.println(LocalDateTime.now().format(STDOUT_TIMESTAMP_FORMAT) + " " + message);
     }
 
 }

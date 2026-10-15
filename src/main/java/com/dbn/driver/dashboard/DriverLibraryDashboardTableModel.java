@@ -27,7 +27,6 @@ import javax.swing.event.TableModelListener;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.dbn.common.util.Strings.truncateWithMiddleEllipsis;
 import static com.dbn.nls.NlsResources.txt;
 
 class DriverLibraryDashboardTableModel extends StatefulDisposableBase implements DBNReadonlyTableModel<DriverLibraryDashboardTableModel.Row> {
@@ -83,7 +82,7 @@ class DriverLibraryDashboardTableModel extends StatefulDisposableBase implements
             case 0 -> row.driverPackage().getDatabaseType() == null ? "" : row.driverPackage().getDatabaseType().getName();
             case 1 -> row.driverPackage().getName() == null ? row.driverPackage().getId() : row.driverPackage().getName();
             case 2 -> txt("app.driver.const.DriverStatus_" + row.status().name());
-            case 3 -> truncateWithMiddleEllipsis(row.location(), LOCATION_DISPLAY_MAX_LENGTH);
+            case 3 -> row.downloaded() ? truncatePathFromStart(row.location()) : "";
             default -> "";
         };
     }
@@ -92,7 +91,7 @@ class DriverLibraryDashboardTableModel extends StatefulDisposableBase implements
     public String getTooltip(Row row, int column) {
         if (row == null) return null;
         if (column == 2 && row.errorMessage() != null) return row.errorMessage();
-        if (column == 3) return row.location();
+        if (column == 3 && row.downloaded()) return row.location();
         return null;
     }
 
@@ -105,6 +104,12 @@ class DriverLibraryDashboardTableModel extends StatefulDisposableBase implements
     @Nullable
     Row getRow(int rowIndex) {
         return rowIndex < 0 || rowIndex >= rows.size() ? null : rows.get(rowIndex);
+    }
+
+    boolean hasBusyRows() {
+        return rows.stream().anyMatch(row ->
+                row.status() == DriverLibraryDashboardStatus.DOWNLOADING ||
+                        row.status() == DriverLibraryDashboardStatus.RESOLVING);
     }
 
     @Override
@@ -121,6 +126,12 @@ class DriverLibraryDashboardTableModel extends StatefulDisposableBase implements
         listeners.notify(listener -> listener.tableChanged(event));
     }
 
+    private static String truncatePathFromStart(String path) {
+        if (path == null || path.length() <= LOCATION_DISPLAY_MAX_LENGTH) return path;
+        int suffixLength = LOCATION_DISPLAY_MAX_LENGTH - 3;
+        return "..." + path.substring(path.length() - suffixLength);
+    }
+
     @Override
     public void disposeInner() {
         rows.clear();
@@ -130,6 +141,7 @@ class DriverLibraryDashboardTableModel extends StatefulDisposableBase implements
     record Row(
             DriverPackage driverPackage,
             DriverLibraryDashboardStatus status,
+            boolean downloaded,
             String location,
             @Nullable String errorMessage) {}
 }
