@@ -44,8 +44,9 @@ import com.dbn.driver.download.metadata.DriverPackage;
 import com.dbn.driver.download.ui.DriverPackageInfoDialog;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Separator;
-import com.intellij.openapi.util.NlsContexts.Tooltip;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.util.NlsContexts;
+import com.intellij.openapi.util.NlsContexts.Tooltip;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.NotNull;
@@ -81,7 +82,9 @@ import static com.dbn.common.ui.util.Mouse.onMouseDoubleClick;
 import static com.dbn.common.util.Messages.OPTIONS_YES_NO;
 import static com.dbn.common.util.Messages.showConfirmationDialog;
 import static com.dbn.common.util.Messages.showErrorDialog;
-import static com.dbn.driver.dashboard.DriverLibraryDashboardStatus.*;
+import static com.dbn.driver.dashboard.DriverLibraryDashboardStatus.RESOLVING;
+import static com.dbn.driver.dashboard.DriverLibraryDashboardStatus.resolve;
+import static com.dbn.driver.dashboard.DriverLibraryDashboardStatus.typesToRefresh;
 import static com.dbn.nls.NlsResources.txt;
 
 /** Driver package inventory and management UI. */
@@ -109,7 +112,7 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
     private final DriverLibraryDashboardOptions options;
     private final DBNTableRowAction<DashboardDriverPackage> tableDownloadAction = createDownloadAction();
     private final DBNTableRowAction<DashboardDriverPackage> tableDeleteAction = createDeleteAction();
-    private final DriverLibraryDashboardTableModel tableModel = new DriverLibraryDashboardTableModel(this::getActionTooltip);
+    private final DriverLibraryDashboardTableModel tableModel = new DriverLibraryDashboardTableModel(p -> getActionTooltip(p));
 
     public DriverLibraryDashboardForm(DBNDialog<?> parent, DriverLibraryDashboardOptions options) {
         super(parent);
