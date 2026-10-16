@@ -148,7 +148,7 @@ public class UserInterface {
     }
 
     public static void whenAttachedToWindow(Component component, Runnable runnable) {
-        if (getWindow(component) != null) {
+        if (isAttachedToWindow(component)) {
             runnable.run();
             return;
         }
@@ -163,6 +163,10 @@ public class UserInterface {
                 runnable.run();
             }
         });
+    }
+
+    public static boolean isAttachedToWindow(Component component) {
+        return getWindow(component) != null;
     }
 
 

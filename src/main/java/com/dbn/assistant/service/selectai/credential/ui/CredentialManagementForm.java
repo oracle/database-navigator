@@ -118,7 +118,7 @@ public class CredentialManagementForm extends DBNFormBase {
     initCredentialList();
     initChangeListener();
 
-    whenFirstShown(() -> loadCredentials());
+    whenInitialized(() -> loadCredentials());
   }
   private void initChangeListener() {
     ProjectEvents.subscribe(ensureProject(), this, ObjectChangeListener.TOPIC, e -> {

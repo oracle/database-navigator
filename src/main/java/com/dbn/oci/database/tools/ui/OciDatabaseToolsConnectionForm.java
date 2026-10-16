@@ -23,12 +23,12 @@ import com.dbn.common.ui.tree.DBNColoredTreeCellRenderer;
 import com.dbn.common.ui.tree.DBNTree;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.ui.util.Splitters;
+import com.dbn.common.ui.util.Tooltips;
 import com.dbn.common.util.Messages;
 import com.dbn.oci.config.OciAuthenticationConfig;
 import com.dbn.oci.database.tools.OciCompartmentInfo;
 import com.dbn.oci.database.tools.OciDatabaseToolsConnectionInfo;
 import com.dbn.oci.database.tools.OciDatabaseToolsConnectionLoader;
-import com.dbn.common.ui.util.Tooltips;
 import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
 
@@ -78,7 +78,7 @@ class OciDatabaseToolsConnectionForm extends DBNFormBase {
         Splitters.setSplitPaneProportion(contentSplitPane, 0.4);
         setAccessibleName(compartmentsTree, txt("cfg.oci.aria.Compartments"));
         setAccessibleName(connectionsList, txt("cfg.oci.aria.DatabaseToolsConnections"));
-        whenFirstShown(this::loadCompartments);
+        whenFirstShown(() -> loadCompartments());
     }
 
     private void loadCompartments() {

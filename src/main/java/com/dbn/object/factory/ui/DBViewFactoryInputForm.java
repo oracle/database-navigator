@@ -71,7 +71,7 @@ public class DBViewFactoryInputForm extends DBSchemaObjectFactoryInputForm {
         initPreserveCaseFields();
         resetFormChanges();
 
-        whenFirstShown(this::initEditor);
+        whenInitialized(() -> initEditor());
     }
 
     private void initNameLabel() {

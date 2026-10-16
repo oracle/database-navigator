@@ -123,7 +123,7 @@ public class DBTriggerFactoryInputForm extends DBSchemaObjectFactoryInputForm {
             updateTriggerFunctionName();
             validateFormFields();
         });
-        whenFirstShown(this::initEditor);
+        whenInitialized(() -> initEditor());
     }
 
     @Override

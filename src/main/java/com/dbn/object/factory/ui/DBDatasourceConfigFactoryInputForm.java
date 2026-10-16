@@ -79,7 +79,7 @@ public class DBDatasourceConfigFactoryInputForm extends DBSchemaObjectFactoryInp
         initPreserveCaseFields();
         resetFormChanges();
 
-        whenFirstShown(() -> initEditor());
+        whenInitialized(() -> initEditor());
     }
 
     private void initFeatureInfo() {

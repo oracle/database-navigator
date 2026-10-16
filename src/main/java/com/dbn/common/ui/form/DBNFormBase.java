@@ -165,14 +165,24 @@ public abstract class DBNFormBase
     }
 
     /**
-     * Allows invoking a task when the form is first shown.
-     * Useful for delaying the execution of a given task when the modality state of the form is clarified.
-     * Can also be helpful when component size decisions have to be taken based on surrounding container size.
+     * Runs a task when the form is first shown to the user.
+     * Use this when starting the task should depend on the user opening the form,
+     * for example to avoid doing work for a form that is never shown.
      *
-     * @param runnable the task to execute when the form is shown
+     * @param runnable the task to execute when the form is first shown
      */
     protected final void whenFirstShown(Runnable runnable) {
         UserInterface.whenFirstShown(getMainComponent(), runnable);
+    }
+
+    /**
+     * Runs a task once the form is attached to a window, when the window and its modality state are known.
+     * Use this when the task needs that context but should not wait for the form to be shown to the user.
+     *
+     * @param runnable the task to execute when the form is attached to a window
+     */
+    protected final void whenInitialized(Runnable runnable) {
+        UserInterface.whenAttachedToWindow(getMainComponent(), runnable);
     }
 
     protected final void whenSettingsChange(Runnable runnable) {

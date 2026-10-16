@@ -101,7 +101,7 @@ public class ProfileManagementForm extends DBNFormBase {
         initDetailsPanel();
         initChangeListener();
 
-        whenFirstShown(() -> loadProfiles());
+        whenInitialized(() -> loadProfiles());
     }
 
     private void initChangeListener() {

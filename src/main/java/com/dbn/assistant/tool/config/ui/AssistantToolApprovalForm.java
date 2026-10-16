@@ -59,7 +59,7 @@ public class AssistantToolApprovalForm extends DBNFormBase {
         initHintPanel();
         initToolsPanel();
 
-        whenFirstShown(() -> toolsScrollPane.getVerticalScrollBar().setValue(0));
+        whenInitialized(() -> toolsScrollPane.getVerticalScrollBar().setValue(0));
     }
 
     private void initHeaderPanel() {

@@ -112,7 +112,7 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
         initDriverStatusFields();
         initDriverDownloadFields();
 
-        whenFirstShown(() -> loadDrivers());
+        whenInitialized(() -> loadDrivers());
     }
 
     private void initDriverSourceFields() {
