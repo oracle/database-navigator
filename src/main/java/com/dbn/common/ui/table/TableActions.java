@@ -16,7 +16,6 @@
 
 package com.dbn.common.ui.table;
 
-import com.dbn.common.color.Colors;
 import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Mouse;
 import org.jetbrains.annotations.NotNull;
@@ -25,6 +24,7 @@ import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import java.awt.Color;
 import java.awt.Point;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static com.dbn.common.color.Colors.getTableSelectionBackground;
@@ -38,27 +38,35 @@ public final class TableActions {
             int modelColumnIndex,
             @NotNull Class<R> rowType,
             @NotNull DBNTableRowAction<R> action) {
+        return installTableAction(table, modelColumnIndex, rowType, row -> action);
+    }
+
+    public static <R> Predicate<Point> installTableAction(
+            @NotNull DBNTable<?> table,
+            int modelColumnIndex,
+            @NotNull Class<R> rowType,
+            @NotNull Function<? super R, ? extends DBNTableRowAction<R>> actionResolver) {
         JLabel renderer = new JLabel();
         renderer.setHorizontalAlignment(SwingConstants.CENTER);
         renderer.setOpaque(true);
-        setAccessibleName(renderer, action.getName());
 
-        installActionRenderer(table, modelColumnIndex, rowType, action, renderer);
+        installActionRenderer(table, modelColumnIndex, rowType, actionResolver, renderer);
         table.addPropertyChangeListener("model", event ->
-                installActionRenderer(table, modelColumnIndex, rowType, action, renderer));
+                installActionRenderer(table, modelColumnIndex, rowType, actionResolver, renderer));
         table.addMouseListener(Mouse.listener().onClick(event -> {
             if (!Mouse.isMainSingleClick(event)) return;
             int viewRowIndex = table.rowAtPoint(event.getPoint());
             if (viewRowIndex < 0 || !isActionColumnAt(table, modelColumnIndex, event.getPoint())) return;
 
             R row = getActionRow(table, modelColumnIndex, viewRowIndex, rowType);
-            if (!action.isAvailable(row)) return;
+            DBNTableRowAction<R> action = getActionForRow(actionResolver, row);
+            if (action == null || !action.isAvailable(row)) return;
 
             table.setRowSelectionInterval(viewRowIndex, viewRowIndex);
             action.perform(row);
         }));
         table.addMouseMotionListener(Mouse.listener().onMove(event -> {
-            boolean available = isActionAvailableAt(table, modelColumnIndex, rowType, action, event.getPoint());
+            boolean available = isActionAvailableAt(table, modelColumnIndex, rowType, actionResolver, event.getPoint());
             table.setCursor(available ? Cursors.handCursor() : Cursors.defaultCursor());
         }));
         table.addMouseListener(Mouse.listener().onExit(event -> table.setCursor(Cursors.defaultCursor())));
@@ -70,7 +78,7 @@ public final class TableActions {
             DBNTable<?> table,
             int modelColumnIndex,
             Class<R> rowType,
-            DBNTableRowAction<R> action,
+            Function<? super R, ? extends DBNTableRowAction<R>> actionResolver,
             JLabel renderer) {
         if (modelColumnIndex < 0 || modelColumnIndex >= table.getModel().getColumnCount()) return;
         int viewColumnIndex = table.convertColumnIndexToView(modelColumnIndex);
@@ -78,9 +86,11 @@ public final class TableActions {
 
         table.getColumnModel().getColumn(viewColumnIndex).setCellRenderer((source, value, selected, focused, rowIndex, columnIndex) -> {
             R row = rowType.isInstance(value) ? rowType.cast(value) : null;
-            boolean available = action.isAvailable(row);
+            DBNTableRowAction<R> action = getActionForRow(actionResolver, row);
+            boolean available = action != null && action.isAvailable(row);
             renderer.setIcon(available ? action.getIcon() : null);
             renderer.setEnabled(available);
+            if (action != null) setAccessibleName(renderer, action.getName());
             Color background = selected ?
                     getTableSelectionBackground(source.hasFocus()) :
                     source.getBackground();
@@ -93,13 +103,20 @@ public final class TableActions {
             DBNTable<?> table,
             int modelColumnIndex,
             Class<R> rowType,
-            DBNTableRowAction<R> action,
+            Function<? super R, ? extends DBNTableRowAction<R>> actionResolver,
             Point point) {
         if (!isActionColumnAt(table, modelColumnIndex, point)) return false;
         int viewRowIndex = table.rowAtPoint(point);
         if (viewRowIndex < 0) return false;
         R row = getActionRow(table, modelColumnIndex, viewRowIndex, rowType);
-        return action.isAvailable(row);
+        DBNTableRowAction<R> action = getActionForRow(actionResolver, row);
+        return action != null && action.isAvailable(row);
+    }
+
+    private static <R> DBNTableRowAction<R> getActionForRow(
+            Function<? super R, ? extends DBNTableRowAction<R>> actionResolver,
+            R row) {
+        return row == null ? null : actionResolver.apply(row);
     }
 
     private static <R> R getActionRow(DBNTable<?> table, int modelColumnIndex, int viewRowIndex, Class<R> rowType) {

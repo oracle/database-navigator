@@ -44,6 +44,7 @@ import com.dbn.driver.download.metadata.DriverPackage;
 import com.dbn.driver.download.ui.DriverPackageInfoDialog;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Separator;
+import com.intellij.openapi.util.NlsContexts.Tooltip;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.util.ui.JBUI;
@@ -95,7 +96,7 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
     private DBNBanner messageBanner;
     private DBNLoadingPanel refreshProgressPanel;
     private DriverLibraryDashboardTable table;
-    private final Predicate<Point> downloadActionColumn;
+    private final Predicate<Point> tableActionColumnAt;
     private final Map<String, String> downloadFailures = new HashMap<>();
     private final Map<DriverPackageMetadataRefresh, Consumer<ProgressInfo>> refreshListeners = new HashMap<>();
     private final AtomicLong inventoryGeneration = new AtomicLong();
@@ -107,14 +108,18 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
 
     private final DriverLibraryDashboardOptions options;
     private final DBNTableRowAction<DashboardDriverPackage> tableDownloadAction = createDownloadAction();
-    private final DriverLibraryDashboardTableModel tableModel = new DriverLibraryDashboardTableModel(tableDownloadAction);
+    private final DBNTableRowAction<DashboardDriverPackage> tableDeleteAction = createDeleteAction();
+    private final DriverLibraryDashboardTableModel tableModel = new DriverLibraryDashboardTableModel(this::getActionTooltip);
 
     public DriverLibraryDashboardForm(DBNDialog<?> parent, DriverLibraryDashboardOptions options) {
         super(parent);
         this.options = options;
         this.table = new DriverLibraryDashboardTable(this, tableModel);
-        this.downloadActionColumn = TableActions.installTableAction(
-                table, tableModel.getColumnCount() - 1, DashboardDriverPackage.class, tableDownloadAction);
+        this.tableActionColumnAt = TableActions.installTableAction(
+                table,
+                tableModel.getColumnCount() - 1,
+                DashboardDriverPackage.class,
+                p -> resolveTableAction(p));
 
         initHintPanel();
         initDatabaseTypeSelector();
@@ -198,7 +203,7 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
             }
         });
         onMouseDoubleClick(table, event -> {
-            if (downloadActionColumn.test(event.getPoint())) return;
+            if (tableActionColumnAt.test(event.getPoint())) return;
             if (options.canSelectLibrary()) {
                 if (canSelectSelectedPackage()) selectSelectedPackage();
             } else {
@@ -440,6 +445,23 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
                 this::downloadPackage);
     }
 
+    private @Nullable @Tooltip String getActionTooltip(DashboardDriverPackage p) {
+        return resolveTableAction(p).getTooltip(p);
+    }
+
+    private @NotNull DBNTableRowAction<DashboardDriverPackage> createDeleteAction() {
+        return new DBNTableRowAction<>(
+                Icons.ACTION_DELETE,
+                txt("app.driver.action.Delete"),
+                txt("app.driver.action.Delete"),
+                this::canDeletePackage,
+                this::deletePackage);
+    }
+
+    private DBNTableRowAction<DashboardDriverPackage> resolveTableAction(DashboardDriverPackage driverPackage) {
+        return driverPackage.downloaded() ? tableDeleteAction : tableDownloadAction;
+    }
+
     private void downloadPackage(DashboardDriverPackage row) {
         if (!canDownloadPackage(row)) return;
         DriverPackage driverPackage = row.driverPackage();
@@ -483,7 +505,10 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
     }
 
     private void deleteSelectedPackage() {
-        DashboardDriverPackage row = getSelectedRow();
+        deletePackage(getSelectedRow());
+    }
+
+    private void deletePackage(DashboardDriverPackage row) {
         if (row == null) return;
         DriverPackage driverPackage = row.driverPackage();
         DriverDownloadManager manager = DriverDownloadManager.getInstance();
@@ -491,6 +516,7 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
             showErrorDialog(getProject(), txt("app.driver.error.PackageIsDownloading"));
             return;
         }
+        if (!canDeletePackage(row)) return;
         if (manager.isPackageReferenced(getProject(), driverPackage)) {
             showErrorDialog(getProject(), txt("app.driver.error.PackageInUse"));
             return;
@@ -597,7 +623,10 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
     }
 
     private boolean canDeleteSelectedPackage() {
-        DashboardDriverPackage driverPackage = getSelectedRow();
+        return canDeletePackage(getSelectedRow());
+    }
+
+    private boolean canDeletePackage(DashboardDriverPackage driverPackage) {
         if (driverPackage == null) return false;
         if (deletingPackage) return false;
 

@@ -18,9 +18,9 @@ package com.dbn.driver.dashboard;
 
 import com.dbn.common.dispose.StatefulDisposableBase;
 import com.dbn.common.ui.table.DBNReadonlyTableModel;
-import com.dbn.common.ui.table.DBNTableRowAction;
 import com.dbn.common.ui.util.Listeners;
 import com.dbn.driver.download.metadata.DriverPackage;
+import com.intellij.openapi.util.NlsContexts.Tooltip;
 import lombok.experimental.Delegate;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,6 +28,7 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import static com.dbn.nls.NlsResources.txt;
 
@@ -36,11 +37,11 @@ class DriverLibraryDashboardTableModel extends StatefulDisposableBase implements
 
     private final Listeners<TableModelListener> listeners = Listeners.create(this);
     private final List<DashboardDriverPackage> driverPackages = new ArrayList<>();
-    private final DBNTableRowAction<DashboardDriverPackage> downloadAction;
+    private final Function<DashboardDriverPackage, @Nullable @Tooltip String> tooltipProvider;
 
-    DriverLibraryDashboardTableModel(DBNTableRowAction<DashboardDriverPackage> downloadAction) {
+    DriverLibraryDashboardTableModel(Function<DashboardDriverPackage, @Nullable @Tooltip String> tooltipProvider) {
         super();
-        this.downloadAction = downloadAction;
+        this.tooltipProvider = tooltipProvider;
     }
 
     @Override
@@ -101,11 +102,11 @@ class DriverLibraryDashboardTableModel extends StatefulDisposableBase implements
     }
 
     @Override
-    public String getTooltip(DashboardDriverPackage driverPackage, int column) {
+    public @Nullable @Tooltip String getTooltip(DashboardDriverPackage driverPackage, int column) {
         if (driverPackage == null) return null;
         if (column == 2 && driverPackage.errorMessage() != null) return driverPackage.errorMessage();
         if (column == 3 && driverPackage.downloaded()) return driverPackage.location();
-        if (column == 4) return downloadAction.getTooltip(driverPackage);
+        if (column == 4) return tooltipProvider.apply(driverPackage);
         return null;
     }
 
