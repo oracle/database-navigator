@@ -21,7 +21,6 @@ import com.dbn.common.state.StateAttributes;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.list.CheckBoxList;
 import com.dbn.common.ui.misc.ContentRootSelector;
 import com.dbn.object.common.DBObject;
@@ -47,6 +46,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.dbn.common.ui.form.DBNFormState.initPersistence;
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.initSelectionListener;
@@ -101,8 +101,7 @@ public class JavaDownloadInputForm extends DBNFormBase {
     private void initHintPanel() {
         TextContent hintText = TextContent.plain(
                 txt("msg.java.hint.DownloadInput"));
-        DBNHintForm hintForm = new DBNHintForm(this, hintText, null);
-        hintPanel.add(hintForm.getComponent());
+        installHintForm(this, hintText, hintPanel);
     }
 
     private JavaDownloadBatch getBatch() {

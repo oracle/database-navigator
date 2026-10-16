@@ -20,7 +20,6 @@ import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.connection.ConnectionHandler;
@@ -44,6 +43,7 @@ import java.util.List;
 
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
 import static com.dbn.common.ui.form.DBNFormState.initPersistence;
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.setFormFieldEnabled;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
@@ -84,7 +84,7 @@ public class LiquibaseWorkflowDashboardForm extends DBNFormBase {
     }
 
     private void initHintPanel() {
-        hintPanel.add(new DBNHintForm(this, TextContent.plain(txt("app.liquibase.hint.Workflows")), null).getComponent(), BorderLayout.CENTER);
+        installHintForm(this, TextContent.plain(txt("app.liquibase.hint.Workflows")), hintPanel);
     }
 
     private void initHyperlinkPanel() {

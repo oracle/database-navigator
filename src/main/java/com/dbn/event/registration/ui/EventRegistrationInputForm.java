@@ -20,7 +20,6 @@ import com.dbn.common.state.StateAttributes;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.event.registration.EventRegistrationManager;
 import com.dbn.object.DBTable;
@@ -36,6 +35,7 @@ import java.awt.BorderLayout;
 
 import static com.dbn.common.text.TextContent.plain;
 import static com.dbn.common.ui.form.DBNFormState.initPersistence;
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.nls.NlsResources.txt;
 
 public class EventRegistrationInputForm extends DBNFormBase {
@@ -75,8 +75,7 @@ public class EventRegistrationInputForm extends DBNFormBase {
 
     private void initHintForm() {
         TextContent hintText = plain(txt("msg.events.hint.EventListenerRegistration", table.getObjectName(true)));
-        DBNHintForm hintForm = new DBNHintForm(this, hintText, null);
-        hintPanel.add(hintForm.getComponent());
+        installHintForm(this, hintText, hintPanel);
 
     }
 

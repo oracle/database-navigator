@@ -45,7 +45,6 @@ import com.dbn.driver.download.ui.DriverPackageInfoDialog;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Separator;
 import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.util.NlsContexts.Tooltip;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.util.ui.JBUI;
@@ -89,6 +88,8 @@ import static com.dbn.nls.NlsResources.txt;
 
 /** Driver package inventory and management UI. */
 public class DriverLibraryDashboardForm extends DBNFormBase {
+    private static final boolean SHOW_ROW_DELETE_ACTION = false;
+
     private JPanel mainPanel;
     private JPanel hintPanel;
     private JPanel progressContainer;
@@ -162,8 +163,8 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
     }
 
     private void initHintPanel() {
-        dashboardHintForm = new DBNHintForm(this, createDashboardHint(List.of()), null);
-        hintPanel.add(dashboardHintForm.getComponent());
+        dashboardHintForm = new DBNHintForm(this, createDashboardHint(List.of()));
+        dashboardHintForm.installOn(hintPanel);
     }
 
     private TextContent createDashboardHint(List<DashboardDriverPackage> driverPackages) {
@@ -449,7 +450,8 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
     }
 
     private @Nullable @Tooltip String getActionTooltip(DashboardDriverPackage p) {
-        return resolveTableAction(p).getTooltip(p);
+        DBNTableRowAction<DashboardDriverPackage> action = resolveTableAction(p);
+        return action == null ? null : action.getTooltip(p);
     }
 
     private @NotNull DBNTableRowAction<DashboardDriverPackage> createDeleteAction() {
@@ -461,8 +463,11 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
                 this::deletePackage);
     }
 
-    private DBNTableRowAction<DashboardDriverPackage> resolveTableAction(DashboardDriverPackage driverPackage) {
-        return driverPackage.downloaded() ? tableDeleteAction : tableDownloadAction;
+    private @Nullable DBNTableRowAction<DashboardDriverPackage> resolveTableAction(DashboardDriverPackage driverPackage) {
+        if (driverPackage.downloaded()) {
+            return SHOW_ROW_DELETE_ACTION ? tableDeleteAction : null;
+        }
+        return tableDownloadAction;
     }
 
     private void downloadPackage(DashboardDriverPackage row) {
@@ -610,7 +615,7 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
     }
 
     private void updateActions() {
-        databaseTypeSelector.setEnabled(!options.isDatabaseTypeFixed() && !loadingInventory);
+        databaseTypeSelector.setEnabled(!options.isDatabaseTypeFixed());
         if (options.canSelectLibrary()) {
             ensureParentDialog().setOKActionEnabled(canSelectSelectedPackage());
         }

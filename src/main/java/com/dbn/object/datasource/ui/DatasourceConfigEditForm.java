@@ -21,7 +21,6 @@ import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
@@ -50,6 +49,7 @@ import java.sql.SQLException;
 import java.util.regex.Pattern;
 
 import static com.dbn.common.file.FileTypes.getJsonFileType;
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.disableFormField;
 import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.enableFormField;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
@@ -132,8 +132,7 @@ public class DatasourceConfigEditForm extends DBNFormBase {
     }
 
     private void initFeatureInfo() {
-        DBNHintForm hintForm = new DBNHintForm(this, TextContent.plain(txt("cfg.datasourceConfig.hint.Feature")), null);
-        hintPanel.add(hintForm.getComponent(), BorderLayout.CENTER);
+        installHintForm(this, TextContent.plain(txt("cfg.datasourceConfig.hint.Feature")), hintPanel);
 
         HyperLinkForm hyperLinkForm = HyperLinkForm.create(
                 txt("cfg.datasourceConfig.link.Documentation"),

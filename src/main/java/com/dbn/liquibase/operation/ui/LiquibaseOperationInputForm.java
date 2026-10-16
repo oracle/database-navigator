@@ -24,7 +24,6 @@ import com.dbn.common.ui.ValueFactory;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.form.field.FieldState;
 import com.dbn.common.ui.info.DBNInfoLabel;
@@ -71,6 +70,7 @@ import java.util.function.Supplier;
 
 import static com.dbn.common.text.TextContent.plain;
 import static com.dbn.common.ui.form.DBNFormState.initPersistence;
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.setFormFieldEnabled;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
@@ -370,7 +370,7 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
 
     private void initHintPanel() {
         TextContent hint = plain(executionInput.getHint());
-        hintPanel.add(new DBNHintForm(this, hint, null).getComponent());
+        installHintForm(this, hint, hintPanel);
     }
 
     private void initContextLabels() {

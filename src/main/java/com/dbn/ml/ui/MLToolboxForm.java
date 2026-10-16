@@ -19,7 +19,6 @@ package com.dbn.ml.ui;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.panel.DBNCollapsiblePanel;
@@ -43,6 +42,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import java.awt.BorderLayout;
 
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.common.ui.util.ClientProperty.HORIZONTAL_SCROLL_POLICY;
 import static com.dbn.nls.NlsResources.txt;
 import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
@@ -181,8 +181,7 @@ public class MLToolboxForm extends MLToolboxFormBase {
 
     private void initHintPanel() {
         TextContent hintText = TextContent.plain(txt("cfg.machineLearning.hint.MLToolbox"));
-        DBNHintForm hintForm = new DBNHintForm(null, hintText, null);
-        hintPanel.add(hintForm.getComponent());
+        installHintForm(null, hintText, hintPanel);
 
         HyperLinkForm hyperLinkForm = HyperLinkForm.create(
                 txt("cfg.machineLearning.label.PoweredBy"),

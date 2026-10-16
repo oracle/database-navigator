@@ -19,7 +19,6 @@ package com.dbn.execution.compiler.ui;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.object.common.DBObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -29,6 +28,7 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
 import static com.dbn.common.text.TextContent.plain;
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.nls.NlsResources.txt;
 
 public class CompilerTypeSelectionForm extends DBNFormBase {
@@ -47,8 +47,7 @@ public class CompilerTypeSelectionForm extends DBNFormBase {
         }
         TextContent hintText = plain(
                 txt("msg.compiler.hint.CompileTypeSelection"));
-        DBNHintForm hintForm = new DBNHintForm(this, hintText, null);
-        hintPanel.add(hintForm.getComponent(), BorderLayout.CENTER);
+        installHintForm(this, hintText, hintPanel);
 
         parent.registerRememberSelectionCheckBox(rememberSelectionCheckBox);
     }

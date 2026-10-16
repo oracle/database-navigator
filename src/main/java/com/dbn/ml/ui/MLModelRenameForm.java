@@ -18,7 +18,6 @@ package com.dbn.ml.ui;
 
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.intellij.ui.components.JBTextField;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,6 +25,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.Strings.isAlphanumericWithUnderscore;
@@ -58,8 +58,7 @@ public class MLModelRenameForm extends DBNFormBase {
 
     private void initHintPanel() {
         TextContent hintContent = TextContent.plain(txt("msg.machineLearning.hint.RenameModel", currentModelName));
-        DBNHintForm hintForm = new DBNHintForm(this, hintContent, null);
-        hintPanel.add(hintForm.getComponent());
+        installHintForm(this, hintContent, hintPanel);
     }
 
     @Override

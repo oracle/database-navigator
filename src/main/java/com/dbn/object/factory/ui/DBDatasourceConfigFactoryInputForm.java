@@ -19,7 +19,6 @@ package com.dbn.object.factory.ui;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.component.DBNComponent;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.info.DBNInfoLabel;
 import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.common.ui.misc.DBNComboBox;
@@ -47,6 +46,7 @@ import java.util.regex.Pattern;
 
 import static com.dbn.common.file.FileTypes.getJsonFileType;
 import static com.dbn.common.ui.form.DBNFormState.initPersistence;
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.nls.NlsResources.txt;
@@ -83,9 +83,7 @@ public class DBDatasourceConfigFactoryInputForm extends DBSchemaObjectFactoryInp
     }
 
     private void initFeatureInfo() {
-        DBNHintForm hintForm = new DBNHintForm(this,
-                TextContent.plain(txt("cfg.datasourceConfig.hint.Feature")), null);
-        hintPanel.add(hintForm.getComponent(), BorderLayout.CENTER);
+        installHintForm(this, TextContent.plain(txt("cfg.datasourceConfig.hint.Feature")), hintPanel);
 
         HyperLinkForm hyperLinkForm = HyperLinkForm.create(
                 txt("cfg.datasourceConfig.link.Documentation"),

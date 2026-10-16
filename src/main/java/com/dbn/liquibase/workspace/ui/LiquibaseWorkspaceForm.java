@@ -19,7 +19,6 @@ package com.dbn.liquibase.workspace.ui;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.info.DBNCommentLabel;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.link.Hyperlinks;
@@ -51,6 +50,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.dbn.common.text.TextContent.plain;
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
@@ -126,7 +126,7 @@ public class LiquibaseWorkspaceForm extends DBNFormBase {
 
     private void initHintPanel() {
         TextContent hint = plain(txt("cfg.liquibase.hint.WorkspaceSettings"));
-        hintPanel.add(new DBNHintForm(this, hint, null).getComponent());
+        installHintForm(this, hint, hintPanel);
     }
 
     private void initHyperlinksPanel() {

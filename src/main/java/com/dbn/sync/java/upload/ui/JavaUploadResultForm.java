@@ -20,7 +20,6 @@ import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.object.DBJavaEntity;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.ui.DBObjectRefListCellRenderer;
@@ -33,6 +32,7 @@ import com.intellij.ui.components.JBList;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.nls.NlsResources.txt;
 
 public class JavaUploadResultForm extends DBNFormBase {
@@ -64,8 +64,7 @@ public class JavaUploadResultForm extends DBNFormBase {
                 txt("msg.java.hint.UploadResult",
                         input.getTargetConnectionName(),
                         input.getTargetSchemaName()));
-        DBNHintForm hintForm = new DBNHintForm(this, hintText, null);
-        hintPanel.add(hintForm.getComponent());
+        installHintForm(this, hintText, hintPanel);
     }
 
 

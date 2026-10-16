@@ -21,7 +21,6 @@ import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.connection.ConnectionHandler;
@@ -41,6 +40,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.util.Lists.filter;
@@ -83,8 +83,7 @@ public class DBObjectSelectionForm<T extends DBObject> extends DBNFormBase {
         if (hint == null) {
             hintPanel.setVisible(false);
         } else {
-            DBNHintForm hintForm = new DBNHintForm(this, hint, null);
-            hintPanel.add(hintForm.getComponent());
+            installHintForm(this, hint, hintPanel);
         }
     }
 

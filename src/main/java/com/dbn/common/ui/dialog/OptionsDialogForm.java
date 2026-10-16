@@ -36,8 +36,8 @@ public class OptionsDialogForm<O extends Presentable> extends DBNFormBase {
     public OptionsDialogForm(OptionsDialog<O> dialog) {
         super(dialog);
 
-        DBNHintForm optionDescriptionForm = new DBNHintForm(this, null, null);
-        optionDescriptionPanel.add(optionDescriptionForm.getComponent());
+        DBNHintForm optionDescriptionForm = new DBNHintForm(this, null);
+        optionDescriptionForm.installOn(optionDescriptionPanel);
 
         optionLabel.setText(dialog.getOptionLabel());
 
