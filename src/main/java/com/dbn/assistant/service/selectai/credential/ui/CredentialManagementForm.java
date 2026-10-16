@@ -59,6 +59,7 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
 import static com.dbn.common.util.Messages.OPTIONS_YES_NO;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.common.util.Messages.showQuestionDialog;
@@ -109,6 +110,7 @@ public class CredentialManagementForm extends DBNFormBase {
    */
   public CredentialManagementForm(DBNForm parent, @NotNull ConnectionHandler connection) {
     super(parent);
+    setSplitPaneProportion(contentSplitPane, 0.3);
     this.connection = ConnectionRef.of(connection);
 
     initActionsPanel();
