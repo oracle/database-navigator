@@ -145,10 +145,12 @@ public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> imple
         if (columnIndex == -1) return null;
 
         T model = getModel();
-        Object row = model.getValueAt(rowIndex, columnIndex);
+        int modelRowIndex = convertRowIndexToModel(rowIndex);
+        int modelColumnIndex = convertColumnIndexToModel(columnIndex);
+        Object row = model.getValueAt(modelRowIndex, modelColumnIndex);
         if (row == null) return null;
 
-        return model.getTooltip(row, columnIndex);
+        return model.getTooltip(row, modelColumnIndex);
     }
 
     @Override

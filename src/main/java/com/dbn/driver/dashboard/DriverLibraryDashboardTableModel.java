@@ -18,8 +18,10 @@ package com.dbn.driver.dashboard;
 
 import com.dbn.common.dispose.StatefulDisposableBase;
 import com.dbn.common.ui.table.DBNReadonlyTableModel;
+import com.dbn.common.ui.table.DBNTableRowAction;
 import com.dbn.common.ui.util.Listeners;
 import com.dbn.driver.download.metadata.DriverPackage;
+import lombok.experimental.Delegate;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.event.TableModelEvent;
@@ -29,24 +31,26 @@ import java.util.List;
 
 import static com.dbn.nls.NlsResources.txt;
 
-class DriverLibraryDashboardTableModel extends StatefulDisposableBase implements DBNReadonlyTableModel<DriverLibraryDashboardTableModel.Row> {
+class DriverLibraryDashboardTableModel extends StatefulDisposableBase implements DBNReadonlyTableModel<DriverLibraryDashboardTableModel.DashboardDriverPackage> {
     private static final int LOCATION_DISPLAY_MAX_LENGTH = 60;
 
     private final Listeners<TableModelListener> listeners = Listeners.create(this);
-    private final List<Row> rows = new ArrayList<>();
+    private final List<DashboardDriverPackage> driverPackages = new ArrayList<>();
+    private final DBNTableRowAction<DashboardDriverPackage> downloadAction;
 
-    DriverLibraryDashboardTableModel() {
+    DriverLibraryDashboardTableModel(DBNTableRowAction<DashboardDriverPackage> downloadAction) {
         super();
+        this.downloadAction = downloadAction;
     }
 
     @Override
     public int getRowCount() {
-        return rows.size();
+        return driverPackages.size();
     }
 
     @Override
     public int getColumnCount() {
-        return 4;
+        return 5;
     }
 
     @Override
@@ -56,54 +60,64 @@ class DriverLibraryDashboardTableModel extends StatefulDisposableBase implements
             case 1 -> txt("app.driver.column.DriverPackage");
             case 2 -> txt("app.driver.column.Status");
             case 3 -> txt("app.driver.column.Location");
+            case 4 -> "";
             default -> "";
         };
     }
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        return Row.class;
+        return DashboardDriverPackage.class;
     }
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        return rows.get(rowIndex);
+        return driverPackages.get(rowIndex);
     }
 
     @Override
-    public Object getValue(Row row, int column) {
-        return getPresentableValue(row, column);
+    public Object getValue(DashboardDriverPackage driverPackage, int column) {
+        return getPresentableValue(driverPackage, column);
     }
 
     @Override
-    public String getPresentableValue(Row row, int column) {
-        if (row == null) return "";
+    public String getPresentableValue(DashboardDriverPackage driverPackage, int column) {
+        if (driverPackage == null) return "";
         return switch (column) {
-            case 0 -> row.driverPackage().getDatabaseType() == null ? "" : row.driverPackage().getDatabaseType().getName();
-            case 1 -> row.driverPackage().getName() == null ? row.driverPackage().getId() : row.driverPackage().getName();
-            case 2 -> txt("app.driver.const.DriverStatus_" + row.status().name());
-            case 3 -> row.downloaded() ? truncatePathFromStart(row.location()) : "";
+            case 0 -> driverPackage.getDatabaseType() == null ? "" : driverPackage.getDatabaseType().getName();
+            case 1 -> driverPackage.getName() == null ? driverPackage.getId() : driverPackage.getName();
+            case 2 -> getStatusText(driverPackage);
+            case 3 -> driverPackage.downloaded() ? truncatePathFromStart(driverPackage.location()) : "";
+            case 4 -> "";
             default -> "";
         };
     }
 
+    private static String getStatusText(DashboardDriverPackage driverPackage) {
+        if (!driverPackage.supported() && driverPackage.status() == DriverLibraryDashboardStatus.AVAILABLE) {
+            return txt("app.driver.const.DriverStatus_NOT_SUPPORTED");
+        }
+        return txt("app.driver.const.DriverStatus_" + driverPackage.status().name());
+    }
+
     @Override
-    public String getTooltip(Row row, int column) {
-        if (row == null) return null;
-        if (column == 2 && row.errorMessage() != null) return row.errorMessage();
-        if (column == 3 && row.downloaded()) return row.location();
+    public String getTooltip(DashboardDriverPackage driverPackage, int column) {
+        if (driverPackage == null) return null;
+        if (column == 2 && driverPackage.errorMessage() != null) return driverPackage.errorMessage();
+        if (column == 3 && driverPackage.downloaded()) return driverPackage.location();
+        if (column == 4) return downloadAction.getTooltip(driverPackage);
         return null;
     }
 
-    void setRows(List<Row> newRows) {
-        rows.clear();
-        rows.addAll(newRows);
+    void setRows(List<DashboardDriverPackage> newDriverPackages) {
+        driverPackages.clear();
+        driverPackages.addAll(newDriverPackages);
         fireTableChanged(new TableModelEvent(this));
     }
 
     @Nullable
-    Row getRow(int rowIndex) {
-        return rowIndex < 0 || rowIndex >= rows.size() ? null : rows.get(rowIndex);
+    DriverLibraryDashboardTableModel.DashboardDriverPackage getRow(int rowIndex) {
+        return rowIndex < 0 || rowIndex >= driverPackages.size() ? null : driverPackages.get(rowIndex);
     }
 
     @Override
@@ -128,13 +142,14 @@ class DriverLibraryDashboardTableModel extends StatefulDisposableBase implements
 
     @Override
     public void disposeInner() {
-        rows.clear();
+        driverPackages.clear();
         nullify();
     }
 
-    record Row(
-            DriverPackage driverPackage,
+    record DashboardDriverPackage(
+            @Delegate DriverPackage driverPackage,
             DriverLibraryDashboardStatus status,
+            boolean supported,
             boolean downloaded,
             String location,
             @Nullable String errorMessage) {}

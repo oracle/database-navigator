@@ -16,36 +16,30 @@
 
 package com.dbn.driver.dashboard;
 
-import com.dbn.common.color.Colors;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.table.DBNColoredTableCellRenderer;
 import com.dbn.common.ui.table.DBNTable;
-import com.dbn.common.ui.util.Tooltips;
+import com.dbn.driver.dashboard.DriverLibraryDashboardTableModel.DashboardDriverPackage;
 import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
-import java.awt.BorderLayout;
 import java.awt.Font;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.nls.NlsResources.txt;
+import static com.intellij.ui.SimpleTextAttributes.GRAYED_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.GRAY_ITALIC_ATTRIBUTES;
+import static com.intellij.ui.SimpleTextAttributes.REGULAR_ATTRIBUTES;
+import static com.intellij.ui.SimpleTextAttributes.STYLE_ITALIC;
 
 class DriverLibraryDashboardTable extends DBNTable<DriverLibraryDashboardTableModel> {
     DriverLibraryDashboardTable(@NotNull DBNComponent parent, DriverLibraryDashboardTableModel model) {
         super(parent, model, true);
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        setDefaultRenderer(DriverLibraryDashboardTableModel.Row.class, new CellRenderer());
-        getColumnModel().getColumn(2).setCellRenderer(new StatusCellRenderer());
-        setFixedColumnWidth(0, 105);
-        setFixedColumnWidth(2, 125);
+        setDefaultRenderer(DashboardDriverPackage.class, new CellRenderer());
+        setProportionalColumnWidths(15, 30, 15, 35, 5);
         initTableSorter();
         setAccessibleName(this, txt("app.driver.aria.LibraryDashboard"));
     }
@@ -59,39 +53,24 @@ class DriverLibraryDashboardTable extends DBNTable<DriverLibraryDashboardTableMo
     private class CellRenderer extends DBNColoredTableCellRenderer {
         @Override
         protected void customizeCellRenderer(DBNTable table, Object value, boolean selected, boolean hasFocus, int rowIndex, int columnIndex) {
-            DriverLibraryDashboardTableModel.Row row = (DriverLibraryDashboardTableModel.Row) value;
-            String presentableValue = getModel().getPresentableValue(row, columnIndex);
-            SimpleTextAttributes attributes = row.status() == DriverLibraryDashboardStatus.RESOLVING ?
-                    GRAY_ITALIC_ATTRIBUTES :
-                    SimpleTextAttributes.REGULAR_ATTRIBUTES;
+            DashboardDriverPackage driverPackage = (DashboardDriverPackage) value;
+            String presentableValue = getModel().getPresentableValue(driverPackage, columnIndex);
+            boolean inProgress = switch (driverPackage.status()) {
+                case RESOLVING, DOWNLOADING -> true;
+                default -> false;
+            };
+            setFont(inProgress ? table.getFont().deriveFont(Font.ITALIC) : table.getFont());
+            SimpleTextAttributes attributes;
+            if (inProgress) {
+                attributes = driverPackage.supported() ? GRAY_ITALIC_ATTRIBUTES :
+                        GRAYED_ATTRIBUTES.derive(STYLE_ITALIC, null, null, null);
+            } else if (!driverPackage.supported()) {
+                attributes = GRAYED_ATTRIBUTES;
+            } else {
+                attributes = REGULAR_ATTRIBUTES;
+            }
+            setIcon(null);
             append(presentableValue == null ? "" : presentableValue, attributes);
-        }
-    }
-
-    private class StatusCellRenderer implements TableCellRenderer {
-        private final JPanel panel = new JPanel(new BorderLayout());
-        private final JLabel label = new JLabel();
-
-        private StatusCellRenderer() {
-            panel.setBorder(BorderFactory.createEmptyBorder(0, 4, 0, 4));
-            panel.add(label, BorderLayout.CENTER);
-        }
-
-        @Override
-        public java.awt.Component getTableCellRendererComponent(JTable sourceTable, Object value, boolean selected, boolean focused, int rowIndex, int columnIndex) {
-            DriverLibraryDashboardTable dashboardTable = (DriverLibraryDashboardTable) sourceTable;
-            DriverLibraryDashboardTableModel model = dashboardTable.getModel();
-            DriverLibraryDashboardTableModel.Row row = (DriverLibraryDashboardTableModel.Row) value;
-            if (row == null) return panel;
-
-            boolean resolving = row.status() == DriverLibraryDashboardStatus.RESOLVING;
-            label.setText(model.getPresentableValue(row, columnIndex));
-            Tooltips.setToolTipText(label, row.errorMessage());
-            panel.setBackground(selected ? dashboardTable.getSelectionBackground() : dashboardTable.getBackground());
-            label.setFont(resolving ? dashboardTable.getFont().deriveFont(Font.ITALIC) : dashboardTable.getFont());
-            label.setForeground(resolving ? Colors.getContextHelpForeground() :
-                    selected ? dashboardTable.getSelectionForeground() : dashboardTable.getForeground());
-            return panel;
         }
     }
 }

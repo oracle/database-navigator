@@ -28,7 +28,9 @@ public class DriverLibraryDashboardDialog extends DBNDialog<DriverLibraryDashboa
     private final DriverLibraryDashboardOptions options;
 
     public DriverLibraryDashboardDialog(Project project, DriverLibraryDashboardOptions options) {
-        super(project, txt("app.driver.title.LibraryDashboard"), true);
+        super(project, txt(options.canSelectLibrary() ?
+                "app.driver.title.SelectDriverPackage" :
+                "app.driver.title.DriverPackages"), true);
         this.options = options;
         setDefaultSize(1050, 620);
         setResizable(true);

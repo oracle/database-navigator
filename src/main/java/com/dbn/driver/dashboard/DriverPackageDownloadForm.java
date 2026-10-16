@@ -96,7 +96,8 @@ class DriverPackageDownloadForm extends DBNFormBase {
     private void updateDownloadPath() {
         String root = downloadRootField.getText().trim();
         String folder = packageFolderField.getText().trim();
-        if (root.isEmpty() || folder.isEmpty()) {
+        if (root.isEmpty() ||
+                folder.isEmpty()) {
             downloadPathLabel.setText("");
             return;
         }
@@ -109,15 +110,20 @@ class DriverPackageDownloadForm extends DBNFormBase {
             }
 
             Path packageFolder = Path.of(folder);
-            if (folder.contains("/") || folder.contains("\\") || folder.contains(":") ||
-                    packageFolder.isAbsolute() || packageFolder.getNameCount() != 1 ||
-                    ".".equals(folder) || "..".equals(folder)) {
+            if (folder.contains("/") ||
+                    folder.contains("\\") ||
+                    folder.contains(":") ||
+                    packageFolder.isAbsolute() ||
+                    packageFolder.getNameCount() != 1 ||
+                    ".".equals(folder) ||
+                    "..".equals(folder)) {
                 downloadPathLabel.setText("");
                 return;
             }
 
             Path downloadPath = downloadRoot.resolve(packageFolder).normalize();
-            if (downloadPath.equals(downloadRoot) || !downloadPath.startsWith(downloadRoot)) {
+            if (downloadPath.equals(downloadRoot) ||
+                    !downloadPath.startsWith(downloadRoot)) {
                 downloadPathLabel.setText("");
                 return;
             }

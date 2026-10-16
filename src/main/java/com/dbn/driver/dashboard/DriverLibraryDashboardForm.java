@@ -20,6 +20,7 @@ import com.dbn.common.action.BasicAction;
 import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.message.MessageType;
+import com.dbn.common.text.TextContent;
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
@@ -27,11 +28,16 @@ import com.dbn.common.thread.ProgressInfo;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.panel.DBNBanner;
 import com.dbn.common.ui.select.DBNComboBoxRenderer;
+import com.dbn.common.ui.table.DBNTableRowAction;
+import com.dbn.common.ui.table.TableActions;
 import com.dbn.common.ui.util.Tooltips;
+import com.dbn.common.util.Dialogs;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.provider.CloudConfigProviderFamily;
+import com.dbn.driver.dashboard.DriverLibraryDashboardTableModel.DashboardDriverPackage;
 import com.dbn.driver.download.DriverDownloadManager;
 import com.dbn.driver.download.DriverPackageDownloader;
 import com.dbn.driver.download.DriverPackageMetadataRefresh;
@@ -46,12 +52,14 @@ import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
+import java.awt.Point;
 import java.awt.event.ItemEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,6 +72,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import static com.dbn.common.message.MessageType.INFO;
 import static com.dbn.common.message.MessageType.WARNING;
@@ -77,16 +86,17 @@ import static com.dbn.nls.NlsResources.txt;
 
 /** Driver package inventory and management UI. */
 public class DriverLibraryDashboardForm extends DBNFormBase {
-    private final DriverLibraryDashboardOptions options;
-    private final DriverLibraryDashboardTableModel tableModel = new DriverLibraryDashboardTableModel();
     private JPanel mainPanel;
+    private JPanel hintPanel;
     private JPanel progressContainer;
     private JPanel messageContainer;
     private JPanel tableContainer;
     private JComboBox<DatabaseTypeOption> databaseTypeSelector;
+    private DBNHintForm dashboardHintForm;
     private DBNBanner messageBanner;
     private JLabel refreshProgressLabel;
     private DriverLibraryDashboardTable table;
+    private final Predicate<Point> downloadActionColumn;
     private final Map<String, String> downloadFailures = new HashMap<>();
     private final Map<DriverPackageMetadataRefresh, Consumer<ProgressInfo>> refreshListeners = new HashMap<>();
     private final AtomicLong inventoryGeneration = new AtomicLong();
@@ -97,11 +107,18 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
     private boolean reloadingInventory;
     private boolean deletingPackage;
 
+    private final DriverLibraryDashboardOptions options;
+    private final DBNTableRowAction<DashboardDriverPackage> tableDownloadAction = createDownloadAction();
+    private final DriverLibraryDashboardTableModel tableModel = new DriverLibraryDashboardTableModel(tableDownloadAction);
+
     public DriverLibraryDashboardForm(DBNDialog<?> parent, DriverLibraryDashboardOptions options) {
         super(parent);
         this.options = options;
         this.table = new DriverLibraryDashboardTable(this, tableModel);
+        this.downloadActionColumn = TableActions.installTableAction(
+                table, tableModel.getColumnCount() - 1, DashboardDriverPackage.class, tableDownloadAction);
 
+        initHintPanel();
         initDatabaseTypeSelector();
         initLayoutComponents();
         installListeners();
@@ -131,13 +148,33 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
         refreshProgressLabel.setForeground(Colors.getContextHelpForeground());
         progressContainer.add(refreshProgressLabel, BorderLayout.CENTER);
         progressContainer.setVisible(false);
-        messageContainer.setLayout(new BorderLayout());
+        messageContainer.setLayout(new BoxLayout(messageContainer, BoxLayout.Y_AXIS));
         messageBanner = new DBNBanner(INFO);
-        messageContainer.add(messageBanner, BorderLayout.CENTER);
+        messageContainer.add(messageBanner);
         clearMessage();
         tableContainer.setLayout(new BorderLayout());
-        tableContainer.add(initTableComponent(), BorderLayout.CENTER);
+        tableContainer.add(initTableComponent());
         mainPanel.setPreferredSize(JBUI.size(1050, 560));
+    }
+
+    private void initHintPanel() {
+        dashboardHintForm = new DBNHintForm(this, createDashboardHint(List.of()), null);
+        hintPanel.add(dashboardHintForm.getComponent());
+    }
+
+    private TextContent createDashboardHint(List<DashboardDriverPackage> driverPackages) {
+        String hintKey = options.canSelectLibrary() ?
+                "app.driver.hint.LibraryDashboardSelect" :
+                "app.driver.hint.LibraryDashboardOverview";
+        String hintText = txt(hintKey);
+        CloudConfigProviderFamily providerFamily = options.providerFamily();
+        boolean hasUnsupportedPackages = options.canSelectLibrary() && providerFamily != null &&
+                driverPackages.stream().anyMatch(driverPackage -> !driverPackage.supported());
+        if (hasUnsupportedPackages) {
+            String unsupportedPackagesHint = txt("app.driver.text.UnsupportedPackages");
+            hintText += "<br><br>" + unsupportedPackagesHint.replace("\n", "<br>");
+        }
+        return TextContent.htmlMessage(hintText);
     }
 
     private JPanel initTableComponent() {
@@ -165,6 +202,7 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
             }
         });
         onMouseDoubleClick(table, event -> {
+            if (downloadActionColumn.test(event.getPoint())) return;
             if (options.canSelectLibrary()) {
                 if (canSelectSelectedPackage()) selectSelectedPackage();
             } else {
@@ -293,21 +331,18 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
         refreshedPackages.forEach(driverPackage -> mergedPackages.put(driverPackage.getId(), driverPackage));
         currentPackages = sortPackages(mergedPackages);
 
-        List<DriverLibraryDashboardTableModel.Row> rows = new ArrayList<>();
+        List<DashboardDriverPackage> driverPackages = new ArrayList<>();
         for (int index = 0; index < tableModel.getRowCount(); index++) {
-            DriverLibraryDashboardTableModel.Row row = tableModel.getRow(index);
-            if (row != null && row.driverPackage().getDatabaseType() != databaseType) rows.add(row);
+            DashboardDriverPackage driverPackage = tableModel.getRow(index);
+            if (driverPackage != null && driverPackage.getDatabaseType() != databaseType) driverPackages.add(driverPackage);
         }
-        rows.addAll(createRows(manager, refreshedPackages, Map.copyOf(downloadFailures), resolutionErrors));
-        rows.sort(Comparator.comparing((DriverLibraryDashboardTableModel.Row row) -> {
-                    DatabaseType type = row.driverPackage().getDatabaseType();
+        driverPackages.addAll(createRows(manager, refreshedPackages, Map.copyOf(downloadFailures), resolutionErrors));
+        driverPackages.sort(Comparator.comparing((DashboardDriverPackage driverPackage) -> {
+                    DatabaseType type = driverPackage.getDatabaseType();
                     return type == null ? "" : type.getName();
                 })
-                .thenComparing(row -> {
-                    DriverPackage driverPackage = row.driverPackage();
-                    return driverPackage.getName() == null ? driverPackage.getId() : driverPackage.getName();
-                }));
-        applyRows(rows);
+                .thenComparing(driverPackage -> driverPackage.getName() == null ? driverPackage.getId() : driverPackage.getName()));
+        applyRows(driverPackages);
     }
 
     private static List<DriverPackage> sortPackages(Map<String, DriverPackage> packages) {
@@ -328,12 +363,18 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
         messageBanner
                 .setMessageType(messageType)
                 .setMessage(message, details);
-        messageContainer.setVisible(true);
+        messageBanner.setVisible(true);
+        updateFeedbackVisibility();
     }
 
     private void clearMessage() {
         messageBanner.setMessage(null);
-        messageContainer.setVisible(false);
+        messageBanner.setVisible(false);
+        updateFeedbackVisibility();
+    }
+
+    private void updateFeedbackVisibility() {
+        messageContainer.setVisible(messageBanner.isVisible());
     }
 
     private void detachRefreshListeners() {
@@ -342,7 +383,6 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
     }
 
     private List<CloudConfigProviderFamily> getProviderFamilies() {
-        if (options.providerFamily() != null) return List.of(options.providerFamily());
         return List.of(CloudConfigProviderFamily.values());
     }
 
@@ -366,12 +406,12 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
                 .toList();
     }
 
-    private List<DriverLibraryDashboardTableModel.Row> createRows(
+    private List<DashboardDriverPackage> createRows(
             DriverDownloadManager manager,
             List<DriverPackage> packages,
             Map<String, String> downloadErrors,
             Map<String, String> resolutionErrors) {
-        List<DriverLibraryDashboardTableModel.Row> rows = new ArrayList<>();
+        List<DashboardDriverPackage> driverPackages = new ArrayList<>();
         for (DriverPackage driverPackage : packages) {
             String packageId = driverPackage.getId();
             String failure = downloadErrors.get(packageId);
@@ -390,9 +430,15 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
                     driverPackage.isObsolete());
             String location = manager.getDownloadPath(packageId);
             if (location == null) location = DriverDownloadManager.getDriverPackageLocation(packageId);
-            rows.add(new DriverLibraryDashboardTableModel.Row(driverPackage, status, downloaded, location, failure));
+            driverPackages.add(new DashboardDriverPackage(
+                    driverPackage, status, isSupportedPackage(driverPackage), downloaded, location, failure));
         }
-        return rows;
+        return driverPackages;
+    }
+
+    private boolean isSupportedPackage(DriverPackage driverPackage) {
+        CloudConfigProviderFamily providerFamily = options.providerFamily();
+        return providerFamily == null || driverPackage.matches(providerFamily);
     }
 
     private boolean isPackageResolving(DriverPackage driverPackage) {
@@ -406,11 +452,19 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
                 refresh.getDatabaseType() == databaseType && refresh.isRunning());
     }
 
-    private void downloadSelectedPackage() {
-        DriverLibraryDashboardTableModel.Row row = getSelectedRow();
-        if (row == null || !row.driverPackage().isDetailsAvailable()) return;
+    private @NotNull DBNTableRowAction<DashboardDriverPackage> createDownloadAction() {
+        return new DBNTableRowAction<>(
+                Icons.ACTION_DOWNLOAD,
+                txt("app.driver.action.Download"),
+                txt("app.driver.action.Download"),
+                this::canDownloadPackage,
+                this::downloadPackage);
+    }
+
+    private void downloadPackage(DashboardDriverPackage row) {
+        if (!canDownloadPackage(row)) return;
         DriverPackage driverPackage = row.driverPackage();
-        com.dbn.common.util.Dialogs.show(
+        Dialogs.show(
                 () -> new DriverPackageDownloadDialog(getProject(), driverPackage),
                 (dialog, exitCode) -> {
                     if (exitCode != DialogWrapper.OK_EXIT_CODE) return;
@@ -437,12 +491,12 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
     }
 
     void selectSelectedPackage() {
-        DriverLibraryDashboardTableModel.Row row = getSelectedRow();
-        if (row == null || !options.canSelectLibrary()) return;
+        DashboardDriverPackage driverPackage = getSelectedRow();
+        if (driverPackage == null || !options.canSelectLibrary() || !driverPackage.supported()) return;
 
         DriverDownloadManager manager = DriverDownloadManager.getInstance();
-        if (!manager.isPackageDownloaded(row.driverPackage())) return;
-        String path = manager.getDownloadPath(row.driverPackage().getId());
+        if (!manager.isPackageDownloaded(driverPackage.driverPackage())) return;
+        String path = manager.getDownloadPath(driverPackage.getId());
         if (path == null) return;
 
         options.selectLibrary(path);
@@ -450,7 +504,7 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
     }
 
     private void deleteSelectedPackage() {
-        DriverLibraryDashboardTableModel.Row row = getSelectedRow();
+        DashboardDriverPackage row = getSelectedRow();
         if (row == null) return;
         DriverPackage driverPackage = row.driverPackage();
         DriverDownloadManager manager = DriverDownloadManager.getInstance();
@@ -509,23 +563,24 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
         List<DriverPackage> packages = currentPackages;
         Map<String, String> failures = Map.copyOf(downloadFailures);
         Background.run(() -> {
-            List<DriverLibraryDashboardTableModel.Row> rows = createRows(
+            List<DashboardDriverPackage> driverPackages = createRows(
                     DriverDownloadManager.getInstance(), packages, failures, Map.of());
             Dispatch.run(mainPanel, () -> {
-                applyRows(rows);
+                applyRows(driverPackages);
                 updateActions();
             });
         });
     }
 
-    private void applyRows(List<DriverLibraryDashboardTableModel.Row> rows) {
-        DriverLibraryDashboardTableModel.Row selectedRow = getSelectedRow();
-        String selectedPackageId = selectedRow == null ? null : selectedRow.driverPackage().getId();
-        tableModel.setRows(rows);
+    private void applyRows(List<DashboardDriverPackage> driverPackages) {
+        DashboardDriverPackage selectedDriverPackage = getSelectedRow();
+        String selectedPackageId = selectedDriverPackage == null ? null : selectedDriverPackage.getId();
+        tableModel.setRows(driverPackages);
+        dashboardHintForm.setHintContent(createDashboardHint(driverPackages));
         if (selectedPackageId != null) {
             for (int modelIndex = 0; modelIndex < tableModel.getRowCount(); modelIndex++) {
-                DriverLibraryDashboardTableModel.Row candidate = tableModel.getRow(modelIndex);
-                if (candidate == null || !selectedPackageId.equals(candidate.driverPackage().getId())) continue;
+                DashboardDriverPackage candidate = tableModel.getRow(modelIndex);
+                if (candidate == null || !selectedPackageId.equals(candidate.getId())) continue;
                 int viewIndex = table.convertRowIndexToView(modelIndex);
                 if (viewIndex >= 0) table.setRowSelectionInterval(viewIndex, viewIndex);
                 break;
@@ -534,13 +589,13 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
     }
 
     private void showSelectedPackageInfo() {
-        DriverLibraryDashboardTableModel.Row row = getSelectedRow();
-        if (row == null || !row.driverPackage().isDetailsAvailable()) return;
-        com.dbn.common.util.Dialogs.show(() -> new DriverPackageInfoDialog(
-                getProject(), txt("app.driver.title.PackageInfo"), true, row.driverPackage()));
+        DashboardDriverPackage driverPackage = getSelectedRow();
+        if (driverPackage == null || !driverPackage.isDetailsAvailable()) return;
+        Dialogs.show(() -> new DriverPackageInfoDialog(
+                getProject(), txt("app.driver.title.PackageInfo"), true, driverPackage.driverPackage()));
     }
 
-    private DriverLibraryDashboardTableModel.Row getSelectedRow() {
+    private DashboardDriverPackage getSelectedRow() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow < 0) return null;
         return tableModel.getRow(table.convertRowIndexToModel(selectedRow));
@@ -553,28 +608,27 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
         }
     }
 
-    private boolean canDownloadSelectedPackage() {
-        DriverLibraryDashboardTableModel.Row row = getSelectedRow();
-        if (row == null || !row.driverPackage().isDetailsAvailable() || loadingInventory || deletingPackage) return false;
+    private boolean canDownloadPackage(DashboardDriverPackage driverPackage) {
+        if (driverPackage == null || !driverPackage.isDetailsAvailable() || loadingInventory || deletingPackage) return false;
         DriverDownloadManager manager = DriverDownloadManager.getInstance();
-        return !isDownloaded(row) && !manager.isPackageDownloading(row.driverPackage().getId());
+        return !isDownloaded(driverPackage) && !manager.isPackageDownloading(driverPackage.getId());
     }
 
     private boolean canDeleteSelectedPackage() {
-        DriverLibraryDashboardTableModel.Row row = getSelectedRow();
-        if (row == null || loadingInventory || deletingPackage) return false;
+        DashboardDriverPackage driverPackage = getSelectedRow();
+        if (driverPackage == null || loadingInventory || deletingPackage) return false;
         DriverDownloadManager manager = DriverDownloadManager.getInstance();
-        return !manager.isPackageDownloading(row.driverPackage().getId()) &&
-                (isDownloaded(row) || manager.isPackageTrackedForDeletion(row.driverPackage()));
+        return !manager.isPackageDownloading(driverPackage.getId()) &&
+                (isDownloaded(driverPackage) || manager.isPackageTrackedForDeletion(driverPackage.driverPackage()));
     }
 
     private boolean canSelectSelectedPackage() {
-        DriverLibraryDashboardTableModel.Row row = getSelectedRow();
-        return options.canSelectLibrary() && row != null && !loadingInventory && isDownloaded(row);
+        DashboardDriverPackage driverPackage = getSelectedRow();
+        return options.canSelectLibrary() && driverPackage != null && driverPackage.supported() && !loadingInventory && isDownloaded(driverPackage);
     }
 
-    private static boolean isDownloaded(DriverLibraryDashboardTableModel.Row row) {
-        return row.downloaded();
+    private static boolean isDownloaded(DashboardDriverPackage driverPackage) {
+        return driverPackage.downloaded();
     }
 
     private final BasicAction reloadAction = new BasicAction(txt("app.driver.action.ReloadMetadata"), null, Icons.ACTION_REFRESH) {
@@ -597,20 +651,20 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
 
         @Override
         public void update(@NotNull AnActionEvent e) {
-            DriverLibraryDashboardTableModel.Row row = getSelectedRow();
-            e.getPresentation().setEnabled(row != null && row.driverPackage().isDetailsAvailable());
+            DashboardDriverPackage driverPackage = getSelectedRow();
+            e.getPresentation().setEnabled(driverPackage != null && driverPackage.isDetailsAvailable());
         }
     };
 
     private final BasicAction downloadAction = new BasicAction(txt("app.driver.action.Download"), null, Icons.ACTION_DOWNLOAD) {
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
-            downloadSelectedPackage();
+            downloadPackage(getSelectedRow());
         }
 
         @Override
         public void update(@NotNull AnActionEvent e) {
-            e.getPresentation().setEnabled(canDownloadSelectedPackage());
+            e.getPresentation().setEnabled(canDownloadPackage(getSelectedRow()));
         }
     };
 

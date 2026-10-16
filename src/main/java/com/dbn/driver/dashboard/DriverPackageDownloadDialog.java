@@ -73,7 +73,9 @@ class DriverPackageDownloadDialog extends DBNDialog<DriverPackageDownloadForm> {
             return false;
         }
 
-        if (packageFolder.contains("/") || packageFolder.contains("\\") || packageFolder.contains(":")) {
+        if (packageFolder.contains("/") ||
+                packageFolder.contains("\\") ||
+                packageFolder.contains(":")) {
             showErrorDialog(getProject(), txt("app.driver.error.InvalidPackageFolder"));
             return false;
         }
@@ -92,14 +94,17 @@ class DriverPackageDownloadDialog extends DBNDialog<DriverPackageDownloadForm> {
 
         try {
             Path folder = Path.of(packageFolder);
-            if (folder.isAbsolute() || folder.getNameCount() != 1 ||
-                    ".".equals(packageFolder) || "..".equals(packageFolder)) {
+            if (folder.isAbsolute() ||
+                    folder.getNameCount() != 1 ||
+                    ".".equals(packageFolder) ||
+                    "..".equals(packageFolder)) {
                 showErrorDialog(getProject(), txt("app.driver.error.InvalidPackageFolder"));
                 return false;
             }
 
             Path target = root.resolve(folder).normalize();
-            if (target.equals(root) || !target.startsWith(root)) {
+            if (target.equals(root) ||
+                    !target.startsWith(root)) {
                 showErrorDialog(getProject(), txt("app.driver.error.InvalidPackageFolder"));
                 return false;
             }
