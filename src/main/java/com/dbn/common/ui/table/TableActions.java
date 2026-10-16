@@ -16,15 +16,18 @@
 
 package com.dbn.common.ui.table;
 
+import com.dbn.common.color.Colors;
 import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Mouse;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
+import java.awt.Color;
 import java.awt.Point;
 import java.util.function.Predicate;
 
+import static com.dbn.common.color.Colors.getTableSelectionBackground;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 
 public final class TableActions {
@@ -78,7 +81,10 @@ public final class TableActions {
             boolean available = action.isAvailable(row);
             renderer.setIcon(available ? action.getIcon() : null);
             renderer.setEnabled(available);
-            renderer.setBackground(selected ? source.getSelectionBackground() : source.getBackground());
+            Color background = selected ?
+                    getTableSelectionBackground(source.hasFocus()) :
+                    source.getBackground();
+            renderer.setBackground(background);
             return renderer;
         });
     }

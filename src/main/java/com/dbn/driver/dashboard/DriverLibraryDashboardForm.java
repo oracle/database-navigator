@@ -17,7 +17,6 @@
 package com.dbn.driver.dashboard;
 
 import com.dbn.common.action.BasicAction;
-import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.text.TextContent;
@@ -30,10 +29,10 @@ import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.panel.DBNBanner;
+import com.dbn.common.ui.panel.DBNLoadingPanel;
 import com.dbn.common.ui.select.DBNComboBoxRenderer;
 import com.dbn.common.ui.table.DBNTableRowAction;
 import com.dbn.common.ui.table.TableActions;
-import com.dbn.common.ui.util.Tooltips;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.provider.CloudConfigProviderFamily;
@@ -47,7 +46,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Separator;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.ToolbarDecorator;
-import com.intellij.util.ui.AsyncProcessIcon;
 import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -56,7 +54,6 @@ import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Point;
@@ -76,12 +73,14 @@ import java.util.function.Predicate;
 
 import static com.dbn.common.message.MessageType.INFO;
 import static com.dbn.common.message.MessageType.WARNING;
+import static com.dbn.common.ui.panel.DBNLoadingPanel.newLoadingPanel;
 import static com.dbn.common.ui.util.Decorators.createToolbarDecorator;
 import static com.dbn.common.ui.util.Decorators.createToolbarDecoratorComponent;
 import static com.dbn.common.ui.util.Mouse.onMouseDoubleClick;
 import static com.dbn.common.util.Messages.OPTIONS_YES_NO;
 import static com.dbn.common.util.Messages.showConfirmationDialog;
 import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.driver.dashboard.DriverLibraryDashboardStatus.*;
 import static com.dbn.nls.NlsResources.txt;
 
 /** Driver package inventory and management UI. */
@@ -94,7 +93,7 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
     private JComboBox<DatabaseTypeOption> databaseTypeSelector;
     private DBNHintForm dashboardHintForm;
     private DBNBanner messageBanner;
-    private JLabel refreshProgressLabel;
+    private DBNLoadingPanel refreshProgressPanel;
     private DriverLibraryDashboardTable table;
     private final Predicate<Point> downloadActionColumn;
     private final Map<String, String> downloadFailures = new HashMap<>();
@@ -104,7 +103,6 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
     private List<DriverPackage> currentPackages = List.of();
     private List<DriverPackageMetadataRefresh> activeRefreshes = List.of();
     private boolean loadingInventory;
-    private boolean reloadingInventory;
     private boolean deletingPackage;
 
     private final DriverLibraryDashboardOptions options;
@@ -143,10 +141,8 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
 
     private void initLayoutComponents() {
         progressContainer.setLayout(new BorderLayout(JBUI.scale(6), 0));
-        progressContainer.add(new AsyncProcessIcon(txt("app.shared.action.Loading")), BorderLayout.WEST);
-        refreshProgressLabel = new JLabel(txt("app.driver.text.RefreshingMetadata"));
-        refreshProgressLabel.setForeground(Colors.getContextHelpForeground());
-        progressContainer.add(refreshProgressLabel, BorderLayout.CENTER);
+        refreshProgressPanel = newLoadingPanel(this, txt("app.driver.text.RefreshingMetadata"));
+        refreshProgressPanel.installOn(progressContainer, false);
         progressContainer.setVisible(false);
         messageContainer.setLayout(new BoxLayout(messageContainer, BoxLayout.Y_AXIS));
         messageBanner = new DBNBanner(INFO);
@@ -219,17 +215,14 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
         displayedRefreshTypes.clear();
         clearMessage();
         DatabaseType selectedType = getSelectedDatabaseType();
-        List<DatabaseType> types = DriverLibraryDashboardStatus.typesToRefresh(selectedType);
+        List<DatabaseType> types = typesToRefresh(selectedType);
         List<CloudConfigProviderFamily> providerFamilies = getProviderFamilies();
         DriverDownloadManager manager = DriverDownloadManager.getInstance();
         List<DriverPackage> cachedPackages = readCachedPackages(manager, selectedType, types, providerFamilies);
         currentPackages = cachedPackages;
-        reloadingInventory = !cachedPackages.isEmpty();
         applyRows(createRows(manager, cachedPackages, Map.copyOf(downloadFailures), Map.of()));
         table.setLoading(true);
-        refreshProgressLabel.setText(reloadingInventory ?
-                txt("app.driver.text.ReloadingMetadata") : txt("app.driver.text.RefreshingMetadata"));
-        Tooltips.setToolTipText(refreshProgressLabel, null);
+        refreshProgressPanel.withLoadingText(txt("app.driver.text.RefreshingMetadata"));
         progressContainer.setVisible(true);
         updateActions();
 
@@ -283,10 +276,9 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
                     txt("app.driver.text.RefreshProgressDetails", running.detail(), completed, progresses.size());
             String progressText = txt(
                     "app.driver.text.RefreshProgressLabel",
-                    getRefreshProgressText(runningRefresh, running),
+                    running.text(),
                     details);
-            refreshProgressLabel.setText(progressText);
-            Tooltips.setToolTipText(refreshProgressLabel, progressText);
+            refreshProgressPanel.withLoadingText(progressText);
             updateActions();
             return;
         }
@@ -352,13 +344,6 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
                 .toList();
     }
 
-    private String getRefreshProgressText(DriverPackageMetadataRefresh refresh, ProgressInfo progress) {
-        if (!reloadingInventory) return progress.text();
-        return refresh.isResolvingPackageDetails() ?
-                txt("app.driver.text.ReloadingDriverPackageDetails") :
-                txt("app.driver.text.ReloadingMetadata");
-    }
-
     private void showMessage(MessageType messageType, String message, @Nullable String details) {
         messageBanner
                 .setMessageType(messageType)
@@ -420,9 +405,8 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
             boolean downloading = manager.isPackageDownloading(packageId);
             boolean resolving = !driverPackage.isDetailsAvailable() ||
                     driverPackage.isDetailsResolving() ||
-                    isPackageResolving(driverPackage) ||
-                    (!downloading && isDatabaseTypeRefreshing(driverPackage.getDatabaseType()));
-            DriverLibraryDashboardStatus status = DriverLibraryDashboardStatus.resolve(
+                    isPackageResolving(driverPackage);
+            DriverLibraryDashboardStatus status = resolve(
                     failure != null,
                     resolving,
                     downloading,
@@ -445,11 +429,6 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
         return activeRefreshes.stream().anyMatch(refresh ->
                 refresh.getDatabaseType() == driverPackage.getDatabaseType() &&
                         refresh.isPackageResolving(driverPackage.getId()));
-    }
-
-    private boolean isDatabaseTypeRefreshing(@Nullable DatabaseType databaseType) {
-        return databaseType != null && activeRefreshes.stream().anyMatch(refresh ->
-                refresh.getDatabaseType() == databaseType && refresh.isRunning());
     }
 
     private @NotNull DBNTableRowAction<DashboardDriverPackage> createDownloadAction() {
@@ -609,22 +588,34 @@ public class DriverLibraryDashboardForm extends DBNFormBase {
     }
 
     private boolean canDownloadPackage(DashboardDriverPackage driverPackage) {
-        if (driverPackage == null || !driverPackage.isDetailsAvailable() || loadingInventory || deletingPackage) return false;
+        if (driverPackage == null) return false;
+        if (!driverPackage.isDetailsAvailable()) return false;
+        if (driverPackage.status() == RESOLVING) return false;
+        if (deletingPackage) return false;
         DriverDownloadManager manager = DriverDownloadManager.getInstance();
         return !isDownloaded(driverPackage) && !manager.isPackageDownloading(driverPackage.getId());
     }
 
     private boolean canDeleteSelectedPackage() {
         DashboardDriverPackage driverPackage = getSelectedRow();
-        if (driverPackage == null || loadingInventory || deletingPackage) return false;
+        if (driverPackage == null) return false;
+        if (deletingPackage) return false;
+
+        boolean downloaded = isDownloaded(driverPackage);
+        if (loadingInventory && !downloaded) return false;
+
         DriverDownloadManager manager = DriverDownloadManager.getInstance();
-        return !manager.isPackageDownloading(driverPackage.getId()) &&
-                (isDownloaded(driverPackage) || manager.isPackageTrackedForDeletion(driverPackage.driverPackage()));
+        if (manager.isPackageDownloading(driverPackage.getId())) return false;
+        if (downloaded) return true;
+        return manager.isPackageTrackedForDeletion(driverPackage.driverPackage());
     }
 
     private boolean canSelectSelectedPackage() {
         DashboardDriverPackage driverPackage = getSelectedRow();
-        return options.canSelectLibrary() && driverPackage != null && driverPackage.supported() && !loadingInventory && isDownloaded(driverPackage);
+        if (driverPackage == null) return false;
+        if (!options.canSelectLibrary()) return false;
+        if (!driverPackage.supported()) return false;
+        return isDownloaded(driverPackage);
     }
 
     private static boolean isDownloaded(DashboardDriverPackage driverPackage) {

@@ -59,7 +59,7 @@ class DriverLibraryDashboardTableModel extends StatefulDisposableBase implements
             case 0 -> txt("app.driver.column.DatabaseType");
             case 1 -> txt("app.driver.column.DriverPackage");
             case 2 -> txt("app.driver.column.Status");
-            case 3 -> txt("app.driver.column.Location");
+            case 3 -> txt("app.driver.column.DownloadLocation");
             case 4 -> "";
             default -> "";
         };
@@ -112,7 +112,13 @@ class DriverLibraryDashboardTableModel extends StatefulDisposableBase implements
     void setRows(List<DashboardDriverPackage> newDriverPackages) {
         driverPackages.clear();
         driverPackages.addAll(newDriverPackages);
-        fireTableChanged(new TableModelEvent(this));
+        TableModelEvent event = new TableModelEvent(
+                this,
+                0,
+                Integer.MAX_VALUE,
+                TableModelEvent.ALL_COLUMNS,
+                TableModelEvent.UPDATE);
+        fireTableChanged(event);
     }
 
     @Nullable
