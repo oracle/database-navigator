@@ -128,7 +128,7 @@ public class McpToolDefinitionForm extends DBNFormBase {
         initVerificationFields();
 
         resetFormChanges();
-        whenFirstShown(this::initStatementEditor);
+        whenInitialized(() -> initStatementEditor());
     }
 
     public ConnectionHandler getConnection() {
