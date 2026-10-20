@@ -362,7 +362,7 @@ public class LiquibaseWorkspaceForm extends DBNFormBase {
 
         Project project = ensureProject();
         FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
-        Path rootPath = new LiquibaseWorkspacePaths(workspace).getLiquibaseRootPath();
+        Path rootPath = new LiquibaseWorkspacePaths(project, workspace).getLiquibaseRootPath();
         LocalFileSystem fileSystem = LocalFileSystem.getInstance();
         VirtualFile rootDirectory = fileSystem.findFileByPath(rootPath.toString());
         if (rootDirectory == null) return;

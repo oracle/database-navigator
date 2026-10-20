@@ -445,7 +445,8 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
         }
 
         try {
-            Tooltips.setToolTipText(workspaceSelector, new LiquibaseWorkspacePaths(workspace).getLiquibaseRootPath().toString());
+            Project project = executionInput.getProject();
+            Tooltips.setToolTipText(workspaceSelector, new LiquibaseWorkspacePaths(project, workspace).getLiquibaseRootPath().toString());
         } catch (IllegalArgumentException e) {
             Tooltips.setToolTipText(workspaceSelector, null);
         }

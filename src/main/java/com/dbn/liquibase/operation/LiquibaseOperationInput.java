@@ -172,7 +172,7 @@ public class LiquibaseOperationInput extends LiquibaseTaskInput {
 
     public void setWorkspace(@Nullable LiquibaseWorkspace workspace) {
         this.workspace = workspace == null ? null : workspace.clone();
-        this.workspacePaths = this.workspace == null ? null : new LiquibaseWorkspacePaths(this.workspace);
+        this.workspacePaths = this.workspace == null ? null : new LiquibaseWorkspacePaths(getProject(), this.workspace);
     }
 
     public LiquibaseOperationInput copyFrom(@NotNull LiquibaseOperationInput input) {
