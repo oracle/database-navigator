@@ -17,6 +17,7 @@
 package com.dbn.ml.backend.dbms;
 
 import com.dbn.ml.model.MLTaskType;
+import com.dbn.ml.util.MLCSVParser;
 import lombok.Getter;
 
 import java.sql.ResultSet;
@@ -42,6 +43,10 @@ import static java.lang.String.format;
 public class DBMSEvaluationResult {
 
     public static final String ILBR = "\n  "; // indented line break
+    public static final int MAX_CONFUSION_MATRIX_ROWS = 10_000;
+    public static final int MAX_CONFUSION_MATRIX_CLASSES = 100;
+    public static final int MAX_CONFUSION_MATRIX_CELLS = 10_000;
+    public static final int MAX_CONFUSION_MATRIX_LABEL_LENGTH = MLCSVParser.MAX_TEXT_LENGTH;
 
     /**
      * Per-class metrics for classification.
@@ -69,6 +74,9 @@ public class DBMSEvaluationResult {
     private double accuracy;
     private double aucRoc;
     private final Map<String, Integer> confusionMatrixData;
+    private final Set<String> confusionMatrixClassLabels;
+    private int confusionMatrixRowCount;
+    private boolean confusionMatrixDataOversized;
 
     // Calculated per-class metrics (lazy initialized)
     private Map<String, ClassMetrics> perClassMetricsCache;
@@ -88,6 +96,7 @@ public class DBMSEvaluationResult {
         this.taskType = taskType;
         this.testDataSize = testDataSize;
         this.confusionMatrixData = new HashMap<>();
+        this.confusionMatrixClassLabels = new HashSet<>();
         this.liftAnalysis = new ArrayList<>();
     }
 
@@ -140,7 +149,7 @@ public class DBMSEvaluationResult {
             String actual = confusionRs.getString("ACTUAL_TARGET_VALUE");
             String predicted = confusionRs.getString("PREDICTED_TARGET_VALUE");
             int count = confusionRs.getInt("VALUE");
-            result.confusionMatrixData.put(actual + "\0" + predicted, count);
+            if (!result.addConfusionMatrixRow(actual, predicted, count)) break;
         }
 
         return result;
@@ -195,10 +204,49 @@ public class DBMSEvaluationResult {
             String actual = confusionRs.getString("actual_target_value");
             String predicted = confusionRs.getString("predicted_target_value");
             int count = confusionRs.getInt("value");
-            result.confusionMatrixData.put(actual + "\0" + predicted, count);
+            if (!result.addConfusionMatrixRow(actual, predicted, count)) break;
         }
 
         return result;
+    }
+
+    private boolean addConfusionMatrixRow(String actual, String predicted, int count) {
+        String actualLabel = String.valueOf(actual);
+        String predictedLabel = String.valueOf(predicted);
+        if (actualLabel.length() > MAX_CONFUSION_MATRIX_LABEL_LENGTH ||
+                predictedLabel.length() > MAX_CONFUSION_MATRIX_LABEL_LENGTH ||
+                confusionMatrixRowCount >= MAX_CONFUSION_MATRIX_ROWS) {
+            markConfusionMatrixDataOversized();
+            return false;
+        }
+
+        int addedLabels = 0;
+        if (!confusionMatrixClassLabels.contains(actualLabel)) addedLabels++;
+        if (!actualLabel.equals(predictedLabel) && !confusionMatrixClassLabels.contains(predictedLabel)) addedLabels++;
+
+        int classCount = confusionMatrixClassLabels.size() + addedLabels;
+        if (classCount > MAX_CONFUSION_MATRIX_CLASSES ||
+                (long) classCount * classCount > MAX_CONFUSION_MATRIX_CELLS) {
+            markConfusionMatrixDataOversized();
+            return false;
+        }
+
+        confusionMatrixClassLabels.add(actualLabel);
+        confusionMatrixClassLabels.add(predictedLabel);
+        confusionMatrixData.put(actualLabel + "\0" + predictedLabel, count);
+        confusionMatrixRowCount++;
+        return true;
+    }
+
+    private void markConfusionMatrixDataOversized() {
+        confusionMatrixDataOversized = true;
+        confusionMatrixData.clear();
+        confusionMatrixClassLabels.clear();
+        perClassMetricsCache = null;
+    }
+
+    public boolean isConfusionMatrixDataOversized() {
+        return confusionMatrixDataOversized;
     }
 
     /**
@@ -277,7 +325,7 @@ public class DBMSEvaluationResult {
 
         perClassMetricsCache = new HashMap<>();
 
-        if (confusionMatrixData.isEmpty()) {
+        if (confusionMatrixDataOversized || confusionMatrixData.isEmpty()) {
             macroPrecision = 0.0;
             macroRecall = 0.0;
             macroF1 = 0.0;

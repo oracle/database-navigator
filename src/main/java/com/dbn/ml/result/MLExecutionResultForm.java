@@ -191,9 +191,11 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
 
         if (result.isClassification()) {
             metricsCardsPanel.add(new MLMetricCardPanel(txt("app.machineLearning.label.Accuracy"), evalResult.getAccuracy(), true, "info/accuracy_info.html.ft"));
-            metricsCardsPanel.add(new MLMetricCardPanel(txt("app.machineLearning.label.Precision"), evalResult.getPrecision(), true, "info/precision_info.html.ft"));
-            metricsCardsPanel.add(new MLMetricCardPanel(txt("app.machineLearning.label.Recall"), evalResult.getRecall(), true, "info/recall_info.html.ft"));
-            metricsCardsPanel.add(new MLMetricCardPanel(txt("app.machineLearning.label.F1Score"), evalResult.getF1Score(), true, "info/f1_score_info.html.ft"));
+            if (!evalResult.isConfusionMatrixDataOversized()) {
+                metricsCardsPanel.add(new MLMetricCardPanel(txt("app.machineLearning.label.Precision"), evalResult.getPrecision(), true, "info/precision_info.html.ft"));
+                metricsCardsPanel.add(new MLMetricCardPanel(txt("app.machineLearning.label.Recall"), evalResult.getRecall(), true, "info/recall_info.html.ft"));
+                metricsCardsPanel.add(new MLMetricCardPanel(txt("app.machineLearning.label.F1Score"), evalResult.getF1Score(), true, "info/f1_score_info.html.ft"));
+            }
 
             if (evalResult.getAucRoc() > 0) {
                 metricsCardsPanel.add(new MLMetricCardPanel(txt("app.machineLearning.label.AucRoc"), evalResult.getAucRoc(), true, "info/auc_roc_info.html.ft"));
@@ -217,6 +219,10 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         Map<String, Integer> confusionData = null;
         DBMSEvaluationResult dbmsEval = result.getEvaluationResult();
         if (dbmsEval != null) {
+            if (dbmsEval.isConfusionMatrixDataOversized()) {
+                confusionMatrixPanel.add(new JLabel(txt("app.machineLearning.text.ConfusionMatrixNotAvailable")), BorderLayout.CENTER);
+                return;
+            }
             confusionData = dbmsEval.getConfusionMatrixData();
         }
 
@@ -239,17 +245,31 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
     private JComponent createHeatmapTable(Map<String, Integer> confusionData) {
         TreeSet<String> classLabels = new TreeSet<>();
         int maxCount = 0;
+        int rowCount = 0;
         for (Map.Entry<String, Integer> entry : confusionData.entrySet()) {
+            if (++rowCount > DBMSEvaluationResult.MAX_CONFUSION_MATRIX_ROWS) {
+                return new JLabel(txt("app.machineLearning.text.ConfusionMatrixNotAvailable"));
+            }
             String[] parts = entry.getKey().split("\0");
             if (parts.length >= 2) {
+                if (parts[0].length() > DBMSEvaluationResult.MAX_CONFUSION_MATRIX_LABEL_LENGTH ||
+                        parts[1].length() > DBMSEvaluationResult.MAX_CONFUSION_MATRIX_LABEL_LENGTH) {
+                    return new JLabel(txt("app.machineLearning.text.ConfusionMatrixNotAvailable"));
+                }
                 classLabels.add(parts[0]);
                 classLabels.add(parts[1]);
+                if (classLabels.size() > DBMSEvaluationResult.MAX_CONFUSION_MATRIX_CLASSES) {
+                    return new JLabel(txt("app.machineLearning.text.ConfusionMatrixNotAvailable"));
+                }
                 maxCount = Math.max(maxCount, entry.getValue());
             }
         }
 
         List<String> labels = new ArrayList<>(classLabels);
         int size = labels.size();
+        if ((long) size * size > DBMSEvaluationResult.MAX_CONFUSION_MATRIX_CELLS) {
+            return new JLabel(txt("app.machineLearning.text.ConfusionMatrixNotAvailable"));
+        }
 
         String[] columns = new String[size + 1];
         columns[0] = txt("app.machineLearning.column.ActualPredicted");
@@ -325,7 +345,7 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         chartPanel.setLayout(new BoxLayout(chartPanel, BoxLayout.Y_AXIS));
 
         DBMSEvaluationResult evalResult = result.getEvaluationResult();
-        if (evalResult != null) {
+        if (evalResult != null && !evalResult.isConfusionMatrixDataOversized()) {
             var perClassMetrics = evalResult.getPerClassMetrics();
             if (perClassMetrics != null && !perClassMetrics.isEmpty()) {
                 for (var entry : perClassMetrics.entrySet()) {

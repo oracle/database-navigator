@@ -149,8 +149,10 @@ public class DBMSBackend {
 
         if (context.getTaskType() == MLTaskType.CLASSIFICATION) {
             String targetColumn = context.getFeatureConfig().getLabelColumns().get(0);
-            classValues = getClassValues(trainTableName, targetColumn);
-            classCount = classValues != null ? classValues.size() : 0;
+            classCount = getDistinctClassCount(trainTableName, targetColumn);
+            if (classCount == 2) {
+                classValues = getClassValues(trainTableName, targetColumn);
+            }
         } else {
             outputDimensions = 1;
         }
@@ -664,10 +666,10 @@ public class DBMSBackend {
                 getProject(),
                 connection.getConnectionId(),
                 conn -> {
-                    List<String> values = new ArrayList<>();
+                    List<String> values = new ArrayList<>(3);
                     DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
                     try (ResultSet rs = mlInterface.getClassValues(conn, columnName, tableName)) {
-                        while (rs.next()) {
+                        while (values.size() < 3 && rs.next()) {
                             values.add(rs.getString("CLASS_VALUE"));
                         }
                     }
