@@ -16,6 +16,7 @@
 
 package com.dbn.common.constant;
 
+import com.dbn.common.resource.ResourceLimitPolicy;
 import com.dbn.common.resource.ResourceLimits;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NonNls;
@@ -25,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
  * Bounds for IDs retained by each pseudo-constant type.
  */
 @UtilityClass
-public class PseudoConstantResourceLimits {
+public class PseudoConstantResourceLimits implements ResourceLimitPolicy {
     public static final int MAX_ID_LENGTH = 1024;
     public static final int MAX_REGISTERED_ID_COUNT = 65536;
 

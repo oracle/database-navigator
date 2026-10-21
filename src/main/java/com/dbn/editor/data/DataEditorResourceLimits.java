@@ -16,6 +16,7 @@
 
 package com.dbn.editor.data;
 
+import com.dbn.common.resource.ResourceLimitPolicy;
 import com.dbn.common.resource.ResourceLimits;
 import lombok.experimental.UtilityClass;
 
@@ -23,7 +24,7 @@ import lombok.experimental.UtilityClass;
  * Resource bounds for data editor fetching and value lists.
  */
 @UtilityClass
-public class DataEditorResourceLimits {
+public class DataEditorResourceLimits implements ResourceLimitPolicy {
     public static final int MIN_DATA_EDITOR_FETCH_BLOCK_SIZE = 1;
     public static final int MAX_DATA_EDITOR_FETCH_BLOCK_SIZE = 10000;
     public static final int DEFAULT_DATA_EDITOR_FETCH_BLOCK_SIZE = 100;

@@ -16,6 +16,7 @@
 
 package com.dbn.execution;
 
+import com.dbn.common.resource.ResourceLimitPolicy;
 import com.dbn.common.resource.ResourceLimits;
 import lombok.experimental.UtilityClass;
 
@@ -23,7 +24,7 @@ import lombok.experimental.UtilityClass;
  * Resource bounds for execution result fetching.
  */
 @UtilityClass
-public class ExecutionResourceLimits {
+public class ExecutionResourceLimits implements ResourceLimitPolicy {
     public static final int MIN_RESULT_SET_FETCH_BLOCK_SIZE = 1;
     public static final int MAX_RESULT_SET_FETCH_BLOCK_SIZE = 10000;
     public static final int DEFAULT_RESULT_SET_FETCH_BLOCK_SIZE = 100;

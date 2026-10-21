@@ -16,6 +16,7 @@
 
 package com.dbn.connection;
 
+import com.dbn.common.resource.ResourceLimitPolicy;
 import com.dbn.common.resource.ResourceLimits;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NonNls;
@@ -25,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
  * Resource ceilings and admission checks for connection configuration.
  */
 @UtilityClass
-public class ConnectionResourceLimits {
+public class ConnectionResourceLimits implements ResourceLimitPolicy {
     public static final int MAX_CONNECTION_COUNT = 256;
     public static final long MAX_CLIPBOARD_XML_SIZE_BYTES = 10L * 1024 * 1024;
 
