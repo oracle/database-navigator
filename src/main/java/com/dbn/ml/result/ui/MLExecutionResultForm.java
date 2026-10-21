@@ -42,6 +42,7 @@ import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Box;
@@ -176,28 +177,38 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
     }
 
     private void initializeMetricsCards() {
-        metricsCardsPanel.setLayout(new GridLayout(1, 0, 12, 0));
-        metricsCardsPanel.setBorder(JBUI.Borders.empty(8));
+        metricsCardsPanel.setLayout(new GridLayout(1, 0, 0, 0));
+        //metricsCardsPanel.setBorder(JBUI.Borders.empty(8));
 
         DBMSEvaluationResult evalResult = result.getEvaluationResult();
         if (evalResult == null) return;
 
         if (result.isClassification()) {
-            metricsCardsPanel.add(new MLMetricCardPanel(txt("app.machineLearning.label.Accuracy"), evalResult.getAccuracy(), true, "info/accuracy_info.html.ft"));
+            addMetricCard(txt("app.machineLearning.label.Accuracy"), evalResult.getAccuracy(), true, "info/accuracy_info.html.ft");
             if (!evalResult.isConfusionMatrixDataOversized()) {
-                metricsCardsPanel.add(new MLMetricCardPanel(txt("app.machineLearning.label.Precision"), evalResult.getPrecision(), true, "info/precision_info.html.ft"));
-                metricsCardsPanel.add(new MLMetricCardPanel(txt("app.machineLearning.label.Recall"), evalResult.getRecall(), true, "info/recall_info.html.ft"));
-                metricsCardsPanel.add(new MLMetricCardPanel(txt("app.machineLearning.label.F1Score"), evalResult.getF1Score(), true, "info/f1_score_info.html.ft"));
+                addMetricCard(txt("app.machineLearning.label.Precision"), evalResult.getPrecision(), true, "info/precision_info.html.ft");
+                addMetricCard(txt("app.machineLearning.label.Recall"), evalResult.getRecall(), true, "info/recall_info.html.ft");
+                addMetricCard(txt("app.machineLearning.label.F1Score"), evalResult.getF1Score(), true, "info/f1_score_info.html.ft");
             }
 
             if (evalResult.getAucRoc() > 0) {
-                metricsCardsPanel.add(new MLMetricCardPanel(txt("app.machineLearning.label.AucRoc"), evalResult.getAucRoc(), true, "info/auc_roc_info.html.ft"));
+                addMetricCard(txt("app.machineLearning.label.AucRoc"), evalResult.getAucRoc(), true, "info/auc_roc_info.html.ft");
             }
         } else {
-            metricsCardsPanel.add(new MLMetricCardPanel(txt("app.machineLearning.label.R2Score"), evalResult.getR2Score(), true, "info/r2_score_info.html.ft"));
-            metricsCardsPanel.add(new MLMetricCardPanel(txt("app.machineLearning.label.RMSE"), evalResult.getRMSE(), false, "info/rmse_info.html.ft"));
-            metricsCardsPanel.add(new MLMetricCardPanel(txt("app.machineLearning.label.MAE"), evalResult.getMAE(), false, "info/mae_info.html.ft"));
+            addMetricCard(txt("app.machineLearning.label.R2Score"), evalResult.getR2Score(), true, "info/r2_score_info.html.ft");
+            addMetricCard(txt("app.machineLearning.label.RMSE"), evalResult.getRMSE(), false, "info/rmse_info.html.ft");
+            addMetricCard(txt("app.machineLearning.label.MAE"), evalResult.getMAE(), false, "info/mae_info.html.ft");
         }
+    }
+
+    private void addMetricCard(@Nls String name, double value, boolean isRatio, @NonNls String infoResourceName) {
+        MLMetricCardPanel card = new MLMetricCardPanel(name, value, isRatio, infoResourceName);
+        JPanel panel = new JPanel(new BorderLayout());
+        if (metricsCardsPanel.getComponentCount() > 0) {
+            panel.add(Box.createHorizontalStrut(JBUI.scale(12)), BorderLayout.WEST);
+        }
+        panel.add(card, BorderLayout.CENTER);
+        metricsCardsPanel.add(panel);
     }
 
     private void initializeConfusionMatrix() {
