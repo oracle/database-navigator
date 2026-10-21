@@ -31,10 +31,10 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
-import static com.dbn.assistant.mcp.model.AssistantMcpToolMetadataGuard.MAX_TOOL_COUNT;
-import static com.dbn.assistant.mcp.model.AssistantMcpToolMetadataGuard.MAX_TOOL_INSTRUCTION_LENGTH;
-import static com.dbn.assistant.mcp.model.AssistantMcpToolMetadataGuard.MAX_TOOL_NAME_LENGTH;
-import static com.dbn.assistant.mcp.model.AssistantMcpToolMetadataGuard.MAX_TOTAL_TOOL_METADATA_LENGTH;
+import static com.dbn.assistant.mcp.AssistantMcpResourceLimits.isToolCountAllowed;
+import static com.dbn.assistant.mcp.AssistantMcpResourceLimits.isToolInstructionLengthAllowed;
+import static com.dbn.assistant.mcp.AssistantMcpResourceLimits.isToolNameLengthAllowed;
+import static com.dbn.assistant.mcp.AssistantMcpResourceLimits.isTotalToolMetadataLengthAllowed;
 
 /**
  * Checks STDIO command files before launch and bounds MCP tools/list metadata before
@@ -126,11 +126,11 @@ class AssistantMcpGuardedTransport implements McpTransport {
         int metadataSize = 0;
 
         for (JsonNode tool : tools) {
-            if (acceptedTools.size() >= MAX_TOOL_COUNT) break;
+            if (!isToolCountAllowed(acceptedTools.size() + 1L)) break;
             if (!isAcceptedTool(tool)) continue;
 
             int toolMetadataSize = getMetadataSize(tool);
-            if (metadataSize + toolMetadataSize > MAX_TOTAL_TOOL_METADATA_LENGTH) continue;
+            if (!isTotalToolMetadataLengthAllowed(metadataSize, toolMetadataSize)) continue;
 
             metadataSize += toolMetadataSize;
             acceptedTools.add(tool.deepCopy());
@@ -148,11 +148,11 @@ class AssistantMcpGuardedTransport implements McpTransport {
                 name != null &&
                 name.isTextual() &&
                 textLength(name) > 0 &&
-                textLength(name) <= MAX_TOOL_NAME_LENGTH &&
+                isToolNameLengthAllowed(textLength(name)) &&
                 inputSchema != null &&
                 inputSchema.isObject() &&
-                textLength(tool.get("description")) <= MAX_TOOL_INSTRUCTION_LENGTH &&
-                nodeLength(inputSchema) <= MAX_TOOL_INSTRUCTION_LENGTH;
+                isToolInstructionLengthAllowed(textLength(tool.get("description"))) &&
+                isToolInstructionLengthAllowed(nodeLength(inputSchema));
     }
 
     private static int getMetadataSize(JsonNode tool) {
