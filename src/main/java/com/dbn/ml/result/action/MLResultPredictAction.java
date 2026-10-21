@@ -41,7 +41,8 @@ public class MLResultPredictAction extends AbstractMLExecutionResultAction {
         MLResult result = executionResult.getMlResult();
 
         DatabaseMLManager.getInstance(project).openPredictionDialog(
-                result.getConnection(), result.getModelHandle().getModelName(), result.getTaskType());
+                result.getConnection(), result.getModelHandle().getTargetSchemaId(),
+                result.getModelHandle().getModelName(), result.getTaskType());
     }
 
     @Override

@@ -68,18 +68,20 @@ public class MLRequest implements PersistentStateElement, Cloneable<MLRequest> {
     }
 
     public void initTarget(SchemaId schemaId) {
-        trainerConfig.setTargetSchemaId(schemaId);
+        if (trainerConfig.getTargetSchemaId() == null) {
+            trainerConfig.setTargetSchemaId(schemaId);
+        }
     }
 
-    public void reset(SchemaId userSchema) {
+    public void reset(SchemaId schemaId) {
         modelToReplace = null;
         miningFunction = MLMiningFunction.CLASSIFICATION;
         sourceConfig = new MLSourceConfig();
         featureConfig = new MLFeatureConfig();
         trainerConfig = new MLTrainerConfig();
 
-        initSource(userSchema);
-        initTarget(userSchema);
+        initSource(schemaId);
+        initTarget(schemaId);
     }
 
     /**

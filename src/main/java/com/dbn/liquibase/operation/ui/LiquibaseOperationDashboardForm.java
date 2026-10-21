@@ -112,11 +112,8 @@ public class LiquibaseOperationDashboardForm extends DBNFormBase {
         initPersistence(connectionSelector, state, ATTR_CONNECTION);
 
         schemaSelector.initialize(this, SCHEMA);
-        schemaSelector.withConnectionContext(this::getSelectedConnection);
-        schemaSelector.withValueLoader(() -> {
-            ConnectionHandler connection = getSelectedConnection();
-            return connection == null ? emptyList() : filter(connection.getObjectBundle().getSchemas(), s -> !s.isSystemSchema());
-        });
+        schemaSelector.withConnectionContext(() -> getSelectedConnection());
+        schemaSelector.withValueLoader(() -> loadSchemas());
         initPersistence(schemaSelector, state, ATTR_SCHEMA);
         schemaSelector.triggerLoad();
         setFormFieldEnabled(schemaSelector, "CONTEXT_AVAILABILITY", getSelectedConnection() != null);
@@ -128,6 +125,11 @@ public class LiquibaseOperationDashboardForm extends DBNFormBase {
         });
         onSelectionChange(schemaSelector, schema -> updateOperationAvailability());
         updateOperationAvailability();
+    }
+
+    private List<DBSchema> loadSchemas() {
+        ConnectionHandler connection = getSelectedConnection();
+        return connection == null ? emptyList() : connection.getObjectBundle().getUserSchemas();
     }
 
     private void initOperationsPanel() {

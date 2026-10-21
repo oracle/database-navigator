@@ -31,7 +31,6 @@ import com.dbn.ddl.options.DDLFileSettings;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.language.sql.SQLLanguage;
-import com.dbn.object.factory.ObjectFactoryIdentifiers;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.model.DBObjectSpecList;
 import com.dbn.object.type.DBTriggerEvent;
@@ -274,17 +273,17 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
                 builder.append(" on ");
                 builder.append(triggerSpec.getSchemaName(true));
                 builder.append('.');
-                builder.append(ObjectFactoryIdentifiers.quoteIdentifier(
-                        triggerSpec.getConnection(),
-                        TRIGGER_TARGET_DATASET.value(triggerSpec)));
+                builder.append(quoted(
+                        TRIGGER_TARGET_DATASET.value(triggerSpec), connection
+                ));
                 if (TRIGGER_FOR_EACH_ROW.is(triggerSpec)) {
                     builder.append("\nfor each row");
                 }
             }
             case SCHEMA -> builder.append(" on ")
-                    .append(ObjectFactoryIdentifiers.quoteIdentifier(
-                            triggerSpec.getConnection(),
-                            TRIGGER_TARGET_SCHEMA.value(triggerSpec)))
+                    .append(quoted(
+                            TRIGGER_TARGET_SCHEMA.value(triggerSpec), connection
+                    ))
                     .append(".schema");
             case DATABASE, UNKNOWN -> builder.append(" on database");
         }

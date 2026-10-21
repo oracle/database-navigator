@@ -49,7 +49,8 @@ public class AIModelPredictAction extends AnObjectAction<DBMiningModel> {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DBMiningModel model) {
-        DatabaseMLManager.getInstance(project).openPredictionDialog(model.getConnection(), model.getName(), null);
+        DatabaseMLManager.getInstance(project).openPredictionDialog(
+                model.getConnection(), model.getSchema().getIdentifier(), model.getName(), null);
     }
 
     @Override

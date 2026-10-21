@@ -24,11 +24,13 @@ import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.misc.DBNTableScrollPane;
 import com.dbn.common.ui.util.Borders;
+import com.dbn.common.ui.util.Tooltips;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.Resources;
+import com.dbn.connection.SchemaId;
 import com.dbn.connection.jdbc.DBNResultSet;
 import com.dbn.data.grid.ui.table.resultSet.ResultSetTable;
 import com.dbn.data.model.resultSet.ResultSetDataModel;
@@ -41,7 +43,6 @@ import com.dbn.language.sql.SQLFileType;
 import com.dbn.language.sql.SQLLanguage;
 import com.dbn.ml.backend.model.MLPredictionAttribute;
 import com.dbn.ml.model.MLTaskType;
-import com.dbn.common.ui.util.Tooltips;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ex.EditorEx;
@@ -85,6 +86,7 @@ public class MLPredictForm extends DBNFormBase {
     private JPanel sqlPreviewPanel;
 
     private final String modelName;
+    private final SchemaId modelSchemaId;
     private final ConnectionHandler connection;
     private final MLTaskType taskType;
     private final List<MLPredictionAttribute> attributes;
@@ -97,6 +99,7 @@ public class MLPredictForm extends DBNFormBase {
 
     MLPredictForm(
             MLPredictDialog parent,
+            SchemaId modelSchemaId,
             String modelName,
             ConnectionHandler connection,
             MLTaskType taskType,
@@ -104,6 +107,7 @@ public class MLPredictForm extends DBNFormBase {
             @NonNls String predictionStatement) {
 
         super(parent);
+        this.modelSchemaId = modelSchemaId;
         this.modelName = modelName;
         this.connection = connection;
         this.taskType = taskType;
@@ -295,7 +299,8 @@ public class MLPredictForm extends DBNFormBase {
                     DBNResultSet resultSet = null;
                     try {
                         DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
-                        resultSet = mlInterface.predict(conn, modelName, attributes, values, withProbability);
+                        resultSet = mlInterface.predict(
+                                conn, modelSchemaId.getName(), modelName, attributes, values, withProbability);
 
                         ResultSetDataModel dataModel = new ResultSetDataModel(resultSet, connection, -1);
                         dataModel.fetchNextRecords(PREDICTION_ROW_LIMIT, false);

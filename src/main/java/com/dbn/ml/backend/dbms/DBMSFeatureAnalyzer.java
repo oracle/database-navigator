@@ -22,8 +22,8 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
 import com.dbn.ml.backend.model.MLTrainingContext;
-import com.dbn.ml.model.analysis.MLFeatureImportance;
 import com.dbn.ml.model.analysis.MLAttributeContribution;
+import com.dbn.ml.model.analysis.MLFeatureImportance;
 import com.intellij.openapi.project.Project;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
@@ -120,7 +120,9 @@ public class DBMSFeatureAnalyzer {
                 connection.getConnectionId(),
                 conn -> {
                     List<MLAttributeContribution> contributions = new ArrayList<>();
-                    try (ResultSet rs = getInterface().getAttributeContribution(conn, modelName, testTableName, topN)) {
+                    try (ResultSet rs = getInterface().getAttributeContribution(
+                            conn, modelHandle.getTargetSchemaId() == null ? null : modelHandle.getTargetSchemaId().getName(),
+                            modelName, testTableName, topN)) {
                         while (rs.next()) {
                             contributions.add(new MLAttributeContribution(
                                     rs.getString("ATTRIBUTE_NAME"),

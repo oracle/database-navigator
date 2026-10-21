@@ -143,9 +143,11 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
      */
     public void openPredictionDialog(
             @NotNull ConnectionHandler connection,
+            @NotNull SchemaId modelSchemaId,
             @NotNull String modelName,
             @Nullable MLTaskType taskType) {
 
+        String modelSchemaName = modelSchemaId.getName();
         String title = txt("prc.machineLearning.title.LoadingModelMetadata");
         String text = txt("prc.machineLearning.text.LoadingModelMetadata", modelName);
         Progress.modal(getProject(), connection, true, title, text, progress -> {
@@ -159,7 +161,7 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
                             DatabaseMachineLearningInterface ml = connection.getInterfaces().getMachineLearningInterface();
                             MLTaskType resolvedTaskType = taskType;
                             if (resolvedTaskType == null) {
-                                String miningFunction = ml.getModelFunction(conn, modelName);
+                                String miningFunction = ml.getModelFunction(conn, modelSchemaName, modelName);
                                 if (miningFunction == null) {
                                     showWarningDialog(getProject(),
                                             txt("msg.machineLearning.title.ModelNotFound"),
@@ -171,7 +173,7 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
                             }
 
                             List<MLPredictionAttribute> attributes = new ArrayList<>();
-                            try (ResultSet resultSet = ml.getModelInputAttributes(conn, modelName)) {
+                            try (ResultSet resultSet = ml.getModelInputAttributes(conn, modelSchemaName, modelName)) {
                                 while (resultSet.next()) {
                                     attributes.add(new MLPredictionAttribute(
                                             resultSet.getString("ATTRIBUTE_NAME"),
@@ -198,9 +200,11 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
                             }
 
                             boolean withProbability = resolvedTaskType == MLTaskType.CLASSIFICATION;
-                            String statement = ml.buildPredictionStatement(conn, modelName, attributes, withProbability);
+                            String statement = ml.buildPredictionStatement(
+                                    conn, modelSchemaName, modelName, attributes, withProbability);
                             MLTaskType finalTaskType = resolvedTaskType;
-                            Dialogs.show(() -> new MLPredictDialog(connection, modelName, finalTaskType, attributes, statement));
+                            Dialogs.show(() -> new MLPredictDialog(
+                                    connection, modelSchemaId, modelName, finalTaskType, attributes, statement));
                         });
             } catch (Exception e) {
                 log.warn("Failed to load prediction metadata for model {}", modelName, e);

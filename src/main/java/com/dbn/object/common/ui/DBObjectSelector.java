@@ -31,11 +31,13 @@ import com.dbn.object.factory.DatabaseObjectFactory;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
+import com.intellij.util.ui.JBUI;
 import lombok.Getter;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.Dimension;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -54,6 +56,9 @@ public class DBObjectSelector<T extends DBObject> extends DBNComboBox<T> {
     private final Listeners<DBObjectSelectorListener> listeners = Listeners.create();
 
     public DBObjectSelector() {
+        Dimension maxSize = new Dimension(getMaximumSize());
+        maxSize.width = JBUI.scale(120);
+        setMaximumSize(maxSize);
     }
 
     public DBObjectSelector<T> initialize(

@@ -24,6 +24,7 @@ import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.util.Naming;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.SchemaId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
@@ -34,6 +35,8 @@ import com.dbn.ml.model.trainer.MLTrainerConfig;
 import com.dbn.ml.model.trainer.MLTrainerType;
 import com.dbn.ml.ui.MLToolboxForm;
 import com.dbn.ml.ui.MLToolboxFormBase;
+import com.dbn.object.DBSchema;
+import com.dbn.object.common.ui.DBObjectSelector;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.util.NlsContexts.DialogMessage;
 import com.intellij.ui.HyperlinkLabel;
@@ -54,16 +57,20 @@ import java.util.List;
 import java.util.Set;
 
 import static com.dbn.common.ui.link.Hyperlinks.initHyperlink;
+import static com.dbn.common.ui.util.ClientProperty.LOADING;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.Focus.onFocusLost;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.setTextSilently;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.object.type.DBObjectType.SCHEMA;
 
 public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleForm {
     private JPanel mainPanel;
     private JLabel modelNameLabel;
     private JBTextField modelNameField;
+    private JLabel targetSchemaLabel;
+    private DBObjectSelector<DBSchema> targetSchemaComboBox;
     private JLabel algorithmLabel;
     private DBNComboBox<MLTrainerType> algorithmComboBox;
     private HyperlinkLabel algorithmDocLink;
@@ -84,7 +91,6 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
     public MLTrainerForm(Disposable parent, ConnectionHandler connection) {
         super(parent, connection);
         initComponents();
-        loadExistingModelNames();
     }
 
     private void initComponents() {
@@ -105,6 +111,9 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
      * collision before the training job is submitted instead of after it fails on the server.
      */
     private void loadExistingModelNames() {
+        SchemaId schemaId = getTargetSchemaId();
+        if (schemaId == null) return;
+        existingModelNames = null;
         Background.run(() -> {
             Set<String> names = new HashSet<>();
             ConnectionHandler connection = getConnection();
@@ -114,15 +123,16 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
                     connection.getProject(),
                     getConnectionId(),
                     (DBNConnection conn) -> {
-                        try (ResultSet rs = mlInterface.getExistingModelNames(conn)) {
+                        try (ResultSet rs = mlInterface.getExistingModelNames(conn, schemaId.getName())) {
                             while (rs.next()) {
                                 names.add(rs.getString("MODEL_NAME").toUpperCase());
                             }
                         }
                     });
 
-            existingModelNames = names;
             dispatch(() -> {
+                if (!schemaId.equals(getTargetSchemaId())) return;
+                existingModelNames = names;
                 updateGeneratedModelName(generatedSourceName);
                 validateInput(modelNameField);
             });
@@ -151,6 +161,7 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
     protected void initFieldAlignment() {
         FieldAlignerData alignerData = getFieldAlignerData();
         alignerData.registerFieldGroup(modelNameLabel, modelNameField);
+        alignerData.registerFieldGroup(targetSchemaLabel, targetSchemaComboBox);
         alignerData.registerFieldGroup(algorithmLabel, algorithmComboBox);
         alignerData.registerFieldGroup(splitLabel);
         alignerData.registerFieldGroup(seedLabel);
@@ -158,6 +169,9 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
 
     @Override
     protected void initEventListeners() {
+        onSelectionChange(targetSchemaComboBox, schema -> {
+            if (!LOADING.is(targetSchemaComboBox)) loadExistingModelNames();
+        });
         onSelectionChange(algorithmComboBox, t -> onAlgorithmChanged());
         splitSlider.addChangeListener(e -> updateSplitLabel());
         useFixedSeedCheckBox.addActionListener(e -> updateSeedEnabled());
@@ -214,6 +228,29 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
         return toolboxForm.getMLRequest().getTrainerConfig();
     }
 
+    private SchemaId getTargetSchemaId() {
+        DBSchema schema = targetSchemaComboBox.getSelectedValue();
+        SchemaId schemaId = schema == null ? null : schema.getSchemaId();
+        if (schemaId == null) schemaId = getConfig().getTargetSchemaId();
+        if (schemaId == null) schemaId = getConnection().getUserSchemaId();
+        return schemaId;
+    }
+
+    private void initTargetSchemaSelector(MLTrainerConfig config) {
+        targetSchemaComboBox
+                .initialize(this, SCHEMA)
+                .withConnectionContext(() -> getConnection())
+                .withValueLoader(() -> loadSchemas())
+                .withValuePreselector(() -> {
+                    SchemaId schemaId = config.getTargetSchemaId();
+                    if (schemaId == null) schemaId = getConnection().getUserSchemaId();
+                    return schemaId == null ? null : schemaId.getName();
+                })
+                .withValueLoadConsumer(values -> loadExistingModelNames());
+
+        targetSchemaComboBox.triggerLoad();
+    }
+
     public void refreshGeneratedModelName() {
         updateGeneratedModelName(getToolboxForm().getSourceForm().getSelectedSourceBaseName());
     }
@@ -246,6 +283,8 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
     public void resetFormChanges() {
         MLTrainerConfig config = getConfig();
 
+        initTargetSchemaSelector(config);
+
         generatedModelName = null;
         generatedSourceName = MLSourceNames.extractBaseName(getMLRequest().getSourceConfig());
         modelNameField.setText(config.getTargetModelName() != null ? config.getTargetModelName() : "");
@@ -274,6 +313,7 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
     @Override
     public void applyFormChanges() {
         MLTrainerConfig config = getConfig();
+        config.setTargetSchemaId(getTargetSchemaId());
         String name = modelNameField.getText().trim();
         config.setTargetModelName(name.isEmpty() ? null : name);
         config.setTrainerType(algorithmComboBox.getSelectedValue());

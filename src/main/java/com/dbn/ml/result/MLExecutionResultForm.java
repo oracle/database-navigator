@@ -24,6 +24,7 @@ import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.util.Actions;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.SchemaId;
 import com.dbn.execution.common.result.ui.ExecutionResultFormBase;
 import com.dbn.ml.backend.dbms.DBMSEvaluationResult;
 import com.dbn.ml.backend.dbms.DBMSModelHandle;
@@ -176,7 +177,8 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         String modelName = result.getModelName();
         if (modelName == null) return connection;
 
-        DBSchema schema = connection.getUserSchema();
+        SchemaId schemaId = result.getModelHandle().getTargetSchemaId();
+        DBSchema schema = schemaId == null ? connection.getUserSchema() : connection.getSchema(schemaId);
         if (schema == null) return connection;
 
         return new DBObjectRef<>(schema.ref(), DBObjectType.MINING_MODEL, modelName);
@@ -490,7 +492,8 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
     }
 
     private void openView(Project project, ConnectionHandler connection, String viewName) {
-        DBSchema schema = connection.getUserSchema();
+        SchemaId schemaId = result.getModelHandle().getTargetSchemaId();
+        DBSchema schema = schemaId == null ? connection.getUserSchema() : connection.getSchema(schemaId);
         if (schema == null) return;
 
         DBObjectList<DBView> viewList = schema.getChildObjectList(DBObjectType.VIEW);

@@ -31,7 +31,6 @@ import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.language.common.quotes.QuotePair;
 import com.dbn.language.sql.SQLLanguage;
-import com.dbn.object.factory.ObjectFactoryIdentifiers;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.model.DBObjectSpecList;
 import com.dbn.object.type.DBConstraintType;
@@ -242,9 +241,9 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
         builder.append(" on ");
         builder.append(triggerSpec.getSchemaName(true));
         builder.append('.');
-        builder.append(ObjectFactoryIdentifiers.quoteIdentifier(
-                triggerSpec.getConnection(),
-                TRIGGER_TARGET_DATASET.value(triggerSpec)));
+        builder.append(quoted(
+                TRIGGER_TARGET_DATASET.value(triggerSpec), connection
+        ));
         builder.append("\nfor each row\n");
         builder.append(TRIGGER_BODY.value(triggerSpec));
 

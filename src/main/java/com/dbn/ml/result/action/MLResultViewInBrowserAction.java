@@ -52,8 +52,9 @@ public class MLResultViewInBrowserAction extends AbstractMLExecutionResultAction
         String modelName = dbmsHandle.getModelName();
         ConnectionHandler connection = dbmsHandle.getConnection();
 
-        // Get the user schema where the model is stored
-        DBSchema schema = connection.getUserSchema();
+        // Resolve the schema selected for this training run.
+        DBSchema schema = dbmsHandle.getTargetSchemaId() == null ?
+                connection.getUserSchema() : connection.getSchema(dbmsHandle.getTargetSchemaId());
         if (schema == null) {
             showWarningDialog(project, txt("msg.machineLearning.title.SchemaNotFound"), txt("msg.machineLearning.error.SchemaNotFound"));
             return;

@@ -29,6 +29,7 @@ import com.dbn.object.DBTable;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectBundle;
 import com.intellij.openapi.Disposable;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
@@ -47,6 +48,7 @@ public abstract class MLToolboxFormBase extends DBNFormBase {
         this.connection = connection.ref();
     }
 
+    @NotNull
     public ConnectionHandler getConnection() {
         return connection.ensure();
     }
@@ -76,7 +78,7 @@ public abstract class MLToolboxFormBase extends DBNFormBase {
 
     protected List<DBSchema> loadSchemas() {
         DBObjectBundle objectBundle = getConnection().getObjectBundle();
-        return objectBundle.getSchemas();
+        return objectBundle.getUserSchemas();
     }
 
     protected List<DBTable> loadTables(DBSchema schema) {

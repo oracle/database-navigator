@@ -37,7 +37,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.StringJoiner;
 
-import static com.dbn.language.common.quotes.QuoteEscaping.DATABASE;
 import static java.util.stream.Collectors.joining;
 
 /**
@@ -125,7 +124,7 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
 
     private String quotedColumnList(DBNConnection conn, List<String> columnNames) {
         return columnNames.stream()
-                .map(columnName -> getIdentifierEnquoter(conn).quote(columnName, DATABASE))
+                .map(columnName -> quoted(columnName, conn))
                 .collect(joining(", "));
     }
 
@@ -157,14 +156,15 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
     @Override
     public @NonNls String buildPredictionStatement(
             DBNConnection conn,
+            String modelSchemaName,
             @NonNls String modelName,
             List<MLPredictionAttribute> attributes,
             boolean withProbability) {
 
-        String quotedModelName = getIdentifierEnquoter(conn).quote(modelName, DATABASE);
+        String quotedModelName = qualifiedIdentifier(conn, modelSchemaName, modelName);
         StringJoiner inputs = new StringJoiner(",\n       ");
         for (MLPredictionAttribute attribute : attributes) {
-            String quotedAttributeName = getIdentifierEnquoter(conn).quote(attribute.getName(), DATABASE);
+            String quotedAttributeName = quoted(attribute.getName(), conn);
             inputs.add("? AS " + quotedAttributeName);
         }
 
@@ -181,6 +181,7 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
     @Override
     public DBNResultSet predict(
             DBNConnection conn,
+            String modelSchemaName,
             String modelName,
             List<MLPredictionAttribute> attributes,
             List<Object> values,
@@ -191,7 +192,7 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
         }
 
         log.debug("Ad-hoc prediction using model: {}", modelName);
-        String statementText = buildPredictionStatement(conn, modelName, attributes, withProbability);
+        String statementText = buildPredictionStatement(conn, modelSchemaName, modelName, attributes, withProbability);
         DBNPreparedStatement<?> statement = conn.prepareStatement(statementText);
         try {
             statement.setQueryTimeout(PREDICTION_QUERY_TIMEOUT);
@@ -216,24 +217,26 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
     public void createApplyResults(
             DBNConnection conn,
             String applyResultTableName,
+            String modelSchemaName,
             String modelName,
             String testTableName
     ) throws SQLException {
         log.debug("Creating apply results table: {} for model {} on {}",
                 applyResultTableName, modelName, testTableName);
-        executeUpdate(conn, "create-apply-results", applyResultTableName, modelName, testTableName);
+        executeUpdate(conn, "create-apply-results", applyResultTableName, modelSchemaName, modelName, testTableName);
     }
 
     @Override
     public void createApplyResultsRegression(
             DBNConnection conn,
             String applyResultTableName,
+            String modelSchemaName,
             String modelName,
             String testTableName
     ) throws SQLException {
         log.debug("Creating regression apply results table: {} for model {} on {}",
                 applyResultTableName, modelName, testTableName);
-        executeUpdate(conn, "create-apply-results-regression", applyResultTableName, modelName, testTableName);
+        executeUpdate(conn, "create-apply-results-regression", applyResultTableName, modelSchemaName, modelName, testTableName);
     }
 
     // ==================== EVALUATION PROCEDURES ====================
@@ -317,93 +320,96 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
     @Override
     public ResultSet getClassificationAccuracy(
             DBNConnection conn,
+            String modelSchemaName,
             String modelName,
             String targetColumn,
             String dataTableName
     ) throws SQLException {
-        return executeQuery(conn, "get-classification-accuracy", modelName, targetColumn, dataTableName);
+        return executeQuery(conn, "get-classification-accuracy", modelSchemaName, modelName, targetColumn, dataTableName);
     }
 
     @Override
     public ResultSet getConfusionMatrix(
             DBNConnection conn,
+            String modelSchemaName,
             String modelName,
             String targetColumn,
             String dataTableName
     ) throws SQLException {
-        return executeQuery(conn, "get-confusion-matrix", modelName, targetColumn, dataTableName);
+        return executeQuery(conn, "get-confusion-matrix", modelSchemaName, modelName, targetColumn, dataTableName);
     }
 
     @Override
     public ResultSet getRegressionMetrics(
             DBNConnection conn,
+            String modelSchemaName,
             String modelName,
             String targetColumn,
             String dataTableName
     ) throws SQLException {
-        return executeQuery(conn, "get-regression-metrics", modelName, targetColumn, dataTableName);
+        return executeQuery(conn, "get-regression-metrics", modelSchemaName, modelName, targetColumn, dataTableName);
     }
 
     // ==================== MODEL DETAIL VIEWS ====================
 
     @Override
-    public ResultSet getModelGlobalStats(DBNConnection conn, String modelName) throws SQLException {
+    public ResultSet getModelGlobalStats(DBNConnection conn, String modelSchemaName, String modelName) throws SQLException {
         log.debug("Querying model global stats (DM$VG) for: {}", modelName);
-        return executeQuery(conn, "get-model-global-stats", "DM$VG" + modelName);
+        return executeQuery(conn, "get-model-global-stats", modelSchemaName, "DM$VG" + modelName);
     }
 
     @Override
-    public ResultSet getModelAttributeDetails(DBNConnection conn, String modelName) throws SQLException {
+    public ResultSet getModelAttributeDetails(DBNConnection conn, String modelSchemaName, String modelName) throws SQLException {
         log.debug("Querying model attribute details (DM$VA) for: {}", modelName);
-        return executeQuery(conn, "get-model-attribute-details", "DM$VA" + modelName);
+        return executeQuery(conn, "get-model-attribute-details", modelSchemaName, "DM$VA" + modelName);
     }
 
     @Override
-    public ResultSet getModelComputedSettings(DBNConnection conn, String modelName) throws SQLException {
+    public ResultSet getModelComputedSettings(DBNConnection conn, String modelSchemaName, String modelName) throws SQLException {
         log.debug("Querying model computed settings (DM$VS) for: {}", modelName);
-        return executeQuery(conn, "get-model-computed-settings", "DM$VS" + modelName);
+        return executeQuery(conn, "get-model-computed-settings", modelSchemaName, "DM$VS" + modelName);
     }
 
     @Override
-    public ResultSet getModelAlerts(DBNConnection conn, String modelName) throws SQLException {
+    public ResultSet getModelAlerts(DBNConnection conn, String modelSchemaName, String modelName) throws SQLException {
         log.debug("Querying model build alerts (DM$VW) for: {}", modelName);
-        return executeQuery(conn, "get-model-alerts", "DM$VW" + modelName);
+        return executeQuery(conn, "get-model-alerts", modelSchemaName, "DM$VW" + modelName);
     }
 
     @Override
-    public ResultSet getModelDetailViews(DBNConnection conn, String modelName) throws SQLException {
+    public ResultSet getModelDetailViews(DBNConnection conn, String modelSchemaName, String modelName) throws SQLException {
         log.debug("Querying model detail views for: {}", modelName);
-        return executeQuery(conn, "get-model-detail-views", modelName);
+        return executeQuery(conn, "get-model-detail-views", modelSchemaName, modelName);
     }
 
     @Override
-    public ResultSet getModelGLMCoefficients(DBNConnection conn, String modelName) throws SQLException {
+    public ResultSet getModelGLMCoefficients(DBNConnection conn, String modelSchemaName, String modelName) throws SQLException {
         log.debug("Querying GLM coefficients (DM$VD) for: {}", modelName);
-        return executeQuery(conn, "get-model-glm-coefficients", "DM$VD" + modelName);
+        return executeQuery(conn, "get-model-glm-coefficients", modelSchemaName, "DM$VD" + modelName);
     }
 
     @Override
-    public ResultSet getModelSVMCoefficients(DBNConnection conn, String modelName) throws SQLException {
+    public ResultSet getModelSVMCoefficients(DBNConnection conn, String modelSchemaName, String modelName) throws SQLException {
         log.debug("Querying SVM coefficients (DM$VL) for: {}", modelName);
-        return executeQuery(conn, "get-model-svm-coefficients", "DM$VL" + modelName);
+        return executeQuery(conn, "get-model-svm-coefficients", modelSchemaName, "DM$VL" + modelName);
     }
 
     @Override
-    public ResultSet getModelTreeSplits(DBNConnection conn, String modelName) throws SQLException {
+    public ResultSet getModelTreeSplits(DBNConnection conn, String modelSchemaName, String modelName) throws SQLException {
         log.debug("Querying Decision Tree splits (DM$VP) for: {}", modelName);
-        return executeQuery(conn, "get-model-tree-splits", "DM$VP" + modelName);
+        return executeQuery(conn, "get-model-tree-splits", modelSchemaName, "DM$VP" + modelName);
     }
 
     @Override
-    public ResultSet getModelNaiveBayesPriors(DBNConnection conn, String modelName) throws SQLException {
+    public ResultSet getModelNaiveBayesPriors(DBNConnection conn, String modelSchemaName, String modelName) throws SQLException {
         log.debug("Querying Naive Bayes priors (DM$VP) for: {}", modelName);
-        return executeQuery(conn, "get-model-nb-priors", "DM$VP" + modelName);
+        return executeQuery(conn, "get-model-nb-priors", modelSchemaName, "DM$VP" + modelName);
     }
 
     @Override
-    public ResultSet getModelNaiveBayesConditionals(DBNConnection conn, String modelName) throws SQLException {
+    public ResultSet getModelNaiveBayesConditionals(DBNConnection conn, String modelSchemaName, String modelName) throws SQLException {
         log.debug("Querying Naive Bayes conditionals (DM$VV) for: {}", modelName);
-        return executeQuery(conn, "get-model-nb-conditionals", "DM$VV" + modelName);
+        return executeQuery(conn, "get-model-nb-conditionals", modelSchemaName, "DM$VV" + modelName);
     }
 
     // ==================== CLOUD OBJECT STORAGE ====================
@@ -502,18 +508,18 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
     }
 
     @Override
-    public ResultSet getExistingModelNames(DBNConnection conn) throws SQLException {
-        return executeQuery(conn, "get-existing-model-names");
+    public ResultSet getExistingModelNames(DBNConnection conn, String modelSchemaName) throws SQLException {
+        return executeQuery(conn, "get-existing-model-names", modelSchemaName);
     }
 
     @Override
-    public ResultSet getModelInputAttributes(DBNConnection conn, String modelName) throws SQLException {
-        return executeQuery(conn, "get-model-input-attributes", modelName);
+    public ResultSet getModelInputAttributes(DBNConnection conn, String modelSchemaName, String modelName) throws SQLException {
+        return executeQuery(conn, "get-model-input-attributes", modelSchemaName, modelName);
     }
 
     @Override
-    public String getModelFunction(DBNConnection conn, String modelName) throws SQLException {
-        try (ResultSet rs = executeQuery(conn, "get-model-function", modelName)) {
+    public String getModelFunction(DBNConnection conn, String modelSchemaName, String modelName) throws SQLException {
+        try (ResultSet rs = executeQuery(conn, "get-model-function", modelSchemaName, modelName)) {
             if (rs.next()) return rs.getString("MINING_FUNCTION");
             return null;
         }
@@ -566,9 +572,17 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
     }
 
     @Override
-    public ResultSet getAttributeContribution(DBNConnection conn, String modelName, String testTableName, int topN) throws SQLException {
+    public ResultSet getAttributeContribution(DBNConnection conn, String modelSchemaName, String modelName, String testTableName, int topN) throws SQLException {
         log.debug("Aggregating prediction details of model {} over {} (topN={})", modelName, testTableName, topN);
-        return executeQuery(conn, "get-attribute-contribution", modelName, testTableName, topN);
+        return executeQuery(conn, "get-attribute-contribution", modelSchemaName, modelName, testTableName, topN);
+    }
+
+    private String qualifiedIdentifier(DBNConnection conn, String schemaName, String objectName) {
+        String quotedObjectName = quoted(objectName, conn);
+        if (schemaName == null || schemaName.isBlank()) return quotedObjectName;
+
+        String quotedSchemaName = quoted(schemaName, conn);
+        return quotedSchemaName + "." + quotedObjectName;
     }
 
 }

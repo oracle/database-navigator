@@ -21,6 +21,7 @@ import com.dbn.common.cloud.CloudSourceConfig;
 import com.dbn.common.util.Naming;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.SchemaId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
@@ -117,7 +118,8 @@ public class DBMSBackend {
                     getProject(),
                     connection.getConnectionId(),
                     conn -> connection.getInterfaces().getMachineLearningInterface().buildCreateModelAction(
-                            conn, modelName, miningFunction, trainTableName, targetColumn, settingsTableName));
+                            conn, qualifyModelName(getTargetSchemaId(context), modelName), miningFunction,
+                            trainTableName, targetColumn, settingsTableName));
 
             context.setModelName(modelName);
 
@@ -168,6 +170,7 @@ public class DBMSBackend {
         DBMSModelHandle modelHandle = new DBMSModelHandle(
                 modelName,
                 connection,
+                getTargetSchemaId(context),
                 context.getTaskType(),
                 metadata,
                 trainTableName,
@@ -197,14 +200,14 @@ public class DBMSBackend {
                 });
     }
 
-    public Map<String, String> loadModelDetailViews(String modelName) throws SQLException {
+    public Map<String, String> loadModelDetailViews(SchemaId modelSchemaId, String modelName) throws SQLException {
         return DatabaseInterfaceInvoker.load(Priority.LOW,
                 getProject(),
                 connection.getConnectionId(),
                 conn -> {
                     Map<String, String> views = new LinkedHashMap<>();
                     DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
-                    try (ResultSet resultSet = mlInterface.getModelDetailViews(conn, modelName)) {
+                    try (ResultSet resultSet = mlInterface.getModelDetailViews(conn, schemaName(modelSchemaId), modelName)) {
                         while (resultSet.next()) {
                             views.put(resultSet.getString("VIEW_NAME"), resultSet.getString("VIEW_TYPE"));
                         }
@@ -213,18 +216,20 @@ public class DBMSBackend {
                 });
     }
 
-    public void dropModel(String modelName) throws SQLException {
+    public void dropModel(SchemaId modelSchemaId, String modelName) throws SQLException {
         DatabaseInterfaceInvoker.execute(Priority.HIGH,
                 getProject(),
                 connection.getConnectionId(),
-                conn -> connection.getInterfaces().getMachineLearningInterface().dropModel(conn, modelName));
+                conn -> connection.getInterfaces().getMachineLearningInterface().dropModel(
+                        conn, qualifyModelName(modelSchemaId, modelName)));
     }
 
-    public void renameModel(String oldModelName, String newModelName) throws SQLException {
+    public void renameModel(SchemaId modelSchemaId, String oldModelName, String newModelName) throws SQLException {
         DatabaseInterfaceInvoker.execute(Priority.HIGH,
                 getProject(),
                 connection.getConnectionId(),
-                conn -> connection.getInterfaces().getMachineLearningInterface().renameModel(conn, oldModelName, newModelName));
+                conn -> connection.getInterfaces().getMachineLearningInterface().renameModel(
+                        conn, qualifyModelName(modelSchemaId, oldModelName), qualifyModelName(modelSchemaId, newModelName)));
     }
 
     public void cleanup(MLTrainingContext context) throws Exception {
@@ -361,7 +366,8 @@ public class DBMSBackend {
         // Step 1: Create apply results table (predictions on test data)
         log.info("Creating apply results: {} from model {} on test table {}",
                 applyResultTable, modelName, testTableName);
-        mlInterface.createApplyResults(conn, applyResultTable, modelName, testTableName);
+        mlInterface.createApplyResults(conn, applyResultTable,
+                schemaName(modelHandle.getTargetSchemaId()), modelName, testTableName);
 
         // Step 2: Compute confusion matrix using Oracle's COMPUTE_CONFUSION_MATRIX
         log.info("Computing confusion matrix using DBMS_DATA_MINING.COMPUTE_CONFUSION_MATRIX");
@@ -447,7 +453,8 @@ public class DBMSBackend {
 
         // Get regression metrics on TEST data (not training data)
         log.info("Computing regression metrics on test table: {}", testTableName);
-        try (ResultSet metricsRs = mlInterface.getRegressionMetrics(conn, modelName, targetColumn, testTableName)) {
+        try (ResultSet metricsRs = mlInterface.getRegressionMetrics(conn,
+                schemaName(modelHandle.getTargetSchemaId()), modelName, targetColumn, testTableName)) {
             return DBMSEvaluationResult.fromRegression(metricsRs, context.getTestingDataSize());
         }
     }
@@ -623,10 +630,11 @@ public class DBMSBackend {
         }
 
         // Use Naming utility to generate unique name
-        return Naming.nextNumberedIdentifier(baseName, false, this::getExistingModelNames);
+        return Naming.nextNumberedIdentifier(baseName, false,
+                () -> getExistingModelNames(schemaName(getTargetSchemaId(context))));
     }
 
-    private Set<String> getExistingModelNames() {
+    private Set<String> getExistingModelNames(String modelSchemaName) {
         try {
             return DatabaseInterfaceInvoker.load(Priority.HIGH,
                     getProject(),
@@ -634,7 +642,7 @@ public class DBMSBackend {
                     conn -> {
                         Set<String> names = new HashSet<>();
                         DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
-                        try (ResultSet rs = mlInterface.getExistingModelNames(conn)) {
+                        try (ResultSet rs = mlInterface.getExistingModelNames(conn, modelSchemaName)) {
                             while (rs.next()) {
                                 names.add(rs.getString("MODEL_NAME").toUpperCase());
                             }
@@ -645,6 +653,20 @@ public class DBMSBackend {
             log.warn("Failed to get existing model names: {}", e.getMessage());
             return Set.of();
         }
+    }
+
+    private SchemaId getTargetSchemaId(MLTrainingContext context) {
+        SchemaId schemaId = context.getTrainerConfig().getTargetSchemaId();
+        return schemaId != null ? schemaId : connection.getUserSchemaId();
+    }
+
+    private static String schemaName(SchemaId schemaId) {
+        return schemaId == null ? null : schemaId.getName();
+    }
+
+    private static String qualifyModelName(SchemaId schemaId, String modelName) {
+        String schemaName = schemaName(schemaId);
+        return schemaName == null || schemaName.isBlank() ? modelName : schemaName + "." + modelName;
     }
 
     private String extractSourceName(MLTrainingContext context) {

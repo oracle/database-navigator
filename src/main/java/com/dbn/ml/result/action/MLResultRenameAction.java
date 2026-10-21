@@ -75,11 +75,11 @@ public class MLResultRenameAction extends AbstractMLExecutionResultAction {
                 DBMSBackend backend = new DBMSBackend(connection);
                 MLResult result = executionResult.getMlResult();
 
-                backend.renameModel(oldName, newName);
+                SchemaId schemaId = modelHandle.getTargetSchemaId();
+                backend.renameModel(schemaId, oldName, newName);
                 modelHandle.setModelName(newName);
-                reloadModelDetailViews(result, backend, newName);
+                reloadModelDetailViews(result, backend, schemaId, newName);
 
-                SchemaId schemaId = result.getRequest().getTrainerConfig().getTargetSchemaId();
                 refreshModelObjects(connection, schemaId);
 
                 MLExecutionResultForm form = executionResult.getForm();
@@ -97,10 +97,10 @@ public class MLResultRenameAction extends AbstractMLExecutionResultAction {
         });
     }
 
-    private void reloadModelDetailViews(MLResult result, DBMSBackend backend, String modelName) {
+    private void reloadModelDetailViews(MLResult result, DBMSBackend backend, SchemaId schemaId, String modelName) {
         result.setModelDetailViews(null);
         try {
-            result.setModelDetailViews(backend.loadModelDetailViews(modelName));
+            result.setModelDetailViews(backend.loadModelDetailViews(schemaId, modelName));
         } catch (SQLException e) {
             log.warn("Failed to reload model detail views after renaming model to {}", modelName, e);
         }

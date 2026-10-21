@@ -394,7 +394,7 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
     }
 
     private void initLabelComboBox() {
-        labelComboBox.setRenderer(createTargetColumnCellRenderer());
+        //labelComboBox.setRenderer(createTargetColumnCellRenderer());
         labelComboBox.withValueLoadConsumer(this::onColumnsLoaded);
     }
 

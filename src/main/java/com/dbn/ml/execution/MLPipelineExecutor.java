@@ -86,7 +86,7 @@ public class MLPipelineExecutor {
         } catch (Exception e) {
             if (request.isModelReplacement() && !replacementReady) {
                 try {
-                    backend.dropModel(submission.getModelName());
+                    backend.dropModel(request.getTrainerConfig().getTargetSchemaId(), submission.getModelName());
                 } catch (Exception cleanupError) {
                     e.addSuppressed(cleanupError);
                 }
@@ -120,8 +120,9 @@ public class MLPipelineExecutor {
         DBMSModelHandle modelHandle = result.getModelHandle();
         String modelToReplace = request.getModelToReplace();
 
-        backend.dropModel(modelToReplace);
-        backend.renameModel(modelHandle.getModelName(), modelToReplace);
+        SchemaId targetSchemaId = modelHandle.getTargetSchemaId();
+        backend.dropModel(targetSchemaId, modelToReplace);
+        backend.renameModel(targetSchemaId, modelHandle.getModelName(), modelToReplace);
 
         modelHandle.setModelName(modelToReplace);
         request.setModelToReplace(null);
@@ -138,7 +139,8 @@ public class MLPipelineExecutor {
 
     private void loadModelDetailViews(MLResult result, DBMSBackend backend) {
         try {
-            result.setModelDetailViews(backend.loadModelDetailViews(result.getModelName()));
+            result.setModelDetailViews(backend.loadModelDetailViews(
+                    result.getModelHandle().getTargetSchemaId(), result.getModelName()));
         } catch (SQLException e) {
             log.warn("Failed to load model detail views", e);
         }

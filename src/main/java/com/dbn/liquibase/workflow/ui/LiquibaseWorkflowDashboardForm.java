@@ -112,10 +112,7 @@ public class LiquibaseWorkflowDashboardForm extends DBNFormBase {
 
         schemaSelector.initialize(this, SCHEMA);
         schemaSelector.withConnectionContext(this::getSelectedConnection);
-        schemaSelector.withValueLoader(() -> {
-            ConnectionHandler connection = getSelectedConnection();
-            return connection == null ? emptyList() : filter(connection.getObjectBundle().getSchemas(), s -> !s.isSystemSchema());
-        });
+        schemaSelector.withValueLoader(() -> loadSchemas());
         initPersistence(schemaSelector, state, ATTR_SCHEMA);
         schemaSelector.triggerLoad();
         setFormFieldEnabled(schemaSelector, "CONTEXT_AVAILABILITY", getSelectedConnection() != null);
@@ -126,6 +123,11 @@ public class LiquibaseWorkflowDashboardForm extends DBNFormBase {
             updateWorkflowAvailability();
         });
         onSelectionChange(schemaSelector, schema -> updateWorkflowAvailability());
+    }
+
+    private List<DBSchema> loadSchemas() {
+        ConnectionHandler connection = getSelectedConnection();
+        return connection == null ? emptyList() : connection.getObjectBundle().getUserSchemas();
     }
 
     private void initWorkflowsPanel() {

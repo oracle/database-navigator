@@ -18,10 +18,11 @@ package com.dbn.ml.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.SchemaId;
 import com.dbn.ml.backend.model.MLPredictionAttribute;
 import com.dbn.ml.model.MLTaskType;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 import java.util.List;
@@ -36,6 +37,7 @@ import static com.dbn.nls.NlsResources.txt;
  */
 public class MLPredictDialog extends DBNDialog<MLPredictForm> {
     private final String modelName;
+    private final SchemaId modelSchemaId;
     private final ConnectionHandler connection;
     private final MLTaskType taskType;
     private final List<MLPredictionAttribute> attributes;
@@ -43,6 +45,7 @@ public class MLPredictDialog extends DBNDialog<MLPredictForm> {
 
     public MLPredictDialog(
             ConnectionHandler connection,
+            SchemaId modelSchemaId,
             String modelName,
             MLTaskType taskType,
             List<MLPredictionAttribute> attributes,
@@ -50,6 +53,7 @@ public class MLPredictDialog extends DBNDialog<MLPredictForm> {
 
         super(connection.getProject(), txt("msg.machineLearning.title.AdHocPrediction"), true);
         this.connection = connection;
+        this.modelSchemaId = modelSchemaId;
         this.modelName = modelName;
         this.taskType = taskType;
         this.attributes = attributes;
@@ -62,7 +66,7 @@ public class MLPredictDialog extends DBNDialog<MLPredictForm> {
     @NotNull
     @Override
     protected MLPredictForm createForm() {
-        return new MLPredictForm(this, modelName, connection, taskType, attributes, predictionStatement);
+        return new MLPredictForm(this, modelSchemaId, modelName, connection, taskType, attributes, predictionStatement);
     }
 
     @Override
