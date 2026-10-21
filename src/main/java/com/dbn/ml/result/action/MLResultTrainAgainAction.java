@@ -72,5 +72,6 @@ public class MLResultTrainAgainAction extends AbstractMLExecutionResultAction {
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable MLExecutionResult target) {
         presentation.setText(txt("app.machineLearning.action.TrainAgain"));
         presentation.setIcon(Icons.EXEC_RESULT_INPUT_FORM);
+        presentation.setEnabled(target != null && !target.isLoading() && target.getMlResult().getModelHandle() != null);
     }
 }

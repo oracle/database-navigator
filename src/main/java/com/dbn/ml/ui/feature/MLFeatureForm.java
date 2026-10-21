@@ -19,10 +19,11 @@ package com.dbn.ml.ui.feature;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.alignment.FieldAlignerData;
-import com.dbn.common.ui.dialog.SelectionListCellRenderer;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.info.DBNInfoLabel;
+import com.dbn.common.ui.list.CheckBoxList;
+import com.dbn.common.ui.list.Selectable;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.select.DBNComboBoxRenderer;
 import com.dbn.common.ui.util.ComboBoxes;
@@ -40,19 +41,17 @@ import com.dbn.object.DBTable;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.util.NlsContexts.DialogMessage;
 import com.intellij.ui.HyperlinkLabel;
-import com.intellij.ui.components.JBList;
 import com.intellij.ui.components.JBScrollPane;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.DefaultListModel;
+import javax.swing.Icon;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
-import javax.swing.ListSelectionModel;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -78,8 +77,6 @@ import static com.dbn.nls.NlsResources.txt;
  */
 @Slf4j
 public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleForm {
-    private static final ListCellRenderer<Presentable> COLUMN_LIST_CELL_RENDERER = new SelectionListCellRenderer<>();
-
     private JPanel mainPanel;
     private JLabel featuresLabel;
     private JBScrollPane featuresScrollPane;
@@ -91,13 +88,11 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
     private JCheckBox partitionEnabledCheckBox;
     private JBScrollPane partitionScrollPane;
 
-    // Features list (multi-select)
-    private JBList<Presentable> featuresList;
-    private DefaultListModel<Presentable> featuresListModel;
+    // Feature columns
+    private CheckBoxList<ColumnSelectable> featuresList;
 
-    // Partition list (multi-select)
-    private JBList<Presentable> partitionsList;
-    private DefaultListModel<Presentable> partitionsListModel;
+    // Partition columns
+    private CheckBoxList<ColumnSelectable> partitionsList;
 
     private HyperlinkLabel selectAllFeaturesLink;
     private HyperlinkLabel clearFeaturesLink;
@@ -111,22 +106,8 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
     }
 
     private void initComponents() {
-        featuresListModel = new DefaultListModel<>();
-        featuresList = new JBList<>(featuresListModel);
-        featuresList.setCellRenderer(COLUMN_LIST_CELL_RENDERER);
-        featuresList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         featuresList.setVisibleRowCount(6);
-        if (featuresScrollPane != null) {
-            featuresScrollPane.setViewportView(featuresList);
-        }
-
-        partitionsListModel = new DefaultListModel<>();
-        partitionsList = new JBList<>(partitionsListModel);
-        partitionsList.setCellRenderer(COLUMN_LIST_CELL_RENDERER);
-        partitionsList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        if (partitionScrollPane != null) {
-            partitionScrollPane.setViewportView(partitionsList);
-        }
+        partitionsList.setVisibleRowCount(6);
 
         partitionInfoLabel.setContent(html(this, "info/partition_model_info.html.ft"));
 
@@ -146,17 +127,15 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
         initHyperlink(
                 clearFeaturesLink,
                 txt("cfg.machineLearning.action.ClearSelection"),
-                featuresList::clearSelection);
+                featuresList::selectNone);
     }
 
     @Override
     protected void initValidation() {
-        addValidation(featuresList,
-                list -> !list.isSelectionEmpty(),
-                txt("msg.machineLearning.error.SelectFeature"));
+        addSelectionValidation(featuresList, txt("msg.machineLearning.error.SelectFeature"));
         addValidation(labelComboBox, this::validateTargetColumn);
         addValidation(partitionsList,
-                list -> !partitionEnabledCheckBox.isSelected() || !list.isSelectionEmpty(),
+                list -> !partitionEnabledCheckBox.isSelected() || list.hasSelection(),
                 txt("msg.machineLearning.error.SelectPartitionColumn"));
     }
 
@@ -174,21 +153,15 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
     protected void initFieldAvailability() {
         DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
         fieldAdapter.initFieldsAvailability(
-                () -> !featuresListModel.isEmpty(),
+                () -> featuresList.getModel().getSize() > 0,
                 array(featuresScrollPane, labelComboBox, partitionScrollPane));
     }
 
     @Override
     protected void initEventListeners() {
-        featuresList.addListSelectionListener(e -> {
-            if (e.getValueIsAdjusting()) return;
-
+        featuresList.addActionListener(e -> {
             updateFeatureSelectionState();
-            validateInput(featuresList);
             validateInput(labelComboBox);
-        });
-        partitionsList.addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) validateInput(partitionsList);
         });
         onSelectionChange(labelComboBox, value -> {
             populateFeatureColumns(getSelectedFeatures());
@@ -202,13 +175,11 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
     }
 
     private void selectAllFeatures() {
-        int[] indices = new int[featuresListModel.size()];
-        for (int i = 0; i < indices.length; i++) indices[i] = i;
-        featuresList.setSelectedIndices(indices);
+        featuresList.selectAll();
     }
 
     private void updateFeatureSelectionState() {
-        int selectedCount = featuresList.getSelectedIndices().length;
+        int selectedCount = getSelectedColumnNames(featuresList).size();
         featureSelectionCountLabel.setText(txt(
                 "cfg.machineLearning.text.FeatureSelectionCount",
                 selectedCount));
@@ -217,8 +188,8 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
     }
 
     private boolean hasUnselectedFeature() {
-        for (int i = 0; i < featuresListModel.size(); i++) {
-            if (!featuresList.isSelectedIndex(i)) return true;
+        for (int i = 0; i < featuresList.getModel().getSize(); i++) {
+            if (!featuresList.isSelected(featuresList.getElementAt(i))) return true;
         }
         return false;
     }
@@ -315,8 +286,8 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
 
     private void clearColumns() {
         labelComboBox.clearValues();
-        featuresListModel.clear();
-        partitionsListModel.clear();
+        featuresList.setElements(Collections.emptyList());
+        partitionsList.setElements(Collections.emptyList());
         updateFieldAvailability();
         updateFeatureSelectionState();
         validateFormFields();
@@ -336,12 +307,10 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
                 getSelectedPartitionColumns();
 
         columnOptions = columns;
-        partitionsListModel.clear();
-        partitionsListModel.addAll(columns);
+        partitionsList.setElements(toColumnSelections(columns, selectedPartitions));
         populateFeatureColumns(selectedFeatures);
 
         updateFieldAvailability();
-        restoreListSelections(partitionsList, partitionsListModel, selectedPartitions);
 
         if (restoreSelection && !columns.isEmpty()) {
             restoreConfiguredSelection = false;
@@ -354,13 +323,16 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
 
     private void populateFeatureColumns(List<String> selectedFeatures) {
         String targetColumn = getSelectedLabel();
-        featuresListModel.clear();
-        for (Presentable column : columnOptions) {
-            if (!column.getName().equals(targetColumn)) {
-                featuresListModel.addElement(column);
-            }
-        }
-        restoreListSelections(featuresList, featuresListModel, selectedFeatures);
+        List<Presentable> featureColumns = columnOptions.stream()
+                .filter(column -> !column.getName().equals(targetColumn))
+                .toList();
+        featuresList.setElements(toColumnSelections(featureColumns, selectedFeatures));
+    }
+
+    private List<ColumnSelectable> toColumnSelections(List<Presentable> columns, List<String> selectedColumns) {
+        return Lists.convert(columns, column -> new ColumnSelectable(
+                column,
+                selectedColumns != null && selectedColumns.contains(column.getName())));
     }
 
     private boolean isConfiguredSourceSelected() {
@@ -412,21 +384,18 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
         };
     }
 
-    private void restoreListSelections(JBList<Presentable> list, DefaultListModel<Presentable> model, List<String> saved) {
-        list.clearSelection();
-        if (saved == null || saved.isEmpty()) return;
-        List<Integer> indices = new ArrayList<>();
-        for (int i = 0; i < model.size(); i++) {
-            if (saved.contains(model.get(i).getName())) indices.add(i);
+    private List<String> getSelectedColumnNames(CheckBoxList<ColumnSelectable> list) {
+        if (list == null) return Collections.emptyList();
+        List<String> selectedColumns = new ArrayList<>();
+        for (int i = 0; i < list.getModel().getSize(); i++) {
+            ColumnSelectable column = list.getElementAt(i);
+            if (list.isSelected(column)) selectedColumns.add(column.getName());
         }
-        if (!indices.isEmpty()) {
-            list.setSelectedIndices(indices.stream().mapToInt(Integer::intValue).toArray());
-        }
+        return selectedColumns;
     }
 
     public List<String> getSelectedFeatures() {
-        if (featuresList == null) return new ArrayList<>();
-        return Lists.convert(featuresList.getSelectedValuesList(), Presentable::getName);
+        return getSelectedColumnNames(featuresList);
     }
 
     public String getSelectedLabel() {
@@ -435,8 +404,7 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
     }
 
     public List<String> getSelectedPartitionColumns() {
-        if (partitionsList == null) return new ArrayList<>();
-        return Lists.convert(partitionsList.getSelectedValuesList(), Presentable::getName);
+        return getSelectedColumnNames(partitionsList);
     }
 
     private MLFeatureConfig getConfig() {
@@ -449,7 +417,7 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
 
     @Override
     public void resetFormChanges() {
-        if (featuresListModel == null) return;
+        if (featuresList == null) return;
         MLTrainerConfig trainerConfig = getTrainerConfig();
         partitionEnabledCheckBox.setSelected(trainerConfig.isPartitioned());
         updatePartitionVisibility();
@@ -516,5 +484,37 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
         }
         String labelInfo = (label == null || label.isEmpty()) ? txt("cfg.machineLearning.placeholder.None") : label;
         return txt("cfg.machineLearning.text.FeatureSelectionDetail", features.size(), labelInfo);
+    }
+
+    private static class ColumnSelectable implements Selectable<ColumnSelectable> {
+        private final String name;
+        private final Icon icon;
+        private boolean selected;
+
+        private ColumnSelectable(Presentable column, boolean selected) {
+            name = column.getName();
+            icon = column.getIcon();
+            this.selected = selected;
+        }
+
+        @Override
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public Icon getIcon() {
+            return icon;
+        }
+
+        @Override
+        public boolean isSelected() {
+            return selected;
+        }
+
+        @Override
+        public void setSelected(boolean selected) {
+            this.selected = selected;
+        }
     }
 }

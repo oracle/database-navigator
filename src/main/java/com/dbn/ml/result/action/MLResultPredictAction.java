@@ -51,6 +51,6 @@ public class MLResultPredictAction extends AbstractMLExecutionResultAction {
         presentation.setIcon(Icons.ACTION_EXECUTE);
 
         presentation.setVisible(target != null);
-        presentation.setEnabled(target != null);
+        presentation.setEnabled(target != null && !target.isLoading() && target.getMlResult().getModelHandle() != null);
     }
 }

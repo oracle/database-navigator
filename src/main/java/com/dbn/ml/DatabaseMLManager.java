@@ -39,6 +39,7 @@ import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
 import com.dbn.execution.ExecutionManager;
 import com.dbn.ml.backend.model.MLPredictionAttribute;
+import com.dbn.ml.backend.model.MLTrainingContext;
 import com.dbn.ml.execution.MLPipelineExecutor;
 import com.dbn.ml.execution.MLTrainingJobSubmission;
 import com.dbn.ml.model.MLRequest;
@@ -326,11 +327,22 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
             ConnectionHandler connection) {
 
         String modelName = getResultModelName(submission);
+        MLTrainingContext context = submission.getContext();
+        MLResult pendingResult = new MLResult(context.getRequest().clone());
+        pendingResult.getRequest().getTrainerConfig().setTargetModelName(modelName);
+        pendingResult.setConnection(connection);
+        pendingResult.setTaskType(context.getTaskType());
+        pendingResult.setAlgorithmName(context.getAlgorithmName());
+        pendingResult.setTrainingDataSize(context.getTrainingDataSize());
+        pendingResult.setTestingDataSize(context.getTestingDataSize());
+        pendingResult.setFeatureCount(context.getFeatureConfig().getFeatureColumns().size());
+        MLExecutionResult executionResult = showResultInExecutionManager(pendingResult);
         try {
             MLResult result = executor.completeAsync(submission, connection);
-            showResultInExecutionManager(result);
+            executionResult.completeLoading(result);
             sendInfoNotification(EXECUTION, txt("ntf.machineLearning.info.TrainingCompleted", modelName));
         } catch (Exception e) {
+            executionResult.failLoading(e.getMessage());
             log.warn("Failed to finalize training result for model {}", modelName, e);
             showRetryableTrainingFailure(
                     txt("msg.machineLearning.title.TrainingMonitoringFailed"),
@@ -366,12 +378,15 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
     /**
      * Shows the training result in the Execution Manager panel.
      */
-    private void showResultInExecutionManager(MLResult result) {
+    private MLExecutionResult showResultInExecutionManager(MLResult result) {
         ExecutionManager executionManager = ExecutionManager.getInstance(getProject());
         Set<String> existingNames = executionManager.getExecutionResultNames(MLExecutionResult.class);
-        String name = Naming.nextNumberedIdentifier(txt("app.machineLearning.title.MLTrainingResult"), true, () -> existingNames);
+        String modelName = result.getRequest().getTrainerConfig().getTargetModelName();
+        String name = Naming.nextNumberedIdentifier(modelName, true, () -> existingNames);
         MLExecutionResult executionResult = new MLExecutionResult(result, name);
+        executionResult.beginLoading();
         executionManager.addExecutionResult(executionResult);
+        return executionResult;
     }
 
     @Override

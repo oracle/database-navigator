@@ -29,7 +29,6 @@ import com.dbn.execution.common.result.ui.ExecutionResultFormBase;
 import com.dbn.ml.backend.dbms.DBMSEvaluationResult;
 import com.dbn.ml.backend.dbms.DBMSModelHandle;
 import com.dbn.ml.model.MLResult;
-import com.dbn.ml.result.action.MLResultRenameAction;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBView;
 import com.dbn.object.common.list.DBObjectList;
@@ -38,7 +37,6 @@ import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.JBColor;
-import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import lombok.extern.slf4j.Slf4j;
@@ -70,7 +68,6 @@ import java.util.TreeSet;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.util.Messages.showErrorDialog;
-import static com.dbn.common.util.TimeUtil.presentableDuration;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
@@ -85,21 +82,19 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
     // Form bindings
     private JPanel mainPanel;
     private JPanel actionsPanel;
-    private JPanel headerPanel;
-    private JPanel objectHeaderPanel;
-    private com.intellij.ui.SimpleColoredComponent metricsSummary;
+    private JPanel summaryPanel;
+    private MLResultSummaryForm summaryForm;
     private DBNScrollPane contentScrollPane;
     private JPanel contentPanel;
     private JPanel metricsCardsPanel;
     private JPanel confusionMatrixPanel;
     private JPanel perClassPanel;
-    private JPanel modelDetailsPanel;
     private JPanel variableImportancePanel;
     private JPanel modelInsightsPanel;
     private JPanel modelViewsPanel;
 
     // Data
-    private final MLResult result;
+    private MLResult result;
 
     public MLExecutionResultForm(@NotNull MLExecutionResult executionResult) {
         super(executionResult);
@@ -108,15 +103,24 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
     }
 
     private void initializeComponents() {
-        initializeHeader();
+        initializeSummary();
+        contentScrollPane.setVisible(!getExecutionResult().isLoading() && getExecutionResult().getLoadError() == null);
+        if (contentScrollPane.isVisible()) initializeAnalysis();
+        createActionsPanel();
+    }
+
+    private void initializeAnalysis() {
+        for (JPanel panel : new JPanel[]{metricsCardsPanel, confusionMatrixPanel, perClassPanel,
+                variableImportancePanel, modelInsightsPanel, modelViewsPanel}) {
+            panel.removeAll();
+            panel.setVisible(true);
+        }
         initializeMetricsCards();
         initializeConfusionMatrix();
         initializePerClassMetrics();
-        initializeModelDetails();
         initializeFeatureImportance();
         initializeAttributeContribution();
         initializeModelViews();
-        createActionsPanel();
     }
 
     private void createActionsPanel() {
@@ -125,38 +129,18 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         actionsPanel.add(actionToolbar.getComponent());
     }
 
-    private void initializeHeader() {
-        initializeObjectHeader();
-
-        // Summary line - training context only, the metrics are shown as cards below
-        metricsSummary.append(result.isClassification() ?
-                        txt("app.machineLearning.const.MLTaskType_CLASSIFICATION") :
-                        txt("app.machineLearning.const.MLTaskType_REGRESSION"),
-                SimpleTextAttributes.REGULAR_ATTRIBUTES);
-        metricsSummary.append(" | ", SimpleTextAttributes.GRAYED_ATTRIBUTES);
-
-        String algorithmName = result.getAlgorithmName();
-        if (algorithmName != null) {
-            metricsSummary.append(txt("app.machineLearning.label.Algorithm") + ": ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
-            metricsSummary.append(algorithmName, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
-            metricsSummary.append(" | ", SimpleTextAttributes.GRAYED_ATTRIBUTES);
-        }
-        metricsSummary.append(txt("app.machineLearning.label.Time") + ": ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
-        metricsSummary.append(presentableDuration(result.getTrainingTimeMs(), true), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
-    }
-
-    private void initializeObjectHeader() {
-        objectHeaderPanel.removeAll();
-        DBNHeaderForm headerForm = new DBNHeaderForm(this, getHeaderContext());
-        if (result.getModelHandle() != null) {
-            headerForm.setActions(Actions.createActionGroup(new MLResultRenameAction()));
-        }
-        objectHeaderPanel.setBackground(headerForm.getBackground());
-        objectHeaderPanel.add(headerForm.getComponent(), BorderLayout.WEST);
+    public void refreshResult() {
+        result = getExecutionResult().getMlResult();
+        summaryForm.refresh();
+        boolean available = !getExecutionResult().isLoading() && getExecutionResult().getLoadError() == null;
+        contentScrollPane.setVisible(available);
+        if (available) initializeAnalysis();
+        mainPanel.revalidate();
+        mainPanel.repaint();
     }
 
     public void refreshModelPresentation() {
-        initializeObjectHeader();
+        summaryForm.refresh();
 
         modelViewsPanel.removeAll();
         modelViewsPanel.setVisible(true);
@@ -175,7 +159,7 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
     private Object getHeaderContext() {
         ConnectionHandler connection = result.getConnection();
         String modelName = result.getModelName();
-        if (modelName == null) return connection;
+        if (modelName == null || result.getModelHandle() == null) return connection;
 
         SchemaId schemaId = result.getModelHandle().getTargetSchemaId();
         DBSchema schema = schemaId == null ? connection.getUserSchema() : connection.getSchema(schemaId);
@@ -365,24 +349,9 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         perClassPanel.add(chartPanel, BorderLayout.CENTER);
     }
 
-    private void initializeModelDetails() {
-        MLResultPanelHelper.initSection(modelDetailsPanel, txt("app.machineLearning.title.ModelDetails"));
-
-        JPanel detailsGrid = new JPanel(new GridLayout(0, 4, 16, 6));
-
-        addDetailRow(detailsGrid, txt("app.machineLearning.label.Algorithm"), result.getAlgorithmName());
-        addDetailRow(detailsGrid, txt("app.machineLearning.label.Features"), String.valueOf(result.getFeatureCount()));
-        addDetailRow(detailsGrid, txt("app.machineLearning.label.TrainingSamples"), String.valueOf(result.getTrainingDataSize()));
-        addDetailRow(detailsGrid, txt("app.machineLearning.label.TestSamples"), String.valueOf(result.getTestingDataSize()));
-        addDetailRow(detailsGrid, txt("app.machineLearning.label.TrainingTime"), presentableDuration(result.getTrainingTimeMs(), false));
-
-        if (result.isClassification()) {
-            addDetailRow(detailsGrid, txt("app.machineLearning.label.Classes"), String.valueOf(result.getClassCount()));
-        } else {
-            addDetailRow(detailsGrid, txt("app.machineLearning.label.OutputDimensions"), String.valueOf(result.getOutputDimensions()));
-        }
-
-        modelDetailsPanel.add(detailsGrid, BorderLayout.CENTER);
+    private void initializeSummary() {
+        summaryForm = new MLResultSummaryForm(this, getExecutionResult());
+        summaryPanel.add(summaryForm.getComponent(), BorderLayout.NORTH);
     }
 
     private void initializeFeatureImportance() {
@@ -519,16 +488,6 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
                                         txt("msg.machineLearning.error.ViewNotVisible", viewName));
                             }
                         }));
-    }
-
-    private void addDetailRow(JPanel panel, String label, String value) {
-        JLabel labelComp = new JLabel(label + ":");
-        labelComp.setForeground(JBColor.gray);
-        panel.add(labelComp);
-
-        JLabel valueComp = new JLabel(value);
-        valueComp.setFont(valueComp.getFont().deriveFont(Font.BOLD));
-        panel.add(valueComp);
     }
 
     @Override

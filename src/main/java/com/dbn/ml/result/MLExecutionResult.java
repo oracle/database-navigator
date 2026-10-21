@@ -17,6 +17,9 @@
 package com.dbn.ml.result;
 
 import com.dbn.common.icon.Icons;
+import com.dbn.common.message.MessageType;
+import com.dbn.common.message.TitledMessage;
+import com.dbn.common.thread.Dispatch;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.execution.ExecutionResultBase;
@@ -29,14 +32,66 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
+import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class MLExecutionResult extends ExecutionResultBase<MLExecutionResultForm> {
-    private String name;
-    private final MLResult mlResult;
+    private final String name;
+    private volatile MLResult mlResult;
+    private volatile boolean loading;
+    private volatile String loadError;
 
     public MLExecutionResult(MLResult mlResult, String name) {
         this.mlResult = mlResult;
         this.name = name;
+    }
+
+    public void beginLoading() {
+        loading = true;
+    }
+
+    public void completeLoading(MLResult result) {
+        Dispatch.run(false, () -> {
+            if (!isValid(this)) return;
+            mlResult = result;
+            loading = false;
+            refreshForm();
+        });
+    }
+
+    public void failLoading(String message) {
+        Dispatch.run(false, () -> {
+            if (!isValid(this)) return;
+            loadError = message == null ? txt("app.machineLearning.text.ResultLoadFailed") : message;
+            loading = false;
+            refreshForm();
+        });
+    }
+
+    private void refreshForm() {
+        MLExecutionResultForm form = getForm();
+        if (isValid(form)) form.refreshResult();
+    }
+
+    public TitledMessage getSummaryMessage() {
+        if (loading) {
+            return new TitledMessage(MessageType.PROCESSING,
+                    txt("app.machineLearning.title.LoadingResult"),
+                    txt("app.machineLearning.text.LoadingResult"));
+        }
+        if (loadError != null) {
+            return new TitledMessage(MessageType.ERROR,
+                    txt("app.machineLearning.title.ResultLoadFailed"), loadError);
+        }
+        if (mlResult.getEvaluationResult() == null) {
+            return new TitledMessage(MessageType.WARNING,
+                    txt("app.machineLearning.title.TrainingCompleted"),
+                    txt("app.machineLearning.text.NoEvaluationAvailable"));
+        }
+        return new TitledMessage(MessageType.SUCCESS,
+                txt("app.machineLearning.title.TrainingCompleted"),
+                txt("app.machineLearning.text.ResultReady"));
     }
 
     @Override
@@ -74,13 +129,4 @@ public class MLExecutionResult extends ExecutionResultBase<MLExecutionResultForm
         return null;
     }
 
-    @Override
-    public boolean isRenameable() {
-        return true;
-    }
-
-    @Override
-    public void setName(@NotNull String name, boolean sticky) {
-        this.name = name;
-    }
 }
