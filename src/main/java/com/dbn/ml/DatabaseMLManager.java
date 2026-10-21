@@ -152,10 +152,11 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
             @Nullable MLTaskType taskType) {
 
         String modelSchemaName = modelSchemaId.getName();
-        String title = txt("prc.machineLearning.title.LoadingModelMetadata");
-        String text = txt("prc.machineLearning.text.LoadingModelMetadata", modelName);
+        String title = txt("prc.machineLearning.title.OpeningPredictionForm");
+        String text = txt("prc.machineLearning.text.OpeningPredictionForm");
         Progress.modal(getProject(), connection, true, title, text, progress -> {
             try {
+                progress.setText2(txt("prc.machineLearning.text.LoadingModelMetadata", modelName));
                 DatabaseInterfaceInvoker.execute(Priority.HIGH,
                         title,
                         text,

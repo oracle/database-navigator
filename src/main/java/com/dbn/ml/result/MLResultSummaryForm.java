@@ -35,6 +35,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import static com.dbn.common.ui.util.UserInterface.clearLabelTexts;
 import static com.dbn.common.util.TimeUtil.presentableDuration;
 import static com.dbn.ml.model.source.MLSourceType.DATABASE_TABLE;
 import static com.dbn.nls.NlsResources.txt;
@@ -67,6 +68,7 @@ public class MLResultSummaryForm extends DBNFormBase {
     public MLResultSummaryForm(@Nullable Disposable parent, @NotNull MLExecutionResult executionResult) {
         super(parent);
         this.executionResult = executionResult;
+        clearSummaryLabels();
         messageForm = new DBNMessageForm(this, executionResult.getSummaryMessage());
         messagePanel.add(messageForm.getComponent());
         modelHyperlinkLabel.setIcon(Icons.DBO_MINING_MODEL);
@@ -74,6 +76,13 @@ public class MLResultSummaryForm extends DBNFormBase {
         sourceTableHyperlinkLabel.setIcon(Icons.DBO_TABLE);
         sourceTableHyperlinkLabel.addHyperlinkListener(e -> navigateToSourceTable());
         refresh();
+    }
+
+    private void clearSummaryLabels() {
+        clearLabelTexts(taskLabel, algorithmLabel, sourceTypeLabel, sourceLabel,
+                targetColumnLabel, featuresLabel, trainingSamplesLabel, testSamplesLabel,
+                trainingTimeLabel, classesLabel, outputDimensionsLabel,
+                modelHyperlinkLabel, sourceTableHyperlinkLabel);
     }
 
     public void refresh() {
@@ -84,7 +93,7 @@ public class MLResultSummaryForm extends DBNFormBase {
                 result.getRequest().getTrainerConfig().getTargetSchemaId() :
                 result.getModelHandle().getTargetSchemaId();
         if (schemaId == null) schemaId = result.getConnection().getUserSchemaId();
-        String qualifiedModelName = modelName == null ? txt("app.machineLearning.placeholder.Model") :
+        String qualifiedModelName = modelName == null ? "" :
                 schemaId == null ? modelName : schemaId.getName() + "." + modelName;
         modelHyperlinkLabel.setHyperlinkText(qualifiedModelName);
         modelHyperlinkLabel.setToolTipText(qualifiedModelName);
@@ -106,9 +115,9 @@ public class MLResultSummaryForm extends DBNFormBase {
         targetColumnLabel.setToolTipText(targetColumn);
         featuresLabel.setText(String.valueOf(result.getFeatureCount()));
         trainingSamplesLabel.setText(result.getTrainingDataSize() < 0 ?
-                txt("app.machineLearning.placeholder.TrainingSamples") : String.valueOf(result.getTrainingDataSize()));
+                "" : String.valueOf(result.getTrainingDataSize()));
         testSamplesLabel.setText(result.getTestingDataSize() < 0 ?
-                txt("app.machineLearning.placeholder.TestSamples") : String.valueOf(result.getTestingDataSize()));
+                "" : String.valueOf(result.getTestingDataSize()));
         trainingTimeLabel.setText(presentableDuration(result.getTrainingTimeMs(), false));
         classesLabel.setText(String.valueOf(result.getClassCount()));
         outputDimensionsLabel.setText(String.valueOf(result.getOutputDimensions()));

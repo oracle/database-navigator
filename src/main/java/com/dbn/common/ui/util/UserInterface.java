@@ -29,6 +29,7 @@ import com.intellij.openapi.ui.DialogWrapperDialog;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.registry.Registry;
 import com.intellij.ui.AncestorListenerAdapter;
+import com.intellij.ui.HyperlinkLabel;
 import com.intellij.ui.border.IdeaTitledBorder;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
@@ -566,6 +567,16 @@ public class UserInterface {
         }
 
         return component.getName();
+    }
+
+    public static void clearLabelTexts(JComponent... labels) {
+        for (JComponent component : labels) {
+            if (component instanceof HyperlinkLabel hyperlink) {
+                hyperlink.setHyperlinkText("");
+            } else if (component instanceof JLabel label) {
+                label.setText("");
+            }
+        }
     }
 
     /**

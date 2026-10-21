@@ -18,13 +18,13 @@ package com.dbn.ml.ui;
 
 import com.dbn.common.Priority;
 import com.dbn.common.color.Colors;
+import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.thread.Background;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.misc.DBNTableScrollPane;
 import com.dbn.common.ui.util.Borders;
-import com.dbn.common.ui.util.Tooltips;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Strings;
@@ -51,18 +51,14 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import java.awt.BorderLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.common.ui.Layouts.verticalBoxLayout;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.nls.NlsResources.txt;
@@ -91,7 +87,7 @@ public class MLPredictForm extends DBNFormBase {
     private final MLTaskType taskType;
     private final List<MLPredictionAttribute> attributes;
     private final @NonNls String predictionStatement;
-    private final List<JTextField> inputFields = new ArrayList<>();
+    private final List<MLPredictAttributeForm> attributeForms = DisposableContainers.list(this);
 
     private EditorEx sqlPreviewViewer;
     private Document sqlPreviewDocument;
@@ -124,37 +120,19 @@ public class MLPredictForm extends DBNFormBase {
     }
 
     private void buildFieldsPanel() {
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(4, 4, 4, 4);
-        gbc.anchor = GridBagConstraints.WEST;
-
-        for (int i = 0; i < attributes.size(); i++) {
-            MLPredictionAttribute attribute = attributes.get(i);
-            // Label
-            gbc.gridx = 0;
-            gbc.gridy = i;
-            gbc.fill = GridBagConstraints.NONE;
-            gbc.weightx = 0;
-            fieldsPanel.add(new JLabel(txt("app.machineLearning.label.FeatureInputType",
-                    attribute.getName(), attribute.getDisplayDataType())), gbc);
-
-            // Text field
-            gbc.gridx = 1;
-            gbc.fill = GridBagConstraints.HORIZONTAL;
-            gbc.weightx = 1.0;
-            JTextField field = new JTextField(20);
-            Tooltips.setToolTipText(field, attribute.getDisplayDataType());
-            onTextChange(field, e -> updateSqlPreview());
-            inputFields.add(field);
-            fieldsPanel.add(field, gbc);
+        verticalBoxLayout(fieldsPanel);
+        for (MLPredictionAttribute attribute : attributes) {
+            MLPredictAttributeForm attributeForm = new MLPredictAttributeForm(this, attribute);
+            attributeForms.add(attributeForm);
+            fieldsPanel.add(attributeForm.getComponent());
+            onTextChange(attributeForm.getValueTextField(), e -> updateSqlPreview());
         }
+        updateFieldAlignment();
+    }
 
-        gbc.gridx = 0;
-        gbc.gridy = attributes.size();
-        gbc.gridwidth = 2;
-        gbc.weighty = 1.0;
-        gbc.fill = GridBagConstraints.VERTICAL;
-        fieldsPanel.add(Box.createVerticalGlue(), gbc);
+    @Override
+    protected void initFieldAlignment() {
+        getFieldAlignerData().registerForms(() -> attributeForms);
     }
 
     private void initResultPanel() {
@@ -224,7 +202,7 @@ public class MLPredictForm extends DBNFormBase {
                     quotedIdentifier = !quotedIdentifier;
                 }
             } else if (character == '?' && !quotedIdentifier && attributeIndex < attributes.size()) {
-                preview.append(toSqlLiteral(attributes.get(attributeIndex), inputFields.get(attributeIndex).getText().trim()));
+                preview.append(toSqlLiteral(attributes.get(attributeIndex), attributeForms.get(attributeIndex).getValueTextField().getText().trim()));
                 attributeIndex++;
             } else {
                 preview.append(character);
@@ -247,8 +225,8 @@ public class MLPredictForm extends DBNFormBase {
 
     private void runPrediction() {
         List<Object> values = new ArrayList<>();
-        for (int i = 0; i < inputFields.size(); i++) {
-            String value = inputFields.get(i).getText().trim();
+        for (int i = 0; i < attributeForms.size(); i++) {
+            String value = attributeForms.get(i).getValueTextField().getText().trim();
             if (Strings.isEmpty(value)) {
                 showError(txt("msg.machineLearning.error.FeatureValuesRequired"));
                 return;
@@ -318,7 +296,7 @@ public class MLPredictForm extends DBNFormBase {
     @Nullable
     @Override
     public JComponent getPreferredFocusedComponent() {
-        return inputFields.isEmpty() ? null : inputFields.get(0);
+        return attributeForms.isEmpty() ? null : attributeForms.get(0).getValueTextField();
     }
 
     @NotNull
