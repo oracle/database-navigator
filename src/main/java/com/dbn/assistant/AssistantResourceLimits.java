@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.tool.execution;
+package com.dbn.assistant;
 
 import com.dbn.common.resource.ResourceLimitPolicy;
 import com.dbn.common.resource.ResourceLimits;
@@ -24,18 +24,25 @@ import org.jetbrains.annotations.NonNls;
 import static com.dbn.common.util.Commons.nvl;
 
 @UtilityClass
-public class AssistantToolRequestLimits implements ResourceLimitPolicy {
+public class AssistantResourceLimits implements ResourceLimitPolicy {
     public static final int MAX_TOOL_REQUEST_ARGUMENT_LENGTH = 64 * 1024;
     public static final int MAX_TOOL_REQUEST_PREVIEW_LENGTH = 64 * 1024;
     public static final int MAX_TOOL_REQUEST_ARGUMENT_COUNT = 16;
     public static final int MAX_FUZZY_ARGUMENT_NAME_LENGTH = 256;
     public static final int MAX_FUZZY_ARGUMENT_TEXT_LENGTH = 512;
     public static final int MAX_SIMPLIFIED_ARGUMENT_NAME_LENGTH = 128;
+    public static final int MAX_UNTRUSTED_CONTENT_LENGTH = 8192;
+    public static final int MAX_TOOL_RESPONSE_LENGTH = 65536;
 
     private static final ResourceLimits LIMITS = ResourceLimits.builder()
             .add("tool-request-argument-characters", MAX_TOOL_REQUEST_ARGUMENT_LENGTH)
             .add("tool-request-preview-characters", MAX_TOOL_REQUEST_PREVIEW_LENGTH)
             .add("tool-request-argument-count", MAX_TOOL_REQUEST_ARGUMENT_COUNT)
+            .add("fuzzy-argument-name-characters", MAX_FUZZY_ARGUMENT_NAME_LENGTH)
+            .add("fuzzy-argument-text-characters", MAX_FUZZY_ARGUMENT_TEXT_LENGTH)
+            .add("simplified-argument-name-characters", MAX_SIMPLIFIED_ARGUMENT_NAME_LENGTH)
+            .add("untrusted-database-content-characters", MAX_UNTRUSTED_CONTENT_LENGTH)
+            .add("tool-response-content-characters", MAX_TOOL_RESPONSE_LENGTH)
             .build();
 
     private static final String TRUNCATED_SUFFIX = "\n[Tool request arguments truncated: original length %d characters]";
@@ -64,5 +71,13 @@ public class AssistantToolRequestLimits implements ResourceLimitPolicy {
         return "Tool request arguments exceeded the maximum allowed size of " +
                 MAX_TOOL_REQUEST_ARGUMENT_LENGTH + " characters (received " + originalLength + "). " +
                 "Retry with a narrower request, more specific filters, or smaller argument values.";
+    }
+
+    public static boolean isUntrustedDatabaseContentLengthAllowed(long length) {
+        return LIMITS.allows("untrusted-database-content-characters", length);
+    }
+
+    public static boolean isToolResponseContentLengthAllowed(long length) {
+        return LIMITS.allows("tool-response-content-characters", length);
     }
 }

@@ -43,12 +43,12 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import static com.dbn.assistant.AssistantComponent.OBJECT_MAPPER;
+import static com.dbn.assistant.AssistantResourceLimits.MAX_FUZZY_ARGUMENT_NAME_LENGTH;
+import static com.dbn.assistant.AssistantResourceLimits.MAX_FUZZY_ARGUMENT_TEXT_LENGTH;
+import static com.dbn.assistant.AssistantResourceLimits.MAX_SIMPLIFIED_ARGUMENT_NAME_LENGTH;
+import static com.dbn.assistant.AssistantResourceLimits.getToolRequestArgumentCount;
+import static com.dbn.assistant.AssistantResourceLimits.isOversized;
 import static com.dbn.assistant.tool.AssistantToolData.isInternalTool;
-import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.MAX_FUZZY_ARGUMENT_NAME_LENGTH;
-import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.MAX_FUZZY_ARGUMENT_TEXT_LENGTH;
-import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.MAX_SIMPLIFIED_ARGUMENT_NAME_LENGTH;
-import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.getToolRequestArgumentCount;
-import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.isOversized;
 import static com.dbn.common.Reflection.updateFieldValue;
 
 /**
