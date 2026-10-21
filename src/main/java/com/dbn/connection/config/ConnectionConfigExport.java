@@ -18,14 +18,17 @@ package com.dbn.connection.config;
 
 import com.dbn.common.clipboard.Clipboard;
 import com.dbn.common.util.XmlContents;
+import com.dbn.connection.ConnectionResourceLimits;
 import lombok.experimental.UtilityClass;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.connection.ConnectionResourceLimits.isClipboardImportAllowed;
 
 @UtilityClass
 public class ConnectionConfigExport {
@@ -56,8 +59,11 @@ public class ConnectionConfigExport {
     private static Element loadClipboardElement() {
         String clipboardData = Clipboard.getStringContent();
         if (clipboardData == null) return null;
+        if (!isClipboardImportAllowed(clipboardData)) return null;
 
-        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(clipboardData.getBytes())) {
+        byte[] clipboardBytes = clipboardData.getBytes(StandardCharsets.UTF_8);
+
+        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(clipboardBytes)) {
             return XmlContents.streamToElement(inputStream);
         } catch (Exception e) {
             return null;

@@ -30,6 +30,7 @@ import com.dbn.common.util.Actions;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.ConnectionResourceLimits;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.DatabaseUrlPattern;
 import com.dbn.connection.DatabaseUrlType;
@@ -409,9 +410,17 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
             Element rootElement = ConnectionConfigExport.readClipboardElement();
             if (rootElement == null) return;
 
-            List<Element> configElements = rootElement.getChildren();
             ConnectionListModel model = (ConnectionListModel) connectionsList.getModel();
             ConnectionBundleSettings configuration = getConfiguration();
+            List<Element> configElements = rootElement.getChildren();
+            int connectionCount = configuration.getConnections().size();
+            if (!ConnectionResourceLimits.isConnectionImportAllowed(connectionCount, configElements.size())) {
+                showErrorDialog(getProject(),
+                        txt("msg.connection.title.ImportFailed"),
+                        txt("msg.connection.error.ImportLimitExceeded"));
+                return;
+            }
+
             List<ConnectionSettings> importedConnections = new ArrayList<>();
             for (Element configElement : configElements) {
                 ConnectionSettings clone = new ConnectionSettings(configuration);
