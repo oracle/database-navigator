@@ -19,7 +19,6 @@ package com.dbn.connection;
 import com.dbn.common.resource.ResourceLimitPolicy;
 import com.dbn.common.resource.ResourceLimits;
 import lombok.experimental.UtilityClass;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -30,23 +29,19 @@ public class ConnectionResourceLimits implements ResourceLimitPolicy {
     public static final int MAX_CONNECTION_COUNT = 256;
     public static final long MAX_CLIPBOARD_XML_SIZE_BYTES = 10L * 1024 * 1024;
 
-    private static final @NonNls String CLIPBOARD_XML_CHARACTERS = "clipboard XML characters";
-    private static final @NonNls String CLIPBOARD_XML_BYTES = "clipboard XML bytes";
-    private static final @NonNls String CONNECTION_COUNT = "connection count";
-
     private static final ResourceLimits LIMITS = ResourceLimits.builder()
-            .add(CLIPBOARD_XML_CHARACTERS, MAX_CLIPBOARD_XML_SIZE_BYTES)
-            .add(CLIPBOARD_XML_BYTES, MAX_CLIPBOARD_XML_SIZE_BYTES)
-            .add(CONNECTION_COUNT, MAX_CONNECTION_COUNT)
+            .add("clipboard-xml-characters", MAX_CLIPBOARD_XML_SIZE_BYTES)
+            .add("clipboard-xml-bytes", MAX_CLIPBOARD_XML_SIZE_BYTES)
+            .add("connection-count", MAX_CONNECTION_COUNT)
             .build();
 
     public static boolean isClipboardImportAllowed(@NotNull String content) {
-        return LIMITS.allows(CLIPBOARD_XML_CHARACTERS, content.length()) &&
-                LIMITS.allows(CLIPBOARD_XML_BYTES, ResourceLimits.getUtf8ByteCount(content, MAX_CLIPBOARD_XML_SIZE_BYTES));
+        return LIMITS.allows("clipboard-xml-characters", content.length()) &&
+                LIMITS.allows("clipboard-xml-bytes", ResourceLimits.getUtf8ByteCount(content, MAX_CLIPBOARD_XML_SIZE_BYTES));
     }
 
     public static boolean isConnectionImportAllowed(long currentCount, long importedCount) {
-        return LIMITS.get(CONNECTION_COUNT).allowsAddition(currentCount, importedCount);
+        return LIMITS.get("connection-count").allowsAddition(currentCount, importedCount);
     }
 
 }

@@ -19,7 +19,6 @@ package com.dbn.common.constant;
 import com.dbn.common.resource.ResourceLimitPolicy;
 import com.dbn.common.resource.ResourceLimits;
 import lombok.experimental.UtilityClass;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -30,19 +29,16 @@ public class PseudoConstantResourceLimits implements ResourceLimitPolicy {
     public static final int MAX_ID_LENGTH = 1024;
     public static final int MAX_REGISTERED_ID_COUNT = 65536;
 
-    private static final @NonNls String ID_LENGTH = "pseudo-constant ID length";
-    private static final @NonNls String REGISTERED_ID_COUNT = "registered pseudo-constant ID count";
-
     private static final ResourceLimits LIMITS = ResourceLimits.builder()
-            .add(ID_LENGTH, MAX_ID_LENGTH)
-            .add(REGISTERED_ID_COUNT, MAX_REGISTERED_ID_COUNT)
+            .add("pseudo-constant-id-length", MAX_ID_LENGTH)
+            .add("registered-pseudo-constant-id-count", MAX_REGISTERED_ID_COUNT)
             .build();
 
     public static void verifyPseudoConstantId(@NotNull String id) {
-        LIMITS.verify(ID_LENGTH, id.length());
+        LIMITS.verify("pseudo-constant-id-length", id.length());
     }
 
     public static void verifyPseudoConstantRegistration(long currentCount) {
-        LIMITS.get(REGISTERED_ID_COUNT).verifyAddition(currentCount, 1);
+        LIMITS.get("registered-pseudo-constant-id-count").verifyAddition(currentCount, 1);
     }
 }

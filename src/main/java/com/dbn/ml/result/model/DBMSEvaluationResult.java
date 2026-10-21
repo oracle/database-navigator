@@ -17,7 +17,6 @@
 package com.dbn.ml.result.model;
 
 import com.dbn.ml.model.MLTaskType;
-import com.dbn.ml.request.util.MLCSVParser;
 import lombok.Getter;
 
 import java.sql.ResultSet;
@@ -29,6 +28,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.dbn.ml.MLResourceLimits.isConfusionMatrixClassCountAllowed;
+import static com.dbn.ml.MLResourceLimits.isConfusionMatrixLabelAllowed;
+import static com.dbn.ml.MLResourceLimits.isConfusionMatrixRowCountAllowed;
 import static com.dbn.nls.NlsResources.txt;
 import static java.lang.String.format;
 
@@ -43,10 +45,6 @@ import static java.lang.String.format;
 public class DBMSEvaluationResult {
 
     public static final String ILBR = "\n  "; // indented line break
-    public static final int MAX_CONFUSION_MATRIX_ROWS = 10_000;
-    public static final int MAX_CONFUSION_MATRIX_CLASSES = 100;
-    public static final int MAX_CONFUSION_MATRIX_CELLS = 10_000;
-    public static final int MAX_CONFUSION_MATRIX_LABEL_LENGTH = MLCSVParser.MAX_TEXT_LENGTH;
 
     /**
      * Per-class metrics for classification.
@@ -213,9 +211,9 @@ public class DBMSEvaluationResult {
     private boolean addConfusionMatrixRow(String actual, String predicted, int count) {
         String actualLabel = String.valueOf(actual);
         String predictedLabel = String.valueOf(predicted);
-        if (actualLabel.length() > MAX_CONFUSION_MATRIX_LABEL_LENGTH ||
-                predictedLabel.length() > MAX_CONFUSION_MATRIX_LABEL_LENGTH ||
-                confusionMatrixRowCount >= MAX_CONFUSION_MATRIX_ROWS) {
+        if (!isConfusionMatrixLabelAllowed(actualLabel) ||
+                !isConfusionMatrixLabelAllowed(predictedLabel) ||
+                !isConfusionMatrixRowCountAllowed(confusionMatrixRowCount + 1L)) {
             markConfusionMatrixDataOversized();
             return false;
         }
@@ -225,8 +223,7 @@ public class DBMSEvaluationResult {
         if (!actualLabel.equals(predictedLabel) && !confusionMatrixClassLabels.contains(predictedLabel)) addedLabels++;
 
         int classCount = confusionMatrixClassLabels.size() + addedLabels;
-        if (classCount > MAX_CONFUSION_MATRIX_CLASSES ||
-                (long) classCount * classCount > MAX_CONFUSION_MATRIX_CELLS) {
+        if (!isConfusionMatrixClassCountAllowed(classCount)) {
             markConfusionMatrixDataOversized();
             return false;
         }
@@ -243,10 +240,6 @@ public class DBMSEvaluationResult {
         confusionMatrixData.clear();
         confusionMatrixClassLabels.clear();
         perClassMetricsCache = null;
-    }
-
-    public boolean isConfusionMatrixDataOversized() {
-        return confusionMatrixDataOversized;
     }
 
     /**

@@ -16,6 +16,7 @@
 
 package com.dbn.common.resource;
 
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -42,7 +43,7 @@ public final class ResourceLimits {
     }
 
     @NotNull
-    public ResourceLimit get(@NotNull String name) {
+    public ResourceLimit get(@NotNull @NonNls String name) {
         ResourceLimit limit = limits.get(name);
         if (limit == null) {
             throw new IllegalArgumentException("No resource limit is defined for " + name);
@@ -50,7 +51,7 @@ public final class ResourceLimits {
         return limit;
     }
 
-    public boolean allows(@NotNull String name, long value) {
+    public boolean allows(@NotNull @NonNls String name, long value) {
         return get(name).allows(value);
     }
 
@@ -115,7 +116,7 @@ public final class ResourceLimits {
         private Builder() {
         }
 
-        public Builder add(@NotNull String name, long maximum) {
+        public Builder add(@NotNull @NonNls String name, long maximum) {
             Objects.requireNonNull(name, "name");
             if (name.isBlank()) {
                 throw new IllegalArgumentException("Resource limit name must not be blank");

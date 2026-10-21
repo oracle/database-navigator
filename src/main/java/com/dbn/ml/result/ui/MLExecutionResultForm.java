@@ -70,6 +70,9 @@ import java.util.TreeSet;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.ml.MLResourceLimits.isConfusionMatrixClassCountAllowed;
+import static com.dbn.ml.MLResourceLimits.isConfusionMatrixLabelAllowed;
+import static com.dbn.ml.MLResourceLimits.isConfusionMatrixRowCountAllowed;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
@@ -251,18 +254,17 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         int maxCount = 0;
         int rowCount = 0;
         for (Map.Entry<String, Integer> entry : confusionData.entrySet()) {
-            if (++rowCount > DBMSEvaluationResult.MAX_CONFUSION_MATRIX_ROWS) {
+            if (!isConfusionMatrixRowCountAllowed(++rowCount)) {
                 return new JLabel(txt("app.machineLearning.text.ConfusionMatrixNotAvailable"));
             }
             String[] parts = entry.getKey().split("\0");
             if (parts.length >= 2) {
-                if (parts[0].length() > DBMSEvaluationResult.MAX_CONFUSION_MATRIX_LABEL_LENGTH ||
-                        parts[1].length() > DBMSEvaluationResult.MAX_CONFUSION_MATRIX_LABEL_LENGTH) {
+                if (!isConfusionMatrixLabelAllowed(parts[0]) || !isConfusionMatrixLabelAllowed(parts[1])) {
                     return new JLabel(txt("app.machineLearning.text.ConfusionMatrixNotAvailable"));
                 }
                 classLabels.add(parts[0]);
                 classLabels.add(parts[1]);
-                if (classLabels.size() > DBMSEvaluationResult.MAX_CONFUSION_MATRIX_CLASSES) {
+                if (!isConfusionMatrixClassCountAllowed(classLabels.size())) {
                     return new JLabel(txt("app.machineLearning.text.ConfusionMatrixNotAvailable"));
                 }
                 maxCount = Math.max(maxCount, entry.getValue());
@@ -271,7 +273,7 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
 
         List<String> labels = new ArrayList<>(classLabels);
         int size = labels.size();
-        if ((long) size * size > DBMSEvaluationResult.MAX_CONFUSION_MATRIX_CELLS) {
+        if (!isConfusionMatrixClassCountAllowed(size)) {
             return new JLabel(txt("app.machineLearning.text.ConfusionMatrixNotAvailable"));
         }
 

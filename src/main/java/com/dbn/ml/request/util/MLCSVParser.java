@@ -33,6 +33,8 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import static com.dbn.ml.MLResourceLimits.MAX_ML_TEXT_LENGTH;
+import static com.dbn.ml.MLResourceLimits.isMLTextLengthAllowed;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
@@ -40,7 +42,6 @@ import static com.dbn.nls.NlsResources.txt;
  */
 public final class MLCSVParser {
     public static final int CLOUD_SAMPLE_ROWS = 200;
-    public static final int MAX_TEXT_LENGTH = 4000;
     public static final int MAX_IDENTIFIER_LENGTH = 128;
 
     private static final Pattern ORACLE_IDENTIFIER = Pattern.compile("[A-Za-z][A-Za-z0-9_$#]{0," + (MAX_IDENTIFIER_LENGTH - 1) + "}");
@@ -162,12 +163,12 @@ public final class MLCSVParser {
         for (int i = 0; i < values.length; i++) {
             String value = values[i].trim();
             if (value.isEmpty()) continue;
-            if (value.length() > MAX_TEXT_LENGTH) {
+            if (!isMLTextLengthAllowed(value.length())) {
                 throw new IllegalArgumentException(txt(
                         "msg.machineLearning.exception.CsvValueTooLong",
                         rowNumber,
                         i + 1,
-                        MAX_TEXT_LENGTH));
+                        MAX_ML_TEXT_LENGTH));
             }
 
             populated[i] = true;
