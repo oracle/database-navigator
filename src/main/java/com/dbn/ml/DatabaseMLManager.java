@@ -23,6 +23,8 @@ import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.message.InteractiveMessage;
+import com.dbn.common.message.TitledMessage;
+import com.dbn.common.message.MessageType;
 import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.common.outcome.OutcomeHandlers;
 import com.dbn.common.outcome.OutcomeHandlersImpl;
@@ -35,11 +37,11 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.config.ConnectionConfigListener;
+import com.dbn.diagnostics.Diagnostics;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
 import com.dbn.execution.ExecutionManager;
 import com.dbn.ml.backend.model.MLPredictionAttribute;
-import com.dbn.ml.backend.model.MLTrainingContext;
 import com.dbn.ml.execution.MLPipelineExecutor;
 import com.dbn.ml.execution.MLTrainingJobSubmission;
 import com.dbn.ml.model.MLRequest;
@@ -58,6 +60,7 @@ import com.dbn.scheduler.model.SchedulerJobMonitor;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.util.NlsContexts.DialogMessage;
 import com.intellij.openapi.util.NlsContexts.DialogTitle;
 import lombok.extern.slf4j.Slf4j;
@@ -247,7 +250,9 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
         String sourceName = getSourceDisplayName(requestSnapshot);
         String algorithmName = requestSnapshot.getTrainerConfig().getTrainerType().getName();
 
-        Progress.prompt(
+        MLResult pendingResult = createPendingResult(requestSnapshot, connection);
+        MLExecutionResult executionResult = showResultInExecutionManager(pendingResult);
+        Progress.background(
                 getProject(),
                 connection,
                 true,
@@ -255,9 +260,16 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
                 txt("prc.machineLearning.text.PreparingTrainingData", algorithmName, sourceName),
                 progress -> {
                     try {
-                        MLPipelineExecutor executor = new MLPipelineExecutor();
+                        MLPipelineExecutor executor = new MLPipelineExecutor(executionResult::updateProgress);
                         MLTrainingJobSubmission submission = executor.prepareTrainingJob(requestSnapshot, connection);
                         String modelName = getResultModelName(submission);
+                        MLResult preparedResult = createPendingResult(submission.getContext().getRequest(), connection);
+                        preparedResult.getRequest().getTrainerConfig().setTargetModelName(modelName);
+                        preparedResult.setTrainingDataSize(submission.getContext().getTrainingDataSize());
+                        preparedResult.setTestingDataSize(submission.getContext().getTestingDataSize());
+                        executionResult.updatePendingResult(preparedResult);
+                        executionResult.updateProgress(txt("prc.machineLearning.title.SubmittingTrainingJob"),
+                                txt("prc.machineLearning.text.SubmittingTrainingJob", modelName));
 
                         DatabaseSchedulerManager schedulerManager = DatabaseSchedulerManager.getInstance(getProject());
                         SchedulerJob job = schedulerManager.submitJob(connection, submission.getJobRequest());
@@ -265,10 +277,20 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
                         sendInfoNotification(EXECUTION,
                                 txt("ntf.machineLearning.info.TrainingSubmitted", modelName));
 
+                        executionResult.updateProgress(txt("prc.machineLearning.title.MonitoringTrainingJob"),
+                                txt("prc.machineLearning.text.MonitoringTrainingJob", modelName));
                         schedulerManager.monitorJob(job,
-                                createTrainingJobMonitor(modelName),
-                                createTrainingOutcomeHandlers(executor, submission, connection));
+                                createTrainingJobMonitor(modelName, executionResult),
+                                createTrainingOutcomeHandlers(executor, submission, connection, executionResult));
+                    } catch (ProcessCanceledException e) {
+                        Diagnostics.conditionallyLog(e);
+                        executionResult.stopLoading(new TitledMessage(MessageType.WARNING,
+                                txt("app.shared.const.TaskStatus_CANCELLED"),
+                                txt("msg.shared.exception.LoadProcessCanceled")));
                     } catch (Exception e) {
+                        executionResult.stopLoading(new TitledMessage(MessageType.ERROR,
+                                txt("msg.machineLearning.title.TrainingJobSubmitFailed"),
+                                txt("msg.machineLearning.error.ModelTrainingFailed", e.getMessage())));
                         log.warn("Failed to submit training job", e);
                         showRetryableTrainingFailure(
                                 txt("msg.machineLearning.title.TrainingJobSubmitFailed"),
@@ -276,15 +298,35 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
                                 connection,
                                 requestSnapshot);
                     }
-                });
+                }, () -> executionResult.stopLoading(new TitledMessage(MessageType.WARNING,
+                        txt("app.shared.const.TaskStatus_CANCELLED"),
+                        txt("msg.shared.exception.LoadProcessCanceled"))));
+    }
+
+    private MLResult createPendingResult(MLRequest request, ConnectionHandler connection) {
+        MLResult result = new MLResult(request.clone());
+        if (request.isModelReplacement()) {
+            result.getRequest().getTrainerConfig().setTargetModelName(request.getModelToReplace());
+        }
+        result.setConnection(connection);
+        result.setTaskType(request.getTrainerConfig().getTrainerType().getTaskType());
+        result.setAlgorithmName(request.getTrainerConfig().getTrainerType().getName());
+        result.setFeatureCount(request.getFeatureConfig().getFeatureColumns().size());
+        result.setTrainingDataSize(-1);
+        result.setTestingDataSize(-1);
+        return result;
     }
 
     @NotNull
-    private SchedulerJobMonitor createTrainingJobMonitor(String modelName) {
+    private SchedulerJobMonitor createTrainingJobMonitor(String modelName, MLExecutionResult executionResult) {
         return new SchedulerJobMonitor(
                 txt("prc.machineLearning.title.MonitoringTrainingJob"),
                 txt("prc.machineLearning.text.MonitoringTrainingJob", modelName),
-                snapshot -> txt("prc.machineLearning.text.TrainingJobStatus", modelName, snapshot.getStatus().getName()),
+                snapshot -> {
+                    String text = txt("prc.machineLearning.text.TrainingJobStatus", modelName, snapshot.getStatus().getName());
+                    executionResult.updateProgress(txt("prc.machineLearning.title.MonitoringTrainingJob"), text);
+                    return text;
+                },
                 JOB_POLL_INTERVAL_MILLIS,
                 JOB_POLL_TIMEOUT_MILLIS,
                 SchedulerJobCompletionPolicy.DROP,
@@ -296,12 +338,17 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
     private OutcomeHandlers createTrainingOutcomeHandlers(
             MLPipelineExecutor executor,
             MLTrainingJobSubmission submission,
-            ConnectionHandler connection) {
+            ConnectionHandler connection,
+            MLExecutionResult executionResult) {
 
         String modelName = getResultModelName(submission);
         OutcomeHandlers outcomeHandlers = new OutcomeHandlersImpl();
         outcomeHandlers.addHandler(OutcomeType.SUCCESS,
-                (OutcomeHandler.HighPriority) outcome -> completeTrainingJob(executor, submission, connection));
+                (OutcomeHandler.HighPriority) outcome -> completeTrainingJob(executor, submission, connection, executionResult));
+        outcomeHandlers.addHandler(OutcomeType.WARNING, (OutcomeHandler.HighPriority) outcome ->
+                executionResult.stopLoading(new TitledMessage(MessageType.WARNING,
+                        txt("app.machineLearning.title.MonitoringStopped"),
+                        txt("app.machineLearning.text.MonitoringStopped"))));
         outcomeHandlers.addHandler(OutcomeType.FAILURE, (OutcomeHandler.HighPriority) outcome -> {
             SchedulerJobCompletion completion = outcome.getData();
             if (completion != null && completion.getSnapshot().getStatus().isTerminal()) {
@@ -311,6 +358,9 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
                     log.warn("Failed to cleanup resources for model {}", modelName, e);
                 }
             }
+            executionResult.stopLoading(new TitledMessage(MessageType.ERROR,
+                    txt("msg.machineLearning.title.TrainingMonitoringFailed"),
+                    txt("msg.machineLearning.error.TrainingMonitoringFailed", modelName, outcome.getMessage())));
             log.warn("Async training monitor failed for model {}", modelName, outcome.getException());
             showRetryableTrainingFailure(
                     txt("msg.machineLearning.title.TrainingMonitoringFailed"),
@@ -324,25 +374,23 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
     private void completeTrainingJob(
             MLPipelineExecutor executor,
             MLTrainingJobSubmission submission,
-            ConnectionHandler connection) {
+            ConnectionHandler connection,
+            MLExecutionResult executionResult) {
 
         String modelName = getResultModelName(submission);
-        MLTrainingContext context = submission.getContext();
-        MLResult pendingResult = new MLResult(context.getRequest().clone());
-        pendingResult.getRequest().getTrainerConfig().setTargetModelName(modelName);
-        pendingResult.setConnection(connection);
-        pendingResult.setTaskType(context.getTaskType());
-        pendingResult.setAlgorithmName(context.getAlgorithmName());
-        pendingResult.setTrainingDataSize(context.getTrainingDataSize());
-        pendingResult.setTestingDataSize(context.getTestingDataSize());
-        pendingResult.setFeatureCount(context.getFeatureConfig().getFeatureColumns().size());
-        MLExecutionResult executionResult = showResultInExecutionManager(pendingResult);
         try {
             MLResult result = executor.completeAsync(submission, connection);
             executionResult.completeLoading(result);
             sendInfoNotification(EXECUTION, txt("ntf.machineLearning.info.TrainingCompleted", modelName));
+        } catch (ProcessCanceledException e) {
+            Diagnostics.conditionallyLog(e);
+            executionResult.stopLoading(new TitledMessage(MessageType.WARNING,
+                    txt("app.shared.const.TaskStatus_CANCELLED"),
+                    txt("msg.shared.exception.LoadProcessCanceled")));
         } catch (Exception e) {
-            executionResult.failLoading(e.getMessage());
+            executionResult.stopLoading(new TitledMessage(MessageType.ERROR,
+                    txt("app.machineLearning.title.ResultLoadFailed"),
+                    e.getMessage() == null ? txt("app.machineLearning.text.ResultLoadFailed") : e.getMessage()));
             log.warn("Failed to finalize training result for model {}", modelName, e);
             showRetryableTrainingFailure(
                     txt("msg.machineLearning.title.TrainingMonitoringFailed"),
@@ -382,9 +430,13 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
         ExecutionManager executionManager = ExecutionManager.getInstance(getProject());
         Set<String> existingNames = executionManager.getExecutionResultNames(MLExecutionResult.class);
         String modelName = result.getRequest().getTrainerConfig().getTargetModelName();
-        String name = Naming.nextNumberedIdentifier(modelName, true, () -> existingNames);
+        String name = Naming.nextNumberedIdentifier(
+                modelName == null ? txt("app.machineLearning.placeholder.Model") : modelName,
+                true, () -> existingNames);
         MLExecutionResult executionResult = new MLExecutionResult(result, name);
-        executionResult.beginLoading();
+        executionResult.beginLoading(new TitledMessage(MessageType.PROCESSING,
+                txt("prc.machineLearning.title.SubmittingTrainingJob"),
+                txt("prc.machineLearning.text.PreparingTrainingData", result.getAlgorithmName(), getSourceDisplayName(result.getRequest()))));
         executionManager.addExecutionResult(executionResult);
         return executionResult;
     }

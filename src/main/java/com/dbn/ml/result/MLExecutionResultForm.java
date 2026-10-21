@@ -129,6 +129,12 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         actionsPanel.add(actionToolbar.getComponent());
     }
 
+    public void refreshStatus() {
+        summaryForm.refresh();
+        mainPanel.revalidate();
+        mainPanel.repaint();
+    }
+
     public void refreshResult() {
         result = getExecutionResult().getMlResult();
         summaryForm.refresh();

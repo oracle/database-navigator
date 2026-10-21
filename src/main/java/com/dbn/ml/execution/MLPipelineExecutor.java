@@ -30,10 +30,13 @@ import com.dbn.ml.model.source.MLSourceNames;
 import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.scheduler.model.SchedulerJobRequest;
 import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.function.BiConsumer;
 
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.event.ObjectChangeAction.UNSPECIFIED;
 import static com.dbn.object.type.DBObjectType.MINING_MODEL;
 import static com.dbn.object.type.DBObjectType.TABLE;
@@ -45,7 +48,9 @@ import static com.dbn.object.type.DBObjectType.VIEW;
  * @author ayoub allali
  */
 @Slf4j
+@RequiredArgsConstructor
 public class MLPipelineExecutor {
+    private final BiConsumer<String, String> progressConsumer;
 
     /**
      * Prepares training data and renders the CREATE_MODEL action to be scheduled.
@@ -74,13 +79,19 @@ public class MLPipelineExecutor {
         boolean replacementReady = false;
 
         try {
+            progressConsumer.accept(txt("prc.machineLearning.title.LoadingModelMetadata"),
+                    txt("prc.machineLearning.text.LoadingModelMetadata", submission.getModelName()));
             DBMSModelHandle modelHandle = backend.loadModelHandle(context, submission.getModelName());
             MLResult result = buildResult(request, connection, context, backend, modelHandle, startTime);
             replacementReady = true;
             if (request.isModelReplacement()) {
+                progressConsumer.accept(txt("prc.machineLearning.title.TrainingModel"),
+                        txt("prc.machineLearning.text.ReplacingModel", request.getModelToReplace()));
                 replaceModel(result, backend);
             }
 
+            progressConsumer.accept(txt("app.machineLearning.title.ModelDetailViews"),
+                    txt("prc.machineLearning.text.LoadingModelDetailViews"));
             loadModelDetailViews(result, backend);
             return result;
         } catch (Exception e) {
@@ -93,6 +104,7 @@ public class MLPipelineExecutor {
             }
             throw e;
         } finally {
+            progressConsumer.accept(txt("prc.machineLearning.title.Cleanup"), txt("prc.machineLearning.text.Cleanup"));
             try {
                 backend.cleanup(context);
             } catch (Exception e) {
@@ -105,6 +117,7 @@ public class MLPipelineExecutor {
     }
 
     public void cleanup(MLTrainingJobSubmission submission, ConnectionHandler connection) throws Exception {
+        progressConsumer.accept(txt("prc.machineLearning.title.Cleanup"), txt("prc.machineLearning.text.Cleanup"));
         try {
             new DBMSBackend(connection).cleanup(submission.getContext());
         } finally {
@@ -160,6 +173,8 @@ public class MLPipelineExecutor {
         result.setAlgorithmName(context.getAlgorithmName());
         result.setModelHandle(modelHandle);
 
+        progressConsumer.accept(txt("prc.machineLearning.title.EvaluatingModel"),
+                txt("prc.machineLearning.text.ComputingEvaluationMetrics"));
         DBMSEvaluationResult evaluation = backend.evaluate(modelHandle, context);
         result.setEvaluationResult(evaluation);
 
@@ -197,12 +212,16 @@ public class MLPipelineExecutor {
             MLResult result) {
 
         DBMSFeatureAnalyzer analyzer = new DBMSFeatureAnalyzer(connectionHandler);
+        progressConsumer.accept(txt("prc.machineLearning.title.AnalyzingFeatures"),
+                txt("prc.machineLearning.text.ComputingFeatureImportance"));
         try {
             result.setFeatureImportance(analyzer.computeFeatureImportance(context));
         } catch (Exception e) {
             log.warn("Failed to compute feature importance - result will omit the table", e);
         }
 
+        progressConsumer.accept(txt("prc.machineLearning.title.AnalyzingFeatures"),
+                txt("prc.machineLearning.text.ComputingAttributeContribution"));
         try {
             result.setAttributeContributions(analyzer.computeAttributeContribution(modelHandle));
         } catch (Exception e) {

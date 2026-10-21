@@ -84,7 +84,8 @@ public class MLResultSummaryForm extends DBNFormBase {
                 result.getRequest().getTrainerConfig().getTargetSchemaId() :
                 result.getModelHandle().getTargetSchemaId();
         if (schemaId == null) schemaId = result.getConnection().getUserSchemaId();
-        String qualifiedModelName = schemaId == null ? modelName : schemaId.getName() + "." + modelName;
+        String qualifiedModelName = modelName == null ? txt("app.machineLearning.placeholder.Model") :
+                schemaId == null ? modelName : schemaId.getName() + "." + modelName;
         modelHyperlinkLabel.setHyperlinkText(qualifiedModelName);
         modelHyperlinkLabel.setToolTipText(qualifiedModelName);
         modelHyperlinkLabel.setEnabled(result.getModelHandle() != null);
@@ -104,8 +105,10 @@ public class MLResultSummaryForm extends DBNFormBase {
         targetColumnLabel.setText(targetColumn);
         targetColumnLabel.setToolTipText(targetColumn);
         featuresLabel.setText(String.valueOf(result.getFeatureCount()));
-        trainingSamplesLabel.setText(String.valueOf(result.getTrainingDataSize()));
-        testSamplesLabel.setText(String.valueOf(result.getTestingDataSize()));
+        trainingSamplesLabel.setText(result.getTrainingDataSize() < 0 ?
+                txt("app.machineLearning.placeholder.TrainingSamples") : String.valueOf(result.getTrainingDataSize()));
+        testSamplesLabel.setText(result.getTestingDataSize() < 0 ?
+                txt("app.machineLearning.placeholder.TestSamples") : String.valueOf(result.getTestingDataSize()));
         trainingTimeLabel.setText(presentableDuration(result.getTrainingTimeMs(), false));
         classesLabel.setText(String.valueOf(result.getClassCount()));
         outputDimensionsLabel.setText(String.valueOf(result.getOutputDimensions()));
