@@ -60,11 +60,15 @@ public class MLRequest implements PersistentStateElement, Cloneable<MLRequest> {
         return ConnectionHandler.ensure(connectionId);
     }
 
-    public void initialize(SchemaId userSchema) {
-        if (userSchema == null) return;
-        
-        String schemaName = userSchema.getName();
+    public void initSource(SchemaId schemaId) {
+        if (schemaId == null) return;
+
+        String schemaName = schemaId.getName();
         sourceConfig.getTableSourceConfig().setSchemaName(schemaName);
+    }
+
+    public void initTarget(SchemaId schemaId) {
+        trainerConfig.setTargetSchemaId(schemaId);
     }
 
     public void reset(SchemaId userSchema) {
@@ -74,7 +78,8 @@ public class MLRequest implements PersistentStateElement, Cloneable<MLRequest> {
         featureConfig = new MLFeatureConfig();
         trainerConfig = new MLTrainerConfig();
 
-        initialize(userSchema);
+        initSource(userSchema);
+        initTarget(userSchema);
     }
 
     /**
@@ -82,7 +87,7 @@ public class MLRequest implements PersistentStateElement, Cloneable<MLRequest> {
      * reusable training configuration.
      */
     public void resetSoft() {
-        trainerConfig.setModelName(null);
+        trainerConfig.setTargetModelName(null);
     }
 
     @Override

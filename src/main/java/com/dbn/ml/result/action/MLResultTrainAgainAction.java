@@ -62,7 +62,7 @@ public class MLResultTrainAgainAction extends AbstractMLExecutionResultAction {
 
         MLRequest retrainRequest = result.getRequest().clone();
         retrainRequest.setModelToReplace(option == 1 ? modelName : null);
-        retrainRequest.getTrainerConfig().setModelName(
+        retrainRequest.getTrainerConfig().setTargetModelName(
                 nextNumberedIdentifier(modelName, false, modelName::equalsIgnoreCase));
 
         DatabaseMLManager.getInstance(project).openToolbox(result.getConnection(), retrainRequest);

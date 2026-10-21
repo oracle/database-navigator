@@ -248,8 +248,8 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
 
         generatedModelName = null;
         generatedSourceName = MLSourceNames.extractBaseName(getMLRequest().getSourceConfig());
-        modelNameField.setText(config.getModelName() != null ? config.getModelName() : "");
-        if (config.getModelName() == null) {
+        modelNameField.setText(config.getTargetModelName() != null ? config.getTargetModelName() : "");
+        if (config.getTargetModelName() == null) {
             updateGeneratedModelName(generatedSourceName);
         }
 
@@ -275,7 +275,7 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
     public void applyFormChanges() {
         MLTrainerConfig config = getConfig();
         String name = modelNameField.getText().trim();
-        config.setModelName(name.isEmpty() ? null : name);
+        config.setTargetModelName(name.isEmpty() ? null : name);
         config.setTrainerType(algorithmComboBox.getSelectedValue());
         config.setTrainTestSplitRatio(splitSlider.getValue() / 100.0);
         config.setUseFixedSeed(useFixedSeedCheckBox.isSelected());

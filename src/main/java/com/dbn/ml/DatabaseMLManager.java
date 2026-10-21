@@ -33,6 +33,7 @@ import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Naming;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.SchemaId;
 import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
@@ -213,12 +214,16 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
     @NotNull
     public MLRequest getRequestTemplate(ConnectionHandler connection) {
         ConnectionId connectionId = connection.getConnectionId();
-        return requestTemplates.computeIfAbsent(connectionId, id -> {
-            MLRequest request = new MLRequest(id);
-            request.setTemplate(true);
-            request.initialize(connection.getUserSchemaId());
-            return request;
+        SchemaId userSchemaId = connection.getUserSchemaId();
+        MLRequest request = requestTemplates.computeIfAbsent(connectionId, id -> {
+            MLRequest template = new MLRequest(id);
+            template.setTemplate(true);
+            template.initSource(userSchemaId);
+            template.initTarget(userSchemaId);
+            return template;
         });
+        request.initTarget(userSchemaId);
+        return request;
     }
 
     public void setRequestTemplate(ConnectionId connectionId, MLRequest request) {

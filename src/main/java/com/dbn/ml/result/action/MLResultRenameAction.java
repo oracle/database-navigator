@@ -20,14 +20,14 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.thread.Background;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.SchemaId;
 import com.dbn.ml.backend.dbms.DBMSBackend;
 import com.dbn.ml.backend.dbms.DBMSModelHandle;
 import com.dbn.ml.model.MLResult;
 import com.dbn.ml.result.MLExecutionResult;
 import com.dbn.ml.result.MLExecutionResultForm;
 import com.dbn.ml.ui.MLModelRenameDialog;
-import com.dbn.object.common.DBObjectUtil;
-import com.dbn.object.type.DBObjectType;
+import com.dbn.object.event.ObjectChangeEvent;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -41,6 +41,9 @@ import java.sql.SQLException;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.common.util.Messages.showInfoDialog;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.object.event.ObjectChangeAction.UNSPECIFIED;
+import static com.dbn.object.type.DBObjectType.MINING_MODEL;
+import static com.dbn.object.type.DBObjectType.VIEW;
 
 /**
  * Action to rename ML model in the database using DBMS_DATA_MINING.RENAME_MODEL.
@@ -75,7 +78,9 @@ public class MLResultRenameAction extends AbstractMLExecutionResultAction {
                 backend.renameModel(oldName, newName);
                 modelHandle.setModelName(newName);
                 reloadModelDetailViews(result, backend, newName);
-                invalidateModelObjects(connection);
+
+                SchemaId schemaId = result.getRequest().getTrainerConfig().getTargetSchemaId();
+                refreshModelObjects(connection, schemaId);
 
                 MLExecutionResultForm form = executionResult.getForm();
                 if (form != null) {
@@ -101,9 +106,11 @@ public class MLResultRenameAction extends AbstractMLExecutionResultAction {
         }
     }
 
-    private static void invalidateModelObjects(ConnectionHandler connection) {
-        DBObjectUtil.refreshUserObjects(connection.getConnectionId(), DBObjectType.MINING_MODEL);
-        DBObjectUtil.refreshUserObjects(connection.getConnectionId(), DBObjectType.VIEW);
+    private static void refreshModelObjects(ConnectionHandler connection, SchemaId schemaId) {
+        var connectionId = connection.getConnectionId();
+        var ownerId = schemaId != null ? schemaId : connection.getUserSchemaId();
+        ObjectChangeEvent.notify(UNSPECIFIED, MINING_MODEL, connectionId, ownerId);
+        ObjectChangeEvent.notify(UNSPECIFIED, VIEW, connectionId, ownerId);
     }
 
     private String getCurrentModelName(MLResult result) {

@@ -17,6 +17,7 @@
 package com.dbn.ml.execution;
 
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.SchemaId;
 import com.dbn.ml.backend.dbms.DBMSBackend;
 import com.dbn.ml.backend.dbms.DBMSEvaluationResult;
 import com.dbn.ml.backend.dbms.DBMSFeatureAnalyzer;
@@ -26,13 +27,17 @@ import com.dbn.ml.model.MLRequest;
 import com.dbn.ml.model.MLResult;
 import com.dbn.ml.model.MLTaskType;
 import com.dbn.ml.model.source.MLSourceNames;
-import com.dbn.object.common.DBObjectUtil;
-import com.dbn.object.type.DBObjectType;
+import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.scheduler.model.SchedulerJobRequest;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+
+import static com.dbn.object.event.ObjectChangeAction.UNSPECIFIED;
+import static com.dbn.object.type.DBObjectType.MINING_MODEL;
+import static com.dbn.object.type.DBObjectType.TABLE;
+import static com.dbn.object.type.DBObjectType.VIEW;
 
 /**
  * Executes ML training pipeline using Oracle DBMS_DATA_MINING.
@@ -46,16 +51,21 @@ public class MLPipelineExecutor {
      * Prepares training data and renders the CREATE_MODEL action to be scheduled.
      * Training itself is submitted and monitored through the scheduler framework.
      */
-    public MLTrainingJobSubmission prepareTrainingJob(MLRequest request, ConnectionHandler connectionHandler) throws Exception {
+    public MLTrainingJobSubmission prepareTrainingJob(MLRequest request, ConnectionHandler connection) throws Exception {
         MLTrainingContext context = buildContext(request);
-        DBMSBackend backend = new DBMSBackend(connectionHandler);
-        SchedulerJobRequest jobRequest = backend.prepareTrainingJob(context);
-        return new MLTrainingJobSubmission(context.getModelName(), jobRequest, context);
+        DBMSBackend backend = new DBMSBackend(connection);
+        try {
+            SchedulerJobRequest jobRequest = backend.prepareTrainingJob(context);
+            return new MLTrainingJobSubmission(context.getModelName(), jobRequest, context);
+        } catch (Exception e) {
+            refreshModelObjects(connection, request.getTrainerConfig().getTargetSchemaId());
+            throw e;
+        }
     }
 
-    public MLResult completeAsync(MLTrainingJobSubmission submission, ConnectionHandler connectionHandler) throws Exception {
+    public MLResult completeAsync(MLTrainingJobSubmission submission, ConnectionHandler connection) throws Exception {
         MLTrainingContext context = submission.getContext();
-        DBMSBackend backend = new DBMSBackend(connectionHandler);
+        DBMSBackend backend = new DBMSBackend(connection);
         MLRequest request = context.getRequest();
 
         long startTime = context.getTrainingStartTime() > 0
@@ -65,14 +75,13 @@ public class MLPipelineExecutor {
 
         try {
             DBMSModelHandle modelHandle = backend.loadModelHandle(context, submission.getModelName());
-            MLResult result = buildResult(request, connectionHandler, context, backend, modelHandle, startTime);
+            MLResult result = buildResult(request, connection, context, backend, modelHandle, startTime);
             replacementReady = true;
             if (request.isModelReplacement()) {
                 replaceModel(result, backend);
             }
 
             loadModelDetailViews(result, backend);
-            refreshModelObjects(connectionHandler);
             return result;
         } catch (Exception e) {
             if (request.isModelReplacement() && !replacementReady) {
@@ -89,11 +98,18 @@ public class MLPipelineExecutor {
             } catch (Exception e) {
                 log.warn("Failed to cleanup backend resources", e);
             }
+
+            SchemaId targetSchemaId = request.getTrainerConfig().getTargetSchemaId();
+            refreshModelObjects(connection, targetSchemaId);
         }
     }
 
-    public void cleanup(MLTrainingJobSubmission submission, ConnectionHandler connectionHandler) throws Exception {
-        new DBMSBackend(connectionHandler).cleanup(submission.getContext());
+    public void cleanup(MLTrainingJobSubmission submission, ConnectionHandler connection) throws Exception {
+        try {
+            new DBMSBackend(connection).cleanup(submission.getContext());
+        } finally {
+            refreshModelObjects(connection, submission.getContext().getRequest().getTrainerConfig().getTargetSchemaId());
+        }
     }
 
     private void replaceModel(
@@ -109,12 +125,15 @@ public class MLPipelineExecutor {
 
         modelHandle.setModelName(modelToReplace);
         request.setModelToReplace(null);
-        request.getTrainerConfig().setModelName(modelToReplace);
+        request.getTrainerConfig().setTargetModelName(modelToReplace);
     }
 
-    private void refreshModelObjects(ConnectionHandler connectionHandler) {
-        DBObjectUtil.refreshUserObjects(connectionHandler.getConnectionId(), DBObjectType.MINING_MODEL);
-        DBObjectUtil.refreshUserObjects(connectionHandler.getConnectionId(), DBObjectType.VIEW);
+    private void refreshModelObjects(ConnectionHandler connection, SchemaId targetSchemaId) {
+        var connectionId = connection.getConnectionId();
+        var ownerId = targetSchemaId != null ? targetSchemaId : connection.getUserSchemaId();
+        ObjectChangeEvent.notify(UNSPECIFIED, MINING_MODEL, connectionId, ownerId);
+        ObjectChangeEvent.notify(UNSPECIFIED, VIEW, connectionId, ownerId);
+        ObjectChangeEvent.notify(UNSPECIFIED, TABLE, connectionId, ownerId);
     }
 
     private void loadModelDetailViews(MLResult result, DBMSBackend backend) {

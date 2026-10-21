@@ -39,6 +39,7 @@ import static com.dbn.common.util.Lists.convert;
 
 @NonNls
 @UtilityClass
+@Deprecated // use ObjectChangeEvent utilities
 public class DBObjectUtil {
     private static final Gson GSON = new GsonBuilder().create();
 

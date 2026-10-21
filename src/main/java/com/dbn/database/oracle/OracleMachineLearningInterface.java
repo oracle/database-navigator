@@ -349,25 +349,25 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
     @Override
     public ResultSet getModelGlobalStats(DBNConnection conn, String modelName) throws SQLException {
         log.debug("Querying model global stats (DM$VG) for: {}", modelName);
-        return executeQuery(conn, "get-model-global-stats", modelName);
+        return executeQuery(conn, "get-model-global-stats", "DM$VG" + modelName);
     }
 
     @Override
     public ResultSet getModelAttributeDetails(DBNConnection conn, String modelName) throws SQLException {
         log.debug("Querying model attribute details (DM$VA) for: {}", modelName);
-        return executeQuery(conn, "get-model-attribute-details", modelName);
+        return executeQuery(conn, "get-model-attribute-details", "DM$VA" + modelName);
     }
 
     @Override
     public ResultSet getModelComputedSettings(DBNConnection conn, String modelName) throws SQLException {
         log.debug("Querying model computed settings (DM$VS) for: {}", modelName);
-        return executeQuery(conn, "get-model-computed-settings", modelName);
+        return executeQuery(conn, "get-model-computed-settings", "DM$VS" + modelName);
     }
 
     @Override
     public ResultSet getModelAlerts(DBNConnection conn, String modelName) throws SQLException {
         log.debug("Querying model build alerts (DM$VW) for: {}", modelName);
-        return executeQuery(conn, "get-model-alerts", modelName);
+        return executeQuery(conn, "get-model-alerts", "DM$VW" + modelName);
     }
 
     @Override
@@ -379,31 +379,31 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
     @Override
     public ResultSet getModelGLMCoefficients(DBNConnection conn, String modelName) throws SQLException {
         log.debug("Querying GLM coefficients (DM$VD) for: {}", modelName);
-        return executeQuery(conn, "get-model-glm-coefficients", modelName);
+        return executeQuery(conn, "get-model-glm-coefficients", "DM$VD" + modelName);
     }
 
     @Override
     public ResultSet getModelSVMCoefficients(DBNConnection conn, String modelName) throws SQLException {
         log.debug("Querying SVM coefficients (DM$VL) for: {}", modelName);
-        return executeQuery(conn, "get-model-svm-coefficients", modelName);
+        return executeQuery(conn, "get-model-svm-coefficients", "DM$VL" + modelName);
     }
 
     @Override
     public ResultSet getModelTreeSplits(DBNConnection conn, String modelName) throws SQLException {
         log.debug("Querying Decision Tree splits (DM$VP) for: {}", modelName);
-        return executeQuery(conn, "get-model-tree-splits", modelName);
+        return executeQuery(conn, "get-model-tree-splits", "DM$VP" + modelName);
     }
 
     @Override
     public ResultSet getModelNaiveBayesPriors(DBNConnection conn, String modelName) throws SQLException {
         log.debug("Querying Naive Bayes priors (DM$VP) for: {}", modelName);
-        return executeQuery(conn, "get-model-nb-priors", modelName);
+        return executeQuery(conn, "get-model-nb-priors", "DM$VP" + modelName);
     }
 
     @Override
     public ResultSet getModelNaiveBayesConditionals(DBNConnection conn, String modelName) throws SQLException {
         log.debug("Querying Naive Bayes conditionals (DM$VV) for: {}", modelName);
-        return executeQuery(conn, "get-model-nb-conditionals", modelName);
+        return executeQuery(conn, "get-model-nb-conditionals", "DM$VV" + modelName);
     }
 
     // ==================== CLOUD OBJECT STORAGE ====================

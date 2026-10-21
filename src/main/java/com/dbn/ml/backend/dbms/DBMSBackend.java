@@ -606,7 +606,7 @@ public class DBMSBackend {
 
     private String generateModelName(MLTrainingContext context, String timestamp) {
         // Use user-specified model name if provided
-        String userModelName = context.getTrainerConfig().getModelName();
+        String userModelName = context.getTrainerConfig().getTargetModelName();
         if (userModelName != null && !userModelName.trim().isEmpty()) {
             String modelName = userModelName.trim().toUpperCase();
             // model name is interpolated into the scheduler PL/SQL action - restrict to plain identifiers

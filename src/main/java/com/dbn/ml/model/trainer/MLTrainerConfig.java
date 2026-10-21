@@ -16,6 +16,7 @@
 
 package com.dbn.ml.model.trainer;
 
+import com.dbn.connection.SchemaId;
 import com.dbn.ml.model.MLConfig;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,7 +34,8 @@ public class MLTrainerConfig extends MLConfig {
     public static final long MAX_RANDOM_SEED = 4_294_967_295L;
 
     private MLTrainerType trainerType = MLTrainerType.LOGISTIC_REGRESSION;
-    private String modelName;
+    private SchemaId targetSchemaId;
+    private String targetModelName;
 
     // Train/Test split configuration
     private double trainTestSplitRatio = 0.7; // 70% training, 30% testing
@@ -50,7 +52,8 @@ public class MLTrainerConfig extends MLConfig {
         super.readState(element);
 
         trainerType = enumAttribute(element, "trainer-type", trainerType);
-        modelName = stringAttribute(element, "model-name", modelName);
+        targetModelName = stringAttribute(element, "target-model-name", targetModelName);
+        targetSchemaId = schemaIdAttribute(element, "target-schema-id");
         trainTestSplitRatio = doubleAttribute(element, "split-ratio", trainTestSplitRatio);
         useFixedSeed = booleanAttribute(element, "use-fixed-seed", useFixedSeed);
         randomSeed = normalizeRandomSeed(longAttribute(element, "random-seed", randomSeed));
@@ -73,7 +76,8 @@ public class MLTrainerConfig extends MLConfig {
         super.writeState(element);
 
         setEnumAttribute(element, "trainer-type", trainerType);
-        setStringAttribute(element, "model-name", modelName);
+        setStringAttribute(element, "target-model-name", targetModelName);
+        setConstantAttribute(element, "target-schema-id", targetSchemaId);
         setDoubleAttribute(element, "split-ratio", trainTestSplitRatio);
         setBooleanAttribute(element, "use-fixed-seed", useFixedSeed);
         setLongAttribute(element, "random-seed", randomSeed);
