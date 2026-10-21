@@ -20,13 +20,27 @@ import com.dbn.common.resource.ResourceLimits;
 import lombok.experimental.UtilityClass;
 
 /**
- * Resource bounds for data editor value lists.
+ * Resource bounds for data editor fetching and value lists.
  */
 @UtilityClass
 public class DataEditorResourceLimits {
+    public static final int MIN_DATA_EDITOR_FETCH_BLOCK_SIZE = 1;
+    public static final int MAX_DATA_EDITOR_FETCH_BLOCK_SIZE = 10000;
+    public static final int DEFAULT_DATA_EDITOR_FETCH_BLOCK_SIZE = 100;
+
     public static final int MIN_VALUE_LIST_THRESHOLD = 0;
     public static final int MAX_VALUE_LIST_THRESHOLD = 10000;
     public static final int DEFAULT_VALUE_LIST_THRESHOLD = 1000;
+
+    public static int normalizeDataEditorFetchBlockSize(long value) {
+        return (int) ResourceLimits.clampToRange(value,
+                MIN_DATA_EDITOR_FETCH_BLOCK_SIZE, MAX_DATA_EDITOR_FETCH_BLOCK_SIZE);
+    }
+
+    public static int normalizeDataEditorReloadRowCount(long requestedRows, int loadedRows) {
+        // Reloads may restore rows already loaded through explicit user fetches.
+        return Math.max(normalizeDataEditorFetchBlockSize(requestedRows), loadedRows);
+    }
 
     public static int normalizeValueListThreshold(long value) {
         return (int) ResourceLimits.clampToRange(value,
