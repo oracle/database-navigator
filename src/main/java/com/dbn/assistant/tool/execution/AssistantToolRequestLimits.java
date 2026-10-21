@@ -16,13 +16,15 @@
 
 package com.dbn.assistant.tool.execution;
 
+import com.dbn.common.resource.ResourceLimitPolicy;
+import com.dbn.common.resource.ResourceLimits;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NonNls;
 
 import static com.dbn.common.util.Commons.nvl;
 
 @UtilityClass
-public class AssistantToolRequestLimits {
+public class AssistantToolRequestLimits implements ResourceLimitPolicy {
     public static final int MAX_TOOL_REQUEST_ARGUMENT_LENGTH = 64 * 1024;
     public static final int MAX_TOOL_REQUEST_PREVIEW_LENGTH = 64 * 1024;
     public static final int MAX_TOOL_REQUEST_ARGUMENT_COUNT = 16;
@@ -30,14 +32,24 @@ public class AssistantToolRequestLimits {
     public static final int MAX_FUZZY_ARGUMENT_TEXT_LENGTH = 512;
     public static final int MAX_SIMPLIFIED_ARGUMENT_NAME_LENGTH = 128;
 
+    private static final ResourceLimits LIMITS = ResourceLimits.builder()
+            .add("tool-request-argument-characters", MAX_TOOL_REQUEST_ARGUMENT_LENGTH)
+            .add("tool-request-preview-characters", MAX_TOOL_REQUEST_PREVIEW_LENGTH)
+            .add("tool-request-argument-count", MAX_TOOL_REQUEST_ARGUMENT_COUNT)
+            .build();
+
     private static final String TRUNCATED_SUFFIX = "\n[Tool request arguments truncated: original length %d characters]";
 
     public static boolean isOversized(String content) {
-        return nvl(content, "").length() > MAX_TOOL_REQUEST_ARGUMENT_LENGTH;
+        return !LIMITS.allows("tool-request-argument-characters", nvl(content, "").length());
     }
 
     public static boolean isPreviewOversized(String content) {
-        return nvl(content, "").length() > MAX_TOOL_REQUEST_PREVIEW_LENGTH;
+        return !LIMITS.allows("tool-request-preview-characters", nvl(content, "").length());
+    }
+
+    public static int getToolRequestArgumentCount(int requestedCount, int parameterCount) {
+        return (int) LIMITS.get("tool-request-argument-count").clamp(Math.min(requestedCount, parameterCount));
     }
 
     public static String createPreview(String content, int originalLength) {

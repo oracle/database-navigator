@@ -47,7 +47,7 @@ import static com.dbn.assistant.tool.AssistantToolData.isInternalTool;
 import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.MAX_FUZZY_ARGUMENT_NAME_LENGTH;
 import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.MAX_FUZZY_ARGUMENT_TEXT_LENGTH;
 import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.MAX_SIMPLIFIED_ARGUMENT_NAME_LENGTH;
-import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.MAX_TOOL_REQUEST_ARGUMENT_COUNT;
+import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.getToolRequestArgumentCount;
 import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.isOversized;
 import static com.dbn.common.Reflection.updateFieldValue;
 
@@ -137,7 +137,7 @@ public class AssistantToolRequestNormalizer {
         // handle "hallucinated" arguments not matching the "arg#" format
         List<String> args = new ArrayList<>(arguments.keySet());
         Class<?>[] params = method.getParameterTypes();
-        int count = Math.min(Math.min(args.size(), params.length), MAX_TOOL_REQUEST_ARGUMENT_COUNT);
+        int count = getToolRequestArgumentCount(args.size(), params.length);
 
         Map<String, Object> normalizedArgs = new LinkedHashMap<>();
         // add arguments that match the "arg#" format
