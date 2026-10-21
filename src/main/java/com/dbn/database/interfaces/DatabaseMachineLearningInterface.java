@@ -18,7 +18,7 @@ package com.dbn.database.interfaces;
 
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.jdbc.DBNResultSet;
-import com.dbn.ml.backend.model.MLPredictionAttribute;
+import com.dbn.ml.prediction.MLPredictionAttribute;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

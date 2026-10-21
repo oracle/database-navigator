@@ -33,7 +33,7 @@ import com.dbn.execution.method.action.ProgramMethodDebugAction;
 import com.dbn.execution.method.action.ProgramMethodExecuteAction;
 import com.dbn.generator.statement.action.GenerateStatementActionGroup;
 import com.dbn.liquibase.action.LiquibaseSchemaActions;
-import com.dbn.ml.action.AIModelPredictAction;
+import com.dbn.ml.prediction.action.AIModelPredictAction;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBConsole;
 import com.dbn.object.DBJavaClass;

@@ -22,14 +22,14 @@ import com.dbn.common.message.TitledMessage;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
-import com.dbn.execution.ExecutionResultBase;
 import com.dbn.execution.ExecutionManager;
+import com.dbn.execution.ExecutionResultBase;
 import com.dbn.language.common.DBLanguagePsiFile;
-import com.dbn.ml.model.MLResult;
+import com.dbn.ml.result.ui.MLExecutionResultForm;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;

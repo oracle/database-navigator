@@ -24,7 +24,7 @@ import com.dbn.database.common.DatabaseInterfaceBase;
 import com.dbn.database.interfaces.DatabaseInterfaceType;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
-import com.dbn.ml.backend.model.MLPredictionAttribute;
+import com.dbn.ml.prediction.MLPredictionAttribute;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
 

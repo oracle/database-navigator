@@ -23,8 +23,8 @@ import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.message.InteractiveMessage;
-import com.dbn.common.message.TitledMessage;
 import com.dbn.common.message.MessageType;
+import com.dbn.common.message.TitledMessage;
 import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.common.outcome.OutcomeHandlers;
 import com.dbn.common.outcome.OutcomeHandlersImpl;
@@ -37,20 +37,20 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.config.ConnectionConfigListener;
-import com.dbn.diagnostics.Diagnostics;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
+import com.dbn.diagnostics.Diagnostics;
 import com.dbn.execution.ExecutionManager;
-import com.dbn.ml.backend.model.MLPredictionAttribute;
-import com.dbn.ml.execution.MLPipelineExecutor;
-import com.dbn.ml.execution.MLTrainingJobSubmission;
-import com.dbn.ml.model.MLRequest;
-import com.dbn.ml.model.MLResult;
 import com.dbn.ml.model.MLTaskType;
-import com.dbn.ml.model.source.MLSourceNames;
+import com.dbn.ml.prediction.MLPredictionAttribute;
+import com.dbn.ml.prediction.ui.MLPredictionDialog;
+import com.dbn.ml.request.MLRequest;
+import com.dbn.ml.request.execution.MLPipelineExecutor;
+import com.dbn.ml.request.execution.MLTrainingJobSubmission;
+import com.dbn.ml.request.model.source.MLSourceNames;
+import com.dbn.ml.request.ui.MLToolboxDialog;
 import com.dbn.ml.result.MLExecutionResult;
-import com.dbn.ml.ui.MLPredictDialog;
-import com.dbn.ml.ui.MLToolboxDialog;
+import com.dbn.ml.result.MLResult;
 import com.dbn.scheduler.DatabaseSchedulerManager;
 import com.dbn.scheduler.model.SchedulerJob;
 import com.dbn.scheduler.model.SchedulerJobCancellationPolicy;
@@ -59,8 +59,8 @@ import com.dbn.scheduler.model.SchedulerJobCompletionPolicy;
 import com.dbn.scheduler.model.SchedulerJobMonitor;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.progress.ProcessCanceledException;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts.DialogMessage;
 import com.intellij.openapi.util.NlsContexts.DialogTitle;
 import lombok.extern.slf4j.Slf4j;
@@ -208,7 +208,7 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
                             String statement = ml.buildPredictionStatement(
                                     conn, modelSchemaName, modelName, attributes, withProbability);
                             MLTaskType finalTaskType = resolvedTaskType;
-                            Dialogs.show(() -> new MLPredictDialog(
+                            Dialogs.show(() -> new MLPredictionDialog(
                                     connection, modelSchemaId, modelName, finalTaskType, attributes, statement));
                         });
             } catch (Exception e) {

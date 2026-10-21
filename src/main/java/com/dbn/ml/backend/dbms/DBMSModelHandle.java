@@ -18,8 +18,8 @@ package com.dbn.ml.backend.dbms;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
-import com.dbn.ml.backend.model.MLModelMetadata;
 import com.dbn.ml.model.MLTaskType;
+import com.dbn.ml.result.model.MLModelMetadata;
 import lombok.Getter;
 import lombok.Setter;
 

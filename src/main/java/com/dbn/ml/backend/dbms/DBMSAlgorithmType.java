@@ -17,7 +17,7 @@
 package com.dbn.ml.backend.dbms;
 
 import com.dbn.ml.model.MLTaskType;
-import com.dbn.ml.model.trainer.MLTrainerType;
+import com.dbn.ml.request.model.trainer.MLTrainerType;
 import lombok.Getter;
 import org.jetbrains.annotations.NonNls;
 
