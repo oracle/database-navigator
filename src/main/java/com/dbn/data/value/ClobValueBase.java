@@ -34,6 +34,9 @@ import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 
 import static com.dbn.common.exception.Exceptions.toSqlException;
+import static com.dbn.data.value.LargeValueResourceLimits.*;
+import static com.dbn.data.value.LargeValueResourceLimits.isReadSizeAllowed;
+import static com.dbn.data.value.LargeValueResourceLimits.normalizeReadSize;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -125,7 +128,7 @@ abstract class ClobValueBase<T extends Clob> extends LargeObjectValue {
     @Override
     @Nullable
     public final String read() throws SQLException {
-        if (clob != null && clob.length() > MAX_READ_SIZE) {
+        if (clob != null && !isReadSizeAllowed(clob.length())) {
             setTruncated(true);
             throw new SQLException(txt("msg.data.exception.CouldNotReadClobValue"));
         }
@@ -143,7 +146,7 @@ abstract class ClobValueBase<T extends Clob> extends LargeObjectValue {
         if (clob == null) return null;
 
         long totalLength = clob.length();
-        int requestedSize = maxSize <= 0 ? MAX_READ_SIZE : Math.min(maxSize, MAX_READ_SIZE);
+        int requestedSize = normalizeReadSize(maxSize);
         int size = (int) Math.min(requestedSize, totalLength);
         setTruncated(totalLength > size);
         try {
