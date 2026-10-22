@@ -51,13 +51,15 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
 
     /**
      * Drops a model.
+     * Owner and model names are required raw, unqualified identifiers.
      */
-    void dropModel(DBNConnection conn, String modelName) throws SQLException;
+    void dropModel(DBNConnection conn, String ownerName, String modelName) throws SQLException;
 
     /**
      * Renames a model using DBMS_DATA_MINING.RENAME_MODEL.
+     * Owner and model names are required raw, unqualified identifiers.
      */
-    void renameModel(DBNConnection conn, String oldModelName, String newModelName) throws SQLException;
+    void renameModel(DBNConnection conn, String ownerName, String oldModelName, String newModelName) throws SQLException;
 
     // ==================== DATA SPLITTING ====================
 

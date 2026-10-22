@@ -16,6 +16,7 @@
 
 package com.dbn.object.action;
 
+import com.dbn.common.attributes.Attributes;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.property.DBObjectProperty;
 import com.dbn.object.management.ObjectManagementService;
@@ -44,7 +45,7 @@ public class ObjectRefreshAction extends AnObjectAction<DBObject> {
         if (!isSupported(object) || !objectManagementService.supports(object)) {
             throw new UnsupportedOperationException();
         }
-        objectManagementService.changeObject(object, REFRESH, null);
+        objectManagementService.changeObject(object, REFRESH, Attributes.empty(), null);
     }
 
     @Override

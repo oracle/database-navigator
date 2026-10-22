@@ -17,11 +17,10 @@
 package com.dbn.object.management.adapter.impl;
 
 import com.dbn.common.constant.Constant;
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.object.DBUser;
 import com.dbn.object.management.ObjectManagementAdapterBase;
+import com.dbn.object.management.ObjectManagementRequest;
 import com.dbn.object.type.DBObjectType;
 
 import java.sql.SQLException;
@@ -40,32 +39,42 @@ public class DBUserManagementAdapter extends ObjectManagementAdapterBase<DBUser>
     }
 
     @Override
-    protected void deleteObject(ConnectionHandler connection, DBNConnection conn, DBUser object) throws SQLException {
-        DatabaseDataDefinitionInterface databaseInterface = connection.getDataDefinitionInterface();
-        databaseInterface.dropUser(object.getName(), conn);
+    protected void deleteObject(ObjectManagementRequest<DBUser> request) throws SQLException {
+        DBUser object = request.object();
+
+        DatabaseDataDefinitionInterface databaseInterface = request.getDataDefinitionInterface();
+        databaseInterface.dropUser(object.getName(), request.conn());
     }
 
     @Override
-    protected void enableObject(ConnectionHandler connection, DBNConnection conn, DBUser object) throws SQLException {
-        DatabaseDataDefinitionInterface databaseInterface = connection.getDataDefinitionInterface();
-        databaseInterface.enableUser(object.getName(), conn);
+    protected void enableObject(ObjectManagementRequest<DBUser> request) throws SQLException {
+        DBUser object = request.object();
+
+        DatabaseDataDefinitionInterface databaseInterface = request.getDataDefinitionInterface();
+        databaseInterface.enableUser(object.getName(), request.conn());
     }
 
     @Override
-    protected void disableObject(ConnectionHandler connection, DBNConnection conn, DBUser object) throws SQLException {
-        DatabaseDataDefinitionInterface databaseInterface = connection.getDataDefinitionInterface();
-        databaseInterface.disableUser(object.getName(), conn);
+    protected void disableObject(ObjectManagementRequest<DBUser> request) throws SQLException {
+        DBUser object = request.object();
+
+        DatabaseDataDefinitionInterface databaseInterface = request.getDataDefinitionInterface();
+        databaseInterface.disableUser(object.getName(), request.conn());
     }
 
     @Override
-    protected void lockObject(ConnectionHandler connection, DBNConnection conn, DBUser object) throws SQLException {
-        DatabaseDataDefinitionInterface databaseInterface = connection.getDataDefinitionInterface();
-        databaseInterface.lockUser(object.getName(), conn);
+    protected void lockObject(ObjectManagementRequest<DBUser> request) throws SQLException {
+        DBUser object = request.object();
+
+        DatabaseDataDefinitionInterface databaseInterface = request.getDataDefinitionInterface();
+        databaseInterface.lockUser(object.getName(), request.conn());
     }
 
     @Override
-    protected void unlockObject(ConnectionHandler connection, DBNConnection conn, DBUser object) throws SQLException {
-        DatabaseDataDefinitionInterface databaseInterface = connection.getDataDefinitionInterface();
-        databaseInterface.unlockUser(object.getName(), conn);
+    protected void unlockObject(ObjectManagementRequest<DBUser> request) throws SQLException {
+        DBUser object = request.object();
+
+        DatabaseDataDefinitionInterface databaseInterface = request.getDataDefinitionInterface();
+        databaseInterface.unlockUser(object.getName(), request.conn());
     }
 }

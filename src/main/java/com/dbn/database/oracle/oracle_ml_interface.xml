@@ -51,7 +51,8 @@
     <statement-execution-processor id="drop-ml-model" timeout="30000">
         <statement>
             BEGIN
-                DBMS_DATA_MINING.DROP_MODEL({#0});
+                DBMS_DATA_MINING.DROP_MODEL(
+                    DBMS_ASSERT.ENQUOTE_NAME({#0}, false) || '.' || DBMS_ASSERT.ENQUOTE_NAME({#1}, false));
             END;
         </statement>
     </statement-execution-processor>
@@ -79,8 +80,28 @@
     <statement-execution-processor id="rename-ml-model" timeout="30000">
         <statement>
             BEGIN
-                DBMS_DATA_MINING.RENAME_MODEL({#0}, {#1});
+                DBMS_DATA_MINING.RENAME_MODEL(
+                    DBMS_ASSERT.ENQUOTE_NAME({#0}, false) || '.' || DBMS_ASSERT.ENQUOTE_NAME({#1}, false),
+                    DBMS_ASSERT.ENQUOTE_NAME({#2}, false));
             END;
+        </statement>
+    </statement-execution-processor>
+
+    <!-- ==================== AD-HOC PREDICTION ==================== -->
+
+    <!-- Parameter 2 contains JDBC inputs built from safely quoted attribute names. -->
+    <statement-execution-processor id="predict">
+        <statement>
+            SELECT PREDICTION({@0}.{@1} USING *) AS PREDICTION
+            FROM (SELECT {2} FROM DUAL)
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="predict-with-probability">
+        <statement>
+            SELECT PREDICTION({@0}.{@1} USING *) AS PREDICTION,
+                   PREDICTION_PROBABILITY({@0}.{@1} USING *) AS PROBABILITY
+            FROM (SELECT {2} FROM DUAL)
         </statement>
     </statement-execution-processor>
 

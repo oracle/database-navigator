@@ -16,6 +16,7 @@
 
 package com.dbn.object.management.adapter;
 
+import com.dbn.common.attributes.Attributes;
 import com.dbn.common.notification.NotificationCategory;
 import com.dbn.common.outcome.Outcome;
 import com.dbn.common.outcome.OutcomeHandler;
@@ -24,8 +25,6 @@ import com.dbn.common.outcome.OutcomeHandlersImpl;
 import com.dbn.common.outcome.OutcomeType;
 import com.dbn.common.thread.InvocationType;
 import com.dbn.common.thread.Progress;
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.diagnostics.Diagnostics;
 import com.dbn.object.common.DBObject;
@@ -33,6 +32,7 @@ import com.dbn.object.common.DBObjectWrapper;
 import com.dbn.object.event.ObjectChangeAction;
 import com.dbn.object.event.ObjectChangeNotifier;
 import com.dbn.object.management.ObjectManagementAdapter;
+import com.dbn.object.management.ObjectManagementRequest;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.util.NlsContexts.DialogMessage;
 import com.intellij.openapi.util.NlsContexts.DialogTitle;
@@ -66,12 +66,14 @@ abstract class ObjectManagementAdapterBase<T extends DBObject> extends DBObjectW
     private final DBObjectType objectType;
     private final OutcomeHandlers outcomeHandlers = new OutcomeHandlersImpl();
     private final InterfaceInvoker<T> invoker;
+    private final Attributes attributes;
 
-    ObjectManagementAdapterBase(T object, ObjectChangeAction action, InterfaceInvoker<T> invoker) {
+    ObjectManagementAdapterBase(T object, ObjectChangeAction action, Attributes attributes, InterfaceInvoker<T> invoker) {
         super(object);
         this.objectType = object.getObjectType();
         this.action = action;
         this.invoker = invoker;
+        this.attributes = attributes;
 
         outcomeHandlers.addHandler(SUCCESS, ObjectChangeNotifier.create(getConnection(), getOwnerId(), objectType, action));
         outcomeHandlers.addNotificationHandler(SUCCESS, getProject(), NotificationCategory.DDL);
@@ -86,7 +88,6 @@ abstract class ObjectManagementAdapterBase<T extends DBObject> extends DBObjectW
 
     @Override
     public final void invokeModal() {
-        T object = getObject();
         Progress.modal(getProject(), getConnection(), true,
                 getProcessTitle(),
                 getProcessText(),
@@ -95,7 +96,6 @@ abstract class ObjectManagementAdapterBase<T extends DBObject> extends DBObjectW
 
     @Override
     public void invokePrompted() {
-        T object = getObject();
         Progress.prompt(getProject(), getConnection(), true,
                 getProcessTitle(),
                 getProcessText(),
@@ -104,7 +104,6 @@ abstract class ObjectManagementAdapterBase<T extends DBObject> extends DBObjectW
 
     @Override
     public final void invokeInBackground() {
-        T object = getObject();
         Progress.background(getProject(), getConnection(), true,
                 getProcessTitle(),
                 getProcessText(),
@@ -129,7 +128,7 @@ abstract class ObjectManagementAdapterBase<T extends DBObject> extends DBObjectW
                     getProject(),
                     getConnectionId(),
                     getOwnerId(),
-                    conn -> invoker.invokeDatabaseInterface(getConnection(), conn, object));
+                    conn -> invoker.invokeDatabaseInterface(new ObjectManagementRequest<>(getConnection(), conn, object, attributes)));
 
             handleSuccess(object);
         } catch (Exception e) {
@@ -190,7 +189,7 @@ abstract class ObjectManagementAdapterBase<T extends DBObject> extends DBObjectW
 
     @FunctionalInterface
     public interface InterfaceInvoker<T extends DBObject> {
-        void invokeDatabaseInterface(ConnectionHandler connection, DBNConnection conn, T object) throws SQLException;
+        void invokeDatabaseInterface(ObjectManagementRequest<T> request) throws SQLException;
     }
 
 }

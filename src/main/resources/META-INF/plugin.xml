@@ -269,6 +269,7 @@
         <projectService serviceImplementation="com.dbn.connection.session.DatabaseSessionManager"/>
         <projectService serviceImplementation="com.dbn.connection.console.DatabaseConsoleManager"/>
         <projectService serviceImplementation="com.dbn.oci.config.OciConfigManager"/>
+        <projectService serviceImplementation="com.dbn.object.management.DatabaseObjectManager"/>
         <projectService serviceInterface="com.dbn.object.management.ObjectManagementService" serviceImplementation="com.dbn.object.management.ObjectManagementServiceImpl"/>
 
         <fileIconPatcher implementation="com.dbn.vfs.DBFileIconPatcher"/>
@@ -403,6 +404,9 @@
         <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBEventTriggerFactoryAdapter"/>
 
         <!--object management adapters-->
+        <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBTableManagementAdapter"/>
+        <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBColumnManagementAdapter"/>
+        <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBIndexManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBConstraintManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBCredentialManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBDatasourceConfigManagementAdapter"/>

@@ -339,6 +339,14 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
 
     @Override
     public boolean supportsObjectAction(DatabaseObjectTypeId objectTypeId, ObjectChangeAction action) {
+        if (action == ObjectChangeAction.RENAME) {
+            return objectTypeId.isOneOf(
+                    DatabaseObjectTypeId.TABLE,
+                    DatabaseObjectTypeId.COLUMN,
+                    DatabaseObjectTypeId.INDEX,
+                    DatabaseObjectTypeId.CONSTRAINT,
+                    DatabaseObjectTypeId.MINING_MODEL);
+        }
         if (objectTypeId == DatabaseObjectTypeId.USER && action.isOneOf(LOCK, UNLOCK)) return true;
         if (objectTypeId == MATERIALIZED_VIEW && action == REFRESH) return true;
 

@@ -34,6 +34,7 @@ import static com.dbn.object.event.ObjectChangeAction.DISABLE;
 import static com.dbn.object.event.ObjectChangeAction.ENABLE;
 import static com.dbn.object.event.ObjectChangeAction.LOCK;
 import static com.dbn.object.event.ObjectChangeAction.REFRESH;
+import static com.dbn.object.event.ObjectChangeAction.RENAME;
 import static com.dbn.object.event.ObjectChangeAction.UNLOCK;
 import static com.dbn.object.event.ObjectChangeAction.UNSPECIFIED;
 import static com.dbn.object.event.ObjectChangeAction.UPDATE;
@@ -77,13 +78,13 @@ class DBObjectBundleMonitor implements ObjectChangeListener {
     private void refreshRootObjects(DBObjectType objectType, ObjectChangeAction action) {
         // root-object change events do not carry the object instance, so UPDATE and REFRESH cannot be handled by the
         // object.refresh() path above; reload the root list instead so metadata (e.g. lastUpdated) stays current
-        if (action.isOneOf(CREATE, UPDATE, DELETE, LOCK, UNLOCK, ENABLE, DISABLE, UNSPECIFIED)) {
+        if (action.isOneOf(CREATE, UPDATE, DELETE, RENAME, LOCK, UNLOCK, ENABLE, DISABLE, UNSPECIFIED)) {
             DBObjectBundle objectBundle = getObjectBundle();
             DBObjectListContainer objectLists = objectBundle.getObjectLists();
             DBObjectList<DBObject> objectList = objectLists.getObjectList(objectType);
             markDirty(objectList);
 
-            if (objectType == DBObjectType.USER && action.isOneOf(CREATE, DELETE, UNSPECIFIED)) {
+            if (objectType == DBObjectType.USER && action.isOneOf(CREATE, DELETE, RENAME, UNSPECIFIED)) {
                 markDirty(objectLists.getObjectList(DBObjectType.SCHEMA));
             }
         }
@@ -94,11 +95,21 @@ class DBObjectBundleMonitor implements ObjectChangeListener {
         DBSchema schema = objectBundle.getSchema(ownerId.id());
         if (schema == null) return;
 
-        if (action.isOneOf(CREATE, DELETE, UNSPECIFIED)) {
+        if (action.isOneOf(CREATE, DELETE, RENAME, UNSPECIFIED)) {
             refreshSchemaObjects(schema, objectType);
         }
 
-        if (action.isOneOf(CREATE, UPDATE, DELETE, UNSPECIFIED)) {
+        if (action == RENAME && objectType == DBObjectType.MINING_MODEL) {
+            refreshSchemaObjects(schema, DBObjectType.VIEW);
+        }
+
+        if (action == RENAME && objectType.isOneOf(DBObjectType.COLUMN, DBObjectType.CONSTRAINT, DBObjectType.INDEX)) {
+            refreshSchemaObjects(schema, DBObjectType.COLUMN);
+            refreshSchemaObjects(schema, DBObjectType.CONSTRAINT);
+            refreshSchemaObjects(schema, DBObjectType.INDEX);
+        }
+
+        if (action.isOneOf(CREATE, UPDATE, DELETE, RENAME, UNSPECIFIED)) {
             for (DBObjectType childObjectType : objectType.getTreeChildren()) {
                 refreshSchemaObjects(schema, childObjectType);
             }

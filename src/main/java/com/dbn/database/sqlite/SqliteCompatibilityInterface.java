@@ -29,6 +29,7 @@ import com.dbn.database.common.DatabaseCompatibilityInterfaceImpl;
 import com.dbn.editor.session.SessionStatus;
 import com.dbn.language.common.quotes.QuoteDefinition;
 import com.dbn.language.common.quotes.QuotePair;
+import com.dbn.object.event.ObjectChangeAction;
 import com.dbn.object.factory.model.DBObjectTypeSpec;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NonNls;
@@ -68,6 +69,16 @@ class SqliteCompatibilityInterface extends DatabaseCompatibilityInterfaceImpl {
 
     @NonNls
     public static final String ATTACH_DATABASE_SQL = "attach database ? as ?";
+
+    @Override
+    public boolean supportsObjectAction(DatabaseObjectTypeId objectTypeId, ObjectChangeAction action) {
+        if (action == ObjectChangeAction.RENAME) {
+            return objectTypeId.isOneOf(
+                    DatabaseObjectTypeId.TABLE,
+                    DatabaseObjectTypeId.COLUMN);
+        }
+        return super.supportsObjectAction(objectTypeId, action);
+    }
 
     @Override
     public List<DatabaseObjectTypeId> getSupportedObjectTypes() {

@@ -25,7 +25,6 @@ import com.dbn.database.interfaces.DatabaseInterfaceType;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
 import com.dbn.ml.prediction.MLPredictionAttribute;
-import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
 
 import java.io.IOException;
@@ -45,7 +44,6 @@ import static java.util.stream.Collectors.joining;
  *
  * @author Oracle
  */
-@Slf4j
 public class OracleMachineLearningInterface extends DatabaseInterfaceBase implements DatabaseMachineLearningInterface {
     private static final int CLOUD_CSV_SAMPLE_BYTES = 1024 * 1024;
     private static final int PREDICTION_QUERY_TIMEOUT = 30000;
@@ -63,7 +61,6 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
 
     @Override
     public void createSettingsTable(DBNConnection conn, String settingsTableName) throws SQLException {
-        log.debug("Creating settings table: {}", settingsTableName);
         executeUpdate(conn, "create-settings-table", settingsTableName);
     }
 
@@ -78,15 +75,13 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
     }
 
     @Override
-    public void dropModel(DBNConnection conn, String modelName) throws SQLException {
-        log.debug("Dropping ML model: {}", modelName);
-        executeUpdate(conn, "drop-ml-model", modelName);
+    public void dropModel(DBNConnection conn, String ownerName, String modelName) throws SQLException {
+        executeUpdate(conn, "drop-ml-model", ownerName, modelName);
     }
 
     @Override
-    public void renameModel(DBNConnection conn, String oldModelName, String newModelName) throws SQLException {
-        log.debug("Renaming ML model: {} -> {}", oldModelName, newModelName);
-        executeUpdate(conn, "rename-ml-model", oldModelName, newModelName);
+    public void renameModel(DBNConnection conn, String ownerName, String oldModelName, String newModelName) throws SQLException {
+        executeUpdate(conn, "rename-ml-model", ownerName, oldModelName, newModelName);
     }
 
     // ==================== DATA SPLITTING ====================
@@ -99,10 +94,7 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
             String sourceTableName,
             List<String> columnNames,
             int samplePercent,
-            long seed
-    ) throws SQLException {
-        log.debug("Creating training table: {} from {}.{} ({}% with seed {})",
-                trainTableName, sourceSchemaName, sourceTableName, samplePercent, seed);
+            long seed) throws SQLException {
         executeUpdate(conn, "create-training-table",
                 trainTableName, sourceSchemaName, sourceTableName, quotedColumnList(conn, columnNames), samplePercent, seed);
     }
@@ -116,8 +108,6 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
             String trainTableName,
             List<String> columnNames
     ) throws SQLException {
-        log.debug("Creating test table: {} (source {}.{} MINUS training {})",
-                testTableName, sourceSchemaName, sourceTableName, trainTableName);
         executeUpdate(conn, "create-test-table", testTableName, sourceSchemaName, sourceTableName,
                 trainTableName, quotedColumnList(conn, columnNames));
     }
@@ -130,7 +120,6 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
 
     @Override
     public void addCaseIdColumn(DBNConnection conn, String tableName) throws SQLException {
-        log.debug("Adding CASE_ID column to table: {}", tableName);
         executeUpdate(conn, "add-case-id-column", tableName);
     }
 
@@ -159,23 +148,16 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
             String modelSchemaName,
             @NonNls String modelName,
             List<MLPredictionAttribute> attributes,
-            boolean withProbability) {
+            boolean withProbability) throws SQLException {
 
-        String quotedModelName = qualifiedIdentifier(conn, modelSchemaName, modelName);
         StringJoiner inputs = new StringJoiner(",\n       ");
         for (MLPredictionAttribute attribute : attributes) {
             String quotedAttributeName = quoted(attribute.getName(), conn);
             inputs.add("? AS " + quotedAttributeName);
         }
 
-        String probability = withProbability ?
-                ",\n    PREDICTION_PROBABILITY(" + quotedModelName + " USING *) AS PROBABILITY" : "";
-        return "SELECT\n" +
-                "    PREDICTION(" + quotedModelName + " USING *) AS PREDICTION" + probability + "\n" +
-                "FROM (\n" +
-                "    SELECT " + inputs + "\n" +
-                "    FROM DUAL\n" +
-                ")";
+        return renderStatementText(conn, withProbability ? "predict-with-probability" : "predict",
+                modelSchemaName, modelName, inputs.toString());
     }
 
     @Override
@@ -191,7 +173,6 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
             throw new IllegalArgumentException("Each prediction attribute must have a value");
         }
 
-        log.debug("Ad-hoc prediction using model: {}", modelName);
         String statementText = buildPredictionStatement(conn, modelSchemaName, modelName, attributes, withProbability);
         DBNPreparedStatement<?> statement = conn.prepareStatement(statementText);
         try {
@@ -221,8 +202,6 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
             String modelName,
             String testTableName
     ) throws SQLException {
-        log.debug("Creating apply results table: {} for model {} on {}",
-                applyResultTableName, modelName, testTableName);
         executeUpdate(conn, "create-apply-results", applyResultTableName, modelSchemaName, modelName, testTableName);
     }
 
@@ -234,8 +213,6 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
             String modelName,
             String testTableName
     ) throws SQLException {
-        log.debug("Creating regression apply results table: {} for model {} on {}",
-                applyResultTableName, modelName, testTableName);
         executeUpdate(conn, "create-apply-results-regression", applyResultTableName, modelSchemaName, modelName, testTableName);
     }
 
@@ -250,8 +227,6 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
             String confusionMatrixTableName,
             String accuracyTableName
     ) throws SQLException {
-        log.debug("Computing confusion matrix: {} from apply={}, target={}",
-                confusionMatrixTableName, applyResultTableName, targetTableName);
         executeUpdate(conn, "compute-confusion-matrix",
                 applyResultTableName, targetTableName, targetColumn, confusionMatrixTableName, accuracyTableName);
     }
@@ -281,7 +256,6 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
             String aucTableName,
             String positiveTargetValue
     ) throws SQLException {
-        log.debug("Computing ROC: {} for positive class '{}'", rocTableName, positiveTargetValue);
         executeUpdate(conn, "compute-roc",
                 applyResultTableName, targetTableName, targetColumn, rocTableName, aucTableName, positiveTargetValue);
     }
@@ -305,7 +279,6 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
             String liftTableName,
             String positiveTargetValue
     ) throws SQLException {
-        log.debug("Computing Lift: {} for positive class '{}'", liftTableName, positiveTargetValue);
         executeUpdate(conn, "compute-lift",
                 applyResultTableName, targetTableName, targetColumn, liftTableName, positiveTargetValue);
     }
@@ -354,61 +327,51 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
 
     @Override
     public ResultSet getModelGlobalStats(DBNConnection conn, String modelSchemaName, String modelName) throws SQLException {
-        log.debug("Querying model global stats (DM$VG) for: {}", modelName);
         return executeQuery(conn, "get-model-global-stats", modelSchemaName, "DM$VG" + modelName);
     }
 
     @Override
     public ResultSet getModelAttributeDetails(DBNConnection conn, String modelSchemaName, String modelName) throws SQLException {
-        log.debug("Querying model attribute details (DM$VA) for: {}", modelName);
         return executeQuery(conn, "get-model-attribute-details", modelSchemaName, "DM$VA" + modelName);
     }
 
     @Override
     public ResultSet getModelComputedSettings(DBNConnection conn, String modelSchemaName, String modelName) throws SQLException {
-        log.debug("Querying model computed settings (DM$VS) for: {}", modelName);
         return executeQuery(conn, "get-model-computed-settings", modelSchemaName, "DM$VS" + modelName);
     }
 
     @Override
     public ResultSet getModelAlerts(DBNConnection conn, String modelSchemaName, String modelName) throws SQLException {
-        log.debug("Querying model build alerts (DM$VW) for: {}", modelName);
         return executeQuery(conn, "get-model-alerts", modelSchemaName, "DM$VW" + modelName);
     }
 
     @Override
     public ResultSet getModelDetailViews(DBNConnection conn, String modelSchemaName, String modelName) throws SQLException {
-        log.debug("Querying model detail views for: {}", modelName);
         return executeQuery(conn, "get-model-detail-views", modelSchemaName, modelName);
     }
 
     @Override
     public ResultSet getModelGLMCoefficients(DBNConnection conn, String modelSchemaName, String modelName) throws SQLException {
-        log.debug("Querying GLM coefficients (DM$VD) for: {}", modelName);
         return executeQuery(conn, "get-model-glm-coefficients", modelSchemaName, "DM$VD" + modelName);
     }
 
     @Override
     public ResultSet getModelSVMCoefficients(DBNConnection conn, String modelSchemaName, String modelName) throws SQLException {
-        log.debug("Querying SVM coefficients (DM$VL) for: {}", modelName);
         return executeQuery(conn, "get-model-svm-coefficients", modelSchemaName, "DM$VL" + modelName);
     }
 
     @Override
     public ResultSet getModelTreeSplits(DBNConnection conn, String modelSchemaName, String modelName) throws SQLException {
-        log.debug("Querying Decision Tree splits (DM$VP) for: {}", modelName);
         return executeQuery(conn, "get-model-tree-splits", modelSchemaName, "DM$VP" + modelName);
     }
 
     @Override
     public ResultSet getModelNaiveBayesPriors(DBNConnection conn, String modelSchemaName, String modelName) throws SQLException {
-        log.debug("Querying Naive Bayes priors (DM$VP) for: {}", modelName);
         return executeQuery(conn, "get-model-nb-priors", modelSchemaName, "DM$VP" + modelName);
     }
 
     @Override
     public ResultSet getModelNaiveBayesConditionals(DBNConnection conn, String modelSchemaName, String modelName) throws SQLException {
-        log.debug("Querying Naive Bayes conditionals (DM$VV) for: {}", modelName);
         return executeQuery(conn, "get-model-nb-conditionals", modelSchemaName, "DM$VV" + modelName);
     }
 
@@ -424,14 +387,12 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
             String skipHeaders,
             String columnList
     ) throws SQLException {
-        log.debug("Creating cloud external table: {} from URI: {}", tableName, fileUri);
         executeUpdate(conn, "create-cloud-external-table",
                 tableName, credentialName, fileUri, delimiter, skipHeaders, columnList);
     }
 
     @Override
     public String getCloudCsvSample(DBNConnection conn, String credentialName, String fileUri) throws SQLException {
-        log.debug("Reading cloud CSV sample from URI: {}", fileUri);
         try (ResultSet rs = executeQuery(conn, "get-cloud-csv-sample", credentialName, fileUri)) {
             if (rs.next()) {
                 Blob content = rs.getBlob("FILE_CONTENT");
@@ -451,7 +412,6 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
 
     @Override
     public void validateCloudExternalTable(DBNConnection conn, String tableName) throws SQLException {
-        log.debug("Validating cloud external table: {}", tableName);
         executeUpdate(conn, "validate-cloud-external-table", tableName);
     }
 
@@ -464,19 +424,16 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
             String tableName,
             String columnDefinitions
     ) throws SQLException {
-        log.debug("Creating staging table: {}.{}", schemaName, tableName);
         executeUpdate(conn, "create-staging-table", schemaName, tableName, columnDefinitions);
     }
 
     @Override
     public void dropStagingTable(DBNConnection conn, String schemaName, String tableName) throws SQLException {
-        log.debug("Dropping staging table: {}.{}", schemaName, tableName);
         executeUpdate(conn, "drop-staging-table", schemaName, tableName);
     }
 
     @Override
     public void dropTable(DBNConnection conn, String tableName) throws SQLException {
-        log.debug("Dropping table: {}", tableName);
         executeUpdate(conn, "drop-table", tableName);
     }
 
@@ -547,7 +504,6 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
             String dataTableName,
             String targetColumn,
             String resultTableName) throws SQLException {
-        log.debug("Computing attribute importance on {} for target {}", dataTableName, targetColumn);
         executeUpdate(conn, "compute-attribute-importance", dataTableName, targetColumn, resultTableName);
     }
 
@@ -573,16 +529,7 @@ public class OracleMachineLearningInterface extends DatabaseInterfaceBase implem
 
     @Override
     public ResultSet getAttributeContribution(DBNConnection conn, String modelSchemaName, String modelName, String testTableName, int topN) throws SQLException {
-        log.debug("Aggregating prediction details of model {} over {} (topN={})", modelName, testTableName, topN);
         return executeQuery(conn, "get-attribute-contribution", modelSchemaName, modelName, testTableName, topN);
-    }
-
-    private String qualifiedIdentifier(DBNConnection conn, String schemaName, String objectName) {
-        String quotedObjectName = quoted(objectName, conn);
-        if (schemaName == null || schemaName.isBlank()) return quotedObjectName;
-
-        String quotedSchemaName = quoted(schemaName, conn);
-        return quotedSchemaName + "." + quotedObjectName;
     }
 
 }

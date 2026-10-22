@@ -222,7 +222,7 @@ public class DBMSBackend {
                 getProject(),
                 connection.getConnectionId(),
                 conn -> connection.getInterfaces().getMachineLearningInterface().dropModel(
-                        conn, qualifyModelName(modelSchemaId, modelName)));
+                        conn, schemaName(modelSchemaId), modelName));
     }
 
     public void renameModel(SchemaId modelSchemaId, String oldModelName, String newModelName) throws SQLException {
@@ -230,7 +230,7 @@ public class DBMSBackend {
                 getProject(),
                 connection.getConnectionId(),
                 conn -> connection.getInterfaces().getMachineLearningInterface().renameModel(
-                        conn, qualifyModelName(modelSchemaId, oldModelName), qualifyModelName(modelSchemaId, newModelName)));
+                        conn, schemaName(modelSchemaId), oldModelName, newModelName));
     }
 
     public void cleanup(MLTrainingContext context) throws Exception {
@@ -661,13 +661,13 @@ public class DBMSBackend {
         return schemaId != null ? schemaId : connection.getUserSchemaId();
     }
 
-    private static String schemaName(SchemaId schemaId) {
-        return schemaId == null ? null : schemaId.getName();
+    private String schemaName(SchemaId schemaId) {
+        SchemaId ownerId = schemaId == null ? connection.getUserSchemaId() : schemaId;
+        return ownerId.getName();
     }
 
-    private static String qualifyModelName(SchemaId schemaId, String modelName) {
-        String schemaName = schemaName(schemaId);
-        return schemaName == null || schemaName.isBlank() ? modelName : schemaName + "." + modelName;
+    private String qualifyModelName(SchemaId schemaId, String modelName) {
+        return schemaName(schemaId) + "." + modelName;
     }
 
     private String extractSourceName(MLTrainingContext context) {
