@@ -75,7 +75,7 @@ abstract class ObjectManagementAdapterBase<T extends DBObject> extends DBObjectW
         this.invoker = invoker;
         this.attributes = attributes;
 
-        outcomeHandlers.addHandler(SUCCESS, ObjectChangeNotifier.create(getConnection(), getOwnerId(), objectType, action));
+        outcomeHandlers.addHandler(SUCCESS, ObjectChangeNotifier.create(object, action));
         outcomeHandlers.addNotificationHandler(SUCCESS, getProject(), NotificationCategory.DDL);
         outcomeHandlers.addMessageHandler(FAILURE, getProject());
     }
