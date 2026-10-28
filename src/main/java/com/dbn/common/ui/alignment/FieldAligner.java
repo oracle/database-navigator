@@ -64,7 +64,11 @@ public class FieldAligner {
             for (int i = 0; i < componentsCount; i++) {
                 Component component = components.get(i);
                 int width = (int) component.getPreferredSize().getWidth();
-                widths[i] = Math.max(widths[i], width);
+                int maxWidth = component.isMaximumSizeSet()
+                        ? component.getMaximumSize().width
+                        : Integer.MAX_VALUE;
+
+                widths[i] = Math.max(widths[i], Math.min(width, maxWidth));
             }
         }
         List<DBNForm> childForms = alignerData.getAlignableForms();

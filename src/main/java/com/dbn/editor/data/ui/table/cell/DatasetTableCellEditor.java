@@ -16,6 +16,10 @@
 
 package com.dbn.editor.data.ui.table.cell;
 
+import static com.dbn.common.ui.util.Tooltips.escapeHtml;
+import static com.dbn.common.ui.util.Tooltips.setHtmlToolTipText;
+import static com.dbn.common.ui.util.Tooltips.setToolTipText;
+
  import com.dbn.common.color.Colors;
  import com.dbn.common.thread.Background;
  import com.dbn.common.thread.Dispatch;
@@ -274,7 +278,8 @@ package com.dbn.editor.data.ui.table.cell;
                             DBColumn foreignKeyColumn = column.getForeignKeyColumn();
                             if (foreignKeyColumn != null && !e.isConsumed()) {
                                 Dispatch.run(() -> {
-                                    textField.setToolTipText(txt("app.dataEditor.tooltip.ShowReferencedRecord", foreignKeyColumn.getDataset().getQualifiedName()));
+                                    String datasetName = escapeHtml(foreignKeyColumn.getDataset().getQualifiedName());
+                                    setHtmlToolTipText(textField, txt("app.dataEditor.tooltip.ShowReferencedRecord", datasetName));
                                     textField.setCursor(Cursors.handCursor());
                                 });
                             }
@@ -282,7 +287,7 @@ package com.dbn.editor.data.ui.table.cell;
 
                     } else {
                         textField.setCursor(Cursors.textCursor());
-                        textField.setToolTipText(null);
+                        setToolTipText(textField, null);
                     }
                 }
             });

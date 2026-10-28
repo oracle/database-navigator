@@ -29,7 +29,6 @@ import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.language.sql.SQLFileType;
 import com.dbn.language.sql.SQLLanguage;
-import com.dbn.object.factory.ObjectFactoryManager;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
@@ -72,7 +71,7 @@ public class DBViewFactoryInputForm extends DBSchemaObjectFactoryInputForm {
         initPreserveCaseFields();
         resetFormChanges();
 
-        whenFirstShown(this::initEditor);
+        whenInitialized(() -> initEditor());
     }
 
     private void initNameLabel() {
@@ -133,7 +132,7 @@ public class DBViewFactoryInputForm extends DBSchemaObjectFactoryInputForm {
 
     @Override
     protected void initStatePersistence() {
-        StateAttributes state = ObjectFactoryManager.getInstance(ensureProject()).getState(getObjectType());
+        StateAttributes state = getUserInterfaceState();
         initPersistence(preserveCaseCheckBox, state, "preserve-identifier-case");
     }
 

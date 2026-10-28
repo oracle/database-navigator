@@ -46,8 +46,6 @@ import static com.dbn.debugger.JDWPTunnelType.TCP_DRIVER_TUNNEL;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<ConnectionDebuggerSettings> {
-    private static final Object REVERSE_SSH_TUNNEL_HOST_RESOLUTION = new Object();
-
     private JPanel mainPanel;
     private JCheckBox compileDependenciesCheckBox;
     private JTextField tcpHostTextBox;
@@ -131,7 +129,6 @@ public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<Conn
         ConnectionDatabaseSettings databaseSettings = getConfiguration().ensureParent().getDatabaseSettings();
         Dispatch.asyncOnce(
                 mainPanel,
-                REVERSE_SSH_TUNNEL_HOST_RESOLUTION,
                 () -> databaseSettings.resolveHost(),
                 host -> {
                     if (getSelection(tunnelTypeComboBox) == SSH_REVERSE_TUNNEL) {

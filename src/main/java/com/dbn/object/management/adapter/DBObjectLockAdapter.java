@@ -17,6 +17,7 @@
 package com.dbn.object.management.adapter;
 
 import com.dbn.common.Priority;
+import com.dbn.common.attributes.Attributes;
 import com.dbn.common.outcome.BasicOutcomeHandler;
 import com.dbn.common.outcome.OutcomeType;
 import com.dbn.object.common.DBObject;
@@ -38,8 +39,8 @@ import static com.intellij.openapi.util.NlsContexts.ProgressTitle;
  */
 public final class DBObjectLockAdapter<T extends DBObject> extends ObjectManagementAdapterBase<T> {
 
-    public DBObjectLockAdapter(T object, InterfaceInvoker<T> invoker) {
-        super(object, ObjectChangeAction.LOCK, invoker);
+    public DBObjectLockAdapter(T object, Attributes attributes, InterfaceInvoker<T> invoker) {
+        super(object, ObjectChangeAction.LOCK, attributes, invoker);
         addOutcomeHandler(OutcomeType.SUCCESS, BasicOutcomeHandler.create(Priority.HIGH, o -> lockLocal()));
     }
 

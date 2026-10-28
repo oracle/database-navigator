@@ -37,7 +37,7 @@ import java.util.Objects;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.language.common.quotes.QuoteEscaping.DATABASE;
 import static com.dbn.nls.NlsResources.txt;
-import static com.dbn.object.factory.ObjectFactoryIdentifiers.canUseDefaultCase;
+import static com.dbn.object.factory.ObjectFactoryIdentifiers.adjustIdentifierCase;
 import static com.dbn.object.factory.ObjectFactoryIdentifiers.quoteIdentifier;
 import static com.dbn.object.factory.model.DBObjectAttributeType.IDENTIFIER_CASE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.OBJECT_NAME;
@@ -175,16 +175,7 @@ public final class DBObjectSpec extends DBObjectSpecBase{
     public String getAdjustedObjectName() {
         ConnectionHandler connection = getConnection();
 
-        DatabaseIdentifierCase defaultCase = connection.getCompatibility().getIdentifierCase();
-        DatabaseIdentifierCase requestedCase = getIdentifierCase();
-
-        String objectName = getObjectName();
-        boolean adjustCase = requestedCase == defaultCase && canUseDefaultCase(connection, objectName);
-        DatabaseIdentifierCase identifierCase = adjustCase ?
-                requestedCase :
-                DatabaseIdentifierCase.PRESERVE;
-
-        String adjustedIdentifier = identifierCase.format(objectName);
+        String adjustedIdentifier = adjustIdentifierCase(connection, getObjectName(), getIdentifierCase());
 
         return quoteIdentifier(connection, adjustedIdentifier);
     }

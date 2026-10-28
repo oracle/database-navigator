@@ -19,6 +19,7 @@ package com.dbn.data.editor.ui;
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.ui.table.DBNTable;
 import com.dbn.common.ui.util.Mouse;
+import com.dbn.common.ui.util.Tooltips;
 import com.dbn.data.editor.ui.array.ArrayEditorPopupProviderForm;
 import com.dbn.data.editor.ui.calendar.CalendarPopupProviderForm;
 import com.dbn.data.editor.ui.calendar.CalendarPopupType;
@@ -147,7 +148,7 @@ public class TextFieldWithPopup extends TextFieldWithButtons {
         String toolTipText = keyShortcutDescription == null ?
                 txt("app.data.tooltip.OpenPopup", providerName) :
                 txt("app.data.tooltip.OpenPopupWithShortcut", providerName, keyShortcutDescription);
-        button.setToolTipText(toolTipText);
+        Tooltips.setToolTipText(button, toolTipText);
         addButtonListener(popupProvider, button);
 
 

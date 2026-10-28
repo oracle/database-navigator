@@ -17,11 +17,10 @@
 package com.dbn.object.management.adapter.impl;
 
 import com.dbn.common.constant.Constant;
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.object.DBMaterializedView;
 import com.dbn.object.management.ObjectManagementAdapterBase;
+import com.dbn.object.management.ObjectManagementRequest;
 import com.dbn.object.type.DBObjectType;
 
 import java.sql.SQLException;
@@ -38,10 +37,12 @@ public class DBMaterializedViewManagementAdapter extends ObjectManagementAdapter
     }
 
     @Override
-    protected void refreshObject(ConnectionHandler connection, DBNConnection conn, DBMaterializedView object) throws SQLException {
-        DatabaseDataDefinitionInterface databaseInterface = connection.getDataDefinitionInterface();
+    protected void refreshObject(ObjectManagementRequest<DBMaterializedView> request) throws SQLException {
+        DBMaterializedView object = request.object();
+
+        DatabaseDataDefinitionInterface databaseInterface = request.getDataDefinitionInterface();
         String schemaName = object.getSchemaName(true);
         String viewName = object.getName(true);
-        databaseInterface.refreshMaterializedView(schemaName, viewName, conn);
+        databaseInterface.refreshMaterializedView(schemaName, viewName, request.conn());
     }
 }

@@ -29,6 +29,7 @@ import com.dbn.object.DBTable;
 import com.dbn.object.common.ui.DBObjectSelector;
 import com.dbn.vector.model.request.EmbeddingSourceTable;
 import com.dbn.vector.ui.VectorToolboxFormBase;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.ui.components.JBList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -192,10 +193,10 @@ public class TableSelectionForm extends VectorToolboxFormBase {
                     // Show check or warning icon based on configuration status
                     if (isConfigured) {
                         setIcon(Icons.COMMON_CHECK);
-                        setToolTipText(txt("app.vector.tooltip.TableConfigured", getTableConfigSummary(table)));
+                        Tooltips.setToolTipText(this, txt("app.vector.tooltip.TableConfigured", getTableConfigSummary(table)));
                     } else {
                         setIcon(Icons.COMMON_WARNING);
-                        setToolTipText(txt("app.vector.tooltip.TableNotConfigured"));
+                        Tooltips.setToolTipText(this, txt("app.vector.tooltip.TableNotConfigured"));
                     }
                 }
                 return this;

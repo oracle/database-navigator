@@ -45,7 +45,6 @@ import com.intellij.openapi.components.StoragePathMacros;
 import com.intellij.openapi.project.Project;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -59,7 +58,6 @@ import static com.dbn.common.operation.DatabaseOperation.CREATE_VECTOR_EMBEDDING
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.constantAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setConstantAttribute;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.type.DBObjectType.TABLE;
@@ -261,10 +259,9 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
     /****************************************
      *       PersistentStateComponent       *
      *****************************************/
-    @Nullable
     @Override
-    public Element getComponentState() {
-        Element element = newStateElement();
+    public void writeState(Element element) {
+        super.writeState(element);
         Element requestsElement = newElement(element, "embedding-requests");
         for (ConnectionId connectionId : requestTemplates.keySet()) {
             Element requestElement = newElement(requestsElement, "embedding-request");
@@ -289,12 +286,11 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
                 table.writeState(cacheElement);
             }
         }
-
-        return element;
     }
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
+    public void readState(@NotNull Element element) {
+        super.readState(element);
         Element requestsElement = element.getChild("embedding-requests");
         List<Element> requestElements = childrenOf(requestsElement, "embedding-request");
         for (Element requestElement : requestElements) {
@@ -324,7 +320,6 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
             ConnectionId connectionId = tableRef.getConnectionId();
             getRecentEmbeddingTables(connectionId).add(tableRef);
         }
-
     }
 
     public List<DBTable> getVectorTables(ConnectionId connectionId, SchemaId schemaId) {

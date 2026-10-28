@@ -41,7 +41,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.dbn.common.component.Components.applicationService;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
@@ -134,8 +133,8 @@ public class PluginStatusManager extends ApplicationComponentBase implements Per
      **************************************************************************/
 
     @Override
-    public Element getComponentState() {
-        Element element = newStateElement();
+    public void writeState(Element element) {
+        super.writeState(element);
         Element statusesElement = newElement(element, "plugin-statuses");
         for (String projectPath : pluginStatuses.keySet()) {
             DBPluginStatusPair statusPair = pluginStatuses.get(projectPath);
@@ -144,11 +143,11 @@ public class PluginStatusManager extends ApplicationComponentBase implements Per
             setEnumAttribute(statusElement, "dbn", statusPair.getDbn());
             setEnumAttribute(statusElement, "sql", statusPair.getSql());
         }
-        return element;
     }
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
+    public void readState(@NotNull Element element) {
+        super.readState(element);
         Element statusesElement = element.getChild("plugin-statuses");
         if (statusesElement == null) return;
 

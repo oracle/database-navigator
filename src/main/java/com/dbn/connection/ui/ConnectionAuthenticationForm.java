@@ -20,7 +20,6 @@ import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.ConnectionHandler;
 import org.jetbrains.annotations.NotNull;
@@ -31,6 +30,7 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
 import static com.dbn.common.text.TextContent.plain;
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.connection.AuthenticationType.NONE;
 import static com.dbn.connection.AuthenticationType.OS_CREDENTIALS;
 import static com.dbn.connection.AuthenticationType.TOKEN;
@@ -52,6 +52,7 @@ public class ConnectionAuthenticationForm extends DBNFormBase {
 
     ConnectionAuthenticationForm(@NotNull ConnectionAuthenticationDialog parentComponent, @Nullable ConnectionHandler connection) {
         super(parentComponent);
+        fieldsForm.setDatabaseType(connection == null ? null : connection.getDatabaseType());
 
         initHeaders(connection);
         initFields(parentComponent, connection);
@@ -88,8 +89,7 @@ public class ConnectionAuthenticationForm extends DBNFormBase {
         } else {
             hintText = plain(txt("cfg.connection.hint.Authentication"));
         }
-        DBNHintForm hintForm = new DBNHintForm(this, hintText, null);
-        hintPanel.add(hintForm.getComponent(), BorderLayout.CENTER);
+        installHintForm(this, hintText, hintPanel);
     }
 
     @NotNull

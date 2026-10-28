@@ -28,6 +28,7 @@ import com.dbn.object.filter.quick.ObjectQuickFilterManager;
 import com.dbn.object.filter.quick.action.DeleteQuickFilterConditionAction;
 import com.dbn.object.filter.quick.action.EnableDisableQuickFilterConditionAction;
 import com.dbn.object.type.DBObjectType;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -43,6 +44,7 @@ import static com.dbn.common.ui.util.Accessibility.setAccessibleDescription;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.common.ui.util.Tooltips.setHtmlToolTipText;
 import static com.dbn.common.util.Strings.cachedUpperCase;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -74,7 +76,7 @@ public class ObjectQuickFilterConditionForm extends DBNFormBase {
             condition.setOperator(newValue);
         });
 
-        patternTextField.setToolTipText(txt("app.object.tooltip.ChangeQuickFilterOperator"));
+        setHtmlToolTipText(patternTextField, txt("app.object.tooltip.ChangeQuickFilterOperator"));
         patternTextField.addKeyListener(ComboBoxSelectionKeyListener.create(operatorComboBox, false));
         onTextChange(patternTextField, e -> condition.setPattern(getText(patternTextField)));
 

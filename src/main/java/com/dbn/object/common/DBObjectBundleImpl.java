@@ -246,6 +246,11 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
     }
 
     @Override
+    public List<DBSchema> getUserSchemas() {
+        return Lists.filter(getSchemas(), s -> !s.isSystemSchema() && !s.isPublicSchema());
+    }
+
+    @Override
     public List<DBSchema> getSchemas(boolean filtered) {
         return filtered ? nn(schemas).getElements() : nn(schemas).getAllElements();
     }

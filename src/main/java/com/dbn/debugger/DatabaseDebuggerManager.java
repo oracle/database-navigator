@@ -46,7 +46,6 @@ import com.dbn.object.DBProgram;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
-import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.vfs.DBConsoleType;
 import com.dbn.vfs.file.DBConsoleVirtualFile;
@@ -65,7 +64,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -85,7 +83,6 @@ import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.constantAttribute;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setConstantAttribute;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.util.Commons.array;
@@ -98,7 +95,8 @@ import static com.dbn.debugger.DBDebuggerType.JDWP;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.common.property.DBObjectProperty.DEBUGGABLE;
-import static com.dbn.object.common.status.DBObjectStatus.*;
+import static com.dbn.object.common.status.DBObjectStatus.DEBUG;
+import static com.dbn.object.common.status.DBObjectStatus.PRESENT;
 
 @State(
     name = DatabaseDebuggerManager.COMPONENT_NAME,
@@ -388,21 +386,21 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
     /*********************************************
      *            PersistentStateComponent       *
      *********************************************/
-    @Nullable
     @Override
-    public Element getComponentState() {
-        Element element = newStateElement();
+    public void writeState(Element element) {
+        super.writeState(element);
         Element debuggerSelectionsElement = newElement(element, "debugger-selections");
         for (var entry : debuggerSelections.entrySet()) {
             Element connectionElement = newElement(debuggerSelectionsElement, "connection");
             setConstantAttribute(connectionElement, "connection-id", entry.getKey());
             setEnumAttribute(connectionElement, "debugger-type", entry.getValue());
         }
-        return element;
+
     }
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
+    public void readState(@NotNull Element element) {
+        super.readState(element);
         debuggerSelections.clear();
         Element debuggerSelectionsElement = element.getChild("debugger-selections");
         for (Element connectionElement : childrenOf(debuggerSelectionsElement, "connection")) {
@@ -412,5 +410,6 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
                 debuggerSelections.put(connectionId, debuggerType);
             }
         }
+
     }
 }

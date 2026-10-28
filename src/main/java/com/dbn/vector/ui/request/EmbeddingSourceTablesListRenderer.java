@@ -19,6 +19,7 @@ package com.dbn.vector.ui.request;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.list.ColoredListCellRenderer;
 import com.dbn.vector.model.request.EmbeddingSourceTable;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
 
@@ -68,7 +69,7 @@ public class EmbeddingSourceTablesListRenderer extends ColoredListCellRenderer<E
         setIcon(Icons.DBO_TABLE);
 
         // Tooltip with full info
-        setToolTipText(txt("app.vector.tooltip.SourceTable",
+        Tooltips.setToolTipText(this, txt("app.vector.tooltip.SourceTable",
                 schemaName != null ? schemaName : "?",
                 tableName != null ? tableName : "?",
                 keyColumn != null ? keyColumn : txt("app.shared.text.NotSet"),

@@ -17,7 +17,6 @@ package com.dbn.diagnostics.ui;
 
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.diagnostics.ParserIssueReportInput;
@@ -33,6 +32,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ParserIssueReportForm extends DBNFormBase {
@@ -55,8 +55,7 @@ public class ParserIssueReportForm extends DBNFormBase {
     }
 
     private void initHeaderPanel() {
-        hintPanel.add(new DBNHintForm(this,
-                TextContent.plain(txt("app.diagnostics.hint.ParserIssue")), null).getComponent());
+        installHintForm(this, TextContent.plain(txt("app.diagnostics.hint.ParserIssue")), hintPanel);
     }
 
     private void initCodeEditor() {

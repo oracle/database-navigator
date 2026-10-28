@@ -95,7 +95,6 @@ import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.notification.NotificationCategory.EXECUTION;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Messages.showQuestionDialog;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 import static com.dbn.nls.NlsResources.txt;
@@ -541,17 +540,16 @@ public class StatementExecutionManager extends ProjectComponentBase implements P
     /*********************************************
      *            PersistentStateComponent       *
      *********************************************/
-    @Nullable
     @Override
-    public Element getComponentState() {
-        Element element = newStateElement();
+    public void writeState(Element element) {
+        super.writeState(element);
         executionVariables.writeState(element);
         executionVariableTypes.writeState(element);
-        return element;
     }
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
+    public void readState(@NotNull Element element) {
+        super.readState(element);
         executionVariables.readState(element);
         executionVariableTypes.readState(element);
     }

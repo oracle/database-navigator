@@ -55,7 +55,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Editors.getOpenFiles;
@@ -180,10 +179,9 @@ public class DatabaseEditorStateManager extends ProjectComponentBase implements 
     /****************************************
      *       PersistentStateComponent       *
      *****************************************/
-    @Nullable
     @Override
-    public Element getComponentState() {
-        Element element = newStateElement();
+    public void writeState(Element element) {
+        super.writeState(element);
         Element editorProvidersElement = newElement(element, "last-used-providers");
         for (var entry : lastUsedEditorProviders.entrySet()) {
             DBObjectType objectType = entry.getKey();
@@ -194,11 +192,11 @@ public class DatabaseEditorStateManager extends ProjectComponentBase implements 
             setEnumAttribute(objectTypeElement, "editor-provider", editorProviderId);
 
         }
-        return element;
     }
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
+    public void readState(@NotNull Element element) {
+        super.readState(element);
         lastUsedEditorProviders.clear();
         Element editorProvidersElement = element.getChild("last-used-providers");
         if (editorProvidersElement != null) {
@@ -214,5 +212,4 @@ public class DatabaseEditorStateManager extends ProjectComponentBase implements 
         valuePreviewTextWrapping = SettingsUtil.getBoolean(element, "value-preview-pinned", valuePreviewPinned);
 */
     }
-
 }

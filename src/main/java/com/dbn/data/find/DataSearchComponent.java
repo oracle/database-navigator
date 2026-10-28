@@ -37,6 +37,7 @@ import com.dbn.data.find.action.WholeWordsToggleAction;
 import com.dbn.data.grid.ui.table.basic.BasicTable;
 import com.dbn.data.model.DataModel;
 import com.dbn.data.model.DataModelListener;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.featureStatistics.FeatureUsageTracker;
 import com.intellij.find.FindInProjectSettings;
 import com.intellij.find.FindManager;
@@ -260,7 +261,7 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
         JLabel closeLabel = new JLabel(" ", AllIcons.Actions.Close, SwingConstants.RIGHT);
         closeLabel.addMouseListener(Mouse.listener().onClick(e -> close()));
 
-        closeLabel.setToolTipText(txt("app.dataEditor.tooltip.CloseSearchBar"));
+        Tooltips.setToolTipText(closeLabel, txt("app.dataEditor.tooltip.CloseSearchBar"));
         //CompatibilityUtil.setSmallerFont(searchField);
 
         searchField.registerKeyboardAction(e -> {

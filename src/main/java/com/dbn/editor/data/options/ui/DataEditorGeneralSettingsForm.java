@@ -27,6 +27,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
+import static com.dbn.editor.data.DataEditorResourceLimits.MAX_DATA_EDITOR_FETCH_BLOCK_SIZE;
+import static com.dbn.editor.data.DataEditorResourceLimits.MIN_DATA_EDITOR_FETCH_BLOCK_SIZE;
 import static com.dbn.nls.NlsResources.txt;
 
 public class DataEditorGeneralSettingsForm extends ConfigurationEditorForm<DataEditorGeneralSettings> {
@@ -59,7 +61,9 @@ public class DataEditorGeneralSettingsForm extends ConfigurationEditorForm<DataE
 
     @Override
     public void applyFormChanges() throws ConfigurationException {
-        ConfigurationEditors.validateIntegerValue(fetchBlockSizeTextField, txt("cfg.dataEditor.field.FetchBlockSize"), true, 1, 10000, null);
+        ConfigurationEditors.validateIntegerValue(fetchBlockSizeTextField,
+                txt("cfg.dataEditor.field.FetchBlockSize"), true,
+                MIN_DATA_EDITOR_FETCH_BLOCK_SIZE, MAX_DATA_EDITOR_FETCH_BLOCK_SIZE, null);
         ConfigurationEditors.validateIntegerValue(fetchTimeoutTextField, txt("cfg.dataEditor.field.FetchTimeout"), true, 0, 300, txt("cfg.shared.hint.ZeroForNoTimeout"));
 
         DataEditorGeneralSettings settings = getConfiguration();
@@ -74,7 +78,7 @@ public class DataEditorGeneralSettingsForm extends ConfigurationEditorForm<DataE
     @Override
     public void resetFormChanges() {
         DataEditorGeneralSettings settings = getConfiguration();
-        settings.getFetchBlockSize().from(fetchBlockSizeTextField);
+        fetchBlockSizeTextField.setText(Integer.toString(settings.getFetchBlockSizeValue()));
         settings.getFetchTimeout().from(fetchTimeoutTextField);
         settings.getTrimWhitespaces().from(trimWhitespacesCheckBox);
         settings.getConvertEmptyStringsToNull().from(convertEmptyToNullCheckBox);

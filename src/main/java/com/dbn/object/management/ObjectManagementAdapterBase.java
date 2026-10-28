@@ -16,9 +16,8 @@
 
 package com.dbn.object.management;
 
+import com.dbn.common.attributes.Attributes;
 import com.dbn.common.exception.Exceptions;
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.event.ObjectChangeAction;
 import com.dbn.object.management.adapter.DBObjectCreateAdapter;
@@ -27,6 +26,7 @@ import com.dbn.object.management.adapter.DBObjectDisableAdapter;
 import com.dbn.object.management.adapter.DBObjectEnableAdapter;
 import com.dbn.object.management.adapter.DBObjectLockAdapter;
 import com.dbn.object.management.adapter.DBObjectRefreshAdapter;
+import com.dbn.object.management.adapter.DBObjectRenameAdapter;
 import com.dbn.object.management.adapter.DBObjectUnlockAdapter;
 import com.dbn.object.management.adapter.DBObjectUpdateAdapter;
 import com.dbn.object.type.DBObjectType;
@@ -39,6 +39,7 @@ import static com.dbn.object.event.ObjectChangeAction.DISABLE;
 import static com.dbn.object.event.ObjectChangeAction.ENABLE;
 import static com.dbn.object.event.ObjectChangeAction.LOCK;
 import static com.dbn.object.event.ObjectChangeAction.REFRESH;
+import static com.dbn.object.event.ObjectChangeAction.RENAME;
 import static com.dbn.object.event.ObjectChangeAction.UNLOCK;
 import static com.dbn.object.event.ObjectChangeAction.UPDATE;
 
@@ -46,49 +47,54 @@ public abstract class ObjectManagementAdapterBase<T extends DBObject> implements
     public abstract DBObjectType[] getObjectTypes();
 
     @Override
-    public ObjectManagementAdapter<T> createAdapter(T object, ObjectChangeAction action) {
+    public ObjectManagementAdapter<T> createAdapter(T object, ObjectChangeAction action, Attributes attributes) {
         return switch (action) {
-            case CREATE  -> new DBObjectCreateAdapter<>(object, (d, c, o) -> createObject(d, c, o));
-            case UPDATE  -> new DBObjectUpdateAdapter<>(object, (d, c, o) -> updateObject(d, c, o));
-            case DELETE  -> new DBObjectDeleteAdapter<>(object, (d, c, o) -> deleteObject(d, c, o));
-            case ENABLE  -> new DBObjectEnableAdapter<>(object, (d, c, o) -> enableObject(d, c, o));
-            case DISABLE -> new DBObjectDisableAdapter<>(object, (d, c, o) -> disableObject(d, c, o));
-            case LOCK    -> new DBObjectLockAdapter<>(object, (d, c, o) -> lockObject(d, c, o));
-            case REFRESH -> new DBObjectRefreshAdapter<>(object, (d, c, o) -> refreshObject(d, c, o));
-            case UNLOCK  -> new DBObjectUnlockAdapter<>(object, (d, c, o) -> unlockObject(d, c, o));
+            case CREATE  -> new DBObjectCreateAdapter<> (object, attributes, r -> createObject(r));
+            case UPDATE  -> new DBObjectUpdateAdapter<> (object, attributes, r -> updateObject(r));
+            case DELETE  -> new DBObjectDeleteAdapter<> (object, attributes, r -> deleteObject(r));
+            case ENABLE  -> new DBObjectEnableAdapter<> (object, attributes, r -> enableObject(r));
+            case DISABLE -> new DBObjectDisableAdapter<>(object, attributes, r -> disableObject(r));
+            case REFRESH -> new DBObjectRefreshAdapter<>(object, attributes, r -> refreshObject(r));
+            case RENAME  -> new DBObjectRenameAdapter<> (object, attributes, r -> renameObject(r));
+            case LOCK    -> new DBObjectLockAdapter<>   (object, attributes, r -> lockObject(r));
+            case UNLOCK  -> new DBObjectUnlockAdapter<> (object, attributes, r -> unlockObject(r));
             default -> Exceptions.unsupported(action);
         };
     }
 
-    protected void createObject(ConnectionHandler connection, DBNConnection conn, T object) throws SQLException {
+    protected void renameObject(ObjectManagementRequest<T> request) throws SQLException {
+        Exceptions.unsupported(RENAME);
+    }
+
+    protected void createObject(ObjectManagementRequest<T> request) throws SQLException {
         Exceptions.unsupported(CREATE);
     }
 
-    protected void updateObject(ConnectionHandler connection, DBNConnection conn, T object) throws SQLException {
+    protected void updateObject(ObjectManagementRequest<T> request) throws SQLException {
         Exceptions.unsupported(UPDATE);
     }
 
-    protected void deleteObject(ConnectionHandler connection, DBNConnection conn, T object) throws SQLException {
+    protected void deleteObject(ObjectManagementRequest<T> request) throws SQLException {
         Exceptions.unsupported(DELETE);
     }
 
-    protected void enableObject(ConnectionHandler connection, DBNConnection conn, T object) throws SQLException {
+    protected void enableObject(ObjectManagementRequest<T> request) throws SQLException {
         Exceptions.unsupported(ENABLE);
     }
 
-    protected void disableObject(ConnectionHandler connection, DBNConnection conn, T object) throws SQLException {
+    protected void disableObject(ObjectManagementRequest<T> request) throws SQLException {
         Exceptions.unsupported(DISABLE);
     }
 
-    protected void lockObject(ConnectionHandler connection, DBNConnection conn, T object) throws SQLException {
+    protected void lockObject(ObjectManagementRequest<T> request) throws SQLException {
         Exceptions.unsupported(LOCK);
     }
 
-    protected void unlockObject(ConnectionHandler connection, DBNConnection conn, T object) throws SQLException {
+    protected void unlockObject(ObjectManagementRequest<T> request) throws SQLException {
         Exceptions.unsupported(UNLOCK);
     }
 
-    protected void refreshObject(ConnectionHandler connection, DBNConnection conn, T object) throws SQLException {
+    protected void refreshObject(ObjectManagementRequest<T> request) throws SQLException {
         Exceptions.unsupported(REFRESH);
     }
 }

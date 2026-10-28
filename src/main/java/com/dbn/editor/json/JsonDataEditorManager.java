@@ -42,10 +42,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.component.Components.projectService;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.editor.data.DataLoadInstruction.DELIBERATE_ACTION;
 import static com.dbn.editor.data.DataLoadInstruction.PRESERVE_CHANGES;
 import static com.dbn.editor.data.DataLoadInstruction.REBUILD;
@@ -130,25 +128,26 @@ public class JsonDataEditorManager extends ProjectComponentBase implements Persi
     /****************************************
      *       PersistentStateComponent       *
      *****************************************/
-    @Nullable
     @Override
-    public Element getComponentState() {
-        Element element = newStateElement();
+    public void writeState(Element element) {
+        super.writeState(element);
 /*
         Settings.setEnum(element, "record-view-column-sorting-type", recordViewColumnSortingType);
         Settings.setBoolean(element, "value-preview-text-wrapping", valuePreviewTextWrapping);
         Settings.setBoolean(element, "value-preview-pinned", valuePreviewPinned);
 */
-        return element;
+
     }
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
+    public void readState(@NotNull Element element) {
+        super.readState(element);
 /*
         recordViewColumnSortingType = Settings.getEnum(element, "record-view-column-sorting-type", recordViewColumnSortingType);
         valuePreviewTextWrapping = Settings.getBoolean(element, "value-preview-text-wrapping", valuePreviewTextWrapping);
         valuePreviewTextWrapping = Settings.getBoolean(element, "value-preview-pinned", valuePreviewPinned);
 */
+
     }
 
 }

@@ -35,7 +35,6 @@ import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.awt.Desktop;
 import java.io.File;
@@ -43,7 +42,6 @@ import java.io.IOException;
 import java.util.List;
 
 import static com.dbn.common.component.Components.projectService;
-import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
@@ -177,16 +175,15 @@ public class DataExportManager extends ProjectComponentBase implements Persisten
     /****************************************
      *       PersistentStateComponent       *
      *****************************************/
-    @Nullable
     @Override
-    public Element getComponentState() {
-        Element element = newElement("state");
+    public void writeState(Element element) {
+        super.writeState(element);
         exportInstructions.writeState(element);
-        return element;
     }
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
+    public void readState(@NotNull Element element) {
+        super.readState(element);
         exportInstructions.readState(element);
     }
 }

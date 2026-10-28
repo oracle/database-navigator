@@ -16,6 +16,7 @@
 
 package com.dbn.common.ui.link;
 
+
 import com.intellij.openapi.util.NlsContexts.LinkLabel;
 import com.intellij.ui.HyperlinkAdapter;
 import com.intellij.ui.HyperlinkLabel;
@@ -28,6 +29,7 @@ import javax.swing.event.HyperlinkEvent;
 import java.util.function.Consumer;
 
 import static com.dbn.common.ui.util.ClientProperty.NON_DISABLEABLE;
+import static com.dbn.common.ui.util.Tooltips.setToolTipText;
 
 @UtilityClass
 public class Hyperlinks {
@@ -38,7 +40,7 @@ public class Hyperlinks {
         NON_DISABLEABLE.set(hyperlink, true);
         hyperlink.setHyperlinkText(text);
         hyperlink.setHyperlinkTarget(target);
-        hyperlink.setToolTipText(target);
+        setToolTipText(hyperlink, target);
     }
 
     public static void initHyperlink(

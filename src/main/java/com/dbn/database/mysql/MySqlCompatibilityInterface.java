@@ -30,6 +30,7 @@ import com.dbn.language.common.quotes.QuoteDefinition;
 import com.dbn.language.common.quotes.QuotePair;
 import com.dbn.object.DBConstraint;
 import com.dbn.object.common.DBObject;
+import com.dbn.object.event.ObjectChangeAction;
 import com.dbn.object.factory.model.DBObjectTypeSpec;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -72,6 +73,17 @@ public class MySqlCompatibilityInterface extends DatabaseCompatibilityInterfaceI
 
     private interface Property {
         String DISCONNECT_ON_EXPIRED_PASSWORDS = "disconnectOnExpiredPasswords";
+    }
+
+    @Override
+    public boolean supportsObjectAction(DatabaseObjectTypeId objectTypeId, ObjectChangeAction action) {
+        if (action == ObjectChangeAction.RENAME) {
+            return objectTypeId.isOneOf(
+                    DatabaseObjectTypeId.TABLE,
+                    DatabaseObjectTypeId.COLUMN,
+                    DatabaseObjectTypeId.INDEX);
+        }
+        return super.supportsObjectAction(objectTypeId, action);
     }
 
     @Override

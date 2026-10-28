@@ -47,6 +47,7 @@ import java.util.Arrays;
 import java.util.function.Function;
 
 import static com.dbn.common.ui.util.ClientProperty.FIELD_ERROR;
+import static com.dbn.common.ui.util.Tooltips.setToolTipText;
 import static com.dbn.common.util.Strings.isEmpty;
 
 @UtilityClass
@@ -175,7 +176,7 @@ public class TextFields {
     public static void updateFieldError(JTextComponent textComponent, @Nullable @Tooltip String error) {
         FIELD_ERROR.set(textComponent, error);
         textComponent.setForeground(error == null ? Colors.getTextFieldForeground() : JBColor.RED);
-        textComponent.setToolTipText(error);
+        setToolTipText(textComponent, error);
     }
 
     public static void setEmptyText(JTextField textField, @StatusText String emptyText) {

@@ -39,10 +39,8 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
-import org.jdom.Element;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.util.Messages.showErrorDialog;
@@ -205,17 +203,5 @@ public class SourceCodeDiffManager extends ProjectComponentBase implements Persi
                                         project, txt("msg.codeEditor.error.CouldNotLoadSourceCode", object.getQualifiedNameWithType()), e1);
                             }
                         }));
-    }
-
-
-    @Nullable
-    @Override
-    public Element getComponentState() {
-        return null;
-    }
-
-    @Override
-    public void loadComponentState(@NotNull Element state) {
-
     }
 }

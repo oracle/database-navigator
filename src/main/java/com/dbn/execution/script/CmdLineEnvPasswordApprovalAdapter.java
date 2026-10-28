@@ -20,13 +20,10 @@ import com.dbn.common.approval.UserApprovalAction;
 import com.dbn.common.approval.UserApprovalAdapter;
 import com.dbn.common.approval.UserApprovalLifetime;
 import com.dbn.common.approval.UserApprovalOption;
-import com.dbn.common.checksum.Checksum;
 
 import java.io.File;
 
 import static com.dbn.common.approval.UserApprovalAction.PASSWORD_ENVIRONMENT_VARIABLE;
-import static com.dbn.common.checksum.Checksum.fromFileContent;
-import static com.dbn.common.checksum.ChecksumType.SHA_256;
 import static com.dbn.common.util.Executables.resolveExecutableFile;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -66,7 +63,12 @@ public class CmdLineEnvPasswordApprovalAdapter implements UserApprovalAdapter<Cm
 
     @Override
     public String getApprovalKey(CmdLineInterface cmdLineInterface) {
-        return "cmd-line-interface:" + cmdLineInterface.getId() + ":" + getExecutableFingerprint(cmdLineInterface);
+        return CmdLineExecutableSignature.getApprovalKey(cmdLineInterface);
+    }
+
+    @Override
+    public String getApprovalSignature(CmdLineInterface cmdLineInterface) {
+        return CmdLineExecutableSignature.getApprovalSignature(cmdLineInterface);
     }
 
     @Override
@@ -77,21 +79,6 @@ public class CmdLineEnvPasswordApprovalAdapter implements UserApprovalAdapter<Cm
     @Override
     public UserApprovalLifetime getApprovalLifetime(CmdLineInterface cmdLineInterface) {
         return UserApprovalLifetime.SESSION;
-    }
-
-    private String getExecutableFingerprint(CmdLineInterface cmdLineInterface) {
-        String executablePath = getExecutablePath(cmdLineInterface);
-        File executableFile = resolveExecutableFile(executablePath);
-
-        String executableSignature = executableFile == null ?
-                "path:" + executablePath :
-                "file:" + executableFile.getPath() + ":" + fromFileContent(executableFile, SHA_256);
-
-        return Checksum.fromStringContent(getDatabaseType(cmdLineInterface) + ":" + executableSignature, SHA_256);
-    }
-
-    private static String getDatabaseType(CmdLineInterface cmdLineInterface) {
-        return cmdLineInterface.getDatabaseType() == null ? "UNKNOWN" : cmdLineInterface.getDatabaseType().name();
     }
 
     private static String getExecutablePath(CmdLineInterface cmdLineInterface) {

@@ -30,18 +30,14 @@ import com.dbn.language.common.element.impl.SequenceElementType;
 import com.dbn.language.common.element.impl.WrapperElementType;
 import com.dbn.language.common.element.parser.Branch;
 import com.dbn.language.psql.PSQLLanguage;
+import com.dbn.test.util.MockApplicationRule;
 import com.intellij.lang.ASTNode;
-import com.intellij.mock.MockApplication;
-import com.intellij.openapi.Disposable;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.util.Disposer;
 import com.intellij.psi.impl.source.tree.CompositeElement;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.IElementType;
 import org.jdom.Document;
 import org.jetbrains.annotations.NonNls;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -56,27 +52,8 @@ import static org.junit.Assert.assertTrue;
 
 /** Synthetic parsed ASTs exercise completion independently of parser recovery and database connections. */
 public class NextLeafResolverTest {
-    private static Disposable applicationDisposable;
-
-    @BeforeClass
-    public static void setUpApplication() {
-        if (ApplicationManager.getApplication() != null) return;
-
-        // Real AST nodes consult application-level PSI versioning even in synthetic trees.
-        applicationDisposable = Disposer.newDisposable("NextLeafResolverTest");
-        MockApplication.setUp(applicationDisposable);
-    }
-
-    @AfterClass
-    public static void tearDownApplication() {
-        if (applicationDisposable == null) return;
-
-        try {
-            Disposer.dispose(applicationDisposable);
-        } finally {
-            applicationDisposable = null;
-        }
-    }
+    @ClassRule
+    public static final MockApplicationRule APPLICATION = new MockApplicationRule();
 
     @Test
     public void beginAfterDeclarationAndCommentsEntersStatementBody() throws Exception {

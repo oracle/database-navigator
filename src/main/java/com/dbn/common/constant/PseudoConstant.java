@@ -20,6 +20,8 @@ import com.dbn.common.util.Unsafe;
 import lombok.EqualsAndHashCode;
 import org.jetbrains.annotations.NonNls;
 
+import static com.dbn.common.constant.PseudoConstantResourceLimits.verifyPseudoConstantId;
+
 /**
  * Use this "constant" if the possible values are variable (i.e. cannot be implemented with enum).
  */
@@ -35,7 +37,8 @@ public abstract class PseudoConstant<T extends PseudoConstant<T>> implements Con
             this.id = null;
             this.ordinal = 0;
         } else {
-            this.id = id.intern();
+            verifyPseudoConstantId(id);
+            this.id = id;
             this.ordinal = PseudoConstantRegistry.register(Unsafe.cast(this));
         }
     }

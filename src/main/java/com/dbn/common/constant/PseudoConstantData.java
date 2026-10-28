@@ -27,6 +27,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static com.dbn.common.constant.PseudoConstantResourceLimits.verifyPseudoConstantRegistration;
+
 class PseudoConstantData<T extends PseudoConstant<T>> {
     static final ThreadLocal<PseudoConstantData> LOCAL = new ThreadLocal<>();
 
@@ -74,6 +76,7 @@ class PseudoConstantData<T extends PseudoConstant<T>> {
             if (registered != null) return registered.ordinal();
 
             int ordinal = mappings.size();
+            verifyPseudoConstantRegistration(ordinal);
             ensureCapacity(ordinal);
             values.set(ordinal, constant);
             mappings.put(id, constant);
