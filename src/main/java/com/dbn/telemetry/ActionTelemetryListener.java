@@ -27,12 +27,13 @@ import com.intellij.openapi.actionSystem.AnActionResult;
 import com.intellij.openapi.actionSystem.ex.AnActionListener;
 import com.intellij.util.containers.CollectionFactory;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * Records synchronous invocation durations for registered DBN actions. Work started asynchronously
+ * Records synchronous invocation durations for registered and dynamically constructed DBN actions. Work started asynchronously
  * after an action returns is outside this measurement. The histogram count also represents the
  * number of invocations observed by this listener.
  */
@@ -47,10 +48,27 @@ public final class ActionTelemetryListener implements AnActionListener {
 
     @Override
     public void beforeActionPerformed(@NotNull AnAction action, @NotNull AnActionEvent event) {
-        String actionId = ActionManager.getInstance().getId(action);
-        if (actionId == null || !actionId.startsWith(ACTION_ID_PREFIX)) return;
+        String actionId = resolveActionId(action);
+        if (actionId == null) return;
 
         actionStarts.put(event, new ActionStart(actionId, System.nanoTime()));
+    }
+
+    /** Uses registered identifiers first, then the qualified class name for named DBN actions. */
+    private static @Nullable String resolveActionId(@NotNull AnAction action) {
+        String registeredId = ActionManager.getInstance().getId(action);
+        if (registeredId != null) {
+            return registeredId.startsWith(ACTION_ID_PREFIX) ? registeredId : null;
+        }
+
+        String className = action.getClass().getCanonicalName();
+        if (className == null || !className.startsWith("com.dbn.")) return null;
+
+        String name = className.substring("com.dbn.".length());
+        if (name.endsWith("Action")) {
+            name = name.substring(0, name.length() - "Action".length());
+        }
+        return "DBN.Action." + name;
     }
 
     @Override
