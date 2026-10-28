@@ -19,9 +19,7 @@ package com.dbn.connection.ssh;
 import org.apache.sshd.common.session.Session;
 import org.apache.sshd.common.util.net.SshdSocketAddress;
 import org.apache.sshd.server.forward.ForwardingFilter;
-import org.apache.sshd.server.forward.TcpForwardingFilter.Type;
-
-import java.util.Objects;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Allows only the reverse JDWP callback opened by DBN; rejects all other SSH forwarding capabilities.
@@ -29,8 +27,8 @@ import java.util.Objects;
 final class ReverseSshTunnelForwardingFilter implements ForwardingFilter {
     private final SshdSocketAddress localAddress;
 
-    ReverseSshTunnelForwardingFilter(SshdSocketAddress localAddress) {
-        this.localAddress = Objects.requireNonNull(localAddress, "localAddress");
+    ReverseSshTunnelForwardingFilter(@NotNull SshdSocketAddress localAddress) {
+        this.localAddress = localAddress;
     }
 
     @Override

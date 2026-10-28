@@ -199,6 +199,7 @@
         <applicationService serviceImplementation="com.dbn.credentials.DatabaseCredentialManager"/>
         <applicationService serviceImplementation="com.dbn.common.approval.UserApprovalManager"/>
         <applicationService serviceImplementation="com.dbn.assistant.mcp.ide.IdeMcpServerManager"/>
+        <applicationService serviceImplementation="com.dbn.telemetry.TelemetryManager"/>
 
         <!--<projectService serviceImplementation="com.dbn.options.GlobalProjectSettings"/>-->
         <projectService serviceImplementation="com.dbn.project.ProjectStateManager"/>
@@ -1032,6 +1033,7 @@
     </projectListeners>
     <applicationListeners>
         <listener class="com.dbn.assistant.mcp.ide.IdeMcpServerPluginListener" topic="com.intellij.ide.plugins.DynamicPluginListener"/>
+        <listener class="com.dbn.telemetry.ActionTelemetryListener" topic="com.intellij.openapi.actionSystem.ex.AnActionListener"/>
     </applicationListeners>
     <extensions defaultExtensionNs="com.intellij">
         <webHelpProvider implementation="com.dbn.help.PluginHelpProvider"/>
