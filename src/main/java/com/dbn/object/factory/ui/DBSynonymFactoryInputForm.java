@@ -30,7 +30,6 @@ import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.common.ui.DBObjectSelector;
 import com.dbn.object.common.ui.DBObjectTypeSelector;
-import com.dbn.object.factory.ObjectFactoryManager;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.options.ConfigurationException;
@@ -212,7 +211,7 @@ public class DBSynonymFactoryInputForm extends DBSchemaObjectFactoryInputForm {
 
     @Override
     protected void initStatePersistence() {
-        StateAttributes state = ObjectFactoryManager.getInstance(ensureProject()).getState(getObjectType());
+        StateAttributes state = getUserInterfaceState();
         initPersistence(preserveCaseCheckBox, state, "preserve-identifier-case");
     }
 

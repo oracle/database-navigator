@@ -22,9 +22,6 @@ import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.outcome.MessageOutcomeHandler;
 import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.common.outcome.OutcomeType;
-import com.dbn.common.state.StateAttributes;
-import com.dbn.common.state.StateCategory;
-import com.dbn.common.state.StateContainer;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.generator.code.shared.CodeGenerator;
@@ -36,14 +33,11 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 import static com.dbn.common.component.Components.projectService;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Editors.openFileEditor;
 import static com.dbn.generator.code.CodeGeneratorManager.COMPONENT_NAME;
 
@@ -53,8 +47,6 @@ import static com.dbn.generator.code.CodeGeneratorManager.COMPONENT_NAME;
 )
 public class CodeGeneratorManager extends ProjectComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Project.CodeGeneratorManager";
-
-    private final StateContainer states = new StateContainer();
 
     private CodeGeneratorManager(Project project) {
         super(project, COMPONENT_NAME);
@@ -107,27 +99,5 @@ public class CodeGeneratorManager extends ProjectComponentBase implements Persis
                 openFileEditor(project, generatedFile, true);
             }
         };
-    }
-
-    @NotNull
-    public StateAttributes getState(CodeGeneratorCategory category) {
-        StateCategory stateCategory = StateCategory.cast(category);
-        return states.ensureAttributes(stateCategory);
-    }
-
-    /****************************************
-     *       PersistentStateComponent       *
-     *****************************************/
-    @Nullable
-    @Override
-    public Element getComponentState() {
-        Element element = newStateElement();
-        states.writeState(element, "generator-states");
-        return element;
-    }
-
-    @Override
-    public void loadComponentState(@NotNull Element element) {
-        states.readState(element, "generator-states");
     }
 }

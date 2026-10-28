@@ -16,6 +16,7 @@
 
 package com.dbn.object.management.adapter;
 
+import com.dbn.common.attributes.Attributes;
 import com.dbn.common.outcome.OutcomeType;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.event.ObjectChangeAction;
@@ -36,8 +37,8 @@ import static com.intellij.openapi.util.NlsContexts.ProgressTitle;
  */
 public final class DBObjectDeleteAdapter<T extends DBObject> extends ObjectManagementAdapterBase<T> {
 
-    public DBObjectDeleteAdapter(T object, InterfaceInvoker<T> invoker) {
-        super(object, ObjectChangeAction.DELETE, invoker);
+    public DBObjectDeleteAdapter(T object, Attributes attributes, InterfaceInvoker<T> invoker) {
+        super(object, ObjectChangeAction.DELETE, attributes, invoker);
         addOutcomeHandler(OutcomeType.SUCCESS, ObjectListRefreshHandler.create(object));
     }
 

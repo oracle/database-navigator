@@ -16,26 +16,22 @@
 
 package com.dbn.assistant.mcp.model;
 
+import com.dbn.assistant.mcp.AssistantMcpResourceLimits;
 import com.dbn.common.checksum.Checksum;
 import dev.langchain4j.agent.tool.ToolSpecification;
+import lombok.experimental.UtilityClass;
 
 import java.util.Objects;
 
+import static com.dbn.assistant.mcp.AssistantMcpResourceLimits.*;
 import static com.dbn.common.checksum.ChecksumType.SHA_256;
 
 /**
  * Centralizes defensive bounds for MCP tool metadata before it is cached,
  * rendered in Swing UI, or exposed to assistant execution.
  */
-public final class AssistantMcpToolMetadataGuard {
-    public static final int MAX_TOOL_COUNT = 256;
-    public static final int MAX_TOOL_NAME_LENGTH = 128;
-    public static final int MAX_TOOL_DESCRIPTION_LENGTH = 1_024;
-    public static final int MAX_TOOL_INSTRUCTION_LENGTH = 4_096;
-    public static final int MAX_TOTAL_TOOL_METADATA_LENGTH = 256_000;
-
-    private AssistantMcpToolMetadataGuard() {
-    }
+@UtilityClass
+public class AssistantMcpToolMetadataGuard {
 
     public static AssistantMcpToolInfo createToolInfo(AssistantMcpServer mcpServer, ToolSpecification specification) {
         String toolName = Objects.toString(specification.name(), "");
@@ -67,9 +63,9 @@ public final class AssistantMcpToolMetadataGuard {
 
     public static boolean isAcceptedToolMetadata(ToolSpecification specification) {
         return
-                length(specification.name()) <= MAX_TOOL_NAME_LENGTH &&
-                length(specification.description()) <= MAX_TOOL_INSTRUCTION_LENGTH &&
-                length(specification.parameters()) <= MAX_TOOL_INSTRUCTION_LENGTH;
+                isToolNameLengthAllowed(length(specification.name())) &&
+                isToolInstructionLengthAllowed(length(specification.description())) &&
+                isToolInstructionLengthAllowed(length(specification.parameters()));
     }
 
     public static int getMetadataLength(ToolSpecification specification) {

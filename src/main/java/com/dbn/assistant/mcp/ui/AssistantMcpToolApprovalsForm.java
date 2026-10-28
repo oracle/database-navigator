@@ -35,7 +35,6 @@ import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Threads;
 import com.dbn.common.ui.Layouts;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.misc.DBNFilterTextField;
 import com.dbn.common.ui.misc.DBNToggleButton;
 import com.dbn.common.util.Actions;
@@ -56,12 +55,15 @@ import java.util.List;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.APPROVED;
 import static com.dbn.common.approval.UserApprovalAction.MCP_SERVER_ACCESS;
 import static com.dbn.common.exception.Exceptions.getLocalizedMessages;
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.common.ui.panel.DBNLoadingPanel.newLoadingPanel;
 import static com.dbn.common.ui.util.ClientProperty.HORIZONTAL_SCROLL_POLICY;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.common.ui.util.UserInterface.whenAttachedToWindow;
 import static com.dbn.common.util.Strings.containsIgnoreCase;
 import static com.dbn.nls.NlsResources.txt;
+import static com.intellij.openapi.util.text.StringUtil.escapeXmlEntities;
 import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
 
 public class AssistantMcpToolApprovalsForm extends DBNFormBase {
@@ -92,7 +94,7 @@ public class AssistantMcpToolApprovalsForm extends DBNFormBase {
         initFilterField();
         initStatusToggle();
 
-        whenFirstShown(() -> toolsScrollPane.getVerticalScrollBar().setValue(0));
+        whenInitialized(() -> toolsScrollPane.getVerticalScrollBar().setValue(0));
     }
 
     private void initStatusToggle() {
@@ -154,11 +156,10 @@ public class AssistantMcpToolApprovalsForm extends DBNFormBase {
     private void initHintPanel() {
         String hintContent = TextResources.getLocalizable(AssistantMcpToolApprovalsForm.class, "assistant_mcp_tool_approval.html.ft");
         TextContent hintText = TextContent.html(hintContent);
-        hintText.initField("MCP_SERVER_NAME", mcpServer.getName());
+        hintText.initField("MCP_SERVER_NAME", escapeXmlEntities(mcpServer.getName()));
         hintText.initFonts();
 
-        DBNHintForm hintForm = new DBNHintForm(this, hintText, null);
-        hintPanel.add(hintForm.getComponent());
+        installHintForm(this, hintText, hintPanel);
     }
 
     private void initToolsPanel() {

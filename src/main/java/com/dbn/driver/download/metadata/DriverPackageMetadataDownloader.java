@@ -23,6 +23,7 @@ import com.dbn.connection.DatabaseInterfacesBundle;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.provider.CloudConfigProviderFamily;
 import com.dbn.driver.download.DownloadSession;
+import com.dbn.driver.download.DriverPackageTaskExecutor;
 import com.dbn.driver.download.MavenRepositories;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -76,12 +77,14 @@ public class DriverPackageMetadataDownloader {
         packageElements.addAll(createDiscoveredDriverPackageElements(databaseType, packageElements, providerFamily));
         session.withDownloadSize(packageElements.size());
 
-        List<DriverPackage> driverPackages = packageElements.parallelStream()
-                .map(e -> createDriverPackage(e, session))
-                .filter(p -> p != null)
-                .toList();
-        driverPackages = removeDuplicatePinnedPackages(driverPackages);
-        return driverPackages.stream().collect(Collectors.toMap(p -> p.getId(), p -> p));
+        List<DriverPackage> driverPackages = new ArrayList<>();
+        DriverPackageTaskExecutor.map(
+                packageElements,
+                e -> createDriverPackage(e, session),
+                driverPackage -> {
+                    if (driverPackage != null) driverPackages.add(driverPackage);
+                });
+        return removeDuplicatePinnedPackages(driverPackages).stream().collect(Collectors.toMap(p -> p.getId(), p -> p));
     }
 
     private DriverPackage createDriverPackage(Element element, DownloadSession session){
@@ -97,7 +100,7 @@ public class DriverPackageMetadataDownloader {
 
         List<ResolvedLibrary> resolvedLibraries = element
                 .getChildren("library")
-                .parallelStream()
+                .stream()
                 .map(e -> resolveLibraryMetadata(e, session))
                 .toList();
         if (resolvedLibraries.stream().anyMatch(l -> l.libraries().isEmpty())) return null;
@@ -142,7 +145,7 @@ public class DriverPackageMetadataDownloader {
         try {
             List<ResolvedLibrary> resolvedLibraries = driverPackage
                     .getSourceLibraryElements()
-                    .parallelStream()
+                    .stream()
                     .map(e -> resolveLibrary(e, session))
                     .toList();
             if (resolvedLibraries.stream().anyMatch(l -> l.libraries().isEmpty())) return driverPackage;

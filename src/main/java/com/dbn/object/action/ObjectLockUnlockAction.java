@@ -16,6 +16,7 @@
 
 package com.dbn.object.action;
 
+import com.dbn.common.attributes.Attributes;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.property.DBObjectProperty;
 import com.dbn.object.event.ObjectChangeAction;
@@ -48,7 +49,7 @@ public class ObjectLockUnlockAction extends AnObjectAction<DBObject> {
         if (!objectManagementService.supports(object) || !isSupported(object)) {
             throw new UnsupportedOperationException();
         }
-        objectManagementService.changeObject(object, changeAction, null);
+        objectManagementService.changeObject(object, changeAction, Attributes.empty(), null);
     }
 
     @Override

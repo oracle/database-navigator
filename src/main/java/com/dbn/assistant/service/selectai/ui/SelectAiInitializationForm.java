@@ -27,7 +27,7 @@ import com.dbn.common.message.MessageType;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.form.DBNHintForm;
+import com.dbn.common.ui.panel.DBNBanner;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ConnectionConfigListener;
 import com.intellij.util.ui.AsyncProcessIcon;
@@ -123,8 +123,8 @@ public class SelectAiInitializationForm extends DBNFormBase implements Assistant
             String errorMessage = txt("msg.assistant.error.DatabaseAssistantInitializationFailed");
             String messageContent = txt("msg.shared.error.ErrorDetails", errorMessage, availabilityInfo.getMessage());
             TextContent message = TextContent.plain(messageContent);
-            DBNHintForm messageForm = new DBNHintForm(this, message, MessageType.ERROR);
-            messagePanel.add(messageForm.getComponent());
+            DBNBanner messageForm = new DBNBanner(MessageType.ERROR, message.getText());
+            messagePanel.add(messageForm);
         }
         getIntroductionForm().evaluateAvailability();
     }

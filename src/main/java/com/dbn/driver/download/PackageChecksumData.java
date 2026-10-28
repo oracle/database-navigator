@@ -62,6 +62,14 @@ public class PackageChecksumData {
         return file.exists();
     }
 
+    /** Clears verification records for a package and removes its checksum manifest. */
+    public boolean clearChecksums() {
+        if (file.exists() && (!file.isFile() || !FileUtil.delete(file))) return false;
+        checksums.clear();
+        invalidChecksums.clear();
+        return true;
+    }
+
     public boolean hasInvalidChecksums() {
         return !invalidChecksums.isEmpty();
     }

@@ -20,6 +20,7 @@ import com.dbn.common.icon.Icons;
 import com.dbn.debugger.DatabaseDebuggerManager;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.action.AnObjectAction;
+import com.dbn.object.common.DBObject;
 import com.dbn.options.general.WorkspaceFeature;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -27,7 +28,11 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.common.exception.Exceptions.unsupported;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DEBUGGER;
+import static com.dbn.options.general.WorkspaceFeature.OJVM;
 
 public class JavaMethodDebugAction extends AnObjectAction<DBJavaMethod> {
 
@@ -40,20 +45,27 @@ public class JavaMethodDebugAction extends AnObjectAction<DBJavaMethod> {
 
     @Override
     protected WorkspaceFeature getFeature() {
-        return WorkspaceFeature.DEBUGGER;
+        return DEBUGGER;
     }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DBJavaMethod method) {
+        if (!isSupported(method)) {
+            unsupported(DEBUGGER);
+        }
+
         DatabaseDebuggerManager executionManager = DatabaseDebuggerManager.getInstance(project);
         executionManager.startJavaDebugger(method);
     }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DBJavaMethod target) {
-        boolean featureEnabled = WorkspaceFeature.OJVM.isEnabled(project) && isFeatureEnabled(project);
-        presentation.setVisible(featureEnabled);
-        if (!featureEnabled) return;
+        if (!isSupported(target)) {
+            presentation.setVisible(false);
+            return;
+        }
+
+        presentation.setVisible(true);
 
         if (listElement) {
             super.update(e, presentation, project, target);
@@ -61,5 +73,14 @@ public class JavaMethodDebugAction extends AnObjectAction<DBJavaMethod> {
             presentation.setText(txt("app.execution.action.Debug"));
             presentation.setIcon(Icons.METHOD_EXECUTION_DEBUG);
         }
+    }
+
+    public static boolean isSupported(@Nullable DBObject object) {
+        if (isNotValid(object)) return false;
+        if (!(object instanceof DBJavaMethod method)) return false;
+        if (!method.isExecutable()) return false;
+        if (!OJVM.isEnabled(object.getProject())) return false;
+
+        return DEBUGGER.isEnabled(object.getProject());
     }
 }

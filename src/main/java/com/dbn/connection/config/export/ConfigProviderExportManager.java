@@ -5,9 +5,6 @@ import com.dbn.common.component.ApplicationComponentBase;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.export.ExportDestination;
-import com.dbn.common.state.StateAttributes;
-import com.dbn.common.state.StateCategory;
-import com.dbn.common.state.StateContainer;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
@@ -18,7 +15,6 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.project.Project;
-import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,7 +25,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static com.dbn.common.component.Components.applicationService;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Chars.isNotEmpty;
 import static com.dbn.common.util.Commons.matchArrays;
 import static com.dbn.common.util.Conditional.when;
@@ -45,24 +40,7 @@ import static com.dbn.nls.NlsResources.txt;
 )
 public class ConfigProviderExportManager extends ApplicationComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Application.ConfigProviderExportService";
-    private static final StateCategory EXPORT_FORM = StateCategory.get("EXPORT_FORM");
-    private static final String STATES = "states";
-
-    private final StateContainer states = new StateContainer();
-
     private ConfigProviderExportManager() {super(COMPONENT_NAME);}
-
-    @Override
-    public Element getComponentState() {
-        Element element = newStateElement();
-        states.writeState(element, STATES);
-        return element;
-    }
-
-    @Override
-    public void loadComponentState(@NotNull Element element) {
-        states.readState(element, STATES);
-    }
 
     public void exportConnection(
             @NotNull Project project,
@@ -121,10 +99,6 @@ public class ConfigProviderExportManager extends ApplicationComponentBase implem
             Messages.showErrorDialog(project, txt("msg.connection.title.ExportFailed"), userMessage(e));
             return false;
         }
-    }
-
-    public @NotNull StateAttributes getExportFormState() {
-        return states.ensureAttributes(EXPORT_FORM);
     }
 
     private void doExport(Project project, ConnectionSettings settings, ConfigProviderExportRequest request) {

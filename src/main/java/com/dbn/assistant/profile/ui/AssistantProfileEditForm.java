@@ -31,7 +31,6 @@ import com.dbn.common.text.TextContent;
 import com.dbn.common.text.TextResources;
 import com.dbn.common.ui.ValueFactory;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.info.DBNInfoLabel;
 import com.dbn.common.ui.misc.DBNComboBox;
@@ -55,6 +54,7 @@ import java.util.List;
 import static com.dbn.assistant.profile.AssistantTemperaturePreset.BALANCED;
 import static com.dbn.assistant.profile.AssistantTemperaturePreset.CUSTOM;
 import static com.dbn.assistant.profile.AssistantTemperaturePreset.values;
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
@@ -104,8 +104,7 @@ public class AssistantProfileEditForm extends DBNFormBase {
     private void initHintPanel() {
         TextContent hintContent = TextContent.plain(
                 txt("cfg.assistant.hint.ProfileEdit"));
-        DBNHintForm hintForm = new DBNHintForm(this, hintContent, null);
-        hintPanel.add(hintForm.getComponent());
+        installHintForm(this, hintContent, hintPanel);
     }
 
     private void initInstructionsField() {

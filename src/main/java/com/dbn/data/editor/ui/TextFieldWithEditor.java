@@ -21,6 +21,7 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.table.DBNTable;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.data.grid.color.BasicTableTextAttributes;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBTextField;
 import lombok.Getter;
@@ -31,6 +32,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JComponent;
 import java.awt.BorderLayout;
 import java.awt.Color;
+
 
 /** A text field with a button that opens a dedicated editor for its value. */
 @Getter
@@ -45,7 +47,7 @@ public abstract class TextFieldWithEditor extends TextFieldWithButtons {
         super(project, parentTable);
 
         button = createButton(Icons.DATA_EDITOR_BROWSE, buttonName);
-        button.setToolTipText(buttonToolTip);
+        Tooltips.setToolTipText(button, buttonToolTip);
         button.addMouseListener(Mouse.listener().onClick(e -> openEditor()));
         add(button, BorderLayout.EAST);
     }

@@ -25,6 +25,7 @@ import com.dbn.common.util.Actions;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.execution.ExecutionInput;
 import com.dbn.execution.common.options.ExecutionTimeoutSettings;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -93,13 +94,13 @@ public abstract class ExecutionTimeoutForm extends DBNFormBase {
                 executionInput.setDebugExecutionTimeout(timeout); else
                 executionInput.setExecutionTimeout(timeout);
             hintLabel.setIcon(null);
-            hintLabel.setToolTipText(null);
+            Tooltips.setToolTipText(hintLabel, null);
             hasErrors = false;
             handleChange(false);
         } catch (NumberFormatException e1) {
             conditionallyLog(e1);
             hintLabel.setIcon(Icons.COMMON_ERROR);
-            hintLabel.setToolTipText(txt("app.execution.tooltip.TimeoutMustBeInteger"));
+            Tooltips.setToolTipText(hintLabel, txt("app.execution.tooltip.TimeoutMustBeInteger"));
             hasErrors = true;
             handleChange(true);
         }

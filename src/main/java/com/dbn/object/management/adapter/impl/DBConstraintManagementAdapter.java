@@ -16,18 +16,18 @@
 
 package com.dbn.object.management.adapter.impl;
 
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import com.dbn.object.DBConstraint;
 import com.dbn.object.management.ObjectManagementAdapterBase;
 import com.dbn.object.management.ObjectManagementAdapterExtension;
+import com.dbn.object.management.ObjectManagementRequest;
 import com.dbn.object.type.DBObjectType;
 
 import java.sql.SQLException;
 
 import static com.dbn.common.constant.Constant.array;
+import static com.dbn.object.management.ObjectManagementRequest.NEW_NAME;
 import static com.dbn.object.type.DBObjectType.CONSTRAINT;
 
 /**
@@ -42,43 +42,62 @@ public class DBConstraintManagementAdapter extends ObjectManagementAdapterBase<D
     }
 
     @Override
-    protected void createObject(ConnectionHandler connection, DBNConnection conn, DBConstraint object) throws SQLException {
+    protected void renameObject(ObjectManagementRequest<DBConstraint> request) throws SQLException {
+        DBConstraint object = request.object();
+
+        DatabaseDataDefinitionInterface databaseInterface = request.getDataDefinitionInterface();
+        databaseInterface.renameConstraint(
+                object.getSchemaName(),
+                object.getDataset().getName(),
+                object.getName(),
+                request.requireAttribute(NEW_NAME),
+                request.conn());
+    }
+
+    @Override
+    protected void createObject(ObjectManagementRequest<DBConstraint> request) throws SQLException {
         throw new UnsupportedOperationException(); // TODO
     }
 
     @Override
-    protected void updateObject(ConnectionHandler connection, DBNConnection conn, DBConstraint object) throws SQLException {
+    protected void updateObject(ObjectManagementRequest<DBConstraint> request) throws SQLException {
         throw new UnsupportedOperationException(); // TODO
     }
 
     @Override
-    protected void deleteObject(ConnectionHandler connection, DBNConnection conn, DBConstraint object) throws SQLException {
-        DatabaseDataDefinitionInterface databaseInterface = connection.getDataDefinitionInterface();
+    protected void deleteObject(ObjectManagementRequest<DBConstraint> request) throws SQLException {
+        DBConstraint object = request.object();
+
+        DatabaseDataDefinitionInterface databaseInterface = request.getDataDefinitionInterface();
         databaseInterface.dropConstraint(
                 object.getSchemaName(true),
                 object.getDataset().getName(true),
                 object.getName(true),
                 object.getConstraintType(),
-                conn);
+                request.conn());
     }
 
     @Override
-    protected void enableObject(ConnectionHandler connection, DBNConnection conn, DBConstraint object) throws SQLException {
-        DatabaseMetadataInterface databaseInterface = connection.getMetadataInterface();;
+    protected void enableObject(ObjectManagementRequest<DBConstraint> request) throws SQLException {
+        DBConstraint object = request.object();
+
+        DatabaseMetadataInterface databaseInterface = request.getMetadataInterface();
         databaseInterface.enableConstraint(
                 object.getSchemaName(true),
                 object.getDataset().getName(true),
                 object.getName(true),
-                conn);
+                request.conn());
     }
 
     @Override
-    protected void disableObject(ConnectionHandler connection, DBNConnection conn, DBConstraint object) throws SQLException {
-        DatabaseMetadataInterface databaseInterface = connection.getMetadataInterface();;
+    protected void disableObject(ObjectManagementRequest<DBConstraint> request) throws SQLException {
+        DBConstraint object = request.object();
+
+        DatabaseMetadataInterface databaseInterface = request.getMetadataInterface();
         databaseInterface.disableConstraint(
                 object.getSchemaName(true),
                 object.getDataset().getName(true),
                 object.getName(true),
-                conn);
+                request.conn());
     }
 }

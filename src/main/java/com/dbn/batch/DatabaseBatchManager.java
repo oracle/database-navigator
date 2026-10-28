@@ -22,30 +22,22 @@ import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.message.ui.MessageBundleDialog;
 import com.dbn.common.message.ui.MessageBundleDialogConfig;
-import com.dbn.common.state.StateAttributes;
-import com.dbn.common.state.StateCategory;
-import com.dbn.common.state.StateContainer;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
-import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.batch.DatabaseBatchManager.COMPONENT_NAME;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.message.MessageType.ERROR;
 import static com.dbn.common.message.MessageType.WARNING;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.nls.NlsResources.txt;
 
 @State(name = COMPONENT_NAME, storages = @Storage(DatabaseNavigator.STORAGE_FILE))
 public class DatabaseBatchManager extends ProjectComponentBase implements PersistentState {
 	public static final String COMPONENT_NAME = "DBNavigator.Project.DatabaseBatchManager";
-
-	private final StateContainer states = new StateContainer();
 
 	private DatabaseBatchManager(Project project) {
 		super(project, COMPONENT_NAME);
@@ -54,13 +46,6 @@ public class DatabaseBatchManager extends ProjectComponentBase implements Persis
 	public static DatabaseBatchManager getInstance(@NotNull Project project) {
 		return projectService(project, DatabaseBatchManager.class);
 	}
-
-	@NotNull
-	public StateAttributes getState(String category) {
-        StateCategory stateCategory = StateCategory.get(category);
-        return states.ensureAttributes(stateCategory);
-	}
-
 
 	public void startBatchProcess(Batch<?, ?> batch) {
 		Progress.prompt(getProject(), batch.getConnection(), true,
@@ -92,20 +77,4 @@ public class DatabaseBatchManager extends ProjectComponentBase implements Persis
 
 		return new MessageBundleDialog(config, batch.getMessages());
 	}
-
-	/****************************************
-	 *       PersistentStateComponent       *
-	 *****************************************/
-    @Nullable
-    @Override
-    public Element getComponentState() {
-        Element element = newStateElement();
-        states.writeState(element, "batch-states");
-        return element;
-    }
-
-    @Override
-    public void loadComponentState(@NotNull Element element) {
-        states.readState(element, "batch-states");
-    }
 }

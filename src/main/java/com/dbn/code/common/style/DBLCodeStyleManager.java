@@ -38,9 +38,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -124,19 +122,5 @@ public class DBLCodeStyleManager extends ProjectComponentBase implements Persist
             }
             child = child.getNextSibling();
         }
-    }
-
-    /*********************************************
-     *            PersistentStateComponent       *
-     *********************************************/
-    @Nullable
-    @Override
-    public Element getComponentState() {
-        return null;
-    }
-
-    @Override
-    public void loadComponentState(@NotNull Element element) {
-
     }
 }

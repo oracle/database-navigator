@@ -71,6 +71,13 @@ public class AssistantMcpServerApprovalAdapter implements UserApprovalAdapter<As
     }
 
     @Override
+    public String getApprovalSignature(AssistantMcpServer mcpServer) {
+        if (mcpServer.getType() != AssistantMcpServerType.STDIO) return null;
+
+        return AssistantMcpCommandSignature.capture(mcpServer.getCommandTokens()).signature();
+    }
+
+    @Override
     public UserApprovalOption[] getApprovalOptions(AssistantMcpServer approvable) {
         return APPROVAL_OPTIONS;
     }

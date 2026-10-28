@@ -42,12 +42,10 @@ import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import lombok.Getter;
 import lombok.Setter;
-import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.component.Components.projectService;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 
 @State(
     name = JsonDataSchemaManager.COMPONENT_NAME,
@@ -118,19 +116,4 @@ public class JsonDataSchemaManager extends ProjectComponentBase implements Persi
             }
         };
     }
-
-    /****************************************
-     *       PersistentStateComponent       *
-     *****************************************/
-    @Nullable
-    @Override
-    public Element getComponentState() {
-        Element element = newStateElement();
-        return element;
-    }
-
-    @Override
-    public void loadComponentState(@NotNull Element element) {
-    }
-
 }

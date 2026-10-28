@@ -45,6 +45,29 @@ public class PackageChecksumDataTest {
     }
 
     @Test
+    public void clearChecksumsRemovesManifestAndInMemoryRecords() throws Exception {
+        File checksumFile = temporaryFolder.newFile("test-package.txt");
+        PackageChecksumData checksumData = new PackageChecksumData("test-package", checksumFile);
+        checksumData.addChecksum("driver-1.0", SHA_256, "checksum");
+        checksumData.writeChecksums();
+
+        Assert.assertTrue(checksumData.clearChecksums());
+        Assert.assertFalse(checksumFile.exists());
+        Assert.assertTrue(checksumData.getChecksums().isEmpty());
+    }
+
+    @Test
+    public void clearChecksumsRetainsInMemoryRecordsWhenManifestCannotBeRemoved() throws Exception {
+        File checksumPath = temporaryFolder.newFolder("checksums.txt");
+        PackageChecksumData checksumData = new PackageChecksumData("test-package", checksumPath);
+        checksumData.addChecksum("driver-1.0", SHA_256, "checksum");
+
+        Assert.assertFalse(checksumData.clearChecksums());
+        Assert.assertTrue(checksumPath.isDirectory());
+        Assert.assertTrue(checksumData.getChecksums().containsKey("driver-1.0"));
+    }
+
+    @Test
     public void verifyChecksumsAcceptsSha1RepositoryChecksum() throws Exception {
         File packageDir = temporaryFolder.newFolder("package");
         File artifact = new File(packageDir, "driver-1.0.jar");

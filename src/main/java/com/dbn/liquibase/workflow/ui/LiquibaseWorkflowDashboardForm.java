@@ -20,7 +20,6 @@ import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.connection.ConnectionHandler;
@@ -44,6 +43,7 @@ import java.util.List;
 
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
 import static com.dbn.common.ui.form.DBNFormState.initPersistence;
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.setFormFieldEnabled;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
@@ -84,7 +84,7 @@ public class LiquibaseWorkflowDashboardForm extends DBNFormBase {
     }
 
     private void initHintPanel() {
-        hintPanel.add(new DBNHintForm(this, TextContent.plain(txt("app.liquibase.hint.Workflows")), null).getComponent(), BorderLayout.CENTER);
+        installHintForm(this, TextContent.plain(txt("app.liquibase.hint.Workflows")), hintPanel);
     }
 
     private void initHyperlinkPanel() {
@@ -100,7 +100,7 @@ public class LiquibaseWorkflowDashboardForm extends DBNFormBase {
         DBSchema initialSchema = dialog.getInitialSchema();
         ConnectionManager connectionManager = ConnectionManager.getInstance(ensureProject());
         DatabaseLiquibaseManager liquibaseManager = DatabaseLiquibaseManager.getInstance(ensureProject());
-        StateAttributes state = liquibaseManager.getState(STATE_CATEGORY);
+        StateAttributes state = liquibaseManager.getUserInterfaceState(STATE_CATEGORY);
 
         if (initialSchema != null) {
             state.setAttribute(ATTR_CONNECTION, initialSchema.getConnection().getName());
@@ -112,10 +112,7 @@ public class LiquibaseWorkflowDashboardForm extends DBNFormBase {
 
         schemaSelector.initialize(this, SCHEMA);
         schemaSelector.withConnectionContext(this::getSelectedConnection);
-        schemaSelector.withValueLoader(() -> {
-            ConnectionHandler connection = getSelectedConnection();
-            return connection == null ? emptyList() : filter(connection.getObjectBundle().getSchemas(), s -> !s.isSystemSchema());
-        });
+        schemaSelector.withValueLoader(() -> loadSchemas());
         initPersistence(schemaSelector, state, ATTR_SCHEMA);
         schemaSelector.triggerLoad();
         setFormFieldEnabled(schemaSelector, "CONTEXT_AVAILABILITY", getSelectedConnection() != null);
@@ -126,6 +123,11 @@ public class LiquibaseWorkflowDashboardForm extends DBNFormBase {
             updateWorkflowAvailability();
         });
         onSelectionChange(schemaSelector, schema -> updateWorkflowAvailability());
+    }
+
+    private List<DBSchema> loadSchemas() {
+        ConnectionHandler connection = getSelectedConnection();
+        return connection == null ? emptyList() : connection.getObjectBundle().getUserSchemas();
     }
 
     private void initWorkflowsPanel() {

@@ -29,18 +29,16 @@ import java.awt.BorderLayout;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import static com.dbn.common.message.MessageType.SUCCESS;
 import static com.dbn.common.thread.Dispatch.asyncOnce;
 import static com.dbn.common.ui.link.Hyperlinks.onHyperlinkAccess;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
-import static com.dbn.common.message.MessageType.SUCCESS;
 
 /**
  * An inline asynchronous operation control with an action link, progress
  * indicator, and result banner.
  */
 public class DBNAsyncOperationPanel extends JPanel {
-    private final Object operationKey = new Object();
-
     private JPanel mainPanel;
     private DBNHyperlinkLabel operationLink;
     private JPanel progressPanel;
@@ -80,7 +78,6 @@ public class DBNAsyncOperationPanel extends JPanel {
         long operationVersion = invalidationVersion;
         boolean scheduled = asyncOnce(
                 mainPanel,
-                operationKey,
                 () -> executeOperation(operation),
                 result -> handleResult(operationVersion, result, resultConsumer));
 

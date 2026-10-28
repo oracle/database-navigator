@@ -44,7 +44,6 @@ import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.fileTypes.UnknownFileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.PathUtil;
-import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -213,20 +212,6 @@ public class DDLFileManager extends ProjectComponentBase implements PersistentSt
 
         DDLFileType ddlFileType = getDDLFileType(objectType, contentType);
         return ddlFileType == null ? null : ddlFileType.getLanguageFileType();
-    }
-
-
-    /*********************************************
-     *            PersistentStateComponent       *
-     *********************************************/
-    @Nullable
-    @Override
-    public Element getComponentState() {
-        return null;
-    }
-
-    @Override
-    public void loadComponentState(@NotNull Element element) {
     }
 
     @Override

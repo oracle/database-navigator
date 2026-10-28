@@ -10,11 +10,10 @@
 
 package com.dbn.object.management.adapter.impl;
 
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.object.DBEventTrigger;
 import com.dbn.object.management.ObjectManagementAdapterBase;
+import com.dbn.object.management.ObjectManagementRequest;
 import com.dbn.object.type.DBObjectType;
 
 import java.sql.SQLException;
@@ -28,8 +27,10 @@ public class DBEventTriggerManagementAdapter extends ObjectManagementAdapterBase
     }
 
     @Override
-    protected void deleteObject(ConnectionHandler connection, DBNConnection conn, DBEventTrigger object) throws SQLException {
-        DatabaseDataDefinitionInterface dataDefinition = connection.getDataDefinitionInterface();
-        dataDefinition.dropEventTrigger(object.getName(true), conn);
+    protected void deleteObject(ObjectManagementRequest<DBEventTrigger> request) throws SQLException {
+        DBEventTrigger object = request.object();
+
+        DatabaseDataDefinitionInterface databaseInterface = request.getDataDefinitionInterface();
+        databaseInterface.dropEventTrigger(object.getName(true), request.conn());
     }
 }

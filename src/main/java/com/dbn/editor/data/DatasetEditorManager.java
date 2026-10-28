@@ -54,7 +54,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.awt.Component;
 import java.awt.event.InputEvent;
@@ -63,7 +62,6 @@ import java.sql.SQLException;
 import java.util.List;
 
 import static com.dbn.common.component.Components.projectService;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.ui.util.Popups.popupBuilder;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -151,7 +149,7 @@ public class DatasetEditorManager extends ProjectComponentBase implements Persis
         DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(project);
         editorManager.connectAndOpenEditor(dataset, EditorProviderId.DATA, false, true);
     }
-    
+
     public void openRecordViewer(DatasetFilterInput filterInput) {
         try {
             DatasetRecord record = new DatasetRecord(filterInput);
@@ -183,7 +181,7 @@ public class DatasetEditorManager extends ProjectComponentBase implements Persis
 
             if (inputEvent instanceof MouseEvent mouseEvent) {
                 popup.showInScreenCoordinates(component, mouseEvent.getLocationOnScreen());
-                        
+
             } else {
                 popup.show(component);
             }
@@ -192,18 +190,17 @@ public class DatasetEditorManager extends ProjectComponentBase implements Persis
     /****************************************
      *       PersistentStateComponent       *
      *****************************************/
-    @Nullable
     @Override
-    public Element getComponentState() {
-        Element element = newStateElement();
+    public void writeState(Element element) {
+        super.writeState(element);
         Settings.setEnum(element, "record-view-column-sorting-type", recordViewColumnSortingType);
         Settings.setBoolean(element, "value-preview-text-wrapping", valuePreviewTextWrapping);
         Settings.setBoolean(element, "value-preview-pinned", valuePreviewPinned);
-        return element;
     }
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
+    public void readState(@NotNull Element element) {
+        super.readState(element);
         recordViewColumnSortingType = Settings.getEnum(element, "record-view-column-sorting-type", recordViewColumnSortingType);
         valuePreviewTextWrapping = Settings.getBoolean(element, "value-preview-text-wrapping", valuePreviewTextWrapping);
         valuePreviewTextWrapping = Settings.getBoolean(element, "value-preview-pinned", valuePreviewPinned);

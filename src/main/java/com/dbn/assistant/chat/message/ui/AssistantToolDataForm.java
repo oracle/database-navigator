@@ -50,8 +50,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.util.Objects;
 
-import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.createPreview;
-import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.isPreviewOversized;
+import static com.dbn.assistant.AssistantResourceLimits.createPreview;
+import static com.dbn.assistant.AssistantResourceLimits.isPreviewOversized;
 import static com.dbn.common.color.Colors.getContextHelpForeground;
 import static com.dbn.common.util.Editors.restrictEditorHeight;
 import static com.dbn.language.common.psi.PsiUtil.getFileManager;

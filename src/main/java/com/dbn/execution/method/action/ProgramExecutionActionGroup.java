@@ -21,25 +21,21 @@ import com.dbn.editor.DBContentType;
 import com.dbn.object.DBMethod;
 import com.dbn.object.DBProgram;
 import com.dbn.object.common.DBSchemaObject;
-import com.dbn.options.general.WorkspaceFeature;
-import com.intellij.openapi.project.Project;
 
 import static com.dbn.nls.NlsResources.txt;
-import static com.dbn.options.general.WorkspaceFeature.*;
 
 public class ProgramExecutionActionGroup extends DefaultActionGroup {
 
     public ProgramExecutionActionGroup(DBSchemaObject object) {
         super(txt("app.execution.action.ExecutePlain"), true);
-        Project project = object.getProject();
         if (object.getContentType() == DBContentType.CODE_SPEC_AND_BODY) {
             add(new ProgramMethodExecuteAction((DBProgram) object));
-            if (DEBUGGER.isEnabled(project)) {
+            if (ProgramMethodDebugAction.isSupported(object)) {
                 add(new ProgramMethodDebugAction((DBProgram) object));
             }
         } else {
             add(new MethodExecuteAction((DBMethod) object, false));
-            if (DEBUGGER.isEnabled(project)) {
+            if (MethodDebugAction.isSupported(object)) {
                 add(new MethodDebugAction((DBMethod) object, false));
             }
         }

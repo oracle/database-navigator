@@ -201,7 +201,7 @@ public class ProjectSettingsForm extends CompositeConfigurationEditorForm<Projec
         int configIndex = configListModel.indexOf(configuration);
         if (configIndex == -1) return;
 
-        whenFirstShown(() -> configList.setSelectedIndex(configIndex));
+        whenInitialized(() -> configList.setSelectedIndex(configIndex));
     }
 
 

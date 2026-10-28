@@ -22,7 +22,6 @@ import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.info.DBNInfoLabel;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.database.DatabaseIdentifierCase;
-import com.dbn.object.factory.ObjectFactoryManager;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.type.DBCredentialType;
 import com.dbn.oci.config.OciConfig;
@@ -122,10 +121,7 @@ public class DBCredentialFactoryInputForm extends DBSchemaObjectFactoryInputForm
     }
 
     protected void initStatePersistence() {
-        Project project = ensureProject();
-        ObjectFactoryManager factoryManager = ObjectFactoryManager.getInstance(project);
-
-        StateAttributes state = factoryManager.getState(getObjectType());
+        StateAttributes state = getUserInterfaceState();
         initPersistence(credentialTypeComboBox, state, "credential-type-selection");
         initPersistence(preserveCaseCheckBox, state, "preserve-identifier-case");
     }

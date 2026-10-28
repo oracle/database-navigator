@@ -30,6 +30,7 @@ import java.sql.SQLException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.dbn.data.value.LargeValueResourceLimits.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
@@ -38,7 +39,7 @@ import static org.junit.Assert.assertTrue;
 public class XmlTypeValueTest {
     @Test
     public void readsXmlTypeThroughBoundedCharacterStream() throws Exception {
-        String content = "x".repeat(LargeObjectValue.MAX_READ_SIZE + 1);
+        String content = "x".repeat(MAX_READ_SIZE + 1);
         XmlTypeValue value = valueWithProxy(xmlType((proxy, method, arguments) -> switch (method.getName()) {
             case "getCharacterStream" -> new StringReader(content);
             case "getClobVal", "getInputStream" -> throw new AssertionError("Unexpected fallback");
@@ -47,7 +48,7 @@ public class XmlTypeValueTest {
 
         String result = value.read();
 
-        assertEquals(LargeObjectValue.MAX_READ_SIZE, result.length());
+        assertEquals(MAX_READ_SIZE, result.length());
         assertTrue(value.isTruncated());
     }
 

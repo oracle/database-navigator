@@ -16,8 +16,10 @@
 
 package com.dbn.common.thread;
 
+import com.dbn.test.util.MockApplicationRule;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import org.junit.Assert;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -29,6 +31,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class TimeoutTest {
+    @ClassRule
+    public static final MockApplicationRule APPLICATION = new MockApplicationRule();
 
     @Test
     public void callReturnsCallableResult() {

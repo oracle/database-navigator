@@ -324,19 +324,18 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 	/****************************************
 	 *       PersistentStateComponent       *
 	 *****************************************/
-	@Nullable
 	@Override
-	public Element getComponentState() {
-		Element element = new Element("state");
+	public void writeState(Element element) {
+        super.writeState(element);
 		Element browserSettingsElement = newElement(element, "method-browser");
 		browserSettings.writeConfiguration(browserSettingsElement);
 
 		executionHistory.writeState(element);
-		return element;
 	}
 
 	@Override
-	public void loadComponentState(@NotNull Element element) {
+	public void readState(@NotNull Element element) {
+        super.readState(element);
 		Element browserSettingsElement = element.getChild("method-browser");
 		if (browserSettingsElement != null) {
 			browserSettings.readConfiguration(browserSettingsElement);

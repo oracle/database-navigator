@@ -25,7 +25,6 @@ import com.dbn.common.text.TextResources;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.connection.ConnectionHandler;
@@ -59,10 +58,12 @@ import java.awt.Color;
 import java.util.List;
 
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Lists.greatest;
 import static com.dbn.common.util.Lists.toCsv;
 import static com.dbn.common.util.Strings.toUpperCase;
+import static com.intellij.openapi.util.text.StringUtil.escapeXmlEntities;
 import static org.apache.commons.lang3.StringUtils.rightPad;
 
 public class ObjectFilterDetailsForm extends DBNFormBase {
@@ -95,18 +96,19 @@ public class ObjectFilterDetailsForm extends DBNFormBase {
         List<ObjectFilterAttribute> attributes = definition.getAttributes();
         int longestAttr = greatest(attributes, a -> a.getName().length());
 
-        String supportedAttributes = toCsv(attributes, "\n    ", s ->
-                "<li>" +
-                rightPad(s.getName(), longestAttr + 1, " ").replaceAll(" ", "&nbsp;") +
-                "- " + s.getDescription() +
-                " (" + s.getTypeName() + ")");
+        String supportedAttributes = toCsv(attributes, "\n    ", s -> {
+            String paddedName = rightPad(s.getName(), longestAttr + 1, " ");
+            String formattedName = escapeXmlEntities(paddedName).replace(" ", "&nbsp;");
+            return "<li>" + formattedName +
+                    "- " + escapeXmlEntities(String.valueOf(s.getDescription())) +
+                    " (" + escapeXmlEntities(String.valueOf(s.getTypeName())) + ")";
+        });
         String sampleExpression = definition.getSampleExpression();
 
         hintText.initField("SUPPORTED_ATTRIBUTES", supportedAttributes);
-        hintText.initField("SAMPLE_EXPRESSION", sampleExpression);
+        hintText.initField("SAMPLE_EXPRESSION", escapeXmlEntities(String.valueOf(sampleExpression)));
 
-        DBNHintForm disclaimerForm = new DBNHintForm(this, hintText, null);
-        hintPanel.add(disclaimerForm.getComponent());
+        installHintForm(this, hintText, hintPanel);
     }
 
     @NonNls

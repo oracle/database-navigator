@@ -59,6 +59,8 @@ import static com.dbn.common.environment.EnvironmentManager.isTransientlyEditabl
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.editor.DBContentType.JSON;
+import static com.dbn.editor.data.DataEditorResourceLimits.normalizeDataEditorFetchBlockSize;
+import static com.dbn.editor.data.DataEditorResourceLimits.normalizeDataEditorReloadRowCount;
 import static com.dbn.editor.data.model.RecordStatus.DELETED;
 import static com.dbn.editor.data.model.RecordStatus.DIRTY;
 import static com.dbn.editor.data.model.RecordStatus.INSERTED;
@@ -161,12 +163,20 @@ public class JsonDataEditorModel
     private int computeRowCount() {
         int originalRowCount = getRowCount();
         int stateRowCount = getState().getRowCount();
-        int fetchRowCount = Math.max(stateRowCount, originalRowCount);
+        long fetchRowCount = Math.max(stateRowCount, originalRowCount);
 
-        int fetchBlockSize = getSettings().getGeneralSettings().getFetchBlockSize().value();
+        int fetchBlockSize = getSettings().getGeneralSettings().getFetchBlockSizeValue();
         fetchRowCount = (fetchRowCount/fetchBlockSize + 1) * fetchBlockSize;
 
-        return Math.max(fetchRowCount, fetchBlockSize);
+        return normalizeDataEditorReloadRowCount(fetchRowCount, originalRowCount);
+    }
+
+    @Override
+    public int fetchNextRecords(int records, boolean reset) throws SQLException {
+        int rowCount = reset ?
+                normalizeDataEditorReloadRowCount(records, getRowCount()) :
+                normalizeDataEditorFetchBlockSize(records);
+        return super.fetchNextRecords(rowCount, reset);
     }
 
     public DataEditorSettings getSettings() {
@@ -193,7 +203,7 @@ public class JsonDataEditorModel
 
         checkDisposed();
 
-        statement.setFetchSize(getSettings().getGeneralSettings().getFetchBlockSize().value());
+        statement.setFetchSize(getSettings().getGeneralSettings().getFetchBlockSizeValue());
         return statement.executeQuery(selectStatement);
     }
 

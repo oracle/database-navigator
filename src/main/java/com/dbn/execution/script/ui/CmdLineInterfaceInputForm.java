@@ -18,7 +18,6 @@ package com.dbn.execution.script.ui;
 
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.DatabaseType;
@@ -29,10 +28,10 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import java.awt.BorderLayout;
 import java.io.File;
 import java.util.Set;
 
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
 import static com.dbn.common.util.Naming.nextNumberedIdentifier;
@@ -65,8 +64,7 @@ public class CmdLineInterfaceInputForm extends DBNFormBase {
     private void initHintPanel() {
         TextContent hintText = TextContent.plain(
                 txt("msg.execution.hint.CommandLineInterfaceInput"));
-        DBNHintForm hintForm = new DBNHintForm(this, hintText, null);
-        hintPanel.add(hintForm.getComponent(), BorderLayout.CENTER);
+        installHintForm(this, hintText, hintPanel);
     }
 
     private void initDatabaseTypeField() {

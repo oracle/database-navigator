@@ -17,12 +17,12 @@
 package com.dbn.object.management.adapter.impl;
 
 import com.dbn.common.util.Unsafe;
-import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.object.DBAIProfile;
 import com.dbn.object.management.ObjectManagementAdapterBase;
 import com.dbn.object.management.ObjectManagementAdapterExtension;
+import com.dbn.object.management.ObjectManagementRequest;
 import com.dbn.object.type.DBObjectType;
 
 import java.sql.SQLException;
@@ -43,8 +43,11 @@ public class DBAIProfileManagementAdapter extends ObjectManagementAdapterBase<DB
     }
 
     @Override
-    protected void createObject(ConnectionHandler connection, DBNConnection conn, DBAIProfile object) throws SQLException {
-        DatabaseAssistantInterface databaseInterface = connection.getAssistantInterface();
+    protected void createObject(ObjectManagementRequest<DBAIProfile> request) throws SQLException {
+        DBAIProfile object = request.object();
+
+        DatabaseAssistantInterface databaseInterface = request.getAssistantInterface();
+        DBNConnection conn = request.conn();
         String profileName = object.getName(true);
         String profileOwner = object.getSchemaName(true);
         String description = object.getDescription();
@@ -62,8 +65,11 @@ public class DBAIProfileManagementAdapter extends ObjectManagementAdapterBase<DB
     }
 
     @Override
-    protected void updateObject(ConnectionHandler connection, DBNConnection conn, DBAIProfile object) throws SQLException {
-        DatabaseAssistantInterface databaseInterface = connection.getAssistantInterface();
+    protected void updateObject(ObjectManagementRequest<DBAIProfile> request) throws SQLException {
+        DBAIProfile object = request.object();
+
+        DatabaseAssistantInterface databaseInterface = request.getAssistantInterface();
+        DBNConnection conn = request.conn();
         String profileName = object.getName(true);
         String profileOwner = object.getSchemaName(true);
 
@@ -78,25 +84,31 @@ public class DBAIProfileManagementAdapter extends ObjectManagementAdapterBase<DB
     }
 
     @Override
-    protected void deleteObject(ConnectionHandler connection, DBNConnection conn, DBAIProfile object) throws SQLException {
-        DatabaseAssistantInterface databaseInterface = connection.getAssistantInterface();
-        databaseInterface.deleteProfile(conn,
+    protected void deleteObject(ObjectManagementRequest<DBAIProfile> request) throws SQLException {
+        DBAIProfile object = request.object();
+
+        DatabaseAssistantInterface databaseInterface = request.getAssistantInterface();
+        databaseInterface.deleteProfile(request.conn(),
                 object.getSchemaName(true),
                 object.getName(true));
     }
 
     @Override
-    protected void enableObject(ConnectionHandler connection, DBNConnection conn, DBAIProfile object) throws SQLException {
-        DatabaseAssistantInterface databaseInterface = connection.getAssistantInterface();
-        databaseInterface.enableProfile(conn,
+    protected void enableObject(ObjectManagementRequest<DBAIProfile> request) throws SQLException {
+        DBAIProfile object = request.object();
+
+        DatabaseAssistantInterface databaseInterface = request.getAssistantInterface();
+        databaseInterface.enableProfile(request.conn(),
                 object.getSchemaName(true),
                 object.getName(true));
     }
 
     @Override
-    protected void disableObject(ConnectionHandler connection, DBNConnection conn, DBAIProfile object) throws SQLException {
-        DatabaseAssistantInterface databaseInterface = connection.getAssistantInterface();
-        databaseInterface.disableProfile(conn,
+    protected void disableObject(ObjectManagementRequest<DBAIProfile> request) throws SQLException {
+        DBAIProfile object = request.object();
+
+        DatabaseAssistantInterface databaseInterface = request.getAssistantInterface();
+        databaseInterface.disableProfile(request.conn(),
                 object.getSchemaName(true),
                 object.getName(true));
     }

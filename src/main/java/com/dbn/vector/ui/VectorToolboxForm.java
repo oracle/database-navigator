@@ -19,7 +19,6 @@ package com.dbn.vector.ui;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.common.ui.panel.DBNCollapsiblePanel;
 import com.dbn.connection.ConnectionId;
@@ -44,6 +43,7 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
 import static com.dbn.common.text.TextContent.html;
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.nls.NlsResources.txt;
 
 public class VectorToolboxForm extends VectorToolboxFormBase {
@@ -211,10 +211,7 @@ public class VectorToolboxForm extends VectorToolboxFormBase {
 
     TextContent hintText = TextContent.plain(
             txt("msg.vector.hint.VectorToolbox"));
-    DBNHintForm hintForm = new DBNHintForm(null, hintText, null);
-
-    JComponent hintComponent = hintForm.getComponent();
-    hintPanel.add(hintComponent);
+            installHintForm(null, hintText, hintPanel);
   }
 
   private void initPoweredByPanel() {

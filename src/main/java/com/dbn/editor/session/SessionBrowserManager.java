@@ -50,9 +50,7 @@ import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.containers.ContainerUtil;
-import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -66,7 +64,6 @@ import static com.dbn.common.Priority.HIGH;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.notification.NotificationCategory.SESSION_BROWSER;
-import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.util.Commons.array;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.common.util.Messages.showInfoDialog;
@@ -332,19 +329,5 @@ public class SessionBrowserManager extends ProjectComponentBase implements Persi
     public void disposeInner() {
         Disposer.dispose(timestampUpdater);
         super.disposeInner();
-    }
-
-
-    /****************************************
-     *       PersistentStateComponent       *
-     *****************************************/
-    @Nullable
-    @Override
-    public Element getComponentState() {
-        return newElement("state");
-    }
-
-    @Override
-    public void loadComponentState(@NotNull Element element) {
     }
 }

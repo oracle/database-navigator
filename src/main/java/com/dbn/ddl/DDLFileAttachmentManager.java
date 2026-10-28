@@ -552,10 +552,9 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
     /*********************************************
      *            PersistentStateComponent       *
      *********************************************/
-    @Nullable
     @Override
-    public Element getComponentState() {
-        Element element = newElement("state");
+    public void writeState(Element element) {
+        super.writeState(element);
 
         Element mappingsElement = newElement(element, "mappings");
         Map<String, DBObjectRef<DBObject>> mappings = this.mappings.mappings();
@@ -575,12 +574,11 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
             setEnumAttribute(mappingElement, "object-type", objectType);
             setStringAttribute(mappingElement, "file-name-pattern", fileNamePattern);
         }
-
-        return element;
     }
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
+    public void readState(@NotNull Element element) {
+        super.readState(element);
         Element mappingsElement = element.getChild("mappings");
         List<Element> mappingElements = mappingsElement == null ? // TODO backward compatibility
                 element.getChildren("mapping") :

@@ -27,6 +27,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.ui.ToolbarDecorator;
+import com.intellij.ui.components.JBList;
 import com.intellij.ui.scale.JBUIScale;
 import com.intellij.util.ui.UIUtil;
 import lombok.Getter;
@@ -69,7 +70,7 @@ import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter
-public class CheckBoxList<T extends Selectable> extends JList<CheckBoxList.Entry<T>> {
+public class CheckBoxList<T extends Selectable> extends JBList<CheckBoxList.Entry<T>> {
     private boolean mutable;
     private Listeners<ActionListener> actionListeners = Listeners.create();
 
@@ -129,6 +130,8 @@ public class CheckBoxList<T extends Selectable> extends JList<CheckBoxList.Entry
             model.addElement(entry);
         }
         setModel(model);
+        entryStream().forEach(entry ->
+                actionListeners.notify(listener -> entry.getCheckBox().addActionListener(listener)));
     }
 
     private MouseListener createMouseListener() {

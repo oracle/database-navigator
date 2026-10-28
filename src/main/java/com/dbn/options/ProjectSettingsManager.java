@@ -179,29 +179,6 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
         Dialogs.show(() -> new ProjectSettingsDialog(getProject(), importData, connectionData), callback);
     }
 
-    /****************************************
-     *       PersistentStateComponent       *
-     *****************************************/
-    @Nullable
-    @Override
-    public Element getComponentState() {
-        Element element = newStateElement();
-        states.writeState(element, "states");
-        projectSettings.writeConfiguration(element);
-        return element;
-    }
-
-    @Override
-    public synchronized void loadComponentState(@NotNull Element element) {
-        if (areSettingsLoaded()) return;
-        ConfigMonitor.surround(INITIALIZING, () -> {
-            states.readState(element, "states");
-            projectSettings.readConfiguration(element);
-            markSettingsLoaded();
-            credentialMigrator.promptCredentialRestore();
-        });
-    }
-
     private boolean areSettingsLoaded() {
         Project project = getProject();
         return isUserData(project, PROJECT_SETTINGS_LOADED);
@@ -271,5 +248,25 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
                 }));
     }
 
+    /****************************************
+     *       PersistentStateComponent       *
+     *****************************************/
+    @Override
+    public void writeState(Element element) {
+        super.writeState(element);
+        states.writeState(element, "states");
+        projectSettings.writeConfiguration(element);
+    }
 
+    @Override
+    public synchronized void readState(@NotNull Element element) {
+        super.readState(element);
+        if (areSettingsLoaded()) return;
+        ConfigMonitor.surround(INITIALIZING, () -> {
+            states.readState(element, "states");
+            projectSettings.readConfiguration(element);
+            markSettingsLoaded();
+            credentialMigrator.promptCredentialRestore();
+        });
+    }
 }

@@ -177,4 +177,8 @@ public abstract class DatabaseInterfaceBase implements DatabaseInterface{
         QuoteDefinition identifierQuotes = getInterfaces().getCompatibilityInterface().getIdentifierQuotes();
         return identifierQuotes.unquote(identifier, DATABASE);
     }
+
+    protected String quoted(String identifier, DBNConnection conn) {
+        return getIdentifierEnquoter(conn).quote(identifier, DATABASE);
+    }
 }
