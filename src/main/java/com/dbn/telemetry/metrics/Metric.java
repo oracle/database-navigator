@@ -16,6 +16,10 @@
 
 package com.dbn.telemetry.metrics;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -23,8 +27,15 @@ import java.util.Map;
 /**
  * Immutable aggregate for one metric stream. Implementations define their own merge rules.
  */
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = CounterMetric.class, name = "sum"),
+        @JsonSubTypes.Type(value = HistogramMetric.class, name = "histogram")
+})
+@JsonIgnoreProperties(value = {"temporality", "monotonic"}, allowGetters = true)
 public interface Metric {
-    @NotNull MetricKey key();
+    @JsonIgnore
+    @NotNull MetricKey getKey();
 
     /**
      * Returns a new aggregate containing this metric and {@code other}.
@@ -37,23 +48,23 @@ public interface Metric {
     @NotNull Metric copy();
 
     default @NotNull String getName() {
-        return key().name();
+        return getKey().name();
     }
 
     default @NotNull String getType() {
-        return key().type().getOpenTelemetryName();
+        return getKey().type().getOpenTelemetryName();
     }
 
     default @NotNull String getUnit() {
-        return key().unit();
+        return getKey().unit();
     }
 
     default @NotNull Map<String, String> getAttributes() {
-        return key().attributes();
+        return getKey().attributes();
     }
 
     /**
-     * DBN reports non-overlapping daily aggregates, so supported metric points use delta
+     * DBN reports non-overlapping session aggregates, so supported metric points use delta
      * temporality. The report envelope supplies the start and end timestamps.
      */
     default @NotNull String getTemporality() {

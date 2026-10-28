@@ -19,6 +19,7 @@ package com.dbn.diagnostics.action;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.action.AbstractConnectionAction;
 import com.dbn.diagnostics.Diagnostics;
+import com.dbn.telemetry.TelemetryManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.extensions.PluginId;
@@ -38,18 +39,7 @@ public class MiscellaneousConnectionAction extends AbstractConnectionAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull ConnectionHandler connection) {
-        PluginsAdvertiser.installAndEnable(
-                project,
-                Set.of(PluginId.getId("com.intellij.mcpServer")),
-                true,
-                new Runnable() {
-                    @Override
-                    public void run() {
-
-                    }
-                }
-        );
-
+        TelemetryManager.getInstance().flushAndReport();
     }
 
     @Override

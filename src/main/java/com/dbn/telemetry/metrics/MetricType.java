@@ -16,9 +16,12 @@
 
 package com.dbn.telemetry.metrics;
 
+import lombok.Getter;
+
 /**
- * OpenTelemetry metric point kinds supported by the DBN daily aggregate model.
+ * OpenTelemetry metric point kinds supported by the DBN session aggregate model.
  */
+@Getter
 public enum MetricType {
     SUM("sum"),
     HISTOGRAM("histogram");
@@ -29,7 +32,4 @@ public enum MetricType {
         this.openTelemetryName = openTelemetryName;
     }
 
-    public String getOpenTelemetryName() {
-        return openTelemetryName;
-    }
 }

@@ -34,7 +34,6 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.diagnostics.Diagnostics;
 import com.dbn.help.HelpTopic;
-import com.dbn.telemetry.DialogTelemetryListener;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.options.ConfigurationException;
@@ -95,7 +94,7 @@ import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
-import static com.dbn.telemetry.DialogTelemetryListener.installTelemetryListener;
+import static com.dbn.telemetry.listener.DialogTelemetryListener.installTelemetryListener;
 
 @Getter
 @Setter

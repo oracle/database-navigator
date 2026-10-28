@@ -1033,7 +1033,7 @@
     </projectListeners>
     <applicationListeners>
         <listener class="com.dbn.assistant.mcp.ide.IdeMcpServerPluginListener" topic="com.intellij.ide.plugins.DynamicPluginListener"/>
-        <listener class="com.dbn.telemetry.ActionTelemetryListener" topic="com.intellij.openapi.actionSystem.ex.AnActionListener"/>
+        <listener class="com.dbn.telemetry.listener.ActionTelemetryListener" topic="com.intellij.openapi.actionSystem.ex.AnActionListener"/>
     </applicationListeners>
     <extensions defaultExtensionNs="com.intellij">
         <webHelpProvider implementation="com.dbn.help.PluginHelpProvider"/>

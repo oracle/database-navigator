@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.dbn.telemetry;
+package com.dbn.telemetry.listener;
 
 import com.dbn.diagnostics.Diagnostics;
+import com.dbn.telemetry.TelemetryManager;
 import com.dbn.telemetry.metrics.HistogramMetric;
 import com.dbn.telemetry.metrics.MetricKey;
 import com.dbn.telemetry.metrics.MetricType;
@@ -88,8 +89,10 @@ public final class ActionTelemetryListener implements AnActionListener {
                     MetricType.HISTOGRAM,
                     DURATION_UNIT,
                     Map.of("action_id", start.actionId()));
-            TelemetryManager.getInstance().recordMetric(
-                    HistogramMetric.observation(key, DURATION_BUCKETS_SECONDS, elapsedSeconds));
+            HistogramMetric metric = HistogramMetric.observation(key, DURATION_BUCKETS_SECONDS, elapsedSeconds);
+
+            TelemetryManager telemetryManager = TelemetryManager.getInstance();
+            telemetryManager.recordMetric(metric);
         } catch (RuntimeException exception) {
             // Telemetry collection must not interfere with IDE action execution.
             Diagnostics.conditionallyLog(exception);

@@ -16,11 +16,17 @@
 
 package com.dbn.telemetry.metrics;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Map;
 
 /**
  * A monotonic OpenTelemetry Sum, commonly used for invocation and error counts.
  */
+@Getter
 public final class CounterMetric implements Metric {
     private final MetricKey key;
     private final long sum;
@@ -34,6 +40,15 @@ public final class CounterMetric implements Metric {
         this.sum = sum;
     }
 
+    @JsonCreator
+    public static CounterMetric fromJson(
+            @JsonProperty("name") String name,
+            @JsonProperty("unit") String unit,
+            @JsonProperty("attributes") Map<String, String> attributes,
+            @JsonProperty("sum") long sum) {
+        return new CounterMetric(new MetricKey(name, MetricType.SUM, unit, attributes), sum);
+    }
+
     public static @NotNull CounterMetric increment(@NotNull MetricKey key) {
         return increment(key, 1);
     }
@@ -41,15 +56,6 @@ public final class CounterMetric implements Metric {
     public static @NotNull CounterMetric increment(@NotNull MetricKey key, long delta) {
         if (delta < 0) throw new IllegalArgumentException("Counter increment must not be negative");
         return new CounterMetric(key, delta);
-    }
-
-    @Override
-    public @NotNull MetricKey key() {
-        return key;
-    }
-
-    public long getSum() {
-        return sum;
     }
 
     public boolean isMonotonic() {

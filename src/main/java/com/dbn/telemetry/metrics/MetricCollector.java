@@ -36,11 +36,11 @@ public final class MetricCollector {
     public void record(@NotNull Metric metric) {
         lock.readLock().lock();
         try {
-            MetricKey key = metric.key();
+            MetricKey key = metric.getKey();
             metrics.compute(key, (ignored, current) -> {
                 if (current == null) return metric.copy();
                 Metric merged = current.merge(metric);
-                if (!key.equals(merged.key())) {
+                if (!key.equals(merged.getKey())) {
                     throw new IllegalStateException("Merged metric changed its identity");
                 }
                 return merged;
@@ -94,10 +94,10 @@ public final class MetricCollector {
         List<Metric> snapshot = new ArrayList<>(metrics.size());
         metrics.values().forEach(metric -> snapshot.add(metric.copy()));
         snapshot.sort(Comparator
-                .comparing((Metric metric) -> metric.key().name())
-                .thenComparing(metric -> metric.key().type())
-                .thenComparing(metric -> metric.key().unit())
-                .thenComparing(metric -> metric.key().attributes().toString()));
+                .comparing((Metric metric) -> metric.getKey().name())
+                .thenComparing(metric -> metric.getKey().type())
+                .thenComparing(metric -> metric.getKey().unit())
+                .thenComparing(metric -> metric.getKey().attributes().toString()));
         return List.copyOf(snapshot);
     }
 }

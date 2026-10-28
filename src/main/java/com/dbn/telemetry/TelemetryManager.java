@@ -18,11 +18,21 @@ package com.dbn.telemetry;
 
 import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.ApplicationComponentBase;
+import com.dbn.common.component.PersistentState;
+import com.dbn.common.dispose.Checks;
+import com.dbn.common.project.Projects;
+import com.dbn.common.thread.Progress;
+import com.dbn.telemetry.data.TelemetryBatchCache;
+import com.dbn.telemetry.data.TelemetryReport;
 import com.dbn.telemetry.metrics.Metric;
-import com.dbn.telemetry.metrics.MetricCollector;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.openapi.application.ApplicationInfo;
+import com.intellij.openapi.components.RoamingType;
+import com.intellij.openapi.components.State;
+import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.project.Project;
 import com.intellij.util.io.HttpRequests;
+import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,14 +46,18 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.dbn.common.component.Components.applicationService;
+import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 /**
- * Submits a single batch of DBN telemetry metrics to the telemetry API Gateway.
- * Calls are synchronous; callers should invoke this method on a background thread.
+ * Persists interaction-driven telemetry batches and submits closed windows in the background.
  */
-public class TelemetryManager extends ApplicationComponentBase {
+@State(name = TelemetryManager.COMPONENT_NAME,
+        storages = @Storage(value = "dbn-telemetry.xml", roamingType = RoamingType.DISABLED))
+public class TelemetryManager extends ApplicationComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Application.TelemetryManager";
 
     @NonNls private static final String ENDPOINT = "https://dwz5kzmzlwcwcxq7clhtrcxwkm.apigateway.eu-zurich-1.oci.customer-oci.com/telemetry/v1/batches";
@@ -53,9 +67,10 @@ public class TelemetryManager extends ApplicationComponentBase {
     private static final int MAX_ERROR_RESPONSE_BYTES = 4096;
     private static final String METRICS_VERSION = "1";
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().findAndRegisterModules();
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    private final MetricCollector metricCollector = new MetricCollector();
+    private final TelemetryBatchCache telemetryCache = new TelemetryBatchCache();
+    private final AtomicBoolean sending = new AtomicBoolean();
 
     private TelemetryManager() {
         super(COMPONENT_NAME);
@@ -65,42 +80,75 @@ public class TelemetryManager extends ApplicationComponentBase {
         return applicationService(TelemetryManager.class);
     }
 
-    /**
-     * Records one metric observation in the in-memory aggregate collector.
-     */
+    /** Rotates the complete collection window before merging the current observation. */
     public void recordMetric(@NotNull Metric metric) {
-        metricCollector.record(metric);
+        long now = System.currentTimeMillis();
+        telemetryCache.record(metric, now, () -> createReport(now));
+        sendPendingBatches();
     }
 
-    /**
-     * Returns a consistent snapshot of metrics collected so far without resetting them.
-     */
     public @NotNull List<Metric> getCollectedMetricsSnapshot() {
-        return metricCollector.snapshot();
+        return telemetryCache.snapshot();
     }
 
-    /**
-     * Atomically returns and clears the current metric aggregates. A sender should retain this
-     * snapshot and restore it to the collector if submission fails.
-     */
-    public @NotNull List<Metric> drainCollectedMetrics() {
-        return metricCollector.drain();
+    /** Explicitly closes the current window and submits pending reports regardless of age. */
+    public void flushAndReport() {
+        telemetryCache.closeActiveBatch(System.currentTimeMillis());
+        sendPendingBatches();
     }
 
-    /**
-     * Sends the supplied metric objects in one batch. The objects are serialized as the
-     * {@code items} array inside the JSON {@code metrics} object.
-     *
-     * @return the HTTP success status returned by the gateway, normally 202
-     * @throws IOException if serialization, the network request, or the gateway response fails
-     */
-    public int submitMetrics(@NotNull List<?> metrics) throws IOException {
-        if (metrics.isEmpty()) {
-            throw new IllegalArgumentException("At least one telemetry metric is required");
+    private void sendPendingBatches() {
+        if (!telemetryCache.hasPendingReports()) return;
+        if (sending.get()) return;
+
+        boolean acquired = false;
+        try {
+            Project project = Projects.getDefaultProject();
+            if (Checks.isNotValid(project)) return;
+            if (!sending.compareAndSet(false, true)) return;
+
+            acquired = true;
+            Progress.background(project, null, false,
+                    txt("prc.telemetry.title.SendingTelemetry"),
+                    txt("prc.telemetry.text.SendingTelemetry"), indicator -> {
+                boolean completed = false;
+                try {
+                    for (TelemetryReport report : telemetryCache.pendingReports()) {
+                        submitReport(report);
+                        telemetryCache.acknowledge(report.batchId());
+                    }
+                    completed = true;
+                } catch (Throwable e) {
+                    conditionallyLog(e);
+                } finally {
+                    sending.set(false);
+                    if (completed && telemetryCache.hasPendingReports()) sendPendingBatches();
+                }
+            });
+        } catch (Throwable e) {
+            if (acquired) sending.set(false);
+            conditionallyLog(e);
         }
+    }
 
-        List<?> metricSnapshot = List.copyOf(metrics);
-        Map<String, Object> report = createReport(metricSnapshot);
+    @Override
+    public Element getComponentState() {
+        Element state = new Element("state");
+        telemetryCache.writeState(state);
+        return state;
+    }
+
+    @Override
+    public void loadComponentState(@NotNull Element state) {
+        try {
+            telemetryCache.readState(state);
+        } catch (RuntimeException exception) {
+            conditionallyLog(exception);
+        }
+    }
+
+    /** Sends a closed batch; its identifier and contents remain unchanged across retries. */
+    private int submitReport(TelemetryReport report) throws IOException {
         byte[] payload = OBJECT_MAPPER.writeValueAsBytes(report);
         if (payload.length > MAX_REPORT_BYTES) {
             throw new IOException("Telemetry report exceeds the 1 MiB gateway limit");
@@ -123,11 +171,8 @@ public class TelemetryManager extends ApplicationComponentBase {
                 });
     }
 
-    private static Map<String, Object> createReport(List<?> metrics) {
+    private static Map<String, Object> createReport(long startedAt) {
         DatabaseNavigator databaseNavigator = DatabaseNavigator.getInstance();
-
-        Map<String, Object> metricsContent = new LinkedHashMap<>();
-        metricsContent.put("items", metrics);
 
         Map<String, Object> report = new LinkedHashMap<>();
         report.put("batch_id", UUID.randomUUID().toString());
@@ -136,9 +181,8 @@ public class TelemetryManager extends ApplicationComponentBase {
         report.put("ide_version", ApplicationInfo.getInstance().getFullVersion());
         report.put("java_version", System.getProperty("java.version"));
         report.put("metrics_version", METRICS_VERSION);
-        report.put("period_start", null);
-        report.put("period_end", Instant.now().toString());
-        report.put("metrics", metricsContent);
+        report.put("period_start", Instant.ofEpochMilli(startedAt).toString());
+        report.put("period_end", null);
         return report;
     }
 

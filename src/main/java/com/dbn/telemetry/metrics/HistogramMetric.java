@@ -17,7 +17,11 @@
 package com.dbn.telemetry.metrics;
 
 import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Map;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,6 +65,21 @@ public final class HistogramMetric implements Metric {
         this.bucketCounts = validateBucketCounts(bucketCounts, this.bucketBoundaries.size(), count);
     }
 
+    @JsonCreator
+    public static HistogramMetric fromJson(
+            @JsonProperty("name") String name,
+            @JsonProperty("unit") String unit,
+            @JsonProperty("attributes") Map<String, String> attributes,
+            @JsonProperty("bucketBoundaries") List<Double> bucketBoundaries,
+            @JsonProperty("count") long count,
+            @JsonProperty("sum") double sum,
+            @JsonProperty("min") double min,
+            @JsonProperty("max") double max,
+            @JsonProperty("bucketCounts") List<Long> bucketCounts) {
+        return new HistogramMetric(new MetricKey(name, MetricType.HISTOGRAM, unit, attributes),
+                bucketBoundaries, count, sum, min, max, bucketCounts);
+    }
+
     public static @NotNull HistogramMetric observation(
             @NotNull MetricKey key,
             @NotNull List<Double> bucketBoundaries,
@@ -77,22 +96,6 @@ public final class HistogramMetric implements Metric {
             counts.add(i == bucketIndex ? 1L : 0L);
         }
         return new HistogramMetric(key, boundaries, 1, value, value, value, counts);
-    }
-
-    @Override
-    public @NotNull MetricKey key() {
-        return key;
-    }
-
-    public @NotNull List<Double> getBucketBoundaries() {
-        return bucketBoundaries;
-    }
-
-    /**
-     * Returns counts for the explicit buckets followed by the implicit +Inf bucket.
-     */
-    public @NotNull List<Long> getBucketCounts() {
-        return bucketCounts;
     }
 
     public double average() {
