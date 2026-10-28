@@ -35,6 +35,7 @@ import javax.swing.JLabel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 
+import static com.dbn.common.ui.util.Tooltips.setHtmlToolTipText;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ChatBoxStatusLabel extends DBNPanelImpl implements Disposable {
@@ -110,7 +111,7 @@ public class ChatBoxStatusLabel extends DBNPanelImpl implements Disposable {
     private void updateLabel(Status status) {
         chatStatusLabel.setForeground(status.getColor());
         chatStatusLabel.setText(status.getText());
-        Tooltips.setToolTipText(chatStatusLabel, status.getDescription());
+        setHtmlToolTipText(chatStatusLabel, status.getDescription());
     }
 
     @Getter

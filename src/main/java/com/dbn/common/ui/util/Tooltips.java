@@ -28,6 +28,12 @@ import static com.dbn.common.util.Strings.isEmpty;
 @UtilityClass
 public final class Tooltips {
 
+    /** Escapes literal text for HTML tooltip content, preserving line breaks. */
+    public static @NotNull String escapeHtml(@NotNull String text) {
+        return HtmlChunk.text(text).toString();
+    }
+
+    /** Sets literal text, escaping characters interpreted as HTML. */
     @SuppressWarnings("UseHtmlChunkToolTip")
     public static void setToolTipText(@NotNull JComponent component, @Nullable String text) {
         if (isEmpty(text)) {
@@ -35,8 +41,21 @@ public final class Tooltips {
             return;
         }
 
-        // HelpTooltipKt.setToolTipText(component, HtmlChunk.text(text));
-        component.setToolTipText(HtmlChunk.text(text).toString());
+        component.setToolTipText(escapeHtml(text));
+    }
+
+    /**
+     * Sets trusted HTML, either a complete document or a fragment.
+     * Escape dynamic plain text before composing the markup.
+     */
+    @SuppressWarnings("UseHtmlChunkToolTip")
+    public static void setHtmlToolTipText(@NotNull JComponent component, @Nullable String html) {
+        if (isEmpty(html)) {
+            component.setToolTipText(null);
+            return;
+        }
+
+        component.setToolTipText(HtmlChunk.raw(html).toString());
     }
 
     @SuppressWarnings("UseHtmlChunkToolTip")
@@ -46,7 +65,7 @@ public final class Tooltips {
             return;
         }
 
-        String escapedText = HtmlChunk.text(text).toString();
+        String escapedText = escapeHtml(text);
         String html = "<html><pre>" + escapedText + "</pre></html>";
         component.setToolTipText(HtmlChunk.raw(html).toString());
     }

@@ -44,6 +44,7 @@ import static com.dbn.common.ui.util.Accessibility.setAccessibleDescription;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.common.ui.util.Tooltips.setHtmlToolTipText;
 import static com.dbn.common.util.Strings.cachedUpperCase;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -75,7 +76,7 @@ public class ObjectQuickFilterConditionForm extends DBNFormBase {
             condition.setOperator(newValue);
         });
 
-        Tooltips.setToolTipText(patternTextField, txt("app.object.tooltip.ChangeQuickFilterOperator"));
+        setHtmlToolTipText(patternTextField, txt("app.object.tooltip.ChangeQuickFilterOperator"));
         patternTextField.addKeyListener(ComboBoxSelectionKeyListener.create(operatorComboBox, false));
         onTextChange(patternTextField, e -> condition.setPattern(getText(patternTextField)));
 

@@ -82,7 +82,9 @@ import java.sql.SQLException;
 import java.util.EventObject;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.common.ui.util.Tooltips.escapeHtml;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.ui.util.Tooltips.setHtmlToolTipText;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -474,7 +476,8 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
                 DBColumn column = cell.getColumn();
                 DBColumn foreignKeyColumn = column.getForeignKeyColumn();
                 if (foreignKeyColumn != null) {
-                    Tooltips.setToolTipText(this, txt("app.dataEditor.tooltip.ShowReferencedRecord", foreignKeyColumn.getDataset().getQualifiedName()));
+                    String datasetName = escapeHtml(foreignKeyColumn.getDataset().getQualifiedName());
+                    setHtmlToolTipText(this, txt("app.dataEditor.tooltip.ShowReferencedRecord", datasetName));
                 }
             }
         } else {

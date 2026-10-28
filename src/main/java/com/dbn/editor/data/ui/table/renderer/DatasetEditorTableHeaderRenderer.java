@@ -40,6 +40,8 @@ import java.awt.Dimension;
 import java.awt.FontMetrics;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
+import static com.dbn.common.ui.util.Tooltips.escapeHtml;
+import static com.dbn.common.ui.util.Tooltips.setHtmlToolTipText;
 
 public class DatasetEditorTableHeaderRenderer extends DBNTableHeaderRenderer {
     private JPanel mainPanel;
@@ -115,7 +117,8 @@ public class DatasetEditorTableHeaderRenderer extends DBNTableHeaderRenderer {
         if (column != null) {
             DataGridSettings dataGridSettings = DataGridSettings.getInstance(column.getProject());
             if (dataGridSettings.getGeneralSettings().isColumnTooltipEnabled()) {
-                String toolTipText = "<b>" + column.getName() + "</b><br>" + column.getDataType().getQualifiedName() + "";
+                String toolTipText = "<b>" + escapeHtml(column.getName()) + "</b><br>" +
+                        escapeHtml(column.getDataType().getQualifiedName());
 
                 @NonNls
                 StringBuilder attributes  = new StringBuilder();
@@ -127,7 +130,7 @@ public class DatasetEditorTableHeaderRenderer extends DBNTableHeaderRenderer {
                     toolTipText += "<br>" + attributes + "";
                 }
 
-                Tooltips.setToolTipText(mainPanel, toolTipText);
+                setHtmlToolTipText(mainPanel, toolTipText);
             } else {
                 Tooltips.setToolTipText(mainPanel, null);
             }

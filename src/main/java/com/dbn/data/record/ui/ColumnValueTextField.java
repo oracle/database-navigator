@@ -38,6 +38,8 @@ import java.awt.Color;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
+import static com.dbn.common.ui.util.Tooltips.escapeHtml;
+import static com.dbn.common.ui.util.Tooltips.setHtmlToolTipText;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.TextAttributes.getSimpleTextAttributes;
 import static com.dbn.data.grid.color.DataGridTextAttributesKeys.FOREIGN_KEY;
@@ -77,7 +79,8 @@ class ColumnValueTextField extends JTextField {
                 setCursor(Cursors.handCursor());
                 DBColumn foreignKeyColumn = column.getForeignKeyColumn();
                 if (foreignKeyColumn != null) {
-                    Tooltips.setToolTipText(this, txt("app.dataEditor.tooltip.ShowReferencedRecord", foreignKeyColumn.getDataset().getQualifiedName()));
+                    String datasetName = escapeHtml(foreignKeyColumn.getDataset().getQualifiedName());
+                    setHtmlToolTipText(this, txt("app.dataEditor.tooltip.ShowReferencedRecord", datasetName));
                 }
             } else {
                 super.processMouseMotionEvent(e);

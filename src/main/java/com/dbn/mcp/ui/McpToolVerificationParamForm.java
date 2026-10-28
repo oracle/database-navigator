@@ -31,6 +31,7 @@ import static com.dbn.common.ui.util.Accessibility.setAccessibleDescription;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.common.ui.util.Tooltips.setHtmlToolTipText;
 import static com.dbn.nls.NlsResources.txt;
 
 public class McpToolVerificationParamForm extends DBNFormBase {
@@ -94,7 +95,7 @@ public class McpToolVerificationParamForm extends DBNFormBase {
             validateInput(textField);
         });
 
-        Tooltips.setToolTipText(textField, txt("app.shared.tooltip.ChangeVariableDataType"));
+        setHtmlToolTipText(textField, txt("app.shared.tooltip.ChangeVariableDataType"));
         Disposer.register(this, editorComponent);
     }
 

@@ -26,6 +26,8 @@ import javax.swing.JComponent;
 import javax.swing.JTable;
 import java.awt.Component;
 
+import static com.dbn.common.ui.util.Tooltips.setHtmlToolTipText;
+
 
 public class ExplainPlanTreeTableCellRenderer extends TreeTableCellRenderer {
     private final TreeTableTree tree;
@@ -47,7 +49,7 @@ public class ExplainPlanTreeTableCellRenderer extends TreeTableCellRenderer {
         final boolean expanded = tree.isExpanded(modelRow);
         Component component = tree.getCellRenderer().getTreeCellRendererComponent(tree, treeObject, isSelected, expanded, leaf, modelRow, hasFocus);
         if (component instanceof JComponent) {
-            Tooltips.setToolTipText(table, ((JComponent)component).getToolTipText());
+            setHtmlToolTipText(table, ((JComponent)component).getToolTipText());
         }
 
         //myTree.setCellFocused(false);
