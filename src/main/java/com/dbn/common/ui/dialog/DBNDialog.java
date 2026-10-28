@@ -34,6 +34,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.diagnostics.Diagnostics;
 import com.dbn.help.HelpTopic;
+import com.dbn.telemetry.DialogTelemetryListener;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.options.ConfigurationException;
@@ -94,6 +95,7 @@ import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.telemetry.DialogTelemetryListener.installTelemetryListener;
 
 @Getter
 @Setter
@@ -134,6 +136,7 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
         initActions();
         initFocusComponent();
         validateInput(null);
+        installTelemetryListener(this);
     }
 
     private void initFocusComponent() {
@@ -238,6 +241,17 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
 
     @NotNull
     protected abstract F createForm();
+
+    /** Derives the telemetry identifier from the concrete dialog class name. */
+    @NotNull
+    @NonNls
+    public final String getDialogId() {
+        String name = simpleClassName(this);
+        if (name.endsWith("Dialog")) {
+            name = name.substring(0, name.length() - "Dialog".length());
+        }
+        return "DBN.Dialog." + name;
+    }
 
     public void updateDialogButtons() {
 
