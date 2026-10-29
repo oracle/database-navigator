@@ -185,7 +185,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:2.2.21@jar")
     implementation("org.liquibase:liquibase-core:4.33.0@jar")
     implementation("org.flywaydb:flyway-core:13.9.0@jar")
-    implementation("org.flywaydb:flyway-database-mysql:13.9.0@jar")
+    implementation("org.flywaydb:flyway-mysql:13.9.0@jar")
     implementation("org.flywaydb:flyway-database-oracle:13.9.0@jar")
     implementation("org.flywaydb:flyway-database-postgresql:13.9.0@jar")
     implementation("org.projectlombok:lombok:1.18.46@jar")
