@@ -20,7 +20,6 @@ import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Lists;
 import com.dbn.connection.context.DatabaseContext;
@@ -44,6 +43,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.dbn.common.text.TextContent.plain;
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.nls.NlsResources.txt;
 
 public class CompileDebugDependenciesForm extends DBNFormBase {
@@ -57,8 +57,7 @@ public class CompileDebugDependenciesForm extends DBNFormBase {
         super(parent);
         TextContent hintText = plain(txt("msg.debugger.hint.CompileDebugDependencies"));
 
-        DBNHintForm hintForm = new DBNHintForm(this, hintText, null);
-        hintPanel.add(hintForm.getComponent());
+        installHintForm(this, hintText, hintPanel);
 
         objectList.setCellRenderer(new ObjectListCellRenderer());
         DefaultListModel<DBSchemaObject> model = new DefaultListModel<>();

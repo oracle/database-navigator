@@ -19,7 +19,6 @@ package com.dbn.migration.liquibase.workspace.ui;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.info.DBNCommentLabel;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.link.Hyperlinks;
@@ -34,6 +33,7 @@ import com.dbn.migration.liquibase.workspace.LiquibaseWorkspace;
 import com.dbn.migration.liquibase.workspace.LiquibaseWorkspacePaths;
 import com.dbn.migration.shared.workspace.DatabaseMigrationWorkspaceBundle;
 import com.dbn.migration.shared.workspace.ui.DatabaseMigrationWorkspacesForm;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
@@ -51,13 +51,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.dbn.common.text.TextContent.plain;
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.ui.util.TextFields.setText;
-import static com.dbn.common.ui.util.Tooltips.setToolTipText;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.migration.liquibase.workspace.LiquibaseChangelogFiles.getDefaultMasterChangelog;
 import static com.dbn.migration.liquibase.workspace.LiquibaseWorkspace.DEFAULT_CHANGELOG_DIRECTORY;
@@ -127,7 +127,7 @@ public class LiquibaseWorkspaceForm extends DBNFormBase {
 
     private void initHintPanel() {
         TextContent hint = plain(txt("cfg.liquibase.hint.WorkspaceSettings"));
-        hintPanel.add(new DBNHintForm(this, hint, null).getComponent());
+        installHintForm(this, hint, hintPanel);
     }
 
     private void initHyperlinksPanel() {
@@ -235,22 +235,22 @@ public class LiquibaseWorkspaceForm extends DBNFormBase {
         String contentRoot = contentRootComboBox.getSelectedPath();
         if (isEmpty(contentRoot)) {
             rootPathInfoLabel.setText("");
-            setToolTipText(rootPathTextField, null);
-            setToolTipText(changelogDirectoryTextField, null);
-            setToolTipText(sqlDirectoryTextField, null);
-            setToolTipText(documentationDirectoryTextField, null);
-            setToolTipText(masterChangelogTextField, null);
-            setToolTipText(propertiesFileTextField, null);
+            Tooltips.setToolTipText(rootPathTextField, null);
+            Tooltips.setToolTipText(changelogDirectoryTextField, null);
+            Tooltips.setToolTipText(sqlDirectoryTextField, null);
+            Tooltips.setToolTipText(documentationDirectoryTextField, null);
+            Tooltips.setToolTipText(masterChangelogTextField, null);
+            Tooltips.setToolTipText(propertiesFileTextField, null);
             return;
         }
         String liquibaseRoot = appendPath(contentRoot, getText(rootPathTextField));
         rootPathInfoLabel.setText(liquibaseRoot);
-        setToolTipText(rootPathTextField, liquibaseRoot);
-        setToolTipText(changelogDirectoryTextField, appendPath(liquibaseRoot, getText(changelogDirectoryTextField)));
-        setToolTipText(sqlDirectoryTextField, appendPath(liquibaseRoot, getText(sqlDirectoryTextField)));
-        setToolTipText(documentationDirectoryTextField, appendPath(liquibaseRoot, getText(documentationDirectoryTextField)));
-        setToolTipText(masterChangelogTextField, appendPath(liquibaseRoot, getText(masterChangelogTextField)));
-        setToolTipText(propertiesFileTextField, appendPath(contentRoot, getText(propertiesFileTextField)));
+        Tooltips.setToolTipText(rootPathTextField, liquibaseRoot);
+        Tooltips.setToolTipText(changelogDirectoryTextField, appendPath(liquibaseRoot, getText(changelogDirectoryTextField)));
+        Tooltips.setToolTipText(sqlDirectoryTextField, appendPath(liquibaseRoot, getText(sqlDirectoryTextField)));
+        Tooltips.setToolTipText(documentationDirectoryTextField, appendPath(liquibaseRoot, getText(documentationDirectoryTextField)));
+        Tooltips.setToolTipText(masterChangelogTextField, appendPath(liquibaseRoot, getText(masterChangelogTextField)));
+        Tooltips.setToolTipText(propertiesFileTextField, appendPath(contentRoot, getText(propertiesFileTextField)));
     }
 
     private static String appendPath(String parent, String child) {
@@ -363,7 +363,7 @@ public class LiquibaseWorkspaceForm extends DBNFormBase {
 
         Project project = ensureProject();
         FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
-        Path rootPath = new LiquibaseWorkspacePaths(workspace).getLiquibaseRootPath();
+        Path rootPath = new LiquibaseWorkspacePaths(project, workspace).getLiquibaseRootPath();
         LocalFileSystem fileSystem = LocalFileSystem.getInstance();
         VirtualFile rootDirectory = fileSystem.findFileByPath(rootPath.toString());
         if (rootDirectory == null) return;

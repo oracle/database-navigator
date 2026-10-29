@@ -76,7 +76,6 @@ import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.file.util.VirtualFiles.isLocalFileSystem;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.ui.util.Popups.popupBuilder;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Files.isDbLanguageFile;
@@ -196,7 +195,7 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
         VirtualFile file = FileDocumentManager.getInstance().getFile(document);
         boolean changed = setConnection(file, connection);
         if (!changed) return;
-        
+
         // TODO add as FileConnectionMappingListener.TOPIC
         Documents.touchDocument(editor, true);
     }
@@ -211,7 +210,7 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
 
     public boolean setDatabaseSchema(VirtualFile file, SchemaId schema) {
         if (!isSchemaSelectable(file)) return false;
-        
+
         return notifiedChange(
                 () -> registry.setDatabaseSchema(file, schema),
                 handler -> handler.schemaChanged(getProject(), file, schema));
@@ -222,7 +221,7 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
         VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(document);
         boolean changed = setDatabaseSchema(virtualFile, schema);
         if (!changed) return;
-        
+
         // TODO add as FileConnectionMappingListener.TOPIC
         Documents.touchDocument(editor, false);
     }
@@ -237,7 +236,7 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
 
     public boolean setDatabaseSession(VirtualFile file, DatabaseSession session) {
         if (!isSessionSelectable(file)) return false;
-        
+
         return notifiedChange(() -> registry.setDatabaseSession(file, session),
                 consumer -> consumer.sessionChanged(getProject(), file, session));
     }
@@ -472,20 +471,19 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
     /*********************************************
      *            PersistentStateComponent       *
      *********************************************/
-    @Nullable
     @Override
-    public Element getComponentState() {
-        Element element = newStateElement();
+    public void writeState(Element element) {
+        super.writeState(element);
         for (FileConnectionContext context : registry.getMappings().values()) {
             if (!context.isValid()) continue;
             Element mappingElement = newElement(element, "mapping");
             context.writeState(mappingElement);
         }
-        return element;
     }
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
+    public void readState(@NotNull Element element) {
+        super.readState(element);
         Progress.background(getProject(), null, false,
                 txt("prc.fileContext.title.RestoringContext"),
                 txt("prc.fileContext.text.RestoringContext"),

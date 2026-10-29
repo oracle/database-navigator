@@ -27,11 +27,11 @@ import java.io.IOException;
 import java.io.Reader;
 import java.sql.SQLException;
 
+import static com.dbn.data.value.LargeValueResourceLimits.normalizeReadSize;
+
 @Getter
 @Setter
 public abstract class LargeObjectValue extends ValueAdapter<String> {
-    public static final int MAX_READ_SIZE = 1024 * 1024;
-
     private boolean truncated;
 
     @Override
@@ -50,7 +50,7 @@ public abstract class LargeObjectValue extends ValueAdapter<String> {
             return null;
         }
 
-        int size = maxSize <= 0 ? MAX_READ_SIZE : Math.min(maxSize, MAX_READ_SIZE);
+        int size = normalizeReadSize(maxSize);
         char[] buffer = new char[size + 1];
         int length = 0;
         try (Reader valueReader = reader) {

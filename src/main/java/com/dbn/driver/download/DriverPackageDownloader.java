@@ -39,20 +39,65 @@ public class DriverPackageDownloader {
     public void downloadDriverPackage(Project project, DriverPackage driverPackage, Consumer<String> updateUI) {
         this.updateUI = updateUI;
         DriverDownloadManager downloadManager = getDownloadManager();
+        String packageId = driverPackage.getId();
+        if (!downloadManager.beginPackageDownload(packageId)) return;
 
         Progress.modal(project, null, true,
                 txt("prc.connection.title.DownloadingDrivers"),
                 txt("prc.connection.text.DownloadingDriverPackages", driverPackage.getName()),
                 indicator -> {
                     int downloadCount = driverPackage.getLibraries().size();
-                    String packageId = driverPackage.getId();
                     String downloadPath = downloadManager.getDownloadPath(packageId);
 
                     DownloadSession downloadSession = new DownloadSession(indicator)
                             .withDownloadSize(downloadCount)
                             .withDownloadPath(downloadPath);
-                    downloadDriverPackage(downloadSession, driverPackage);
-                });
+                    try {
+                        downloadDriverPackage(downloadSession, driverPackage);
+                    } finally {
+                        downloadManager.endPackageDownload(packageId);
+                    }
+                },
+                () -> handleTaskNotStarted(downloadManager, packageId, updateUI));
+    }
+
+    /** Starts a cancellable background download without closing or replacing the calling dashboard. */
+    public boolean downloadDriverPackageInBackground(Project project, DriverPackage driverPackage, Consumer<String> updateUI) {
+        DriverDownloadManager downloadManager = getDownloadManager();
+        String packageId = driverPackage.getId();
+        if (!downloadManager.beginPackageDownload(packageId)) return false;
+
+        this.updateUI = updateUI;
+        Progress.background(project, null, true,
+                txt("prc.driver.title.DownloadingLibrary"),
+                txt("prc.connection.text.DownloadingDriverPackages", driverPackage.getName()),
+                indicator -> {
+                    try {
+                        DownloadSession downloadSession = new DownloadSession(indicator)
+                                .withDownloadSize(driverPackage.getLibraries().size())
+                                .withDownloadPath(downloadManager.getDownloadPath(packageId));
+                        try {
+                            downloadDriverPackage(downloadSession, driverPackage);
+                        } catch (Exception e) {
+                            log.warn("Driver package '{}' download failed.", packageId, e);
+                            downloadSession.addErrorMessage(e.getLocalizedMessage() == null ? e.toString() : e.getLocalizedMessage());
+                            handleCompletion(packageId, downloadSession);
+                        }
+                    } finally {
+                        downloadManager.endPackageDownload(packageId);
+                    }
+                },
+                () -> handleTaskNotStarted(downloadManager, packageId, updateUI));
+        return true;
+    }
+
+    private static void handleTaskNotStarted(
+            DriverDownloadManager downloadManager,
+            String packageId,
+            Consumer<String> updateUI) {
+        downloadManager.endPackageDownload(packageId);
+        ApplicationManager.getApplication().invokeLater(() ->
+                updateUI.accept(txt("app.driver.error.DownloadNotStarted")));
     }
 
     private void downloadDriverPackage(DownloadSession session, DriverPackage driverPackage) {
@@ -118,7 +163,7 @@ public class DriverPackageDownloader {
             log.warn("Package '{}' download and verification failed.", packageId);
             session.addErrorMessage(txt("msg.connection.error.DownloadsFailedCleaningUp"));
             cleanupDownloadedJars(session);
-            downloadManager.cleanupPackage(packageId);
+            downloadManager.resetPackageDownloadStatuses(packageId);
             ApplicationManager.getApplication().invokeLater(()->{
                 updateUI.accept(toHtmlFormat(session.getErrorMessages().get(0).getText(), 50));
             });
@@ -133,7 +178,7 @@ public class DriverPackageDownloader {
                 updateUI.accept(null);
             });
             cleanupDownloadedJars(session);
-            downloadManager.cleanupPackage(packageId);
+            downloadManager.resetPackageDownloadStatuses(packageId);
         }
     }
 

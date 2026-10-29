@@ -22,7 +22,6 @@ import com.dbn.common.presentation.Presentation;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.util.Editors;
 import com.dbn.sync.java.download.JavaDownloadBatch;
 import com.intellij.openapi.project.Project;
@@ -36,6 +35,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.common.ui.util.Keyboard.onKeyPress;
 import static com.dbn.common.ui.util.Lists.onSelectionChange;
 import static com.dbn.common.ui.util.Mouse.onMouseClick;
@@ -67,8 +67,7 @@ public class JavaDownloadResultForm extends DBNFormBase {
         String rootDirectoryPath = Presentation.presentableName(rootDirectory);
         TextContent hintText = TextContent.plain(
                 txt("msg.java.hint.DownloadResult", rootDirectoryPath));
-        DBNHintForm hintForm = new DBNHintForm(this, hintText, null);
-        hintPanel.add(hintForm.getComponent());
+        installHintForm(this, hintText, hintPanel);
     }
 
 

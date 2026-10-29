@@ -27,6 +27,7 @@ import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.state.StateCategory;
 import com.dbn.common.state.StateContainer;
+import com.dbn.common.thread.Background;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.DatabaseType;
@@ -62,14 +63,12 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import org.jdom.Element;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Consumer;
 
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.task.TaskStatus.PAUSED;
 import static com.dbn.common.util.Dialogs.whenOk;
 import static com.dbn.connection.config.ConnectionConfigListener.whenRemoved;
@@ -82,7 +81,6 @@ import static com.dbn.nls.NlsResources.txt;
 public class DatabaseLiquibaseManager extends ProjectComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Project.DatabaseLiquibaseManager";
 
-    private final StateContainer states = new StateContainer();
     private final LiquibaseWorkspaceBundle workspaces;
     private final LiquibaseEnvironmentProfileBundle environmentProfiles;
     private final LiquibaseTaskStarter taskStarter;
@@ -127,11 +125,6 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
     @NotNull
     public LiquibaseTaskStarter getTaskStarter() {
         return taskStarter;
-    }
-
-    @NotNull
-    public StateAttributes getState(@NonNls @NotNull String category) {
-        return states.ensureAttributes(StateCategory.get(category));
     }
 
     @NotNull
@@ -292,23 +285,24 @@ public class DatabaseLiquibaseManager extends ProjectComponentBase implements Pe
                 }));
     }
 
-    @Nullable
     @Override
-    public Element getComponentState() {
-        Element element = newStateElement();
-        states.writeState(element);
+    public void writeState(Element element) {
+        super.writeState(element);
+
         workspaces.writeState(element, "workspaces");
         environmentProfiles.writeState(element, "environment-profiles");
         executionHistory.writeState(element, "execution-history");
 
-        return element;
+
     }
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
-        states.readState(element);
+    public void readState(@NotNull Element element) {
+        super.readState(element);
+
         workspaces.readState(element, "workspaces");
         environmentProfiles.readState(element, "environment-profiles");
         executionHistory.readState(element, "execution-history");
+
     }
 }

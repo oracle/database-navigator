@@ -19,6 +19,7 @@ package com.dbn.connection.config.ui;
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.connection.AuthenticationType;
+import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.provider.CloudConfigProviderType;
 import com.dbn.connection.config.provider.ConfigProviderInfo;
@@ -45,6 +46,7 @@ public class ConnectionAuthenticationSettingsForm extends DBNFormBase {
 
     public ConnectionAuthenticationSettingsForm(@NotNull ConnectionDatabaseSettingsForm parentComponent) {
         super(parentComponent);
+        setDatabaseType(parentComponent.getSelectedDatabaseType());
 
         setCloudProviderMode(null);
     }
@@ -71,6 +73,10 @@ public class ConnectionAuthenticationSettingsForm extends DBNFormBase {
 
     public void setAuthenticationTypes(AuthenticationType ... authenticationTypes) {
         connectionFieldsForm.setAuthenticationTypes(authenticationTypes);
+    }
+
+    public void setDatabaseType(DatabaseType databaseType) {
+        connectionFieldsForm.setDatabaseType(databaseType);
     }
 
     public void setCredentialsTitle(@Nls String title) {

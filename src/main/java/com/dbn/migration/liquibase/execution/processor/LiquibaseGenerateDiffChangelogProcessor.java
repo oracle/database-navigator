@@ -100,11 +100,12 @@ public class LiquibaseGenerateDiffChangelogProcessor extends LiquibaseDiffExecut
                 "excludeObjects", buildTrackingTableFilter(targetDatabase),
                 "changelogFile", changelogFile.toString(),
                 "author", input.getChangelogAuthor());
+        paths.validateOutputPath(changelogFile);
         executeCommand(GENERATE_DIFF_CHANGELOG, context, output, arguments);
 
         String databaseTag = input.getDatabaseTag();
         if (isNotEmpty(databaseTag)) {
-            appendDatabaseTag(paths.getContentRootPath(), changelogFile,
+            appendDatabaseTag(paths, changelogFile,
                     input.getChangelogAuthor(), databaseTag);
         }
     }

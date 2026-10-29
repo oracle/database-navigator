@@ -43,6 +43,7 @@ import com.dbn.connection.config.tns.TnsNames;
 import com.dbn.connection.config.tns.TnsNamesParser;
 import com.dbn.oci.database.tools.OciDatabaseToolsConnectionInfo;
 import com.dbn.oci.database.tools.ui.OciDatabaseToolsConnectionDialog;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.components.JBTextField;
@@ -502,7 +503,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         cloudProviderDocumentationLink.setHyperlinkText(txt("cfg.connection.link.ProviderDocumentation"));
         cloudProviderDocumentationLink.setVisible(cloudProviderVisible && documentationUrl != null);
         cloudProviderDocumentationLink.setHyperlinkTarget(documentationUrl);
-        cloudProviderDocumentationLink.setToolTipText(documentationUrl);
+        Tooltips.setToolTipText(cloudProviderDocumentationLink, documentationUrl);
     }
 
     private static String getCloudProviderDocumentationUrl(CloudConfigProviderType provider) {

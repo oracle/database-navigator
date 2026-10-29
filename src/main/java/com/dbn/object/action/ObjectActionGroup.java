@@ -18,7 +18,6 @@ package com.dbn.object.action;
 
 import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.editor.DBContentType;
 import com.dbn.event.action.ChangeNotificationsToggleAction;
 import com.dbn.execution.compiler.action.CompileActionGroup;
 import com.dbn.execution.java.action.JavaClassDebugAction;
@@ -34,7 +33,7 @@ import com.dbn.execution.method.action.ProgramMethodExecuteAction;
 import com.dbn.generator.statement.action.GenerateStatementActionGroup;
 import com.dbn.migration.flyway.action.FlywaySchemaActions;
 import com.dbn.migration.liquibase.action.LiquibaseSchemaActions;
-import com.dbn.ml.action.AIModelPredictAction;
+import com.dbn.ml.prediction.action.AIModelPredictAction;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBConsole;
 import com.dbn.object.DBJavaClass;
@@ -67,29 +66,22 @@ import com.intellij.openapi.project.Project;
 
 import java.util.List;
 
-import static com.dbn.database.DatabaseFeature.CONSTRAINT_MANIPULATION;
 import static com.dbn.database.DatabaseFeature.DATA_CHANGE_NOTIFICATION;
 import static com.dbn.database.DatabaseFeature.DEBUGGING;
 import static com.dbn.database.DatabaseFeature.OBJECT_DEPENDENCIES;
-import static com.dbn.database.DatabaseFeature.OBJECT_DISABLING;
-import static com.dbn.database.DatabaseFeature.OBJECT_INVALIDATION;
-import static com.dbn.database.DatabaseFeature.OBJECT_SOURCE_EDITING;
 import static com.dbn.database.DatabaseFeature.VECTOR_SEARCH;
-import static com.dbn.editor.DBContentType.CODE;
-import static com.dbn.editor.DBContentType.CODE_AND_DATA;
-import static com.dbn.editor.DBContentType.CODE_SPEC_AND_BODY;
-import static com.dbn.editor.DBContentType.DATA;
-import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
 import static com.dbn.object.common.property.DBObjectProperty.DIAGRAMMABLE;
-import static com.dbn.object.common.property.DBObjectProperty.DISABLEABLE;
-import static com.dbn.object.common.property.DBObjectProperty.EDITABLE;
 import static com.dbn.object.common.property.DBObjectProperty.REFERENCEABLE;
-import static com.dbn.object.common.property.DBObjectProperty.REFRESHABLE;
 import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
 import static com.dbn.object.common.property.DBObjectProperty.SYSTEM_OBJECT;
-import static com.dbn.options.general.WorkspaceFeature.DEBUGGER;
 import static com.dbn.options.general.WorkspaceFeature.EVENT_MONITOR;
 import static com.dbn.options.general.WorkspaceFeature.FLYWAY;
+import static com.dbn.options.general.WorkspaceFeature.LIQUIBASE;
+import static com.dbn.options.general.WorkspaceFeature.MACHINE_LEARNING;
+import static com.dbn.options.general.WorkspaceFeature.OJVM;
+import static com.dbn.options.general.WorkspaceFeature.VECTOR_TOOLBOX;
+import static com.dbn.options.general.WorkspaceFeature.DEBUGGER;
+import static com.dbn.options.general.WorkspaceFeature.EVENT_MONITOR;
 import static com.dbn.options.general.WorkspaceFeature.LIQUIBASE;
 import static com.dbn.options.general.WorkspaceFeature.MACHINE_LEARNING;
 import static com.dbn.options.general.WorkspaceFeature.OJVM;
@@ -127,39 +119,20 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
     }
 
     private void addObjectManagementActions(DBObject object) {
-        if (object.is(REFRESHABLE) && ObjectRefreshAction.isSupported(object)) {
-            add(new ObjectRefreshAction(object));
-        }
+        if (ObjectRefreshAction.isSupported(object)) add(new ObjectRefreshAction(object));
 
         if (object instanceof DBSchemaObject schemaObject) {
-
-            if (object.is(EDITABLE)) {
-                DBContentType contentType = schemaObject.getContentType();
-                if (contentType.isOneOf(DATA, CODE_AND_DATA)) {
-                    add(new ObjectEditDataAction(schemaObject));
-                }
-
-                if (contentType.isOneOf(CODE, CODE_AND_DATA, CODE_SPEC_AND_BODY)) {
-                    if (OBJECT_SOURCE_EDITING.isSupported(object)) {
-                        add(new ObjectEditCodeAction(schemaObject));
-                    }
-                }
-            }
-
-            if (object.is(COMPILABLE) && OBJECT_INVALIDATION.isSupported(object)) {
-                add(new CompileActionGroup(schemaObject));
-            }
-
-            if (object.is(DISABLEABLE) && OBJECT_DISABLING.isSupported(object)) {
-                add(new ObjectEnableDisableAction(schemaObject));
-            }
+            if (ObjectEditDataAction.isSupported(object)) add(new ObjectEditDataAction(schemaObject));
+            if (ObjectEditCodeAction.isSupported(object)) add(new ObjectEditCodeAction(schemaObject));
+            if (CompileActionGroup.isSupported(object)) add(new CompileActionGroup(schemaObject));
+            if (ObjectEnableDisableAction.isSupported(object)) add(new ObjectEnableDisableAction(schemaObject));
 
             if (object.is(SCHEMA_OBJECT) &&
                     !object.getSchema().isSystemSchema() &&
                     !object.getSchema().isPublicSchema()) {
-                if (object.getObjectType() != DBObjectType.CONSTRAINT || CONSTRAINT_MANIPULATION.isSupported(object)) {
-                    add(new ObjectDropAction(schemaObject));
-                }
+
+                if (ObjectRenameAction.isSupported(object)) add(new ObjectRenameAction(object));
+                if (ObjectDropAction.isSupported(object)) add(new ObjectDropAction(schemaObject));
 
                 //add(new TestAction(object));
             }
@@ -167,22 +140,11 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
             // connection-root managed objects: edit (when an editor provider is registered) + drop
             ObjectManagementService managementService = ObjectManagementService.getInstance(object.getProject());
             if (managementService.supports(object) && !object.is(SYSTEM_OBJECT)) {
-                if (object.is(DISABLEABLE)) {
-                    add(new ObjectEnableDisableAction(object));
-                }
-                if (ObjectLockUnlockAction.isSupported(object)) {
-                    add(new ObjectLockUnlockAction(object));
-                }
-
-                if (object.is(EDITABLE)) {
-                    DBContentType contentType = object.getContentType();
-                    if (contentType.isOneOf(CODE, CODE_AND_DATA, CODE_SPEC_AND_BODY)) {
-                        if (OBJECT_SOURCE_EDITING.isSupported(object)) {
-                            add(new ObjectEditCodeAction(object));
-                        }
-                    }
-                }
-                add(new ObjectDropAction(object));
+                if (ObjectEnableDisableAction.isSupported(object)) add(new ObjectEnableDisableAction(object));
+                if (ObjectLockUnlockAction.isSupported(object)) add(new ObjectLockUnlockAction(object));
+                if (ObjectEditCodeAction.isSupported(object)) add(new ObjectEditCodeAction(object));
+                if (ObjectRenameAction.isSupported(object)) add(new ObjectRenameAction(object));
+                if (ObjectDropAction.isSupported(object)) add(new ObjectDropAction(object));
             }
         }
     }
@@ -191,21 +153,15 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
         if (object instanceof DBMethod method) {
             addSeparator();
             add(new MethodExecuteAction(method, false));
-            Project project = object.getProject();
-            if (DEBUGGER.isEnabled(project) && DEBUGGING.isSupported(object)) {
-                add(new MethodDebugAction(method, false));
-            }
+            if (MethodDebugAction.isSupported(object)) add(new MethodDebugAction(method, false));
         }
     }
 
     private void addProgramActions(DBObject object) {
-        if (object instanceof DBProgram && object.is(SCHEMA_OBJECT)) {
+        if (object instanceof DBProgram program && object.is(SCHEMA_OBJECT)) {
             addSeparator();
-            add(new ProgramMethodExecuteAction((DBProgram) object));
-            Project project = object.getProject();
-            if (DEBUGGER.isEnabled(project) && DEBUGGING.isSupported(object)) {
-                add(new ProgramMethodDebugAction((DBProgram) object));
-            }
+            add(new ProgramMethodExecuteAction(program));
+            if (ProgramMethodDebugAction.isSupported(object)) add(new ProgramMethodDebugAction(program));
         }
     }
 
@@ -215,9 +171,7 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
         if(object instanceof DBJavaMethod method){
             if (method.isExecutable()) {
                 add(new JavaMethodExecuteAction(method, false));
-                if (DEBUGGER.isEnabled(object.getProject())) {
-                    add(new JavaMethodDebugAction(method, false));
-                }
+                if (JavaMethodDebugAction.isSupported(object)) add(new JavaMethodDebugAction(method, false));
                 add(new JavaMethodWrapperAction(method));
             }
         }
@@ -226,9 +180,7 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
             add(new JavaObjectDownloadAction(object));
             addSeparator();
             add(new JavaClassExecuteAction((DBJavaClass) object));
-            if (DEBUGGER.isEnabled(object.getProject())) {
-                add(new JavaClassDebugAction((DBJavaClass) object));
-            }
+            if (JavaClassDebugAction.isSupported(object)) add(new JavaClassDebugAction((DBJavaClass) object));
             add(new JavaClassWrapperAction((DBJavaClass) object));
         }
 

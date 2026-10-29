@@ -70,6 +70,8 @@ import static com.dbn.connection.ConnectionProperty.RS_TYPE_SCROLL_INSENSITIVE;
 import static com.dbn.database.DatabaseFeature.UPDATABLE_RESULT_SETS;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.editor.DBContentType.DATA;
+import static com.dbn.editor.data.DataEditorResourceLimits.normalizeDataEditorFetchBlockSize;
+import static com.dbn.editor.data.DataEditorResourceLimits.normalizeDataEditorReloadRowCount;
 import static com.dbn.editor.data.model.RecordStatus.DELETED;
 import static com.dbn.editor.data.model.RecordStatus.DIRTY;
 import static com.dbn.editor.data.model.RecordStatus.INSERTED;
@@ -180,12 +182,20 @@ public class DatasetEditorModel
     private int computeRowCount() {
         int originalRowCount = getRowCount();
         int stateRowCount = getState().getRowCount();
-        int fetchRowCount = Math.max(stateRowCount, originalRowCount);
+        long fetchRowCount = Math.max(stateRowCount, originalRowCount);
 
-        int fetchBlockSize = getSettings().getGeneralSettings().getFetchBlockSize().value();
+        int fetchBlockSize = getSettings().getGeneralSettings().getFetchBlockSizeValue();
         fetchRowCount = (fetchRowCount/fetchBlockSize + 1) * fetchBlockSize;
 
-        return Math.max(fetchRowCount, fetchBlockSize);
+        return normalizeDataEditorReloadRowCount(fetchRowCount, originalRowCount);
+    }
+
+    @Override
+    public int fetchNextRecords(int records, boolean reset) throws SQLException {
+        int rowCount = reset ?
+                normalizeDataEditorReloadRowCount(records, getRowCount()) :
+                normalizeDataEditorFetchBlockSize(records);
+        return super.fetchNextRecords(rowCount, reset);
     }
 
     public DataEditorSettings getSettings() {
@@ -245,7 +255,7 @@ public class DatasetEditorModel
         statementRef.set(statement);
         checkDisposed();
 
-        Integer fetchSize = getSettings().getGeneralSettings().getFetchBlockSize().value();
+        int fetchSize = getSettings().getGeneralSettings().getFetchBlockSizeValue();
         statement.setFetchSize(fetchSize);
 
         loadTimestamp = System.currentTimeMillis();

@@ -23,6 +23,7 @@ import com.dbn.common.ui.tree.DBNColoredTreeCellRenderer;
 import com.dbn.common.ui.tree.DBNTree;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.ui.util.Splitters;
+import com.dbn.common.ui.util.Tooltips;
 import com.dbn.common.util.Messages;
 import com.dbn.oci.config.OciAuthenticationConfig;
 import com.dbn.oci.database.tools.OciCompartmentInfo;
@@ -77,7 +78,7 @@ class OciDatabaseToolsConnectionForm extends DBNFormBase {
         Splitters.setSplitPaneProportion(contentSplitPane, 0.4);
         setAccessibleName(compartmentsTree, txt("cfg.oci.aria.Compartments"));
         setAccessibleName(connectionsList, txt("cfg.oci.aria.DatabaseToolsConnections"));
-        whenFirstShown(this::loadCompartments);
+        whenFirstShown(() -> loadCompartments());
     }
 
     private void loadCompartments() {
@@ -175,7 +176,7 @@ class OciDatabaseToolsConnectionForm extends DBNFormBase {
                 String name = compartment.getName();
                 if (isTenancyOcid(compartment.getId())) name += " (root)";
                 append(name, SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                setToolTipText(compartment.getId());
+                Tooltips.setToolTipText(this, compartment.getId());
             }
         }
     }
@@ -185,7 +186,7 @@ class OciDatabaseToolsConnectionForm extends DBNFormBase {
         protected void customize(@NotNull JList<? extends OciDatabaseToolsConnectionInfo> list,
                 OciDatabaseToolsConnectionInfo connection, int index, boolean selected, boolean hasFocus) {
             append(connection.getDisplayName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-            setToolTipText(connection.getId());
+            Tooltips.setToolTipText(this, connection.getId());
         }
     }
 }

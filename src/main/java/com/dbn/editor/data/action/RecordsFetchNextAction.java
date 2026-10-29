@@ -37,13 +37,13 @@ public class RecordsFetchNextAction extends AbstractDataEditorAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DatasetEditor datasetEditor) {
         DataEditorSettings settings = DataEditorSettings.getInstance(datasetEditor.getProject());
-        datasetEditor.fetchNextRecords(settings.getGeneralSettings().getFetchBlockSize().value());
+        datasetEditor.fetchNextRecords(settings.getGeneralSettings().getFetchBlockSizeValue());
     }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DatasetEditor datasetEditor) {
         DataEditorSettings settings = DataEditorSettings.getInstance(project);
-        Integer count = settings.getGeneralSettings().getFetchBlockSize().value();
+        int count = settings.getGeneralSettings().getFetchBlockSizeValue();
         presentation.setText(txt("app.dataEditor.action.FetchNextRecords", count));
         presentation.setIcon(Icons.DATA_EDITOR_FETCH_NEXT_RECORDS);
 

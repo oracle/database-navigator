@@ -26,6 +26,7 @@ import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import static com.dbn.data.value.LargeValueResourceLimits.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
@@ -33,17 +34,17 @@ import static org.junit.Assert.assertTrue;
 public class LargeObjectValueTest {
     @Test
     public void limitsExplicitClobReadsToMaximumSize() throws Exception {
-        ClobValue value = new ClobValue(resultSetWith(new SerialClob(new char[LargeObjectValue.MAX_READ_SIZE + 1])), 1);
+        ClobValue value = new ClobValue(resultSetWith(new SerialClob(new char[MAX_READ_SIZE + 1])), 1);
 
         String content = value.read(0);
 
-        assertEquals(LargeObjectValue.MAX_READ_SIZE, content.length());
+        assertEquals(MAX_READ_SIZE, content.length());
         assertTrue(value.isTruncated());
     }
 
     @Test
     public void rejectsUnboundedClobReadsAboveMaximumSize() throws Exception {
-        ClobValue value = new ClobValue(resultSetWith(new SerialClob(new char[LargeObjectValue.MAX_READ_SIZE + 1])), 1);
+        ClobValue value = new ClobValue(resultSetWith(new SerialClob(new char[MAX_READ_SIZE + 1])), 1);
 
         assertThrows(SQLException.class, value::read);
         assertTrue(value.isTruncated());
@@ -51,7 +52,7 @@ public class LargeObjectValueTest {
 
     @Test
     public void rejectsUnboundedBlobReadsAboveMaximumSize() throws Exception {
-        BlobValue value = new BlobValue(resultSetWith(new SerialBlob(new byte[LargeObjectValue.MAX_READ_SIZE + 1])), 1);
+        BlobValue value = new BlobValue(resultSetWith(new SerialBlob(new byte[MAX_READ_SIZE + 1])), 1);
 
         assertThrows(SQLException.class, value::read);
         assertTrue(value.isTruncated());

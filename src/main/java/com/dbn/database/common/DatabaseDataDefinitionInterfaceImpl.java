@@ -124,6 +124,29 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
     }
 
     /*********************************************************
+     *                   RENAME statements                   *
+     *********************************************************/
+    @Override
+    public void renameTable(String ownerName, String tableName, String newName, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "rename-table", ownerName, tableName, newName);
+    }
+
+    @Override
+    public void renameColumn(String ownerName, String tableName, String columnName, String newName, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "rename-column", ownerName, tableName, columnName, newName);
+    }
+
+    @Override
+    public void renameIndex(String ownerName, String tableName, String indexName, String newName, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "rename-index", ownerName, tableName, indexName, newName);
+    }
+
+    @Override
+    public void renameConstraint(String ownerName, String tableName, String constraintName, String newName, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "rename-constraint", ownerName, tableName, constraintName, newName);
+    }
+
+    /*********************************************************
      *                   DROP statements                     *
      *********************************************************/
     @Override

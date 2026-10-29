@@ -67,6 +67,17 @@ public interface DatabaseDataDefinitionInterface extends DatabaseInterface {
     void createTrigger(DBObjectSpec triggerSpec, DBNConnection connection) throws SQLException;
 
     /*********************************************************
+     *                   RENAME statements                   *
+     *********************************************************/
+    void renameTable(String ownerName, String tableName, String newName, DBNConnection connection) throws SQLException;
+
+    void renameColumn(String ownerName, String tableName, String columnName, String newName, DBNConnection connection) throws SQLException;
+
+    void renameIndex(String ownerName, String tableName, String indexName, String newName, DBNConnection connection) throws SQLException;
+
+    void renameConstraint(String ownerName, String tableName, String constraintName, String newName, DBNConnection connection) throws SQLException;
+
+    /*********************************************************
      *                   UPDATE statements                   *
      *********************************************************/
     void updateView(String ownerName, String viewName, String code, boolean editionable, DBNConnection connection) throws SQLException;

@@ -107,13 +107,13 @@ public class ScriptExecutionSettingsForm extends ConfigurationEditorForm<ScriptE
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             Project project = e.getProject();
-            if (project != null) {
-                ScriptExecutionManager scriptExecutionManager = ScriptExecutionManager.getInstance(project);
-                scriptExecutionManager.createCmdLineInterface(
-                        databaseType,
-                        cmdLineInterfacesTable.getNames(),
-                        inputValue -> cmdLineInterfacesTable.addInterface(inputValue));
-            }
+            if (project == null) return;
+
+            ScriptExecutionManager scriptExecutionManager = ScriptExecutionManager.getInstance(project);
+            scriptExecutionManager.createCmdLineInterface(
+                    databaseType,
+                    cmdLineInterfacesTable.getNames(),
+                    inputValue -> cmdLineInterfacesTable.addInterface(inputValue));
         }
     }
     
@@ -140,7 +140,8 @@ public class ScriptExecutionSettingsForm extends ConfigurationEditorForm<ScriptE
                 COMMAND_LINE_EXECUTION,
                 oldExecutorBundle.getInterfaces(),
                 executorBundle.getInterfaces(),
-                executorBundle.getDefaultInterfaces());
+                executorBundle.getDefaultInterfaces(),
+                model.getApprovalSignatures());
     }
 
     @Override

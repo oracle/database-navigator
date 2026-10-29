@@ -28,6 +28,7 @@ import com.dbn.connection.AuthenticationTokenType;
 import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectivityStatus;
+import com.dbn.connection.DatabaseInterfacesBundle;
 import com.dbn.connection.DatabaseProtocol;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.DatabaseUrlPattern;
@@ -39,6 +40,7 @@ import com.dbn.connection.config.tns.TnsNames;
 import com.dbn.connection.config.tns.TnsNamesParser;
 import com.dbn.connection.config.tns.TnsProfile;
 import com.dbn.connection.config.ui.ConnectionDatabaseSettingsForm;
+import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
 import com.dbn.driver.DatabaseDriverManager;
 import com.dbn.driver.DriverSource;
 import com.intellij.openapi.options.ConfigurationException;
@@ -57,7 +59,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Matcher;
 
 import static com.dbn.common.options.setting.Settings.getDouble;
 import static com.dbn.common.options.setting.Settings.getEnum;
@@ -73,6 +77,7 @@ import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.common.util.Strings.nvle;
 import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 import static com.dbn.connection.config.EasyConnectParameters.sanitizeParameters;
+import static com.dbn.database.DatabaseFeature.CONNECT_WITH_PRIVILEGE;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -503,8 +508,29 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
         authenticationInfo.readConfiguration(element);
         sessionUser = getString(element, "session-user", sessionUser);
 
+        migrateLegacyAdminPrivilege();
         deriveDatabaseType();
         updateSignature();
+    }
+
+    private void migrateLegacyAdminPrivilege() {
+        if (!authenticationInfo.getType().isOneOf(AuthenticationType.USER, USER_PASSWORD)) return;
+        if (!isEmptyOrSpaces(authenticationInfo.getAdminPrivilege())) return;
+
+        String user = authenticationInfo.getUser();
+        Matcher matcher = AuthenticationInfo.USER_AS_ADMIN_PRIVILEGE.matcher(nvle(user).trim());
+        if (!matcher.matches()) return;
+
+        DatabaseCompatibilityInterface compatibility =
+                DatabaseInterfacesBundle.get(databaseType).getCompatibilityInterface();
+        if (!compatibility.supportsFeature(CONNECT_WITH_PRIVILEGE)) return;
+
+        String adminPrivilege = matcher.group(2).toUpperCase(Locale.ENGLISH);
+        boolean supportedAdminPrivilege = compatibility.isAdministrativePrivilege(adminPrivilege);
+        if (!supportedAdminPrivilege) return;
+
+        authenticationInfo.setUser(matcher.group(1).trim());
+        authenticationInfo.setAdminPrivilege(adminPrivilege);
     }
 
     @Nullable

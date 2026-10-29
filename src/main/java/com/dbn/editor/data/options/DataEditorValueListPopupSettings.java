@@ -25,6 +25,8 @@ import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.editor.data.DataEditorResourceLimits.DEFAULT_VALUE_LIST_THRESHOLD;
+import static com.dbn.editor.data.DataEditorResourceLimits.normalizeValueListThreshold;
 import static com.dbn.nls.NlsResources.txt;
 
 @Getter
@@ -32,11 +34,15 @@ import static com.dbn.nls.NlsResources.txt;
 @EqualsAndHashCode(callSuper = false)
 public class DataEditorValueListPopupSettings extends BasicConfiguration<DataEditorSettings, DatatEditorValueListPopupSettingsForm> {
     private boolean showPopupButton = true;
-    private int elementCountThreshold = 1000;
+    private int elementCountThreshold = DEFAULT_VALUE_LIST_THRESHOLD;
     private int dataLengthThreshold = 250;
 
     DataEditorValueListPopupSettings(DataEditorSettings parent) {
         super(parent);
+    }
+
+    public void setElementCountThreshold(int elementCountThreshold) {
+        this.elementCountThreshold = normalizeValueListThreshold(elementCountThreshold);
     }
 
     @Override

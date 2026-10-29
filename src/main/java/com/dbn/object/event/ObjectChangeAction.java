@@ -26,6 +26,7 @@ import com.dbn.common.constant.Constant;
 public enum ObjectChangeAction implements Constant<ObjectChangeAction> {
     CREATE,
     UPDATE,
+    RENAME,
     DELETE,
     ENABLE,
     DISABLE,

@@ -77,10 +77,10 @@ dependencies {
     // ********** DEPENDENCY TREE MODEL **********
 /*
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.22")
-    implementation("com.fasterxml.jackson.core:jackson-core:2.22.2")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.22.2")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.22.2")
-    implementation("com.fasterxml.jackson.module:jackson-modules-base:2.22.2")
+    implementation("com.fasterxml.jackson.core:jackson-core:2.22.3")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.22.3")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.22.3")
+    implementation("com.fasterxml.jackson.module:jackson-modules-base:2.22.3")
     implementation("com.fasterxml.jackson.module:jackson-modules-java8:2.22.")
     implementation("com.oracle.oci.sdk:oci-java-sdk-circuitbreaker:3.76.1")
     implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient-jersey:3.76.1")
@@ -117,13 +117,13 @@ dependencies {
     // ********** DEPENDENCY FLAT MODEL **********
     implementation("joda-time:joda-time:2.14.2@jar")
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.22@jar")
-    implementation("com.fasterxml.jackson.core:jackson-core:2.22.2@jar")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.22.2@jar")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.22.2@jar")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-joda:2.22.2@jar")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.22.2@jar")
-    implementation("com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.22.2@jar")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.22.2@jar")
+    implementation("com.fasterxml.jackson.core:jackson-core:2.22.3@jar")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.22.3@jar")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.22.3@jar")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-joda:2.22.3@jar")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.22.3@jar")
+    implementation("com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.22.3@jar")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.22.3@jar")
     implementation("com.oracle.oci.sdk:oci-java-sdk-circuitbreaker:3.76.1@jar")
     implementation("com.oracle.oci.sdk:oci-java-sdk-databasetools:3.76.1@jar")
     implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient-jersey:3.76.1@jar")
@@ -168,8 +168,8 @@ dependencies {
     implementation("org.apache.poi:poi-ooxml-lite:5.4.1@jar")
     implementation("org.apache.poi:poi-ooxml:5.4.1@jar")
     implementation("org.apache.poi:poi:5.4.1@jar")
-    implementation("org.apache.sshd:sshd-common:2.16.0@jar")
-    implementation("org.apache.sshd:sshd-core:2.16.0@jar")
+    implementation("org.apache.sshd:sshd-common:2.20.0@jar")
+    implementation("org.apache.sshd:sshd-core:2.20.0@jar")
     implementation("org.apache.xmlbeans:xmlbeans:5.3.0@jar")
     implementation("org.codehaus.plexus:plexus-interpolation:1.27@jar")
     implementation("org.codehaus.plexus:plexus-utils:3.6.1@jar")
@@ -198,10 +198,10 @@ dependencies {
 
     // Oracle
     bundledJdbcOracle("com.fasterxml.jackson.core:jackson-annotations:2.22@jar")
-    bundledJdbcOracle("com.fasterxml.jackson.core:jackson-core:2.22.2@jar")
-    bundledJdbcOracle("com.fasterxml.jackson.core:jackson-databind:2.22.2@jar")
-    bundledJdbcOracle("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.22.2@jar")
-    bundledJdbcOracle("com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.22.2@jar")
+    bundledJdbcOracle("com.fasterxml.jackson.core:jackson-core:2.22.3@jar")
+    bundledJdbcOracle("com.fasterxml.jackson.core:jackson-databind:2.22.3@jar")
+    bundledJdbcOracle("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.22.3@jar")
+    bundledJdbcOracle("com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.22.3@jar")
     bundledJdbcOracle("com.oracle.database.ha:ons:23.26.1.0.0@jar")
     bundledJdbcOracle("com.oracle.database.ha:simplefan:23.26.1.0.0@jar")
     bundledJdbcOracle("com.oracle.database.jdbc:ojdbc-provider-common:1.1.0@jar")
@@ -255,7 +255,7 @@ dependencies {
     bundledJdbcMysql("com.mysql:mysql-connector-j:9.5.0@jar")
 
     // PostgreSQL
-    bundledJdbcPostgres("org.postgresql:postgresql:42.7.13@jar")
+    bundledJdbcPostgres("org.postgresql:postgresql:42.7.14@jar")
 
     // SQLite
     bundledJdbcSqlite("org.xerial:sqlite-jdbc:3.53.2.0@jar")

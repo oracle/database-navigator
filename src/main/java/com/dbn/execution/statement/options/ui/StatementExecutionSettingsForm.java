@@ -26,7 +26,10 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import static com.dbn.common.options.ui.ConfigurationEditors.validateIntegerValue;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
+import static com.dbn.execution.ExecutionResourceLimits.MAX_RESULT_SET_FETCH_BLOCK_SIZE;
+import static com.dbn.execution.ExecutionResourceLimits.MIN_RESULT_SET_FETCH_BLOCK_SIZE;
 import static com.dbn.nls.NlsResources.txt;
 
 public class StatementExecutionSettingsForm extends ConfigurationEditorForm<StatementExecutionSettings> {
@@ -59,9 +62,11 @@ public class StatementExecutionSettingsForm extends ConfigurationEditorForm<Stat
     @Override
     public void applyFormChanges() throws ConfigurationException {
         StatementExecutionSettings configuration = getConfiguration();
-        configuration.setResultSetFetchBlockSize(ConfigurationEditors.validateIntegerValue(fetchBlockSizeTextField, txt("cfg.execution.field.FetchBlockSize"), true, 1, 10000, null));
-        int executionTimeout = ConfigurationEditors.validateIntegerValue(executionTimeoutTextField, txt("cfg.execution.field.ExecutionTimeout"), true, 0, 6000, txt("cfg.shared.hint.ZeroForNoTimeout"));
-        int debugExecutionTimeout = ConfigurationEditors.validateIntegerValue(debugExecutionTimeoutTextField, txt("cfg.execution.field.DebugExecutionTimeout"), true, 0, 6000, txt("cfg.shared.hint.ZeroForNoTimeout"));
+        configuration.setResultSetFetchBlockSize(validateIntegerValue(fetchBlockSizeTextField,
+                txt("cfg.execution.field.FetchBlockSize"), true,
+                MIN_RESULT_SET_FETCH_BLOCK_SIZE, MAX_RESULT_SET_FETCH_BLOCK_SIZE, null));
+        int executionTimeout = validateIntegerValue(executionTimeoutTextField, txt("cfg.execution.field.ExecutionTimeout"), true, 0, 6000, txt("cfg.shared.hint.ZeroForNoTimeout"));
+        int debugExecutionTimeout = validateIntegerValue(debugExecutionTimeoutTextField, txt("cfg.execution.field.DebugExecutionTimeout"), true, 0, 6000, txt("cfg.shared.hint.ZeroForNoTimeout"));
 
         configuration.setFocusResult(focusResultCheckBox.isSelected());
         configuration.setPromptExecution(promptExecutionCheckBox.isSelected());

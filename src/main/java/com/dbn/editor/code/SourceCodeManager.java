@@ -79,7 +79,6 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.text.DateFormatUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -674,18 +673,5 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
                                 }
                             }
                         }));
-    }
-
-    /*********************************************
-     *            PersistentStateComponent       *
-     *********************************************/
-    @Nullable
-    @Override
-    public Element getComponentState() {
-        return null;
-    }
-
-    @Override
-    public void loadComponentState(@NotNull Element element) {
     }
 }

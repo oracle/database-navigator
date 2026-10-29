@@ -80,6 +80,10 @@ public class TextContent {
     }
 
     public void initFonts() {
+        initFonts(getLabelForeground());
+    }
+
+    public void initFonts(Color fontColor) {
         // quick hack for R3.5.0 accessibility:
         // TODO use velocity template engine instead / proper font family and size placeholders
         Font font = getLabelFont();
@@ -88,7 +92,7 @@ public class TextContent {
 
         Color color = tooltip ?
                 getToolTipForeground() :
-                getLabelForeground();
+                fontColor;
         String colorHex = toHex(color);
 
         replaceFields("REGULAR_FONT_STYLE",

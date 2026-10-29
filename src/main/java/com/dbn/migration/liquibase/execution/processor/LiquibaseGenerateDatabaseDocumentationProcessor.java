@@ -54,7 +54,9 @@ public class LiquibaseGenerateDatabaseDocumentationProcessor extends LiquibaseEx
         LiquibaseWorkspacePaths paths = context.getInput().getWorkspacePaths();
         Path documentationDirectory = paths.getDocumentationDirectoryPath();
         context.getResult().setDocumentationPath(documentationDirectory.resolve("index.html"));
+        paths.validateOutputDirectory(documentationDirectory);
         Files.createDirectories(documentationDirectory);
+        paths.validateOutputDirectory(documentationDirectory);
 
         DBSchema targetSchema = context.getTargetSchema();
         withLiquibaseDatabase(context, true, targetSchema, database ->
@@ -88,6 +90,7 @@ public class LiquibaseGenerateDatabaseDocumentationProcessor extends LiquibaseEx
                 CATALOG_AND_SCHEMAS_ARG.getName(), new CatalogAndSchema[]{catalogAndSchema});
         Map<Class<?>, Object> dependencies = Map.of(DatabaseChangeLog.class, changeLog);
 
+        paths.validateOutputDirectory(documentationDirectory);
         executeCommand(
                 GENERATE_DATABASE_DOCUMENTATION,
                 context,

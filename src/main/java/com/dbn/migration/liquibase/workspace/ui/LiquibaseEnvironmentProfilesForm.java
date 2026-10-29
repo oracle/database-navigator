@@ -34,6 +34,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 import java.awt.BorderLayout;
 import java.util.Map;
 
@@ -43,6 +44,7 @@ import static com.dbn.common.ui.CardLayouts.removeCard;
 import static com.dbn.common.ui.CardLayouts.showCard;
 import static com.dbn.common.ui.util.Decorators.createToolbarDecorator;
 import static com.dbn.common.ui.util.Decorators.createToolbarDecoratorComponent;
+import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
 import static com.dbn.nls.NlsResources.txt;
 
 /** List and detail form for managing named Liquibase environment profiles. */
@@ -52,6 +54,7 @@ public class LiquibaseEnvironmentProfilesForm extends DBNFormBase {
     private JPanel profilesPanel;
     private JPanel detailsPanel;
     private JList<LiquibaseEnvironmentProfile> profilesList;
+    private JSplitPane splitPane;
 
     private final LiquibaseEnvironmentProfileBundle bundle;
     private final Map<String, LiquibaseEnvironmentProfileForm> profileForms = DisposableContainers.map(this);
@@ -67,6 +70,7 @@ public class LiquibaseEnvironmentProfilesForm extends DBNFormBase {
             label.setForeground(selected ? list.getSelectionForeground() : list.getForeground());
             return label;
         });
+        setSplitPaneProportion(splitPane, 0.3);
         profilesList.addListSelectionListener(e -> showSelectedProfile());
         profilesPanel.removeAll();
         profilesPanel.add(initProfilesList());

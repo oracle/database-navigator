@@ -19,7 +19,6 @@ package com.dbn.plugin.ui;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.text.TextResources;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.util.Alarms;
 import com.dbn.plugin.PluginConflictResolution;
 import com.intellij.util.Alarm;
@@ -35,6 +34,7 @@ import java.awt.event.ActionListener;
 import java.util.concurrent.TimeUnit;
 
 import static com.dbn.common.text.TextContent.html;
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.nls.NlsResources.txt;
 
 public class PluginConflictResolutionForm extends DBNFormBase {
@@ -52,9 +52,7 @@ public class PluginConflictResolutionForm extends DBNFormBase {
         super(dialog);
         String content = TextResources.getLocalizable(this, "plugin_conflict_resolution.html.ft");
         TextContent hintText = html(content);
-        DBNHintForm disclaimerForm = new DBNHintForm(this, hintText, null);
-        disclaimerForm.setHighlighted(true);
-        hintPanel.add(disclaimerForm.getComponent());
+        installHintForm(this, hintText, hintPanel);
 
         selectOptionLabel.setVisible(false);
         selectOptionAlarm = Alarms.createAlarm(this);

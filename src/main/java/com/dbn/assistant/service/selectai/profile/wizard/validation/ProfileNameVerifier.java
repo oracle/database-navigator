@@ -26,6 +26,7 @@ import java.awt.Color;
 import java.util.Set;
 
 import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.common.ui.util.Tooltips.setToolTipText;
 import static com.dbn.common.util.Strings.isAlphanumericWithUnderscore;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -54,16 +55,16 @@ public class ProfileNameVerifier extends InputVerifier {
 
     if (isEmpty) {
       textField.setBorder(ERROR_BORDER);
-      textField.setToolTipText(txt("cfg.assistant.error.ProfileNameEmpty"));
+      setToolTipText(textField, txt("cfg.assistant.error.ProfileNameEmpty"));
     } else if (!hasValidFormat) {
       textField.setBorder(ERROR_BORDER);
-      textField.setToolTipText(txt("cfg.assistant.error.ProfileNameInvalid"));
+      setToolTipText(textField, txt("cfg.assistant.error.ProfileNameInvalid"));
     } else if (exists && !isUpdate) {
       textField.setBorder(ERROR_BORDER);
-      textField.setToolTipText(txt("cfg.assistant.error.ProfileNameExists"));
+      setToolTipText(textField, txt("cfg.assistant.error.ProfileNameExists"));
     } else {
       textField.setBorder(DEFAULT_BORDER);
-      textField.setToolTipText(null);
+      setToolTipText(textField, null);
     }
 
     return !isEmpty && hasValidFormat && !(exists && !isUpdate);

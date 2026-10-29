@@ -23,7 +23,6 @@ import com.dbn.common.thread.Write;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNFormModel;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.info.DBNCommentLabel;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
@@ -40,6 +39,7 @@ import com.dbn.mcp.model.McpServerImplementation;
 import com.dbn.mcp.model.McpToolDefinition;
 import com.dbn.mcp.model.McpTransportType;
 import com.dbn.mcp.util.McpServerName;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileChooserFactory;
@@ -62,6 +62,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.link.Hyperlinks.onHyperlinkAccess;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
@@ -133,7 +134,7 @@ public class McpServerDefinitionForm extends DBNFormBase {
     private void initHintPanel() {
         TextContent hintContent = TextContent.plain(
                 txt("msg.mcp.hint.ServerDefinition"));
-        hintPanel.add(new DBNHintForm(this, hintContent, null).getComponent());
+        installHintForm(this, hintContent, hintPanel);
     }
 
     private DBNBanner containerWarningBanner;
@@ -305,7 +306,7 @@ public class McpServerDefinitionForm extends DBNFormBase {
 
         configFileTextField.setText(displayConfigFilePath);
         if (!configFilePath.equals(displayConfigFilePath)) {
-            configFileTextField.setToolTipText(configFilePath);
+            Tooltips.setToolTipText(configFileTextField, configFilePath);
         }
         updateFieldAvailability();
     }

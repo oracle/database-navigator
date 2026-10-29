@@ -33,6 +33,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import static com.dbn.object.common.property.DBObjectProperty.INVALIDABLE;
+import static com.dbn.object.common.property.DBObjectProperty.RENAMABLE;
 import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
 import static com.dbn.object.common.property.DBObjectProperty.UNIQUE;
 import static com.dbn.object.common.status.DBObjectStatus.VALID;
@@ -58,6 +59,7 @@ class DBIndexImpl extends DBSchemaObjectImpl<DBIndexMetadata> implements DBIndex
     public void initProperties() {
         properties.set(SCHEMA_OBJECT, true);
         properties.set(INVALIDABLE, true);
+        properties.set(RENAMABLE, true);
     }
 
     @Override

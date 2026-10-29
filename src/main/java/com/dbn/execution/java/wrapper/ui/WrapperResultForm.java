@@ -19,7 +19,6 @@ package com.dbn.execution.java.wrapper.ui;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.execution.java.wrapper.WrapperModel;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.ui.DBObjectRefListCellRenderer;
@@ -31,6 +30,7 @@ import com.intellij.ui.components.JBList;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.nls.NlsResources.txt;
 
 public class WrapperResultForm extends DBNFormBase {
@@ -57,8 +57,7 @@ public class WrapperResultForm extends DBNFormBase {
     private void initHintPanel(WrapperModel model) {
         DBObjectType objectType = model.getSourceObject().getObjectType();
         TextContent hintText = TextContent.plain(txt("msg.java.hint.WrapperResult", objectType.getName()));
-        DBNHintForm hintForm = new DBNHintForm(this, hintText, null);
-        hintPanel.add(hintForm.getComponent());
+        installHintForm(this, hintText, hintPanel);
     }
 
 

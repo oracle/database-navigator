@@ -20,7 +20,6 @@ import com.dbn.common.dispose.Disposer;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.misc.DBNTableScrollPane;
-import com.dbn.common.ui.panel.DBNLoadingPanel;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.PooledConnection;
@@ -36,12 +35,10 @@ import com.dbn.object.DBColumn;
 import com.dbn.object.DBNestedTable;
 import com.dbn.object.DBTable;
 import com.intellij.openapi.Disposable;
-import com.intellij.util.ui.AsyncProcessIcon;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.sql.SQLException;
 import java.util.List;
@@ -89,7 +86,7 @@ class DBNestedTableViewerForm extends DBNFormBase {
         resultPanel.setBorder(Borders.COMPONENT_OUTLINE_BORDER);
 
         Disposer.register(this, dataModel);
-        whenFirstShown(this::loadData);
+        whenInitialized(() -> loadData());
     }
 
     private void loadData() {

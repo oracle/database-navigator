@@ -22,7 +22,6 @@ import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.object.common.DBObject;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,6 +30,8 @@ import javax.swing.JCheckBox;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import java.util.List;
+
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 
 public class SelectDDLFileForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -44,8 +45,7 @@ public class SelectDDLFileForm extends DBNFormBase {
         DBNHeaderForm headerForm = new DBNHeaderForm(this, object);
         headerPanel.add(headerForm.getComponent());
 
-        DBNHintForm hintForm = new DBNHintForm(this, hint, null);
-        hintPanel.add(hintForm.getComponent());
+        installHintForm(this, hint, hintPanel);
 
         DefaultListModel<VirtualFileInfo> listModel = new DefaultListModel<>();
         for (VirtualFileInfo fileInfo : fileInfos) {

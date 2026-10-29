@@ -18,15 +18,18 @@ package com.dbn.object.factory.ui.common;
 
 import com.dbn.common.color.Colors;
 import com.dbn.common.environment.options.EnvironmentSettings;
+import com.dbn.common.state.StateAttributes;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.object.factory.ObjectFactoryManager;
 import com.dbn.object.factory.model.DBObjectAttribute;
 import com.dbn.object.factory.model.DBObjectAttributeType;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.type.DBObjectType;
+import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -65,6 +68,18 @@ public abstract class DBObjectFactoryInputForm extends DBNFormBase {
 
         DBObjectAttribute<?> attribute = input.getAttribute(type);
         return attribute == null || attribute.isReadonly();
+    }
+
+    @NotNull
+    protected ObjectFactoryManager getFactoryManager() {
+        return ObjectFactoryManager.getInstance(ensureProject());
+    }
+
+    @NotNull
+    protected StateAttributes getUserInterfaceState() {
+        Project project = ensureProject();
+        ObjectFactoryManager factoryManager = ObjectFactoryManager.getInstance(project);
+        return factoryManager.getUserInterfaceState(getObjectType());
     }
 
     @NotNull

@@ -138,22 +138,9 @@ $h3 4.2. HTTP mode with Cline (`transport: "http"`)
 }
 ```
 
-$h3 4.3. HTTP mode with Claude Desktop (`transport: "http"`)
+$h3 4.3. Claude Desktop
 
-```json
-{
-  "mcpServers": {
-    "${SERVER_NAME}": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-remote",
-        "http://127.0.0.1:${HTTP_PORT}/mcp"
-      ]
-    }
-  }
-}
-```
+For Claude Desktop, select `stdio` as the transport when building the server and use the configuration in section 4.1. DBN does not generate an HTTP configuration for Claude Desktop. HTTP mode is available for clients that connect directly to Streamable HTTP, such as Cline.
 
 ---
 

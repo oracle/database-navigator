@@ -16,6 +16,7 @@
 
 package com.dbn.object.management;
 
+import com.dbn.common.attributes.Attributes;
 import com.dbn.common.extension.ExtensionPoint;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.event.ObjectChangeAction;
@@ -34,6 +35,6 @@ public interface ObjectManagementAdapterExtension<T extends DBObject> extends Ex
 
     DBObjectType[] getObjectTypes();
 
-    ObjectManagementAdapter<T> createAdapter(T object, ObjectChangeAction action);
+    ObjectManagementAdapter<T> createAdapter(T object, ObjectChangeAction action, Attributes attributes);
 
 }

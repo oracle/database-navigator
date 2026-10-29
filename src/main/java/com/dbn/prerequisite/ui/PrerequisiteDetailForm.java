@@ -29,6 +29,7 @@ import com.dbn.prerequisite.model.PrerequisiteGroup;
 import com.dbn.prerequisite.model.PrerequisiteMandate;
 import com.dbn.prerequisite.model.PrerequisiteStatus;
 import com.dbn.prerequisite.model.PrerequisiteType;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.util.ui.AsyncProcessIcon;
 import com.intellij.util.ui.JBUI;
 
@@ -106,7 +107,7 @@ public class PrerequisiteDetailForm extends DBNFormBase implements PrerequisiteE
         Exception exception = prerequisite.getStatusException();
         String message = prerequisite.getStatusMessage();
 
-        statusLabel.setToolTipText(message);
+        Tooltips.setToolTipText(statusLabel, message);
         if (exception != null) {
             statusLabel.setText(txt("app.shared.label.Unknown"));
         } else if (status == PrerequisiteStatus.AVAILABLE) {

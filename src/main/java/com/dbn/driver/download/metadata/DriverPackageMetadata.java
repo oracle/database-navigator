@@ -18,6 +18,7 @@ package com.dbn.driver.download.metadata;
 
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.state.PersistentStateElement;
+import com.dbn.common.thread.Synchronized;
 import com.dbn.common.util.TimeUtil;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.provider.CloudConfigProviderFamily;
@@ -75,29 +76,37 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
  */
 @Setter
 public class DriverPackageMetadata implements PersistentStateElement {
+    public enum RefreshMode { NORMAL, FORCE }
+
     private static final int METADATA_VERSION = 4;
     private static final int REFRESH_INTERVAL = 7;
     private static final TimeUnit REFRESH_INTERVAL_UNIT = TimeUnit.DAYS;
 
-    private int metadataVersion = METADATA_VERSION;
+    private volatile int metadataVersion = METADATA_VERSION;
     private final Map<String, Long> lastRefresh = new ConcurrentHashMap<>();
     private final Map<String, DriverPackage> driverPackages = new ConcurrentHashMap<>();
 
-    @SneakyThrows
-    public synchronized void refreshDriverPackages(DatabaseType databaseType) {
-        refreshDriverPackages(databaseType, null);
+    /** Refreshes package metadata, optionally ignoring the normal freshness interval. */
+    public void refreshDriverPackages(
+            DatabaseType databaseType,
+            @Nullable CloudConfigProviderFamily providerFamily,
+            @NotNull RefreshMode refreshMode) {
+        Synchronized.on(this, databaseType, o -> {refreshDriverPackagesLocked(databaseType, providerFamily, refreshMode); });
     }
 
     @SneakyThrows
-    public synchronized void refreshDriverPackages(DatabaseType databaseType, @Nullable CloudConfigProviderFamily providerFamily) {
+    private void refreshDriverPackagesLocked(
+            DatabaseType databaseType,
+            @Nullable CloudConfigProviderFamily providerFamily,
+            @NotNull RefreshMode refreshMode) {
         if (providerFamily == null) {
             for (CloudConfigProviderFamily family : CloudConfigProviderFamily.values()) {
-                refreshDriverPackages(databaseType, family);
+                refreshDriverPackagesLocked(databaseType, family, refreshMode);
             }
             return;
         }
 
-        if (!isOutdated(databaseType, providerFamily)) return;
+        if (refreshMode == RefreshMode.NORMAL && !isOutdated(databaseType, providerFamily)) return;
 
         ProgressIndicator indicator = ProgressMonitor.getProgressIndicator();
         DownloadSession session = new DownloadSession(indicator);
@@ -108,12 +117,13 @@ public class DriverPackageMetadata implements PersistentStateElement {
 
         // Mark packages obsolete only for the refreshed database type/provider family.
         this.driverPackages.values().stream()
-                .filter(p -> p.matches(databaseType))
+                // GENERIC is a wildcard in package queries, but a metadata refresh is exact-type.
+                .filter(p -> p.getDatabaseType() == databaseType)
                 .filter(p -> p.matches(providerFamily))
                 .forEach(p -> p.setObsolete(!packageIds.contains(p.getId())));
         this.driverPackages.putAll(driverPackages);
 
-        verifyDriverPackages();
+        verifyDriverPackages(databaseType, providerFamily);
         metadataVersion = METADATA_VERSION;
         lastRefresh.put(refreshKey(databaseType, providerFamily), System.currentTimeMillis());
     }
@@ -144,7 +154,15 @@ public class DriverPackageMetadata implements PersistentStateElement {
             DatabaseType databaseType,
             @Nullable CloudConfigProviderFamily providerFamily,
             Predicate<DriverPackage> predicate) {
-        refreshDriverPackages(databaseType, providerFamily);
+        refreshDriverPackages(databaseType, providerFamily, RefreshMode.NORMAL);
+        return getCachedDriverPackages(databaseType, providerFamily, predicate);
+    }
+
+    /** Returns matching metadata already in memory without triggering a network refresh. */
+    public List<DriverPackage> getCachedDriverPackages(
+            DatabaseType databaseType,
+            @Nullable CloudConfigProviderFamily providerFamily,
+            Predicate<DriverPackage> predicate) {
         return driverPackages.values().stream()
                 .sorted()
                 .filter(p -> p.matches(databaseType))
@@ -178,17 +196,21 @@ public class DriverPackageMetadata implements PersistentStateElement {
     }
 
     /**
-     * Verifies the checksums for the given list of DriverPackage objects.
-     * Cleans up packages (via DriverDownloadManager) if checksums fail.
+     * Verifies downloaded packages affected by this database type and provider refresh.
      *
      * @throws Exception If any I/O or related errors occur during verification.
      */
-    private void verifyDriverPackages() throws Exception {
-        // Check if there's any package status to process
+    private void verifyDriverPackages(
+            DatabaseType databaseType,
+            @Nullable CloudConfigProviderFamily providerFamily) throws Exception {
+        // Check if there's any package download state to process
         DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
-        if (downloadManager.getPackagesStatus().isEmpty()) return;
+        if (downloadManager.getPackageDownloadStates().isEmpty()) return;
 
         for (DriverPackage driverPackage : driverPackages.values()) {
+            if (driverPackage.getDatabaseType() != databaseType) continue;
+            if (!driverPackage.matches(providerFamily)) continue;
+
             verifyDriverPackage(driverPackage);
         }
     }
@@ -206,14 +228,14 @@ public class DriverPackageMetadata implements PersistentStateElement {
         File packageDir = new File(downloadPath);
         PackageChecksumData checksumData = downloadManager.getChecksumData(packageId);
         List<String> libraryIds = driverPackage.getLibraryIds();
-        downloadManager.reconcilePackageStatus(driverPackage);
+        downloadManager.reconcilePackageDownloadState(driverPackage);
 
         // If no checksum file exists, all libraries are set to NEW
         if (checksumData.fileExists()) {
             checksumData.readChecksums();
             boolean checksumsValid = checksumData.verifyChecksums(packageDir, libraryIds);
             if (!checksumsValid) {
-                downloadManager.cleanupPackage(packageId);
+                downloadManager.resetPackageDownloadStatuses(packageId);
             }
         } else {
             for (String libraryId : libraryIds) {

@@ -189,6 +189,7 @@
         <applicationService serviceImplementation="com.dbn.plugin.PluginStatusManager"/>
         <applicationService serviceImplementation="com.dbn.plugin.PluginConflictManager"/>
         <applicationService serviceImplementation="com.dbn.common.file.FileTypeService"/>
+        <applicationService serviceImplementation="com.dbn.common.checksum.file.FileFingerprintCache"/>
         <applicationService serviceImplementation="com.dbn.driver.DatabaseDriverManager"/>
         <applicationService serviceImplementation="com.dbn.driver.download.DriverDownloadManager"/>
         <applicationService serviceImplementation="com.dbn.connection.config.tns.TnsImportService"/>
@@ -270,6 +271,7 @@
         <projectService serviceImplementation="com.dbn.connection.session.DatabaseSessionManager"/>
         <projectService serviceImplementation="com.dbn.connection.console.DatabaseConsoleManager"/>
         <projectService serviceImplementation="com.dbn.oci.config.OciConfigManager"/>
+        <projectService serviceImplementation="com.dbn.object.management.DatabaseObjectManager"/>
         <projectService serviceInterface="com.dbn.object.management.ObjectManagementService" serviceImplementation="com.dbn.object.management.ObjectManagementServiceImpl"/>
 
         <fileIconPatcher implementation="com.dbn.vfs.DBFileIconPatcher"/>
@@ -415,6 +417,9 @@
         <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBEventTriggerFactoryAdapter"/>
 
         <!--object management adapters-->
+        <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBTableManagementAdapter"/>
+        <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBColumnManagementAdapter"/>
+        <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBIndexManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBConstraintManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBCredentialManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBDatasourceConfigManagementAdapter"/>
@@ -717,6 +722,8 @@
                 <action id="DBN.MainMenu.LiquibaseWorkflowDashboard" class="com.dbn.menu.action.LiquibaseWorkflowDashboardOpenAction"/>
             </group>
             <separator/>
+            <action class="com.dbn.driver.dashboard.DriverLibraryDashboardOpenAction" id="DBN.MainMenu.DriverLibraryDashboard"/>
+            <separator/>
             <action id="DBN.MainMenu.Settings" class="com.dbn.menu.action.ProjectSettingsOpenAction"/>
             <group id="DBN.MainMenu.DefaultSettings" popup="true">
                 <action id="DBN.MainMenu.DefaultSettings.Open" class="com.dbn.menu.action.ProjectDefaultSettingsOpenAction"/>
@@ -880,9 +887,8 @@
             <action id="DBN.Vector.Embedding.Result.Toolbox" class="com.dbn.vector.action.VectorEmbeddingToolboxAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_INPUT_FORM"/>
         </group>
         <group id="DBN.MachineLearning.Result">
-            <action id="DBN.MachineLearning.Result.Toolbox" class="com.dbn.ml.result.action.MLResultTrainAgainAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_INPUT_FORM"/>
-            <action id="DBN.MachineLearning.Result.Predict" class="com.dbn.ml.result.action.MLResultPredictAction" icon="com.dbn.common.icon.Icons.ACTION_EXECUTE"/>
-            <action id="DBN.MachineLearning.Result.ViewInDatabase" class="com.dbn.ml.result.action.MLResultViewInBrowserAction" icon="com.dbn.common.icon.Icons.DBO_MINING_MODEL"/>
+            <action id="DBN.MachineLearning.Result.Toolbox" class="com.dbn.ml.request.action.MLResultTrainAgainAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_INPUT_FORM"/>
+            <action id="DBN.MachineLearning.Result.Predict" class="com.dbn.ml.prediction.action.MLResultPredictAction" icon="com.dbn.common.icon.Icons.ACTION_EXECUTE"/>
             <separator/>
             <action id="DBN.MachineLearning.Result.Close" class="com.dbn.ml.result.action.MLResultCloseAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_CLOSE"/>
         </group>

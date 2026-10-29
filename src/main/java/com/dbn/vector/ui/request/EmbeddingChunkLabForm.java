@@ -20,7 +20,6 @@ import com.dbn.common.color.Colors;
 import com.dbn.common.file.FileTypes;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Documents;
@@ -50,6 +49,7 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import java.sql.ResultSet;
 
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.common.ui.util.Buttons.onButtonClickAsync;
 import static com.dbn.common.util.Editors.installEditorLayoutUpdater;
 import static com.dbn.common.util.Editors.restrictEditorHeight;
@@ -88,8 +88,7 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
     private void initHintPanel() {
         TextContent textContent = TextContent.plain(
                 txt("msg.vector.hint.ChunkLab"));
-        DBNHintForm hintForm = new DBNHintForm(this, textContent, null);
-        hintPanel.add(hintForm.getComponent());
+        installHintForm(this, textContent, hintPanel);
     }
 
     private void initOutputPanel() {
