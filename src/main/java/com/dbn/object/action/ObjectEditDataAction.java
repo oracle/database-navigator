@@ -26,7 +26,11 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.common.exception.Exceptions.unsupported;
+import static com.dbn.editor.DBContentType.DATA;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.object.common.property.DBObjectProperty.EDITABLE;
 
 public class ObjectEditDataAction extends AnObjectAction<DBObject> {
     public ObjectEditDataAction(DBObject object) {
@@ -35,13 +39,28 @@ public class ObjectEditDataAction extends AnObjectAction<DBObject> {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DBObject object) {
+        if (!isSupported(object)) {
+            presentation.setVisible(false);
+            return;
+        }
+
         presentation.setText(txt("app.objects.action.EditData"));
         presentation.setIcon(Icons.OBJECT_EDIT_DATA);
+        presentation.setVisible(true);
     }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DBObject object) {
+        if (!isSupported(object)) unsupported(DATA);
+
         DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(project);
         editorManager.connectAndOpenEditor(object, EditorProviderId.DATA, false, true);
+    }
+
+    public static boolean isSupported(@Nullable DBObject object) {
+        if (isNotValid(object)) return false;
+        if (!object.is(EDITABLE)) return false;
+
+        return object.getContentType().has(DATA);
     }
 }

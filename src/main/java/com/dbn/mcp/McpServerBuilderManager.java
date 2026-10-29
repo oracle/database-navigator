@@ -16,7 +16,6 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -25,7 +24,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.constantAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setConstantAttribute;
 import static com.dbn.mcp.build.McpMavenPluginSupport.verifyMavenAvailability;
 
@@ -78,10 +76,9 @@ public class McpServerBuilderManager extends ProjectComponentBase implements Per
     /****************************************
      *       PersistentStateComponent       *
      *****************************************/
-    @Nullable
     @Override
-    public Element getComponentState() {
-        Element element = newStateElement();
+    public void writeState(Element element) {
+        super.writeState(element);
         Element definitionsElement = newElement(element, "server-definitions");
         for (ConnectionId connectionId : serverDefinitions.keySet()) {
             Element definitionElement = newElement(definitionsElement, "server-definition");
@@ -90,11 +87,11 @@ public class McpServerBuilderManager extends ProjectComponentBase implements Per
             McpServerDefinition serverDefinition = serverDefinitions.get(connectionId);
             serverDefinition.writeState(definitionElement);
         }
-        return element;
     }
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
+    public void readState(@NotNull Element element) {
+        super.readState(element);
         Element definitionsElement = element.getChild("server-definitions");
         List<Element> definitionElements = childrenOf(definitionsElement, "server-definition");
         for (Element definitionElement : definitionElements) {

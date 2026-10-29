@@ -16,6 +16,7 @@
 
 package com.dbn.object.management;
 
+import com.dbn.common.attributes.Attributes;
 import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.common.outcome.OutcomeType;
 import com.dbn.common.util.Named;
@@ -44,6 +45,8 @@ public interface ObjectManagementAdapter<T extends Named>  {
      * @return an {@link ObjectChangeAction}
      */
     ObjectChangeAction getAction();
+
+    Attributes getAttributes();
 
     /**
      * Returns the type of the object this adapter is capable of handling

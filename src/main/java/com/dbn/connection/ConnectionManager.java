@@ -74,7 +74,6 @@ import com.intellij.openapi.util.NlsContexts.DialogTitle;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -634,16 +633,4 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
             });
         });
     }
-
-    /*********************************************************
-     *                PersistentStateComponent               *
-     *********************************************************/
-    @Override
-    @Nullable
-    public Element getComponentState() {
-        return null;
-    }
-
-    @Override
-    public void loadComponentState(@NotNull Element element) {}
 }

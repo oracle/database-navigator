@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.dbn.object.common.property.DBObjectProperty.DISABLEABLE;
+import static com.dbn.object.common.property.DBObjectProperty.RENAMABLE;
 import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
 import static com.dbn.object.common.status.DBObjectStatus.DISABLED;
 import static com.dbn.object.type.DBObjectRelationType.CONSTRAINT_COLUMN;
@@ -107,6 +108,7 @@ class DBConstraintImpl extends DBSchemaObjectImpl<DBConstraintMetadata> implemen
     protected void initProperties() {
         properties.set(SCHEMA_OBJECT, true);
         properties.set(DISABLEABLE, true);
+        properties.set(RENAMABLE, true);
     }
 
     @NotNull

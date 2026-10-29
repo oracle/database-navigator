@@ -40,6 +40,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JPanel;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static com.dbn.common.approval.UserApprovalAction.MCP_SERVER_ACCESS;
 import static com.dbn.common.ui.util.Decorators.createToolbarDecorator;
@@ -153,7 +154,7 @@ public class AssistantMcpServersSettingsForm extends ConfigurationEditorForm<Ass
         List<AssistantMcpServer> newMcpServers = model.getElements();
         configuration.setMcpServers(new AssistantMcpServerBundle(getProject(), newMcpServers));
 
-        approvalManager.updateApprovals(MCP_SERVER_ACCESS, oldMcpServers, newMcpServers, acknowledgedMcpServers);
+        approvalManager.updateApprovals(MCP_SERVER_ACCESS, oldMcpServers, newMcpServers, acknowledgedMcpServers, Map.of());
         acknowledgedMcpServers.clear();
 
         if (configuration.isModified()) {

@@ -23,7 +23,6 @@ import com.dbn.common.environment.options.EnvironmentSettings;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
 import com.dbn.debugger.ExecutionConfigManager;
@@ -50,6 +49,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 
 import static com.dbn.common.dispose.Disposer.replace;
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
+import static com.dbn.debugger.ExecutionConfigManager.*;
 import static com.dbn.nls.NlsResources.txt;
 
 public class DBJavaRunConfigForm extends DBProgramRunConfigForm<DBJavaRunConfig> {
@@ -68,8 +69,7 @@ public class DBJavaRunConfigForm extends DBProgramRunConfigForm<DBJavaRunConfig>
             methodArgumentsPanel.setVisible(false);
             headerPanel.setVisible(false);
             hintPanel.setVisible(true);
-            DBNHintForm hintForm = new DBNHintForm(this, ExecutionConfigManager.GENERIC_METHOD_RUNNER_HINT, null);
-            hintPanel.add(hintForm.getComponent());
+            installHintForm(this, GENERIC_METHOD_RUNNER_HINT, hintPanel);
         } else {
             ActionToolbar actionToolbar = Actions.createActionToolbar(selectMethodActionPanel, true, new SelectMethodAction());
             selectMethodActionPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);

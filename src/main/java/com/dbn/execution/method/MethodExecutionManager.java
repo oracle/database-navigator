@@ -55,7 +55,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import lombok.Getter;
 import org.jdom.Element;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -66,7 +65,6 @@ import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.exception.Exceptions.getLocalizedMessage;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
@@ -335,20 +333,19 @@ public class MethodExecutionManager extends ProjectComponentBase implements Pers
     /****************************************
      *       PersistentStateComponent       *
      *****************************************/
-    @Nullable
     @Override
-    public Element getComponentState() {
-        @NonNls Element element = newStateElement();
+    public void writeState(Element element) {
+        super.writeState(element);
         Element browserSettingsElement = newElement(element, "method-browser");
         browserSettings.writeConfiguration(browserSettingsElement);
 
         executionHistory.writeState(element);
         argumentValuesHistory.writeState(element);
-        return element;
     }
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
+    public void readState(@NotNull Element element) {
+        super.readState(element);
         Element browserSettingsElement = element.getChild("method-browser");
         if (browserSettingsElement != null) {
             browserSettings.readConfiguration(browserSettingsElement);

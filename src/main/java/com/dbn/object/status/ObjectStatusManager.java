@@ -35,11 +35,9 @@ import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
-import com.dbn.object.common.property.DBObjectProperty;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
-import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -58,7 +56,8 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.editor.DBContentType.CODE_BODY;
 import static com.dbn.editor.DBContentType.CODE_SPEC;
 import static com.dbn.nls.NlsResources.txt;
-import static com.dbn.object.common.property.DBObjectProperty.*;
+import static com.dbn.object.common.property.DBObjectProperty.DEBUGGABLE;
+import static com.dbn.object.common.property.DBObjectProperty.INVALIDABLE;
 import static com.dbn.object.common.status.DBObjectStatus.DEBUG;
 import static com.dbn.object.common.status.DBObjectStatus.VALID;
 
@@ -195,14 +194,4 @@ public class ObjectStatusManager extends ProjectComponentBase implements Persist
             Resources.close(resultSet);
         }
     }
-
-    @Override
-    public Element getComponentState() {
-        return null;
-    }
-
-    @Override
-    public void loadComponentState(@NotNull final Element element) {
-    }
-
 }

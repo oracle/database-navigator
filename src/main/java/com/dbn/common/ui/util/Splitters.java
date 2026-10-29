@@ -73,28 +73,25 @@ public class Splitters {
 
 
         if (dividerLocation > 0 || dividerProportion != null) {
-            whenFirstShown(splitter, () -> {
-                Dispatch.run(parent, () -> {
-                    double proportion;
-                    if (dividerProportion == null) {
-                        if (pane.getOrientation() == VERTICAL_SPLIT) {
-                            double height = (parent.getHeight() - pane.getDividerSize());
-                            proportion = height > 0 ? dividerLocation / height : 0;
-                        } else {
-                            double width = (parent.getWidth() - pane.getDividerSize());
-                            proportion = width > 0 ? dividerLocation / width : 0;
-                        }
+            whenFirstShown(splitter, () -> Dispatch.run(parent, () -> {
+                double proportion;
+                if (dividerProportion == null) {
+                    if (pane.getOrientation() == VERTICAL_SPLIT) {
+                        double height = (parent.getHeight() - pane.getDividerSize());
+                        proportion = height > 0 ? dividerLocation / height : 0;
                     } else {
-                        proportion = dividerProportion;
+                        double width = (parent.getWidth() - pane.getDividerSize());
+                        proportion = width > 0 ? dividerLocation / width : 0;
                     }
+                } else {
+                    proportion = dividerProportion;
+                }
 
 
-                    if (proportion > 0.0 && proportion < 1.0) {
-                        splitter.setProportion((float) proportion);
-                    }
-                });
-
-            });
+                if (proportion > 0.0 && proportion < 1.0) {
+                    splitter.setProportion((float) proportion);
+                }
+            }));
         }
     }
 

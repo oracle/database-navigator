@@ -24,10 +24,8 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.DatabaseIdentifierCase;
 import com.dbn.object.DBSchema;
-import com.dbn.object.factory.ObjectFactoryManager;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.type.DBJavaClassType;
-import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -139,10 +137,7 @@ public class DBJavaClassFactoryInputForm extends DBSchemaObjectFactoryInputForm 
     }
 
     protected void initStatePersistence() {
-        Project project = ensureProject();
-        ObjectFactoryManager factoryManager = ObjectFactoryManager.getInstance(project);
-
-        StateAttributes state = factoryManager.getState(getObjectType());
+        StateAttributes state = getUserInterfaceState();
         initPersistence(classTypeComboBox, state, "class-type-selection");
         initPersistence(packageTextField, state, "package-selection");
     }

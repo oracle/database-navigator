@@ -16,6 +16,7 @@
 
 package com.dbn.object.management.adapter;
 
+import com.dbn.common.attributes.Attributes;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.event.ObjectChangeAction;
 import com.intellij.openapi.util.NlsContexts.DialogMessage;
@@ -34,8 +35,8 @@ import static com.dbn.nls.NlsResources.txt;
  */
 public final class DBObjectCreateAdapter<T extends DBObject> extends ObjectManagementAdapterBase<T> {
 
-    public DBObjectCreateAdapter(T object, InterfaceInvoker<T> invoker) {
-        super(object, ObjectChangeAction.CREATE, invoker);
+    public DBObjectCreateAdapter(T object, Attributes attributes, InterfaceInvoker<T> invoker) {
+        super(object, ObjectChangeAction.CREATE, attributes, invoker);
     }
 
     @Nls

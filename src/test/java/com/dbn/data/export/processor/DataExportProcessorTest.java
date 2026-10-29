@@ -31,6 +31,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.data.export.DataExportResourceLimits.MAX_EXPORT_CELL_LENGTH;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
@@ -40,12 +41,12 @@ public class DataExportProcessorTest {
     @Test
     public void formatValueReadsLargeObjectWithCellLimit() throws Exception {
         TestDataExportModel model = new TestDataExportModel();
-        TestLargeObjectValue value = new TestLargeObjectValue(DataExportProcessor.MAX_EXPORT_CELL_LENGTH + 1L, "partial");
+        TestLargeObjectValue value = new TestLargeObjectValue(MAX_EXPORT_CELL_LENGTH + 1L, "partial");
 
         String exportValue = DataExportProcessor.formatValue(null, model, value);
 
         assertEquals("partial", exportValue);
-        assertEquals(DataExportProcessor.MAX_EXPORT_CELL_LENGTH, value.readMaxSize);
+        assertEquals(MAX_EXPORT_CELL_LENGTH, value.readMaxSize);
         assertFalse(value.exportCalled);
         assertTrue(value.released);
         assertEquals(1, model.getWarnings().size());
@@ -54,24 +55,24 @@ public class DataExportProcessorTest {
     @Test
     public void formatValueDoesNotWarnWhenLargeObjectFitsCellLimit() throws Exception {
         TestDataExportModel model = new TestDataExportModel();
-        TestLargeObjectValue value = new TestLargeObjectValue(DataExportProcessor.MAX_EXPORT_CELL_LENGTH, "content");
+        TestLargeObjectValue value = new TestLargeObjectValue(MAX_EXPORT_CELL_LENGTH, "content");
 
         String exportValue = DataExportProcessor.formatValue(null, model, value);
 
         assertEquals("content", exportValue);
-        assertEquals(DataExportProcessor.MAX_EXPORT_CELL_LENGTH, value.readMaxSize);
+        assertEquals(MAX_EXPORT_CELL_LENGTH, value.readMaxSize);
         assertTrue(value.released);
         assertEquals(0, model.getWarnings().size());
     }
 
     @Test
     public void formatValueDoesNotWarnWhenLargeObjectIsTruncatedWithoutModel() throws Exception {
-        TestLargeObjectValue value = new TestLargeObjectValue(DataExportProcessor.MAX_EXPORT_CELL_LENGTH + 1L, "partial");
+        TestLargeObjectValue value = new TestLargeObjectValue(MAX_EXPORT_CELL_LENGTH + 1L, "partial");
 
         String exportValue = DataExportProcessor.formatValue(null, null, value);
 
         assertEquals("partial", exportValue);
-        assertEquals(DataExportProcessor.MAX_EXPORT_CELL_LENGTH, value.readMaxSize);
+        assertEquals(MAX_EXPORT_CELL_LENGTH, value.readMaxSize);
         assertTrue(value.released);
     }
 
@@ -83,7 +84,7 @@ public class DataExportProcessorTest {
         String exportValue = DataExportProcessor.formatValue(null, model, value);
 
         assertEquals("", exportValue);
-        assertEquals(DataExportProcessor.MAX_EXPORT_CELL_LENGTH, value.readMaxSize);
+        assertEquals(MAX_EXPORT_CELL_LENGTH, value.readMaxSize);
         assertTrue(value.released);
         assertEquals(0, model.getWarnings().size());
     }
@@ -91,7 +92,7 @@ public class DataExportProcessorTest {
     @Test
     public void formatValueReleasesLargeObjectWhenReadFails() {
         TestDataExportModel model = new TestDataExportModel();
-        TestLargeObjectValue value = new TestLargeObjectValue(DataExportProcessor.MAX_EXPORT_CELL_LENGTH + 1L, "partial");
+        TestLargeObjectValue value = new TestLargeObjectValue(MAX_EXPORT_CELL_LENGTH + 1L, "partial");
         value.readException = new SQLException("Read failed");
 
         assertThrows(DataExportException.class, () -> DataExportProcessor.formatValue(null, model, value));

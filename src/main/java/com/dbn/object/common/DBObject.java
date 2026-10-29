@@ -50,7 +50,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import java.nio.charset.Charset;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -84,7 +83,11 @@ public interface DBObject extends
     @NotNull
     DBObjectType getObjectType();
 
+    boolean isRootObject();
+
     boolean isSchemaObject();
+
+    boolean isChildObject();
 
     boolean isOfType(DBObjectType objectType);
 

@@ -19,7 +19,6 @@ package com.dbn.object.factory.ui;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.component.DBNComponent;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.info.DBNInfoLabel;
 import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.common.ui.misc.DBNComboBox;
@@ -29,7 +28,6 @@ import com.dbn.common.util.Json;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.DatabaseIdentifierCase;
-import com.dbn.object.factory.ObjectFactoryManager;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
@@ -48,6 +46,7 @@ import java.util.regex.Pattern;
 
 import static com.dbn.common.file.FileTypes.getJsonFileType;
 import static com.dbn.common.ui.form.DBNFormState.initPersistence;
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.nls.NlsResources.txt;
@@ -80,13 +79,11 @@ public class DBDatasourceConfigFactoryInputForm extends DBSchemaObjectFactoryInp
         initPreserveCaseFields();
         resetFormChanges();
 
-        whenFirstShown(() -> initEditor());
+        whenInitialized(() -> initEditor());
     }
 
     private void initFeatureInfo() {
-        DBNHintForm hintForm = new DBNHintForm(this,
-                TextContent.plain(txt("cfg.datasourceConfig.hint.Feature")), null);
-        hintPanel.add(hintForm.getComponent(), BorderLayout.CENTER);
+        installHintForm(this, TextContent.plain(txt("cfg.datasourceConfig.hint.Feature")), hintPanel);
 
         HyperLinkForm hyperLinkForm = HyperLinkForm.create(
                 txt("cfg.datasourceConfig.link.Documentation"),
@@ -130,7 +127,7 @@ public class DBDatasourceConfigFactoryInputForm extends DBSchemaObjectFactoryInp
 
     @Override
     protected void initStatePersistence() {
-        StateAttributes state = ObjectFactoryManager.getInstance(ensureProject()).getState(getObjectType());
+        StateAttributes state = getUserInterfaceState();
         initPersistence(preserveCaseCheckBox, state, "preserve-identifier-case");
     }
 

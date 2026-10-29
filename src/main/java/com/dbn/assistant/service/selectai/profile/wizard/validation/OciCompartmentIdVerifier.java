@@ -25,6 +25,7 @@ import javax.swing.border.Border;
 import java.awt.Color;
 
 import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.common.ui.util.Tooltips.setToolTipText;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.oci.util.OciIdentifiers.isCompartmentScopeOcid;
 
@@ -43,7 +44,7 @@ public class OciCompartmentIdVerifier extends InputVerifier {
     // Allow empty field (optional)
     if (text.isEmpty()) {
       textField.setBorder(DEFAULT_BORDER);
-      textField.setToolTipText(null);
+      setToolTipText(textField, null);
       return true;
     }
 
@@ -51,10 +52,10 @@ public class OciCompartmentIdVerifier extends InputVerifier {
 
     if (hasValidFormat) {
       textField.setBorder(DEFAULT_BORDER);
-      textField.setToolTipText(null);
+      setToolTipText(textField, null);
     } else {
       textField.setBorder(ERROR_BORDER);
-      textField.setToolTipText(txt("cfg.assistant.error.OciCompartmentIdInvalid"));
+      setToolTipText(textField, txt("cfg.assistant.error.OciCompartmentIdInvalid"));
     }
 
     return hasValidFormat;

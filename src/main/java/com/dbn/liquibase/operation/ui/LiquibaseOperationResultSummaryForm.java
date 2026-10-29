@@ -38,6 +38,7 @@ import com.dbn.liquibase.operation.LiquibaseUpdateInstruction;
 import com.dbn.liquibase.operation.LiquibaseUpdateType;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -64,7 +65,6 @@ import static com.dbn.common.task.TaskStatus.RUNNING;
 import static com.dbn.common.task.TaskStatus.SKIPPED;
 import static com.dbn.common.text.TextContent.plain;
 import static com.dbn.common.ui.link.Hyperlinks.onHyperlinkAccess;
-import static com.dbn.common.ui.util.Tooltips.setToolTipText;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.common.util.TimeUtil.presentableDuration;
 import static com.dbn.liquibase.operation.LiquibaseFeature.CHANGELOG_TAG;
@@ -150,7 +150,7 @@ public class LiquibaseOperationResultSummaryForm extends DBNFormBase {
                 !sameConnection);
 
         operationLabel.setText(result.getOperation().getName());
-        setToolTipText(operationLabel, result.getOperation().getDescription());
+        Tooltips.setToolTipText(operationLabel, result.getOperation().getDescription());
         updateWorkspaceInfo(result);
         updateStatus(result);
         updateProcessedItems(result);
@@ -191,7 +191,7 @@ public class LiquibaseOperationResultSummaryForm extends DBNFormBase {
 
         workspaceLabel.setText(workspace.getName());
         workspaceFormatLabel.setText(workspace.getChangelogFormat().getName());
-        setToolTipText(workspaceLabel, input.getWorkspacePaths().getLiquibaseRootPath().toString());
+        Tooltips.setToolTipText(workspaceLabel, input.getWorkspacePaths().getLiquibaseRootPath().toString());
 
         environmentProfileLabel.setText(profile.getName());
     }
@@ -279,19 +279,19 @@ public class LiquibaseOperationResultSummaryForm extends DBNFormBase {
         changelogLabel.setVisible(relevant);
         if (!relevant) {
             changelogLink.setVisible(false);
-            setToolTipText(changelogLink, null);
+            Tooltips.setToolTipText(changelogLink, null);
             return;
         }
 
         Path changelogPath = result.getChangelogPath();
         if (changelogPath == null || !Files.isRegularFile(changelogPath)) {
             changelogLink.setVisible(false);
-            setToolTipText(changelogLink, null);
+            Tooltips.setToolTipText(changelogLink, null);
             return;
         }
 
         changelogLink.setHyperlinkText(changelogPath.getFileName().toString());
-        setToolTipText(changelogLink, changelogPath.toString());
+        Tooltips.setToolTipText(changelogLink, changelogPath.toString());
         changelogLink.setVisible(true);
     }
 
@@ -306,14 +306,14 @@ public class LiquibaseOperationResultSummaryForm extends DBNFormBase {
         boolean relevant = result.getOperation() == LiquibaseOperation.GENERATE_DATABASE_DOCUMENTATION;
         documentationLabel.setVisible(relevant);
         documentationLink.setVisible(false);
-        setToolTipText(documentationLink, null);
+        Tooltips.setToolTipText(documentationLink, null);
         if (!relevant) return;
 
         Path documentationPath = result.getDocumentationPath();
         if (documentationPath == null || !Files.isRegularFile(documentationPath)) return;
 
         documentationLink.setHyperlinkText(documentationPath.getFileName().toString());
-        setToolTipText(documentationLink, documentationPath.toString());
+        Tooltips.setToolTipText(documentationLink, documentationPath.toString());
         documentationLink.setVisible(true);
     }
 

@@ -24,12 +24,12 @@ import com.dbn.common.ui.ValueFactory;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.form.field.FieldState;
 import com.dbn.common.ui.info.DBNInfoLabel;
 import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.common.ui.misc.DBNComboBox;
+import com.dbn.common.ui.util.Tooltips;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionManager;
@@ -70,6 +70,7 @@ import java.util.function.Supplier;
 
 import static com.dbn.common.text.TextContent.plain;
 import static com.dbn.common.ui.form.DBNFormState.initPersistence;
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.setFormFieldEnabled;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
@@ -77,7 +78,6 @@ import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.setEmptyOptionsText;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.setText;
-import static com.dbn.common.ui.util.Tooltips.setToolTipText;
 import static com.dbn.common.util.Lists.filter;
 import static com.dbn.liquibase.operation.LiquibaseFeature.CHANGELOG_AUTHOR;
 import static com.dbn.liquibase.operation.LiquibaseFeature.CHANGELOG_TAG;
@@ -211,7 +211,7 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
         changelogAuthorTextField.setVisible(supported);
         if (supported) {
             DatabaseLiquibaseManager liquibaseManager = getLiquibaseManager();
-            StateAttributes state = liquibaseManager.getState("EXECUTION_INPUT");
+            StateAttributes state = liquibaseManager.getUserInterfaceState("EXECUTION_INPUT");
             initPersistence(changelogAuthorTextField, state, ATTR_CHANGELOG_AUTHOR, SystemProperties.getUserName());
         }
     }
@@ -250,7 +250,7 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
         LiquibaseFeatureSupport support = executionInput.getSupport();
         if (!support.supports(UPDATE_INSTRUCTION)) return;
 
-        StateAttributes state = getLiquibaseManager().getState("EXECUTION_INPUT");
+        StateAttributes state = getLiquibaseManager().getUserInterfaceState("EXECUTION_INPUT");
         updateTypeSelector.setValues(List.of(LiquibaseUpdateType.values()));
         initPersistence(updateTypeSelector, state, ATTR_UPDATE_TYPE, ALL.id());
 
@@ -289,7 +289,7 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
         rollbackDateField.createCalendarPopup(false, CalendarPopupType.DATE);
 
         DatabaseLiquibaseManager liquibaseManager = getLiquibaseManager();
-        StateAttributes state = liquibaseManager.getState("EXECUTION_INPUT");
+        StateAttributes state = liquibaseManager.getUserInterfaceState("EXECUTION_INPUT");
         rollbackTypeSelector.setValues(List.of(LiquibaseRollbackType.values()));
         initPersistence(rollbackTypeSelector, state, ATTR_ROLLBACK_TYPE, COUNT.id());
 
@@ -370,7 +370,7 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
 
     private void initHintPanel() {
         TextContent hint = plain(executionInput.getHint());
-        hintPanel.add(new DBNHintForm(this, hint, null).getComponent());
+        installHintForm(this, hint, hintPanel);
     }
 
     private void initContextLabels() {
@@ -440,14 +440,15 @@ public class LiquibaseOperationInputForm extends DBNFormBase {
     private void updateWorkspacePath() {
         LiquibaseWorkspace workspace = workspaceSelector.getSelectedValue();
         if (workspace == null) {
-            setToolTipText(workspaceSelector, null);
+            Tooltips.setToolTipText(workspaceSelector, null);
             return;
         }
 
         try {
-            setToolTipText(workspaceSelector, new LiquibaseWorkspacePaths(workspace).getLiquibaseRootPath().toString());
+            Project project = executionInput.getProject();
+            Tooltips.setToolTipText(workspaceSelector, new LiquibaseWorkspacePaths(project, workspace).getLiquibaseRootPath().toString());
         } catch (IllegalArgumentException e) {
-            setToolTipText(workspaceSelector, null);
+            Tooltips.setToolTipText(workspaceSelector, null);
         }
     }
 

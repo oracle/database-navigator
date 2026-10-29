@@ -17,6 +17,7 @@
 package com.dbn.common.ui.link;
 
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.openapi.util.NlsContexts.Label;
 import com.intellij.openapi.util.NlsContexts.LinkLabel;
 import com.intellij.openapi.util.NlsContexts.Tooltip;
@@ -54,7 +55,7 @@ public class HyperLinkForm extends DBNFormBase {
     }
 
     public void setTooltipText(@Tooltip String tooltip) {
-        hyperLink.setToolTipText(tooltip);
+        Tooltips.setToolTipText(hyperLink, tooltip);
     }
 
     @Override

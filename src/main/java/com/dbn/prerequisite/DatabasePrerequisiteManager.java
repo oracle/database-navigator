@@ -47,7 +47,6 @@ import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.constantAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setConstantAttribute;
 import static com.dbn.common.util.Commons.array;
 import static com.dbn.common.util.TimeUtil.isOlderThan;
@@ -151,10 +150,9 @@ public class DatabasePrerequisiteManager extends ProjectComponentBase implements
     /****************************************
 	 *       PersistentStateComponent       *
 	 *****************************************/
-	@Nullable
 	@Override
-	public Element getComponentState() {
-		Element element = newStateElement();
+	public void writeState(Element element) {
+        super.writeState(element);
 
         Element prerequisitesElement = newElement(element, "prerequisites");
         Set<ConnectionId> connectionIds = prerequisiteData.keySet();
@@ -166,12 +164,11 @@ public class DatabasePrerequisiteManager extends ProjectComponentBase implements
             setConstantAttribute(dataElement, "connection-id", connectionId);
             prerequisiteData.writeState(dataElement);
         }
-
-        return element;
 	}
 
 	@Override
-	public void loadComponentState(@NotNull Element element) {
+	public void readState(@NotNull Element element) {
+        super.readState(element);
         Element prerequisitesElement = element.getChild("prerequisites");
         for (Element dataElement : childrenOf(prerequisitesElement)) {
             ConnectionId connectionId = constantAttribute(dataElement, "connection-id", ConnectionId.class);
@@ -181,5 +178,5 @@ public class DatabasePrerequisiteManager extends ProjectComponentBase implements
 
             prerequisiteData.readState(dataElement);
         }
-    }
+	}
 }

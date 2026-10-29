@@ -38,6 +38,7 @@ Canonical terminology decisions for Italian DBN translation work. Keep this file
 | environment | ambiente | no | DBN environment type |
 | execution | esecuzione | no | SQL/script/method execution |
 | filter | filtro | no | UI/database filters |
+| fingerprint | impronta digitale | no | Executable file and OCI/API key fingerprint |
 | foreign key | chiave esterna | no | Database relationship key |
 | grant | concessione | no | Noun; use `concedi` for command/action |
 | log | log | yes | Logging output |

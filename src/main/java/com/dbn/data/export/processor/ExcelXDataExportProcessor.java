@@ -21,9 +21,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 
 public class ExcelXDataExportProcessor extends ExcelDataExportProcessor{
-    private static final int MAX_XLSX_DATA_ROWS = 1048575;
-    private static final int MAX_XLSX_COLUMNS = 16384;
-
     @Override
     public DataExportFormat getFormat() {
         return DataExportFormat.EXCELX;
@@ -47,18 +44,4 @@ public class ExcelXDataExportProcessor extends ExcelDataExportProcessor{
         return new SXSSFWorkbook();
     }
 
-    @Override
-    protected int getMaxDataRows() {
-        return MAX_XLSX_DATA_ROWS;
-    }
-
-    @Override
-    protected int getMaxColumns() {
-        return MAX_XLSX_COLUMNS;
-    }
-
-    @Override
-    protected long getMaxInMemoryCells() {
-        return Long.MAX_VALUE;
-    }
 }

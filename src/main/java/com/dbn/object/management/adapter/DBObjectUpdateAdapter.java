@@ -16,6 +16,7 @@
 
 package com.dbn.object.management.adapter;
 
+import com.dbn.common.attributes.Attributes;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.event.ObjectChangeAction;
 import org.jetbrains.annotations.Nls;
@@ -34,8 +35,8 @@ import static com.intellij.openapi.util.NlsContexts.ProgressTitle;
  */
 public final class DBObjectUpdateAdapter<T extends DBObject> extends ObjectManagementAdapterBase<T> {
 
-    public DBObjectUpdateAdapter(T object, InterfaceInvoker<T> invoker) {
-        super(object, ObjectChangeAction.UPDATE, invoker);
+    public DBObjectUpdateAdapter(T object, Attributes attributes, InterfaceInvoker<T> invoker) {
+        super(object, ObjectChangeAction.UPDATE, attributes, invoker);
     }
 
     @Nls

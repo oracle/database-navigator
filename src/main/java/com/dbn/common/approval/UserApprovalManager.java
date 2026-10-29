@@ -30,6 +30,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -42,7 +43,6 @@ import static com.dbn.common.approval.UserApprovalManager.COMPONENT_NAME;
 import static com.dbn.common.component.Components.applicationService;
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Commons.NOT_NULL;
 
 /**
@@ -99,6 +99,28 @@ public class UserApprovalManager extends ApplicationComponentBase implements Per
         }
 
         obtainUserApproval(action, approvable, data);
+        verifySignature(approvable, approvalSignature, adapter, approvalKey);
+    }
+
+    private <T extends UserApprovable> void verifySignature(T approvable, String approvalSignature, UserApprovalAdapter<T> adapter, String approvalKey) {
+        if (approvalSignature != null) {
+            String verifiedSignature;
+            try {
+                verifiedSignature = adapter.getApprovalSignature(approvable);
+            } catch (RuntimeException e) {
+                clearApproval(approvalKey);
+                throw e;
+            }
+
+            if (!Objects.equals(approvalSignature, verifiedSignature)) {
+                if (verifiedSignature == null) {
+                    clearApproval(approvalKey);
+                } else {
+                    updateApprovalSignature(approvalKey, verifiedSignature);
+                }
+                throw new UserApprovalCancelledException();
+            }
+        }
     }
 
     /**
@@ -148,13 +170,15 @@ public class UserApprovalManager extends ApplicationComponentBase implements Per
         updateApprovalSignature(getApprovalKey(action, approvable), adapter.getApprovalSignature(approvable));
     }
 
-    private void updateApprovalSignature(String approvalKey, @Nullable String approvalSignature) {
-        if (approvalSignature == null) return;
+    private boolean updateApprovalSignature(String approvalKey, @Nullable String approvalSignature) {
+        if (approvalSignature == null) return false;
 
         UserApprovalData data = getApprovalData(approvalKey);
         if (data.updateSignature(approvalSignature)) {
             clearApproval(approvalKey, data);
+            return true;
         }
+        return false;
     }
 
     private void clearApproval(String approvalKey) {
@@ -174,6 +198,15 @@ public class UserApprovalManager extends ApplicationComponentBase implements Per
      */
     public <T extends UserApprovable> void approve(UserApprovalAction action, T approvable) {
         approve(action, approvable, PERSISTENT);
+    }
+
+    /**
+     * Persistently approves the supplied object using a signature computed outside the current thread.
+     */
+    public <T extends UserApprovable> void approveWithSignature(UserApprovalAction action, T approvable, @NotNull String approvalSignature) {
+        String approvalKey = getApprovalKey(action, approvable);
+        updateApprovalSignature(approvalKey, approvalSignature);
+        getApprovalData(approvalKey).setApprovalLifetime(PERSISTENT);
     }
 
     /**
@@ -207,15 +240,28 @@ public class UserApprovalManager extends ApplicationComponentBase implements Per
         removeApprovalDataIfEmpty(approvalKey, data);
     }
 
-    public <T extends UserApprovable> void updateApprovals(UserApprovalAction action, List<T> oldApprovables, List<T> newApprovables) {
-        updateApprovals(action, oldApprovables, newApprovables, List.of());
-    }
+    /**
+     * Updates approvals using signatures that were computed outside the current thread.
+     * Missing signatures are not computed here, so callers can avoid file I/O in UI callbacks.
+     */
+    public <T extends UserApprovable> void updateApprovals(
+            UserApprovalAction action,
+            List<T> oldApprovables,
+            List<T> newApprovables,
+            List<T> ackApprovables,
+            @NotNull Map<String, String> approvalSignatures) {
 
-    public <T extends UserApprovable> void updateApprovals(UserApprovalAction action, List<T> oldApprovables, List<T> newApprovables, List<T> acknowledgedApprovables) {
         Set<String> oldKeys = oldApprovables.stream().filter(NOT_NULL).map(a -> getApprovalKey(action, a)).collect(Collectors.toSet());
         Set<String> newKeys = newApprovables.stream().filter(NOT_NULL).map(a -> getApprovalKey(action, a)).collect(Collectors.toSet());
-        Set<String> acknowledgedKeys = acknowledgedApprovables.stream().filter(NOT_NULL).map(a -> getApprovalKey(action, a)).collect(Collectors.toSet());
-        newApprovables.stream().filter(NOT_NULL).forEach(a -> updateApprovalSignature(action, a));
+        Set<String> acknowledgedKeys = ackApprovables.stream().filter(NOT_NULL).map(a -> getApprovalKey(action, a)).collect(Collectors.toSet());
+        Set<String> invalidatedKeys = new HashSet<>();
+        newApprovables.stream().filter(NOT_NULL).forEach(a -> {
+            String approvalKey = getApprovalKey(action, a);
+            String signature = approvalSignatures.get(approvalKey);
+            if (updateApprovalSignature(approvalKey, signature)) {
+                invalidatedKeys.add(approvalKey);
+            }
+        });
 
         // identify removed approvables
         Set<String> removedKeys = new HashSet<>(oldKeys);
@@ -229,6 +275,9 @@ public class UserApprovalManager extends ApplicationComponentBase implements Per
         newKeys.forEach(this::clearTransientApproval);
         removedKeys.forEach(this::removeApproval);
 
+        // A settings acknowledgement must not silently re-approve an existing command after its content changed.
+        addedKeys.removeAll(invalidatedKeys);
+        acknowledgedKeys.removeAll(invalidatedKeys);
         addedKeys.forEach(k -> getApprovalData(k).setApprovalLifetime(PERSISTENT));
         acknowledgedKeys.forEach(k -> getApprovalData(k).setApprovalLifetime(PERSISTENT));
     }
@@ -273,10 +322,9 @@ public class UserApprovalManager extends ApplicationComponentBase implements Per
         }
     }
 
-    @Nullable
     @Override
-    public Element getComponentState() {
-        Element element = newStateElement();
+    public void writeState(Element element) {
+        super.writeState(element);
         Element approvalsElement = newElement(element, "approvals");
         for (Map.Entry<String, UserApprovalData> entry : approvalData.entrySet()) {
             UserApprovalData data = entry.getValue();
@@ -285,11 +333,11 @@ public class UserApprovalManager extends ApplicationComponentBase implements Per
             Element approvalElement = newElement(approvalsElement, "approval");
             data.writeState(approvalElement);
         }
-        return element;
     }
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
+    public void readState(@NotNull Element element) {
+        super.readState(element);
         approvalData.clear();
 
         Element approvalsElement = element.getChild("approvals");

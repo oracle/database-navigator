@@ -80,6 +80,7 @@ import static com.dbn.object.common.property.DBObjectProperty.DISPOSED;
 import static com.dbn.object.common.property.DBObjectProperty.EDITABLE;
 import static com.dbn.object.common.property.DBObjectProperty.LISTS_LOADED;
 import static com.dbn.object.common.property.DBObjectProperty.REFRESHING;
+import static com.dbn.object.common.property.DBObjectProperty.ROOT_OBJECT;
 import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
 import static java.util.Collections.emptyList;
@@ -178,8 +179,18 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
     }
 
     @Override
+    public boolean isRootObject() {
+        return is(ROOT_OBJECT);
+    }
+
+    @Override
     public boolean isSchemaObject() {
         return is(SCHEMA_OBJECT);
+    }
+
+    @Override
+    public boolean isChildObject() {
+        return !isRootObject() && !isSchemaObject();
     }
 
     @Override

@@ -34,14 +34,12 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 
 @State(
     name = DatasetFilterManager.COMPONENT_NAME,
@@ -185,10 +183,9 @@ public class DatasetFilterManager extends ProjectComponentBase implements Persis
     /****************************************
      *       PersistentStateComponent       *
      *****************************************/
-    @Nullable
     @Override
-    public Element getComponentState() {
-        Element element = newStateElement();
+    public void writeState(Element element) {
+        super.writeState(element);
 
         for (var entry : filters.entrySet()) {
             ConnectionId connectionId = entry.getKey();
@@ -202,11 +199,12 @@ public class DatasetFilterManager extends ProjectComponentBase implements Persis
                 filterGroup.writeConfiguration(filterListElement);
             }
         }
-        return element;
     }
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
+    public void readState(@NotNull Element element) {
+        super.readState(element);
+
         for (Element child : element.getChildren()) {
             DatasetFilterGroup filterGroup = new DatasetFilterGroup(getProject());
             filterGroup.readConfiguration(child);
