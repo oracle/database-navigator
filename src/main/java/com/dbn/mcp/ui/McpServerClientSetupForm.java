@@ -82,11 +82,12 @@ public class McpServerClientSetupForm extends DBNFormBase {
         boolean http = record.getTransportType().isHttp();
 
         List<ClientConfiguration> configurations = new ArrayList<>();
-        configurations.add(new ClientConfiguration(
-                http ? txt("app.mcp.title.Claude") : txt("app.mcp.title.McpConfig"),
-                configuration.buildClaudeJson(resolveArtifact())));
         if (http) {
             configurations.add(new ClientConfiguration(txt("app.mcp.title.Cline"), configuration.buildClineJson()));
+        } else {
+            configurations.add(new ClientConfiguration(
+                    txt("app.mcp.title.McpConfig"),
+                    configuration.buildClaudeJson(resolveArtifact())));
         }
         if (record.getImplementation().isContainer() && record.getImageName() != null) {
             configurations.add(new ClientConfiguration(txt("app.mcp.title.RunCommand"),

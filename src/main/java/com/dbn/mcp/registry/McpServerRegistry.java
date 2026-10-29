@@ -57,7 +57,6 @@ import java.util.stream.Stream;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Modality.nonModal;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -378,17 +377,17 @@ public class McpServerRegistry extends ProjectComponentBase implements Persisten
      *            PersistentStateComponent       *
      *********************************************/
     @Override
-    public @Nullable Element getComponentState() {
-        Element state = newStateElement();
+    public void writeState(Element state) {
+        super.writeState(state);
         Element servers = newElement(state, "mcp-servers");
         for (McpServerRecord record : getRecords()) {
             record.writeState(newElement(servers, "mcp-server"));
         }
-        return state;
     }
 
     @Override
-    public void loadComponentState(@NotNull Element state) {
+    public void readState(@NotNull Element state) {
+        super.readState(state);
         records.clear();
         Element servers = state.getChild("mcp-servers");
         for (Element serverElement : childrenOf(servers, "mcp-server")) {

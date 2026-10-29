@@ -73,9 +73,7 @@ public class McpServersForm extends DBNFormBase {
 
         emptyHintForm = new DBNHintForm(
                 this,
-                TextContent.plain(txt("msg.mcp.text.NoServersBuilt")),
-                null,
-                false);
+                TextContent.plain(txt("msg.mcp.text.NoServersBuilt")));
 
         serversList.setCellRenderer(new ServerListCellRenderer());
         serversList.addListSelectionListener(e -> {

@@ -69,7 +69,7 @@ public class McpServerDeploymentForm extends DBNFormBase {
         // a hint form rather than a label: it wraps to the panel width, where a label would
         // report its whole single line as a minimum size and refuse to let the split pane shrink
         introPanel.add(new DBNHintForm(this,
-                TextContent.plain(txt("msg.mcp.text.DeploymentIntro")), null, true).getComponent(),
+                TextContent.plain(txt("msg.mcp.text.DeploymentIntro"))).getComponent(),
                 BorderLayout.CENTER);
 
         targetLabel.setFont(monospaced(targetLabel));

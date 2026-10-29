@@ -16,7 +16,6 @@
 
 package com.dbn.mcp.deploy;
 
-import com.dbn.common.message.MessageType;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
@@ -91,7 +90,7 @@ public class McpGraalDeployForm extends DBNFormBase {
 
     private JComponent createHintPanel() {
         TextContent hint = TextContent.plain(txt("msg.mcp.text.GraalDeploymentPrerequisites"));
-        return new DBNHintForm(this, hint, MessageType.INFO, true).getComponent();
+        return new DBNHintForm(this, hint).getComponent();
     }
 
     private JComponent createFieldsPanel() {
