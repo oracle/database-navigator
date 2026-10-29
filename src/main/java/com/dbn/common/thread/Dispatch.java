@@ -34,12 +34,25 @@ import java.util.function.Supplier;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.thread.ThreadMonitor.isDispatchThread;
-import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
+import static com.dbn.common.ui.util.ClientProperty.ASYNC_ONCE_PENDING;
+import static com.dbn.common.ui.util.ClientProperty.ASYNC_REQUEST;
+import static com.dbn.common.ui.util.UserInterface.isAttachedToWindow;
+import static com.dbn.common.ui.util.UserInterface.whenAttachedToWindow;
 import static com.dbn.common.util.Commons.nvl;
 import static com.intellij.openapi.application.ApplicationManager.getApplication;
 
 @UtilityClass
 public final class Dispatch {
+    private static final class AsyncRequest<T> {
+        private final Supplier<T> supplier;
+        private final Consumer<T> consumer;
+        private boolean started;
+
+        private AsyncRequest(Supplier<T> supplier, Consumer<T> consumer) {
+            this.supplier = supplier;
+            this.consumer = consumer;
+        }
+    }
 
     /**
      * @deprecated use {@link #run(Component, Runnable)} or {@link #run(DataContext, boolean, Runnable)} or provide correct modality state
@@ -72,6 +85,8 @@ public final class Dispatch {
             run(component, runnable);
         }
     }
+/*
+    // TODO cleanup old modality state deferral utility
     public static void run(Component component, Runnable runnable) {
         if (component.isShowing()) {
             ModalityState modalityState = ModalityState.stateForComponent(component);
@@ -82,6 +97,15 @@ public final class Dispatch {
             run(ModalityState.defaultModalityState(), runnable);
         }
     }
+*/
+
+    public static void run(Component component, Runnable runnable) {
+        whenAttachedToWindow(component, () -> {
+            ModalityState modalityState = ModalityState.stateForComponent(component);
+            run(modalityState, runnable);
+        });
+    }
+
 
     // fire and forget
     public static void run(@Nullable ModalityState modalityState, Runnable runnable) {
@@ -124,12 +148,41 @@ public final class Dispatch {
     }
 
     public static <T> void async(JComponent component, Supplier<T> supplier, Consumer<T> consumer) {
-        if (component.isShowing()) {
-            background(component, supplier, consumer);
+        AsyncRequest<T> request = new AsyncRequest<>(supplier, consumer);
+        synchronized (component) {
+            ASYNC_REQUEST.set(component, request);
+        }
+
+        if (isAttachedToWindow(component)) {
+            startAsync(component, request);
             return;
         }
-        // invoke when component is shown and the modality state is known
-        whenFirstShown(component, () -> background(component, supplier, consumer));
+        // wait until the component's window is known so its modality state can be captured
+        whenAttachedToWindow(component, () -> startCurrentAsync(component));
+    }
+
+    /**
+     * Runs an asynchronous operation only when no other {@code asyncOnce}
+     * operation is pending for the given component. Duplicate requests are
+     * ignored until the supplier and consumer complete. The component stores
+     * the pending state as a client property and clears it after completion or
+     * failure, so it can have only one pending {@code asyncOnce} operation.
+     *
+     * @return {@code true} if the operation was scheduled, {@code false} if an
+     * {@code asyncOnce} operation was already pending for the component
+     */
+    public static <T> boolean asyncOnce(
+            JComponent component,
+            Supplier<T> supplier,
+            Consumer<T> consumer) {
+        if (!ASYNC_ONCE_PENDING.setIfNotSet(component, Boolean.TRUE)) return false;
+
+        if (isAttachedToWindow(component)) {
+            backgroundOnce(component, supplier, consumer);
+        } else {
+            whenAttachedToWindow(component, () -> backgroundOnce(component, supplier, consumer));
+        }
+        return true;
     }
 
     public static <T> void async(ModalityState modalityState, Supplier<T> supplier, Consumer<T> consumer) {
@@ -140,11 +193,71 @@ public final class Dispatch {
     }
 
 
-    private static <T> void background(JComponent component, Supplier<T> supplier, Consumer<T> consumer) {
+    private static void startCurrentAsync(JComponent component) {
+        AsyncRequest<?> request;
+        synchronized (component) {
+            request = ASYNC_REQUEST.get(component);
+        }
+        if (request != null) {
+            startAsync(component, request);
+        }
+    }
+
+    private static <T> void startAsync(JComponent component, AsyncRequest<T> request) {
+        if (!isAttachedToWindow(component)) {
+            if (ASYNC_REQUEST.matches(component, request)) {
+                whenAttachedToWindow(component, () -> startCurrentAsync(component));
+            }
+            return;
+        }
+
+        synchronized (component) {
+            if (ASYNC_REQUEST.get(component) != request || request.started) return;
+            request.started = true;
+        }
+
         ModalityState modalityState = ModalityState.stateForComponent(component);
         Background.run(() -> {
-            T value = supplier.get();
-            run(modalityState, () -> consumer.accept(value));
+            if (!ASYNC_REQUEST.matches(component, request)) return;
+
+            T value;
+            try {
+                value = request.supplier.get();
+            } catch (Throwable e) {
+                ASYNC_REQUEST.resetIf(component, request);
+                throw e;
+            }
+
+            run(modalityState, () -> {
+                if (!ASYNC_REQUEST.matches(component, request)) return;
+                try {
+                    request.consumer.accept(value);
+                } finally {
+                    ASYNC_REQUEST.resetIf(component, request);
+                }
+            });
+        });
+    }
+
+    private static <T> void backgroundOnce(
+            JComponent component,
+            Supplier<T> supplier,
+            Consumer<T> consumer) {
+        ModalityState modalityState = ModalityState.stateForComponent(component);
+        Background.run(() -> {
+            try {
+                T value = supplier.get();
+                run(modalityState, () -> {
+                    try {
+                        consumer.accept(value);
+                    } finally {
+                        ASYNC_ONCE_PENDING.reset(component);
+                    }
+                });
+            } catch (Throwable e) {
+                run(modalityState, () -> ASYNC_ONCE_PENDING.reset(component));
+                throw e;
+            }
         });
     }
 
@@ -182,4 +295,3 @@ public final class Dispatch {
     }
 
 }
-

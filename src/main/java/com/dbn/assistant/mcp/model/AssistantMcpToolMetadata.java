@@ -24,8 +24,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.Supplier;
 
-import static com.dbn.assistant.mcp.model.AssistantMcpToolMetadataGuard.MAX_TOOL_COUNT;
-import static com.dbn.assistant.mcp.model.AssistantMcpToolMetadataGuard.MAX_TOTAL_TOOL_METADATA_LENGTH;
+import static com.dbn.assistant.mcp.AssistantMcpResourceLimits.isToolCountAllowed;
+import static com.dbn.assistant.mcp.AssistantMcpResourceLimits.isTotalToolMetadataLengthAllowed;
 import static com.dbn.assistant.mcp.model.AssistantMcpToolMetadataGuard.getMetadataLength;
 import static com.dbn.assistant.mcp.model.AssistantMcpToolMetadataGuard.isAcceptedToolMetadata;
 
@@ -42,8 +42,8 @@ public class AssistantMcpToolMetadata {
         if (!isAcceptedToolMetadata(specification)) return skip();
 
         int length = getMetadataLength(specification);
-        if (tools.size() >= MAX_TOOL_COUNT) return skip();
-        if (metadataSize + length > MAX_TOTAL_TOOL_METADATA_LENGTH) return skip();
+        if (!isToolCountAllowed(tools.size() + 1L)) return skip();
+        if (!isTotalToolMetadataLengthAllowed(metadataSize, length)) return skip();
 
         metadataSize += length;
         return true;

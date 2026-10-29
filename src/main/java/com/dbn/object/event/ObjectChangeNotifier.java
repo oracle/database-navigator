@@ -20,9 +20,8 @@ import com.dbn.common.Priority;
 import com.dbn.common.component.ConnectionComponent;
 import com.dbn.common.outcome.Outcome;
 import com.dbn.common.outcome.OutcomeHandler;
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.SchemaId;
-import com.dbn.object.type.DBObjectType;
+import com.dbn.object.common.DBObject;
+import com.dbn.object.lookup.DBObjectRef;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -31,24 +30,25 @@ import org.jetbrains.annotations.NotNull;
  * @author Dan Cioca (Oracle)
  */
 public class ObjectChangeNotifier extends ConnectionComponent implements OutcomeHandler {
-    private final SchemaId ownerId;
-    private final DBObjectType objectType;
+    private final DBObjectRef<?> object;
     private final ObjectChangeAction action;
 
-    private ObjectChangeNotifier(@NotNull ConnectionHandler connection, SchemaId ownerId, DBObjectType objectType, ObjectChangeAction action) {
-        super(connection);
-        this.ownerId = ownerId;
-        this.objectType = objectType;
+    private ObjectChangeNotifier(@NotNull DBObject object, ObjectChangeAction action) {
+        super(object.getConnection());
         this.action = action;
+        this.object = DBObjectRef.of(object);
     }
 
-    public static OutcomeHandler create(ConnectionHandler connection, SchemaId ownerId, DBObjectType objectType, ObjectChangeAction action) {
-        return new ObjectChangeNotifier(connection, ownerId, objectType, action);
+    public static OutcomeHandler create(DBObject object, ObjectChangeAction action) {
+        return new ObjectChangeNotifier(object, action);
     }
 
     @Override
     public void handle(Outcome outcome) {
-        ObjectChangeEvent.notify(action, objectType, getConnectionId(), ownerId);
+        DBObject object = DBObjectRef.get(this.object);
+        if (object == null) return;
+
+        ObjectChangeEvent.notify(action, object);
     }
 
     @Override

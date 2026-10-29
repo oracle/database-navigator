@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package com.dbn.ddl.action;
 
 import com.dbn.common.action.ProjectAction;
 import com.dbn.ddl.DDLFileAttachmentManager;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -28,9 +28,9 @@ import org.jetbrains.annotations.NotNull;
 import static com.dbn.nls.NlsResources.txt;
 
 public class DDLFileDetachAction extends ProjectAction {
-    private final DBObjectRef<DBSchemaObject> object;
+    private final DBObjectRef<DBObject> object;
 
-    public DDLFileDetachAction(DBSchemaObject object) {
+    public DDLFileDetachAction(DBObject object) {
         this.object = DBObjectRef.of(object);
     }
 

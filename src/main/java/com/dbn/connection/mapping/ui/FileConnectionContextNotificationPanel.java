@@ -25,11 +25,11 @@ import com.dbn.connection.mapping.FileConnectionContextManager;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JLabel;
 
+import static com.dbn.common.color.Colors.getLabelDisabledForeground;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.util.Messages.OPTIONS_YES_NO;
 import static com.dbn.common.util.Messages.showQuestionDialog;
@@ -60,7 +60,7 @@ public class FileConnectionContextNotificationPanel extends EditorNotificationPa
         inheritedContext = mappingFile != null && !file.equals(mappingFile);
         if (inheritedContext) {
             JLabel inheritedLabel = new JLabel(txt("ntf.fileContext.text.InheritedDatabaseContext", mappingFile.getPath()));
-            inheritedLabel.setForeground(UIUtil.getLabelDisabledForeground());
+            inheritedLabel.setForeground(getLabelDisabledForeground());
             inheritedLabel.setOpaque(false);
             setContent(inheritedLabel);
         }

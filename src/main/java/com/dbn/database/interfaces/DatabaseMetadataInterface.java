@@ -19,6 +19,7 @@ package com.dbn.database.interfaces;
 import com.dbn.connection.jdbc.DBNConnection;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -45,8 +46,10 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      * Load all database users
      * Column names of the returned ResultSet
      *  <li> USER_NAME (char)
+     *  <li> IS_SYSTEM (Y/N)
      *  <li> IS_EXPIRED (Y/N)
      *  <li> IS_LOCKED (Y/N)
+     *  <li> IS_DISABLED (Y/N)
      */
     ResultSet loadUsers(DBNConnection connection) throws SQLException;
 
@@ -245,6 +248,10 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      *  <li> COLUMN_NAME (char)
      *  <li> DECL_TYPE_NAME (char)
      *  <li> DECL_TYPE_OWNER (char)
+     *  <li> NTBL_PARENT_OWNER_NAME (char)
+     *  <li> NTBL_PARENT_TABLE_NAME (char)
+     *  <li> NTBL_PARENT_COLUMN_NAME (char)
+     *  <li> STORAGE_TABLE_NAME (char)
      *  <li> DATA_LENGTH (number)
      *  <li> DATA_PRECISION (number)
      *  <li> DATA_SCALE (number)
@@ -260,7 +267,7 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      *  <li> SOURCE_SCHEMA_NAME (char)
      *  <li> SOURCE_DATASET_NAME (char)
      *  <li> SOURCE_COLUMN_NAME (char)
-     *  <li> TARGET_SCHEMA_NAME (char)
+     *  <li> TARGET_SCHEMA_NAME (char, for SCHEMA trigger targets)
      *  <li> TARGET_DATASET_NAME (char)
      *  <li> TARGET_COLUMN_NAME (char)
      *
@@ -274,7 +281,7 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      *  <li> SOURCE_SCHEMA_NAME (char)
      *  <li> SOURCE_DATASET_NAME (char)
      *  <li> SOURCE_COLUMN_NAME (char)
-     *  <li> TARGET_SCHEMA_NAME (char)
+     *  <li> TARGET_SCHEMA_NAME (char, for SCHEMA trigger targets)
      *  <li> TARGET_DATASET_NAME (char)
      *  <li> TARGET_COLUMN_NAME (char)
      */
@@ -391,24 +398,74 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      * Loads the actions of nested-tables owned by the given table<br>
      * Column names of the returned ResultSet
      *  <li> NESTED_TABLE_NAME (char)
-     *  <li> TABLE_COLUMN (char)
+     *  <li> TABLE_COLUMN_NAME (char)
      *  <li> TYPE_NAME (char)
      *  <li> TYPE_OWNER (char)
      */
     ResultSet loadNestedTables(String ownerName, String tableName, DBNConnection connection) throws SQLException;
 
     /**
+     * Loads the columns of the nested-table storage table owned by the given table<br>
+     * Column names of the returned ResultSet
+     *  <li> STORAGE_TABLE_NAME (char)
+     *  <li> TABLE_NAME (char)
+     *  <li> DATASET_NAME (char)
+     *  <li> COLUMN_NAME (char)
+     *  <li> POSITION (number)
+     *  <li> DATA_TYPE_NAME (char)
+     *  <li> DECL_TYPE_OWNER (char)
+     *  <li> DECL_TYPE_NAME (char)
+     *  <li> DECL_TYPE_PROGRAM (char)
+     *  <li> NTBL_NAME (char)
+     *  <li> NTBL_PARENT_OWNER_NAME (char)
+     *  <li> NTBL_PARENT_TABLE_NAME (char)
+     *  <li> NTBL_PARENT_COLUMN_NAME (char)
+     *  <li> DATA_LENGTH (number)
+     *  <li> DATA_PRECISION (number)
+     *  <li> DATA_SCALE (number)
+     *  <li> IS_SET (Y/N)
+     *  <li> IS_COLLECTION (Y/N)
+     */
+    ResultSet loadNestedTableColumns(String ownerName, String tableName, DBNConnection connection) throws SQLException;
+
+    /**
      * Loads the actions of nested-tables for the given owner<br>
      * Column names of the returned ResultSet
      *  <li> NESTED_TABLE_NAME (char)
      *  <li> TABLE_NAME (char)
-     *  <li> TABLE_COLUMN (char)
+     *  <li> TABLE_COLUMN_NAME (char)
      *  <li> TYPE_NAME (char)
      *  <li> TYPE_OWNER (char)
      *
      * Sort by TABLE_NAME
      */
     ResultSet loadAllNestedTables(String ownerName, DBNConnection connection) throws SQLException;
+
+    /**
+     * Loads all columns of nested-table storage tables for the given owner<br>
+     * Column names of the returned ResultSet
+     *  <li> STORAGE_TABLE_NAME (char)
+     *  <li> TABLE_NAME (char)
+     *  <li> DATASET_NAME (char)
+     *  <li> COLUMN_NAME (char)
+     *  <li> POSITION (number)
+     *  <li> DATA_TYPE_NAME (char)
+     *  <li> DECL_TYPE_OWNER (char)
+     *  <li> DECL_TYPE_NAME (char)
+     *  <li> DECL_TYPE_PROGRAM (char)
+     *  <li> NTBL_NAME (char)
+     *  <li> NTBL_PARENT_OWNER_NAME (char)
+     *  <li> NTBL_PARENT_TABLE_NAME (char)
+     *  <li> NTBL_PARENT_COLUMN_NAME (char)
+     *  <li> DATA_LENGTH (number)
+     *  <li> DATA_PRECISION (number)
+     *  <li> DATA_SCALE (number)
+     *  <li> IS_SET (Y/N)
+     *  <li> IS_COLLECTION (Y/N)
+     *
+     * Sort by TABLE_NAME and STORAGE_TABLE_NAME
+     */
+    ResultSet loadAllNestedTableColumns(String ownerName, DBNConnection connection) throws SQLException;
 
 
     /**
@@ -433,20 +490,36 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      * Column names of the returned ResultSet
      *  <li> TRIGGER_NAME (char)
      *  <li> TRIGGER_TYPE (char)
+     *  <li> TRIGGER_TARGET (TABLE/VIEW/SCHEMA/DATABASE)
+     *  <li> TARGET_SCHEMA_NAME (char, for SCHEMA trigger targets)
+     *  <li> TRIGGER_FUNCTION_NAME (char, for function-backed triggers)
+     *  <li> TRIGGER_FUNCTION_SCHEMA_NAME (char, for function-backed triggers)
      *  <li> TRIGGERING_EVENT (INSERT/DELETE/UPDATE e.g. INSERT or UPDATE)
-     *  <li> IS_ENABLED (Y/N)
+     *  <li> IS_DISABLED (Y/N)
      *  <li> IS_VALID (Y/N)
      *  <li> IS_FOR_EACH_ROW (Y/N)
      */
     ResultSet loadDatabaseTriggers(String ownerName, DBNConnection connection) throws SQLException;
 
     /**
+     * Loads triggers attached to the database itself. Unlike schema triggers,
+     * these objects have no schema owner and are loaded from the connection root.
+     */
+    ResultSet loadEventTriggers(DBNConnection connection) throws SQLException;
+
+    ResultSet loadEventTriggerSourceCode(String triggerName, DBNConnection connection) throws SQLException;
+
+    /**
      * Loads the triggers of the given dataset (can be a TABLE, VIEW or MATERIALIZED_VIEW)<br>
      * Column names of the returned ResultSet
      *  <li> TRIGGER_NAME (char)
      *  <li> TRIGGER_TYPE (char)
+     *  <li> TRIGGER_TARGET (TABLE/VIEW/SCHEMA/DATABASE)
+     *  <li> TARGET_SCHEMA_NAME (char)
+     *  <li> TRIGGER_FUNCTION_NAME (char, for function-backed triggers)
+     *  <li> TRIGGER_FUNCTION_SCHEMA_NAME (char, for function-backed triggers)
      *  <li> TRIGGERING_EVENT (INSERT/DELETE/UPDATE e.g. INSERT or UPDATE)
-     *  <li> IS_ENABLED (Y/N)
+     *  <li> IS_DISABLED (Y/N)
      *  <li> IS_VALID (Y/N)
      *  <li> IS_FOR_EACH_ROW (Y/N)
      */
@@ -458,8 +531,12 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      *  <li> DATASET_NAME (char)
      *  <li> TRIGGER_NAME (char)
      *  <li> TRIGGER_TYPE (char)
+     *  <li> TRIGGER_TARGET (TABLE/VIEW/SCHEMA/DATABASE)
+     *  <li> TARGET_SCHEMA_NAME (char)
+     *  <li> TRIGGER_FUNCTION_NAME (char, for function-backed triggers)
+     *  <li> TRIGGER_FUNCTION_SCHEMA_NAME (char, for function-backed triggers)
      *  <li> TRIGGERING_EVENT (INSERT/DELETE/UPDATE e.g. INSERT or UPDATE)
-     *  <li> IS_ENABLED (Y/N)
+     *  <li> IS_DISABLED (Y/N)
      *  <li> IS_VALID (Y/N)
      *  <li> IS_FOR_EACH_ROW (Y/N)
      *
@@ -490,7 +567,7 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      *  <li> CREDENTIAL_NAME (char)
      *  <li> USER_NAME (char)
      *  <li> COMMENTS (char)
-     *  <li> IS_ENABLED (Y/N)
+     *  <li> IS_DISABLED (Y/N)
      */
     ResultSet loadCredentials(String ownerName, DBNConnection connection) throws SQLException;
 
@@ -504,7 +581,7 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      *  <li> TEMPERATURE (number)
      *  <li> CREDENTIAL_NAME (char)
      *  <li> OBJECT_LIST (char)
-     *  <li> IS_ENABLED (Y/N)
+     *  <li> IS_DISABLED (Y/N)
      */
     ResultSet loadAiProfiles(String ownerName, DBNConnection connection) throws SQLException;
 
@@ -764,6 +841,7 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      *  <li> SUPERTYPE_OWNER (char)
      *  <li> SUPERTYPE_NAME (char)
      *  <li> TYPECODE (char)
+     *  <li> IS_COLLECTION (Y/N)
      */
     ResultSet loadTypes(String ownerName, DBNConnection connection) throws SQLException;
 
@@ -896,6 +974,18 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
     ResultSet loadReferencedObjects(String ownerName, String objectName, DBNConnection connection) throws SQLException;
 
     /**
+     * Loads the referenced objects that can be considered for debug compilation.
+     * Implementations may exclude objects from system or public schemas.
+     * Column names of the returned ResultSet
+     *  <li> OBJECT_OWNER (char)
+     *  <li> OBJECT_NAME (char)
+     *  <li> OBJECT_TYPE (char)
+     */
+    default ResultSet loadDebugDependencies(String ownerName, String objectName, DBNConnection connection) throws SQLException {
+        return loadReferencedObjects(ownerName, objectName, connection);
+    }
+
+    /**
      * Loads the referencing schemas for the given object (schemas containing objects depending on it)
      * Column names of the returned ResultSet
      *  <li> OBJECT_OWNER (char)
@@ -915,6 +1005,12 @@ public interface DatabaseMetadataInterface extends DatabaseInterface {
      * Sets the current schema for the given connection.
      */
     void setCurrentSchema(String schemaName, DBNConnection connection) throws SQLException;
+
+    /**
+     * Returns the current schema for the given connection, or {@code null} when no current schema is set.
+     */
+    @Nullable
+    String getCurrentSchema(DBNConnection connection) throws SQLException;
 
     /**
      * Loads the source code (select statement) for the given view;

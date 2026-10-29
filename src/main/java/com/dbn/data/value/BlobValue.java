@@ -16,6 +16,9 @@
 
 package com.dbn.data.value;
 
+import com.dbn.common.data.Data;
+import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.data.type.DBDataType;
 import com.dbn.data.type.GenericDataType;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
@@ -33,6 +36,9 @@ import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 
 import static com.dbn.common.util.Strings.isEmpty;
+import static com.dbn.data.value.LargeValueResourceLimits.*;
+import static com.dbn.data.value.LargeValueResourceLimits.isReadSizeAllowed;
+import static com.dbn.data.value.LargeValueResourceLimits.normalizeReadSize;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
@@ -121,8 +127,14 @@ public class BlobValue extends LargeObjectValue {
 
     @Override
     @Nullable
+    protected String convertUserValue(@Nullable Object userValue, DBDataType dataType, DBNConnection connection) {
+        return Data.asString(userValue);
+    }
+
+    @Override
+    @Nullable
     public String read() throws SQLException {
-        if (blob != null && blob.length() > MAX_READ_SIZE) {
+        if (blob != null && !isReadSizeAllowed(blob.length())) {
             setTruncated(true);
             throw new SQLException("Could not read value from BLOB.");
         }
@@ -140,7 +152,7 @@ public class BlobValue extends LargeObjectValue {
         if (blob == null) return null;
 
         long totalLength = blob.length();
-        int requestedSize = maxSize <= 0 ? MAX_READ_SIZE : Math.min(maxSize, MAX_READ_SIZE);
+        int requestedSize = normalizeReadSize(maxSize);
         int size = (int) Math.min(requestedSize, totalLength);
         setTruncated(totalLength > size);
         try {

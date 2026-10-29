@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.dbn.execution.common.message.ui.tree.node;
@@ -22,7 +21,7 @@ import com.dbn.common.ui.tree.TreeEventType;
 import com.dbn.common.ui.tree.Trees;
 import com.dbn.execution.common.message.ui.tree.MessagesTreeBundleNode;
 import com.dbn.execution.java.JavaExecutionMessage;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -43,7 +42,7 @@ public class JavaExecutionMessagesObjectNode extends MessagesTreeBundleNode<Java
 		return Failsafe.nn(file);
 	}
 
-	public DBSchemaObject getObject() {
+	public DBObject getObject() {
 		return file.getObject();
 	}
 

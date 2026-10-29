@@ -42,12 +42,12 @@ public class BlobOutput extends OutputContent {
 
     @Override
     public void registerParameters(CallableStatement statement) throws SQLException {
-        statement.registerOutParameter(shifted(1), Types.BLOB);
+        registerOutParameter(statement, 1, Types.BLOB);
     }
 
     @Override
     public void read(CallableStatement statement) throws SQLException {
-        Blob blob = statement.getBlob(shifted(1));
+        Blob blob = getBlob(statement, 1);
         if (blob == null) {
             value = new byte[0];
             return;

@@ -26,6 +26,7 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import static com.dbn.common.ui.util.Tooltips.setToolTipText;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
@@ -57,10 +58,10 @@ public class ProfileObjectsVerifier extends InputVerifier implements
     boolean isValid = profileTable.getRowCount() > 0;
     if (!isValid) {
       profileTable.setBorder(ERROR_BORDER);
-      profileTable.setToolTipText(txt("cfg.assistant.error.ObjectInfoEmpty"));
+      setToolTipText(profileTable, txt("cfg.assistant.error.ObjectInfoEmpty"));
     } else {
       profileTable.setBorder(DEFAULT_BORDER);
-      profileTable.setToolTipText(null);
+      setToolTipText(profileTable, null);
     }
     return isValid;
   }

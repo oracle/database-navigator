@@ -22,7 +22,9 @@ import lombok.Getter;
 @Getter
 public enum DBObjectStatus implements Property.ShortBase {
     PRESENT(Propagation.NONE, true),
-    ENABLED(Propagation.NONE, true),
+    DISABLED(Propagation.NONE, false),
+    LOCKED(Propagation.NONE, false),
+    EXPIRED(Propagation.NONE, false),
     EDITABLE(Propagation.NONE, false),
     VALID(Propagation.ALL, true),
     DEBUG(Propagation.ANY, false),

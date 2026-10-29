@@ -17,6 +17,7 @@
 package com.dbn.object.management.adapter;
 
 import com.dbn.common.Priority;
+import com.dbn.common.attributes.Attributes;
 import com.dbn.common.outcome.BasicOutcomeHandler;
 import com.dbn.common.outcome.OutcomeType;
 import com.dbn.object.common.DBObject;
@@ -24,7 +25,7 @@ import com.dbn.object.event.ObjectChangeAction;
 import org.jetbrains.annotations.Nls;
 
 import static com.dbn.nls.NlsResources.txt;
-import static com.dbn.object.common.status.DBObjectStatus.ENABLED;
+import static com.dbn.object.common.status.DBObjectStatus.DISABLED;
 import static com.intellij.openapi.util.NlsContexts.DialogMessage;
 import static com.intellij.openapi.util.NlsContexts.DialogTitle;
 import static com.intellij.openapi.util.NlsContexts.ProgressText;
@@ -38,13 +39,13 @@ import static com.intellij.openapi.util.NlsContexts.ProgressTitle;
  */
 public final class DBObjectEnableAdapter<T extends DBObject> extends ObjectManagementAdapterBase<T> {
 
-    public DBObjectEnableAdapter(T object, InterfaceInvoker<T> invoker) {
-        super(object, ObjectChangeAction.ENABLE, invoker);
+    public DBObjectEnableAdapter(T object, Attributes attributes, InterfaceInvoker<T> invoker) {
+        super(object, ObjectChangeAction.ENABLE, attributes, invoker);
         addOutcomeHandler(OutcomeType.SUCCESS, BasicOutcomeHandler.create(Priority.HIGH, o -> enableLocal()));
     }
 
     private void enableLocal() {
-        getObject().getStatus().set(ENABLED, true);
+        getObject().setStatus(DISABLED, false);
     }
 
     @Nls

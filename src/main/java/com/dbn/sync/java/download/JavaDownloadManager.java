@@ -21,9 +21,6 @@ import com.dbn.batch.DatabaseBatchManager;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.data.Data;
-import com.dbn.common.state.StateAttributes;
-import com.dbn.common.state.StateCategory;
-import com.dbn.common.state.StateContainer;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionAction;
@@ -45,10 +42,7 @@ import com.dbn.sync.java.download.ui.JavaDownloadResultDialog;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
-import org.jdom.Element;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -57,7 +51,6 @@ import java.util.List;
 
 import static com.dbn.common.Priority.HIGH;
 import static com.dbn.common.component.Components.projectService;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.sync.java.download.JavaDownloadManager.COMPONENT_NAME;
@@ -66,9 +59,6 @@ import static com.dbn.sync.java.download.JavaDownloadUtil.prepareDestinationFold
 @State(name = COMPONENT_NAME, storages = @Storage(DatabaseNavigator.STORAGE_FILE))
 public class JavaDownloadManager extends ProjectComponentBase implements PersistentState {
 	public static final String COMPONENT_NAME = "DBNavigator.Project.JavaDownloadManager";
-	private final StateContainer states = new StateContainer();
-
-
 	private JavaDownloadManager(Project project) {
 		super(project, COMPONENT_NAME);
 	}
@@ -211,26 +201,4 @@ public class JavaDownloadManager extends ProjectComponentBase implements Persist
 	public void openBatchResult(JavaDownloadBatch batch) {
 		Dialogs.show(() -> new JavaDownloadResultDialog(batch));
 	}
-
-	@NotNull
-	public StateAttributes getState(@NonNls String category) {
-        StateCategory stateCategory = StateCategory.get(category);
-        return states.ensureAttributes(stateCategory);
-	}
-
-	/****************************************
-	 *       PersistentStateComponent       *
-	 *****************************************/
-    @Nullable
-    @Override
-    public Element getComponentState() {
-        Element element = newStateElement();
-        states.writeState(element, "download-states");
-        return element;
-    }
-
-    @Override
-    public void loadComponentState(@NotNull Element element) {
-        states.readState(element, "download-states");
-    }
 }

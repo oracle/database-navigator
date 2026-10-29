@@ -44,7 +44,6 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.containers.ContainerUtil;
-import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -153,15 +152,5 @@ public class ExecutionConfigManager extends ProjectComponentBase implements Pers
                 runManager.removeConfiguration(runConfiguration);
             }
         }
-    }
-
-    @Override
-    public Element getComponentState() {
-        return null;
-    }
-
-    @Override
-    public void loadComponentState(@NotNull Element state) {
-
     }
 }

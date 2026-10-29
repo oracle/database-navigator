@@ -53,15 +53,16 @@ import java.util.EventObject;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
-public abstract class AbstractDatasetTableCellEditor extends AbstractCellEditor implements TableCellEditor, StatefulDisposable {
-    private final WeakRef<DataEditorComponent> editorComponent;
+public abstract class AbstractDatasetTableCellEditor<T extends DataEditorComponent> extends AbstractCellEditor implements TableCellEditor, StatefulDisposable {
+    private final WeakRef<T> editorComponent;
     private final WeakRef<DatasetEditorTable> table;
     private WeakRef<DatasetEditorModelCell> cell;
     private int clickCountToStart = 1;
     protected DataEditorSettings settings;
 
-    AbstractDatasetTableCellEditor(@NotNull DatasetEditorTable table, DataEditorComponent editorComponent) {
+    AbstractDatasetTableCellEditor(@NotNull DatasetEditorTable table) {
         this.table = WeakRef.of(table);
+        T editorComponent = createEditorComponent(table);
         this.editorComponent = WeakRef.of(editorComponent);
 
         Project project = table.getProject();
@@ -100,9 +101,11 @@ public abstract class AbstractDatasetTableCellEditor extends AbstractCellEditor 
         return getTable().getProject();
     }
 
+    @NotNull
+    protected abstract T createEditorComponent(DatasetEditorTable table);
 
     @NotNull
-    public DataEditorComponent getEditorComponent() {
+    public T getEditorComponent() {
         return editorComponent.ensure();
     }
 

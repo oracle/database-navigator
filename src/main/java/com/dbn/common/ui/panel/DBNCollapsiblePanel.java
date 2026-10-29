@@ -16,6 +16,7 @@
 
 package com.dbn.common.ui.panel;
 
+import com.dbn.common.color.Colors;
 import com.dbn.common.event.ToggleListener;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.component.DBNComponent;
@@ -33,6 +34,7 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.event.InputEvent;
 
+import static com.dbn.common.color.Colors.*;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleDescription;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.ClientProperty.NON_DISABLEABLE;
@@ -65,7 +67,7 @@ public class DBNCollapsiblePanel extends DBNFormBase {
         this.contentForm = contentForm;
         this.expanded = expanded;
         this.contentPanel.add(contentForm.getComponent());
-        this.toggleDetailLabel.setForeground(UIUtil.getLabelDisabledForeground());
+        this.toggleDetailLabel.setForeground(getLabelDisabledForeground());
         NON_DISABLEABLE.set(toggleLabel, true);
         NON_DISABLEABLE.set(toggleDetailLabel, true);
         setInfoContent(null);

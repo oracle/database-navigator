@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,6 +51,7 @@ import java.util.Set;
 
 import static com.dbn.assistant.chat.ChatAvailability.AVAILABLE;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.VECTOR_TOOLBOX;
 
 public class EmbeddingTableSelectionAction extends ComboBoxAction implements AssistantActionSupport {
 
@@ -155,6 +156,12 @@ public class EmbeddingTableSelectionAction extends ComboBoxAction implements Ass
     }
 
     private boolean isVisible(@NotNull AnActionEvent e) {
+        AssistantState assistantState = getAssistantState(e);
+        if (assistantState == null) return false;
+
+        Project project = assistantState.getProject();
+        if (!VECTOR_TOOLBOX.isEnabled(project)) return false;
+
         ChatContext chatContext = getCurrentChatContext(e);
         if (chatContext == null) return false;
 

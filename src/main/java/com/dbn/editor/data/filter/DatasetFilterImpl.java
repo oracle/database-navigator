@@ -18,8 +18,8 @@ package com.dbn.editor.data.filter;
 
 import com.dbn.common.options.BasicConfiguration;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
-import com.dbn.connection.ConnectionId;
 import com.dbn.object.DBDataset;
+import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.util.text.StringUtil;
 import lombok.Getter;
@@ -68,13 +68,8 @@ public abstract class DatasetFilterImpl extends BasicConfiguration<DatasetFilter
     }
 
     @Override
-    public ConnectionId getConnectionId() {
-        return filterGroup.getConnectionId();
-    }
-
-    @Override
-    public String getDatasetName() {
-        return filterGroup.getDatasetName();
+    public DBObjectRef<DBDataset> getDatasetRef() {
+        return filterGroup.getDataset();
     }
 
     public abstract void generateName();

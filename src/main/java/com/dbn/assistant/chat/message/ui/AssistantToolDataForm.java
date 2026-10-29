@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package com.dbn.assistant.chat.message.ui;
 import com.dbn.assistant.tool.execution.AssistantToolInvocation;
 import com.dbn.assistant.tool.info.AssistantToolInfoProvider;
 import com.dbn.common.action.DataKeys;
-import com.dbn.common.color.Colors;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -29,7 +28,6 @@ import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Languages;
 import com.dbn.common.util.Viewers;
-import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.lang.Language;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
@@ -41,7 +39,6 @@ import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.impl.file.impl.FileManager;
 import com.intellij.testFramework.LightVirtualFile;
-import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,10 +50,12 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.util.Objects;
 
-import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.createPreview;
-import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.isPreviewOversized;
+import static com.dbn.assistant.AssistantResourceLimits.createPreview;
+import static com.dbn.assistant.AssistantResourceLimits.isPreviewOversized;
+import static com.dbn.common.color.Colors.getContextHelpForeground;
 import static com.dbn.common.util.Editors.restrictEditorHeight;
 import static com.dbn.language.common.psi.PsiUtil.getFileManager;
+import static com.dbn.language.common.psi.PsiUtil.setHighlightingEnabled;
 
 public class AssistantToolDataForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -91,10 +90,10 @@ public class AssistantToolDataForm extends DBNFormBase {
             return;
         }
 
-        Color faded = Colors.faded(UIUtil.getLabelForeground());
-        typeLabel.setForeground(faded);
+        Color contextHelpForeground = getContextHelpForeground();
+        typeLabel.setForeground(contextHelpForeground);
         typeLabel.setFont(Fonts.regular(-1));
-        categoryLabel.setForeground(faded);
+        categoryLabel.setForeground(contextHelpForeground);
         categoryLabel.setFont(Fonts.regular(-1));
 
         typeNameLabel.setText(info.getToolTypeName());
@@ -168,10 +167,7 @@ public class AssistantToolDataForm extends DBNFormBase {
         FileManager fileManager = getFileManager(project);
         FileViewProvider viewProvider = fileManager.createFileViewProvider(file, true);
         PsiFile psiFile = viewProvider.getPsi(language);
-        if (psiFile != null) {
-            DaemonCodeAnalyzer codeAnalyzer = DaemonCodeAnalyzer.getInstance(project);
-            codeAnalyzer.setHighlightingEnabled(psiFile, false);
-        }
+        setHighlightingEnabled(psiFile, false);
         return psiFile;
     }
 

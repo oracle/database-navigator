@@ -75,6 +75,7 @@ import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.util.ContextLookup.getConnectionId;
 import static com.dbn.common.util.Modality.nonModal;
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_ASSISTANT;
 
 /**
  * Main database AI-Assistance management component
@@ -90,6 +91,7 @@ import static com.dbn.common.util.Modality.nonModal;
 public class DatabaseAssistantManager extends ProjectComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Project.DatabaseAssistantManager";
     public static final @NonNls String TOOL_WINDOW_ID = "DB Assistant";
+    private static final int MAX_ASSISTANT_STATE_COUNT = 1024;
 
     private final Map<ConnectionId, Map<AssistantType, AssistantState>> assistantStates = new ConcurrentHashMap<>();
     private final Map<ConnectionId, AssistantType> selectedAssistantTypes = new ConcurrentHashMap<>();
@@ -169,6 +171,8 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     }
 
     public void showToolWindow(@Nullable ConnectionId connectionId, @Nullable AssistantType assistantType) {
+        if (!isFeatureEnabled(DATABASE_ASSISTANT)) return;
+
         ToolWindow toolWindow = nn(ToolWindows.getToolWindow(getProject(), TOOL_WINDOW_ID));
         toolWindow.show(null);
         switchContext(connectionId, assistantType);
@@ -217,6 +221,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
      * @param connectionId the new selected connection
      */
     public void switchContext(@Nullable ConnectionId connectionId) {
+        if (!isFeatureEnabled(DATABASE_ASSISTANT)) return;
         if (connectionId == null) return; // do not switch away if switched to a non-db context
 
         AssistantType assistantType = getSelectedAssistantType(connectionId);
@@ -224,6 +229,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     }
 
     public void switchContext(@Nullable ConnectionId connectionId, AssistantType assistantType) {
+        if (!isFeatureEnabled(DATABASE_ASSISTANT)) return;
         if (connectionId == null) return; // do not switch away if switched to a non-db context
 
         ToolWindow toolWindow = getToolWindow();
@@ -237,12 +243,13 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
 
         selectedAssistantTypes.put(connectionId, assistantType);
         boolean initialized = container.initCard(connectionId, assistantType);
-        if (initialized) {
+        if (initialized && isFeatureEnabled(DATABASE_ASSISTANT)) {
             toolWindow.setAvailable(true);
         }
     }
 
     public void startAssistantChat(String sourceId, ConnectionId connectionId, AssistantType assistantType, AssistantMode assistantMode, DBObjectRef<DBTable> embeddingTable) {
+        if (!isFeatureEnabled(DATABASE_ASSISTANT)) return;
         switchContext(connectionId, assistantType);
         AssistantState assistantState = getAssistantState(connectionId, assistantType);
 
@@ -377,8 +384,8 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
      *********************************************/
 
     @Override
-    public Element getComponentState() {
-        Element element = newElement("state");
+    public void writeState(Element element) {
+        super.writeState(element);
         Element statesElement = newElement(element, "assistants");
         for (ConnectionId connectionId : assistantStates.keySet()) {
             Map<AssistantType, AssistantState> assistantStates = this.assistantStates.get(connectionId);
@@ -394,13 +401,14 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
         Element selectionElement = newElement(element, "selection-state");
         selectionState.writeState(selectionElement);
 
-        return element;
+
     }
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
+    public void readState(@NotNull Element element) {
+        super.readState(element);
         Element statesElement = element.getChild("assistants");
-        List<Element> stateElements = childrenOf(statesElement);
+        List<Element> stateElements = childrenOf(statesElement, "assistant-state", MAX_ASSISTANT_STATE_COUNT);
         for (Element stateElement : stateElements) {
             AssistantState assistantState = new AssistantStateDelegate(getProject());
             assistantState.readState(stateElement);
@@ -417,5 +425,6 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
 
         Element selectionElement = element.getChild("selection-state");
         selectionState.readState(selectionElement);
+
     }
 }

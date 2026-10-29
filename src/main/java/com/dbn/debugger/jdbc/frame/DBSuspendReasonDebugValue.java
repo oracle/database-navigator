@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class DBSuspendReasonDebugValue extends DBJdbcDebugValue {
     DBSuspendReasonDebugValue(DBJdbcDebugStackFrame stackFrame) {
-        super(stackFrame, null, "DEBUG_RUNTIME_EVENT", null, Icons.EXEC_MESSAGES_INFO);
+        super(stackFrame, null, "DEBUG_RUNTIME_EVENT", null, null, Icons.EXEC_MESSAGES_INFO);
     }
 
     @Override

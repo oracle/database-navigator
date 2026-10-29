@@ -33,7 +33,13 @@ public class AssistantMcpServerVerifier {
     public static void verify(AssistantMcpServer mcpServer) {
         switch (mcpServer.getType()) {
             case HTTP -> verifyHttpMcpServerUrl(mcpServer);
-            case STDIO -> {}
+            case STDIO -> verifyStdioMcpServerCommand(mcpServer);
+        }
+    }
+
+    private static void verifyStdioMcpServerCommand(AssistantMcpServer mcpServer) {
+        if (mcpServer.getCommandTokens().isEmpty()) {
+            throw new IllegalArgumentException(txt("msg.assistant.error.McpServerCommandExecutableRequired"));
         }
     }
 

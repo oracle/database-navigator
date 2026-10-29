@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,8 @@ import java.util.List;
 import static com.dbn.database.DatabaseFeature.DEBUGGING;
 import static com.dbn.database.DatabaseFeature.VECTOR_SEARCH;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DEBUGGER;
+import static com.dbn.options.general.WorkspaceFeature.VECTOR_TOOLBOX;
 import static com.dbn.vfs.DBConsoleType.DEBUG;
 import static com.dbn.vfs.DBConsoleType.SEARCH;
 import static com.dbn.vfs.DBConsoleType.STANDARD;
@@ -73,20 +75,25 @@ public class SQLConsoleOpenAction extends ProjectPopupAction {
     @Override
     public AnAction[] getChildren(AnActionEvent e) {
         ConnectionHandler connection = getConnection(e);
+        if (connection == null) return AnAction.EMPTY_ARRAY;
+
+        Project project = connection.getProject();
         List<AnAction> actions = new ArrayList<>();
-        if (connection != null) {
-            Collection<DBConsole> consoles = connection.getConsoleBundle().getConsoles();
-            for (DBConsole console : consoles) {
-                actions.add(new SelectConsoleAction(console));
+        Collection<DBConsole> consoles = connection.getConsoleBundle().getConsoles();
+
+        for (DBConsole console : consoles) {
+            if (console.getConsoleType() == SEARCH && !VECTOR_TOOLBOX.isEnabled(project)) {
+                continue;
             }
-            actions.add(Separator.getInstance());
-            actions.add(new SelectConsoleAction(connection, STANDARD));
-            if (DEBUGGING.isSupported(connection)) {
-                actions.add(new SelectConsoleAction(connection, DEBUG));
-            }
-            if (VECTOR_SEARCH.isSupported(connection)) {
-                actions.add(new SelectConsoleAction(connection, SEARCH));
-            }
+            actions.add(new SelectConsoleAction(console));
+        }
+        actions.add(Separator.getInstance());
+        actions.add(new SelectConsoleAction(connection, STANDARD));
+        if (DEBUGGER.isEnabled(project) && DEBUGGING.isSupported(connection)) {
+            actions.add(new SelectConsoleAction(connection, DEBUG));
+        }
+        if (VECTOR_TOOLBOX.isEnabled(project) && VECTOR_SEARCH.isSupported(connection)) {
+            actions.add(new SelectConsoleAction(connection, SEARCH));
         }
         return actions.toArray(new AnAction[0]);
     }

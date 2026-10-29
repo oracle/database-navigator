@@ -23,11 +23,10 @@ import com.dbn.common.options.BasicProjectConfiguration;
 import com.dbn.common.options.ProjectConfiguration;
 import com.dbn.common.ui.util.Listeners;
 import com.dbn.common.ui.util.Lists;
-import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.editor.data.filter.ui.DatasetFilterForm;
 import com.dbn.object.DBDataset;
-import com.dbn.object.DBSchema;
+import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import lombok.EqualsAndHashCode;
@@ -48,14 +47,15 @@ import static com.dbn.common.options.setting.Settings.connectionIdAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Naming.nextNumberedIdentifier;
+import static com.dbn.object.type.DBObjectType.DATASET;
+import static com.dbn.object.type.DBObjectType.SCHEMA;
 import static java.util.stream.Collectors.toSet;
 
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = false)
 public class DatasetFilterGroup extends BasicProjectConfiguration<ProjectConfiguration, DatasetFilterForm> implements ListModel {
-    private ConnectionId connectionId;
-    private String datasetName;
+    private DBObjectRef<DBDataset> dataset;
     private transient DatasetFilter activeFilter;
     private transient final List<DatasetFilter> filters = new ArrayList<>();
 
@@ -73,10 +73,9 @@ public class DatasetFilterGroup extends BasicProjectConfiguration<ProjectConfigu
         super(project);
     }
 
-    public DatasetFilterGroup(@NotNull Project project, ConnectionId connectionId, String datasetName) {
+    public DatasetFilterGroup(@NotNull Project project, DBObjectRef<DBDataset> dataset) {
         super(project);
-        this.connectionId = connectionId;
-        this.datasetName = datasetName;
+        this.dataset = dataset;
     }
 
     public DatasetBasicFilter createBasicFilter(boolean interactive) {
@@ -201,18 +200,8 @@ public class DatasetFilterGroup extends BasicProjectConfiguration<ProjectConfigu
 
     @NotNull
     public DBDataset lookupDataset() {
-        ConnectionHandler connection = ConnectionHandler.get(connectionId);
-        if (connection != null) {
-            int index = datasetName.lastIndexOf('.');
-            String schemaName = datasetName.substring(0, index);
-            DBSchema schema = connection.getObjectBundle().getSchema(schemaName);
-            if (schema != null) {
-                String name = datasetName.substring(index + 1);
-                DBDataset dataset = schema.getDataset(name);
-                return Failsafe.nn(dataset);
-            }
-        }
-        throw AlreadyDisposedException.INSTANCE;
+        if (dataset == null) throw AlreadyDisposedException.INSTANCE;
+        return Failsafe.nn(dataset.get());
     }
 
     private void initChange() {
@@ -272,8 +261,12 @@ public class DatasetFilterGroup extends BasicProjectConfiguration<ProjectConfigu
 
     @Override
     public void readConfiguration(Element element) {
-        connectionId = connectionIdAttribute(element, "connection-id");
-        datasetName = stringAttribute(element, "dataset");
+        Element datasetElement = element.getChild("dataset");
+        dataset = DBObjectRef.from(datasetElement);
+        if (dataset == null) {
+            dataset = readLegacyDataset(element);
+        }
+
         for (Element child : element.getChildren()){
             String type = stringAttribute(child, "type");
             if (Objects.equals(type, "basic")) {
@@ -292,13 +285,27 @@ public class DatasetFilterGroup extends BasicProjectConfiguration<ProjectConfigu
 
     @Override
     public void writeConfiguration(Element element) {
-        element.setAttribute("connection-id", connectionId.id());
-        element.setAttribute("dataset", datasetName);
+        if (dataset != null) {
+            Element datasetElement = newElement(element, "dataset");
+            dataset.writeState(datasetElement);
+        }
         for (DatasetFilter filter : filters) {
             Element filterElement = newElement(element, "filter");
             filter.writeConfiguration(filterElement);
         }
         element.setAttribute("active-filter-id", activeFilter == null ? "" : activeFilter.getId());
+    }
+
+    private static DBObjectRef<DBDataset> readLegacyDataset(Element element) {
+        ConnectionId connectionId = connectionIdAttribute(element, "connection-id");
+        String datasetName = stringAttribute(element, "dataset");
+        if (connectionId == null || datasetName == null) return null;
+
+        int separator = datasetName.lastIndexOf('.');
+        if (separator <= 0 || separator == datasetName.length() - 1) return null;
+
+        DBObjectRef<DBDataset> schema = new DBObjectRef<>(connectionId, SCHEMA, datasetName.substring(0, separator));
+        return new DBObjectRef<>(schema, DATASET, datasetName.substring(separator + 1));
     }
 
    /*************************************************

@@ -53,6 +53,7 @@ import java.util.Map;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.ui.util.Splitters.makeRegular;
+import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
 import static com.dbn.nls.NlsResources.txt;
 
 public class MethodExecutionHistoryForm extends DBNFormBase {
@@ -77,6 +78,7 @@ public class MethodExecutionHistoryForm extends DBNFormBase {
                 new ProjectSettingsOpenAction());
         actionsPanel.add(actionToolbar.getComponent());
         makeRegular(contentSplitPane);
+		setSplitPaneProportion(contentSplitPane, 0.4);
 
         MethodExecutionHistory executionHistory = getExecutionHistory();
         if (selectedExecutionInput != null &&

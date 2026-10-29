@@ -24,7 +24,6 @@ import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.language.common.psi.PsiUtil;
 import com.dbn.language.sql.SQLFileType;
-import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
@@ -47,6 +46,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 
 import static com.dbn.common.ui.util.ScrollPanes.recalibrateScrollContainer;
+import static com.dbn.language.common.psi.PsiUtil.setHighlightingEnabled;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -84,11 +84,7 @@ public class JavaCodeEditorPanel extends JPanel implements StatefulDisposable {
 
 
         PsiFile psiFile = PsiUtil.getPsiFile(project, document);
-        if (psiFile != null) {
-            DaemonCodeAnalyzer codeAnalyzer = DaemonCodeAnalyzer.getInstance(project);
-            codeAnalyzer.setHighlightingEnabled(psiFile, false);
-        }
-
+        setHighlightingEnabled(psiFile, false);
 /*
         FileManager fileManager = getFileManager(project);
         FileViewProvider viewProvider = fileManager.createFileViewProvider(virtualFile, true);

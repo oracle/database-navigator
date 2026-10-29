@@ -17,20 +17,36 @@
 package com.dbn.object.type;
 
 import com.dbn.common.constant.Constant;
+import com.dbn.common.ui.Presentable;
 import lombok.Getter;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Locale;
 
 @NonNls
 @Getter
-public enum DBTriggerType implements Constant<DBTriggerType> {
-    BEFORE("before"),
-    AFTER("after"),
-    INSTEAD_OF("instead of"),
-    UNKNOWN("unknown");
+public enum DBTriggerType implements Constant<DBTriggerType>, Presentable {
+    BEFORE("BEFORE"),
+    AFTER("AFTER"),
+    INSTEAD_OF("INSTEAD OF"),
+    UNKNOWN("UNKNOWN");
 
     private final String name;
 
     DBTriggerType(String name) {
         this.name = name;
+    }
+
+    public static DBTriggerType value(@Nullable String value) {
+        if (value == null) return UNKNOWN;
+
+        String normalized = value.trim().toUpperCase(Locale.ROOT).replace('_', ' ');
+        for (DBTriggerType triggerType : values()) {
+            if (triggerType != UNKNOWN && normalized.startsWith(triggerType.name)) {
+                return triggerType;
+            }
+        }
+        return UNKNOWN;
     }
 }

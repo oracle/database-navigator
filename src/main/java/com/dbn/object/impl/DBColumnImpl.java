@@ -26,6 +26,7 @@ import com.dbn.object.DBColumn;
 import com.dbn.object.DBConstraint;
 import com.dbn.object.DBDataset;
 import com.dbn.object.DBIndex;
+import com.dbn.object.DBTable;
 import com.dbn.object.DBType;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectImpl;
@@ -50,6 +51,7 @@ import static com.dbn.object.common.property.DBObjectProperty.HIDDEN;
 import static com.dbn.object.common.property.DBObjectProperty.IDENTITY;
 import static com.dbn.object.common.property.DBObjectProperty.NULLABLE;
 import static com.dbn.object.common.property.DBObjectProperty.PRIMARY_KEY;
+import static com.dbn.object.common.property.DBObjectProperty.RENAMABLE;
 import static com.dbn.object.common.property.DBObjectProperty.UNIQUE_KEY;
 import static com.dbn.object.type.DBObjectRelationType.COLUMN_COLUMN;
 import static com.dbn.object.type.DBObjectRelationType.CONSTRAINT_COLUMN;
@@ -73,6 +75,7 @@ class DBColumnImpl extends DBObjectImpl<DBColumnMetadata> implements DBColumn {
     @Override
     protected String initObject(ConnectionHandler connection, DBObject parentObject, DBColumnMetadata metadata) throws SQLException {
         String name = metadata.getColumnName();
+        set(RENAMABLE, parentObject instanceof DBTable);
         set(PRIMARY_KEY, metadata.isPrimaryKey());
         set(FOREIGN_KEY, metadata.isForeignKey());
         set(UNIQUE_KEY, metadata.isUniqueKey());

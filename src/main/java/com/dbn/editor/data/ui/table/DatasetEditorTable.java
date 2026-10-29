@@ -26,6 +26,7 @@ import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Mouse;
+import com.dbn.common.ui.util.Tooltips;
 import com.dbn.common.util.Actions;
 import com.dbn.data.grid.options.DataGridAuditColumnSettings;
 import com.dbn.data.grid.ui.table.basic.BasicTableCellRenderer;
@@ -35,8 +36,7 @@ import com.dbn.data.model.ColumnInfo;
 import com.dbn.data.model.DataModelCell;
 import com.dbn.data.record.RecordViewInfo;
 import com.dbn.data.sorting.SortDirection;
-import com.dbn.data.value.ArrayValue;
-import com.dbn.data.value.LargeObjectValue;
+import com.dbn.data.type.GenericDataType;
 import com.dbn.data.value.ValueAdapter;
 import com.dbn.editor.DatabaseFileEditorManager;
 import com.dbn.editor.EditorProviderId;
@@ -59,6 +59,7 @@ import com.dbn.object.DBColumn;
 import com.dbn.object.DBDataset;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionPopupMenu;
+import com.intellij.ui.AnimatedIcon;
 import com.intellij.ui.awt.RelativePoint;
 import lombok.Getter;
 import lombok.Setter;
@@ -66,6 +67,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JPopupMenu;
+import javax.swing.ListSelectionModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.TableColumnModelEvent;
@@ -80,7 +82,10 @@ import java.sql.SQLException;
 import java.util.EventObject;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.common.ui.util.Tooltips.escapeHtml;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.ui.util.Tooltips.setHtmlToolTipText;
+import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.editor.data.DataLoadInstruction.DELIBERATE_ACTION;
@@ -99,7 +104,7 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
 
     private @Getter @Setter boolean editingEnabled = true;
 
-    public DatasetEditorTable(DBNForm parent, DatasetEditor datasetEditor) throws SQLException {
+    public DatasetEditorTable(DBNForm parent, DatasetEditor datasetEditor) {
         super(parent, createModel(datasetEditor), false,
                 new RecordViewInfo(
                     datasetEditor.getDataset().getQualifiedName(),
@@ -107,9 +112,15 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
         JTableHeader tableHeader = getTableHeader();
         tableHeader.setDefaultRenderer(new DatasetEditorTableHeaderRenderer());
         setName(datasetEditor.getDataset().getName());
+        putClientProperty(AnimatedIcon.ANIMATION_IN_RENDERER_ALLOWED, true);
         this.datasetEditor = WeakRef.of(datasetEditor);
 
-        getSelectionModel().addListSelectionListener(getModel());
+        ListSelectionModel selectionModel = getSelectionModel();
+        selectionModel.addListSelectionListener(getModel());
+        selectionModel.addListSelectionListener(
+                e -> when(!e.getValueIsAdjusting(),
+                () -> updateActionToolbars()));
+
         addKeyListener(new DatasetEditorKeyListener(this));
         addMouseListener(tableMouseListener);
 
@@ -136,7 +147,7 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
         return new DatasetEditorTableCellRenderer();
     }
 
-    private static DatasetEditorModel createModel(DatasetEditor datasetEditor) throws SQLException {
+    private static DatasetEditorModel createModel(DatasetEditor datasetEditor) {
         return new DatasetEditorModel(datasetEditor);
     }
 
@@ -203,18 +214,17 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
                 result.second(t);
             }
 
-            performUpdate(rowIndex, columnIndex, () -> {
-                cell.setTemporaryUserValue(editorTextValue);
-                Throwable exception = result.second();
-                Object value = result.first();
-                if (exception == null) {
-                    setValueAt(value, rowIndex, columnIndex);
-                } else {
-                    setValueAt(value, exception.getMessage(), rowIndex, columnIndex);
-                }
-            });
+            cell.setTemporaryUserValue(editorTextValue);
+            Throwable exception = result.second();
+            Object value = result.first();
+            if (exception == null) {
+                setValueAt(value, rowIndex, columnIndex);
+            } else {
+                setValueAt(value, exception.getMessage(), rowIndex, columnIndex);
+            }
         } finally {
             removeEditor();
+            updateActionToolbars();
         }
     }
 
@@ -228,7 +238,7 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
                 runnable.run();
             } finally {
                 scope.set(UPDATING, false);
-                refreshTableGutter();
+                Dispatch.run(this, () -> refreshTableGutter());
             }
         });
     }
@@ -388,13 +398,14 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
 
             if (editorTableCell.isModified() && !e.isControlDown()) {
                 Object userValue = editorTableCell.getUserValue();
-                if (userValue instanceof ArrayValue) {
-                    return txt("app.dataEditor.tooltip.ArrayValueChanged");
-                } else  if (userValue instanceof LargeObjectValue largeObjectValue) {
-                    return txt("app.dataEditor.tooltip.LargeObjectContentChanged", largeObjectValue.getGenericDataType());
-                } else {
-                    return txt("app.dataEditor.tooltip.OriginalValue", editorTableCell.getOriginalUserValue());
+                GenericDataType genericDataType = editorTableCell.getColumnInfo().getDataType().getGenericDataType();
+                if (userValue instanceof ValueAdapter<?> valueAdapter) {
+                    return txt("app.dataEditor.tooltip.ComplexValueChanged", valueAdapter.getGenericDataType());
                 }
+                if (ValueAdapter.REGISTRY.containsKey(genericDataType)) {
+                    return txt("app.dataEditor.tooltip.ComplexValueChanged", genericDataType);
+                }
+                return txt("app.dataEditor.tooltip.OriginalValue", editorTableCell.getOriginalUserValue());
 
             }
         }
@@ -465,13 +476,14 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
                 DBColumn column = cell.getColumn();
                 DBColumn foreignKeyColumn = column.getForeignKeyColumn();
                 if (foreignKeyColumn != null) {
-                    setToolTipText(txt("app.dataEditor.tooltip.ShowReferencedRecord", foreignKeyColumn.getDataset().getQualifiedName()));
+                    String datasetName = escapeHtml(foreignKeyColumn.getDataset().getQualifiedName());
+                    setHtmlToolTipText(this, txt("app.dataEditor.tooltip.ShowReferencedRecord", datasetName));
                 }
             }
         } else {
             super.processMouseMotionEvent(e);
             setCursor(Cursors.defaultCursor());
-            setToolTipText(null);
+            Tooltips.setToolTipText(this, null);
         }
     }
 
@@ -542,6 +554,10 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
                 (int) (rectangle.getX() + rectangle.getWidth() - 20),
                 (int) (rectangle.getY() + rectangle.getHeight()) + 20);
         return new RelativePoint(getTableHeader(), point);
+    }
+
+    private void updateActionToolbars() {
+        getDatasetEditor().getEditorForm().updateActionToolbars();
     }
 
     /********************************************************

@@ -20,9 +20,6 @@ import com.dbn.DatabaseNavigator;
 import com.dbn.batch.DatabaseBatchManager;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
-import com.dbn.common.state.StateAttributes;
-import com.dbn.common.state.StateCategory;
-import com.dbn.common.state.StateContainer;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.thread.Read;
 import com.dbn.common.util.Dialogs;
@@ -50,7 +47,6 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaCodeReferenceElement;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.util.PsiUtilCore;
-import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -67,7 +63,6 @@ import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.file.util.ProjectFiles.isModuleDependency;
 import static com.dbn.common.file.util.ProjectFiles.isProjectSourceFile;
 import static com.dbn.common.file.util.VirtualFiles.isArchive;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.common.util.Messages.showInfoDialog;
 import static com.dbn.nls.NlsResources.txt;
@@ -88,8 +83,6 @@ public class JavaUploadManager extends ProjectComponentBase implements Persisten
 			"xdb",
 			"ucp"
 	);
-
-    private final StateContainer states = new StateContainer();
 
 	private JavaUploadManager(Project project) {
 		super(project, COMPONENT_NAME);
@@ -194,13 +187,6 @@ public class JavaUploadManager extends ProjectComponentBase implements Persisten
 		Dialogs.show(() -> new JavaUploadResultDialog(batch));
 	}
 
-    @NotNull
-    public StateAttributes getState(@NonNls String category) {
-        StateCategory stateCategory = StateCategory.get(category);
-        return states.ensureAttributes(stateCategory);
-    }
-
-
 	private Set<VirtualFile> resolveDependencies(VirtualFile virtualFile) {
 		Project project = getProject();
 		PsiManager psiManager = PsiManager.getInstance(project);
@@ -269,21 +255,4 @@ public class JavaUploadManager extends ProjectComponentBase implements Persisten
 
 		return null;
 	}
-
-	/****************************************
-	 *       PersistentStateComponent       *
-	 *****************************************/
-    @Nullable
-    @Override
-    public Element getComponentState() {
-        Element element = newStateElement();
-        states.writeState(element, "download-states");
-        return element;
-    }
-
-    @Override
-    public void loadComponentState(@NotNull Element element) {
-        states.readState(element, "download-states");
-    }
-
 }

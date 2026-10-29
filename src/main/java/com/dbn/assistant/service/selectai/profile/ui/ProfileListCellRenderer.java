@@ -21,6 +21,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.object.DBAIProfile;
 import com.dbn.object.common.ui.DBObjectListCellRenderer;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
 
@@ -49,7 +50,7 @@ public class ProfileListCellRenderer extends DBObjectListCellRenderer<DBAIProfil
         SimpleTextAttributes attributes = enabled ? REGULAR_ATTRIBUTES : GRAY_ATTRIBUTES;
         if (isDefault(profile)) append(" " + txt("app.assistant.label.DefaultMarker"), attributes);
 
-        setToolTipText(enabled ? null : txt("cfg.assistant.tooltip.ProfileDisabled"));
+        Tooltips.setToolTipText(this, enabled ? null : txt("cfg.assistant.tooltip.ProfileDisabled"));
     }
 
     private boolean isDefault(DBAIProfile profile) {

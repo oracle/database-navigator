@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.dbn.vfs.file;
 
 import com.dbn.code.common.style.DBLCodeStyleManager;
 import com.dbn.code.common.style.options.CodeStyleCaseSettings;
+import com.dbn.common.ref.WeakRegistration;
 import com.dbn.common.state.AttributeHolder;
 import com.dbn.common.state.AttributeHolderBase;
 import com.dbn.common.util.Documents;
@@ -45,7 +46,6 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.RangeMarker;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
-import com.intellij.openapi.editor.ex.DocumentEx;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
@@ -64,6 +64,8 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Objects;
 
+import static com.dbn.common.util.GuardedBlocks.getGuardedBlocks;
+
 @Getter
 public class DBConsoleVirtualFile extends DBObjectVirtualFile<DBConsole> implements
         DocumentListener,
@@ -73,6 +75,9 @@ public class DBConsoleVirtualFile extends DBObjectVirtualFile<DBConsole> impleme
         Comparable<DBConsoleVirtualFile>  {
     private final SourceCodeContent content = new SourceCodeContent();
     private final transient FileConnectionContext connectionContext;
+    private final transient WeakRegistration<Document> documentRegistration = new WeakRegistration<>(
+            d -> d.addDocumentListener(this, getObject()),
+            d -> d.removeDocumentListener(this));
 
     @Delegate
     private final AttributeHolder attributes = new AttributeHolderBase();
@@ -103,6 +108,10 @@ public class DBConsoleVirtualFile extends DBObjectVirtualFile<DBConsole> impleme
         setContent(text);
         Document document = Documents.ensureDocument(this);
         Documents.setText(getProject(), document, text);
+    }
+
+    public void registerDocument(@NotNull Document document) {
+        documentRegistration.register(document);
     }
 
     @Override
@@ -239,12 +248,9 @@ public class DBConsoleVirtualFile extends DBObjectVirtualFile<DBConsole> impleme
     public void documentChanged(DocumentEvent event) {
         Document document = event.getDocument();
         content.setText(document.getCharsSequence());
-        if (document instanceof DocumentEx documentEx) {
-            List<RangeMarker> blocks = documentEx.getGuardedBlocks();
-            if (!blocks.isEmpty()) {
-                content.getOffsets().setGuardedBlocks(blocks);
-            }
-        }
+
+        List<RangeMarker> guardedBlocks = getGuardedBlocks(document, true);
+        content.getOffsets().setGuardedBlocks(guardedBlocks);
     }
 
     private static FileConnectionContext createConnectionContext(
@@ -266,5 +272,11 @@ public class DBConsoleVirtualFile extends DBObjectVirtualFile<DBConsole> impleme
 
     public String getContentText() {
         return content.getText().toString();
+    }
+
+    @Override
+    public void invalidate() {
+        documentRegistration.unregister();
+        super.invalidate();
     }
 }

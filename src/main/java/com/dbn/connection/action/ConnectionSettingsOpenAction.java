@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,12 +36,12 @@ public class ConnectionSettingsOpenAction extends AbstractConnectionAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull ConnectionHandler connection) {
         ProjectSettingsManager settingsManager = ProjectSettingsManager.getInstance(project);
-        settingsManager.openConnectionSettings(connection.getConnectionId());
+        settingsManager.openConnectionConfig(connection.getConnectionId());
     }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable ConnectionHandler target) {
-        presentation.setText(txt("app.connection.action.Settings"));
+        presentation.setText(txt("app.connection.action.ConnectionConfig"));
         presentation.setIcon(Icons.ACTION_OPTIONS);
     }
 }

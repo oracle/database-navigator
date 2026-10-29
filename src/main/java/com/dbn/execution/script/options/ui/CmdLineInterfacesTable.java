@@ -27,6 +27,7 @@ import com.dbn.execution.script.CmdLineInterfaceBundle;
 import com.dbn.execution.script.ScriptExecutionManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.ui.AnimatedIcon;
 import com.intellij.ui.TableUtil;
 
 import javax.swing.JTextField;
@@ -57,7 +58,8 @@ public class CmdLineInterfacesTable extends DBNTable<CmdLineInterfacesTableModel
         setCellSelectionEnabled(true);
         setDefaultRenderer(Object.class, new CmdLineInterfacesTableCellRenderer());
 
-        setProportionalColumnWidths(15, 25, 60);
+        setProportionalColumnWidths(15, 20, 50, 15);
+        putClientProperty(AnimatedIcon.ANIMATION_IN_RENDERER_ALLOWED, true);
         putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
         addMouseListener(createMouseListener());
 

@@ -44,7 +44,7 @@ class ArrayEditorAcceptAction extends ArrayEditorAction {
 
         ArrayEditorList list = form.getEditorList();
         list.stopCellEditing();
-        TextFieldWithPopup<?> editorComponent = form.getEditorComponent();
+        TextFieldWithPopup editorComponent = form.getEditorComponent();
         UserValueHolder<?> userValueHolder = editorComponent.getUserValueHolder();
 
         Class<?> clazz = userValueHolder.getDataClass();

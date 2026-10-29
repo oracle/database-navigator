@@ -20,6 +20,7 @@ import com.dbn.common.content.dependency.ContentDependencyAdapter;
 import com.dbn.common.content.dependency.VoidContentDependencyAdapter;
 import com.dbn.common.dispose.StatefulDisposableBase;
 import com.dbn.object.common.DBObject;
+import com.intellij.pom.Navigatable;
 import lombok.experimental.Delegate;
 
 import java.util.List;
@@ -36,9 +37,25 @@ public class DBObjectListProxy<T extends DBObject> extends StatefulDisposableBas
         return new DBObjectListProxy<>(delegate);
     }
 
-    @Delegate(excludes = LifecycleMethods.class)
-    public DBObjectList<T> getDelegate() {
+    // partial delegation implementation given api changes across ide versions
+    @Delegate(excludes = {LifecycleMethods.class, Navigatable.class})
+    public DBObjectList<T> delegate() {
         return delegate.get();
+    }
+
+    @Override
+    public void navigate(boolean requestFocus) {
+        delegate().navigate(requestFocus);
+    }
+
+    @Override
+    public boolean canNavigate() {
+        return delegate().canNavigate();
+    }
+
+    @Override
+    public boolean canNavigateToSource() {
+        return delegate().canNavigateToSource();
     }
 
     @Override

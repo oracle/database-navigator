@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,7 @@ import com.dbn.execution.compiler.CompilerAction;
 import com.dbn.execution.compiler.CompilerActionSource;
 import com.dbn.execution.compiler.DatabaseCompilerManager;
 import com.dbn.execution.compiler.options.CompilerSettings;
-import com.dbn.object.common.DBSchemaObject;
-import com.dbn.object.common.property.DBObjectProperty;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
@@ -38,9 +37,11 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
+import static com.dbn.database.DatabaseFeature.*;
 import static com.dbn.editor.DBContentType.CODE_BODY;
 import static com.dbn.editor.DBContentType.CODE_SPEC;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
 
 public class ProgramCompileAction extends AbstractCodeEditorAction {
 
@@ -64,11 +65,11 @@ public class ProgramCompileAction extends AbstractCodeEditorAction {
             presentation.setEnabled(false);
         } else {
 
-            DBSchemaObject schemaObject = sourceCodeFile.getObject();
-            if (schemaObject.is(DBObjectProperty.COMPILABLE) && DatabaseFeature.OBJECT_INVALIDATION.isSupported(schemaObject)) {
-                CompilerSettings compilerSettings = getCompilerSettings(schemaObject.getProject());
+            DBObject object = sourceCodeFile.getObject();
+            if (object.is(COMPILABLE) && OBJECT_INVALIDATION.isSupported(object)) {
+                CompilerSettings compilerSettings = getCompilerSettings(object.getProject());
                 CompileType compileType = compilerSettings.getCompileType();
-                DBObjectStatusHolder objectStatus = schemaObject.getStatus();
+                DBObjectStatusHolder objectStatus = object.getStatus();
                 DBContentType contentType = sourceCodeFile.getContentType();
 
                 boolean isDebug = compileType == CompileType.DEBUG;

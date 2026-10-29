@@ -24,6 +24,7 @@ import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -36,6 +37,8 @@ import static com.dbn.common.util.Commons.coalesce;
 import static com.dbn.nls.NlsResources.txt;
 
 public class TnsNamesParser {
+    static final long MAX_FILE_SIZE_BYTES = 10L * 1024 * 1024;
+
     private static final FileContentCache<TnsNames> cache = new FileContentCache<>() {
         @Override
         protected TnsNames load(File file) {
@@ -52,6 +55,7 @@ public class TnsNamesParser {
     public static TnsNames parse(File file) { // this is the function that converts a file to TnsNames
         List<TnsProfile> tnsProfiles = new ArrayList<>();
         Path filePath = Paths.get(file.getPath());
+        validateFileSize(Files.size(filePath));
         String tnsContent = Files.readString(filePath);
 
         Pattern pattern = TnsProfilePattern.INSTANCE.get();
@@ -103,6 +107,17 @@ public class TnsNamesParser {
             }
         }
         return new TnsNames(file, tnsProfiles);
+    }
+
+    private static void validateFileSize(long fileSize) throws IOException {
+        if (fileSize > MAX_FILE_SIZE_BYTES) {
+            throw fileTooLarge();
+        }
+    }
+
+    private static IOException fileTooLarge() {
+        long maxFileSizeMegabytes = MAX_FILE_SIZE_BYTES / (1024 * 1024);
+        return new IOException(txt("msg.connection.error.TnsNamesFileTooLarge", maxFileSizeMegabytes));
     }
 
     public static @NotNull FileChooserDescriptor tnsFileChooser() {

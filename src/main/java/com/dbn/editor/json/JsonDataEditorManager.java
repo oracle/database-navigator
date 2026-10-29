@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import com.dbn.editor.data.filter.DatasetFilterInput;
 import com.dbn.editor.data.filter.DatasetFilterManager;
 import com.dbn.object.DBDataset;
 import com.dbn.object.DBJsonView;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
@@ -42,10 +42,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.component.Components.projectService;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.editor.data.DataLoadInstruction.DELIBERATE_ACTION;
 import static com.dbn.editor.data.DataLoadInstruction.PRESERVE_CHANGES;
 import static com.dbn.editor.data.DataLoadInstruction.REBUILD;
@@ -79,7 +77,7 @@ public class JsonDataEditorManager extends ProjectComponentBase implements Persi
             @Override
             public void whenFileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
                 if (file instanceof DBEditableObjectVirtualFile editableObjectFile) {
-                    DBSchemaObject object = editableObjectFile.getObject();
+                    DBObject object = editableObjectFile.getObject();
                     if (object instanceof DBJsonView) {
                         FileEditor[] fileEditors = source.getEditors(file);
                         for (FileEditor fileEditor : fileEditors) {
@@ -130,25 +128,26 @@ public class JsonDataEditorManager extends ProjectComponentBase implements Persi
     /****************************************
      *       PersistentStateComponent       *
      *****************************************/
-    @Nullable
     @Override
-    public Element getComponentState() {
-        Element element = newStateElement();
+    public void writeState(Element element) {
+        super.writeState(element);
 /*
         Settings.setEnum(element, "record-view-column-sorting-type", recordViewColumnSortingType);
         Settings.setBoolean(element, "value-preview-text-wrapping", valuePreviewTextWrapping);
         Settings.setBoolean(element, "value-preview-pinned", valuePreviewPinned);
 */
-        return element;
+
     }
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
+    public void readState(@NotNull Element element) {
+        super.readState(element);
 /*
         recordViewColumnSortingType = Settings.getEnum(element, "record-view-column-sorting-type", recordViewColumnSortingType);
         valuePreviewTextWrapping = Settings.getBoolean(element, "value-preview-text-wrapping", valuePreviewTextWrapping);
         valuePreviewTextWrapping = Settings.getBoolean(element, "value-preview-pinned", valuePreviewPinned);
 */
+
     }
 
 }

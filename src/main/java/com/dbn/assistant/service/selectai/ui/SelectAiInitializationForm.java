@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import com.dbn.common.message.MessageType;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.form.DBNHintForm;
+import com.dbn.common.ui.panel.DBNBanner;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ConnectionConfigListener;
 import com.intellij.util.ui.AsyncProcessIcon;
@@ -123,8 +123,8 @@ public class SelectAiInitializationForm extends DBNFormBase implements Assistant
             String errorMessage = txt("msg.assistant.error.DatabaseAssistantInitializationFailed");
             String messageContent = txt("msg.shared.error.ErrorDetails", errorMessage, availabilityInfo.getMessage());
             TextContent message = TextContent.plain(messageContent);
-            DBNHintForm messageForm = new DBNHintForm(this, message, MessageType.ERROR, true);
-            messagePanel.add(messageForm.getComponent());
+            DBNBanner messageForm = new DBNBanner(MessageType.ERROR, message.getText());
+            messagePanel.add(messageForm);
         }
         getIntroductionForm().evaluateAvailability();
     }

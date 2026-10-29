@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import com.dbn.assistant.service.selectai.profile.wizard.validation.ProfileObjec
 import com.dbn.common.color.Colors;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.thread.Background;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.util.Accessibility;
 import com.dbn.common.ui.util.Borders;
@@ -59,6 +58,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.dbn.common.text.TextContent.plain;
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.common.ui.table.Tables.adjustTableRowHeight;
 import static com.dbn.common.ui.table.Tables.installFocusTraversal;
 import static com.dbn.common.ui.table.Tables.selectTableRow;
@@ -132,10 +132,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
 
   private void initHintPanel() {
     TextContent hintText = plain(txt("cfg.assistant.hint.ProfileDatasetSelection"));
-    DBNHintForm hintForm = new DBNHintForm(null, hintText, null, true);
-
-    JComponent hintComponent = hintForm.getComponent();
-    hintPanel.add(hintComponent);
+    installHintForm(null, hintText, hintPanel);
 
   }
 

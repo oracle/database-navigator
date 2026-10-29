@@ -25,12 +25,10 @@ import com.intellij.openapi.components.StoragePathMacros;
 import com.intellij.openapi.project.Project;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.options.ConfigActivity.INITIALIZING;
 import static com.dbn.common.options.ConfigStorage.WORKSPACE;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.credentials.Secrets.initialize;
 
 
@@ -54,22 +52,21 @@ public class ProjectWorkspaceSettingsManager extends ProjectComponentBase implem
         return projectSettingsManager.getProjectSettings();
     }
 
-    @Nullable
     @Override
-    public Element getComponentState() {
+    public void writeState(Element element) {
+        super.writeState(element);
         try {
             ConfigMonitor.set(WORKSPACE, true);
-            Element element = newStateElement();
             ProjectSettings projectSettings = getProjectSettings();
             projectSettings.writeConfiguration(element);
-            return element;
         } finally {
             ConfigMonitor.set(WORKSPACE, false);
         }
     }
 
     @Override
-    public synchronized void loadComponentState(@NotNull Element element) {
+    public synchronized void readState(@NotNull Element element) {
+        super.readState(element);
         try {
             ConfigMonitor.set(WORKSPACE, true);
             ConfigMonitor.set(INITIALIZING, true);

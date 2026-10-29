@@ -21,7 +21,6 @@ import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.file.util.FileSearchRequest;
 import com.dbn.common.notification.NotificationSupport;
-import com.dbn.common.state.StateContainer;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.thread.Read;
 import com.dbn.common.util.Commons;
@@ -36,10 +35,11 @@ import com.dbn.diagnostics.data.ParserDiagnosticsUtil;
 import com.dbn.diagnostics.ui.ParserDiagnosticsForm;
 import com.dbn.diagnostics.ui.ParserIssueReportDialog;
 import com.dbn.error.jira.JiraParserIssueReportSubmitter;
+import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.DBLanguageFileType;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.language.common.psi.PsiUtil;
-import com.dbn.language.common.psi.scrambler.DBLLanguageFileScrambler;
+import com.dbn.language.common.psi.obfuscator.DBLLanguageFileObfuscator;
 import com.dbn.language.psql.PSQLFileType;
 import com.dbn.language.sql.SQLFileType;
 import com.intellij.openapi.components.State;
@@ -87,7 +87,6 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
     public static final String COMPONENT_NAME = "DBNavigator.Project.ParserDiagnosticsManager";
 
     private final List<ParserDiagnosticsResult> resultHistory = new ArrayList<>();
-    private final StateContainer states = new StateContainer();
     private ParserDiagnosticsFilter resultFilter = ParserDiagnosticsFilter.EMPTY;
     private boolean running;
 
@@ -99,34 +98,37 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
         return projectService(project, ParserDiagnosticsManager.class);
     }
 
-    public void submitParserIssueReport(DBLanguagePsiFile psiFile) {
+    public void submitParserIssueReport(@NotNull DBLanguagePsiFile psiFile, @NotNull DBLanguageDialect languageDialect) {
         Project project = getProject();
         Progress.prompt(project, null, true,
                 txt("prc.reporting.title.PreparingIssueReport"),
                 txt("prc.reporting.text.PreparingSyntaxErrorReport"),
-                progress -> prepareParserIssueReport(psiFile));
+                progress -> prepareParserIssueReport(psiFile, languageDialect));
     }
 
     @SneakyThrows
-    private void prepareParserIssueReport(DBLanguagePsiFile psiFile) {
+    private void prepareParserIssueReport(DBLanguagePsiFile psiFile, DBLanguageDialect languageDialect) {
         File attachmentFile = File.createTempFile("dbn-parser-issue-", "." + psiFile.getVirtualFile().getExtension());
         attachmentFile.deleteOnExit();
 
         Charset charset = psiFile.getVirtualFile().getCharset();
-        byte[] scrambled = ParserDiagnosticsManager.scrambleFile(psiFile, charset);
-        FileUtil.writeToFile(attachmentFile, scrambled);
+        byte[] obfuscated = ParserDiagnosticsManager.obfuscateFile(psiFile, charset);
+        FileUtil.writeToFile(attachmentFile, obfuscated);
 
         Attachment attachment = new Attachment(attachmentFile.getPath(), attachmentFile, attachmentFile.getName());
         FileType fileType = psiFile.getFileType();
-        String scrambledCode = new String(scrambled, charset);
+        String obfuscatedCode = new String(obfuscated, charset);
 
         ParserIssueReportInput input = new ParserIssueReportInput(
-                scrambledCode, fileType, psiFile.getLanguageDialect(), attachment);
+                obfuscatedCode, charset, fileType, languageDialect, attachment);
         Dialogs.show(() -> new ParserIssueReportDialog(getProject(), input),
                 whenOk(d -> sendParserIssueReport(input)));
     }
 
+    @SneakyThrows
     private void sendParserIssueReport(ParserIssueReportInput input) {
+        FileUtil.writeToFile(input.getFile(), input.getCodeBytes());
+
         IdeaLoggingEvent event = new IdeaLoggingEvent("Parser issue",
                 new IllegalArgumentException("Parser error"),
                 input);
@@ -180,12 +182,12 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
         }
     }
 
-    public void scrambleProjectFiles(ProgressIndicator progress, File rootDir) {
+    public void obfuscateProjectFiles(ProgressIndicator progress, File rootDir) {
         String[] extensions = getFileExtensions();
         FileSearchRequest searchRequest = FileSearchRequest.forExtensions(extensions);
         VirtualFile[] files = findFiles(getProject(), searchRequest);
 
-        DBLLanguageFileScrambler scrambler = new DBLLanguageFileScrambler();
+        DBLLanguageFileObfuscator obfuscator = new DBLLanguageFileObfuscator();
         progress.setIndeterminate(true);
 
         for (int i = 0, filesLength = files.length; i < filesLength; i++) {
@@ -199,29 +201,29 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
             progress.checkCanceled();
             if (psiFile != null) {
 
-                String scrambled = scrambleFile(psiFile, scrambler);
-                String newFileName = scrambler.scrambleName(file);
-                File scrambledFile = new File(rootDir, newFileName);
+                String obfuscated = obfuscateFile(psiFile, obfuscator);
+                String newFileName = obfuscator.obfuscateName(file);
+                File obfuscatedFile = new File(rootDir, newFileName);
                 try {
                     Charset charset = file.getCharset();
-                    byte[] bytes = scrambled.getBytes(charset);
-                    FileUtil.writeToFile(scrambledFile, bytes);
+                    byte[] bytes = obfuscated.getBytes(charset);
+                    FileUtil.writeToFile(obfuscatedFile, bytes);
                 } catch (IOException e) {
                     conditionallyLog(e);
                     NotificationSupport.sendWarningNotification(getProject(), DEVELOPER,
-                            txt("ntf.diagnostics.warning.FailedToWriteFile", scrambledFile.getPath(), e));
+                            txt("ntf.diagnostics.warning.FailedToWriteFile", obfuscatedFile.getPath(), e));
                 }
             }
         }
     }
 
-    public static byte[] scrambleFile(@NotNull DBLanguagePsiFile psiFile, @NotNull Charset charset) {
-        String scrambled = scrambleFile(psiFile, new DBLLanguageFileScrambler());
-        return scrambled.getBytes(charset);
+    public static byte[] obfuscateFile(@NotNull DBLanguagePsiFile psiFile, @NotNull Charset charset) {
+        String obfuscated = obfuscateFile(psiFile, new DBLLanguageFileObfuscator());
+        return obfuscated.getBytes(charset);
     }
 
-    private static String scrambleFile(DBLanguagePsiFile psiFile, DBLLanguageFileScrambler scrambler) {
-        return scrambler.scramble(psiFile);
+    private static String obfuscateFile(DBLanguagePsiFile psiFile, DBLLanguageFileObfuscator obfuscator) {
+        return obfuscator.obfuscate(psiFile);
     }
 
     public String[] getFileExtensions() {
@@ -303,11 +305,9 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
     /*********************************************
      *            PersistentStateComponent       *
      *********************************************/
-    @Nullable
     @Override
-    public Element getComponentState() {
-        Element element = newElement("state");
-        states.writeState(element);
+    public void writeState(Element element) {
+        super.writeState(element);
         Element historyElement = newElement(element, "diagnostics-history");
         for (ParserDiagnosticsResult capturedResult : resultHistory) {
             if (!capturedResult.isDraft()) {
@@ -315,12 +315,11 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
                 capturedResult.writeState(resultElement);
             }
         }
-        return element;
     }
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
-        states.readState(element);
+    public void readState(@NotNull Element element) {
+        super.readState(element);
         Element historyElement = element.getChild("diagnostics-history");
         resultHistory.clear();
         if (historyElement != null) {

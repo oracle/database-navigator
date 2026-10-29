@@ -19,6 +19,7 @@ package com.dbn.connection.console;
 import com.dbn.common.thread.Write;
 import com.dbn.editor.code.content.GuardedBlockMarkers;
 import com.dbn.editor.code.content.GuardedBlockType;
+import com.dbn.vfs.DBConsoleType;
 import com.dbn.vfs.file.DBConsoleVirtualFile;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManagerListener;
@@ -27,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.util.GuardedBlocks.createGuardedBlocks;
 import static com.dbn.common.util.GuardedBlocks.removeGuardedBlocks;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatabaseConsoleFileInitializer implements FileDocumentManagerListener {
     @Override
@@ -38,7 +40,10 @@ public class DatabaseConsoleFileInitializer implements FileDocumentManagerListen
 
             Write.run(() -> {
                 removeGuardedBlocks(document, GuardedBlockType.READONLY_DOCUMENT_SECTION);
-                createGuardedBlocks(document, GuardedBlockType.READONLY_DOCUMENT_SECTION, guardedBlocks, null);
+                DBConsoleType consoleType = consoleFile.getConsole().getConsoleType();
+                String reason = consoleType == DBConsoleType.DEBUG ?
+                        txt("app.debugger.hint.ReadonlyDebugConsoleStructure") : null;
+                createGuardedBlocks(document, GuardedBlockType.READONLY_DOCUMENT_SECTION, guardedBlocks, reason);
             });
         }
     }

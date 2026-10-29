@@ -36,8 +36,6 @@ import com.dbn.execution.logging.LogOutput;
 import com.dbn.execution.logging.LogOutputContext;
 import com.dbn.execution.statement.options.StatementExecutionSettings;
 import com.dbn.execution.statement.result.StatementExecutionResult;
-import com.dbn.ml.result.MLExecutionResult;
-import com.dbn.vector.model.VectorEmbeddingExecutionResult;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -59,7 +57,6 @@ import static com.dbn.common.navigation.NavigationInstruction.FOCUS;
 import static com.dbn.common.navigation.NavigationInstruction.SCROLL;
 import static com.dbn.common.navigation.NavigationInstruction.SELECT;
 import static com.dbn.common.options.setting.Settings.getBoolean;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setBoolean;
 import static com.dbn.common.util.Messages.OPTIONS_YES_NO;
 import static com.dbn.common.util.Messages.showQuestionDialog;
@@ -247,14 +244,14 @@ public class ExecutionManager extends ProjectComponentBase implements Persistent
     /*********************************************
      *            PersistentStateComponent       *
      *********************************************/
-    public Element getComponentState() {
-        Element element = newStateElement();
+    public void writeState(Element element) {
+        super.writeState(element);
         setBoolean(element, "retain-sticky-names", retainStickyNames);
-        return element;
     }
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
+    public void readState(@NotNull Element element) {
+        super.readState(element);
         retainStickyNames = getBoolean(element, "retain-sticky-names", retainStickyNames);
     }
 

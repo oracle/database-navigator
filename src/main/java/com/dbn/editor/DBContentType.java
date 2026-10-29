@@ -20,6 +20,8 @@ import com.dbn.common.util.Enumerations;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
 
@@ -81,6 +83,34 @@ public enum DBContentType {
         return this == JSON;
     }
 
+    /**
+     * Returns the database content qualifier used when addressing this source unit.
+     *
+     * @param objectType the database object type
+     * @return the qualified database object type, or {@code null} when no qualifier applies
+     */
+    @NonNls
+    @Nullable
+    public String getContentQualifier(DBObjectType objectType) {
+        return switch (objectType) {
+            case JAVA_CLASS -> "JAVA SOURCE";
+            case JAVA_RESOURCE -> "JAVA RESOURCE";
+            case FUNCTION -> "FUNCTION";
+            case PROCEDURE -> "PROCEDURE";
+            case VIEW -> "VIEW";
+            case DATASET_TRIGGER -> "TRIGGER";
+            case DATABASE_TRIGGER -> "TRIGGER";
+            case EVENT_TRIGGER -> "TRIGGER";
+            case PACKAGE ->
+                    this == CODE_SPEC ? "PACKAGE" :
+                    this == CODE_BODY ? "PACKAGE BODY" : null;
+            case TYPE ->
+                    this == CODE_SPEC ? "TYPE" :
+                    this == CODE_BODY ? "TYPE BODY" : null;
+            default -> null;
+        };
+    }
+
     public @Nls String toString() {
         return description;
     }
@@ -96,6 +126,7 @@ public enum DBContentType {
                  TRIGGER,
                  DATASET_TRIGGER,
                  DATABASE_TRIGGER,
+                 EVENT_TRIGGER,
                  JAVA_RESOURCE,
                  JAVA_CLASS -> CODE;
             case PACKAGE,

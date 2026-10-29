@@ -62,9 +62,28 @@ public class ArgumentValuesTreeModel implements TreeModel {
                     treeNode = new ArgumentValuesTreeNode(parentNode, argumentRef);
                     nodeMap.put(argumentRef, treeNode);
                 }
-                new ArgumentValuesTreeNode(treeNode, argumentValue);
+
+                ArgumentValuesTreeNode attributeNode = treeNode;
+                List<DBTypeAttribute> attributePath = argumentValue.getAttributePath();
+                for (int i = 0; i < attributePath.size() - 1; i++) {
+                    DBTypeAttribute pathAttribute = attributePath.get(i);
+                    attributeNode = findAttributeNode(attributeNode, pathAttribute);
+                }
+                new ArgumentValuesTreeNode(attributeNode, argumentValue);
             }
         }
+    }
+
+    private static ArgumentValuesTreeNode findAttributeNode(
+            ArgumentValuesTreeNode parentNode,
+            DBTypeAttribute attribute) {
+        for (ArgumentValuesTreeNode child : parentNode.getChildren()) {
+            Object userValue = child.getUserValue();
+            if (userValue instanceof DBTypeAttribute childAttribute && childAttribute.ref().equals(attribute.ref())) {
+                return child;
+            }
+        }
+        return new ArgumentValuesTreeNode(parentNode, attribute);
     }
 
     @Override

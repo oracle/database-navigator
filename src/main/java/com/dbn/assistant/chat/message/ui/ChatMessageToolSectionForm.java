@@ -46,7 +46,6 @@ import com.dbn.assistant.tool.info.AssistantToolInfoProvider;
 import com.dbn.assistant.tool.info.AssistantToolInfoProviderImpl;
 import com.dbn.common.EntityId;
 import com.dbn.common.action.DataKeys;
-import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.text.TextResources;
@@ -61,6 +60,7 @@ import com.dbn.common.util.Actions;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.util.text.StringUtil;
@@ -87,6 +87,10 @@ import java.util.Objects;
 import static com.dbn.assistant.tool.AssistantToolData.getToolDisplayName;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.APPROVED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.BLOCKED;
+import static com.dbn.common.color.Colors.getContextHelpForeground;
+import static com.dbn.common.color.Colors.getEditorBackground;
+import static com.dbn.common.color.Colors.getLabelDisabledForeground;
+import static com.dbn.common.color.Colors.getLabelForeground;
 import static com.dbn.common.icon.Icons.ASSISTANT_QUESTION;
 import static com.dbn.common.text.TextContent.asHtmlContent;
 import static com.dbn.common.ui.Layouts.horizontalBoxLayout;
@@ -128,7 +132,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
         super(parent, section);
         this.connection = ConnectionRef.of(connection);
         framePanel.setBorder(Borders.COMPONENT_OUTLINE_BORDER);
-        framePanel.setBackground(Colors.getEditorBackground());
+        framePanel.setBackground(getEditorBackground());
 
         info = new AssistantToolInfoProviderImpl(getAssistantState(), section.getInvocation());
 
@@ -162,7 +166,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
         }
 
         toolTypeLabel.setText(info.getToolTypeName());
-        //toolTypeLabel.setForeground(Colors.faded(UIUtil.getLabelForeground()));
+        //toolTypeLabel.setForeground(Colors.getContextHelpForeground());
 
         toolIconLabel.setIcon(Icons.ASSISTANT_TOOL);
         toolIconLabel.setText("");
@@ -189,8 +193,8 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
             summary = StringUtil.first(summary, 24, true);
         }
         toolSummaryLabel.setText(summary);
-        toolSummaryLabel.setToolTipText(summaryTooltip);
-        toolSummaryLabel.setForeground(Colors.faded(UIUtil.getLabelForeground()));
+        Tooltips.setToolTipText(toolSummaryLabel, summaryTooltip);
+        toolSummaryLabel.setForeground(getContextHelpForeground());
     }
 
     private void initActionsPanel() {
@@ -284,7 +288,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
             boolean selected = Objects.equals(option, invocation.getOption());
             boolean highlighted = active || selected;
 
-            Color foreground = highlighted ? UIUtil.getLabelForeground() : UIUtil.getLabelDisabledForeground();
+            Color foreground = highlighted ? getLabelForeground() : getLabelDisabledForeground();
             CompoundBorder border = new CompoundBorder(UIUtil.getTextFieldBorder(), Borders.insetBorder(4, 8, 4, 8));
             optionLabel.setBorder(border);
             optionLabel.setForeground(foreground);
@@ -362,9 +366,8 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
             descriptionTextPane.setVisible(false);
             toolTypePanel.setVisible(false);
         } else {
-            Color faded = Colors.faded(UIUtil.getLabelForeground());
             descriptionTextPane.setText(info.getToolDescription());
-            descriptionTextPane.setForeground(faded);
+            descriptionTextPane.setForeground(getContextHelpForeground());
             descriptionTextPane.setVisible(visible);
             toolTypePanel.setVisible(!visible);
         }

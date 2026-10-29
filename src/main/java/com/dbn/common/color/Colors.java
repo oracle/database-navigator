@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,7 +90,6 @@ import static com.dbn.common.color.ColorKey.WARNING_HINT;
 import static com.dbn.common.color.ColorSchemes.background;
 import static com.dbn.common.color.ColorSchemes.foreground;
 import static com.dbn.common.dispose.Failsafe.guarded;
-import static com.intellij.ui.ColorUtil.withAlpha;
 
 @UtilityClass
 public final class Colors {
@@ -316,13 +315,12 @@ public final class Colors {
         return ColorAdjustmentCache.adjusted(color, ColorAdjustment.STRONGER, tones);
     }
 
-    @Compatibility
-    public static Color faded(Color color) {
-        return withAlpha(color, (double)0.45F);
+    public static Color getContextHelpForeground() {
+        return UIUtil.getContextHelpForeground();
     }
 
-    public static Color dimmer(Color color) {
-        return ColorUtil.dimmer(color);
+    public static Color getLabelDisabledForeground() {
+        return UIUtil.getLabelDisabledForeground();
     }
 
 

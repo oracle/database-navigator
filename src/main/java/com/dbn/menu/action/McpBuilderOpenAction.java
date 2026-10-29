@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.action.AbstractConnectionAction;
 import com.dbn.mcp.McpServerBuilderManager;
+import com.dbn.options.general.WorkspaceFeature;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -42,6 +43,11 @@ public class McpBuilderOpenAction extends ProjectAction {
     }
 
     @Override
+    protected WorkspaceFeature getFeature() {
+        return WorkspaceFeature.MCP_SERVER_BUILDER;
+    }
+
+    @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
         presentation.setText(txt("app.menu.action.OpenMcpServerBuilder"));
@@ -49,7 +55,8 @@ public class McpBuilderOpenAction extends ProjectAction {
     }
 
     private boolean isVisible(@NotNull Project project) {
-        return MCP_SERVER_BUILDER.isSupported(project);
+        return isFeatureEnabled(project) &&
+                MCP_SERVER_BUILDER.isSupported(project);
     }
 
     @Override

@@ -28,6 +28,7 @@ import com.dbn.database.DatabaseObjectIdentifier;
 import com.dbn.object.DBCharset;
 import com.dbn.object.DBConsole;
 import com.dbn.object.DBDatasourceConfig;
+import com.dbn.object.DBEventTrigger;
 import com.dbn.object.DBPrivilege;
 import com.dbn.object.DBRole;
 import com.dbn.object.DBSchema;
@@ -66,8 +67,19 @@ public class DBVirtualObjectBundle extends StatefulDisposableBase implements DBO
         return emptyList();
     }
 
+    @Nullable
+    @Override
+    public List<DBEventTrigger> getEventTriggers() {
+        return emptyList();
+    }
+
     @Override
     public List<DBSchema> getSchemas() {
+        return emptyList();
+    }
+
+    @Override
+    public List<DBSchema> getUserSchemas() {
         return emptyList();
     }
 

@@ -25,12 +25,14 @@ import lombok.Getter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.editor.data.DataEditorResourceLimits.DEFAULT_DATA_EDITOR_FETCH_BLOCK_SIZE;
+import static com.dbn.editor.data.DataEditorResourceLimits.normalizeDataEditorFetchBlockSize;
 import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @EqualsAndHashCode(callSuper = false)
 public class DataEditorGeneralSettings extends BasicConfiguration<DataEditorSettings, DataEditorGeneralSettingsForm> {
-    private final IntegerSetting fetchBlockSize = new IntegerSetting("fetch-block-size", 100);
+    private final IntegerSetting fetchBlockSize = new IntegerSetting("fetch-block-size", DEFAULT_DATA_EDITOR_FETCH_BLOCK_SIZE);
     private final IntegerSetting fetchTimeout = new IntegerSetting("fetch-timeout", 30);
     private final BooleanSetting trimWhitespaces = new BooleanSetting("trim-whitespaces", true);
     private final BooleanSetting convertEmptyStringsToNull = new BooleanSetting("convert-empty-strings-to-null", true);
@@ -39,6 +41,10 @@ public class DataEditorGeneralSettings extends BasicConfiguration<DataEditorSett
 
     DataEditorGeneralSettings(DataEditorSettings parent) {
         super(parent);
+    }
+
+    public int getFetchBlockSizeValue() {
+        return normalizeDataEditorFetchBlockSize(fetchBlockSize.value());
     }
 
     @Override

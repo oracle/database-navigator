@@ -20,6 +20,7 @@ import com.dbn.common.dispose.Disposer;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.form.DBNToolbarForm;
+import com.dbn.common.ui.panel.DBNLoadingPanel;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Actions;
 import com.dbn.editor.code.SourceCodeEditor;
@@ -28,21 +29,19 @@ import com.dbn.vfs.file.status.DBFileStatus;
 import com.dbn.vfs.file.status.DBFileStatusListener;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
-import com.intellij.util.ui.AsyncProcessIcon;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import static com.dbn.common.ui.panel.DBNLoadingPanel.newLoadingPanel;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.vfs.file.status.DBFileStatus.*;
 
 public class SourceCodeEditorToolbarForm extends DBNToolbarForm {
     private JPanel mainPanel;
     private JPanel actionsPanel;
-    private JPanel loadingDataPanel;
-    private JLabel loadingLabel;
-    private JPanel loadingIconPanel;
+    private JPanel loadingPanel;
 
     private final WeakRef<SourceCodeEditor> sourceCodeEditor;
 
@@ -56,22 +55,28 @@ public class SourceCodeEditorToolbarForm extends DBNToolbarForm {
         ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBN.SourceEditor");
         setAccessibleName(actionToolbar, txt("app.codeEditor.aria.SourceCodeEditorActions"));
         this.actionsPanel.add(actionToolbar.getComponent());
-        this.loadingIconPanel.add(new AsyncProcessIcon("Loading"));
-        this.loadingDataPanel.setVisible(sourceCodeFile.is(DBFileStatus.LOADING));
-        this.loadingDataPanel.setBorder(Borders.tableBorder(1, 0, 0, 0));
+
+        initLoadingPanel();
 
         ProjectEvents.subscribe(ensureProject(), this, DBFileStatusListener.TOPIC, fileStatusListener());
         Disposer.register(sourceCodeEditor, this);
     }
 
+    private void initLoadingPanel() {
+        DBSourceCodeVirtualFile sourceCodeFile = getSourceCodeEditor().getVirtualFile();
+
+        newLoadingPanel(this, txt("app.codeEditor.text.LoadingSource")).installOn(this.loadingPanel, sourceCodeFile.is(LOADING));
+        this.loadingPanel.setBorder(Borders.tableBorder(1, 0, 0, 0));
+    }
+
     @NotNull
     private DBFileStatusListener fileStatusListener() {
         return (sourceCodeFile, status, value) -> {
-            if (status != DBFileStatus.LOADING) return;
+            if (status != LOADING) return;
 
             DBSourceCodeVirtualFile virtualFile = getVirtualFile();
             if (virtualFile.equals(sourceCodeFile)) {
-                dispatch(() -> loadingDataPanel.setVisible(virtualFile.is(DBFileStatus.LOADING)));
+                dispatch(() -> loadingPanel.setVisible(virtualFile.is(LOADING)));
             }
         };
     }

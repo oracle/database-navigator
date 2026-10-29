@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package com.dbn.sync.java.upload.ui;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.list.CheckBoxList;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.connection.ConnectionAction;
@@ -40,6 +39,7 @@ import javax.swing.JPanel;
 import java.util.List;
 
 import static com.dbn.common.ui.form.DBNFormState.initPersistence;
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
@@ -83,8 +83,7 @@ public class JavaUploadInputForm extends DBNFormBase {
     private void initHintPanel() {
         TextContent hintText = TextContent.plain(
                 txt("msg.java.hint.UploadInput"));
-        DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
-        hintPanel.add(hintForm.getComponent());
+        installHintForm(this, hintText, hintPanel);
     }
 
     private JavaUploadBatch getBatch() {
@@ -105,7 +104,7 @@ public class JavaUploadInputForm extends DBNFormBase {
         Project project = ensureProject();
         JavaUploadManager uploadManager = JavaUploadManager.getInstance(project);
 
-        StateAttributes state = uploadManager.getState("UPLOAD_INPUT");
+        StateAttributes state = uploadManager.getUserInterfaceState("UPLOAD_INPUT");
 
         initPersistence(connectionComboBox, state, "connection-selection");
         initPersistence(schemaComboBox, state, "schema-selection");

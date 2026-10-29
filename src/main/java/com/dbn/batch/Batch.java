@@ -19,6 +19,7 @@ package com.dbn.batch;
 import com.dbn.batch.event.BatchEventListener;
 import com.dbn.batch.event.BatchEventType;
 import com.dbn.common.message.MessageBundle;
+import com.dbn.common.util.Named;
 import com.dbn.connection.ConnectionHandler;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -26,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Queue;
 
-public interface Batch<I extends BatchInput<T>, T extends BatchTask> {
+public interface Batch<I extends BatchInput<T>, T extends BatchTask> extends Named {
     I getInput();
 
     Project getProject();

@@ -16,6 +16,7 @@
 
 package com.dbn.object.management;
 
+import com.dbn.common.attributes.Attributes;
 import com.dbn.common.component.ProjectComponent;
 import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.object.common.DBObject;
@@ -47,5 +48,13 @@ public interface ObjectManagementService extends ProjectComponent {
 
     void disableObject(DBObject object, OutcomeHandler successHandler);
 
-    void changeObject(DBObject object, ObjectChangeAction action, OutcomeHandler successHandler);
+    void lockObject(DBObject object, OutcomeHandler successHandler);
+
+    void unlockObject(DBObject object, OutcomeHandler successHandler);
+
+    void refreshObject(DBObject object, OutcomeHandler successHandler);
+
+    void renameObject(DBObject object, Attributes attributes, OutcomeHandler successHandler);
+
+    void changeObject(DBObject object, ObjectChangeAction action, Attributes attributes, OutcomeHandler successHandler);
 }

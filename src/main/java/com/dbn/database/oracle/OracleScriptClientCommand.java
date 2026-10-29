@@ -41,8 +41,8 @@ import static java.lang.Character.isWhitespace;
 
 @NonNls
 public class OracleScriptClientCommand extends DatabaseScriptClientCommand {
-    private static final Pattern PRIVILEGED_ROLE_PATTERN = Pattern.compile(
-            "^(.+?)\\s+AS\\s+(SYSDBA|SYSOPER|SYSASM|SYSBACKUP|SYSDG|SYSKM|SYSRAC)$",
+    private static final Pattern ORACLE_JDBC_URL_PATTERN = Pattern.compile(
+            "^jdbc:oracle:(?:thin|oci):@",
             Pattern.CASE_INSENSITIVE);
 
     public static final String SQLPLUS_CONNECT_PATTERN_TNS= "[USER]@[TNS_PROFILE]";
@@ -50,6 +50,7 @@ public class OracleScriptClientCommand extends DatabaseScriptClientCommand {
     public static final String SQLPLUS_CONNECT_PATTERN_SERVICE = "[USER]@\"(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=[HOST])(Port=[PORT]))(CONNECT_DATA=(SERVICE_NAME=[DATABASE])))\"";
     public static final String SQLPLUS_CONNECT_PATTERN_BASIC = "[USER]@[HOST]:[PORT]/[DATABASE]";
     public static final String SQLPLUS_CONNECT_PATTERN_EZCONNECT = "[USER]@[HOST]:[PORT]/[DATABASE]"; // TODO
+    public static final String SQLPLUS_CONNECT_PATTERN_CUSTOM = "[USER]@\"[CUSTOM_URL]\"";
 
     public OracleScriptClientCommand(
             @NotNull ScriptExecutionInput executionInput,
@@ -119,6 +120,7 @@ public class OracleScriptClientCommand extends DatabaseScriptClientCommand {
                 urlType == DatabaseUrlType.SID ? SQLPLUS_CONNECT_PATTERN_SID :
                 urlType == DatabaseUrlType.SERVICE ? SQLPLUS_CONNECT_PATTERN_SERVICE :
                 urlType == DatabaseUrlType.EZCONNECT ? SQLPLUS_CONNECT_PATTERN_EZCONNECT :
+                urlType == DatabaseUrlType.CUSTOM ? SQLPLUS_CONNECT_PATTERN_CUSTOM :
                                     SQLPLUS_CONNECT_PATTERN_BASIC;
 
         String connectionParameter = connectPattern.
@@ -126,22 +128,33 @@ public class OracleScriptClientCommand extends DatabaseScriptClientCommand {
                 replace("[HOST]",        nvl(databaseInfo.getHost(),           "")).
                 replace("[PORT]",        nvl(databaseInfo.getPort(),           "")).
                 replace("[DATABASE]",    nvl(databaseInfo.getDatabase(),       "")).
-                replace("[TNS_PROFILE]", nvl(databaseInfo.getTnsProfile(),     ""));
+                replace("[TNS_PROFILE]", nvl(databaseInfo.getTnsProfile(),     "")).
+                replace("[CUSTOM_URL]",  getCustomConnectIdentifier(databaseInfo));
 
-        return connectionParameter + login.roleClause();
+        return connectionParameter + login.adminPrivilegeClause();
+    }
+
+    private static String getCustomConnectIdentifier(DatabaseInfo databaseInfo) {
+        String url = nvl(databaseInfo.getUrl(), "");
+        Matcher matcher = ORACLE_JDBC_URL_PATTERN.matcher(url);
+        return matcher.find() ? url.substring(matcher.end()) : url;
     }
 
     private static SqlPlusLogin resolveSqlPlusLogin(AuthenticationInfo authenticationInfo) {
         String user = nvl(authenticationInfo.getUser(), "");
-        Matcher privilegedRoleMatcher = PRIVILEGED_ROLE_PATTERN.matcher(user.trim());
-        if (!privilegedRoleMatcher.matches()) {
-            return new SqlPlusLogin(user, "");
+        String privilege = nvl(authenticationInfo.getAdminPrivilege(), "");
+        Matcher matcher = AuthenticationInfo.USER_AS_ADMIN_PRIVILEGE.matcher(user.trim());
+        if (matcher.matches()) {
+            user = matcher.group(1).trim();
+            if (Strings.isEmptyOrSpaces(privilege)) {
+                privilege = matcher.group(2);
+            }
         }
 
-        String name = privilegedRoleMatcher.group(1).trim();
-        String role = privilegedRoleMatcher.group(2).toUpperCase(Locale.ENGLISH);
-        return new SqlPlusLogin(name, " AS " + role);
+        String privilegeClause = Strings.isEmptyOrSpaces(privilege) ? "" :
+                " AS " + privilege.trim().toUpperCase(Locale.ENGLISH);
+        return new SqlPlusLogin(user, privilegeClause);
     }
 
-    private record SqlPlusLogin(String user, String roleClause) {}
+    private record SqlPlusLogin(String user, String adminPrivilegeClause) {}
 }

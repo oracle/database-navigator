@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import com.dbn.debugger.jdwp.process.DBJdwpDebugProcess;
 import com.dbn.execution.ExecutionInput;
 import com.dbn.execution.statement.StatementExecutionInput;
 import com.dbn.language.common.psi.IdentifierPsiElement;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.intellij.debugger.engine.JavaStackFrame;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.xdebugger.XSourcePosition;
@@ -112,7 +112,7 @@ public class DBJdwpDebugStackFrame extends DBDebugStackFrame<DBJdwpDebugProcess<
         @Nullable
     @Override
     public Object getEqualityObject() {
-        DBSchemaObject object = DBDebugUtil.getObject(getSourcePosition());
+        DBObject object = DBDebugUtil.getObject(getSourcePosition());
         if (object == null) return null;
 
         IdentifierPsiElement subject = getSubject();

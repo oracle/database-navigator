@@ -19,7 +19,6 @@ package com.dbn.execution.java.result.ui;
 import com.dbn.common.file.FileTypes;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
-import com.dbn.common.util.Strings;
 import com.dbn.execution.common.input.ExecutionValue;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
@@ -31,6 +30,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JPanel;
 
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Strings.convertLineSeparators;
 import static com.dbn.execution.common.input.CodeBlocks.extractCodeBlock;
 
 public class JavaExecutionCodeResultForm extends JavaExecutionResultDetailForm {
@@ -45,7 +45,7 @@ public class JavaExecutionCodeResultForm extends JavaExecutionResultDetailForm {
         String text = extractCodeBlock(fieldValue.getValue());
         Project project = getProject();
 
-        text = Strings.removeCharacter(nvl(text, ""), '\r');
+        text = convertLineSeparators(nvl(text, ""));
         Document document = Documents.createDocument(text);
 
         editor = Editors.createEditor(document, project, null, FileTypes.getJavaFileType());

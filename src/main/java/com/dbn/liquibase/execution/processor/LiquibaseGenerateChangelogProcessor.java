@@ -102,13 +102,13 @@ public class LiquibaseGenerateChangelogProcessor extends LiquibaseExecutionProce
                 "changelogFile", changelogFile.toString(),
                 "excludeObjects", buildTrackingTableFilter(database),
                 "author", input.getChangelogAuthor());
+        paths.validateOutputPath(changelogFile);
         executeCommand(GENERATE_CHANGELOG, context, output, arguments);
 
         String databaseTag = input.getDatabaseTag();
         if (isNotEmpty(databaseTag)) {
-            Path contentRootPath = paths.getContentRootPath();
             appendDatabaseTag(
-                    contentRootPath,
+                    paths,
                     changelogFile,
                     input.getChangelogAuthor(),
                     databaseTag);

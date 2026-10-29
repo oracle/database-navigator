@@ -18,10 +18,10 @@ package com.dbn.object.common.list.action;
 
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.BasicAction;
-import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.connection.DatabaseEntity;
 import com.dbn.object.DBSchema;
+import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.factory.DatabaseObjectFactory;
 import com.dbn.object.type.DBObjectType;
@@ -46,32 +46,37 @@ public class CreateObjectAction extends BasicAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         DBObjectList objectList = getObjectList();
-        DBSchema schema = objectList.ensureParentEntity();
-        Project project = schema.getProject();
+        DatabaseEntity parentEntity = objectList.ensureParentEntity();
+        Project project = parentEntity.getProject();
+
         DatabaseObjectFactory factory = DatabaseObjectFactory.getInstance(project);
-        factory.openFactoryInputDialog(schema, objectList.getObjectType());
+        DBObjectType objectType = objectList.getObjectType();
+        factory.openFactoryInputDialog(parentEntity, objectType);
     }
 
     @Override
     public void update(@NotNull AnActionEvent e) {
         e.getPresentation().setVisible(isVisible());
     }
-
     private boolean isVisible() {
         DBObjectList objectList = getObjectList();
         DatabaseEntity parentElement = objectList.getParentEntity();
 
         if (parentElement instanceof DBSchema schema) {
             if (schema.isSystemSchema()) return false;
-
-            DBObjectType objectType = objectList.getObjectType();
-            return isSupported(objectType) && !isSuppressed(objectType);
         }
-        return false;
+
+        if (parentElement instanceof DBSchemaObject schemaObject) {
+            DBSchema schema = schemaObject.getSchema();
+            if (schema.isSystemSchema()) return false;
+        }
+
+        DBObjectType objectType = objectList.getObjectType();
+        return isSupported(objectType) && !isSuppressed(objectType);
     }
 
     @NotNull
     public DBObjectList getObjectList() {
-        return Failsafe.nn(WeakRef.get(objectList));
+        return WeakRef.ensure(objectList);
     }
 }

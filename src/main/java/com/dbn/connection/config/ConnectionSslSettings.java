@@ -29,7 +29,7 @@ import static com.dbn.common.options.ConfigMonitor.isClipboardStorage;
 import static com.dbn.common.options.setting.Settings.getBoolean;
 import static com.dbn.common.options.setting.Settings.getString;
 import static com.dbn.common.options.setting.Settings.setBoolean;
-import static com.dbn.common.options.setting.Settings.setSensitiveString;
+import static com.dbn.common.options.setting.Settings.setString;
 import static com.dbn.nls.NlsResources.txt;
 
 @Getter
@@ -75,9 +75,9 @@ public class ConnectionSslSettings extends BasicProjectConfiguration<ConnectionS
     @Override
     public void writeConfiguration(Element element) {
         setBoolean(element, "active", !isClipboardStorage() && active);
-        setSensitiveString(element, "certificate-authority-file", certificateAuthorityFile);
-        setSensitiveString(element, "client-certificate-file", clientCertificateFile);
-        setSensitiveString(element, "client-key-file", clientKeyFile);
+        setString(element, "certificate-authority-file", certificateAuthorityFile);
+        setString(element, "client-certificate-file", clientCertificateFile);
+        setString(element, "client-key-file", clientKeyFile);
     }
 
     public ConnectionId getConnectionId() {

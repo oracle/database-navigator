@@ -27,6 +27,8 @@ import javax.swing.JTextField;
 
 import static com.dbn.common.options.ui.ConfigurationEditors.validateIntegerValue;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
+import static com.dbn.editor.data.DataEditorResourceLimits.MAX_VALUE_LIST_THRESHOLD;
+import static com.dbn.editor.data.DataEditorResourceLimits.MIN_VALUE_LIST_THRESHOLD;
 import static com.dbn.nls.NlsResources.txt;
 
 public class DatatEditorValueListPopupSettingsForm extends ConfigurationEditorForm<DataEditorValueListPopupSettings> {
@@ -56,7 +58,9 @@ public class DatatEditorValueListPopupSettingsForm extends ConfigurationEditorFo
     public void applyFormChanges() throws ConfigurationException {
         DataEditorValueListPopupSettings settings = getConfiguration();
         settings.setShowPopupButton(showPopupButtonCheckBox.isSelected());
-        settings.setElementCountThreshold(validateIntegerValue(elementCountThresholdTextBox, txt("cfg.dataEditor.field.ElementCountThreshold"), true, 0, 10000, null));
+        settings.setElementCountThreshold(validateIntegerValue(elementCountThresholdTextBox,
+                txt("cfg.dataEditor.field.ElementCountThreshold"), true,
+                MIN_VALUE_LIST_THRESHOLD, MAX_VALUE_LIST_THRESHOLD, null));
         settings.setDataLengthThreshold(validateIntegerValue(dataLengthThresholdTextBox, txt("cfg.dataEditor.field.DataLengthThreshold"), true, 0, 1000, null));
     }
 

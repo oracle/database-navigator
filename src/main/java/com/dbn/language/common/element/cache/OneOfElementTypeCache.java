@@ -32,14 +32,13 @@ public class OneOfElementTypeCache extends ElementTypeIndexedCache<OneOfElementT
 
     @Override
     boolean initAsFirstPossibleLeaf(LeafElementType leaf, ElementTypeBase source) {
-        boolean notInitialized = !firstPossibleLeafs.contains(leaf);
-        return notInitialized && (isWrapperBeginLeaf(leaf) || source.cache.couldStartWithLeaf(leaf));
+        if (isWrapperBeginLeaf(leaf)) return true;
+        return source.cache.couldStartWithLeaf(leaf);
     }
 
     @Override
     boolean initAsFirstRequiredLeaf(LeafElementType leaf, ElementTypeBase source) {
-        boolean notInitialized = !firstRequiredLeafs.contains(leaf);
-        return notInitialized && source.cache.shouldStartWithLeaf(leaf);
+        return source.cache.shouldStartWithLeaf(leaf);
     }
 
     @Override

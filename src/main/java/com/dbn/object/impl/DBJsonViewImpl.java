@@ -27,8 +27,6 @@ import com.dbn.object.DBTable;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.common.property.DBObjectProperty;
-import com.dbn.object.common.status.DBObjectStatus;
-import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
@@ -39,6 +37,7 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 
+import static com.dbn.object.common.status.DBObjectStatus.VALID;
 import static com.dbn.object.type.DBObjectRelationType.JSON_VIEW_TABLE;
 import static com.dbn.object.type.DBObjectType.TABLE;
 
@@ -76,9 +75,7 @@ class DBJsonViewImpl extends DBViewImpl<DBJsonViewMetadata> implements DBJsonVie
 
     @Override
     public void initStatus(DBJsonViewMetadata metadata) throws SQLException {
-        boolean isValid = metadata.isValid();
-        DBObjectStatusHolder objectStatus = getStatus();
-        objectStatus.set(DBObjectStatus.VALID, isValid);
+        setStatus(VALID, metadata.isValid());
     }
 
     @Override

@@ -17,11 +17,18 @@
 package com.dbn.assistant;
 
 import com.dbn.assistant.chat.context.ChatContext;
+import com.dbn.assistant.profile.AssistantProfile;
+import com.dbn.assistant.provider.AIModel;
+import com.dbn.assistant.provider.AIProvider;
+import com.dbn.assistant.provider.AIProviderData;
+import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nullable;
+
+import static com.dbn.assistant.profile.AssistantProfileLookup.getProfile;
 
 public class AssistantContextUtil {
     @Nullable
@@ -44,6 +51,44 @@ public class AssistantContextUtil {
         AssistantState assistantState = getAssistantState(connectionId, assistantType);
         if (assistantState == null) return null;
 
-        return assistantState.getCurrentContext();
+        ChatContext chatContext = assistantState.getCurrentContext();
+        if (assistantType == AssistantType.PUBLIC) {
+            normalizeGenericChatContext(connectionId, assistantType, chatContext);
+        }
+        return chatContext;
+    }
+
+    private static void normalizeGenericChatContext(ConnectionId connectionId, AssistantType assistantType, ChatContext chatContext) {
+        if (chatContext == null) return;
+
+        ConnectionHandler connection = getConnection(connectionId);
+        if (connection == null) return;
+
+        Project project = connection.getProject();
+        AssistantProfile profile = getProfile(project, chatContext.getProfileId());
+        if (profile == null) return;
+
+        AIProviderId profileProviderId = profile.getProviderId();
+        AIProvider provider = AIProviderData.getProvider(assistantType, profileProviderId);
+        if (provider == null) return;
+
+        if (profileProviderId == chatContext.getProviderId() && chatContext.getModel() != null) {
+            return;
+        }
+
+        DatabaseAssistantManager assistantManager = DatabaseAssistantManager.getInstance(project);
+        AIModel model = assistantManager.getSelectionState().getSelectedModel(assistantType, profileProviderId);
+        if (model == null || model.getProviderId() != profileProviderId) {
+            model = provider.getDefaultModel();
+            if (model != null) {
+                assistantManager.getSelectionState().setSelectedModel(assistantType, profileProviderId, model);
+            }
+        }
+        if (model == null) return;
+
+        // Restore the profile's provider-specific model selection when saved context values are stale.
+        chatContext.setProviderId(profileProviderId);
+        chatContext.setModelId(model.getId());
+        assistantManager.notifyConfigChanges();
     }
 }

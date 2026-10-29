@@ -35,6 +35,8 @@ white_space_char= [ \n\r\t\f]
 ws  = {WHITE_SPACE}+
 wso = {WHITE_SPACE}*
 
+%include ../../../common/lexer/shared_elements_postgres.flext
+
 comment_tail =([^"*"]*("*"+[^"*""/"])?)*("*"+"/")?
 BLOCK_COMMENT=("/*"[^]{comment_tail})|"/*"
 LINE_COMMENT = "--" {input_character}*
@@ -42,8 +44,7 @@ LINE_COMMENT = "--" {input_character}*
 IDENTIFIER = [:jletter:] ([:jletterdigit:]|"#")*
 QUOTED_IDENTIFIER = "\""[^\"]*"\""?
 
-string_simple_quoted      = "'"([^\']|"''"|{WHITE_SPACE})*"'"?
-STRING = "n"?{string_simple_quoted}
+STRING = {REGULAR_STRING}|{ESCAPE_STRING}|{UNICODE_STRING}|{BIT_STRING}
 
 sign = "+"|"-"
 digit = [0-9]

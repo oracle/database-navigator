@@ -43,11 +43,11 @@ import com.dbn.connection.config.tns.TnsNames;
 import com.dbn.connection.config.tns.TnsNamesParser;
 import com.dbn.oci.database.tools.OciDatabaseToolsConnectionInfo;
 import com.dbn.oci.database.tools.ui.OciDatabaseToolsConnectionDialog;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.components.fields.ExpandableTextField;
-import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JButton;
@@ -64,6 +64,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.dbn.common.color.Colors.getContextHelpForeground;
 import static com.dbn.common.ui.util.Buttons.onButtonClick;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
@@ -90,6 +91,7 @@ import static com.dbn.connection.config.provider.CloudConfigProviderType.values;
 import static com.dbn.connection.config.provider.impl.GcpConfigProviderHandler.getStorageLocation;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
+import static com.intellij.util.ui.UIUtil.getTextFieldForeground;
 import static java.util.Collections.unmodifiableMap;
 
 public class ConnectionUrlSettingsForm extends DBNFormBase {
@@ -426,10 +428,9 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
 
         urlTextField.setEditable(urlType == DatabaseUrlType.CUSTOM);
         urlTextField.setForeground(urlTextField.isEditable() ?
-                UIUtil.getTextFieldForeground() :
-                // default disabled fg is very hard to read in default dark mode.
-                com.dbn.common.color.Colors.lafDarker(
-                        UIUtil.getLabelDisabledForeground(), 8));
+                getTextFieldForeground() :
+                getContextHelpForeground());
+
 
         // tns folder
         tnsFolderTextField.setVisible(tnsVisible);
@@ -502,7 +503,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         cloudProviderDocumentationLink.setHyperlinkText(txt("cfg.connection.link.ProviderDocumentation"));
         cloudProviderDocumentationLink.setVisible(cloudProviderVisible && documentationUrl != null);
         cloudProviderDocumentationLink.setHyperlinkTarget(documentationUrl);
-        cloudProviderDocumentationLink.setToolTipText(documentationUrl);
+        Tooltips.setToolTipText(cloudProviderDocumentationLink, documentationUrl);
     }
 
     private static String getCloudProviderDocumentationUrl(CloudConfigProviderType provider) {

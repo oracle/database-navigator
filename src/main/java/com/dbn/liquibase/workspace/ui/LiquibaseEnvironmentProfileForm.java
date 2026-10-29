@@ -22,7 +22,6 @@ import com.dbn.common.environment.options.EnvironmentSettings;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.liquibase.workspace.LiquibaseEnvironmentProfile;
 import com.dbn.liquibase.workspace.LiquibaseEnvironmentProfileBundle;
@@ -36,6 +35,7 @@ import javax.swing.JPanel;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.setFormFieldEnabled;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
@@ -78,11 +78,7 @@ public class LiquibaseEnvironmentProfileForm extends DBNFormBase {
     }
 
     private void initHintPanel() {
-        hintPanel.add(new DBNHintForm(
-                this,
-                TextContent.plain(txt("app.liquibase.hint.EnvironmentProfile")),
-                null,
-                true).getComponent());
+        installHintForm(this, TextContent.plain(txt("app.liquibase.hint.EnvironmentProfile")), hintPanel);
     }
 
     private void updateProfileName() {

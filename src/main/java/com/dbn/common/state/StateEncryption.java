@@ -226,6 +226,14 @@ public class StateEncryption {
         });
     }
 
+    static boolean isUnencryptedStateApproved() {
+        if (!encryptionEnabled) return true;
+        if (shouldEncrypt()) return false;
+
+        UserApprovalManager approvalManager = UserApprovalManager.getInstance();
+        return approvalManager.isApproved(STATE_ENCRYPTION_CHANGE, StateEncryptionApproval.INSTANCE);
+    }
+
     public static void ensureUnencryptedStateApproved() {
         if (!encryptionEnabled) return;
         if (shouldEncrypt()) return;

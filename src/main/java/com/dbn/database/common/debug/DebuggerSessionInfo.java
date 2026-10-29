@@ -16,27 +16,24 @@
 
 package com.dbn.database.common.debug;
 
-import com.dbn.database.common.statement.CallableStatementOutput;
+import com.dbn.database.common.statement.CallableStatementOutputBase;
+import lombok.Getter;
 
 import java.sql.CallableStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 
-public class DebuggerSessionInfo implements CallableStatementOutput {
+@Getter
+public class DebuggerSessionInfo extends CallableStatementOutputBase {
     private String sessionId;
-
-
-    public String getSessionId() {
-        return sessionId;
-    }
 
     @Override
     public void registerParameters(CallableStatement statement) throws SQLException {
-        statement.registerOutParameter(1, Types.VARCHAR);
+        registerOutParameter(statement, 1, Types.VARCHAR);
     }
 
     @Override
     public void read(CallableStatement statement) throws SQLException {
-        sessionId = statement.getString(1);
+        sessionId = getString(statement, 1);
     }
 }

@@ -169,7 +169,7 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
             AssistantModelInput input = createModelInput(connectionId, context);
             AssistantState state = getAssistantState(connectionId);
 
-            var model = resolveModel(context, input, true);
+            var model = resolveModel(input, true);
             var invoker = resolveModelInvoker(model);
 
             AssistantMemoryId memoryId = AssistantMemoryId.stateful(chatId);
@@ -197,7 +197,7 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
         AssistantModelInput input = createModelInput(connectionId, context);
         if (input == null) return null;
 
-        var model = resolveModel(context, input, false);
+        var model = resolveModel(input, false);
         var invoker = resolveModelInvoker(model);
 
         AtomicReference<String> title = new AtomicReference<>();
@@ -231,6 +231,8 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
 
         String credentialId = profile.getCredentialId();
         AssistantCredential credential = getCredential(project, credentialId);
+
+        verifyProviderBinding(chatContext, provider, model, profile, credential);
         if (credential == null) return null;
 
         AIProviderId baseProviderId = model.getBaseProviderId();
@@ -247,8 +249,24 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
         return input;
     }
 
-    private static Object resolveModel(ChatContext context, AssistantModelInput input, boolean allowStreaming) {
-        AIProviderId providerId = context.getProviderId();
+    private static void verifyProviderBinding(
+            ChatContext chatContext,
+            AIProvider provider,
+            AIModel model,
+            AssistantProfile profile,
+            AssistantCredential credential) {
+
+        AIProviderId providerId = provider.getId();
+        if (providerId != chatContext.getProviderId() ||
+                providerId != model.getProviderId() ||
+                providerId != profile.getProviderId() ||
+                (credential != null && providerId != credential.getProviderId())) {
+            throw new IllegalStateException(txt("msg.assistant.error.ProfileProviderMismatch"));
+        }
+    }
+
+    private static Object resolveModel(AssistantModelInput input, boolean allowStreaming) {
+        AIProviderId providerId = input.getProviderId();
         AssistantModelFactory modelFactory = AssistantModelFactories.get(providerId);
 
         Class[] modelTypes = AssistantModelInvokers.types();

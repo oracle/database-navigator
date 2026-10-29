@@ -55,6 +55,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
 import static com.dbn.common.util.Messages.OPTIONS_YES_NO;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.common.util.Messages.showQuestionDialog;
@@ -91,6 +92,7 @@ public class ProfileManagementForm extends DBNFormBase {
 
     public ProfileManagementForm(DBNForm parent, @NotNull ConnectionHandler connection) {
         super(parent);
+        setSplitPaneProportion(contentSplitPane, 0.3);
         this.connection = ConnectionRef.of(connection);
         this.manager = DatabaseAssistantManager.getInstance(connection.getProject());
 
@@ -99,7 +101,7 @@ public class ProfileManagementForm extends DBNFormBase {
         initDetailsPanel();
         initChangeListener();
 
-        whenFirstShown(() -> loadProfiles());
+        whenInitialized(() -> loadProfiles());
     }
 
     private void initChangeListener() {

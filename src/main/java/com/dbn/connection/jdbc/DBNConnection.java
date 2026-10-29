@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,9 +54,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Savepoint;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -86,7 +83,7 @@ public class DBNConnection extends DBNConnectionBase {
 
     private final Set<DBNStatement> activeStatements = ConcurrentHashMap.newKeySet();
     private final Set<DBNResultSet> activeCursors = ConcurrentHashMap.newKeySet();
-    private final Map<String, DBNPreparedStatement> cachedStatements = new ConcurrentHashMap<>();
+    private final DBNStatementPool statementPool = new DBNStatementPool(this);
     private transient DBNStatement enquoteStatement;
     private QuotePair identifierEnquoter;
 
@@ -204,27 +201,12 @@ public class DBNConnection extends DBNConnectionBase {
 
     @Exploitable
     public DBNPreparedStatement prepareStatementCached(String sql) {
-        return cachedStatements.computeIfAbsent(sql, s -> {
-            DBNPreparedStatement statement = prepareStatement(s);
-            statement.setCached(true);
-            statement.setFetchSize(500);
-            statement.setSql(s);
-            return statement;
-        });
+        return statementPool.borrow(sql, DBNPreparedStatement.class, () -> prepareStatement(sql));
     }
 
     @Exploitable
     public DBNCallableStatement prepareCallCached(String sql) {
-        return cast(cachedStatements.compute(sql, (q, s) -> {
-            if (s != null && !s.isClosed()) return s;
-
-            Resources.close(s);
-            DBNPreparedStatement statement = prepareCall(q);
-            statement.setCached(true);
-            statement.setFetchSize(500);
-            statement.setSql(q);
-            return statement;
-        }));
+        return statementPool.borrow(sql, DBNCallableStatement.class, () -> prepareCall(sql));
     }
 
     @Override
@@ -239,7 +221,7 @@ public class DBNConnection extends DBNConnectionBase {
             statement = new DBNCallableStatement(callableStatement, this);
 
         } else  if (statement instanceof PreparedStatement preparedStatement) {
-            statement = new DBNPreparedStatement(preparedStatement, this);
+            statement = new DBNPreparedStatement<>(preparedStatement, this);
 
         } else {
             statement = new DBNStatement<>(statement, this);
@@ -253,15 +235,23 @@ public class DBNConnection extends DBNConnectionBase {
 
     protected void park(DBNStatement statement) {
         activeStatements.remove(statement);
+        if (statement.isCached() && statement instanceof DBNPreparedStatement<?> preparedStatement) {
+            statementPool.release(preparedStatement);
+        }
         updateLastAccess();
     }
 
     protected void release(DBNStatement statement) {
         park(statement);
-        if (statement.isCached() && statement instanceof DBNPreparedStatement preparedStatement) {
-            cachedStatements.values().removeIf(v -> v == preparedStatement);
+        if (statement.isCached() && statement instanceof DBNPreparedStatement<?> preparedStatement) {
+            statementPool.discard(preparedStatement);
         }
 
+        updateLastAccess();
+    }
+
+    void activate(DBNStatement statement) {
+        activeStatements.add(statement);
         updateLastAccess();
     }
 
@@ -275,7 +265,7 @@ public class DBNConnection extends DBNConnectionBase {
     }
 
     public int getCachedStatementCount() {
-        return cachedStatements.size();
+        return statementPool.size();
     }
 
     public int getActiveCursorCount() {
@@ -335,16 +325,16 @@ public class DBNConnection extends DBNConnectionBase {
             }
 
             if (isInitialized() && status.isOneOf(VALID, CLOSED)) {
-                verifyAndRelease();
+                verifyAndDiscard();
                 notifyStatusChange();
             }
         });
     }
 
-    private void verifyAndRelease() {
+    private void verifyAndDiscard() {
         if (is(VALID) && isNot(CLOSED)) return;
 
-        propagate(connection -> connection.getConnectionPool().release(this));
+        propagate(connection -> connection.getConnectionPool().discard(this));
         resetDataChanges();
 
     }
@@ -371,13 +361,6 @@ public class DBNConnection extends DBNConnectionBase {
     public int getIdleMinutes() {
         long idleTimeMillis = System.currentTimeMillis() - lastAccess;
         return (int) (idleTimeMillis / TimeUtil.Millis.ONE_MINUTE);
-    }
-
-    public static Connection getInner(Connection connection) {
-        if (connection instanceof DBNConnection dbnConnection) {
-            return dbnConnection.getInner();
-        }
-        return connection;
     }
 
     @NotNull
@@ -441,9 +424,7 @@ public class DBNConnection extends DBNConnectionBase {
     public void close() throws SQLException {
         try {
             super.close();
-            List<DBNPreparedStatement> statements = new ArrayList<>(cachedStatements.values());
-            cachedStatements.clear();
-            Resources.close(statements);
+            statementPool.close();
         } finally {
             updateLastAccess();
             resetDataChanges();
@@ -453,6 +434,15 @@ public class DBNConnection extends DBNConnectionBase {
     public void invalidate() {
         set(VALID, false);
         Background.run(() -> Resources.close(this));
+    }
+
+    public void markClosed() {
+        set(VALID, false);
+        set(ACTIVE, false);
+        boolean changed = set(CLOSED, true);
+        if (changed) {
+            statusChanged(CLOSED);
+        }
     }
 
     @NotNull
@@ -492,9 +482,7 @@ public class DBNConnection extends DBNConnectionBase {
     public void reevaluateStatus() {
         Unsafe.warned(() -> {
             if (inner.isClosed() || !inner.isValid(5)) {
-                set(VALID, false);
-                set(CLOSED, true);
-                set(ACTIVE, false);
+                markClosed();
             }
         });
     }

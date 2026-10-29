@@ -17,11 +17,13 @@
 package com.dbn.language.editor;
 
 import com.dbn.common.listener.DBNFileEditorManagerListener;
+import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Editors;
 import com.dbn.language.editor.ui.DBLanguageFileEditorToolbarForm;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,8 +32,22 @@ import static com.dbn.common.action.UserDataKeys.isUserData;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.util.Files.isDbLanguageFile;
 import static com.dbn.common.util.Files.isLightVirtualFile;
+import static com.dbn.common.util.Modality.nonModal;
 
 public class DBLanguageFileEditorListener extends DBNFileEditorManagerListener {
+    public static void ensureEditorToolbars(@NotNull Project project) {
+        Dispatch.run(nonModal(), () -> {
+            FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
+            for (VirtualFile file : fileEditorManager.getOpenFiles()) {
+                if (!isInScope(file)) continue;
+
+                for (FileEditor fileEditor : fileEditorManager.getEditors(file)) {
+                    ensureToolbar(fileEditor, fileEditorManager, file);
+                }
+            }
+        });
+    }
+
     @Override
     public void whenFileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
         if (!isInScope(file)) return;

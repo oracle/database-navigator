@@ -16,7 +16,6 @@
 
 package com.dbn.liquibase.operation.ui;
 
-import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.message.TitledMessage;
@@ -39,10 +38,10 @@ import com.dbn.liquibase.operation.LiquibaseUpdateInstruction;
 import com.dbn.liquibase.operation.LiquibaseUpdateType;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -54,6 +53,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 
+import static com.dbn.common.color.Colors.getLabelErrorForeground;
+import static com.dbn.common.color.Colors.getLabelForeground;
+import static com.dbn.common.color.Colors.getLabelSuccessForeground;
+import static com.dbn.common.color.Colors.getLabelWarningForeground;
 import static com.dbn.common.task.TaskStatus.BYPASSED;
 import static com.dbn.common.task.TaskStatus.CANCELLED;
 import static com.dbn.common.task.TaskStatus.DONE;
@@ -62,7 +65,6 @@ import static com.dbn.common.task.TaskStatus.RUNNING;
 import static com.dbn.common.task.TaskStatus.SKIPPED;
 import static com.dbn.common.text.TextContent.plain;
 import static com.dbn.common.ui.link.Hyperlinks.onHyperlinkAccess;
-import static com.dbn.common.ui.util.Tooltips.setToolTipText;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.common.util.TimeUtil.presentableDuration;
 import static com.dbn.liquibase.operation.LiquibaseFeature.CHANGELOG_TAG;
@@ -91,8 +93,11 @@ public class LiquibaseOperationResultSummaryForm extends DBNFormBase {
     private JLabel targetSchemaCaptionLabel;
     private JLabel targetSchemaLabel;
     private JLabel operationLabel;
+    private JLabel workspaceCaptionLabel;
     private JLabel workspaceLabel;
+    private JLabel workspaceFormatCaptionLabel;
     private JLabel workspaceFormatLabel;
+    private JLabel environmentProfileCaptionLabel;
     private JLabel environmentProfileLabel;
     private JLabel processedItemsCaptionLabel;
     private JLabel processedItemsLabel;
@@ -145,7 +150,7 @@ public class LiquibaseOperationResultSummaryForm extends DBNFormBase {
                 !sameConnection);
 
         operationLabel.setText(result.getOperation().getName());
-        setToolTipText(operationLabel, result.getOperation().getDescription());
+        Tooltips.setToolTipText(operationLabel, result.getOperation().getDescription());
         updateWorkspaceInfo(result);
         updateStatus(result);
         updateProcessedItems(result);
@@ -170,11 +175,23 @@ public class LiquibaseOperationResultSummaryForm extends DBNFormBase {
     private void updateWorkspaceInfo(@NotNull LiquibaseOperationResult result) {
         LiquibaseOperationInput input = result.getInput();
         var workspace = input.getWorkspace();
+
+        LiquibaseOperationSupport operationSupport = result.getOperation().getSupport();
+        boolean visible = operationSupport.requires(WORKSPACE) && workspace != null;
+
+        workspaceCaptionLabel.setVisible(visible);
+        workspaceLabel.setVisible(visible);
+        workspaceFormatCaptionLabel.setVisible(visible);
+        workspaceFormatLabel.setVisible(visible);
+        environmentProfileCaptionLabel.setVisible(visible);
+        environmentProfileLabel.setVisible(visible);
+        if (!visible) return;
+
         var profile = input.getEnvironmentProfile();
 
         workspaceLabel.setText(workspace.getName());
         workspaceFormatLabel.setText(workspace.getChangelogFormat().getName());
-        setToolTipText(workspaceLabel, input.getWorkspacePaths().getLiquibaseRootPath().toString());
+        Tooltips.setToolTipText(workspaceLabel, input.getWorkspacePaths().getLiquibaseRootPath().toString());
 
         environmentProfileLabel.setText(profile.getName());
     }
@@ -262,19 +279,19 @@ public class LiquibaseOperationResultSummaryForm extends DBNFormBase {
         changelogLabel.setVisible(relevant);
         if (!relevant) {
             changelogLink.setVisible(false);
-            setToolTipText(changelogLink, null);
+            Tooltips.setToolTipText(changelogLink, null);
             return;
         }
 
         Path changelogPath = result.getChangelogPath();
         if (changelogPath == null || !Files.isRegularFile(changelogPath)) {
             changelogLink.setVisible(false);
-            setToolTipText(changelogLink, null);
+            Tooltips.setToolTipText(changelogLink, null);
             return;
         }
 
         changelogLink.setHyperlinkText(changelogPath.getFileName().toString());
-        setToolTipText(changelogLink, changelogPath.toString());
+        Tooltips.setToolTipText(changelogLink, changelogPath.toString());
         changelogLink.setVisible(true);
     }
 
@@ -289,14 +306,14 @@ public class LiquibaseOperationResultSummaryForm extends DBNFormBase {
         boolean relevant = result.getOperation() == LiquibaseOperation.GENERATE_DATABASE_DOCUMENTATION;
         documentationLabel.setVisible(relevant);
         documentationLink.setVisible(false);
-        setToolTipText(documentationLink, null);
+        Tooltips.setToolTipText(documentationLink, null);
         if (!relevant) return;
 
         Path documentationPath = result.getDocumentationPath();
         if (documentationPath == null || !Files.isRegularFile(documentationPath)) return;
 
         documentationLink.setHyperlinkText(documentationPath.getFileName().toString());
-        setToolTipText(documentationLink, documentationPath.toString());
+        Tooltips.setToolTipText(documentationLink, documentationPath.toString());
         documentationLink.setVisible(true);
     }
 
@@ -490,13 +507,13 @@ public class LiquibaseOperationResultSummaryForm extends DBNFormBase {
 
     @NotNull
     private static Color getStatusColor(@NotNull TaskStatus status) {
-        if (true) return UIUtil.getLabelForeground();
+        if (true) return getLabelForeground();
         // todo cleanup (too colorful)
         return switch (status) {
-            case DONE -> Colors.getLabelSuccessForeground();
-            case FAILED -> Colors.getLabelErrorForeground();
-            case CANCELLED, SKIPPED, BYPASSED -> Colors.getLabelWarningForeground();
-            default -> UIUtil.getLabelForeground();
+            case DONE -> getLabelSuccessForeground();
+            case FAILED -> getLabelErrorForeground();
+            case CANCELLED, SKIPPED, BYPASSED -> getLabelWarningForeground();
+            default -> getLabelForeground();
         };
     }
 

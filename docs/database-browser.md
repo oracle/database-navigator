@@ -269,7 +269,7 @@ Right-click a database object to see actions available for that object. Actions 
 | `Edit Code` | Source-backed objects such as procedures, functions, packages, types, triggers, and Java sources | Opens the code editor. |
 | `Compile` | Compilable objects | Compiles the selected program or source object. |
 | `Execute` / `Debug` | Methods, programs, and supported Java objects | Opens execution or debugging workflow. |
-| `Drop` | User schema objects where supported | Drops the selected object after confirmation. |
+| `Drop` | Users and user schema objects where supported | Drops the selected object after confirmation. |
 | `Dependencies` / `Dependency Tree` | Referenceable schema objects where supported | Shows referenced and referencing objects. |
 | `Extract SQL Statement` | Supported objects | Generates SELECT, INSERT, or DDL statements for the object. |
 | `Reload` / `Refresh` | Object lists and objects | Reloads metadata from the database. |

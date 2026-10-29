@@ -35,6 +35,7 @@ public class EmbeddingChunkLabDialog extends DBNDialog<EmbeddingChunkLabForm> {
     super(connection, txt("msg.vector.title.ChunkLab"), true);
     this.chunkConfig = chunkConfig;
     renameAction(getOKAction(), txt("msg.vector.button.UseConfiguration"));
+    setDefaultSize(800, 600);
     init();
   }
 

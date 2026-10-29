@@ -51,7 +51,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.dbn.common.component.Components.applicationService;
 import static com.dbn.common.file.FileTypeService.COMPONENT_NAME;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Commons.coalesce;
 import static com.dbn.common.util.Unsafe.silent;
@@ -201,8 +200,8 @@ public class FileTypeService extends ApplicationComponentBase implements Persist
     }
 
     @Override
-    public Element getComponentState() {
-        Element element = newStateElement();
+    public void writeState(Element element) {
+        super.writeState(element);
         Element mappingsElement = newElement(element, "original-file-types");
 
         for (String fileNamePattern : originalFileAssociations.keySet()) {
@@ -211,11 +210,11 @@ public class FileTypeService extends ApplicationComponentBase implements Persist
             mappingElement.setAttribute("file-name-pattern", fileNamePattern);
             mappingElement.setAttribute("file-type", fileType);
         }
-        return element;
     }
 
     @Override
-    public void loadComponentState(@NotNull Element stateElement) {
+    public void readState(@NotNull Element stateElement) {
+        super.readState(stateElement);
         Element mappingsElement = stateElement.getChild("original-file-types");
         if (mappingsElement == null) return;
 

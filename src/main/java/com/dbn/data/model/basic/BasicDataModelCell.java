@@ -24,8 +24,6 @@ import com.dbn.data.model.DataModelCell;
 import com.dbn.data.model.DataModelState;
 import com.dbn.data.type.DBDataType;
 import com.dbn.data.type.GenericDataType;
-import com.dbn.data.value.ArrayValue;
-import com.dbn.data.value.LargeObjectValue;
 import com.dbn.editor.data.model.RecordStatus;
 import com.dbn.editor.data.model.RecordStatusHolder;
 import com.dbn.object.type.DBObjectType;
@@ -104,11 +102,16 @@ public class BasicDataModelCell<
     }
 
     public boolean isLobValue() {
-        return userValue instanceof LargeObjectValue;
+        GenericDataType genericDataType = getGenericDataType();
+        return genericDataType.isLOB() || genericDataType == GenericDataType.TABLE;
     }
 
     public boolean isArrayValue() {
-        return userValue instanceof ArrayValue;
+        return getGenericDataType() == GenericDataType.ARRAY;
+    }
+
+    public boolean isStructureValue() {
+        return getGenericDataType() == GenericDataType.STRUCTURE;
     }
 
     @Override
@@ -128,7 +131,7 @@ public class BasicDataModelCell<
 
     protected String createPresentableValue() {
         Formatter formatter = getFormatter();
-        return  formatter.formatObject(userValue);
+        return formatter.formatObject(userValue);
     }
 
     @NotNull
@@ -154,6 +157,10 @@ public class BasicDataModelCell<
     @Override
     public DBDataType getDataType() {
         return getColumnInfo().getDataType();
+    }
+
+    public GenericDataType getGenericDataType() {
+        return getDataType().getGenericDataType();
     }
 
     @Override
