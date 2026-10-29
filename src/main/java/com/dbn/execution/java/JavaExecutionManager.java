@@ -244,7 +244,7 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 							if (context.isNot(ExecutionStatus.CANCELLED)) {
 									showErrorDialog(project,
                                         txt("msg.execution.title.MethodExecutionError"),
-											txt("msg.execution.message.MethodExecutionError", method.getQualifiedNameWithType(), getLocalizedMessage(e).trim()),
+											txt("msg.execution.message.MethodExecutionError", method.getQualifiedName(), getLocalizedMessage(e).trim()),
 											new String[]{txt("msg.shared.button.TryAgain"), txt("msg.shared.button.Cancel")}, 0,
 										option -> when(option == 0, () ->
 												startMethodExecution(input, DBDebuggerType.NONE)));
@@ -324,19 +324,18 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 	/****************************************
 	 *       PersistentStateComponent       *
 	 *****************************************/
-	@Nullable
 	@Override
-	public Element getComponentState() {
-		Element element = new Element("state");
+	public void writeState(Element element) {
+        super.writeState(element);
 		Element browserSettingsElement = newElement(element, "method-browser");
 		browserSettings.writeConfiguration(browserSettingsElement);
 
 		executionHistory.writeState(element);
-		return element;
 	}
 
 	@Override
-	public void loadComponentState(@NotNull Element element) {
+	public void readState(@NotNull Element element) {
+        super.readState(element);
 		Element browserSettingsElement = element.getChild("method-browser");
 		if (browserSettingsElement != null) {
 			browserSettings.readConfiguration(browserSettingsElement);

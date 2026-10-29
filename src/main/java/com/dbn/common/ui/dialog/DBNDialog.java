@@ -20,11 +20,13 @@ import com.dbn.common.action.UserDataKeys;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.project.ProjectRef;
+import com.dbn.common.routine.ThrowableRunnable;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormValidator;
 import com.dbn.common.ui.form.DBNFormValidatorImpl;
+import com.dbn.common.util.Alarms;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Titles;
@@ -33,6 +35,7 @@ import com.dbn.connection.ConnectionRef;
 import com.dbn.diagnostics.Diagnostics;
 import com.dbn.help.HelpTopic;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
@@ -46,6 +49,7 @@ import com.intellij.openapi.util.UserDataHolderBase;
 import com.intellij.openapi.wm.IdeFrame;
 import com.intellij.ui.AppIcon;
 import com.intellij.ui.components.JBOptionButton;
+import com.intellij.util.Alarm;
 import com.intellij.util.Consumer;
 import com.intellij.util.ui.JBDimension;
 import lombok.Getter;
@@ -72,6 +76,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 
 import static com.dbn.common.action.UserDataKeys.PROJECT_REF;
 import static com.dbn.common.data.Data.asBooleanPrimitive;
@@ -302,6 +307,54 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
                 runnable.run();
             }
         };
+    }
+
+    protected final Action createApplyAction(
+            @NotNull BooleanSupplier modified,
+            @NotNull ThrowableRunnable<ConfigurationException> apply) {
+        return new ApplyAction(modified, apply);
+    }
+
+    private final class ApplyAction extends AbstractAction {
+        private final BooleanSupplier modified;
+        private final ThrowableRunnable<ConfigurationException> apply;
+        private final Alarm alarm = Alarms.createAlarm(getForm());
+        private final Runnable reloader = () -> {
+            if (isShowing()) {
+                updateEnabledState();
+                addReloadRequest();
+            }
+        };
+
+        private ApplyAction(
+                @NotNull BooleanSupplier modified,
+                @NotNull ThrowableRunnable<ConfigurationException> apply) {
+            super(txt("msg.shared.button.Apply"));
+            this.modified = modified;
+            this.apply = apply;
+            updateEnabledState();
+            addReloadRequest();
+        }
+
+        private void updateEnabledState() {
+            setEnabled(modified.getAsBoolean());
+        }
+
+        private void addReloadRequest() {
+            alarm.addRequest(reloader, 500, ModalityState.stateForComponent(getWindow()));
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+                apply.run();
+                setCancelButtonText(txt("msg.shared.button.Close"));
+                updateEnabledState();
+            } catch (ConfigurationException exception) {
+                conditionallyLog(exception);
+                showErrorDialog(getProject(), exception.getTitle(), getLocalizedMessage(exception));
+            }
+        }
     }
 
     protected static Action createAction(@NotNull @Button String name, @NotNull Consumer<JButton> consumer) {

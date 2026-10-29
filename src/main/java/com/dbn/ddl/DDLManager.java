@@ -27,7 +27,6 @@ import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
-import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
@@ -102,15 +101,5 @@ public class DDLManager extends ProjectComponentBase implements PersistentState 
         if (genericType == TRIGGER) return cachedUpperCase(TRIGGER.getName());
 
         return cachedUpperCase(objectType.getName());
-    }
-
-    @Override
-    public Element getComponentState() {
-        return null;
-    }
-
-    @Override
-    public void loadComponentState(@NotNull Element state) {
-
     }
 }

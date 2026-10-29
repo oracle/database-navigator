@@ -62,6 +62,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import static com.dbn.common.dispose.Disposer.replace;
+import static com.dbn.data.value.LargeValueResourceLimits.*;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -156,7 +157,7 @@ public class LargeValuePreviewPopup extends DBNFormBase {
         Object userValue = userValueHolder.getUserValue();
         if (userValue instanceof LargeObjectValue largeObjectValue) {
             try {
-                int maxSize = initial ? INITIAL_MAX_SIZE : LargeObjectValue.MAX_READ_SIZE;
+                int maxSize = initial ? INITIAL_MAX_SIZE : MAX_READ_SIZE;
                 text = largeObjectValue.read(maxSize);
                 text = Commons.nvl(text, "");
 

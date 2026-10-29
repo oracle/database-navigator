@@ -19,13 +19,16 @@ package com.dbn.generator.statement;
 import com.dbn.code.common.style.DBLCodeStyleManager;
 import com.dbn.code.common.style.options.CodeStyleCaseOption;
 import com.dbn.code.common.style.options.CodeStyleCaseSettings;
+import com.dbn.common.util.Identifiers;
 import com.dbn.language.sql.SQLLanguage;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBTable;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
 
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 public class InsertStatementGenerator extends StatementGenerator {
     private final DBObjectRef<DBTable> table;
@@ -67,10 +70,11 @@ public class InsertStatementGenerator extends StatementGenerator {
         statement.append(kco.format("values (\n"));
 
         columnIterator = table.getColumns().iterator();
+        Set<String> parameterNames = new HashSet<>();
         while (columnIterator.hasNext()) {
             DBColumn column = columnIterator.next();
-            statement.append(oco.format("    :P_"));
-            statement.append(oco.format(column.getName(false)));
+            String parameterName = Identifiers.generateSafeIdentifier("P_" + column.getName(false), parameterNames);
+            statement.append(oco.format("    :" + parameterName));
             if (columnIterator.hasNext()) {
                 statement.append(",\n");
             } else {

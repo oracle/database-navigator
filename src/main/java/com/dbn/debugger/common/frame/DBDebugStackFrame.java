@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,6 @@
 
 package com.dbn.debugger.common.frame;
 
-import com.dbn.code.common.style.DBLCodeStyleManager;
-import com.dbn.code.common.style.options.CodeStyleCaseOption;
-import com.dbn.code.common.style.options.CodeStyleCaseSettings;
 import com.dbn.common.consumer.ListCollector;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.latent.Latent;
@@ -33,8 +30,8 @@ import com.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dbn.language.common.psi.BasePsiElement;
 import com.dbn.language.common.psi.IdentifierPsiElement;
 import com.dbn.language.common.psi.PsiUtil;
-import com.dbn.language.psql.PSQLLanguage;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.language.common.psi.QualifiedIdentifierPsiElement;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.DBVirtualFile;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
@@ -174,7 +171,7 @@ public abstract class DBDebugStackFrame<P extends DBDebugProcess, V extends DBDe
     @Override
     public void computeChildren(@NotNull XCompositeNode node) {
         valuesMap = new HashMap<>();
-        List<DBDebugValue> values = new ArrayList<>();
+        List<V> values = new ArrayList<>();
 
         V frameInfoValue = createSuspendReasonDebugValue();
         if (frameInfoValue != null) {
@@ -186,13 +183,13 @@ public abstract class DBDebugStackFrame<P extends DBDebugProcess, V extends DBDe
 
         Collections.sort(values);
         XValueChildrenList children = new XValueChildrenList();
-        for (DBDebugValue value : values) {
+        for (V value : values) {
             children.add(value.getVariableName(), value);
         }
         node.addChildren(children, true);
     }
 
-    private void computeValues(List<DBDebugValue> values) {
+    protected void computeValues(List<V> values) {
         XSourcePosition sourcePosition = getSourcePosition();
         VirtualFile virtualFile = DBDebugUtil.getSourceCodeFile(sourcePosition);
         if (virtualFile == null) return;
@@ -210,22 +207,19 @@ public abstract class DBDebugStackFrame<P extends DBDebugProcess, V extends DBDe
         if (psiFile == null) return;
 
         int offset = document.getLineStartOffset(sourcePosition.getLine());
-        CodeStyleCaseSettings codeStyleCaseSettings = DBLCodeStyleManager.getInstance(psiFile.getProject()).getCodeStyleCaseSettings(PSQLLanguage.INSTANCE);
-        CodeStyleCaseOption objectCaseOption = codeStyleCaseSettings.getObjectCaseOption();
-
         psiFile.lookupVariableDefinition(offset, basePsiElement -> {
-            String variableName = objectCaseOption.format(basePsiElement.getText());
+            String variableName = getVariableName(basePsiElement);
             //DBObject object = basePsiElement.resolveUnderlyingObject();
 
             ListCollector<String> childVariableNames = ListCollector.unique();
             if (basePsiElement instanceof IdentifierPsiElement identifierPsiElement) {
                 identifierPsiElement.findQualifiedUsages(qualifiedUsage -> {
-                    String childVariableName = objectCaseOption.format(qualifiedUsage.getText());
+                    String childVariableName = getVariableName(qualifiedUsage);
                     childVariableNames.accept(childVariableName);
                 });
             }
 
-            String valueCacheKey = cachedUpperCase(variableName);
+            String valueCacheKey = variableName;
             if (!valuesMap.containsKey(valueCacheKey)) {
                 Icon icon = basePsiElement.getIcon(true);
                 List<String> childVariables = childVariableNames.isEmpty() ? null : childVariableNames.elements();
@@ -234,6 +228,31 @@ public abstract class DBDebugStackFrame<P extends DBDebugProcess, V extends DBDe
                 valuesMap.put(valueCacheKey, value);
             }
         });
+    }
+
+    private static String getVariableName(BasePsiElement psiElement) {
+        if (psiElement instanceof IdentifierPsiElement identifierPsiElement) {
+            return getVariableName(identifierPsiElement);
+        }
+
+        if (psiElement instanceof QualifiedIdentifierPsiElement qualifiedIdentifier) {
+            StringBuilder name = new StringBuilder();
+            for (int index = 0; ; index++) {
+                IdentifierPsiElement identifier = qualifiedIdentifier.getLeafAtIndex(index);
+                if (identifier == null) break;
+
+                if (!name.isEmpty()) name.append('.');
+                name.append(getVariableName(identifier));
+            }
+            if (!name.isEmpty()) return name.toString();
+        }
+
+        return cachedUpperCase(psiElement.getText());
+    }
+
+    private static String getVariableName(IdentifierPsiElement identifier) {
+        String name = identifier.getText();
+        return identifier.isQuoted() ? name : cachedUpperCase(name);
     }
 
     private Project getProject() {
@@ -245,7 +264,7 @@ public abstract class DBDebugStackFrame<P extends DBDebugProcess, V extends DBDe
         XSourcePosition sourcePosition = getSourcePosition();
         VirtualFile virtualFile = DBDebugUtil.getSourceCodeFile(sourcePosition);
 
-        DBSchemaObject object = DBDebugUtil.getObject(sourcePosition);
+        DBObject object = DBDebugUtil.getObject(sourcePosition);
         if (object != null) {
             String frameName = nvl(object.getPresentableText(), object.getName());
             Icon frameIcon = object.getIcon();

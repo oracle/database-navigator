@@ -18,6 +18,7 @@ package com.dbn.common.ui.component;
 
 import com.dbn.common.dispose.StatefulDisposable;
 import com.dbn.common.project.ProjectSupplier;
+import com.dbn.common.ref.WeakRef;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
@@ -29,6 +30,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JComponent;
 
 import static com.dbn.common.action.UserDataKeys.CONNECTION_REF;
+import static com.dbn.common.action.UserDataKeys.CONTEXT_OBJECT;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.dispose.Failsafe.nn;
 
@@ -73,5 +75,13 @@ public interface DBNComponent extends StatefulDisposable, ProjectSupplier, UserD
 
     default void inheritConnection(DBNComponent component) {
         setConnection(component.getConnection());
+    }
+
+    default Object getContextObject() {
+        return WeakRef.get(getUserData(CONTEXT_OBJECT));
+    }
+
+    default void setContextObject(Object object) {
+        putUserData(CONTEXT_OBJECT, WeakRef.of(object));
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,29 +16,48 @@
 
 package com.dbn.debugger;
 
+import com.dbn.common.Reflection;
+import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.dispose.Failsafe;
+import com.dbn.common.util.Documents;
 import com.dbn.editor.DatabaseFileEditorManager;
 import com.dbn.editor.code.SourceCodeManager;
+import com.dbn.execution.statement.StatementExecutionInput;
+import com.dbn.execution.statement.processor.StatementExecutionProcessor;
+import com.dbn.language.common.psi.ExecutablePsiElement;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.vfs.DatabaseFileSystem;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.RangeMarker;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.registry.Registry;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.xdebugger.XDebugProcessStarter;
+import com.intellij.xdebugger.XDebugSession;
+import com.intellij.xdebugger.XDebugSessionListener;
+import com.intellij.xdebugger.XDebuggerManager;
 import com.intellij.xdebugger.XSourcePosition;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.common.util.GuardedBlocks.createGuardedBlock;
+import static com.dbn.common.util.GuardedBlocks.removeGuardedBlocks;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.editor.code.content.GuardedBlockType.DEBUGGER_EXECUTION;
+import static com.dbn.nls.NlsResources.txt;
 
 @UtilityClass
 public class DBDebugUtil {
+    private static final String TOOLWINDOW_SPLIT_REGISTRY_KEY = "xdebugger.toolwindow.split";
 
-    public static @Nullable DBSchemaObject getObject(@Nullable XSourcePosition sourcePosition) {
+    public static @Nullable DBObject getObject(@Nullable XSourcePosition sourcePosition) {
         if (sourcePosition == null) return null;
 
         VirtualFile virtualFile = sourcePosition.getFile();
@@ -60,39 +79,39 @@ public class DBDebugUtil {
 
     @Nullable
     public static DBEditableObjectVirtualFile getMainDatabaseFile(DBJavaMethod javaMethod) {
-        DBSchemaObject schemaObject = getMainDatabaseObject(javaMethod);
-        return schemaObject == null ? null : (DBEditableObjectVirtualFile) schemaObject.getVirtualFile();
+        DBObject object = getMainDatabaseObject(javaMethod);
+        return object == null ? null : (DBEditableObjectVirtualFile) object.getVirtualFile();
     }
 
     @Nullable
-    public static DBSchemaObject getMainDatabaseObject(DBJavaMethod method) {
+    public static DBObject getMainDatabaseObject(DBJavaMethod method) {
         return method.getOwnerClass();
     }
 
     @Nullable
     public static DBEditableObjectVirtualFile getMainDatabaseFile(DBMethod method) {
-        DBSchemaObject schemaObject = getMainDatabaseObject(method);
-        return schemaObject == null ? null : (DBEditableObjectVirtualFile) schemaObject.getVirtualFile();
+        DBObject object = getMainDatabaseObject(method);
+        return object == null ? null : (DBEditableObjectVirtualFile) object.getVirtualFile();
     }
 
     @Nullable
-    public static DBSchemaObject getMainDatabaseObject(DBMethod method) {
+    public static DBObject getMainDatabaseObject(DBMethod method) {
         return method != null && method.isProgramMethod() ? method.getProgram() : method;
     }
 
     @Nullable
     public static DBEditableObjectVirtualFile getMainDatabaseFile(DBObjectRef<DBMethod> method) {
-        DBObjectRef<DBSchemaObject> schemaObject = getMainDatabaseObject(method);
-        if (schemaObject == null) return null;
+        DBObjectRef<DBObject> object = getMainDatabaseObject(method);
+        if (object == null) return null;
 
-        Project project = schemaObject.getProject();
+        Project project = object.getProject();
         if (project == null) return null;
 
         DatabaseFileSystem databaseFileSystem = DatabaseFileSystem.getInstance();
-        return databaseFileSystem.findOrCreateDatabaseFile(project, schemaObject);
+        return databaseFileSystem.findOrCreateDatabaseFile(project, object);
     }
 
-    public static DBObjectRef<DBSchemaObject> getMainDatabaseObject(DBObjectRef<DBMethod> method) {
+    public static DBObjectRef<DBObject> getMainDatabaseObject(DBObjectRef<DBMethod> method) {
         if (method == null) return null;
         if (method.isSchemaObject()) return cast(method);
         return method.getParentRef(o -> o.isSchemaObject());
@@ -112,7 +131,50 @@ public class DBDebugUtil {
         }
     }
 
+    public static void guardStatementExecution(
+            XDebugSession session,
+            @Nullable StatementExecutionInput executionInput) {
+        if (executionInput == null) return;
+
+        StatementExecutionProcessor executionProcessor = executionInput.getExecutionProcessor();
+        if (executionProcessor == null) return;
+
+        ExecutablePsiElement executable = executionProcessor.getCachedExecutable();
+        if (isNotValid(executable)) return;
+
+        Document document = Documents.getDocument(executable.getFile());
+        if (document == null) return;
+
+        SourceCodeManager.getInstance(session.getProject());
+        TextRange textRange = executable.getTextRange();
+        RangeMarker rangeMarker = document.createRangeMarker(textRange);
+        rangeMarker.setGreedyToLeft(false);
+        rangeMarker.setGreedyToRight(false);
+        executionInput.setExecutableRangeMarker(rangeMarker);
+
+        createGuardedBlock(
+                document,
+                DEBUGGER_EXECUTION,
+                textRange.getStartOffset(),
+                textRange.getEndOffset(),
+                txt("app.debugger.hint.AnonymousBlockUnderDebug"));
+
+        session.addSessionListener(new XDebugSessionListener() {
+            @Override
+            public void sessionStopped() {
+                removeGuardedBlocks(document, DEBUGGER_EXECUTION);
+                executionInput.clearExecutableRangeMarker(rangeMarker);
+                rangeMarker.dispose();
+            }
+        });
+    }
+
+    @Compatibility
     public static boolean isToolwindowSplit() {
-        return Registry.is("xdebugger.toolwindow.split");
+        boolean splitApiAvailable = Reflection.findMethod(
+                XDebuggerManager.class,
+                "newSessionBuilder",
+                XDebugProcessStarter.class) != null;
+        return Registry.is(TOOLWINDOW_SPLIT_REGISTRY_KEY, splitApiAvailable);
     }
 }

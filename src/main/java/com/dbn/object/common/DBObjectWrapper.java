@@ -52,7 +52,8 @@ public class DBObjectWrapper<T extends DBObject> {
     }
 
     protected SchemaId getOwnerId() {
-        return getObject().getSchemaId();
+        T object = getObject();
+        return object.isSchemaObject() ? object.getSchemaId() : null;
     }
 
     @NotNull

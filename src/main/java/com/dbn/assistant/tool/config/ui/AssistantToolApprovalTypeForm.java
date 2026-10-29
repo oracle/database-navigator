@@ -22,28 +22,28 @@ import com.dbn.assistant.tool.AssistantToolData;
 import com.dbn.assistant.tool.AssistantToolType;
 import com.dbn.assistant.tool.approval.AssistantToolApprovalStatus;
 import com.dbn.assistant.tool.approval.AssistantToolApprovalUtil;
-import com.dbn.common.color.Colors;
+import com.dbn.common.ui.info.DBNTextBlock;
 import com.dbn.common.ui.misc.DBNToggleButton;
 import com.dbn.common.ui.util.Fonts;
-import com.intellij.util.ui.UIUtil;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextPane;
 
 import static com.dbn.assistant.tool.AssistantToolData.getToolDisplayDescription;
 import static com.dbn.assistant.tool.AssistantToolData.getToolDisplayName;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.APPROVED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.BLOCKED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.PROMPTED;
+import static com.dbn.common.color.Colors.getContextHelpForeground;
+import static com.dbn.common.color.Colors.getLabelDisabledForeground;
 import static com.dbn.common.constant.Constant.array;
 import static com.dbn.common.dispose.Failsafe.nn;
 
 public class AssistantToolApprovalTypeForm extends AssistantToolApprovalItemForm {
     private JPanel mainPanel;
     private JLabel nameLabel;
-    private JTextPane descriptionTextPane;
+    private DBNTextBlock descriptionBlock;
     private DBNToggleButton<AssistantToolApprovalStatus> statusToggle;
 
     private final AssistantToolType type;
@@ -92,8 +92,8 @@ public class AssistantToolApprovalTypeForm extends AssistantToolApprovalItemForm
         AssistantTool assistantTool = getAssistantTool();
         String toolDescription = getToolDisplayDescription(assistantTool);
 
-        descriptionTextPane.setForeground(Colors.faded(UIUtil.getLabelForeground()));
-        descriptionTextPane.setText(toolDescription);
+        descriptionBlock.setForeground(getContextHelpForeground());
+        descriptionBlock.setText(toolDescription);
     }
 
     private AssistantToolApprovalCategoryForm getCategoryForm() {
@@ -135,9 +135,9 @@ public class AssistantToolApprovalTypeForm extends AssistantToolApprovalItemForm
         statusToggle.setEnabled(controlEnabled);
         nameLabel.setEnabled(contentEnabled);
 
-        descriptionTextPane.setForeground(contentEnabled ?
-                Colors.faded(UIUtil.getLabelForeground()):
-                UIUtil.getLabelDisabledForeground());
+        descriptionBlock.setForeground(contentEnabled ?
+                getContextHelpForeground():
+                getLabelDisabledForeground());
     }
 
     @Override

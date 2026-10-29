@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.connection.session.DatabaseSession;
 import com.dbn.ddl.DDLFileAttachmentManager;
 import com.dbn.object.DBSchema;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.vfs.DBVirtualFile;
 import com.dbn.vfs.DatabaseFileSystem;
@@ -165,14 +165,14 @@ public class FileConnectionContextRegistry extends StatefulDisposableBase implem
     }
 
     @Nullable
-    private <T> T resolveDdlAttachment(@NotNull VirtualFile file, Function<DBObjectRef<DBSchemaObject>, T> handler) {
+    private <T> T resolveDdlAttachment(@NotNull VirtualFile file, Function<DBObjectRef<DBObject>, T> handler) {
         if (!isLocalFileSystem(file)) return null;
 
         // if the file is an attached ddl file, then resolve the object which it is
         // linked to, and return its parent schema
         Project project = getProject();
         DDLFileAttachmentManager fileAttachmentManager = DDLFileAttachmentManager.getInstance(project);
-        DBObjectRef<DBSchemaObject> object = fileAttachmentManager.getMappedObjectRef(file);
+        DBObjectRef<DBObject> object = fileAttachmentManager.getMappedObjectRef(file);
         if (object != null && DatabaseFileSystem.isFileOpened(object)) {
             return handler.apply(object);
         }

@@ -14,12 +14,10 @@ import com.dbn.object.DBCredential;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.common.ui.DBObjectSelector;
-import com.dbn.object.factory.ObjectFactoryManager;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBMiningModelSourceType;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -104,10 +102,7 @@ public class DBMiningModelFactoryInputForm extends DBSchemaObjectFactoryInputFor
 
     @Override
     protected void initStatePersistence() {
-        Project project = ensureProject();
-        ObjectFactoryManager factoryManager = ObjectFactoryManager.getInstance(project);
-
-        StateAttributes state = factoryManager.getState(getObjectType());
+        StateAttributes state = getUserInterfaceState();
         initPersistence(sourceComboBox, state, "model-source-selection");
         initPersistence(preserveCaseCheckBox, state, "preserve-identifier-case");
     }
@@ -128,7 +123,7 @@ public class DBMiningModelFactoryInputForm extends DBSchemaObjectFactoryInputFor
         schemaComboBox.setEnabled(false); // TODO support connection switch
 
         // model source combo-box
-        DBMiningModelSourceType sourceType = MINING_MODEL_SOURCE_TYPE.of(input);
+        DBMiningModelSourceType sourceType = MINING_MODEL_SOURCE_TYPE.value(input);
         initComboBox(sourceComboBox, DBMiningModelSourceType.values());
         setSelection(sourceComboBox, sourceType == null ? MODEL_FILE : sourceType);
         onSelectionChange(sourceComboBox, e -> updateFieldAvailability());
@@ -259,7 +254,7 @@ public class DBMiningModelFactoryInputForm extends DBSchemaObjectFactoryInputFor
     @Override
     public void resetFormChanges() {
         nameTextField.setText(input.getObjectName());
-        modelFileTextField.setText(MINING_MODEL_SOURCE_LOCATION.of(input));
+        modelFileTextField.setText(MINING_MODEL_SOURCE_LOCATION.value(input));
     }
 
     private DBMiningModelSourceType getModelSourceType() {

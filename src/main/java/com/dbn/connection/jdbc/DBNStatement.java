@@ -167,7 +167,7 @@ public class DBNStatement<T extends Statement> extends DBNResource<T> implements
             throw e;
         } catch (SQLException e) {
             conditionallyLog(e);
-            Resources.close(DBNStatement.this);
+            Resources.close(this);
             connection.reevaluateStatus();
             throw e;
         } finally {

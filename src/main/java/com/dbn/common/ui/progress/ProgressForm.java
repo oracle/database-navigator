@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,9 @@
 
 package com.dbn.common.ui.progress;
 
-import com.dbn.common.color.Colors;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.UserInterface;
 import com.intellij.openapi.Disposable;
-import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
@@ -28,6 +26,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
+import static com.dbn.common.color.Colors.getContextHelpForeground;
 import static com.dbn.common.util.Commons.nvl;
 
 public class ProgressForm extends DBNFormBase {
@@ -39,7 +38,7 @@ public class ProgressForm extends DBNFormBase {
     public ProgressForm(@Nullable Disposable parent) {
         super(parent);
         progressBar.setBorder(null);
-        progressText2Label.setForeground(Colors.faded(UIUtil.getLabelForeground()));
+        progressText2Label.setForeground(getContextHelpForeground());
         progressTextLabel.setText(" ");
         progressText2Label.setText(" ");
     }

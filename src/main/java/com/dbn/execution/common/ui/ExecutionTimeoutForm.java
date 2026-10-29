@@ -25,12 +25,12 @@ import com.dbn.common.util.Actions;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.execution.ExecutionInput;
 import com.dbn.execution.common.options.ExecutionTimeoutSettings;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
-import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JLabel;
@@ -38,6 +38,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
 
+import static com.dbn.common.color.Colors.getLabelDisabledForeground;
+import static com.dbn.common.color.Colors.getTextFieldForeground;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
@@ -64,8 +66,8 @@ public abstract class ExecutionTimeoutForm extends DBNFormBase {
         timeout = getInputTimeout();
         executionTimeoutTextField.setText(String.valueOf(timeout));
         executionTimeoutTextField.setForeground(timeout == getSettingsTimeout() ?
-                UIUtil.getLabelDisabledForeground() :
-                UIUtil.getTextFieldForeground());
+                getLabelDisabledForeground() :
+                getTextFieldForeground());
 
 
         onTextChange(executionTimeoutTextField, e -> updateErrorMessage());
@@ -85,20 +87,20 @@ public abstract class ExecutionTimeoutForm extends DBNFormBase {
         try {
             timeout = Integer.parseInt(text);
             executionTimeoutTextField.setForeground(timeout == getSettingsTimeout() ?
-                    UIUtil.getLabelDisabledForeground() :
-                    UIUtil.getTextFieldForeground());
+                    getLabelDisabledForeground() :
+                    getTextFieldForeground());
 
             if (debuggerType.isDebug())
                 executionInput.setDebugExecutionTimeout(timeout); else
                 executionInput.setExecutionTimeout(timeout);
             hintLabel.setIcon(null);
-            hintLabel.setToolTipText(null);
+            Tooltips.setToolTipText(hintLabel, null);
             hasErrors = false;
             handleChange(false);
         } catch (NumberFormatException e1) {
             conditionallyLog(e1);
             hintLabel.setIcon(Icons.COMMON_ERROR);
-            hintLabel.setToolTipText(txt("app.execution.tooltip.TimeoutMustBeInteger"));
+            Tooltips.setToolTipText(hintLabel, txt("app.execution.tooltip.TimeoutMustBeInteger"));
             hasErrors = true;
             handleChange(true);
         }

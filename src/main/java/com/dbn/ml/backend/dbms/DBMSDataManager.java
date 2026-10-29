@@ -20,10 +20,10 @@ import com.dbn.common.Priority;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseMachineLearningInterface;
-import com.dbn.ml.backend.model.MLTrainingContext;
 import com.dbn.ml.model.MLTaskType;
-import com.dbn.ml.model.source.MLFileSourceConfig;
-import com.dbn.ml.util.MLCSVParser;
+import com.dbn.ml.request.execution.MLTrainingContext;
+import com.dbn.ml.request.model.source.MLFileSourceConfig;
+import com.dbn.ml.request.util.MLCSVParser;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
 
+import static com.dbn.ml.MLResourceLimits.MAX_ML_TEXT_LENGTH;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
@@ -202,16 +203,16 @@ public class DBMSDataManager {
         StringJoiner columnDefs = new StringJoiner(", ");
         for (int i = 0; i < featureColumns.size(); i++) {
             columnDefs.add(featureColumns.get(i) +
-                    (numericFeatures[i] ? " NUMBER" : " VARCHAR2(" + MLCSVParser.MAX_TEXT_LENGTH + ")"));
+                    (numericFeatures[i] ? " NUMBER" : " VARCHAR2(" + MAX_ML_TEXT_LENGTH + ")"));
         }
         for (String labelColumn : labelColumns) {
             columnDefs.add(labelColumn +
-                    (isClassification ? " VARCHAR2(" + MLCSVParser.MAX_TEXT_LENGTH + ")" : " NUMBER"));
+                    (isClassification ? " VARCHAR2(" + MAX_ML_TEXT_LENGTH + ")" : " NUMBER"));
         }
         // Partition columns must be present in the input table for ODMS_PARTITION_COLUMNS
         for (int i = 0; i < partitionColumns.size(); i++) {
             columnDefs.add(partitionColumns.get(i) +
-                    (numericPartitions[i] ? " NUMBER" : " VARCHAR2(" + MLCSVParser.MAX_TEXT_LENGTH + ")"));
+                    (numericPartitions[i] ? " NUMBER" : " VARCHAR2(" + MAX_ML_TEXT_LENGTH + ")"));
         }
 
         // Execute create table

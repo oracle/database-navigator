@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import com.dbn.common.ui.tree.Trees;
 import com.dbn.connection.ConnectionId;
 import com.dbn.execution.common.message.ui.tree.MessagesTreeBundleNode;
 import com.dbn.execution.compiler.CompilerMessage;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import org.jetbrains.annotations.Nullable;
@@ -30,9 +30,9 @@ import javax.swing.tree.TreePath;
 import java.util.List;
 
 public class CompilerMessagesObjectNode extends MessagesTreeBundleNode<CompilerMessagesNode, CompilerMessageNode> {
-    private final DBObjectRef<DBSchemaObject> object;
+    private final DBObjectRef<DBObject> object;
 
-    CompilerMessagesObjectNode(CompilerMessagesNode parent, DBObjectRef<DBSchemaObject> object) {
+    CompilerMessagesObjectNode(CompilerMessagesNode parent, DBObjectRef<DBObject> object) {
         super(parent);
         this.object = object;
     }
@@ -40,9 +40,9 @@ public class CompilerMessagesObjectNode extends MessagesTreeBundleNode<CompilerM
     @Override
     @Nullable
     public DBEditableObjectVirtualFile getFile() {
-        DBSchemaObject schemaObject = getObject();
-        if (schemaObject != null) {
-            return schemaObject.getEditableVirtualFile();
+        DBObject object = getObject();
+        if (object != null) {
+            return object.getEditableVirtualFile();
         }
         return null;
     }
@@ -54,11 +54,11 @@ public class CompilerMessagesObjectNode extends MessagesTreeBundleNode<CompilerM
     }
 
     @Nullable
-    public DBSchemaObject getObject() {
+    public DBObject getObject() {
         return DBObjectRef.get(object);
     }
 
-    public DBObjectRef<DBSchemaObject> getObjectRef() {
+    public DBObjectRef<DBObject> getObjectRef() {
         return object;
     }
 

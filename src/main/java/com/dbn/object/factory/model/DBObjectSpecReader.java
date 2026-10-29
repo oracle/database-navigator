@@ -33,6 +33,7 @@ import java.util.Set;
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.util.Unsafe.cast;
 
 @UtilityClass
 public class DBObjectSpecReader {
@@ -90,7 +91,7 @@ public class DBObjectSpecReader {
         var attributeName = stringAttribute(element, "name");
         var attributeValue = stringAttribute(element, "value");
         var attributeType = DBObjectAttributeType.get(attributeName);
-        var attributeClass = attributeType.getType();
+        Class<?> attributeClass = cast(attributeType.getValueType());
 
         Object value = Data.asType(attributeValue, attributeClass);
         DBObjectAttribute attribute = definition.setAttributeValue(attributeType, value);

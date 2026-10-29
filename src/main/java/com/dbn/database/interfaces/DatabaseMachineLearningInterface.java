@@ -18,7 +18,7 @@ package com.dbn.database.interfaces;
 
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.jdbc.DBNResultSet;
-import com.dbn.ml.backend.model.MLPredictionAttribute;
+import com.dbn.ml.prediction.MLPredictionAttribute;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -51,13 +51,15 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
 
     /**
      * Drops a model.
+     * Owner and model names are required raw, unqualified identifiers.
      */
-    void dropModel(DBNConnection conn, String modelName) throws SQLException;
+    void dropModel(DBNConnection conn, String ownerName, String modelName) throws SQLException;
 
     /**
      * Renames a model using DBMS_DATA_MINING.RENAME_MODEL.
+     * Owner and model names are required raw, unqualified identifiers.
      */
-    void renameModel(DBNConnection conn, String oldModelName, String newModelName) throws SQLException;
+    void renameModel(DBNConnection conn, String ownerName, String oldModelName, String newModelName) throws SQLException;
 
     // ==================== DATA SPLITTING ====================
 
@@ -126,6 +128,7 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
      */
     String buildPredictionStatement(
             DBNConnection conn,
+            String modelSchemaName,
             String modelName,
             List<MLPredictionAttribute> attributes,
             boolean withProbability) throws SQLException;
@@ -135,6 +138,7 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
      */
     DBNResultSet predict(
             DBNConnection conn,
+            String modelSchemaName,
             String modelName,
             List<MLPredictionAttribute> attributes,
             List<Object> values,
@@ -147,6 +151,7 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
     void createApplyResults(
             DBNConnection conn,
             String applyResultTableName,
+            String modelSchemaName,
             String modelName,
             String testTableName
     ) throws SQLException;
@@ -158,6 +163,7 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
     void createApplyResultsRegression(
             DBNConnection conn,
             String applyResultTableName,
+            String modelSchemaName,
             String modelName,
             String testTableName
     ) throws SQLException;
@@ -247,6 +253,7 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
      */
     ResultSet getClassificationAccuracy(
             DBNConnection conn,
+            String modelSchemaName,
             String modelName,
             String targetColumn,
             String dataTableName
@@ -257,6 +264,7 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
      */
     ResultSet getConfusionMatrix(
             DBNConnection conn,
+            String modelSchemaName,
             String modelName,
             String targetColumn,
             String dataTableName
@@ -267,6 +275,7 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
      */
     ResultSet getRegressionMetrics(
             DBNConnection conn,
+            String modelSchemaName,
             String modelName,
             String targetColumn,
             String dataTableName
@@ -280,7 +289,7 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
      *
      * @return ResultSet with columns: NAME, NUMERIC_VALUE, STRING_VALUE
      */
-    ResultSet getModelGlobalStats(DBNConnection conn, String modelName) throws SQLException;
+    ResultSet getModelGlobalStats(DBNConnection conn, String modelSchemaName, String modelName) throws SQLException;
 
     /**
      * Queries the attribute importance / detail view (DM$VA) for a model.
@@ -289,7 +298,7 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
      *
      * @return ResultSet with algorithm-specific columns
      */
-    ResultSet getModelAttributeDetails(DBNConnection conn, String modelName) throws SQLException;
+    ResultSet getModelAttributeDetails(DBNConnection conn, String modelSchemaName, String modelName) throws SQLException;
 
     /**
      * Queries the computed settings view (DM$VS) for a model.
@@ -297,56 +306,56 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
      *
      * @return ResultSet with columns: SETTING_NAME, SETTING_VALUE
      */
-    ResultSet getModelComputedSettings(DBNConnection conn, String modelName) throws SQLException;
+    ResultSet getModelComputedSettings(DBNConnection conn, String modelSchemaName, String modelName) throws SQLException;
 
     /**
      * Queries the build alerts view (DM$VW) for a model — all algorithms.
      *
      * @return ResultSet with columns: ERROR_NUMBER, ERROR_TEXT
      */
-    ResultSet getModelAlerts(DBNConnection conn, String modelName) throws SQLException;
+    ResultSet getModelAlerts(DBNConnection conn, String modelSchemaName, String modelName) throws SQLException;
 
     /**
-     * Gets the detail views created for a model from USER_MINING_MODEL_VIEWS.
+     * Gets the detail views created for a model from ALL_MINING_MODEL_VIEWS.
      *
      * @return ResultSet with columns: VIEW_NAME, VIEW_TYPE
      */
-    ResultSet getModelDetailViews(DBNConnection conn, String modelName) throws SQLException;
+    ResultSet getModelDetailViews(DBNConnection conn, String modelSchemaName, String modelName) throws SQLException;
 
     /**
      * Queries GLM coefficients (DM$VD) — Logistic Regression and Linear Regression.
      *
      * @return ResultSet with columns: ATTRIBUTE_NAME, ATTRIBUTE_VALUE, COEFFICIENT, STD_ERROR, TEST_STATISTIC, P_VALUE, VIF
      */
-    ResultSet getModelGLMCoefficients(DBNConnection conn, String modelName) throws SQLException;
+    ResultSet getModelGLMCoefficients(DBNConnection conn, String modelSchemaName, String modelName) throws SQLException;
 
     /**
      * Queries SVM linear coefficients (DM$VL) — SVM Classification and SVM Regression.
      *
      * @return ResultSet with columns: ATTRIBUTE_NAME, ATTRIBUTE_VALUE, COEFFICIENT
      */
-    ResultSet getModelSVMCoefficients(DBNConnection conn, String modelName) throws SQLException;
+    ResultSet getModelSVMCoefficients(DBNConnection conn, String modelSchemaName, String modelName) throws SQLException;
 
     /**
      * Queries Decision Tree splits (DM$VP) — Decision Tree only.
      *
      * @return ResultSet with columns: NODE, PARENT, ATTRIBUTE_NAME, OPERATOR, VALUE
      */
-    ResultSet getModelTreeSplits(DBNConnection conn, String modelName) throws SQLException;
+    ResultSet getModelTreeSplits(DBNConnection conn, String modelSchemaName, String modelName) throws SQLException;
 
     /**
      * Queries Naive Bayes class priors (DM$VP) — Naive Bayes only.
      *
      * @return ResultSet with columns: TARGET_VALUE, PRIOR_PROBABILITY, COUNT
      */
-    ResultSet getModelNaiveBayesPriors(DBNConnection conn, String modelName) throws SQLException;
+    ResultSet getModelNaiveBayesPriors(DBNConnection conn, String modelSchemaName, String modelName) throws SQLException;
 
     /**
      * Queries Naive Bayes top conditional probabilities (DM$VV) — Naive Bayes only.
      *
      * @return ResultSet with columns: TARGET_VALUE, ATTRIBUTE_NAME, ATTRIBUTE_VALUE, CONDITIONAL_PROBABILITY
      */
-    ResultSet getModelNaiveBayesConditionals(DBNConnection conn, String modelName) throws SQLException;
+    ResultSet getModelNaiveBayesConditionals(DBNConnection conn, String modelSchemaName, String modelName) throws SQLException;
 
     // ==================== CLOUD OBJECT STORAGE ====================
 
@@ -426,26 +435,26 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
     ResultSet getClassValues(DBNConnection conn, String columnName, String tableName) throws SQLException;
 
     /**
-     * Gets existing model names from USER_MINING_MODELS.
+     * Gets existing model names from the selected schema's ALL_MINING_MODELS rows.
      *
      * @return ResultSet with column MODEL_NAME
      */
-    ResultSet getExistingModelNames(DBNConnection conn) throws SQLException;
+    ResultSet getExistingModelNames(DBNConnection conn, String modelSchemaName) throws SQLException;
 
     /**
-     * Gets the INPUT feature attributes for an existing model from USER_MINING_MODEL_ATTRIBUTES.
+     * Gets the INPUT feature attributes for an existing model from ALL_MINING_MODEL_ATTRIBUTES.
      * Excludes TARGET, CASE_ID, PARTITION, and SUPPLEMENTARY columns.
      *
      * @return ResultSet with column ATTRIBUTE_NAME
      */
-    ResultSet getModelInputAttributes(DBNConnection conn, String modelName) throws SQLException;
+    ResultSet getModelInputAttributes(DBNConnection conn, String modelSchemaName, String modelName) throws SQLException;
 
     /**
      * Gets the mining function (CLASSIFICATION or REGRESSION) for an existing model.
      *
      * @return "CLASSIFICATION" or "REGRESSION", or null if not found
      */
-    String getModelFunction(DBNConnection conn, String modelName) throws SQLException;
+    String getModelFunction(DBNConnection conn, String modelSchemaName, String modelName) throws SQLException;
 
     // ==================== ASYNC TRAINING ====================
 
@@ -523,5 +532,5 @@ public interface DatabaseMachineLearningInterface extends DatabaseInterface {
      *             where they were not among the top contributors, biasing the average
      * @return ResultSet with columns: ATTRIBUTE_NAME, CONTRIBUTION, OCCURRENCES
      */
-    ResultSet getAttributeContribution(DBNConnection conn, String modelName, String testTableName, int topN) throws SQLException;
+    ResultSet getAttributeContribution(DBNConnection conn, String modelSchemaName, String modelName, String testTableName, int topN) throws SQLException;
 }

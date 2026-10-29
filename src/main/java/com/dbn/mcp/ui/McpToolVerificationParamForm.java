@@ -12,6 +12,7 @@ import com.dbn.data.editor.ui.TextFieldWithPopup;
 import com.dbn.data.type.GenericDataType;
 import com.dbn.execution.statement.variables.StatementExecutionVariable;
 import com.dbn.execution.statement.variables.VariableValueProvider;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -30,6 +31,7 @@ import static com.dbn.common.ui.util.Accessibility.setAccessibleDescription;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.common.ui.util.Tooltips.setHtmlToolTipText;
 import static com.dbn.nls.NlsResources.txt;
 
 public class McpToolVerificationParamForm extends DBNFormBase {
@@ -39,7 +41,7 @@ public class McpToolVerificationParamForm extends DBNFormBase {
     private DBNComboBox<GenericDataType> dataTypeComboBox;
 
     private final StatementExecutionVariable variable;
-    private final TextFieldWithPopup<?> editorComponent;
+    private final TextFieldWithPopup editorComponent;
     private final Runnable previewUpdater;
 
     public McpToolVerificationParamForm(
@@ -61,7 +63,7 @@ public class McpToolVerificationParamForm extends DBNFormBase {
 
         dataTypeComboBox.setSelectedValue(variable.getDataType());
 
-        editorComponent = new TextFieldWithPopup<>(project);
+        editorComponent = new TextFieldWithPopup(project);
         editorComponent.createCalendarPopup(false);
         editorComponent.setPopupEnabled(TextFieldPopupType.CALENDAR, variable.getDataType() == GenericDataType.DATE_TIME);
 
@@ -93,7 +95,7 @@ public class McpToolVerificationParamForm extends DBNFormBase {
             validateInput(textField);
         });
 
-        textField.setToolTipText(txt("app.shared.tooltip.ChangeVariableDataType"));
+        setHtmlToolTipText(textField, txt("app.shared.tooltip.ChangeVariableDataType"));
         Disposer.register(this, editorComponent);
     }
 

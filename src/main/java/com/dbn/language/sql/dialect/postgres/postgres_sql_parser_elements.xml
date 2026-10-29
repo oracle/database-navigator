@@ -2984,7 +2984,7 @@
     </element-def>
 
     <!-- ========= alter ========= -->
-    <element-def attributes="SCOPE_ISOLATION" description="ALTER statement" id="alter_statement">
+    <element-def attributes="SCOPE_ISOLATION, TRANSACTIONAL" description="ALTER statement" id="alter_statement">
         <one-of id="01685">
             <element ref-id="alter_aggregate_statement" version="7.4" />
             <element ref-id="alter_collation_statement" version="9.1" />
@@ -6336,7 +6336,7 @@
         <token type-id="KW_ALTER" id="03886" />
         <token type-id="KW_EVENT" id="03887" />
         <token type-id="KW_TRIGGER" id="03888" />
-        <object-ref attributes="SUBJECT" original-name="name" type="TRIGGER" id="03889" />
+        <object-ref attributes="SUBJECT" original-name="name" type="EVENT_TRIGGER" id="03889" />
         <one-of id="03890">
             <token type-id="KW_DISABLE" id="03891" />
             <sequence id="03892">
@@ -6359,7 +6359,7 @@
             <sequence id="03905">
                 <token type-id="KW_RENAME" id="03906" />
                 <token type-id="KW_TO" id="03907" />
-                <object-def original-name="new_name" type="TRIGGER" id="03908" />
+                <object-def original-name="new_name" type="EVENT_TRIGGER" id="03908" />
             </sequence>
         </one-of>
     </element-def>
@@ -7059,7 +7059,7 @@
     </element-def>
 
     <!-- ========= refresh materialized view ========= -->
-    <element-def attributes="DATA_MANIPULATION, SPECIFIC" description="REFRESH MATERIALIZED VIEW statement" id="refresh_materialized_view_statement">
+    <element-def attributes="DATA_MANIPULATION, TRANSACTIONAL, SPECIFIC" description="REFRESH MATERIALIZED VIEW statement" id="refresh_materialized_view_statement">
         <token type-id="KW_REFRESH" id="04362" />
         <token type-id="KW_MATERIALIZED" id="04363" />
         <token type-id="KW_VIEW" id="04364" />
@@ -7444,7 +7444,7 @@
     </element-def>
 
     <!-- ========= drop ========= -->
-    <element-def attributes="SCOPE_ISOLATION" description="DROP statement" id="drop_statement">
+    <element-def attributes="SCOPE_ISOLATION, TRANSACTIONAL" description="DROP statement" id="drop_statement">
         <one-of id="04603">
             <element ref-id="drop_access_method_statement" version="9.6" />
             <element ref-id="drop_aggregate_statement" version="7.3" />
@@ -7505,7 +7505,7 @@
         <token type-id="KW_ACCESS" id="04608" />
         <token type-id="KW_METHOD" id="04609" />
         <element optional="true" ref-id="if_exists_clause" version="9.6" />
-        <object-def attributes="SUBJECT" type="ANY" id="04610" />
+        <object-ref attributes="SUBJECT" type="ANY" id="04610" />
         <element optional="true" ref-id="drop_behavior" />
     </element-def>
 
@@ -7519,7 +7519,7 @@
                 <qualified-identifier id="04615">
                     <variant>
                         <object-ref optional="true" type="SCHEMA" id="04616" />
-                        <object-def attributes="SUBJECT" type="FUNCTION" id="04617" />
+                        <object-ref attributes="SUBJECT" type="FUNCTION" id="04617" />
                     </variant>
                 </qualified-identifier>
                 <wrapper template="PARENTHESES" id="04618">
@@ -7591,7 +7591,7 @@
         <qualified-identifier id="04650">
             <variant>
                 <object-ref optional="true" type="SCHEMA" id="04651" />
-                <object-def attributes="SUBJECT" type="COLLATION" id="04652" />
+                <object-ref attributes="SUBJECT" type="COLLATION" id="04652" />
             </variant>
         </qualified-identifier>
         <element optional="true" ref-id="drop_behavior" />
@@ -7605,7 +7605,7 @@
         <qualified-identifier id="04655">
             <variant>
                 <object-ref optional="true" type="SCHEMA" id="04656" />
-                <object-def attributes="SUBJECT" type="CONVERSION" id="04657" />
+                <object-ref attributes="SUBJECT" type="CONVERSION" id="04657" />
             </variant>
         </qualified-identifier>
         <element optional="true" ref-id="drop_behavior" />
@@ -7616,7 +7616,7 @@
         <token type-id="KW_DROP" id="04658" />
         <token type-id="KW_DATABASE" id="04659" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="DATABASE" id="04660" />
+        <object-ref attributes="SUBJECT" type="DATABASE" id="04660" />
     </element-def>
 
     <!-- ========= drop domain ========= -->
@@ -7627,7 +7627,7 @@
         <qualified-identifier id="04663">
             <variant>
                 <object-ref optional="true" type="SCHEMA" id="04664" />
-                <object-def attributes="SUBJECT" type="DOMAIN" id="04665" />
+                <object-ref attributes="SUBJECT" type="DOMAIN" id="04665" />
             </variant>
         </qualified-identifier>
         <element optional="true" ref-id="drop_behavior" />
@@ -7639,7 +7639,7 @@
         <token type-id="KW_EVENT" id="04667" />
         <token type-id="KW_TRIGGER" id="04668" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="EVENT_TRIGGER" id="04669" />
+                <object-ref attributes="SUBJECT" type="EVENT_TRIGGER" id="04669" />
         <element optional="true" ref-id="drop_behavior" />
     </element-def>
 
@@ -7648,7 +7648,7 @@
         <token type-id="KW_DROP" id="04670" />
         <token type-id="KW_EXTENSION" id="04671" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="EXTENSION" id="04672" />
+        <object-ref attributes="SUBJECT" type="EXTENSION" id="04672" />
         <element optional="true" ref-id="drop_behavior" />
     </element-def>
 
@@ -7659,7 +7659,7 @@
         <token type-id="KW_DATA" id="04675" />
         <token type-id="KW_WRAPPER" id="04676" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="FOREIGN_DATA_WRAPPER" id="04677" />
+        <object-ref attributes="SUBJECT" type="FOREIGN_DATA_WRAPPER" id="04677" />
         <element optional="true" ref-id="drop_behavior" />
     </element-def>
 
@@ -7672,7 +7672,7 @@
         <qualified-identifier id="04681">
             <variant>
                 <object-ref optional="true" type="SCHEMA" id="04682" />
-                <object-def attributes="SUBJECT" type="FOREIGN_TABLE" id="04683" />
+                <object-ref attributes="SUBJECT" type="FOREIGN_TABLE" id="04683" />
             </variant>
         </qualified-identifier>
         <element optional="true" ref-id="drop_behavior" />
@@ -7686,7 +7686,7 @@
         <qualified-identifier id="04686">
             <variant>
                 <object-ref optional="true" type="SCHEMA" id="04687" />
-                <object-def attributes="SUBJECT" type="FUNCTION" id="04688" />
+                <object-ref attributes="SUBJECT" type="FUNCTION" id="04688" />
             </variant>
         </qualified-identifier>
         <wrapper template="PARENTHESES" id="04689" optional="true">
@@ -7701,7 +7701,7 @@
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP GROUP statement" id="drop_group_statement">
         <token type-id="KW_DROP" id="04691" />
         <token type-id="KW_GROUP" id="04692" />
-        <object-def attributes="SUBJECT" type="ROLE" id="04693" />
+        <object-ref attributes="SUBJECT" type="ROLE" id="04693" />
     </element-def>
 
     <!-- ========= drop index ========= -->
@@ -7712,7 +7712,7 @@
         <qualified-identifier id="04696">
             <variant>
                 <object-ref optional="true" type="SCHEMA" id="04697" />
-                <object-def attributes="SUBJECT" type="INDEX" id="04698" />
+                <object-ref attributes="SUBJECT" type="INDEX" id="04698" />
             </variant>
         </qualified-identifier>
         <element optional="true" ref-id="drop_behavior" />
@@ -7723,7 +7723,7 @@
         <token type-id="KW_DROP" id="04699" />
         <token type-id="KW_LANGUAGE" id="04700" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="LANGUAGE" id="04701" />
+        <object-ref attributes="SUBJECT" type="LANGUAGE" id="04701" />
         <element optional="true" ref-id="drop_behavior" />
     </element-def>
 
@@ -7736,7 +7736,7 @@
         <qualified-identifier id="04705">
             <variant>
                 <object-ref optional="true" type="SCHEMA" id="04706" />
-                <object-def attributes="SUBJECT" type="MATERIALIZED_VIEW" id="04707" />
+                <object-ref attributes="SUBJECT" type="MATERIALIZED_VIEW" id="04707" />
             </variant>
         </qualified-identifier>
         <element optional="true" ref-id="drop_behavior" />
@@ -7753,7 +7753,7 @@
                     <qualified-identifier id="04713">
                         <variant>
                             <object-ref optional="true" type="SCHEMA" id="04714" />
-                            <object-def attributes="SUBJECT" type="OPERATOR" id="04715" />
+                            <object-ref attributes="SUBJECT" type="OPERATOR" id="04715" />
                         </variant>
                     </qualified-identifier>
                     <element original-name="operator_name" ref-id="operator_name" />
@@ -7785,7 +7785,7 @@
         <qualified-identifier id="04726">
             <variant>
                 <object-ref optional="true" type="SCHEMA" id="04727" />
-                <object-def attributes="SUBJECT" type="OPERATOR_CLASS" id="04728" />
+                <object-ref attributes="SUBJECT" type="OPERATOR_CLASS" id="04728" />
             </variant>
         </qualified-identifier>
         <token type-id="KW_USING" id="04729" />
@@ -7802,7 +7802,7 @@
         <qualified-identifier id="04734">
             <variant>
                 <object-ref optional="true" type="SCHEMA" id="04735" />
-                <object-def attributes="SUBJECT" type="OPERATOR_FAMILY" id="04736" />
+                <object-ref attributes="SUBJECT" type="OPERATOR_FAMILY" id="04736" />
             </variant>
         </qualified-identifier>
         <token type-id="KW_USING" id="04737" />
@@ -7824,7 +7824,7 @@
         <token type-id="KW_DROP" id="04743" />
         <token type-id="KW_POLICY" id="04744" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="POLICY" id="04745" />
+        <object-ref attributes="SUBJECT" type="POLICY" id="04745" />
         <token type-id="KW_ON" id="04746" />
         <qualified-identifier id="04747">
             <variant>
@@ -7843,7 +7843,7 @@
         <qualified-identifier id="04752">
             <variant>
                 <object-ref optional="true" type="SCHEMA" id="04753" />
-                <object-def attributes="SUBJECT" type="PROCEDURE" id="04754" />
+                <object-ref attributes="SUBJECT" type="PROCEDURE" id="04754" />
             </variant>
         </qualified-identifier>
         <wrapper template="PARENTHESES" id="04755" optional="true">
@@ -7868,7 +7868,7 @@
         <token type-id="KW_DROP" id="04764" />
         <token type-id="KW_PUBLICATION" id="04765" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="PUBLICATION" id="04766" />
+        <object-ref attributes="SUBJECT" type="PUBLICATION" id="04766" />
     </element-def>
 
     <!-- ========= drop role ========= -->
@@ -7876,7 +7876,7 @@
         <token type-id="KW_DROP" id="04767" />
         <token type-id="KW_ROLE" id="04768" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="ROLE" id="04769" />
+        <object-ref attributes="SUBJECT" type="ROLE" id="04769" />
     </element-def>
 
     <!-- ========= drop routine ========= -->
@@ -7887,7 +7887,7 @@
         <qualified-identifier id="04772">
             <variant>
                 <object-ref optional="true" type="SCHEMA" id="04773" />
-                <object-def attributes="SUBJECT" type="ROUTINE" id="04774" />
+                <object-ref attributes="SUBJECT" type="ROUTINE" id="04774" />
             </variant>
         </qualified-identifier>
         <wrapper template="PARENTHESES" id="04775">
@@ -7912,7 +7912,7 @@
         <token type-id="KW_DROP" id="04784" />
         <token type-id="KW_RULE" id="04785" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="RULE" id="04786" />
+                <object-ref attributes="SUBJECT" type="RULE" id="04786" />
         <token type-id="KW_ON" id="04787" />
         <qualified-identifier id="04788">
             <variant>
@@ -7928,7 +7928,7 @@
         <token type-id="KW_DROP" id="04791" />
         <token type-id="KW_SCHEMA" id="04792" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="SCHEMA" id="04793" />
+        <object-ref attributes="SUBJECT" type="SCHEMA" id="04793" />
         <element optional="true" ref-id="drop_behavior" />
     </element-def>
 
@@ -7940,7 +7940,7 @@
         <qualified-identifier id="04796">
             <variant>
                 <object-ref optional="true" type="SCHEMA" id="04797" />
-                <object-def attributes="SUBJECT" type="SEQUENCE" id="04798" />
+                <object-ref attributes="SUBJECT" type="SEQUENCE" id="04798" />
             </variant>
         </qualified-identifier>
         <element optional="true" ref-id="drop_behavior" />
@@ -7951,7 +7951,7 @@
         <token type-id="KW_DROP" id="04799" />
         <token type-id="KW_SERVER" id="04800" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="SERVER" id="04801" />
+        <object-ref attributes="SUBJECT" type="SERVER" id="04801" />
         <element optional="true" ref-id="drop_behavior" />
     </element-def>
 
@@ -7964,7 +7964,7 @@
             <qualified-identifier id="04805">
                 <variant>
                     <object-ref optional="true" type="SCHEMA" id="04806" />
-                    <object-def attributes="SUBJECT" type="STATISTICS" id="04807" />
+                    <object-ref attributes="SUBJECT" type="STATISTICS" id="04807" />
                 </variant>
             </qualified-identifier>
         </iteration>
@@ -7976,7 +7976,7 @@
         <token type-id="KW_DROP" id="04808" />
         <token type-id="KW_SUBSCRIPTION" id="04809" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="SUBSCRIPTION" id="04810" />
+        <object-ref attributes="SUBJECT" type="SUBSCRIPTION" id="04810" />
         <element optional="true" ref-id="drop_behavior" />
     </element-def>
 
@@ -7989,7 +7989,7 @@
             <qualified-identifier id="04814">
                 <variant>
                     <object-ref optional="true" type="SCHEMA" id="04815" />
-                    <object-def attributes="SUBJECT" type="TABLE" id="04816" />
+                    <object-ref attributes="SUBJECT" type="TABLE" id="04816" />
                 </variant>
             </qualified-identifier>
         </iteration>
@@ -8001,7 +8001,7 @@
         <token type-id="KW_DROP" id="04817" />
         <token type-id="KW_TABLESPACE" id="04818" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="TABLESPACE" id="04819" />
+        <object-ref attributes="SUBJECT" type="TABLESPACE" id="04819" />
         <element optional="true" ref-id="drop_behavior" />
     </element-def>
 
@@ -8015,7 +8015,7 @@
         <qualified-identifier id="04824">
             <variant>
                 <object-ref optional="true" type="SCHEMA" id="04825" />
-                <object-def attributes="SUBJECT" type="TEXT_SEARCH_CONFIGURATION" id="04826" />
+                <object-ref attributes="SUBJECT" type="TEXT_SEARCH_CONFIGURATION" id="04826" />
             </variant>
         </qualified-identifier>
         <element optional="true" ref-id="drop_behavior" />
@@ -8031,7 +8031,7 @@
         <qualified-identifier id="04831">
             <variant>
                 <object-ref optional="true" type="SCHEMA" id="04832" />
-                <object-def attributes="SUBJECT" type="TEXT_SEARCH_DICTIONARY" id="04833" />
+                <object-ref attributes="SUBJECT" type="TEXT_SEARCH_DICTIONARY" id="04833" />
             </variant>
         </qualified-identifier>
         <element optional="true" ref-id="drop_behavior" />
@@ -8047,7 +8047,7 @@
         <qualified-identifier id="04838">
             <variant>
                 <object-ref optional="true" type="SCHEMA" id="04839" />
-                <object-def attributes="SUBJECT" type="TEXT_SEARCH_PARSER" id="04840" />
+                <object-ref attributes="SUBJECT" type="TEXT_SEARCH_PARSER" id="04840" />
             </variant>
         </qualified-identifier>
         <element optional="true" ref-id="drop_behavior" />
@@ -8063,7 +8063,7 @@
         <qualified-identifier id="04845">
             <variant>
                 <object-ref optional="true" type="SCHEMA" id="04846" />
-                <object-def attributes="SUBJECT" type="TEXT_SEARCH_TEMPLATE" id="04847" />
+                <object-ref attributes="SUBJECT" type="TEXT_SEARCH_TEMPLATE" id="04847" />
             </variant>
         </qualified-identifier>
         <element optional="true" ref-id="drop_behavior" />
@@ -8086,7 +8086,7 @@
         <token type-id="KW_DROP" id="04853" />
         <token type-id="KW_TRIGGER" id="04854" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="TRIGGER" id="04855" />
+        <object-ref attributes="SUBJECT" type="TRIGGER" id="04855" />
         <token type-id="KW_ON" id="04856" />
         <qualified-identifier id="04857">
             <variant>
@@ -8105,7 +8105,7 @@
         <qualified-identifier id="04862">
             <variant>
                 <object-ref optional="true" type="SCHEMA" id="04863" />
-                <object-def attributes="SUBJECT" type="TYPE" id="04864" />
+                <object-ref attributes="SUBJECT" type="TYPE" id="04864" />
             </variant>
         </qualified-identifier>
         <element optional="true" ref-id="drop_behavior" />
@@ -8116,7 +8116,7 @@
         <token type-id="KW_DROP" id="04865" />
         <token type-id="KW_USER" id="04866" />
         <element optional="true" ref-id="if_exists_clause" />
-        <object-def attributes="SUBJECT" type="USER" id="04867" />
+        <object-ref attributes="SUBJECT" type="USER" id="04867" />
     </element-def>
 
     <!-- ========= drop user mapping ========= -->
@@ -8532,7 +8532,7 @@
 
 
     <!-- ========= truncate ========= -->
-    <element-def attributes="DATA_MANIPULATION, SCOPE_ISOLATION, SPECIFIC" description="TRUNCATE statement" id="truncate_statement">
+    <element-def attributes="DATA_MANIPULATION, TRANSACTIONAL, SCOPE_ISOLATION, SPECIFIC" description="TRUNCATE statement" id="truncate_statement">
         <token id="05102" type-id="KW_TRUNCATE" />
         <iteration id="05103" separator="CHR_COMMA">
             <sequence id="05104">

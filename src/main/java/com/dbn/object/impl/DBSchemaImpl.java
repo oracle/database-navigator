@@ -64,8 +64,6 @@ import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.common.list.DBObjectListVisitor;
-import com.dbn.object.common.status.DBObjectStatus;
-import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.object.filter.type.ObjectTypeFilterSettings;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
@@ -87,7 +85,7 @@ import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.util.Commons.coalesce;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Unsafe.cast;
-import static com.dbn.object.common.property.DBObjectProperty.DEBUGABLE;
+import static com.dbn.object.common.property.DBObjectProperty.DEBUGGABLE;
 import static com.dbn.object.common.property.DBObjectProperty.EMPTY_SCHEMA;
 import static com.dbn.object.common.property.DBObjectProperty.INVALIDABLE;
 import static com.dbn.object.common.property.DBObjectProperty.PUBLIC_SCHEMA;
@@ -95,6 +93,8 @@ import static com.dbn.object.common.property.DBObjectProperty.ROOT_OBJECT;
 import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
 import static com.dbn.object.common.property.DBObjectProperty.SYSTEM_SCHEMA;
 import static com.dbn.object.common.property.DBObjectProperty.USER_SCHEMA;
+import static com.dbn.object.common.status.DBObjectStatus.DEBUG;
+import static com.dbn.object.common.status.DBObjectStatus.VALID;
 import static com.dbn.object.type.DBObjectRelationType.COLUMN_COLUMN;
 import static com.dbn.object.type.DBObjectRelationType.CONSTRAINT_COLUMN;
 import static com.dbn.object.type.DBObjectRelationType.INDEX_COLUMN;
@@ -124,6 +124,7 @@ import static com.dbn.object.type.DBObjectType.JSON_VIEW;
 import static com.dbn.object.type.DBObjectType.MATERIALIZED_VIEW;
 import static com.dbn.object.type.DBObjectType.MINING_MODEL;
 import static com.dbn.object.type.DBObjectType.NESTED_TABLE;
+import static com.dbn.object.type.DBObjectType.NESTED_TABLE_COLUMN;
 import static com.dbn.object.type.DBObjectType.PACKAGE;
 import static com.dbn.object.type.DBObjectType.PACKAGE_FUNCTION;
 import static com.dbn.object.type.DBObjectType.PACKAGE_PROCEDURE;
@@ -180,25 +181,26 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
         childObjects.createObjectList(DBLINK,            this);
         childObjects.createObjectList(CREDENTIAL,        this);
         childObjects.createObjectList(AI_PROFILE,        this);
-        childObjects.createObjectList(MINING_MODEL,          this);
+        childObjects.createObjectList(MINING_MODEL,      this);
         childObjects.createObjectList(DATASOURCE_CONFIG, this);
         DBObjectList<DBConstraint> constraints = childObjects.createObjectList(CONSTRAINT, this, INTERNAL, GROUPED);
         DBObjectList<DBIndex> indexes          = childObjects.createObjectList(INDEX,      this, INTERNAL, GROUPED);
         DBObjectList<DBColumn> columns         = childObjects.createObjectList(COLUMN,     this, INTERNAL, GROUPED, HIDDEN);
 
-        childObjects.createObjectList(DATASET_TRIGGER,   this, INTERNAL, GROUPED);
-        childObjects.createObjectList(NESTED_TABLE,      this, INTERNAL, GROUPED, HIDDEN);
-        childObjects.createObjectList(PACKAGE_FUNCTION,  this, INTERNAL, GROUPED, HIDDEN);
-        childObjects.createObjectList(PACKAGE_PROCEDURE, this, INTERNAL, GROUPED, HIDDEN);
-        childObjects.createObjectList(PACKAGE_TYPE,      this, INTERNAL, GROUPED, HIDDEN);
-        childObjects.createObjectList(TYPE_ATTRIBUTE,    this, INTERNAL, GROUPED, HIDDEN);
-        childObjects.createObjectList(TYPE_FUNCTION,     this, INTERNAL, GROUPED, HIDDEN);
-        childObjects.createObjectList(TYPE_PROCEDURE,    this, INTERNAL, GROUPED, HIDDEN);
-        childObjects.createObjectList(JAVA_FIELD,        this, INTERNAL, GROUPED, HIDDEN);
-        childObjects.createObjectList(JAVA_METHOD,       this, INTERNAL, GROUPED, HIDDEN);
-        childObjects.createObjectList(JAVA_PARAMETER,    this, INTERNAL, GROUPED, HIDDEN);
-        childObjects.createObjectList(JAVA_INNER_CLASS,  this, INTERNAL, GROUPED);
-        childObjects.createObjectList(ARGUMENT,          this, INTERNAL, GROUPED, HIDDEN);
+        childObjects.createObjectList(DATASET_TRIGGER,     this, INTERNAL, GROUPED);
+        childObjects.createObjectList(NESTED_TABLE,        this, INTERNAL, GROUPED, HIDDEN);
+        childObjects.createObjectList(NESTED_TABLE_COLUMN, this, INTERNAL, GROUPED, HIDDEN);
+        childObjects.createObjectList(PACKAGE_FUNCTION,    this, INTERNAL, GROUPED, HIDDEN);
+        childObjects.createObjectList(PACKAGE_PROCEDURE,   this, INTERNAL, GROUPED, HIDDEN);
+        childObjects.createObjectList(PACKAGE_TYPE,        this, INTERNAL, GROUPED, HIDDEN);
+        childObjects.createObjectList(TYPE_ATTRIBUTE,      this, INTERNAL, GROUPED, HIDDEN);
+        childObjects.createObjectList(TYPE_FUNCTION,       this, INTERNAL, GROUPED, HIDDEN);
+        childObjects.createObjectList(TYPE_PROCEDURE,      this, INTERNAL, GROUPED, HIDDEN);
+        childObjects.createObjectList(JAVA_FIELD,          this, INTERNAL, GROUPED, HIDDEN);
+        childObjects.createObjectList(JAVA_METHOD,         this, INTERNAL, GROUPED, HIDDEN);
+        childObjects.createObjectList(JAVA_PARAMETER,      this, INTERNAL, GROUPED, HIDDEN);
+        childObjects.createObjectList(JAVA_INNER_CLASS,    this, INTERNAL, GROUPED);
+        childObjects.createObjectList(ARGUMENT,            this, INTERNAL, GROUPED, HIDDEN);
 
         //ol.createHiddenObjectList(DBObjectType.TYPE_METHOD, this, TYPE_METHODS_LOADER);
 
@@ -643,14 +645,13 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
                 ProgressMonitor.checkCancelled();
 
                 if (object instanceof DBSchemaObject schemaObject) {
-                    DBObjectStatusHolder objectStatus = schemaObject.getStatus();
                     if (schemaObject.is(INVALIDABLE)) {
-                        if (objectStatus.set(DBObjectStatus.VALID, true)) {
+                        if (schemaObject.setStatus(VALID, true)) {
                             refreshNodes.add(object.getParent());
                         }
                     }
-                    if (schemaObject.is(DEBUGABLE)) {
-                        if (objectStatus.set(DBObjectStatus.DEBUG, false)) {
+                    if (schemaObject.is(DEBUGGABLE)) {
+                        if (schemaObject.setStatus(DEBUG, false)) {
                             refreshNodes.add(object.getParent());
                         }
                     }

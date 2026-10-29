@@ -25,6 +25,7 @@ import com.dbn.common.locale.Formatter;
 import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.alignment.FieldAlignerData;
+import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.component.DBNComponentBase;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
@@ -53,6 +54,7 @@ import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
@@ -88,10 +90,22 @@ public abstract class DBNFormBase
 
     public DBNFormBase(@Nullable Disposable parent) {
         super(parent);
+        if (parent instanceof DBNComponent component) {
+            setContextObject(component.getContextObject());
+        }
     }
 
     public DBNFormBase(@Nullable Disposable parent, @Nullable Project project) {
         super(parent, project);
+    }
+
+    protected void installContextHeader(JPanel headerPanel) {
+        Object contextObject = getContextObject();
+        if (contextObject == null) {
+            headerPanel.setVisible(false);
+        } else {
+            new DBNHeaderForm(this, contextObject).installOn(headerPanel);
+        }
     }
 
     @NotNull
@@ -151,14 +165,24 @@ public abstract class DBNFormBase
     }
 
     /**
-     * Allows invoking a task when the form is first shown.
-     * Useful for delaying the execution of a given task when the modality state of the form is clarified.
-     * Can also be helpful when component size decisions have to be taken based on surrounding container size.
+     * Runs a task when the form is first shown to the user.
+     * Use this when starting the task should depend on the user opening the form,
+     * for example to avoid doing work for a form that is never shown.
      *
-     * @param runnable the task to execute when the form is shown
+     * @param runnable the task to execute when the form is first shown
      */
     protected final void whenFirstShown(Runnable runnable) {
         UserInterface.whenFirstShown(getMainComponent(), runnable);
+    }
+
+    /**
+     * Runs a task once the form is attached to a window, when the window and its modality state are known.
+     * Use this when the task needs that context but should not wait for the form to be shown to the user.
+     *
+     * @param runnable the task to execute when the form is attached to a window
+     */
+    protected final void whenInitialized(Runnable runnable) {
+        UserInterface.whenAttachedToWindow(getMainComponent(), runnable);
     }
 
     protected final void whenSettingsChange(Runnable runnable) {
@@ -299,7 +323,7 @@ public abstract class DBNFormBase
 
     public void resetFormChanges() {}
 
-    protected void updateActionToolbars() {
+    public void updateActionToolbars() {
         dispatch(() -> UserInterface.updateActionToolbars(getMainComponent()));
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import com.dbn.common.text.TextResources;
 import com.dbn.common.ui.Layouts;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.connection.ConnectionHandler;
 import com.intellij.util.containers.ContainerUtil;
 import lombok.Getter;
@@ -38,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.dbn.assistant.tool.AssistantToolData.getSupportedToolCategories;
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.common.ui.util.ClientProperty.HORIZONTAL_SCROLL_POLICY;
 import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
 
@@ -59,7 +59,7 @@ public class AssistantToolApprovalForm extends DBNFormBase {
         initHintPanel();
         initToolsPanel();
 
-        whenFirstShown(() -> toolsScrollPane.getVerticalScrollBar().setValue(0));
+        whenInitialized(() -> toolsScrollPane.getVerticalScrollBar().setValue(0));
     }
 
     private void initHeaderPanel() {
@@ -73,8 +73,7 @@ public class AssistantToolApprovalForm extends DBNFormBase {
         TextContent hintText = TextContent.html(hintContent);
         hintText.initFonts();
 
-        DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
-        hintPanel.add(hintForm.getComponent());
+        installHintForm(this, hintText, hintPanel);
     }
 
     private void initToolsPanel() {

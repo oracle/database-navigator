@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package com.dbn.language.editor.action;
 
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.icon.Icons;
-import com.dbn.options.ConfigId;
 import com.dbn.options.ProjectSettingsManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -39,6 +38,6 @@ public class ConnectionSettingsAction extends ProjectAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ProjectSettingsManager settingsManager = ProjectSettingsManager.getInstance(project);
-        settingsManager.openProjectSettings(ConfigId.CONNECTIONS);
+        settingsManager.openConnectionConfig();
     }
 }

@@ -19,6 +19,7 @@ package com.dbn.database.common.metadata.impl;
 import com.dbn.common.latent.Latent;
 import com.dbn.database.common.metadata.DBObjectMetadataBase;
 import com.dbn.database.common.metadata.def.DBDataTypeMetadata;
+import org.jetbrains.annotations.NonNls;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,13 +27,13 @@ import java.sql.SQLException;
 public class DBDataTypeMetadataImpl extends DBObjectMetadataBase implements DBDataTypeMetadata {
     private static final String EMPTY_PREFIX = "";
     private final String prefix;
-    private final Latent<DBDataTypeMetadataImpl> collection = Latent.basic(() -> new DBDataTypeMetadataImpl(resultSet, "COLLECTION_"));
+    private final Latent<DBDataTypeMetadataImpl> collection = Latent.basic(() -> new DBDataTypeMetadataImpl(resultSet, "COLL_"));
 
     DBDataTypeMetadataImpl(ResultSet resultSet) {
         this(resultSet, EMPTY_PREFIX);
     }
 
-    private DBDataTypeMetadataImpl(ResultSet resultSet, String prefix) {
+    private DBDataTypeMetadataImpl(ResultSet resultSet, @NonNls String prefix) {
         super(resultSet);
         this.prefix = prefix;
     }
@@ -53,6 +54,22 @@ public class DBDataTypeMetadataImpl extends DBObjectMetadataBase implements DBDa
         return getString(prefix + "DECL_TYPE_PROGRAM");
     }
 
+    public String getNestedTableName() throws SQLException {
+        return getString(prefix + "NTBL_NAME");
+    }
+
+    public String getNestedTableParentOwnerName() throws SQLException {
+        return getString(prefix + "NTBL_PARENT_OWNER_NAME");
+    }
+
+    public String getNestedTableParentTableName() throws SQLException {
+        return getString(prefix + "NTBL_PARENT_TABLE_NAME");
+    }
+
+    public String getNestedTableParentColumnName() throws SQLException {
+        return getString(prefix + "NTBL_PARENT_COLUMN_NAME");
+    }
+
     public long getDataLength() throws SQLException {
         return resultSet.getLong(prefix + "DATA_LENGTH");
     }
@@ -67,6 +84,11 @@ public class DBDataTypeMetadataImpl extends DBObjectMetadataBase implements DBDa
 
     public boolean isSet() throws SQLException {
         return isYesFlag(prefix + "IS_SET");
+    }
+
+    @Override
+    public boolean isCollection() throws SQLException {
+        return isYesFlag(prefix + "IS_COLLECTION");
     }
 
     public DBDataTypeMetadataImpl collection() {

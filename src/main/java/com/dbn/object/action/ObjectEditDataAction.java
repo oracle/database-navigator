@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,29 +19,48 @@ package com.dbn.object.action;
 import com.dbn.common.icon.Icons;
 import com.dbn.editor.DatabaseFileEditorManager;
 import com.dbn.editor.EditorProviderId;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.common.exception.Exceptions.unsupported;
+import static com.dbn.editor.DBContentType.DATA;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.object.common.property.DBObjectProperty.EDITABLE;
 
-public class ObjectEditDataAction extends AnObjectAction<DBSchemaObject> {
-    public ObjectEditDataAction(DBSchemaObject object) {
+public class ObjectEditDataAction extends AnObjectAction<DBObject> {
+    public ObjectEditDataAction(DBObject object) {
         super(object);
     }
 
     @Override
-    protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DBSchemaObject object) {
+    protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DBObject object) {
+        if (!isSupported(object)) {
+            presentation.setVisible(false);
+            return;
+        }
+
         presentation.setText(txt("app.objects.action.EditData"));
         presentation.setIcon(Icons.OBJECT_EDIT_DATA);
+        presentation.setVisible(true);
     }
 
     @Override
-    protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DBSchemaObject object) {
+    protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DBObject object) {
+        if (!isSupported(object)) unsupported(DATA);
+
         DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(project);
         editorManager.connectAndOpenEditor(object, EditorProviderId.DATA, false, true);
+    }
+
+    public static boolean isSupported(@Nullable DBObject object) {
+        if (isNotValid(object)) return false;
+        if (!object.is(EDITABLE)) return false;
+
+        return object.getContentType().has(DATA);
     }
 }

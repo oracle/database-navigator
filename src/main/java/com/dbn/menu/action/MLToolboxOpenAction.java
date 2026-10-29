@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.action.AbstractConnectionAction;
 import com.dbn.ml.DatabaseMLManager;
+import com.dbn.options.general.WorkspaceFeature;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -39,11 +40,17 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class MLToolboxOpenAction extends ProjectAction {
     @Override
+    protected WorkspaceFeature getFeature() {
+        return WorkspaceFeature.MACHINE_LEARNING;
+    }
+
+    @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
         presentation.setText(txt("app.machineLearning.action.OpenMLToolboxEllipsis"));
         presentation.setIcon(Icons.DBO_MINING_MODEL);
-        presentation.setVisible(MACHINE_LEARNING.isSupported(project));
+        presentation.setVisible(isFeatureEnabled(project) &&
+                MACHINE_LEARNING.isSupported(project));
     }
 
     @Override

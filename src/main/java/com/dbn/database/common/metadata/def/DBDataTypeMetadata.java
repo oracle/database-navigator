@@ -34,6 +34,18 @@ public interface DBDataTypeMetadata {
     @ObjectIdentifier
     String getDeclaredTypeProgram() throws SQLException;
 
+    @ObjectIdentifier
+    String getNestedTableName() throws SQLException;
+
+    @ObjectIdentifier
+    String getNestedTableParentOwnerName() throws SQLException;
+
+    @ObjectIdentifier
+    String getNestedTableParentTableName() throws SQLException;
+
+    @ObjectIdentifier
+    String getNestedTableParentColumnName() throws SQLException;
+
     long getDataLength() throws SQLException;
 
     int getDataPrecision() throws SQLException;
@@ -41,6 +53,8 @@ public interface DBDataTypeMetadata {
     int getDataScale() throws SQLException;
 
     boolean isSet() throws SQLException;
+
+    boolean isCollection() throws SQLException;
 
     DBDataTypeMetadata collection();
 }

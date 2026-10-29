@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,9 @@ package com.dbn.batch.ui;
 import com.dbn.batch.Batch;
 import com.dbn.batch.BatchMessenger;
 import com.dbn.batch.BatchTask;
-import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.intellij.util.ui.AsyncProcessIcon;
-import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
@@ -32,6 +30,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import java.awt.Color;
+
+import static com.dbn.common.color.Colors.getContextHelpForeground;
 
 public class BatchMonitorTaskForm extends DBNFormBase {
 
@@ -99,9 +99,9 @@ public class BatchMonitorTaskForm extends DBNFormBase {
         // TODO cleanup: ui is too colorful (errors already highlighted with appropriate icon)
         return error ?
                 Colors.dimmer(UIUtil.getErrorForeground()) :
-                Colors.faded(UIUtil.getLabelForeground());
+                Colors.getContextHelpForeground();
 */
-        return Colors.faded(UIUtil.getLabelForeground());
+        return getContextHelpForeground();
     }
 
     @Override

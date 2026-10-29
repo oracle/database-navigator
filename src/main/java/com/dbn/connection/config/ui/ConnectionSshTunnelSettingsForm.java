@@ -16,12 +16,17 @@
 
 package com.dbn.connection.config.ui;
 
+import com.dbn.common.Result;
 import com.dbn.common.color.Colors;
 import com.dbn.common.options.ConfigMonitor;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.options.ui.ConfigurationEditors;
+import com.dbn.common.ui.panel.DBNAsyncOperationPanel;
+import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.config.ConnectionSshTunnelSettings;
 import com.dbn.connection.ssh.SshAuthType;
+import com.dbn.connection.ssh.SshConnections;
+import com.dbn.connection.ssh.SshTunnelConfig;
 import com.dbn.credentials.Secret;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
@@ -33,16 +38,24 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import java.awt.BorderLayout;
 import java.awt.event.ActionListener;
 
+import static com.dbn.common.exception.Exceptions.getLocalizedMessage;
+import static com.dbn.common.message.MessageType.ERROR;
+import static com.dbn.common.message.MessageType.SUCCESS;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.PasswordFields.getPassword;
 import static com.dbn.common.ui.util.PasswordFields.setPassword;
 import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
+import static com.dbn.common.util.Passwords.clearPassword;
+import static com.dbn.connection.ssh.SshConnections.createTunnelConfig;
+import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ConnectionSshTunnelSettingsForm extends ConfigurationEditorForm<ConnectionSshTunnelSettings> {
@@ -59,6 +72,11 @@ public class ConnectionSshTunnelSettingsForm extends ConfigurationEditorForm<Con
     private JLabel passwordLabel;
     private JLabel privateKeyFileLabel;
     private JLabel privateKeyPassphraseLabel;
+    private JPanel testTunnelConnectionPanel;
+
+    private final DBNAsyncOperationPanel testTunnelConnectionControl = new DBNAsyncOperationPanel(
+            txt("cfg.connection.link.TestTunnelConnection"),
+            txt("prc.connection.title.TestingTunnelConnection"));
 
     public ConnectionSshTunnelSettingsForm(final ConnectionSshTunnelSettings configuration) {
         super(configuration);
@@ -66,13 +84,33 @@ public class ConnectionSshTunnelSettingsForm extends ConfigurationEditorForm<Con
         initComboBox(authTypeComboBox, SshAuthType.values());
         resetFormChanges();
 
-        authTypeComboBox.addActionListener(e -> showHideFields());
+        authTypeComboBox.addActionListener(e -> {
+            showHideFields();
+            invalidateTunnelConnectionResult();
+        });
 
         enableDisableFields();
         showHideFields();
         registerComponent(mainPanel);
 
         addSingleFileChooser(getProject(), keyFileField, txt("cfg.connection.title.SelectPrivateKeyFile"), "");
+        testTunnelConnectionPanel.add(testTunnelConnectionControl, BorderLayout.CENTER);
+        testTunnelConnectionControl.setAction(this::testTunnelConnection);
+
+        initTunnelConnectionResultInvalidation();
+    }
+
+    private void initTunnelConnectionResultInvalidation() {
+        onTextChange(hostTextField, e -> invalidateTunnelConnectionResult());
+        onTextChange(portTextField, e -> invalidateTunnelConnectionResult());
+        onTextChange(userTextField, e -> invalidateTunnelConnectionResult());
+        onTextChange(passwordField, e -> invalidateTunnelConnectionResult());
+        onTextChange(keyFileField, e -> invalidateTunnelConnectionResult());
+        onTextChange(keyPassphraseField, e -> invalidateTunnelConnectionResult());
+    }
+
+    private void invalidateTunnelConnectionResult() {
+        testTunnelConnectionControl.invalidateOperationResult();
     }
 
     @NotNull
@@ -89,6 +127,7 @@ public class ConnectionSshTunnelSettingsForm extends ConfigurationEditorForm<Con
 
             if (source == activeCheckBox) {
                 enableDisableFields();
+                invalidateTunnelConnectionResult();
             }
         };
     }
@@ -115,7 +154,11 @@ public class ConnectionSshTunnelSettingsForm extends ConfigurationEditorForm<Con
         keyFileField.setEnabled(enabled);
         keyPassphraseField.setEnabled(enabled);
         keyPassphraseField.setBackground(enabled ? Colors.getTextFieldBackground() : Colors.getPanelBackground());
+        updateTestTunnelConnectionAvailability();
+    }
 
+    private void updateTestTunnelConnectionAvailability() {
+        testTunnelConnectionControl.setOperationEnabled(activeCheckBox.isSelected());
     }
 
     @Override
@@ -163,5 +206,62 @@ public class ConnectionSshTunnelSettingsForm extends ConfigurationEditorForm<Con
         setSelection(authTypeComboBox, configuration.getAuthType());
         setText(keyFileField, configuration.getKeyFile());
         setPassword(keyPassphraseField, configuration.getKeyPassphrase());
+    }
+
+    private void testTunnelConnection() {
+        SshTunnelConfig tunnelConfig;
+        try {
+            ConnectionSettings connectionSettings = getConfiguration().ensureParent();
+            ConnectionSettingsForm settingsForm = connectionSettings.getSettingsEditor();
+            ConnectionSettings temporarySettings = settingsForm == null ?
+                    connectionSettings :
+                    settingsForm.getTemporaryConfig();
+            tunnelConfig = createTunnelConfig(temporarySettings);
+        } catch (ConfigurationException e) {
+            testTunnelConnectionControl.showResult(ERROR, getLocalizedMessage(e));
+            return;
+        }
+
+        String proxyEndpoint = tunnelConfig.getProxyAddress().toString();
+        String remoteEndpoint = tunnelConfig.getRemoteAddress().toString();
+        testTunnelConnectionControl.execute(
+                () -> executeTunnelConnectionTest(tunnelConfig),
+                result -> showTunnelConnectionResult(
+                        proxyEndpoint,
+                        remoteEndpoint,
+                        result));
+    }
+
+    private Result<Void> executeTunnelConnectionTest(SshTunnelConfig tunnelConfig) {
+        try {
+            SshConnections.testTunnelConnection(tunnelConfig);
+            return new Result<>((Void) null);
+        } catch (Exception e) {
+            conditionallyLog(e);
+            return new Result<>(e);
+        } finally {
+            clearPassword(tunnelConfig.getProxyPassword());
+            clearPassword(tunnelConfig.getKeyPassphrase());
+        }
+    }
+
+    private void showTunnelConnectionResult(
+            String proxyEndpoint,
+            String remoteEndpoint,
+            Result<Void> result) {
+        if (result.isSuccess()) {
+            String message = txt(
+                    "msg.connection.info.SshTunnelConnectionSuccessful",
+                    proxyEndpoint,
+                    remoteEndpoint);
+            testTunnelConnectionControl.showResult(SUCCESS, message);
+        } else {
+            String message = txt(
+                    "msg.connection.error.SshTunnelConnectionFailed",
+                    proxyEndpoint,
+                    remoteEndpoint);
+            String details = getLocalizedMessage(result.getError());
+            testTunnelConnectionControl.showResult(ERROR, message, details);
+        }
     }
 }

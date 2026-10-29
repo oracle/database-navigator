@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,12 @@ package com.dbn.editor.data.ui;
 
 import com.dbn.common.editor.EditorNotificationPanel;
 import com.dbn.common.message.MessageType;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.intellij.openapi.fileEditor.FileEditor;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class DatasetEditorNotificationPanel extends EditorNotificationPanel {
-    public DatasetEditorNotificationPanel(DBSchemaObject object, @NotNull FileEditor fileEditor, MessageType messageType) {
+    public DatasetEditorNotificationPanel(DBObject object, @NotNull FileEditor fileEditor, MessageType messageType) {
         super(object.getProject(), object.getVirtualFile(), fileEditor, messageType);
     }
 }

@@ -128,7 +128,7 @@ public class DBColumnFactoryInputForm extends DBObjectFactoryInputForm {
     @Override
     public void resetFormChanges() {
         nameTextField.setText(input.getObjectName());
-        dataTypeEditor.setText(DATA_TYPE.of(input));
+        dataTypeEditor.setText(DATA_TYPE.value(input));
         notNullCheckBox.setSelected(IS_NOT_NULL.is(input));
         primaryKeyCheckBox.setSelected(IS_PRIMARY_KEY.is(input));
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import com.dbn.common.feature.FeatureAvailability;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.text.TextResources;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
 import com.intellij.ui.HyperlinkLabel;
@@ -34,6 +33,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
@@ -91,9 +91,7 @@ public class SelectAiIntroductionForm extends DBNFormBase implements AssistantIn
 
     private void initIntroContent() {
         TextContent introContent = loadIntroContent();
-        DBNHintForm hintForm = new DBNHintForm(this, introContent, null, true);
-        hintForm.setHighlighted(true);
-        hintPanel.add(hintForm.getComponent());
+        installHintForm(this, introContent, hintPanel);
     }
 
     @SneakyThrows

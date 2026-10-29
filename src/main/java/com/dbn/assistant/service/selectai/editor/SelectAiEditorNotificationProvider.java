@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.mapping.FileConnectionContextManager;
 import com.dbn.language.common.DBLanguageFileType;
+import com.dbn.options.general.WorkspaceFeature;
 import com.dbn.vfs.file.DBContentVirtualFile;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileTypes.FileType;
@@ -37,6 +38,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.util.Editors.updateEditorNotifications;
 import static com.dbn.database.DatabaseFeature.AI_ASSISTANT;
+import static com.dbn.options.general.WorkspaceFeature.*;
 
 public class SelectAiEditorNotificationProvider extends EditorNotificationProvider<SelectAiEditorNotificationPanel> {
     private static final Key<SelectAiEditorNotificationPanel> KEY = Key.create("DBNavigator.AssistantEditorNotificationPanel");
@@ -58,6 +60,7 @@ public class SelectAiEditorNotificationProvider extends EditorNotificationProvid
 
     @Override
     public SelectAiEditorNotificationPanel createComponent(@NotNull VirtualFile file, @NotNull FileEditor fileEditor, @NotNull Project project) {
+        if (!DATABASE_ASSISTANT.isEnabled(project)) return null;
         if (file instanceof DBContentVirtualFile) return null;
         FileType fileType = file.getFileType();
         if (!(fileType instanceof DBLanguageFileType)) return null;

@@ -18,10 +18,12 @@ package com.dbn.assistant.chat.message;
 
 import com.dbn.assistant.chat.context.ChatContextImpl;
 import com.dbn.common.text.TextContent;
+import com.dbn.test.util.MockApplicationRule;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.junit.Assert;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -35,6 +37,8 @@ import static com.dbn.assistant.chat.message.AuthorType.AGENT;
 import static com.dbn.common.message.MessageType.NEUTRAL;
 
 public class ChatMessageTest {
+    @ClassRule
+    public static final MockApplicationRule APPLICATION = new MockApplicationRule();
 
     @Test
     public void testSample1() throws Exception{

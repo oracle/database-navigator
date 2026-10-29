@@ -16,7 +16,11 @@
 
 package com.dbn.data.value;
 
+import com.dbn.common.data.Data;
+import com.dbn.common.util.Json;
+import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.jdbc.ValueReaders;
+import com.dbn.data.type.DBDataType;
 import com.dbn.data.type.GenericDataType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,6 +34,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.data.value.LargeValueResourceLimits.*;
+import static com.dbn.data.value.LargeValueResourceLimits.normalizeReadSize;
 
 @Getter
 @NoArgsConstructor
@@ -57,6 +63,12 @@ public class JsonValue extends LargeObjectValue{
 
     @Override
     @Nullable
+    protected String convertUserValue(@Nullable Object userValue, DBDataType dataType, DBNConnection connection) {
+        return Data.asString(userValue);
+    }
+
+    @Override
+    @Nullable
     public String read() throws SQLException {
         return read(0);
     }
@@ -71,7 +83,7 @@ public class JsonValue extends LargeObjectValue{
     @Nullable
     public String read(int maxSize) throws SQLException {
         if (data == null) return null;
-        int size = maxSize <= 0 ? MAX_READ_SIZE : Math.min(maxSize, MAX_READ_SIZE);
+        int size = normalizeReadSize(maxSize);
         if (data.length() <= size) {
             return data;
         }
@@ -107,7 +119,7 @@ public class JsonValue extends LargeObjectValue{
 
     @Override
     public String getDisplayValue() {
-        return data;
+        return Json.createJsonPreview(data, 2);
     }
 
     @Override

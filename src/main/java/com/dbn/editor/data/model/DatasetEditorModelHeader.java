@@ -17,6 +17,7 @@
 package com.dbn.editor.data.model;
 
 import com.dbn.common.util.Lists;
+import com.dbn.common.util.Unsafe;
 import com.dbn.data.model.ColumnInfo;
 import com.dbn.data.model.resultSet.ResultSetDataModelHeader;
 import com.dbn.editor.data.DatasetEditor;
@@ -32,23 +33,24 @@ import java.util.List;
 import static com.dbn.editor.data.model.ResultSetSupport.getColumnNames;
 
 public class DatasetEditorModelHeader extends ResultSetDataModelHeader<DatasetEditorColumnInfo> {
-    DatasetEditorModelHeader(DatasetEditor datasetEditor, @Nullable ResultSet resultSet) throws SQLException {
+    DatasetEditorModelHeader(DatasetEditor datasetEditor, @Nullable ResultSet resultSet) {
         DBDataset dataset = datasetEditor.getDataset();
 
-        List<String> columnNames = resultSet == null ? null : getColumnNames(resultSet);
+        List<String> columnNames = resultSet == null ? null : Unsafe.warned(null, () -> getColumnNames(resultSet));
         List<DatasetColumnState> columnStates = datasetEditor.refreshColumnStates(columnNames);
 
         int index = 0;
         for (DatasetColumnState columnState : columnStates) {
             DBColumn column = dataset.getColumn(columnState.getName());
-            if (column != null && columnState.isVisible()) {
-                String columnName = column.getName();
-                int resultSetIndex = (columnNames == null ? index : Lists.indexOf(columnNames, columnName, true)) + 1;
-                if (resultSetIndex > 0) {
-                    DatasetEditorColumnInfo columnInfo = new DatasetEditorColumnInfo(column, index, resultSetIndex);
-                    addColumnInfo(columnInfo);
-                    index++;
-                }
+            if (column == null) continue;
+            if (!columnState.isVisible()) continue;
+
+            String columnName = column.getName();
+            int resultSetIndex = (columnNames == null ? index : Lists.indexOf(columnNames, columnName, true)) + 1;
+            if (resultSetIndex > 0) {
+                DatasetEditorColumnInfo columnInfo = new DatasetEditorColumnInfo(column, index, resultSetIndex);
+                addColumnInfo(columnInfo);
+                index++;
             }
         }
     }

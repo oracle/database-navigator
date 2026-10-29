@@ -23,10 +23,10 @@ import com.dbn.common.thread.Write;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNFormModel;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.info.DBNCommentLabel;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
+import com.dbn.common.ui.panel.DBNBanner;
 import com.dbn.common.util.FileChoosers;
 import com.dbn.common.util.Strings;
 import com.dbn.common.util.Titles;
@@ -39,6 +39,7 @@ import com.dbn.mcp.model.McpServerImplementation;
 import com.dbn.mcp.model.McpToolDefinition;
 import com.dbn.mcp.model.McpTransportType;
 import com.dbn.mcp.util.McpServerName;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileChooserFactory;
@@ -61,6 +62,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.link.Hyperlinks.onHyperlinkAccess;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
@@ -132,28 +134,28 @@ public class McpServerDefinitionForm extends DBNFormBase {
     private void initHintPanel() {
         TextContent hintContent = TextContent.plain(
                 txt("msg.mcp.hint.ServerDefinition"));
-        hintPanel.add(new DBNHintForm(this, hintContent, null, true).getComponent());
+        installHintForm(this, hintContent, hintPanel);
     }
 
-    private JComponent containerHintComponent;
+    private DBNBanner containerWarningBanner;
 
     /**
-     * Prerequisite hint for the container implementation, created once and swapped in based
-     * on the selected implementation (Standard Java has none). The native hint is rebuilt on
+     * Prerequisite warning for the container implementation, created once and swapped in based
+     * on the selected implementation (Standard Java has none). The native warning is rebuilt on
      * every display since it reflects the live Maven runner JRE readiness (see
-     * {@link #buildNativeHintComponent()}).
+     * {@link #buildNativeWarningBanner()}).
      */
     private void initImplementationHintPanel() {
-        containerHintComponent = new DBNHintForm(this,
-                TextContent.plain(txt("msg.mcp.text.ContainerPrerequisites")), MessageType.WARNING, true).getComponent();
+        containerWarningBanner = new DBNBanner(
+                txt("msg.mcp.text.ContainerPrerequisites"), MessageType.WARNING);
         implementationHintPanel.setVisible(false);
     }
 
     private void updateImplementationHint() {
         McpServerImplementation implementation = getSelection(implementationComboBox);
         JComponent hint =
-                implementation == McpServerImplementation.MICRONAUT_CONTAINER ? containerHintComponent :
-                implementation == McpServerImplementation.MICRONAUT_NATIVE ? buildNativeHintComponent() :
+                implementation == McpServerImplementation.MICRONAUT_CONTAINER ? containerWarningBanner :
+                implementation == McpServerImplementation.MICRONAUT_NATIVE ? buildNativeWarningBanner() :
                 null;
 
         implementationHintPanel.removeAll();
@@ -166,17 +168,17 @@ public class McpServerDefinitionForm extends DBNFormBase {
     /**
      * Reflects the live readiness of the configured Maven runner JRE: a "Verify" action link
      * when not (yet) GraalVM-ready that lets the user check and, if needed, jump straight to
-     * Maven Settings to fix it; no hint at all once it is ready - nothing left to warn about.
+     * Maven Settings to fix it; no banner at all once it is ready - nothing left to warn about.
      */
     @Nullable
-    private JComponent buildNativeHintComponent() {
+    private JComponent buildNativeWarningBanner() {
         Project project = getProject();
         if (McpGraalVmSupport.isRunnerGraalVmReady(project)) return null;
 
-        DBNHintForm hintForm = new DBNHintForm(this,
-                TextContent.plain(txt("msg.mcp.text.NativePrerequisites")), MessageType.WARNING, true,
-                txt("msg.mcp.link.Verify"), this::verifyGraalVmSetup);
-        return hintForm.getComponent();
+        DBNBanner banner = new DBNBanner(
+                txt("msg.mcp.text.NativePrerequisites"), MessageType.WARNING);
+        banner.addAction(txt("msg.mcp.link.Verify"), this::verifyGraalVmSetup);
+        return banner;
     }
 
     private void verifyGraalVmSetup() {
@@ -304,7 +306,7 @@ public class McpServerDefinitionForm extends DBNFormBase {
 
         configFileTextField.setText(displayConfigFilePath);
         if (!configFilePath.equals(displayConfigFilePath)) {
-            configFileTextField.setToolTipText(configFilePath);
+            Tooltips.setToolTipText(configFileTextField, configFilePath);
         }
         updateFieldAvailability();
     }

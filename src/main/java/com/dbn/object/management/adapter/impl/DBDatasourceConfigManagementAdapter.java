@@ -16,10 +16,10 @@
 
 package com.dbn.object.management.adapter.impl;
 
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.database.interfaces.DatabaseDatasourceConfigInterface;
 import com.dbn.object.DBDatasourceConfig;
 import com.dbn.object.management.ObjectManagementAdapterBase;
+import com.dbn.object.management.ObjectManagementRequest;
 import com.dbn.object.type.DBObjectType;
 
 import java.sql.SQLException;
@@ -34,26 +34,37 @@ public class DBDatasourceConfigManagementAdapter extends ObjectManagementAdapter
     }
 
     @Override
-    protected void createObject(ConnectionHandler connection, DBNConnection conn, DBDatasourceConfig object) throws SQLException {
-        connection.getDatasourceConfigInterface().createDatasourceConfig(
+    protected void createObject(ObjectManagementRequest<DBDatasourceConfig> request) throws SQLException {
+        DBDatasourceConfig object = request.object();
+
+        DatabaseDatasourceConfigInterface databaseInterface = request.getDatasourceConfigInterface();
+        databaseInterface.createDatasourceConfig(
                 object.getSchema().getName(),
                 object.getName(),
                 object.getValue(),
-                conn);
+                request.conn());
     }
 
     @Override
-    protected void updateObject(ConnectionHandler connection, DBNConnection conn, DBDatasourceConfig object) throws SQLException {
-        connection.getDatasourceConfigInterface().updateDatasourceConfig(
+    protected void updateObject(ObjectManagementRequest<DBDatasourceConfig> request) throws SQLException {
+        DBDatasourceConfig object = request.object();
+
+        DatabaseDatasourceConfigInterface databaseInterface = request.getDatasourceConfigInterface();
+        databaseInterface.updateDatasourceConfig(
                 object.getSchema().getName(),
                 object.getName(),
                 object.getValue(),
-                conn);
+                request.conn());
     }
 
     @Override
-    protected void deleteObject(ConnectionHandler connection, DBNConnection conn, DBDatasourceConfig object) throws SQLException {
-        connection.getDatasourceConfigInterface().deleteDatasourceConfig(
-                object.getSchema().getName(), object.getName(), conn);
+    protected void deleteObject(ObjectManagementRequest<DBDatasourceConfig> request) throws SQLException {
+        DBDatasourceConfig object = request.object();
+
+        DatabaseDatasourceConfigInterface databaseInterface = request.getDatasourceConfigInterface();
+        databaseInterface.deleteDatasourceConfig(
+                object.getSchema().getName(),
+                object.getName(),
+                request.conn());
     }
 }

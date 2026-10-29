@@ -32,6 +32,8 @@ public enum ClientProperty {
     RESIZING,
     REGISTERED,
     VISITED,
+    ASYNC_REQUEST,
+    ASYNC_ONCE_PENDING,
     LOADING,
     CACHED_VALUE,
     CLASSIFICATION,
@@ -84,6 +86,38 @@ public enum ClientProperty {
         return !is(component);
     }
 
+    /**
+     * Checks whether this property currently holds the same value instance.
+     * The comparison is synchronized on the component.
+     *
+     * @return {@code true} if the property value is identical to {@code value}
+     */
+    public boolean matches(Component component, Object value) {
+        if (component instanceof JComponent comp) {
+            synchronized (comp) {
+                return get(comp) == value;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Clears this property only if it currently holds the same value instance.
+     * The comparison and reset are synchronized on the component.
+     *
+     * @return {@code true} if the property was cleared
+     */
+    public boolean resetIf(Component component, Object value) {
+        if (component instanceof JComponent comp) {
+            synchronized (comp) {
+                if (get(comp) != value) return false;
+                reset(comp);
+                return true;
+            }
+        }
+        return false;
+    }
+
     public <T> T get(Component component) {
         if (component instanceof JComponent comp) {
             Object prop = comp.getClientProperty(this);
@@ -108,8 +142,32 @@ public enum ClientProperty {
         set(component, value, false);
     }
 
+    /**
+     * Sets this property only if it is currently unset. The check and set are
+     * synchronized on the component.
+     *
+     * @return {@code true} if the value was set
+     */
+    public <T> boolean setIfNotSet(Component component, T value) {
+        if (component instanceof JComponent comp) {
+            synchronized (comp) {
+                if (get(comp) != null) return false;
+                set(comp, value);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Clears this property, synchronizing the update on the component.
+     */
     public void reset(Component component) {
-        set(component, null, false);
+        if (component instanceof JComponent comp) {
+            synchronized (comp) {
+                comp.putClientProperty(this, null);
+            }
+        }
     }
 
     public <T> void set(Component component, T value, boolean weak) {

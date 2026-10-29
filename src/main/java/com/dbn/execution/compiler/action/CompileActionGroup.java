@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,33 +18,52 @@ package com.dbn.execution.compiler.action;
 
 import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.common.icon.Icons;
-import com.dbn.database.DatabaseFeature;
-import com.dbn.editor.DBContentType;
-import com.dbn.execution.compiler.CompileType;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
 import com.intellij.openapi.project.DumbAware;
+import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.database.DatabaseFeature.DEBUGGING;
+import static com.dbn.database.DatabaseFeature.OBJECT_INVALIDATION;
+import static com.dbn.editor.DBContentType.CODE;
+import static com.dbn.editor.DBContentType.CODE_SPEC_AND_BODY;
+import static com.dbn.execution.compiler.CompileType.DEBUG;
+import static com.dbn.execution.compiler.CompileType.NORMAL;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
+import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
+import static com.dbn.options.general.WorkspaceFeature.DEBUGGER;
 
 public class CompileActionGroup extends DefaultActionGroup implements DumbAware {
 
     public CompileActionGroup(DBSchemaObject object) {
         super(txt("app.execution.action.Compile"), true);
-        boolean debugSupported = DatabaseFeature.DEBUGGING.isSupported(object);
+        Project project = object.getProject();
+        boolean debugSupported = DEBUGGER.isEnabled(project) && DEBUGGING.isSupported(object);
         getTemplatePresentation().setIcon(Icons.OBJECT_COMPILE);
-        if (object.getContentType() == DBContentType.CODE_SPEC_AND_BODY) {
-            add(new CompileObjectAction(object, DBContentType.CODE_SPEC_AND_BODY, CompileType.NORMAL));
+        if (object.getContentType() == CODE_SPEC_AND_BODY) {
+            add(new CompileObjectAction(object, CODE_SPEC_AND_BODY, NORMAL));
             if (debugSupported) {
-                add(new CompileObjectAction(object, DBContentType.CODE_SPEC_AND_BODY, CompileType.DEBUG));
+                add(new CompileObjectAction(object, CODE_SPEC_AND_BODY, DEBUG));
             }
         } else {
-            add(new CompileObjectAction(object, DBContentType.CODE, CompileType.NORMAL));
-            if (debugSupported) {
-                add(new CompileObjectAction(object, DBContentType.CODE, CompileType.DEBUG));
+            add(new CompileObjectAction(object, CODE, NORMAL));
+            if (debugSupported && object.getObjectType() != JAVA_CLASS) {
+                add(new CompileObjectAction(object, CODE, DEBUG));
             }
         }
 
         addSeparator();
         add(new CompileInvalidObjectsAction(object.getSchema()));
+    }
+
+    public static boolean isSupported(@Nullable DBObject object) {
+        if (isNotValid(object)) return false;
+        if (!(object instanceof DBSchemaObject)) return false;
+        if (!object.is(COMPILABLE)) return false;
+
+        return OBJECT_INVALIDATION.isSupported(object);
     }
 }

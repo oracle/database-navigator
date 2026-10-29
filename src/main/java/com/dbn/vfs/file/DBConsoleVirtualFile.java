@@ -46,7 +46,6 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.RangeMarker;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
-import com.intellij.openapi.editor.ex.DocumentEx;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
@@ -64,6 +63,8 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Objects;
+
+import static com.dbn.common.util.GuardedBlocks.getGuardedBlocks;
 
 @Getter
 public class DBConsoleVirtualFile extends DBObjectVirtualFile<DBConsole> implements
@@ -247,12 +248,9 @@ public class DBConsoleVirtualFile extends DBObjectVirtualFile<DBConsole> impleme
     public void documentChanged(DocumentEvent event) {
         Document document = event.getDocument();
         content.setText(document.getCharsSequence());
-        if (document instanceof DocumentEx documentEx) {
-            List<RangeMarker> blocks = documentEx.getGuardedBlocks();
-            if (!blocks.isEmpty()) {
-                content.getOffsets().setGuardedBlocks(blocks);
-            }
-        }
+
+        List<RangeMarker> guardedBlocks = getGuardedBlocks(document, true);
+        content.getOffsets().setGuardedBlocks(guardedBlocks);
     }
 
     private static FileConnectionContext createConnectionContext(

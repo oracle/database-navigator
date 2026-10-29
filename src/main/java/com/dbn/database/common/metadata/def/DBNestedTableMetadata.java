@@ -27,7 +27,10 @@ public interface DBNestedTableMetadata extends DBObjectMetadata {
     String getNestedTableName() throws SQLException;
 
     @ObjectIdentifier
-    String getTableName() throws SQLException;
+    String getParentTableName() throws SQLException;
+
+    @ObjectIdentifier
+    String getParentTableColumnName() throws SQLException;
 
     @ObjectIdentifier
     String getDeclaredTypeName() throws SQLException;

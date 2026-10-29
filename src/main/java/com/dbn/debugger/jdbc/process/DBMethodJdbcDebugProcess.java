@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import com.dbn.execution.ExecutionTarget;
 import com.dbn.execution.method.MethodExecutionInput;
 import com.dbn.execution.method.MethodExecutionManager;
 import com.dbn.object.DBMethod;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.intellij.xdebugger.XDebugSession;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -70,7 +70,7 @@ public class DBMethodJdbcDebugProcess extends DBJdbcDebugProcess<MethodExecution
     @Override
     public String getName() {
         DBMethod method = getExecutionInput().getMethod();
-        DBSchemaObject object = DBDebugUtil.getMainDatabaseObject(method);
+        DBObject object = DBDebugUtil.getMainDatabaseObject(method);
         if (object != null) {
             return object.getQualifiedName();
         }
@@ -81,7 +81,7 @@ public class DBMethodJdbcDebugProcess extends DBJdbcDebugProcess<MethodExecution
     @Override
     public Icon getIcon() {
         DBMethod method = getExecutionInput().getMethod();
-        DBSchemaObject object = DBDebugUtil.getMainDatabaseObject(method);
+        DBObject object = DBDebugUtil.getMainDatabaseObject(method);
         if (object != null) {
             return object.getIcon();
         }

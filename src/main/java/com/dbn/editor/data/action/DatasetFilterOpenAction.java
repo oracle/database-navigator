@@ -36,11 +36,11 @@ public class DatasetFilterOpenAction extends BasicAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        if (datasetEditor != null) {
-            DBDataset dataset = datasetEditor.getDataset();
-            DatasetFilterManager filterManager = DatasetFilterManager.getInstance(dataset.getProject());
-            filterManager.openFiltersDialog(dataset, false, false, DatasetFilterType.NONE, null);
-        }
+        if (datasetEditor == null) return;
+
+        DBDataset dataset = datasetEditor.getDataset();
+        DatasetFilterManager filterManager = DatasetFilterManager.getInstance(dataset.getProject());
+        filterManager.openFiltersDialog(dataset, false, false, DatasetFilterType.NONE, null);
     }
 
     @Override

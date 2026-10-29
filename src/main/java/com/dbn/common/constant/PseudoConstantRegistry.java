@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.dbn.common.constant.PseudoConstantResourceLimits.verifyPseudoConstantId;
+
 final class PseudoConstantRegistry {
     private static final Map<Class<? extends PseudoConstant>, PseudoConstantData> REGISTRY = new ConcurrentHashMap<>();
 
@@ -39,6 +41,7 @@ final class PseudoConstantRegistry {
 
     static <T extends PseudoConstant<T>> T get(Class<T> clazz, String id) {
         if (Strings.isEmpty(id)) return null;
+        verifyPseudoConstantId(id);
         PseudoConstantData<T> data = get(clazz);
         return data.get(id);
     }

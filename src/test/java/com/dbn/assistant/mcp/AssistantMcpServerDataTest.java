@@ -24,9 +24,9 @@ import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.model.chat.request.json.JsonObjectSchema;
 import org.junit.Test;
 
-import static com.dbn.assistant.mcp.model.AssistantMcpToolMetadataGuard.MAX_TOOL_DESCRIPTION_LENGTH;
-import static com.dbn.assistant.mcp.model.AssistantMcpToolMetadataGuard.MAX_TOOL_INSTRUCTION_LENGTH;
-import static com.dbn.assistant.mcp.model.AssistantMcpToolMetadataGuard.MAX_TOOL_NAME_LENGTH;
+import static com.dbn.assistant.mcp.AssistantMcpResourceLimits.MAX_TOOL_DESCRIPTION_LENGTH;
+import static com.dbn.assistant.mcp.AssistantMcpResourceLimits.MAX_TOOL_INSTRUCTION_LENGTH;
+import static com.dbn.assistant.mcp.AssistantMcpResourceLimits.MAX_TOOL_NAME_LENGTH;
 import static com.dbn.assistant.mcp.model.AssistantMcpToolMetadataGuard.isAcceptedToolMetadata;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dbn.language.common.psi.ExecutablePsiElement;
 import com.dbn.language.common.psi.PsiUtil;
+import com.dbn.options.general.WorkspaceFeature;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditor;
@@ -44,6 +45,7 @@ import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.util.Files.isDbLanguageFile;
 import static com.dbn.common.util.Files.isDbLanguagePsiFile;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.*;
 
 public class DebugStatementIntentionAction extends EditorIntentionAction {
     @Override
@@ -65,6 +67,8 @@ public class DebugStatementIntentionAction extends EditorIntentionAction {
 
     @Override
     public boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) {
+        if (!DEBUGGER.isEnabled(project)) return false;
+
         // do not show the intention for a db-assistant context (comment, selection or select-ai-statement)
         if (isDatabaseAssistantPrompt(editor, psiElement)) return false;
 
@@ -87,6 +91,8 @@ public class DebugStatementIntentionAction extends EditorIntentionAction {
 
     @Override
     public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) throws IncorrectOperationException {
+        if (!DEBUGGER.isEnabled(project)) return;
+
         PsiFile psiFile = psiElement.getContainingFile();
         if (isNotValid(project)) return;
         if (isNotValid(editor)) return;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,15 @@
 
 package com.dbn.debugger.common.config.ui;
 
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.debugger.ExecutionConfigManager;
 import com.dbn.debugger.common.config.DBRunConfigCategory;
 import com.dbn.debugger.common.config.DBStatementRunConfig;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JPanel;
+
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
+import static com.dbn.debugger.ExecutionConfigManager.*;
 
 public class DBStatementRunConfigForm extends DBProgramRunConfigForm<DBStatementRunConfig> {
     private JPanel headerPanel;
@@ -33,9 +35,8 @@ public class DBStatementRunConfigForm extends DBProgramRunConfigForm<DBStatement
         super(configuration.getProject(), configuration.getDebuggerType());
         if (configuration.getCategory() != DBRunConfigCategory.CUSTOM) {
             headerPanel.setVisible(false);
-            DBNHintForm hintForm = new DBNHintForm(this, ExecutionConfigManager.GENERIC_STATEMENT_RUNNER_HINT, null, true);
             hintPanel.setVisible(true);
-            hintPanel.add(hintForm.getComponent());
+            installHintForm(this, GENERIC_STATEMENT_RUNNER_HINT, hintPanel);
         } else {
             hintPanel.setVisible(false);
         }

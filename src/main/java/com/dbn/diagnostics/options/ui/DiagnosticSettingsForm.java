@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package com.dbn.diagnostics.options.ui;
 
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.diagnostics.DeveloperMode;
 import com.dbn.diagnostics.Diagnostics;
 import com.dbn.diagnostics.Diagnostics.DatabaseLag;
@@ -37,6 +36,7 @@ import java.awt.event.ActionEvent;
 
 import static com.dbn.common.options.ui.ConfigurationEditors.validateIntegerValue;
 import static com.dbn.common.text.TextContent.plain;
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 import static com.dbn.common.ui.util.TextFields.getText;
@@ -61,16 +61,13 @@ public class DiagnosticSettingsForm extends DBNFormBase {
     private JBTextField developerModeTimeoutTextField;
     private JCheckBox timeoutHandlingCheckBox;
 
-    private final DBNHintForm disclaimerForm;
-
     public DiagnosticSettingsForm(@Nullable Disposable parent) {
         super(parent);
         developerModeCheckBox.setSelected(Diagnostics.isDeveloperMode());
         developerModeTimeoutTextField.setText(Integer.toString(Diagnostics.getDeveloperMode().getTimeout()));
 
         TextContent hintText = plain(txt("cfg.diagnostics.hint.DeveloperMode"));
-        disclaimerForm = new DBNHintForm(this, hintText, null, true);
-        hintPanel.add(disclaimerForm.getComponent());
+        installHintForm(this, hintText, hintPanel);
 
         DebugLogging debugLogging = Diagnostics.getDebugLogging();
         failsafeLoggingCheckBox.setSelected(debugLogging.isFailsafeErrors());
@@ -121,8 +118,6 @@ public class DiagnosticSettingsForm extends DBNFormBase {
         connectivityLagTextField.setEnabled(databaseLaggingEnabled);
         queryingLagTextField.setEnabled(databaseLaggingEnabled);
         fetchingLagTextField.setEnabled(databaseLaggingEnabled);
-
-        disclaimerForm.setHighlighted(developerMode);
     }
 
 

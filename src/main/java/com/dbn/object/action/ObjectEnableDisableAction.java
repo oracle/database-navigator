@@ -16,8 +16,9 @@
 
 package com.dbn.object.action;
 
+import com.dbn.common.attributes.Attributes;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
-import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.event.ObjectChangeAction;
 import com.dbn.object.management.ObjectManagementService;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -26,11 +27,16 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.common.exception.Exceptions.unsupported;
+import static com.dbn.database.DatabaseFeature.OBJECT_DISABLING;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.object.common.property.DBObjectProperty.DISABLEABLE;
+import static com.dbn.object.common.property.DBObjectProperty.SYSTEM_OBJECT;
+import static com.dbn.object.common.status.DBObjectStatus.DISABLED;
 
-public class ObjectEnableDisableAction extends AnObjectAction<DBSchemaObject> {
-    ObjectEnableDisableAction(DBSchemaObject object) {
+public class ObjectEnableDisableAction extends AnObjectAction<DBObject> {
+    ObjectEnableDisableAction(DBObject object) {
         super(object);
     }
 
@@ -38,17 +44,15 @@ public class ObjectEnableDisableAction extends AnObjectAction<DBSchemaObject> {
     protected void actionPerformed(
             @NotNull AnActionEvent e,
             @NotNull Project project,
-            @NotNull DBSchemaObject object) {
+            @NotNull DBObject object) {
+
+        ObjectChangeAction changeAction = object.hasStatus(DISABLED) ?
+                ObjectChangeAction.ENABLE :
+                ObjectChangeAction.DISABLE;
+        if (!isSupported(object)) unsupported(changeAction);
 
         ObjectManagementService objectManagementService = ObjectManagementService.getInstance(project);
-
-        if (objectManagementService.supports(object)) {
-            boolean enabled = object.getStatus().is(DBObjectStatus.ENABLED);
-            ObjectChangeAction changeAction = enabled ? ObjectChangeAction.DISABLE : ObjectChangeAction.ENABLE;
-            objectManagementService.changeObject(object, changeAction,null);
-        } else {
-            throw new UnsupportedOperationException();
-        }
+        objectManagementService.changeObject(object, changeAction, Attributes.empty(), null);
     }
 
 
@@ -57,18 +61,31 @@ public class ObjectEnableDisableAction extends AnObjectAction<DBSchemaObject> {
             @NotNull AnActionEvent e,
             @NotNull Presentation presentation,
             @NotNull Project project,
-            @Nullable DBSchemaObject target) {
+            @Nullable DBObject target) {
 
-        if (isValid(target)) {
-            boolean enabled = target.getStatus().is(DBObjectStatus.ENABLED);
-            String text = !enabled ?
-                    txt("app.shared.action.Enable") :
-                    txt("app.shared.action.Disable");
-
-            presentation.setText(text);
-            presentation.setVisible(true);
-        } else {
+        if (!isSupported(target)) {
             presentation.setVisible(false);
+            return;
         }
+
+        boolean disabled = target.hasStatus(DISABLED);
+        String text = disabled ?
+                txt("app.shared.action.Enable") :
+                txt("app.shared.action.Disable");
+
+        presentation.setText(text);
+        presentation.setVisible(true);
+    }
+
+    public static boolean isSupported(@Nullable DBObject object) {
+        if (isNotValid(object)) return false;
+        if (!object.is(DISABLEABLE)) return false;
+        if (!ObjectManagementService.getInstance(object.getProject()).supports(object)) return false;
+
+        if (object instanceof DBSchemaObject) {
+            return OBJECT_DISABLING.isSupported(object);
+        }
+
+        return !object.is(SYSTEM_OBJECT);
     }
 }

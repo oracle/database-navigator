@@ -38,7 +38,6 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.component.Components.applicationService;
 import static com.dbn.common.options.setting.Settings.getBoolean;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setBoolean;
 import static com.dbn.plugin.DBPluginStatus.ACTIVE;
 import static com.dbn.plugin.DBPluginStatus.MISSING;
@@ -84,13 +83,13 @@ public class PluginConflictManager extends ApplicationComponentBase implements P
             if (sqlPluginStatus == ACTIVE) {
                 // SQL plugin user - restore default file associations
                 restoreFileAssociations();
-                
+
             } else if (sqlPluginStatus == PASSIVE) {
                 // both plugins inactive - do nothing yet
 
                 // ... or show conflict resolution?
                 // showConflictResolutionDialog();
-                
+
             } else if (sqlPluginStatus == MISSING) {
                 // missing SQL plugin - favor DBN
                 claimFileAssociations(false);
@@ -150,19 +149,16 @@ public class PluginConflictManager extends ApplicationComponentBase implements P
      **************************************************************************/
 
     @Override
-    public Element getComponentState() {
-        Element element = newStateElement();
+    public void writeState(Element element) {
+        super.writeState(element);
         setBoolean(element, "plugin-conflict-prompted", conflictPrompted);
         setBoolean(element, "file-types-claimed", fileTypesClaimed);
-
-        return element;
     }
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
+    public void readState(@NotNull Element element) {
+        super.readState(element);
         conflictPrompted = getBoolean(element, "plugin-conflict-prompted", conflictPrompted);
         fileTypesClaimed = getBoolean(element, "file-types-claimed", fileTypesClaimed);
     }
-
-
 }

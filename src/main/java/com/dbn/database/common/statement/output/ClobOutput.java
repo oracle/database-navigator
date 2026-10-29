@@ -47,12 +47,12 @@ public class ClobOutput extends OutputContent {
 
   @Override
   public void registerParameters(CallableStatement statement) throws SQLException {
-    statement.registerOutParameter(shifted(1), Types.CLOB);
+    registerOutParameter(statement, 1, Types.CLOB);
   }
 
   @Override
   public void read(CallableStatement statement) throws SQLException {
-      Clob clob = statement.getClob(shifted(1));
+      Clob clob = getClob(statement, 1);
       value = read(clob);
   }
 

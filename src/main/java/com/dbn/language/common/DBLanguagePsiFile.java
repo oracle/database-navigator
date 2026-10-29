@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,6 @@ import com.dbn.language.common.psi.lookup.PsiLookupAdapter;
 import com.dbn.language.sql.SQLLanguage;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectPsiCache;
-import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.DBParseableVirtualFile;
@@ -94,7 +93,7 @@ import static com.dbn.vfs.DBParseableVirtualFile.PARSE_ROOT_ID_KEY;
 public abstract class DBLanguagePsiFile extends PsiFileImpl implements DatabaseContextBase, Presentable, StatefulDisposable, UnlistedDisposable {
     private final Language language;
     private final DBLanguageFileType fileType;
-    private DBObjectRef<DBSchemaObject> underlyingObject;
+    private DBObjectRef<DBObject> underlyingObject;
 
     @Override
     public PsiElement getPrevSibling() {
@@ -140,7 +139,7 @@ public abstract class DBLanguagePsiFile extends PsiFileImpl implements DatabaseC
         return null;
     }
 
-    public void setUnderlyingObject(DBSchemaObject underlyingObject) {
+    public void setUnderlyingObject(DBObject underlyingObject) {
         this.underlyingObject = DBObjectRef.of(underlyingObject);
     }
 
@@ -156,7 +155,7 @@ public abstract class DBLanguagePsiFile extends PsiFileImpl implements DatabaseC
             }
 
             DDLFileAttachmentManager instance = DDLFileAttachmentManager.getInstance(getProject());
-            DBSchemaObject editableObject = instance.getMappedObject(virtualFile);
+            DBObject editableObject = instance.getMappedObject(virtualFile);
             if (editableObject != null) return editableObject;
         }
 

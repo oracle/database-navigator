@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.dbn.object.common;
 
 import com.dbn.common.dispose.Failsafe;
+import com.dbn.common.thread.Synchronized;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.Resources;
 import com.dbn.database.common.metadata.DBObjectMetadata;
@@ -28,8 +29,6 @@ import com.dbn.language.common.DBLanguage;
 import com.dbn.language.psql.PSQLLanguage;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.list.DBObjectListContainer;
-import com.dbn.object.common.property.DBObjectProperty;
-import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.DatabaseFileSystem;
@@ -50,16 +49,20 @@ import static com.dbn.common.content.DynamicContentProperty.DEPENDENCY;
 import static com.dbn.common.content.DynamicContentProperty.INTERNAL;
 import static com.dbn.common.util.Commons.nvln;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.object.common.property.DBObjectProperty.DEBUGGABLE;
+import static com.dbn.object.common.property.DBObjectProperty.DISABLEABLE;
 import static com.dbn.object.common.property.DBObjectProperty.EDITABLE;
 import static com.dbn.object.common.property.DBObjectProperty.REFERENCEABLE;
 import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
+import static com.dbn.object.common.status.DBObjectStatus.DISABLED;
+import static com.dbn.object.type.DBObjectType.DEBUG_DEPENDENCY;
 import static com.dbn.object.type.DBObjectType.INCOMING_DEPENDENCY;
 import static com.dbn.object.type.DBObjectType.OUTGOING_DEPENDENCY;
 
 
 @Getter
 public abstract class DBSchemaObjectImpl<M extends DBObjectMetadata> extends DBObjectImpl<M> implements DBSchemaObject {
-    private volatile DBObjectStatusHolder objectStatus;
+    private volatile @Nullable DBObjectStatusHolder objectStatus;
 
     public DBSchemaObjectImpl(@NotNull DBSchema schema, M metadata) throws SQLException {
         super(schema, metadata);
@@ -83,6 +86,10 @@ public abstract class DBSchemaObjectImpl<M extends DBObjectMetadata> extends DBO
             childObjects.createObjectList(INCOMING_DEPENDENCY, this, INTERNAL, DEPENDENCY);
             childObjects.createObjectList(OUTGOING_DEPENDENCY, this, INTERNAL, DEPENDENCY);
         }
+        if (is(DEBUGGABLE)) {
+            DBObjectListContainer childObjects = ensureChildObjects();
+            childObjects.createObjectList(DEBUG_DEPENDENCY, this, INTERNAL, DEPENDENCY);
+        }
     }
 
     @Override
@@ -93,14 +100,15 @@ public abstract class DBSchemaObjectImpl<M extends DBObjectMetadata> extends DBO
 
     @Override
     public DBObjectStatusHolder getStatus() {
-        if (objectStatus == null) {
-            synchronized (this) {
-                if (objectStatus == null) {
-                    objectStatus = new DBObjectStatusHolder(getContentType());
-                }
-            }
-        }
-        return objectStatus;
+        DBObjectStatusHolder status = objectStatus;
+        if (status != null) return status;
+
+        return Synchronized.ensure(
+                this,
+                DBObjectStatusHolder.class,
+                () -> objectStatus,
+                () -> new DBObjectStatusHolder(getContentType()),
+                value -> objectStatus = value);
     }
 
     @Override
@@ -115,7 +123,7 @@ public abstract class DBSchemaObjectImpl<M extends DBObjectMetadata> extends DBO
 
     @Override
     public boolean isDisabled() {
-        return is(DBObjectProperty.DISABLEABLE) && !getStatus().is(DBObjectStatus.ENABLED);
+        return is(DISABLEABLE) && hasStatus(DISABLED);
     }
 
     @Override
@@ -126,6 +134,11 @@ public abstract class DBSchemaObjectImpl<M extends DBObjectMetadata> extends DBO
     @Override
     public List<DBObject> getReferencedObjects() {
         return getChildObjects(INCOMING_DEPENDENCY);
+    }
+
+    @Override
+    public List<DBObject> getDebugDependencies() {
+        return getChildObjects(DEBUG_DEPENDENCY);
     }
 
     @Override
@@ -160,12 +173,6 @@ public abstract class DBSchemaObjectImpl<M extends DBObjectMetadata> extends DBO
         } else {
             return (DBEditableObjectVirtualFile) getParentObject().getVirtualFile();
         }
-    }
-
-    @Nullable
-    @Override
-    public DBEditableObjectVirtualFile getCachedVirtualFile() {
-        return DatabaseFileSystem.getInstance().findDatabaseFile(this);
     }
 
     @Override
@@ -204,20 +211,4 @@ public abstract class DBSchemaObjectImpl<M extends DBObjectMetadata> extends DBO
                     return schemas;
                 });
     }
-
-    @Override
-    public void executeUpdateDDL(DBContentType contentType, String oldCode, String newCode) throws SQLException {
-        DatabaseInterfaceInvoker.execute(HIGHEST,
-                txt("prc.object.title.UpdatingSourceCode"),
-                txt("prc.object.text.UpdatingSources", getQualifiedNameWithType()),
-                getProject(),
-                getConnectionId(),
-                getSchemaId(),
-                conn -> {
-                    ConnectionHandler connection = getConnection();
-                    DatabaseDataDefinitionInterface dataDefinition = connection.getDataDefinitionInterface();
-                    dataDefinition.updateObject(getSchemaName(true), getName(true), getObjectType().getName(), oldCode, newCode, conn);
-                });
-    }
-
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,9 +35,10 @@ import com.dbn.editor.data.filter.DatasetFilterInput;
 import com.dbn.editor.data.filter.DatasetFilterManager;
 import com.dbn.editor.data.options.DataEditorSettings;
 import com.dbn.object.DBDataset;
+import com.dbn.object.DBNestedTable;
 import com.dbn.object.DBTable;
 import com.dbn.object.DBView;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.components.State;
@@ -53,7 +54,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.awt.Component;
 import java.awt.event.InputEvent;
@@ -62,7 +62,6 @@ import java.sql.SQLException;
 import java.util.List;
 
 import static com.dbn.common.component.Components.projectService;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.ui.util.Popups.popupBuilder;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -99,12 +98,13 @@ public class DatasetEditorManager extends ProjectComponentBase implements Persis
             @Override
             public void whenFileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
                 if (file instanceof DBEditableObjectVirtualFile editableObjectFile) {
-                    DBSchemaObject object = editableObjectFile.getObject();
+                    DBObject object = editableObjectFile.getObject();
                     if (object instanceof DBDataset) {
                         FileEditor[] fileEditors = source.getEditors(file);
                         for (FileEditor fileEditor : fileEditors) {
                             if (fileEditor instanceof DatasetEditor datasetEditor) {
-                                if (object instanceof DBTable || editableObjectFile.getSelectedEditorProviderId() == EditorProviderId.DATA) {
+                                if (object instanceof DBTable || object instanceof DBNestedTable ||
+                                        editableObjectFile.getSelectedEditorProviderId() == EditorProviderId.DATA) {
                                     datasetEditor.loadData(INITIAL_LOAD_INSTRUCTIONS);
                                 }
                             }
@@ -149,7 +149,7 @@ public class DatasetEditorManager extends ProjectComponentBase implements Persis
         DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(project);
         editorManager.connectAndOpenEditor(dataset, EditorProviderId.DATA, false, true);
     }
-    
+
     public void openRecordViewer(DatasetFilterInput filterInput) {
         try {
             DatasetRecord record = new DatasetRecord(filterInput);
@@ -181,7 +181,7 @@ public class DatasetEditorManager extends ProjectComponentBase implements Persis
 
             if (inputEvent instanceof MouseEvent mouseEvent) {
                 popup.showInScreenCoordinates(component, mouseEvent.getLocationOnScreen());
-                        
+
             } else {
                 popup.show(component);
             }
@@ -190,18 +190,17 @@ public class DatasetEditorManager extends ProjectComponentBase implements Persis
     /****************************************
      *       PersistentStateComponent       *
      *****************************************/
-    @Nullable
     @Override
-    public Element getComponentState() {
-        Element element = newStateElement();
+    public void writeState(Element element) {
+        super.writeState(element);
         Settings.setEnum(element, "record-view-column-sorting-type", recordViewColumnSortingType);
         Settings.setBoolean(element, "value-preview-text-wrapping", valuePreviewTextWrapping);
         Settings.setBoolean(element, "value-preview-pinned", valuePreviewPinned);
-        return element;
     }
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
+    public void readState(@NotNull Element element) {
+        super.readState(element);
         recordViewColumnSortingType = Settings.getEnum(element, "record-view-column-sorting-type", recordViewColumnSortingType);
         valuePreviewTextWrapping = Settings.getBoolean(element, "value-preview-text-wrapping", valuePreviewTextWrapping);
         valuePreviewTextWrapping = Settings.getBoolean(element, "value-preview-pinned", valuePreviewPinned);

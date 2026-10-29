@@ -18,6 +18,7 @@ package com.dbn.assistant.http;
 
 import com.dbn.assistant.AssistantComponent;
 import com.dbn.common.routine.ParametricCallable;
+import com.dbn.common.util.HttpConnections;
 import com.dbn.common.util.Unsafe;
 import dev.langchain4j.http.client.HttpClient;
 import dev.langchain4j.http.client.HttpRequest;
@@ -89,9 +90,15 @@ class AssistantHttpClient implements AssistantComponent, HttpClient {
 
     private static SuccessfulHttpResponse handleSuccess(HttpURLConnection connection) throws IOException {
         int responseCode = connection.getResponseCode();
+        String responseBody = HttpConnections.readResponseBody(connection);
+        if (responseBody.isBlank()) {
+            throw new IOException(String.format("HTTP %d: successful response has an empty body", responseCode));
+        }
+
         return SuccessfulHttpResponse
                 .builder()
                 .statusCode(responseCode)
+                .body(responseBody)
                 .build();
     }
 

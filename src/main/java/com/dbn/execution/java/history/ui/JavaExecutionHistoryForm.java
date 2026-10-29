@@ -53,6 +53,7 @@ import java.util.Map;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.ui.util.Splitters.makeRegular;
+import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
 import static com.dbn.nls.NlsResources.txt;
 
 public class JavaExecutionHistoryForm extends DBNFormBase {
@@ -78,6 +79,7 @@ public class JavaExecutionHistoryForm extends DBNFormBase {
 
 		actionsPanel.add(actionToolbar.getComponent());
 		makeRegular(contentSplitPane);
+		setSplitPaneProportion(contentSplitPane, 0.4);
 
 		JavaExecutionHistory executionHistory = getExecutionHistory();
 		if (selectedExecutionInput != null && !selectedExecutionInput.isObsolete() && !selectedExecutionInput.isInactive() && (!debug || DatabaseFeature.DEBUGGING.isSupported(selectedExecutionInput))) {

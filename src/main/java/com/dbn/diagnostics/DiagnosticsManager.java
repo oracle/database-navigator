@@ -38,7 +38,6 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.content.ContentManager;
 import com.intellij.util.Producer;
-import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -159,19 +158,6 @@ public class DiagnosticsManager extends ProjectComponentBase implements Persiste
 
     public ToolWindow getDiagnosticsToolWindow() {
         return ToolWindows.getToolWindow(getProject(), TOOL_WINDOW_ID);
-    }
-
-    /*********************************************
-     *            PersistentStateComponent       *
-     *********************************************/
-    @Nullable
-    @Override
-    public Element getComponentState() {
-        return null;
-    }
-
-    @Override
-    public void loadComponentState(@NotNull Element element) {
     }
 
     @Override

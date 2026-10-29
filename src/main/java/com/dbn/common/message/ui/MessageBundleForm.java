@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import com.dbn.common.message.MessageType;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.util.Strings;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,6 +31,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 
 public class MessageBundleForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -63,8 +63,7 @@ public class MessageBundleForm extends DBNFormBase {
             hintPanel.setVisible(false);
         } else {
             TextContent hintText = TextContent.plain(mainMessage);
-            DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
-            hintPanel.add(hintForm.getMainComponent());
+            installHintForm(this, hintText, hintPanel);
         }
     }
 

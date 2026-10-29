@@ -38,6 +38,7 @@ import com.dbn.object.properties.DBObjectPropertiesProvider;
 import com.dbn.object.properties.DBObjectPropertiesProviderCache;
 import com.dbn.object.properties.DBObjectProperty;
 import com.dbn.object.type.DBObjectType;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -77,7 +78,7 @@ public class ObjectPropertiesForm extends DBNFormBase {
         closeLabel.setIcon(Icons.ACTION_CLOSE_SMALL);
         closeLabel.setCursor(Cursors.handCursor());
         closeLabel.addMouseListener(closeMouseListener());
-        closeLabel.setToolTipText(txt("app.object.tooltip.HideObjectProperties"));
+        Tooltips.setToolTipText(closeLabel, txt("app.object.tooltip.HideObjectProperties"));
 
         Project project = ensureProject();
         ProjectEvents.subscribe(project, this, BrowserTreeEventListener.TOPIC, browserTreeEventListener());

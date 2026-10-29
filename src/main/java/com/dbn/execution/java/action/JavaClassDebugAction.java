@@ -24,19 +24,29 @@ import com.dbn.object.DBJavaMethod;
 import com.dbn.object.action.ObjectListShowAction;
 import com.dbn.object.common.DBObject;
 import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DEBUGGER;
+import static com.dbn.options.general.WorkspaceFeature.OJVM;
 
 public class JavaClassDebugAction extends ObjectListShowAction {
 
     public JavaClassDebugAction(DBJavaClass javaClass) {
         super(txt("app.execution.action.Debug"), javaClass);
         getTemplatePresentation().setIcon(Icons.METHOD_EXECUTION_DEBUG);
+    }
+
+    @Override
+    public void update(@NotNull AnActionEvent e) {
+        e.getPresentation().setVisible(isSupported(getSourceObject()));
     }
 
     @Nullable
@@ -74,5 +84,13 @@ public class JavaClassDebugAction extends ObjectListShowAction {
     @Override
     protected AnAction createObjectAction(DBObject object) {
         return new JavaMethodDebugAction((DBJavaMethod) object, true);
+    }
+
+    public static boolean isSupported(@Nullable DBObject object) {
+        if (isNotValid(object)) return false;
+        if (!(object instanceof DBJavaClass)) return false;
+        if (!OJVM.isEnabled(object.getProject())) return false;
+
+        return DEBUGGER.isEnabled(object.getProject());
     }
 }

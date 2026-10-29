@@ -79,6 +79,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.sql.Connection;
@@ -262,10 +263,12 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
     }
 
     protected final void appendDatabaseTag(
-            @NotNull Path contentRoot,
+            @NotNull LiquibaseWorkspacePaths paths,
             @NotNull Path changelogFile,
             @Nullable String author,
             @NotNull String tag) throws Exception {
+        Path contentRoot = paths.getContentRootPath();
+        paths.validateOutputPath(changelogFile);
         ResourceAccessor resourceAccessor = new DirectoryResourceAccessor(contentRoot);
         String changelogPath = contentRoot.relativize(changelogFile).toString().replace('\\', '/');
         DatabaseChangeLog changeLog = ChangeLogParserFactory.getInstance()
@@ -288,20 +291,25 @@ public abstract class LiquibaseExecutionProcessor implements ExtensionPoint {
 
         ChangeLogSerializer serializer = ChangeLogSerializerFactory.getInstance()
                 .getSerializer(changelogPath);
+        paths.validateOutputPath(changelogFile);
         try (OutputStream output = Files.newOutputStream(
                 changelogFile,
                 StandardOpenOption.WRITE,
-                StandardOpenOption.TRUNCATE_EXISTING)) {
+                StandardOpenOption.TRUNCATE_EXISTING,
+                LinkOption.NOFOLLOW_LINKS)) {
             serializer.write(changeLog.getChangeSets(), output);
         }
     }
 
     protected final void prepareChangelogOutput(@NotNull LiquibaseOperationContext context) throws Exception {
         LiquibaseOperationInput input = context.getInput();
-        Path changelogFile = input.getWorkspacePaths().getMasterChangelogPath();
+        LiquibaseWorkspacePaths paths = input.getWorkspacePaths();
+        Path changelogFile = paths.getMasterChangelogPath();
         boolean overwrite = input.isConfirmed();
+        paths.validateOutputPath(changelogFile);
         if (overwrite) Files.deleteIfExists(changelogFile);
         Files.createDirectories(changelogFile.getParent());
+        paths.validateOutputPath(changelogFile);
     }
 
     protected final void prepareChangelogContext(

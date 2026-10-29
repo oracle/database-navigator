@@ -18,35 +18,32 @@ package com.dbn.editor.data.ui.table.cell;
 
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Threads;
-import com.dbn.common.ui.misc.DBNButton;
-import com.dbn.common.ui.util.Borders;
+import com.dbn.data.editor.ui.DataEditorComponent;
 import com.dbn.data.editor.ui.TextFieldPopupProvider;
 import com.dbn.data.editor.ui.TextFieldWithPopup;
 import com.dbn.data.type.DBDataType;
 import com.dbn.editor.data.model.DatasetEditorModelCell;
 import com.dbn.editor.data.options.DataEditorPopupSettings;
 import com.dbn.editor.data.ui.table.DatasetEditorTable;
-import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.Icon;
-import javax.swing.JComponent;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.event.KeyEvent;
 
 import static com.dbn.common.ui.util.TextFields.isEmptyText;
 
-public class DatasetTableCellEditorWithPopup extends DatasetTableCellEditor {
+public class DatasetTableCellEditorWithPopup extends DatasetTableCellEditor<DataEditorComponent> {
     public DatasetTableCellEditorWithPopup(DatasetEditorTable table) {
-        super(table, new CustomTextFieldWithPopup(table));
+        super(table);
+    }
+
+    @Override
+    protected DataEditorComponent createEditorComponent(DatasetEditorTable table) {
+        return new TextFieldWithPopup(table.getProject(), table);
     }
 
     @Override
     @NotNull
-    public TextFieldWithPopup<?> getEditorComponent() {
+    public TextFieldWithPopup getEditorComponent() {
         return (TextFieldWithPopup) super.getEditorComponent();
     }
 
@@ -134,54 +131,4 @@ public class DatasetTableCellEditorWithPopup extends DatasetTableCellEditor {
         }
     }
 
-    /********************************************************
-     *                  TextFieldWithPopup                  *
-     ********************************************************/
-
-    private static class CustomTextFieldWithPopup extends TextFieldWithPopup<JTable> {
-        private CustomTextFieldWithPopup(DatasetEditorTable table) {
-            super(table.getProject(), table);
-            setBackground(table.getBackground());
-        }
-
-        @Override
-        public void customizeTextField(JTextField textField) {
-            textField.setBorder(Borders.EMPTY_BORDER);
-            textField.setMargin(JBUI.emptyInsets());
-            JTable table = getTableComponent();
-            textField.setPreferredSize(new Dimension(textField.getPreferredSize().width, table.getRowHeight()));
-            //textField.setBorder(new CompoundBorder(new LineBorder(Color.BLACK), new EmptyBorder(new Insets(1, 1, 1, 1))));
-        }
-
-        @Override
-        public JComponent createButton(Icon icon, String name) {
-            DBNButton button = new DBNButton(icon, name);
-            JTable table = getTableComponent();
-            if (table == null) return button;
-
-            button.setBorder(Borders.insetBorder(1));
-            button.setOpaque(false);
-            int rowHeight = table.getRowHeight();
-            button.setPreferredSize(new Dimension(Math.max(20, rowHeight), rowHeight - 2));
-            table.addPropertyChangeListener(e -> {
-                Object newProperty = e.getNewValue();
-                if (newProperty instanceof Font) {
-                    int rowHeight1 = table.getRowHeight();
-                    button.setPreferredSize(new Dimension(Math.max(20, rowHeight1), table.getRowHeight() - 2));
-                }
-            });
-
-            return button;
-        }
-
-        JTable getTableComponent() {
-            return getParentComponent();
-        }
-
-        @Override
-        public void setEditable(boolean editable) {
-            super.setEditable(editable);
-            setBackground(getTextField().getBackground());
-        }
-    }
 }

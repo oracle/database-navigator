@@ -40,10 +40,10 @@ import java.sql.SQLException;
 
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Messages.showWarningDialog;
+import static com.dbn.common.util.Strings.convertLineSeparators;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
-import static com.intellij.openapi.util.text.StringUtil.convertLineSeparators;
 
 public class JavaExecutionLargeValueResultForm extends DBNFormBase implements TextContentTypeOwner {
     private JPanel actionsPanel;

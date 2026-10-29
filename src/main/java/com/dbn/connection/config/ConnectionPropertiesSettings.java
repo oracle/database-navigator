@@ -75,15 +75,19 @@ public class ConnectionPropertiesSettings extends BasicProjectConfiguration<Conn
             String key = stringAttribute(propertyElement, "key");
             if (key == null) continue;
 
-            ProtectedContent value = new ProtectedContent(CONNECTION_GENERIC_PROPERTY);
+            ProtectedContent content = new ProtectedContent(CONNECTION_GENERIC_PROPERTY);
             Element valueElement = propertyElement.getChild("value");
             if (valueElement == null) {
                 // Legacy settings stored property values as plaintext attributes.
-                value.set(stringAttribute(propertyElement, "value"));
+                content.set(stringAttribute(propertyElement, "value"));
             } else {
-                value.readState(valueElement);
+                content.readState(valueElement);
             }
-            properties.put(key, value.get());
+
+            String value = content.get();
+            if (value != null) {
+                properties.put(key, value);
+            }
         }
 
         this.properties = properties;

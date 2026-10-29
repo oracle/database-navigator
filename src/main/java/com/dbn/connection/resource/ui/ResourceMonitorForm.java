@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.dbn.common.ui.util.Splitters.makeRegular;
+import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
 
 public class ResourceMonitorForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -58,6 +59,7 @@ public class ResourceMonitorForm extends DBNFormBase {
     ResourceMonitorForm(ResourceMonitorDialog parentComponent) {
         super(parentComponent);
         makeRegular(contentSplitPane);
+        setSplitPaneProportion(contentSplitPane, 0.3);
 
         connectionsList.addListSelectionListener(e -> {
             ConnectionHandler connection = connectionsList.getSelectedValue();

@@ -45,7 +45,7 @@ public class DBNConnectionPool extends ObjectPoolBase<DBNConnection, SQLExceptio
     private final String identifier;
     private final ConnectionRef connection;
     private final AtomicLong lastAccess = new AtomicLong();
-    private int maxSize;
+    private volatile int maxSize;
 
     public DBNConnectionPool(ConnectionHandler connection) {
         super(connection);
@@ -57,7 +57,11 @@ public class DBNConnectionPool extends ObjectPoolBase<DBNConnection, SQLExceptio
                 ConnectionConfigListener.TOPIC,
                 ConnectionConfigListener.whenChanged(id -> {
                     if (id == connection.getConnectionId()) {
-                        maxSize = loadMaxPoolSize();
+                        int maxSize = loadMaxPoolSize();
+                        synchronized (DBNConnectionPool.this) {
+                            DBNConnectionPool.this.maxSize = maxSize;
+                            DBNConnectionPool.this.notifyAll();
+                        }
                     }
                 }));
 
@@ -165,7 +169,7 @@ public class DBNConnectionPool extends ObjectPoolBase<DBNConnection, SQLExceptio
     }
 
     @Override
-    protected DBNConnection whenDropped(DBNConnection conn) {
+    protected DBNConnection whenDiscarded(DBNConnection conn) {
         Background.run(() -> Resources.close(conn));
         return conn;
     }

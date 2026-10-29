@@ -16,14 +16,16 @@
 
 package com.dbn.data.export.processor;
 
+import com.dbn.common.resource.ResourceLimit;
 import com.dbn.data.export.DataExportException;
 
+import static com.dbn.data.export.DataExportResourceLimits.MAX_EXPORT_CONTENT_LENGTH;
+import static com.dbn.data.export.DataExportResourceLimits.getDataExportContentLimit;
 import static com.dbn.nls.NlsResources.txt;
 
 class DataExportBuffer {
-    static final int MAX_EXPORT_CONTENT_LENGTH = 50 * 1024 * 1024;
-
     private final int maxLength;
+    private final ResourceLimit contentLimit;
     private final StringBuilder buffer = new StringBuilder();
 
     DataExportBuffer() {
@@ -32,6 +34,7 @@ class DataExportBuffer {
 
     DataExportBuffer(int maxLength) {
         this.maxLength = maxLength;
+        this.contentLimit = getDataExportContentLimit(maxLength);
     }
 
     DataExportBuffer append(String value) throws DataExportException {
@@ -52,7 +55,7 @@ class DataExportBuffer {
     }
 
     private void checkLength(int length) throws DataExportException {
-        if (length > maxLength - buffer.length()) {
+        if (!contentLimit.allowsAddition(buffer.length(), length)) {
             throw new DataExportException(txt("msg.dataExport.error.ExportContentTooLarge", maxLength));
         }
     }

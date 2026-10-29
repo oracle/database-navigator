@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import com.dbn.common.event.ApplicationEvents;
 import com.dbn.common.thread.Write;
 import com.dbn.common.util.Lists;
 import com.dbn.ddl.DDLFileAttachmentManager;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.vfs.DBVirtualFileBase;
 import com.dbn.vfs.DatabaseFileSystem;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
@@ -197,10 +197,10 @@ public final class VirtualFiles {
 
         if (virtualFile.isInLocalFileSystem()) {
             DDLFileAttachmentManager fileAttachmentManager = DDLFileAttachmentManager.getInstance(project);
-            DBSchemaObject schemaObject = fileAttachmentManager.getMappedObject(virtualFile);
-            if (schemaObject == null) return null;
+            DBObject object = fileAttachmentManager.getMappedObject(virtualFile);
+            if (object == null) return null;
 
-            return schemaObject.getEditableVirtualFile();
+            return object.getEditableVirtualFile();
         }
         return null;
     }

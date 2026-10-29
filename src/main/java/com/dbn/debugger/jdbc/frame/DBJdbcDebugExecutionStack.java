@@ -30,17 +30,19 @@ import java.util.List;
 @Getter
 public class DBJdbcDebugExecutionStack extends XExecutionStack {
     private final DBJdbcDebugStackFrame topFrame;
-    private final DBJdbcDebugProcess debugProcess;
+    private final DBJdbcDebugProcess<?> debugProcess;
+    private final long suspensionId;
 
-    DBJdbcDebugExecutionStack(DBJdbcDebugProcess debugProcess) {
+    DBJdbcDebugExecutionStack(DBJdbcDebugProcess<?> debugProcess, long suspensionId) {
         // WORKAROUND hide the single value "threads" dropdown
         // super(debugProcess.getName(), debugProcess.getIcon());
         super("", null);
 
         this.debugProcess = debugProcess;
+        this.suspensionId = suspensionId;
         ExecutionBacktraceInfo backtraceInfo = debugProcess.getBacktraceInfo();
         int frameNumber = backtraceInfo == null ? 1 : backtraceInfo.getTopFrameIndex();
-        topFrame = new DBJdbcDebugStackFrame(debugProcess, debugProcess.getRuntimeInfo(), frameNumber);
+        topFrame = new DBJdbcDebugStackFrame(debugProcess, debugProcess.getRuntimeInfo(), frameNumber, suspensionId);
 
     }
 
@@ -53,7 +55,11 @@ public class DBJdbcDebugExecutionStack extends XExecutionStack {
 
         for (DebuggerRuntimeInfo runtimeInfo : backtraceInfo.getFrames()) {
             if (Strings.isNotEmpty(runtimeInfo.getOwnerName()) || debugProcess.getExecutionInput() instanceof StatementExecutionInput) {
-                DBJdbcDebugStackFrame frame = new DBJdbcDebugStackFrame(debugProcess, runtimeInfo, runtimeInfo.getFrameIndex());
+                DBJdbcDebugStackFrame frame = new DBJdbcDebugStackFrame(
+                        debugProcess,
+                        runtimeInfo,
+                        runtimeInfo.getFrameIndex(),
+                        suspensionId);
                 frames.add(frame);
             }
         }

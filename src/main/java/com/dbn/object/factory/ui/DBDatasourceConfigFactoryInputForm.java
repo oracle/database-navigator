@@ -2,6 +2,16 @@
  * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.dbn.object.factory.ui;
@@ -9,7 +19,6 @@ package com.dbn.object.factory.ui;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.component.DBNComponent;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.info.DBNInfoLabel;
 import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.common.ui.misc.DBNComboBox;
@@ -19,7 +28,6 @@ import com.dbn.common.util.Json;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.DatabaseIdentifierCase;
-import com.dbn.object.factory.ObjectFactoryManager;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
@@ -38,6 +46,7 @@ import java.util.regex.Pattern;
 
 import static com.dbn.common.file.FileTypes.getJsonFileType;
 import static com.dbn.common.ui.form.DBNFormState.initPersistence;
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.nls.NlsResources.txt;
@@ -70,13 +79,11 @@ public class DBDatasourceConfigFactoryInputForm extends DBSchemaObjectFactoryInp
         initPreserveCaseFields();
         resetFormChanges();
 
-        whenFirstShown(() -> initEditor());
+        whenInitialized(() -> initEditor());
     }
 
     private void initFeatureInfo() {
-        DBNHintForm hintForm = new DBNHintForm(this,
-                TextContent.plain(txt("cfg.datasourceConfig.hint.Feature")), null, true);
-        hintPanel.add(hintForm.getComponent(), BorderLayout.CENTER);
+        installHintForm(this, TextContent.plain(txt("cfg.datasourceConfig.hint.Feature")), hintPanel);
 
         HyperLinkForm hyperLinkForm = HyperLinkForm.create(
                 txt("cfg.datasourceConfig.link.Documentation"),
@@ -94,11 +101,12 @@ public class DBDatasourceConfigFactoryInputForm extends DBSchemaObjectFactoryInp
     private void initEditor() {
         FileType jsonFileType = getJsonFileType();
         VirtualFile virtualFile = new LightVirtualFile("data_source_config_store.json", jsonFileType, "");
-        Document document = Documents.createDocument(OBJECT_DETAIL.of(getInput()));
+        Document document = Documents.createDocument(OBJECT_DETAIL.value(getInput()));
+        Documents.onDocumentChanged(document, this, e -> validateFormFields());
 
         jsonEditor = Editors.createEditor(document, ensureProject(), virtualFile, jsonFileType);
         jsonEditor.setEmbeddedIntoDialogWrapper(true);
-        jsonEditor.setPlaceholder(OBJECT_DETAIL.of(getInput()));
+        jsonEditor.setPlaceholder(OBJECT_DETAIL.value(getInput()));
         EditorSettings settings = jsonEditor.getSettings();
         settings.setLineNumbersShown(false);
         settings.setGutterIconsShown(false);
@@ -119,7 +127,7 @@ public class DBDatasourceConfigFactoryInputForm extends DBSchemaObjectFactoryInp
 
     @Override
     protected void initStatePersistence() {
-        StateAttributes state = ObjectFactoryManager.getInstance(ensureProject()).getState(getObjectType());
+        StateAttributes state = getUserInterfaceState();
         initPersistence(preserveCaseCheckBox, state, "preserve-identifier-case");
     }
 

@@ -25,7 +25,6 @@ import com.dbn.object.DBSynonym;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObjectImpl;
 import com.dbn.object.common.property.DBObjectProperty;
-import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import org.jetbrains.annotations.NotNull;
@@ -33,6 +32,8 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import java.sql.SQLException;
+
+import static com.dbn.object.common.status.DBObjectStatus.VALID;
 
 class DBSynonymImpl extends DBSchemaObjectImpl<DBSynonymMetadata> implements DBSynonym {
     private DBObjectRef<DBObject> underlyingObject;
@@ -59,8 +60,7 @@ class DBSynonymImpl extends DBSchemaObjectImpl<DBSynonymMetadata> implements DBS
 
     @Override
     public void initStatus(DBSynonymMetadata metadata) throws SQLException {
-        boolean valid = metadata.isValid();
-        getStatus().set(DBObjectStatus.VALID, valid);
+        setStatus(VALID, metadata.isValid());
     }
 
     @Override
@@ -79,7 +79,7 @@ class DBSynonymImpl extends DBSchemaObjectImpl<DBSynonymMetadata> implements DBS
     @Override
     @Nullable
     public Icon getIcon() {
-        if (getStatus().is(DBObjectStatus.VALID)) {
+        if (hasStatus(VALID)) {
             return Icons.DBO_SYNONYM;
         } else {
             return Icons.DBO_SYNONYM_ERR;

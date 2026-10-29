@@ -30,8 +30,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JPanel;
 
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Strings.convertLineSeparators;
 import static com.dbn.execution.common.input.CodeBlocks.extractCodeBlock;
-import static com.intellij.openapi.util.text.StringUtil.convertLineSeparators;
 
 public class JavaExecutionCodeResultForm extends JavaExecutionResultDetailForm {
     private JPanel mainPanel;

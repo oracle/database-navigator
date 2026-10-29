@@ -17,7 +17,7 @@
 <idea-plugin url="https://plugins.jetbrains.com/plugin/1800-database-navigator" require-restart="true">
     <name>Database Navigator</name>
     <id>DBN</id>
-    <version>4.1.0.3</version>
+    <version>4.1.1.0</version>
     <category>Database</category>
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
@@ -189,6 +189,7 @@
         <applicationService serviceImplementation="com.dbn.plugin.PluginStatusManager"/>
         <applicationService serviceImplementation="com.dbn.plugin.PluginConflictManager"/>
         <applicationService serviceImplementation="com.dbn.common.file.FileTypeService"/>
+        <applicationService serviceImplementation="com.dbn.common.checksum.file.FileFingerprintCache"/>
         <applicationService serviceImplementation="com.dbn.driver.DatabaseDriverManager"/>
         <applicationService serviceImplementation="com.dbn.driver.download.DriverDownloadManager"/>
         <applicationService serviceImplementation="com.dbn.connection.config.tns.TnsImportService"/>
@@ -269,6 +270,7 @@
         <projectService serviceImplementation="com.dbn.connection.session.DatabaseSessionManager"/>
         <projectService serviceImplementation="com.dbn.connection.console.DatabaseConsoleManager"/>
         <projectService serviceImplementation="com.dbn.oci.config.OciConfigManager"/>
+        <projectService serviceImplementation="com.dbn.object.management.DatabaseObjectManager"/>
         <projectService serviceInterface="com.dbn.object.management.ObjectManagementService" serviceImplementation="com.dbn.object.management.ObjectManagementServiceImpl"/>
 
         <fileIconPatcher implementation="com.dbn.vfs.DBFileIconPatcher"/>
@@ -355,6 +357,7 @@
         <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBArgumentPropertiesProvider"/>
         <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBTablePropertiesProvider"/>
         <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBTriggerPropertiesProvider"/>
+        <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBEventTriggerPropertiesProvider"/>
         <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBSynonymPropertiesProvider"/>
         <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBTypePropertiesProvider"/>
         <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBTypeAttributePropertiesProvider"/>
@@ -375,6 +378,8 @@
         <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBSchemaNavigationInfoProvider"/>
         <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBSynonymNavigationInfoProvider"/>
         <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBTableNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBTriggerNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBEventTriggerNavigationInfoProvider"/>
         <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBTypeNavigationInfoProvider"/>
         <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBTypeAttributeNavigationInfoProvider"/>
         <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBUserNavigationInfoProvider"/>
@@ -391,23 +396,36 @@
         <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBColumnFactoryAdapter"/>
         <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBCredentialFactoryAdapter"/>
         <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBDatasourceConfigFactoryAdapter"/>
+        <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBViewFactoryAdapter"/>
+        <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBMaterializedViewFactoryAdapter"/>
+        <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBSequenceFactoryAdapter"/>
+        <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBSynonymFactoryAdapter"/>
+        <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBDatasetTriggerFactoryAdapter"/>
+        <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBDatabaseTriggerFactoryAdapter"/>
+        <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBEventTriggerFactoryAdapter"/>
 
         <!--object management adapters-->
+        <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBTableManagementAdapter"/>
+        <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBColumnManagementAdapter"/>
+        <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBIndexManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBConstraintManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBCredentialManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBDatasourceConfigManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBAIProfileManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBMiningModelManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBTriggerManagementAdapter"/>
+        <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBEventTriggerManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBJsonViewManagementAdapter"/>
+        <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBMaterializedViewManagementAdapter"/>
+        <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBUserManagementAdapter"/>
 
         <!--object source code adapters-->
-        <objectSourceCodeAdapter implementation="com.dbn.editor.code.source.impl.DBLegacySourceCodeAdapter"/>
         <objectSourceCodeAdapter implementation="com.dbn.editor.code.source.impl.DBViewSourceCodeAdapter"/>
         <objectSourceCodeAdapter implementation="com.dbn.editor.code.source.impl.DBJsonViewSourceCodeAdapter"/>
         <objectSourceCodeAdapter implementation="com.dbn.editor.code.source.impl.DBMaterializedViewSourceCodeAdapter"/>
         <objectSourceCodeAdapter implementation="com.dbn.editor.code.source.impl.DBDatabaseTriggerSourceCodeAdapter"/>
         <objectSourceCodeAdapter implementation="com.dbn.editor.code.source.impl.DBDatasetTriggerSourceCodeAdapter"/>
+        <objectSourceCodeAdapter implementation="com.dbn.editor.code.source.impl.DBEventTriggerSourceCodeAdapter"/>
         <objectSourceCodeAdapter implementation="com.dbn.editor.code.source.impl.DBFunctionSourceCodeAdapter"/>
         <objectSourceCodeAdapter implementation="com.dbn.editor.code.source.impl.DBProcedureSourceCodeAdapter"/>
         <objectSourceCodeAdapter implementation="com.dbn.editor.code.source.impl.DBTypeSourceCodeAdapter"/>
@@ -671,12 +689,12 @@
                     <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift J"/>
                 </action>
             </group>
-            <group id="DBN.MainMenu.Monitoring" popup="true">
+            <group id="DBN.MainMenu.Monitoring" class="com.dbn.menu.action.MonitoringActionGroup" popup="true">
                 <action class="com.dbn.menu.action.ResourceMonitorOpenAction" id="DBN.MainMenu.ResourceMonitor"/>
                 <action id="DBN.MainMenu.EventMonitor" class="com.dbn.menu.action.MonitorDataChangeOpenAction"/>
                 <!--<action class="com.dbn.action.menu.PendingTransactionsOpenAction" id="DBN.MainMenu.PendingTransactions"/>-->
             </group>
-            <group id="DBN.MainMenu.Liquibase" popup="true" icon="com.dbn.common.icon.Icons.DB_LIQUIBASE">
+            <group id="DBN.MainMenu.Liquibase" class="com.dbn.menu.action.LiquibaseActionGroup" popup="true" icon="com.dbn.common.icon.Icons.DB_LIQUIBASE">
                 <action id="DBN.MainMenu.LiquibaseWorkspaces" class="com.dbn.menu.action.LiquibaseWorkspacesOpenAction"/>
                 <action id="DBN.MainMenu.LiquibaseEnvironmentProfiles" class="com.dbn.menu.action.LiquibaseEnvironmentProfilesOpenAction"/>
                 <separator/>
@@ -684,6 +702,8 @@
                 <action id="DBN.MainMenu.LiquibaseWorkflowDashboard" class="com.dbn.menu.action.LiquibaseWorkflowDashboardOpenAction"/>
             </group>
             <group class="com.dbn.prerequisite.action.PrerequisiteVerificationAction" popup="true" id="DBN.MainMenu.PrerequisiteVerification"/> />
+            <separator/>
+            <action class="com.dbn.driver.dashboard.DriverLibraryDashboardOpenAction" id="DBN.MainMenu.DriverLibraryDashboard"/>
             <separator/>
             <action id="DBN.MainMenu.Settings" class="com.dbn.menu.action.ProjectSettingsOpenAction"/>
             <group id="DBN.MainMenu.DefaultSettings" popup="true">
@@ -743,7 +763,7 @@
             <separator/>
             <action id="DBN.SessionBrowser.Settings" class="com.dbn.editor.session.action.SessionBrowserSettingsAction"/>
         </group>
-        <group id="DBN.Vector.Search">
+        <group id="DBN.Vector.Search" class="com.dbn.menu.action.VectorSearchActionGroup">
             <action id="DBN.Vector.Search.Schema" class="com.dbn.vector.search.action.VectorSchemaSelectAction"/>
             <action id="DBN.Vector.Search.Table" class="com.dbn.vector.search.action.VectorTableSelectAction"/>
             <action id="DBN.Vector.Search.Metric" class="com.dbn.vector.search.action.VectorMetricSelectAction"/>
@@ -841,9 +861,8 @@
             <action id="DBN.Vector.Embedding.Result.Toolbox" class="com.dbn.vector.action.VectorEmbeddingToolboxAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_INPUT_FORM"/>
         </group>
         <group id="DBN.MachineLearning.Result">
-            <action id="DBN.MachineLearning.Result.Toolbox" class="com.dbn.ml.result.action.MLResultTrainAgainAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_INPUT_FORM"/>
-            <action id="DBN.MachineLearning.Result.Predict" class="com.dbn.ml.result.action.MLResultPredictAction" icon="com.dbn.common.icon.Icons.ACTION_EXECUTE"/>
-            <action id="DBN.MachineLearning.Result.ViewInDatabase" class="com.dbn.ml.result.action.MLResultViewInBrowserAction" icon="com.dbn.common.icon.Icons.DBO_MINING_MODEL"/>
+            <action id="DBN.MachineLearning.Result.Toolbox" class="com.dbn.ml.request.action.MLResultTrainAgainAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_INPUT_FORM"/>
+            <action id="DBN.MachineLearning.Result.Predict" class="com.dbn.ml.prediction.action.MLResultPredictAction" icon="com.dbn.common.icon.Icons.ACTION_EXECUTE"/>
             <separator/>
             <action id="DBN.MachineLearning.Result.Close" class="com.dbn.ml.result.action.MLResultCloseAction" icon="com.dbn.common.icon.Icons.EXEC_RESULT_CLOSE"/>
         </group>
@@ -926,6 +945,7 @@
                     <action id="DBN.Browser.DisplayMode.Tabbed" class="com.dbn.browser.action.BrowserDisplayModeAction$Tabbed"/>
                     <action id="DBN.Browser.DisplayMode.Selector" class="com.dbn.browser.action.BrowserDisplayModeAction$Selector"/>
                 </group>
+                <action id="DBN.Browser.Settings.ConnectionConfig" class="com.dbn.browser.action.ConnectionConfigOpenAction"/>
                 <action id="DBN.Browser.Settings.Open" class="com.dbn.browser.action.BrowserProjectSettingsAction"/>
             </group>
         </group>

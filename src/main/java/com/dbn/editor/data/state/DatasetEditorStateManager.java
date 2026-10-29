@@ -26,9 +26,7 @@ import com.dbn.editor.data.state.sorting.ui.DatasetEditorSortingDialog;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
-import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.component.Components.projectService;
 
@@ -55,19 +53,6 @@ public class DatasetEditorStateManager extends ProjectComponentBase implements P
 
     public void openColumnSetupDialog(@NotNull DatasetEditor datasetEditor) {
         Dialogs.show(() -> new DatasetColumnSetupDialog(datasetEditor));
-    }
-
-    /*********************************************
-     *            PersistentStateComponent       *
-     *********************************************/
-    @Nullable
-    @Override
-    public Element getComponentState() {
-        return null;
-    }
-
-    @Override
-    public void loadComponentState(@NotNull Element element) {
     }
 
 }

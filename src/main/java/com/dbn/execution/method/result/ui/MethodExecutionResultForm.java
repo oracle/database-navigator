@@ -19,9 +19,7 @@ package com.dbn.execution.method.result.ui;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.ui.form.DBNForm;
-import com.dbn.common.ui.tab.DBNTabs;
 import com.dbn.common.ui.util.Borders;
-import com.dbn.common.ui.util.ClientProperty;
 import com.dbn.common.ui.util.TabbedPanes;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
@@ -50,11 +48,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
-import java.awt.Component;
 import java.util.List;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
+import static com.dbn.common.ui.util.TabbedPanes.selectTab;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -165,30 +163,13 @@ public class MethodExecutionResultForm extends ExecutionResultFormBase<MethodExe
         boolean select = outputTabs.getTabCount() == 0;
         String title = argument.getName();
         JComponent component = form.getComponent();
-        DBNTabs.initTabComponent(component, argument.getIcon(), null, form);
 
-        outputTabs.addTab(title, component);
+        outputTabs.addTab(title, argument.getIcon(), component);
         if (select) outputTabs.setSelectedIndex(0);
     }
 
     void selectArgumentOutputTab(DBArgument argument) {
-        for (int index = 0; index < outputTabs.getTabCount(); index++) {
-
-            Component component = outputTabs.getComponent(index);
-            DBNForm content = ClientProperty.FORM.get(component);
-
-            if (content instanceof MethodExecutionCursorResultForm cursorResultForm) {
-                if (cursorResultForm.getArgument().equals(argument)) {
-                    outputTabs.setSelectedIndex(index);
-                    break;
-                }
-            } else if (content instanceof MethodExecutionLargeValueResultForm largeValueResultForm) {
-                if (largeValueResultForm.getArgument().equals(argument)) {
-                    outputTabs.setSelectedIndex(index);
-                    break;
-                }
-            }
-        }
+        selectTab(outputTabs, argument.getName());
     }
 
     private void updateStatusBarLabels() {

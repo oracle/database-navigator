@@ -85,7 +85,7 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
         initOutputPanel();
 
         // delay the initialization of the query editor to force psi write action in the dialog modality state
-        whenFirstShown(() -> initFilterEditor() );
+        whenInitialized(() -> initFilterEditor());
     }
 
     private void initHeaderPanel() {

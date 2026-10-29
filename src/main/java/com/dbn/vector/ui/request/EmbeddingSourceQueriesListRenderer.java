@@ -19,6 +19,7 @@ package com.dbn.vector.ui.request;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.list.ColoredListCellRenderer;
 import com.dbn.vector.model.request.EmbeddingSourceQuery;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
 
@@ -44,6 +45,6 @@ public class EmbeddingSourceQueriesListRenderer extends ColoredListCellRenderer<
         append(value.getSelectStatementPreview(), regularAttributes);
 
         setIcon(Icons.FILE_SQL);
-        setToolTipText(value.getSelectStatement());
+        Tooltips.setToolTipText(this, value.getSelectStatement());
     }
 }

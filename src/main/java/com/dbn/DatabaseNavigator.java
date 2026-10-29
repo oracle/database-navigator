@@ -33,14 +33,12 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
 import static com.dbn.common.component.Components.applicationService;
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.getString;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.setString;
 import static com.dbn.common.util.FileChoosers.nativeFileChoosers;
@@ -106,25 +104,23 @@ public class DatabaseNavigator extends ApplicationComponentBase implements Persi
     /*********************************************
      *            PersistentStateComponent       *
      *********************************************/
-    @Nullable
     @Override
-    public Element getComponentState() {
-        Element element = newStateElement();
+    public void writeState(Element element) {
+        super.writeState(element);
         Element diagnosticsElement = Settings.newElement(element, "diagnostics");
         Diagnostics.writeState(diagnosticsElement);
         setString(element, "client-id", clientId);
         setString(element, "config-version", pluginVersion); // always save as current version
         setBooleanAttribute(element, "native-file-choosers", nativeFileChoosers);
-        return element;
     }
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
+    public void readState(@NotNull Element element) {
+        super.readState(element);
         Element diagnosticsElement = element.getChild("diagnostics");
         Diagnostics.readState(diagnosticsElement);
         clientId = getString(element, "client-id", clientId);
         configVersion = getString(element, "config-version", "");
         nativeFileChoosers = booleanAttribute(element, "native-file-choosers", nativeFileChoosers);
-
     }
 }

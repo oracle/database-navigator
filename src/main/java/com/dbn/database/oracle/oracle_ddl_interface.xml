@@ -16,6 +16,26 @@
 
 <!DOCTYPE data-dictionary SYSTEM "../statement-interface.dtd">
 <data-dictionary>
+    <statement-execution-processor id="rename-table">
+        <statement>alter table {@0}.{@1} rename to {@2}</statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="rename-column">
+        <statement>alter table {@0}.{@1} rename column {@2} to {@3}</statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="rename-index">
+        <statement>alter index {@0}.{@2} rename to {@3}</statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="rename-constraint">
+        <statement>alter table {@0}.{@1} rename constraint {@2} to {@3}</statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="create-synonym">
+        <statement>create synonym {@0}.{@1} for {@2}.{@3}</statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="create-view">
         <statement>create view {0} as {1}</statement>
     </statement-execution-processor>
@@ -41,6 +61,22 @@
         <statement>drop {0} {1}.{2}</statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="drop-user">
+        <statement>drop user {@0} cascade</statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="lock-user">
+        <statement>alter user {@0} account lock</statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="unlock-user">
+        <statement>alter user {@0} account unlock</statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="refresh-materialized-view">
+        <statement>begin dbms_mview.refresh(list =&gt; '{@0}.{@1}'); end;</statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="drop-constraint">
         <statement>alter table {0}.{1} drop constraint {2}</statement>
     </statement-execution-processor>
@@ -50,12 +86,18 @@
     </statement-execution-processor>
 
     <statement-execution-processor id="compile-object">
+        <statement since-version="11.1">
+            alter {2} {0}.{1} compile {3} {4}
+        </statement>
         <statement>
             alter {2} {0}.{1} compile {3}
         </statement>
     </statement-execution-processor>
 
     <statement-execution-processor id="compile-object-body">
+        <statement since-version="11.1">
+            alter {2} {0}.{1} compile {3} body {4}
+        </statement>
         <statement>
             alter {2} {0}.{1} compile {3} body
         </statement>

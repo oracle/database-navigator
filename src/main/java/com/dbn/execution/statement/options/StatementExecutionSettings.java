@@ -29,6 +29,8 @@ import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.execution.ExecutionResourceLimits.DEFAULT_RESULT_SET_FETCH_BLOCK_SIZE;
+import static com.dbn.execution.ExecutionResourceLimits.normalizeResultSetFetchBlockSize;
 import static com.dbn.nls.NlsResources.txt;
 
 @Getter
@@ -37,7 +39,7 @@ import static com.dbn.nls.NlsResources.txt;
 public class StatementExecutionSettings extends BasicProjectConfiguration<ExecutionEngineSettings, ConfigurationEditorForm> implements ExecutionTimeoutSettings, ProjectSupplier {
     private static final String REMEMBER_OPTION_HINT = ""/*"\n\n(you can remember your option and change it at any time in Settings > Execution Engine > Statement Execution)"*/;
 
-    private int resultSetFetchBlockSize = 100;
+    private int resultSetFetchBlockSize = DEFAULT_RESULT_SET_FETCH_BLOCK_SIZE;
     private int executionTimeout = 20;
     private int debugExecutionTimeout = 600;
     private boolean focusResult = false;
@@ -45,6 +47,10 @@ public class StatementExecutionSettings extends BasicProjectConfiguration<Execut
 
     public StatementExecutionSettings(ExecutionEngineSettings parent) {
         super(parent);
+    }
+
+    public void setResultSetFetchBlockSize(int resultSetFetchBlockSize) {
+        this.resultSetFetchBlockSize = normalizeResultSetFetchBlockSize(resultSetFetchBlockSize);
     }
 
     @Override
@@ -68,7 +74,7 @@ public class StatementExecutionSettings extends BasicProjectConfiguration<Execut
 
     @Override
     public void readConfiguration(Element element) {
-        resultSetFetchBlockSize = Settings.getInteger(element, "fetch-block-size", resultSetFetchBlockSize);
+        setResultSetFetchBlockSize(Settings.getInteger(element, "fetch-block-size", resultSetFetchBlockSize));
         executionTimeout = Settings.getInteger(element, "execution-timeout", executionTimeout);
         debugExecutionTimeout = Settings.getInteger(element, "debug-execution-timeout", debugExecutionTimeout);
         focusResult = Settings.getBoolean(element, "focus-result", focusResult);

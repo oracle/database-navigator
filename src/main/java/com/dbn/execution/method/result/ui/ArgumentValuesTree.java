@@ -16,13 +16,14 @@
 
 package com.dbn.execution.method.result.ui;
 
+import com.dbn.code.sql.color.SQLTextAttributesKeys;
 import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.tree.DBNColoredTreeCellRenderer;
 import com.dbn.common.ui.tree.DBNTree;
-import com.dbn.common.util.TextAttributes;
 import com.dbn.data.grid.color.DataGridTextAttributesKeys;
 import com.dbn.data.type.DBDataType;
+import com.dbn.data.type.GenericDataType;
 import com.dbn.execution.method.ArgumentValue;
 import com.dbn.object.DBArgument;
 import com.dbn.object.DBMethod;
@@ -39,14 +40,21 @@ import java.sql.ResultSet;
 import java.util.List;
 
 import static com.dbn.common.util.Strings.cachedLowerCase;
+import static com.dbn.common.util.TextAttributes.getSimpleTextAttributes;
+import static com.dbn.data.type.GenericDataType.LITERAL;
+import static com.dbn.data.type.GenericDataType.NUMERIC;
 import static com.dbn.nls.NlsResources.txt;
+import static com.intellij.ui.SimpleTextAttributes.ERROR_ATTRIBUTES;
+import static com.intellij.ui.SimpleTextAttributes.GRAY_ATTRIBUTES;
+import static com.intellij.ui.SimpleTextAttributes.REGULAR_ATTRIBUTES;
+import static com.intellij.ui.SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES;
 
 class ArgumentValuesTree extends DBNTree{
 
     ArgumentValuesTree(MethodExecutionResultForm parent, List<ArgumentValue> inputArgumentValues, List<ArgumentValue> outputArgumentValues) {
         super(parent, createModel(parent, inputArgumentValues, outputArgumentValues));
         setCellRenderer(new CellRenderer());
-        Color bgColor = TextAttributes.getSimpleTextAttributes(DataGridTextAttributesKeys.PLAIN_DATA).getBgColor();
+        Color bgColor = getSimpleTextAttributes(DataGridTextAttributesKeys.PLAIN_DATA).getBgColor();
         setBackground(bgColor == null ? Colors.getTableBackground() : bgColor);
 
         addTreeSelectionListener(createTreeSelectionListener());
@@ -89,20 +97,35 @@ class ArgumentValuesTree extends DBNTree{
             Object userValue = treeNode.getUserValue();
             if (userValue instanceof DBMethod method) {
                 setIcon(method.getIcon());
-                append(method.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                append(method.getName(), REGULAR_ATTRIBUTES);
             }
 
             if (userValue instanceof String) {
                 append((String) userValue, treeNode.isLeaf() ?
-                        SimpleTextAttributes.REGULAR_ATTRIBUTES :
-                        SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+                        REGULAR_ATTRIBUTES :
+                        REGULAR_BOLD_ATTRIBUTES);
             }
 
             if (userValue instanceof DBObjectRef) {
                 DBObjectRef<DBArgument> argumentRef = (DBObjectRef<DBArgument>) userValue;
                 DBArgument argument = DBObjectRef.get(argumentRef);
                 setIcon(argument == null ? Icons.DBO_ARGUMENT : argument.getIcon());
-                append(argumentRef.getObjectName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                append(argumentRef.getObjectName(), REGULAR_ATTRIBUTES);
+                if (argument != null) {
+                    DBDataType dataType = argument.getDataType();
+                    if (dataType != null) {
+                        append(" (" + dataType.getName() + ")", GRAY_ATTRIBUTES);
+                    }
+                }
+            }
+
+            if (userValue instanceof DBTypeAttribute attribute) {
+                setIcon(attribute.getIcon());
+                append(attribute.getName(), treeNode.isLeaf() ? REGULAR_ATTRIBUTES : REGULAR_BOLD_ATTRIBUTES);
+                DBDataType dataType = attribute.getDataType();
+                if (dataType != null) {
+                    append(" (" + dataType.getName() + ")", GRAY_ATTRIBUTES);
+                }
             }
 
             if (userValue instanceof ArgumentValue argumentValue) {
@@ -114,29 +137,49 @@ class ArgumentValuesTree extends DBNTree{
                 if (attribute == null) {
                     if (argument == null) {
                         setIcon(DBObjectType.ARGUMENT.getIcon());
-                        append(txt("app.shared.placeholder.Unknown"), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                        append(" = ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                        append(txt("app.shared.placeholder.Unknown"), REGULAR_ATTRIBUTES);
+                        append(" = ", REGULAR_ATTRIBUTES);
                     } else{
                         setIcon(argument.getIcon());
-                        append(argument.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                        append(" = ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                        DBDataType dataType = argument.getDataType();
+                        append(argument.getName(), REGULAR_ATTRIBUTES);
+                        append(" = ", REGULAR_ATTRIBUTES);
+                    }
+                    DBDataType dataType = argument == null ? null : argument.getDataType();
+                    appendValue(argumentValue, originalValue, displayValue, dataType);
+                    if (argument != null) {
                         if (dataType != null) {
-                            append("{" + cachedLowerCase(dataType.getName()) + "} " , SimpleTextAttributes.GRAY_ATTRIBUTES);
+                            append(" (" + dataType.getName() + ")", GRAY_ATTRIBUTES);
                         }
                     }
-                    append(displayValue, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
                 } else {
                     setIcon(attribute.getIcon());
-                    append(attribute.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                    append(" = ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                    append(attribute.getName(), REGULAR_ATTRIBUTES);
+                    append(" = ", REGULAR_ATTRIBUTES);
                     DBDataType dataType = attribute.getDataType();
+                    appendValue(argumentValue, originalValue, displayValue, dataType);
                     if (dataType != null) {
-                        append("{" + dataType.getName() + "} " , SimpleTextAttributes.GRAY_ATTRIBUTES);
+                        append(" (" + cachedLowerCase(dataType.getName()) + ")", GRAY_ATTRIBUTES);
                     }
-                    append(displayValue, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
                 }
             }
+        }
+
+        private void appendValue(ArgumentValue argumentValue, Object originalValue, String displayValue, DBDataType dataType) {
+            boolean valueHidden = originalValue instanceof ResultSet || argumentValue.isLargeObject() || argumentValue.isLargeValue();
+            GenericDataType genericDataType = dataType == null ? null : dataType.getGenericDataType();
+            if (!valueHidden && originalValue != null && genericDataType == LITERAL) {
+                displayValue = "'" + displayValue.replace("'", "''") + "'";
+            }
+
+            append(displayValue, getValueAttributes(genericDataType, originalValue));
+        }
+
+        private SimpleTextAttributes getValueAttributes(GenericDataType genericDataType, Object originalValue) {
+            if (originalValue == null) return ERROR_ATTRIBUTES;
+            if (genericDataType == LITERAL) return getSimpleTextAttributes(SQLTextAttributesKeys.STRING);
+            if (genericDataType == NUMERIC) return getSimpleTextAttributes(SQLTextAttributesKeys.NUMBER);
+
+            return REGULAR_ATTRIBUTES;
         }
     }
 }
