@@ -20,7 +20,6 @@ import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.common.ui.util.TabbedPanes;
 import com.dbn.migration.shared.engine.DatabaseMigrationEngineDescriptor;
@@ -41,6 +40,7 @@ import java.awt.BorderLayout;
 import java.util.List;
 
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 
 /**
  * Project-level dashboard for grouping and starting database migration workflows.
@@ -71,7 +71,7 @@ public class DatabaseMigrationWorkflowDashboardForm<
 
     private void initHintPanel() {
         DatabaseMigrationWorkflowDashboardDialog<W, C> dialog = ensureParentDialog();
-        hintPanel.add(new DBNHintForm(this, TextContent.plain(dialog.getDashboardHint()), null).getComponent(), BorderLayout.CENTER);
+        installHintForm(this, TextContent.plain(dialog.getDashboardHint()), hintPanel);
     }
 
     private void initHyperlinkPanel() {
