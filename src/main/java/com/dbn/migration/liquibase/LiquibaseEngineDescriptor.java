@@ -60,6 +60,7 @@ public final class LiquibaseEngineDescriptor
     public @NotNull StateAttributes getState(
             @NotNull Project project,
             @NotNull String category) {
-        return DatabaseLiquibaseManager.getInstance(project).getState(category);
+        DatabaseLiquibaseManager liquibaseManager = DatabaseLiquibaseManager.getInstance(project);
+        return liquibaseManager.getUserInterfaceState(category);
     }
 }

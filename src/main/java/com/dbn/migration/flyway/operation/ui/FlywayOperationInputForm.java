@@ -22,7 +22,6 @@ import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.ValueFactory;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.connection.ConnectionHandler;
@@ -41,6 +40,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.util.List;
 
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.setFormFieldEnabled;
 import static com.dbn.common.ui.link.Hyperlinks.initHyperlink;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
@@ -82,10 +82,7 @@ public class FlywayOperationInputForm extends DBNFormBase {
     }
 
     private void initHintPanel() {
-        hintPanel.add(new DBNHintForm(
-                this,
-                TextContent.plain(executionInput.getOperation().getHint()),
-                null).getComponent());
+        installHintForm(this, TextContent.plain(executionInput.getOperation().getHint()), hintPanel);
     }
 
     private void initDocumentationLink() {

@@ -21,8 +21,6 @@ import com.dbn.common.component.Components;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.state.StateAttributes;
-import com.dbn.common.state.StateCategory;
-import com.dbn.common.state.StateContainer;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.DatabaseType;
 import com.dbn.execution.ExecutionManager;
@@ -50,7 +48,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Dialogs.whenOk;
 
 @State(
@@ -60,7 +57,6 @@ import static com.dbn.common.util.Dialogs.whenOk;
 public class DatabaseFlywayManager extends ProjectComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Project.DatabaseFlywayManager";
 
-    private final StateContainer states = new StateContainer();
     private final FlywayWorkspaceBundle workspaces;
     private final FlywayTaskStarter taskStarter;
 
@@ -117,7 +113,7 @@ public class DatabaseFlywayManager extends ProjectComponentBase implements Persi
 
     @NotNull
     public StateAttributes getState(@NonNls @NotNull String category) {
-        return states.ensureAttributes(StateCategory.get(category));
+        return getUserInterfaceState(category);
     }
 
     public void openWorkspaceSettings() {
@@ -146,18 +142,15 @@ public class DatabaseFlywayManager extends ProjectComponentBase implements Persi
                 }));
     }
 
-    @Nullable
     @Override
-    public Element getComponentState() {
-        Element element = newStateElement();
-        states.writeState(element);
+    public void writeState(Element element) {
+        super.writeState(element);
         workspaces.writeState(element, "workspaces");
-        return element;
     }
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
-        states.readState(element);
+    public void readState(@NotNull Element element) {
+        super.readState(element);
         workspaces.readState(element, "workspaces");
     }
 }
