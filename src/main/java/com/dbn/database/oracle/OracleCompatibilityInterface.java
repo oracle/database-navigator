@@ -52,6 +52,7 @@ import java.sql.Statement;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -61,11 +62,15 @@ import static com.dbn.connection.AuthenticationTokenType.AZURE_SERVICE_PRINCIPAL
 import static com.dbn.connection.AuthenticationTokenType.AZURE_SERVICE_PRINCIPAL_TOKEN;
 import static com.dbn.connection.AuthenticationTokenType.OCI_API_KEY;
 import static com.dbn.connection.AuthenticationTokenType.OCI_INTERACTIVE;
+import static com.dbn.connection.AuthenticationType.TOKEN;
+import static com.dbn.connection.AuthenticationType.USER;
+import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 import static com.dbn.database.DatabaseFeature.AI_ASSISTANT;
 import static com.dbn.database.DatabaseFeature.AUTHID_METHOD_EXECUTION;
 import static com.dbn.database.DatabaseFeature.CHANGE_EXPIRED_PASSWORD;
 import static com.dbn.database.DatabaseFeature.CHANGE_PASSWORD;
 import static com.dbn.database.DatabaseFeature.CONNECTION_ERROR_RECOVERY;
+import static com.dbn.database.DatabaseFeature.CONNECT_WITH_PRIVILEGE;
 import static com.dbn.database.DatabaseFeature.CONSTRAINT_MANIPULATION;
 import static com.dbn.database.DatabaseFeature.CURRENT_SCHEMA;
 import static com.dbn.database.DatabaseFeature.DATABASE_LOGGING;
@@ -100,7 +105,6 @@ import static com.dbn.database.DatabaseObjectTypeId.CREDENTIAL;
 import static com.dbn.database.DatabaseObjectTypeId.JAVA_CLASS;
 import static com.dbn.database.DatabaseObjectTypeId.JAVA_RESOURCE;
 import static com.dbn.database.DatabaseObjectTypeId.MATERIALIZED_VIEW;
-import static com.dbn.database.DatabaseObjectTypeId.USER;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.event.ObjectChangeAction.LOCK;
@@ -135,6 +139,8 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
     public static final QuoteDefinition IDENTIFIER_QUOTE_DEFINITION = new QuoteDefinition(new QuotePair('"', '"'));
     private static final int MIN_JDWP_PORT = 1024;
     private static final int MAX_JDWP_PORT = 65535;
+    private static final @NonNls List<String> ADMINISTRATIVE_PRIVILEGES = List.of(
+            "SYSDBA", "SYSOPER", "SYSASM", "SYSBACKUP", "SYSDG", "SYSKM", "SYSRAC");
 
     @Override
     public void initializeLiquibaseConnection(@NotNull Connection connection) throws SQLException {
@@ -163,6 +169,7 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
         String ORACLE_JDBC_AZURE_CLIENT_ID = "oracle.jdbc.clientId";
         String ORACLE_JDBC_AZURE_TENANT_ID = "oracle.jdbc.tenantId";
         String ORACLE_JDBC_NEW_PASSWORD = "oracle.jdbc.newPassword";
+        String ORACLE_JDBC_INTERNAL_LOGON = "internal_logon";
         String ORACLE_JDBC_SSL_SERVER_DN_MATCH = "oracle.net.ssl_server_dn_match";
     }
 
@@ -246,6 +253,11 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
     }
 
     @Override
+    public List<String> getAdministrativePrivileges() {
+        return ADMINISTRATIVE_PRIVILEGES;
+    }
+
+    @Override
     public DBObjectTypeSpec getObjectTypeSpec(DatabaseObjectTypeId objectTypeId) {
         return switch (objectTypeId) {
             case DATASET_TRIGGER -> DBObjectTypeSpec.create(objectTypeId)
@@ -289,6 +301,7 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
                 SESSION_KILL,
                 SESSION_CURRENT_SQL,
                 CONNECTION_ERROR_RECOVERY,
+                CONNECT_WITH_PRIVILEGE,
                 CHANGE_PASSWORD,
                 CHANGE_EXPIRED_PASSWORD,
                 UPDATABLE_RESULT_SETS,
@@ -326,7 +339,15 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
 
     @Override
     public boolean supportsObjectAction(DatabaseObjectTypeId objectTypeId, ObjectChangeAction action) {
-        if (objectTypeId == USER && action.isOneOf(LOCK, UNLOCK)) return true;
+        if (action == ObjectChangeAction.RENAME) {
+            return objectTypeId.isOneOf(
+                    DatabaseObjectTypeId.TABLE,
+                    DatabaseObjectTypeId.COLUMN,
+                    DatabaseObjectTypeId.INDEX,
+                    DatabaseObjectTypeId.CONSTRAINT,
+                    DatabaseObjectTypeId.MINING_MODEL);
+        }
+        if (objectTypeId == DatabaseObjectTypeId.USER && action.isOneOf(LOCK, UNLOCK)) return true;
         if (objectTypeId == MATERIALIZED_VIEW && action == REFRESH) return true;
 
         return super.supportsObjectAction(objectTypeId, action);
@@ -380,7 +401,7 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
         if (authenticationInfo == null) return;
 
         AuthenticationType authenticationType = authenticationInfo.getType();
-        if (authenticationType == AuthenticationType.TOKEN) {
+        if (authenticationType == TOKEN) {
             AuthenticationTokenType tokenType = authenticationInfo.getTokenType();
             if (tokenType == OCI_INTERACTIVE) {
                 properties.add(Property.ORACLE_JDBC_TOKEN_AUTHENTICATION, PropertyValue.TOKEN_AUTHENTICATION_OCI_INTERACTIVE);
@@ -406,7 +427,24 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
             }
         } else {
             super.initConnectorAuthentication(properties, authenticationInfo);
+            initInternalLogonPrivilege(properties, authenticationInfo);
         }
+    }
+
+    private static void initInternalLogonPrivilege(
+            @NotNull ConnectorProperties properties,
+            @NotNull AuthenticationInfo authenticationInfo) {
+        AuthenticationType authenticationType = authenticationInfo.getType();
+        if (authenticationType == null) return;
+        if (!authenticationType.isOneOf(USER, USER_PASSWORD)) return;
+
+        String adminPrivilege = authenticationInfo.getAdminPrivilege();
+        if (Strings.isEmptyOrSpaces(adminPrivilege)) return;
+
+        String user = nvl(authenticationInfo.getUser(), "").trim();
+        //if (!"SYS".equalsIgnoreCase(user)) return;
+
+        properties.add(Property.ORACLE_JDBC_INTERNAL_LOGON, adminPrivilege.trim().toUpperCase(Locale.ENGLISH));
     }
 
     @Override
@@ -492,7 +530,7 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
         // if a bind exception was thrown or the error was due to n provider failure code
         if (visitor.hasBindException() ||
                 visitor.containsOraErrorCodes(ProviderErrorHandlingConstants.ORA_FAILURECODES_ON_CONNECTION)) {
-            if (info.getAuthenticationInfo().getType() == AuthenticationType.TOKEN) {
+            if (info.getAuthenticationInfo().getType() == TOKEN) {
                 //all token provider connection problems require a workaround for matching
                 //failures
                 Background.run(() -> resetTokenProviderConnection(info));

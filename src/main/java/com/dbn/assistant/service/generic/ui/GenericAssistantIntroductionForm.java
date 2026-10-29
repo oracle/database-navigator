@@ -25,7 +25,6 @@ import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.feature.FeatureAvailability;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.text.TextResources;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import lombok.SneakyThrows;
@@ -35,6 +34,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.common.ui.util.Buttons.onButtonClick;
 
 /**
@@ -70,9 +70,7 @@ public class GenericAssistantIntroductionForm extends AssistantDetailFormBase im
 
     private void initIntroContent() {
         TextContent introContent = loadIntroContent();
-        DBNHintForm hintForm = new DBNHintForm(this, introContent, null);
-        hintForm.setHighlighted(true);
-        hintPanel.add(hintForm.getComponent());
+        installHintForm(this, introContent, hintPanel);
     }
 
     @SneakyThrows

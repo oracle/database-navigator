@@ -24,18 +24,29 @@ import com.dbn.object.DBProgram;
 import com.dbn.object.action.ObjectListShowAction;
 import com.dbn.object.common.DBObject;
 import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.database.DatabaseFeature.DEBUGGING;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
+import static com.dbn.options.general.WorkspaceFeature.DEBUGGER;
 
 public class ProgramMethodDebugAction extends ObjectListShowAction {
     public ProgramMethodDebugAction(DBProgram program) {
         super(txt("app.execution.action.Debug"), program);
         getTemplatePresentation().setIcon(Icons.METHOD_EXECUTION_DEBUG);
+    }
+
+    @Override
+    public void update(@NotNull AnActionEvent e) {
+        e.getPresentation().setVisible(isSupported(getSourceObject()));
     }
 
     @Nullable
@@ -76,5 +87,14 @@ public class ProgramMethodDebugAction extends ObjectListShowAction {
     @Override
     protected AnAction createObjectAction(DBObject object) {
         return new MethodDebugAction((DBMethod) object, true);
+    }
+
+    public static boolean isSupported(@Nullable DBObject object) {
+        if (isNotValid(object)) return false;
+        if (!(object instanceof DBProgram)) return false;
+        if (!object.is(SCHEMA_OBJECT)) return false;
+        if (!DEBUGGER.isEnabled(object.getProject())) return false;
+
+        return DEBUGGING.isSupported(object);
     }
 }

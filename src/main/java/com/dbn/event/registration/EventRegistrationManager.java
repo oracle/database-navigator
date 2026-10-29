@@ -24,9 +24,6 @@ import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.data.Data;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.reflection.ObjectProxies;
-import com.dbn.common.state.StateAttributes;
-import com.dbn.common.state.StateCategory;
-import com.dbn.common.state.StateContainer;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
@@ -56,10 +53,8 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.SneakyThrows;
-import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -70,7 +65,6 @@ import java.util.Properties;
 import static com.dbn.common.Priority.HIGH;
 import static com.dbn.common.notification.NotificationCategory.DCN;
 import static com.dbn.common.operation.DatabaseOperation.ENABLE_CHANGE_NOTIFICATIONS;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Lists.toCsv;
 import static com.dbn.connection.jdbc.DBNResource.unwrap;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -88,8 +82,6 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
     public static final String COMPONENT_NAME = "DBNavigator.Project.EventRegistrationManager";
 
     private final EventRegistrationCache registrationCache = new EventRegistrationCache();
-    private final StateContainer states = new StateContainer();
-
     public EventRegistrationManager(@NotNull Project project) {
         super(project, COMPONENT_NAME);
     }
@@ -322,27 +314,5 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
     private static OracleConnection createProxy(Connection connection) {
         Connection rawConnection = unwrap(connection);
         return ObjectProxies.create(rawConnection, OracleConnection.class);
-    }
-
-    @NotNull
-    public StateAttributes getState(@NonNls String category) {
-        StateCategory stateCategory = StateCategory.get(category);
-        return states.ensureAttributes(stateCategory);
-    }
-
-    /****************************************
-     *       PersistentStateComponent       *
-     *****************************************/
-    @Nullable
-    @Override
-    public Element getComponentState() {
-        Element element = newStateElement();
-        states.writeState(element, "registration-states");
-        return element;
-    }
-
-    @Override
-    public void loadComponentState(@NotNull Element element) {
-        states.readState(element, "registration-states");
     }
 }

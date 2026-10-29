@@ -58,6 +58,25 @@ public class ObjectChangeEvent {
         this.object = DBObjectRef.of(object);
     }
 
+    public boolean isRootObjectEvent() {
+        DBObject object = getObject();
+        return object == null ? ownerId == null : object.isRootObject();
+    }
+
+    public boolean isSchemaObjectEvent() {
+        DBObject object = getObject();
+        return object == null ? ownerId != null : object.isSchemaObject();
+    }
+
+    public boolean isChildObjectEvent() {
+        DBObject object = getObject();
+        if (object == null) return false;
+        if (!object.isChildObject()) return false;
+
+        DBObject parent = object.getParentObject();
+        return parent != null && parent.isSchemaObject();
+    }
+
     public boolean matches(ConnectionHandler connection) {
         return connection != null && matches(connection.getConnectionId());
     }

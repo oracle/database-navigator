@@ -22,6 +22,7 @@ import java.io.StringReader;
 import java.lang.reflect.Proxy;
 import java.sql.ResultSet;
 
+import static com.dbn.data.value.LargeValueResourceLimits.MAX_READ_SIZE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -29,10 +30,10 @@ import static org.junit.Assert.assertTrue;
 public class JsonValueTest {
     @Test
     public void readsJsonThroughBoundedCharacterStream() throws Exception {
-        String content = new String(new char[LargeObjectValue.MAX_READ_SIZE + 1]);
+        String content = new String(new char[MAX_READ_SIZE + 1]);
         JsonValue value = new JsonValue(resultSetWith(content), 1);
 
-        assertEquals(LargeObjectValue.MAX_READ_SIZE, value.getData().length());
+        assertEquals(MAX_READ_SIZE, value.getData().length());
         assertTrue(value.isTruncated());
     }
 

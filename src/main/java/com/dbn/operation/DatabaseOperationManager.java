@@ -26,14 +26,12 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.operation.DatabaseOperationManager.COMPONENT_NAME;
 
 @State(name = COMPONENT_NAME, storages = @Storage(DatabaseNavigator.STORAGE_FILE))
@@ -63,10 +61,9 @@ public class DatabaseOperationManager extends ProjectComponentBase implements Pe
 	/****************************************
 	 *       PersistentStateComponent       *
 	 *****************************************/
-	@Nullable
 	@Override
-	public Element getComponentState() {
-		Element element = newStateElement();
+	public void writeState(Element element) {
+        super.writeState(element);
 		Element statesElement = newElement(element, "batch-states");
 //		for (String category : states.keySet()) {
 //			Element stateElement = newElement(statesElement, "state");
@@ -75,11 +72,12 @@ public class DatabaseOperationManager extends ProjectComponentBase implements Pe
 //			GenericStateHolder state = states.get(category);
 //			state.writeState(stateElement);
 //		}
-		return element;
+
 	}
 
 	@Override
-	public void loadComponentState(@NotNull Element element) {
+	public void readState(@NotNull Element element) {
+        super.readState(element);
 		Element statesElement = element.getChild("batch-states");
 //		if (statesElement != null) {
 //			for (Element stateElement : statesElement.getChildren("state")) {
@@ -89,5 +87,6 @@ public class DatabaseOperationManager extends ProjectComponentBase implements Pe
 //				states.put(category, state);
 //			}
 //		}
+
 	}
 }

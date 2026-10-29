@@ -21,7 +21,6 @@ import com.dbn.code.common.style.options.CodeStyleCaseSettings;
 import com.dbn.code.psql.style.PSQLCodeStyle;
 import com.dbn.common.util.Lists;
 import com.dbn.common.util.Strings;
-import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.common.DatabaseDataDefinitionInterfaceImpl;
@@ -40,7 +39,6 @@ import java.sql.SQLException;
 import static com.dbn.common.exception.Exceptions.notImplemented;
 import static com.dbn.database.DatabaseObjectTypeId.EVENT_TRIGGER;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
-import static com.dbn.object.factory.ObjectFactoryIdentifiers.quoteIdentifier;
 import static com.dbn.object.factory.model.DBObjectAttributeType.DATA_TYPE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.IS_INPUT;
 import static com.dbn.object.factory.model.DBObjectAttributeType.IS_OUTPUT;
@@ -172,8 +170,7 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
         if (Strings.isEmptyOrSpaces(functionName)) {
             functionName = triggerSpec.getObjectName();
         }
-        String triggerFunctionName = triggerSpec.getSchemaName(true) + '.' + quoteIdentifier(
-                triggerSpec.getConnection(), functionName);
+        String triggerFunctionName = triggerSpec.getSchemaName(true) + '.' + quoted(functionName, connection);
         executeUpdate(connection, "create-trigger-function", triggerFunctionName, TRIGGER_BODY.value(triggerSpec));
 
         @NonNls
@@ -191,9 +188,9 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
         builder.append(" on ");
         builder.append(triggerSpec.getSchemaName(true));
         builder.append('.');
-        builder.append(quoteIdentifier(
-                triggerSpec.getConnection(),
-                TRIGGER_TARGET_DATASET.value(triggerSpec)));
+        builder.append(quoted(
+                TRIGGER_TARGET_DATASET.value(triggerSpec), connection
+        ));
         builder.append(TRIGGER_FOR_EACH_ROW.is(triggerSpec) ? "\nfor each row\n" : "\nfor each statement\n");
         builder.append("execute function ").append(triggerFunctionName).append("()");
 
@@ -231,9 +228,8 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
         if (Strings.isEmptyOrSpaces(functionSchema)) {
             functionSchema = triggerSpec.getSchemaName();
         }
-        ConnectionHandler connection = triggerSpec.getConnection();
-        String triggerFunctionSchema = quoteIdentifier(connection, functionSchema);
-        String triggerFunctionName = quoteIdentifier(connection, functionName);
+        String triggerFunctionSchema = quoted(functionSchema, conn);
+        String triggerFunctionName = quoted(functionName, conn);
         String triggerBody = TRIGGER_BODY.value(triggerSpec);
 
         executeUpdate(conn, "create-event-trigger-function", functionSchema, functionName, triggerBody);

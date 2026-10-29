@@ -17,11 +17,13 @@
 package com.dbn.connection.config.ui;
 
 import com.dbn.common.action.DataKeys;
+import com.dbn.common.approval.UserApprovalManager;
 import com.dbn.common.color.Colors;
 import com.dbn.common.database.DatabaseInfo;
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.options.ConfigMonitor;
+import com.dbn.common.options.SettingsChangeNotifier;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.ui.CardLayouts;
 import com.dbn.common.ui.util.Borders;
@@ -29,7 +31,9 @@ import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Messages;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.ConnectionResourceLimits;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.DatabaseUrlPattern;
 import com.dbn.connection.DatabaseUrlType;
@@ -74,6 +78,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.dbn.common.approval.UserApprovalAction.CONNECTION_WORKSPACE_RESTORE;
 import static com.dbn.common.exception.Exceptions.getLocalizedMessage;
 import static com.dbn.common.options.ConfigStorage.CLIPBOARD;
 import static com.dbn.common.options.setting.Settings.newElement;
@@ -144,9 +149,13 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         ConnectionBundleSettings connectionBundleSettings = getConfiguration();
 
         List<ConnectionSettings> newConnections = new ArrayList<>();
+        List<ConnectionId> acknowledgedConnections = new ArrayList<>();
         ConnectionListModel listModel = (ConnectionListModel) connectionsList.getModel();
         for (int i=0; i< listModel.getSize(); i++) {
             ConnectionSettings connection = listModel.getElementAt(i);
+            if (connection.isModified() || connection.isNew()) {
+                acknowledgedConnections.add(connection.getConnectionId());
+            }
             connection.apply();
             connection.setNew(false);
             newConnections.add(connection);
@@ -155,6 +164,18 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         List<ConnectionSettings> connections = connectionBundleSettings.getConnections();
         connections.clear();
         connections.addAll(newConnections);
+
+        if (acknowledgedConnections.isEmpty()) return;
+
+        SettingsChangeNotifier.register(() -> {
+            UserApprovalManager approvalManager = UserApprovalManager.getInstance();
+            for (ConnectionId connectionId : acknowledgedConnections) {
+                ConnectionHandler connection = ConnectionHandler.get(connectionId);
+                if (connection == null || connection.isVirtual()) continue;
+
+                approvalManager.approve(CONNECTION_WORKSPACE_RESTORE, connection);
+            }
+        });
     }
 
     @Override
@@ -409,9 +430,17 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
             Element rootElement = ConnectionConfigExport.readClipboardElement();
             if (rootElement == null) return;
 
-            List<Element> configElements = rootElement.getChildren();
             ConnectionListModel model = (ConnectionListModel) connectionsList.getModel();
             ConnectionBundleSettings configuration = getConfiguration();
+            List<Element> configElements = rootElement.getChildren();
+            int connectionCount = configuration.getConnections().size();
+            if (!ConnectionResourceLimits.isConnectionImportAllowed(connectionCount, configElements.size())) {
+                showErrorDialog(getProject(),
+                        txt("msg.connection.title.ImportFailed"),
+                        txt("msg.connection.error.ImportLimitExceeded"));
+                return;
+            }
+
             List<ConnectionSettings> importedConnections = new ArrayList<>();
             for (Element configElement : configElements) {
                 ConnectionSettings clone = new ConnectionSettings(configuration);

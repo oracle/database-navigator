@@ -25,8 +25,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.MAX_TOOL_REQUEST_ARGUMENT_LENGTH;
-import static com.dbn.assistant.tool.execution.AssistantToolRequestLimits.MAX_TOOL_REQUEST_PREVIEW_LENGTH;
+import static com.dbn.assistant.AssistantResourceLimits.MAX_TOOL_REQUEST_ARGUMENT_LENGTH;
+import static com.dbn.assistant.AssistantResourceLimits.MAX_TOOL_REQUEST_PREVIEW_LENGTH;
 import static com.dbn.assistant.tool.execution.AssistantToolRequestVerifier.verifyRequest;
 
 public class AssistantToolRequestVerifierTest {

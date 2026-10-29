@@ -18,7 +18,6 @@ package com.dbn.common.ui.dialog;
 
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.intellij.ui.components.JBList;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
@@ -27,6 +26,8 @@ import javax.swing.DefaultListModel;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.util.List;
+
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 
 public class SelectionListForm<T> extends DBNFormBase {
     private JPanel mainPanel;
@@ -42,8 +43,7 @@ public class SelectionListForm<T> extends DBNFormBase {
         if (hintContent == null) {
             hintPanel.setVisible(false);
         } else {
-            DBNHintForm hintForm = new DBNHintForm(this, hintContent, null);
-            hintPanel.add(hintForm.getComponent());
+            installHintForm(this, hintContent, hintPanel);
         }
 
 

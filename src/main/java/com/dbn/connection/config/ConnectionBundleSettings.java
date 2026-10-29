@@ -39,6 +39,7 @@ import java.util.List;
 
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.connection.ConnectionResourceLimits.MAX_CONNECTION_COUNT;
 import static com.dbn.help.HelpTopic.DATABASE_CONFIG;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -46,7 +47,6 @@ import static com.dbn.nls.NlsResources.txt;
 @Setter
 @EqualsAndHashCode(callSuper = false)
 public class ConnectionBundleSettings extends BasicProjectConfiguration<ProjectSettings, ConnectionBundleSettingsForm> implements TopLevelConfig {
-    private static final int MAX_CONNECTION_COUNT = 256;
     public static final ThreadLocalFlag IS_IMPORT_EXPORT_ACTION = new ThreadLocalFlag(false);
     private final List<ConnectionSettings> connections = new ArrayList<>();
 

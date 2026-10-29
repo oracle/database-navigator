@@ -403,6 +403,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
 
     void updateAuthenticationVisibility() {
         DatabaseType databaseType = getSelectedDatabaseType();
+        authSettingsForm.setDatabaseType(databaseType);
         authSettingsForm.setAuthenticationTypes(getAuthenticationTypes());
         authSettingsForm.setCredentialsTitle(getCredentialsTitle());
         boolean cloudProviderConfig = urlSettingsForm.isCloudProviderConfig();

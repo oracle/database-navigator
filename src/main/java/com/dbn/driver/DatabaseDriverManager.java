@@ -40,7 +40,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.applicationService;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Strings.cachedLowerCase;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.driver.DatabaseDriverManager.COMPONENT_NAME;
@@ -163,8 +162,8 @@ public class DatabaseDriverManager extends ApplicationComponentBase implements P
     }
 
     @Override
-    public Element getComponentState() {
-        Element element = newStateElement();
+    public void writeState(Element element) {
+        super.writeState(element);
         Element driverClassesElement = newElement(element, "known-driver-classes");
         for (var entry : driverMetadata.entrySet()) {
             File file = entry.getKey();
@@ -174,11 +173,11 @@ public class DatabaseDriverManager extends ApplicationComponentBase implements P
             Element libraryElement = newElement(driverClassesElement, "library");
             metadata.writeState(libraryElement);
         }
-        return element;
     }
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
+    public void readState(@NotNull Element element) {
+        super.readState(element);
         Element driverClassesElement = element.getChild("known-driver-classes");
         if (driverClassesElement != null) {
             for (Element libraryElement : driverClassesElement.getChildren()) {

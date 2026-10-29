@@ -23,7 +23,6 @@ import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.ValueSelector;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.UserInterface;
@@ -50,6 +49,7 @@ import java.awt.Color;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ObjectQuickFilterForm extends DBNFormBase {
@@ -82,8 +82,7 @@ public class ObjectQuickFilterForm extends DBNFormBase {
         Filter<?> configFilter = objectList.getConfigFilter();
         if (configFilter != null) {
             TextContent hintText = TextContent.plain(txt("msg.objects.hint.QuickFilter"));
-            DBNHintForm hintForm = new DBNHintForm(this, hintText, null);
-            hintPanel.add(hintForm.getComponent());
+            installHintForm(this, hintText, hintPanel);
         }
 
         List<ObjectQuickFilterCondition> conditions = this.filter.getConditions();

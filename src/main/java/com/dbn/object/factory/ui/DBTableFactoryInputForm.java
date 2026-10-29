@@ -23,10 +23,8 @@ import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.DatabaseIdentifierCase;
-import com.dbn.object.factory.ObjectFactoryManager;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -68,10 +66,7 @@ public class DBTableFactoryInputForm extends DBSchemaObjectFactoryInputForm {
 
     @Override
     protected void initStatePersistence() {
-        Project project = ensureProject();
-        ObjectFactoryManager factoryManager = ObjectFactoryManager.getInstance(project);
-
-        StateAttributes state = factoryManager.getState(getObjectType());
+        StateAttributes state = getUserInterfaceState();
         initPersistence(preserveCaseCheckBox, state, "preserve-identifier-case");
     }
 

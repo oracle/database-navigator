@@ -21,7 +21,6 @@ import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.execution.java.wrapper.WrapperModel;
 import com.dbn.object.DBMethod;
 import com.dbn.object.common.DBObject;
@@ -35,6 +34,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.nls.NlsResources.txt;
 
 public class WrapperNamesEditorForm extends DBNFormBase {
@@ -70,8 +70,7 @@ public class WrapperNamesEditorForm extends DBNFormBase {
         int maxIdentifierLength = model.getMaxIdentifierLength();
         TextContent hintText = TextContent.plain(
                 txt("msg.java.hint.WrapperNamesEditor", maxIdentifierLength));
-        DBNHintForm hintForm = new DBNHintForm(this, hintText, null);
-        hintPanel.add(hintForm.getComponent());
+        installHintForm(this, hintText, hintPanel);
     }
 
 

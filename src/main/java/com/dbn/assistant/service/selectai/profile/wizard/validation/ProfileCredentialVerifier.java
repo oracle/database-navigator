@@ -24,6 +24,7 @@ import javax.swing.UIManager;
 import javax.swing.border.Border;
 import java.awt.Color;
 
+import static com.dbn.common.ui.util.Tooltips.setToolTipText;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
@@ -40,10 +41,10 @@ public class ProfileCredentialVerifier extends InputVerifier {
     boolean isValid = comboBox.getSelectedItem() != null;
     if (!isValid) {
       comboBox.setBorder(ERROR_BORDER);
-      comboBox.setToolTipText(txt("cfg.assistant.error.CredentialNameEmpty"));
+      setToolTipText(comboBox, txt("cfg.assistant.error.CredentialNameEmpty"));
     } else {
       comboBox.setBorder(DEFAULT_BORDER);
-      comboBox.setToolTipText(null);
+      setToolTipText(comboBox, null);
     }
     return isValid;
   }

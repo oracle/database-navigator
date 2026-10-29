@@ -16,7 +16,6 @@
 
 package com.dbn.object.management.adapter.impl;
 
-import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseMetadataInterface;
@@ -25,6 +24,7 @@ import com.dbn.object.DBDatasetTrigger;
 import com.dbn.object.DBTrigger;
 import com.dbn.object.management.ObjectManagementAdapterBase;
 import com.dbn.object.management.ObjectManagementAdapterExtension;
+import com.dbn.object.management.ObjectManagementRequest;
 import com.dbn.object.type.DBObjectType;
 
 import java.sql.SQLException;
@@ -44,18 +44,21 @@ public class DBTriggerManagementAdapter extends ObjectManagementAdapterBase<DBTr
     }
 
     @Override
-    protected void createObject(ConnectionHandler connection, DBNConnection conn, DBTrigger object) throws SQLException {
+    protected void createObject(ObjectManagementRequest<DBTrigger> request) throws SQLException {
         throw new UnsupportedOperationException(); // TODO
     }
 
     @Override
-    protected void updateObject(ConnectionHandler connection, DBNConnection conn, DBTrigger object) throws SQLException {
+    protected void updateObject(ObjectManagementRequest<DBTrigger> request) throws SQLException {
         throw new UnsupportedOperationException(); // TODO
     }
 
     @Override
-    protected void deleteObject(ConnectionHandler connection, DBNConnection conn, DBTrigger object) throws SQLException {
-        DatabaseDataDefinitionInterface databaseInterface = connection.getDataDefinitionInterface();
+    protected void deleteObject(ObjectManagementRequest<DBTrigger> request) throws SQLException {
+        DBTrigger object = request.object();
+
+        DatabaseDataDefinitionInterface databaseInterface = request.getDataDefinitionInterface();
+        DBNConnection conn = request.conn();
         if (object instanceof DBDatabaseTrigger) {
             databaseInterface.dropDatabaseTrigger(
                     object.getSchemaName(true),
@@ -77,20 +80,24 @@ public class DBTriggerManagementAdapter extends ObjectManagementAdapterBase<DBTr
     }
 
     @Override
-    protected void enableObject(ConnectionHandler connection, DBNConnection conn, DBTrigger object) throws SQLException {
-        DatabaseMetadataInterface databaseInterface = connection.getMetadataInterface();;
+    protected void enableObject(ObjectManagementRequest<DBTrigger> request) throws SQLException {
+        DBTrigger object = request.object();
+
+        DatabaseMetadataInterface databaseInterface = request.getMetadataInterface();
         databaseInterface.enableTrigger(
                 object.getSchemaName(true),
                 object.getName(true),
-                conn);
+                request.conn());
     }
 
     @Override
-    protected void disableObject(ConnectionHandler connection, DBNConnection conn, DBTrigger object) throws SQLException {
-        DatabaseMetadataInterface databaseInterface = connection.getMetadataInterface();;
+    protected void disableObject(ObjectManagementRequest<DBTrigger> request) throws SQLException {
+        DBTrigger object = request.object();
+
+        DatabaseMetadataInterface databaseInterface = request.getMetadataInterface();
         databaseInterface.disableTrigger(
                 object.getSchemaName(true),
                 object.getName(true),
-                conn);
+                request.conn());
     }
 }

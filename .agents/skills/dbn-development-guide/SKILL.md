@@ -32,7 +32,7 @@ This skill owns workflow rules, BugDB handling, validation command selection, re
 
 ## BugDB Workflow
 
-- When working on a BugDB ticket, name the Codex chat `Bug <number>` using the thread-title tool as soon as the bug number is known.
+- When working on a BugDB ticket, name the Codex chat `BUG-<number>` using the thread-title tool as soon as the bug number is known.
 - Access bug details at `https://beat.oraclecorp.com/ords/bug/bugui/bug-details?bugnumber=<number>`.
 - If the thread-title tool is unavailable, continue the work and mention that the chat title was not changed.
 - Keep BugDB-derived implementation scope narrow: tie findings, planned edits, and validation suggestions back to the reported bug number.

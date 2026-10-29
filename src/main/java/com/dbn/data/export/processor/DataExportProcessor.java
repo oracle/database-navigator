@@ -48,13 +48,13 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.data.export.DataExportResourceLimits.MAX_EXPORT_CELL_LENGTH;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 public abstract class DataExportProcessor implements ExtensionPoint {
     public static final ExtensionPointName<DataExportProcessor> EP = ExtensionPointName.create("com.dbn.dataExportProcessor");
-    static final int MAX_EXPORT_CELL_LENGTH = 1024 * 1024;
 
     public abstract boolean supports(DataExportFeature feature);
 

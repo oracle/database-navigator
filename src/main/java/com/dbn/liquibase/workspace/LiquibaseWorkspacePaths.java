@@ -16,20 +16,31 @@
 
 package com.dbn.liquibase.workspace;
 
+import com.dbn.common.component.ProjectUnit;
 import com.dbn.common.util.Strings;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
+import java.nio.file.LinkOption;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 
 /** Resolves and validates filesystem paths derived from a Liquibase workspace. */
-public class LiquibaseWorkspacePaths {
+public class LiquibaseWorkspacePaths extends ProjectUnit {
     private final LiquibaseWorkspace workspace;
 
-    public LiquibaseWorkspacePaths(@NotNull LiquibaseWorkspace workspace) {
+    public LiquibaseWorkspacePaths(@NotNull Project project, @NotNull LiquibaseWorkspace workspace) {
+        super(project);
         this.workspace = workspace;
     }
 
@@ -37,13 +48,19 @@ public class LiquibaseWorkspacePaths {
     public Path getContentRootPath() {
         String contentRootPath = requirePath(workspace.getContentRootPath(), "Content root");
         try {
-            Path contentRoot = Paths.get(contentRootPath).toAbsolutePath().normalize();
-            if (!Files.isDirectory(contentRoot)) {
+            Path configuredRoot = Paths.get(contentRootPath).toAbsolutePath().normalize();
+            if (!isProjectContentRoot(configuredRoot)) {
+                throw new IllegalArgumentException("Content root is not a project content root: " + configuredRoot);
+            }
+            Path contentRoot = configuredRoot.toRealPath();
+            if (!Files.isDirectory(contentRoot, LinkOption.NOFOLLOW_LINKS)) {
                 throw new IllegalArgumentException("Content root is not a directory: " + contentRoot);
             }
             return contentRoot;
         } catch (InvalidPathException e) {
             throw new IllegalArgumentException("Invalid content root path: " + contentRootPath, e);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Unable to resolve content root: " + contentRootPath, e);
         }
     }
 
@@ -93,21 +110,102 @@ public class LiquibaseWorkspacePaths {
     @NotNull
     public String getRelativePath(@NotNull Path path) {
         Path contentRoot = getContentRootPath();
-        Path normalizedPath = path.toAbsolutePath().normalize();
-        if (!normalizedPath.startsWith(contentRoot)) {
-            throw new IllegalArgumentException("Path must remain below the content root: " + path);
-        }
+        Path normalizedPath = validatePath(path, contentRoot);
         return contentRoot.relativize(normalizedPath).toString().replace(File.separatorChar, '/');
+    }
+
+    /** Validates a filesystem destination immediately before it is created, deleted, or written. */
+    @NotNull
+    public Path validateOutputPath(@NotNull Path path) {
+        return validatePath(path, getContentRootPath());
+    }
+
+    /** Rejects linked entries already present in a generated-output tree. */
+    @NotNull
+    public Path validateOutputDirectory(@NotNull Path path) throws IOException {
+        Path directory = validateOutputPath(path);
+        BasicFileAttributes attributes = readAttributes(directory);
+        if (attributes == null) return directory;
+        if (!attributes.isDirectory()) {
+            throw new IllegalArgumentException("Output path is not a directory: " + directory);
+        }
+
+        Files.walkFileTree(directory, new SimpleFileVisitor<>() {
+            @Override
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attributes) {
+                if (attributes.isSymbolicLink()) {
+                    throw new IllegalArgumentException("Output directory must not contain symbolic links: " + dir);
+                }
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attributes) {
+                if (attributes.isSymbolicLink()) {
+                    throw new IllegalArgumentException("Output directory must not contain symbolic links: " + file);
+                }
+                return FileVisitResult.CONTINUE;
+            }
+        });
+        return directory;
     }
 
     @NotNull
     private Path resolvePath(@NotNull Path parent, String path, String name) {
         String value = requirePath(path, name);
         Path resolved = parent.resolve(value).normalize();
-        if (!resolved.startsWith(parent)) {
+        Path contentRoot = getContentRootPath();
+        if (!parent.startsWith(contentRoot) || !resolved.startsWith(parent)) {
             throw new IllegalArgumentException("Path must remain below the content root: " + value);
         }
-        return resolved;
+        return validatePath(resolved, contentRoot);
+    }
+
+    @NotNull
+    private Path validatePath(@NotNull Path path, @NotNull Path contentRoot) {
+        Path normalizedPath = path.toAbsolutePath().normalize();
+        if (!normalizedPath.startsWith(contentRoot)) {
+            throw new IllegalArgumentException("Path must remain below the content root: " + path);
+        }
+        if (normalizedPath.equals(contentRoot)) return normalizedPath;
+
+        try {
+            Path current = contentRoot;
+            Path relativePath = contentRoot.relativize(normalizedPath);
+            for (int i = 0; i < relativePath.getNameCount(); i++) {
+                current = current.resolve(relativePath.getName(i));
+                BasicFileAttributes attributes = readAttributes(current);
+                if (attributes == null) continue;
+                if (attributes.isSymbolicLink()) {
+                    throw new IllegalArgumentException("Path must not contain symbolic links: " + current);
+                }
+
+                boolean lastComponent = i == relativePath.getNameCount() - 1;
+                if (!lastComponent && !attributes.isDirectory()) {
+                    throw new IllegalArgumentException("Path component is not a directory: " + current);
+                }
+            }
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Unable to validate workspace path: " + path, e);
+        }
+        return normalizedPath;
+    }
+
+    private BasicFileAttributes readAttributes(@NotNull Path path) throws IOException {
+        try {
+            return Files.readAttributes(path, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
+        } catch (NoSuchFileException e) {
+            return null;
+        }
+    }
+
+    private boolean isProjectContentRoot(@NotNull Path path) {
+        ProjectRootManager rootManager = ProjectRootManager.getInstance(getProject());
+        for (VirtualFile contentRoot : rootManager.getContentRoots()) {
+            Path rootPath = Paths.get(contentRoot.getPath()).toAbsolutePath().normalize();
+            if (path.equals(rootPath)) return true;
+        }
+        return false;
     }
 
     @NotNull

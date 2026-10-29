@@ -27,6 +27,7 @@ import com.dbn.object.DBColumn;
 import com.dbn.object.DBConstraint;
 import com.dbn.object.DBDataset;
 import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.SimpleTextAttributes;
 import lombok.Getter;
@@ -37,6 +38,8 @@ import java.awt.Color;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
+import static com.dbn.common.ui.util.Tooltips.escapeHtml;
+import static com.dbn.common.ui.util.Tooltips.setHtmlToolTipText;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.TextAttributes.getSimpleTextAttributes;
 import static com.dbn.data.grid.color.DataGridTextAttributesKeys.FOREIGN_KEY;
@@ -76,12 +79,13 @@ class ColumnValueTextField extends JTextField {
                 setCursor(Cursors.handCursor());
                 DBColumn foreignKeyColumn = column.getForeignKeyColumn();
                 if (foreignKeyColumn != null) {
-                    setToolTipText(txt("app.dataEditor.tooltip.ShowReferencedRecord", foreignKeyColumn.getDataset().getQualifiedName()));
+                    String datasetName = escapeHtml(foreignKeyColumn.getDataset().getQualifiedName());
+                    setHtmlToolTipText(this, txt("app.dataEditor.tooltip.ShowReferencedRecord", datasetName));
                 }
             } else {
                 super.processMouseMotionEvent(e);
                 setCursor(Cursors.defaultCursor());
-                setToolTipText(null);
+                Tooltips.setToolTipText(this, null);
             }
         } else {
             super.processMouseMotionEvent(e);

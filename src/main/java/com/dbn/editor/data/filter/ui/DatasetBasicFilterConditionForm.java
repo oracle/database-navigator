@@ -37,6 +37,7 @@ import com.dbn.object.DBColumn;
 import com.dbn.object.DBDataset;
 import com.dbn.object.common.ui.DBObjectSelector;
 import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.common.ui.util.Tooltips;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.ui.SimpleTextAttributes;
@@ -55,6 +56,7 @@ import java.util.List;
 import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.ui.util.Accessibility.announceEvent;
 import static com.dbn.common.ui.util.Accessibility.attachSelectionAnnouncer;
+import static com.dbn.common.ui.util.Tooltips.setHtmlToolTipText;
 import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Lists.sortedCopy;
 import static com.dbn.editor.data.filter.ConditionOperator.getConditionOperators;
@@ -117,7 +119,7 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
         operatorSelector.addListener(createOperatorSelectorListener());
         columnSelector.addListener(createColumnSelectorListener());
 
-        valueTextField.setToolTipText(txt("app.dataEditor.tooltip.ChangeBasicFilterInput"));
+        setHtmlToolTipText(valueTextField, txt("app.dataEditor.tooltip.ChangeBasicFilterInput"));
 
 
         Disposer.register(this, editorComponent);

@@ -16,6 +16,18 @@
 
 <!DOCTYPE data-dictionary SYSTEM "../statement-interface.dtd">
 <data-dictionary>
+    <statement-execution-processor id="rename-table">
+        <statement>alter table {@0}.{@1} rename to {@2}</statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="rename-column">
+        <statement>alter table {@0}.{@1} rename column {@2} to {@3}</statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="rename-index">
+        <statement>alter table {@0}.{@1} rename index {@2} to {@3}</statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="create-view">
         <statement>create view {0} as {1}</statement>
     </statement-execution-processor>

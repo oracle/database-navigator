@@ -23,6 +23,7 @@ import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.panel.DBNBanner;
 import com.dbn.common.ui.util.Borders;
+import com.dbn.common.ui.util.Splitters;
 import com.dbn.common.util.Strings;
 import com.dbn.liquibase.workspace.LiquibaseWorkspace;
 import com.dbn.liquibase.workspace.LiquibaseWorkspaceBundle;
@@ -34,6 +35,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 import java.awt.BorderLayout;
 import java.util.Map;
 
@@ -43,6 +45,7 @@ import static com.dbn.common.ui.CardLayouts.removeCard;
 import static com.dbn.common.ui.CardLayouts.showCard;
 import static com.dbn.common.ui.util.Decorators.createToolbarDecorator;
 import static com.dbn.common.ui.util.Decorators.createToolbarDecoratorComponent;
+import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
 import static com.dbn.nls.NlsResources.txt;
 
 /** Overview form for managing the named Liquibase workspaces in a project. */
@@ -52,6 +55,7 @@ public class LiquibaseWorkspacesForm extends DBNFormBase {
     private JPanel workspacesPanel;
     private JPanel detailsPanel;
     private JList<LiquibaseWorkspace> workspacesList;
+    private JSplitPane splitPane;
 
     private final LiquibaseWorkspaceBundle workspaces;
     private final Map<String, LiquibaseWorkspaceForm> workspaceForms = DisposableContainers.map(this);
@@ -67,6 +71,8 @@ public class LiquibaseWorkspacesForm extends DBNFormBase {
             label.setForeground(selected ? list.getSelectionForeground() : list.getForeground());
             return label;
         });
+
+        setSplitPaneProportion(splitPane, 0.3);
         workspacesList.addListSelectionListener(e -> showSelectedWorkspace());
         workspacesPanel.removeAll();
         workspacesPanel.add(initWorkspacesList());

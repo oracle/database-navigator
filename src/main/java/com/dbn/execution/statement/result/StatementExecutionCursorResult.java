@@ -26,6 +26,7 @@ import com.dbn.connection.jdbc.DBNPreparedStatement;
 import com.dbn.connection.jdbc.DBNResultSet;
 import com.dbn.data.grid.ui.table.resultSet.ResultSetTable;
 import com.dbn.data.model.resultSet.ResultSetDataModel;
+import com.dbn.execution.ExecutionResourceLimits;
 import com.dbn.execution.ExecutionStatus;
 import com.dbn.execution.common.options.ExecutionEngineSettings;
 import com.dbn.execution.statement.StatementExecutionContext;
@@ -45,6 +46,8 @@ import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.execution.ExecutionResourceLimits.DEFAULT_RESULT_SET_FETCH_BLOCK_SIZE;
+import static com.dbn.execution.ExecutionResourceLimits.normalizeResultSetFetchBlockSize;
 import static com.dbn.nls.NlsResources.txt;
 
 public class StatementExecutionCursorResult extends StatementExecutionBasicResult {
@@ -131,7 +134,7 @@ public class StatementExecutionCursorResult extends StatementExecutionBasicResul
     public void loadResultSet(DBNResultSet resultSet) throws SQLException {
         StatementExecutionResultForm resultForm = getForm();
         if (isValid(resultForm)) {
-            int rowCount = Math.max(dataModel == null ? 0 : dataModel.getRowCount() + 1, 100);
+            int rowCount = normalizeResultSetFetchBlockSize(Math.max(dataModel == null ? 0 : dataModel.getRowCount() + 1L, DEFAULT_RESULT_SET_FETCH_BLOCK_SIZE));
             dataModel = new ResultSetDataModel<>(resultSet, getConnection(), rowCount);
             resultForm.rebuildForm();
             resultForm.updateVisibleComponents();
