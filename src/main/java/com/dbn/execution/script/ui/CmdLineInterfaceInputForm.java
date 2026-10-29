@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,21 +18,20 @@ package com.dbn.execution.script.ui;
 
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.DatabaseType;
 import com.dbn.execution.script.CmdLineInterface;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
-import org.jdesktop.swingx.util.OS;
+import com.intellij.openapi.util.SystemInfo;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import java.awt.BorderLayout;
 import java.io.File;
 import java.util.Set;
 
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
 import static com.dbn.common.util.Naming.nextNumberedIdentifier;
@@ -65,8 +64,7 @@ public class CmdLineInterfaceInputForm extends DBNFormBase {
     private void initHintPanel() {
         TextContent hintText = TextContent.plain(
                 txt("msg.execution.hint.CommandLineInterfaceInput"));
-        DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
-        hintPanel.add(hintForm.getComponent(), BorderLayout.CENTER);
+        installHintForm(this, hintText, hintPanel);
     }
 
     private void initDatabaseTypeField() {
@@ -83,7 +81,7 @@ public class CmdLineInterfaceInputForm extends DBNFormBase {
         executableTextField.setText(executablePath);
 
         CmdLineInterface defaultClient = CmdLineInterface.getDefault(databaseType);
-        String extension = OS.isWindows() ? ".exe" : "";
+        String extension = SystemInfo.isWindows ? ".exe" : "";
         addSingleFileChooser(
                 getProject(), executableTextField,
                 txt("cfg.execution.title.SelectCommandLineClient"),

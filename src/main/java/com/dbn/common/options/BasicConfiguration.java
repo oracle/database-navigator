@@ -37,6 +37,7 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 
 import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.common.options.ConfigActivity.RENDERING;
 import static com.dbn.common.options.ConfigActivity.RESETTING;
 import static com.dbn.common.options.ConfigActivity.TRANSFERRING;
 
@@ -101,11 +102,11 @@ public abstract class BasicConfiguration<P extends Configuration, E extends Conf
     @Override
     @NotNull
     public JComponent createComponent() {
-        E editorForm = createConfigurationEditor();
+        return ConfigMonitor.surround(RENDERING, () -> {E editorForm = createConfigurationEditor();
         this.settingsEditor = WeakRef.of(editorForm);
 
         registerHeadlessDisposer();
-        return editorForm.getComponent();
+        return editorForm.getComponent();});
     }
 
     private void registerHeadlessDisposer() {
@@ -119,6 +120,7 @@ public abstract class BasicConfiguration<P extends Configuration, E extends Conf
 
     public void setModified(boolean modified) {
         if (ConfigMonitor.is(RESETTING)) return;
+        if (ConfigMonitor.is(RENDERING)) return;
 
         this.modified = modified;
     }
@@ -134,14 +136,11 @@ public abstract class BasicConfiguration<P extends Configuration, E extends Conf
         if (this instanceof TopLevelConfig topLevelConfig) {
             Configuration originalSettings = topLevelConfig.getOriginalSettings();
             if (originalSettings != this ) {
-                try {
-                    ConfigMonitor.set(TRANSFERRING, true);
+                ConfigMonitor.surround(TRANSFERRING, () -> {
                     Element settingsElement = new Element("settings");
                     writeConfiguration(settingsElement);
                     originalSettings.readConfiguration(settingsElement);
-                } finally {
-                    ConfigMonitor.set(TRANSFERRING, false);
-                }
+                });
             }
 
             // Notify only when all changes are set
@@ -151,16 +150,16 @@ public abstract class BasicConfiguration<P extends Configuration, E extends Conf
 
     @Override
     public void reset() {
-        try {
-            ConfigMonitor.set(RESETTING, true);
-            E editorForm = getSettingsEditor();
-            if (editorForm != null) {
-                editorForm.resetFormChanges();
+        ConfigMonitor.surround(RESETTING, () -> {
+            try {
+                E editorForm = getSettingsEditor();
+                if (editorForm != null) {
+                    editorForm.resetFormChanges();
+                }
+            } finally {
+                modified = false;
             }
-        } finally {
-            modified = false;
-            ConfigMonitor.set(RESETTING, false);
-        }
+        });
     }
 
     @Override

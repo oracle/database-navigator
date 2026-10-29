@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package com.dbn.vector.ui.request;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.common.util.Lists;
@@ -44,6 +43,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.nls.NlsResources.txt;
@@ -86,8 +86,7 @@ public class EmbeddingSourceInputTableForm extends VectorToolboxFormBase {
 
     private void initHintPanel() {
         TextContent hint = TextContent.plain(txt("msg.vector.hint.SourceInputTable"));
-        DBNHintForm hintForm = new DBNHintForm(this, hint, null, true);
-        hintPanel.add(hintForm.getComponent());
+        installHintForm(this, hint, hintPanel);
 
     }
 

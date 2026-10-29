@@ -17,7 +17,7 @@
 package com.dbn.ml.backend.dbms;
 
 import com.dbn.ml.model.MLTaskType;
-import com.dbn.ml.model.trainer.MLTrainerConfig;
+import com.dbn.ml.request.model.trainer.MLTrainerConfig;
 
 import java.util.HashMap;
 import java.util.List;

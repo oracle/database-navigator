@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import com.intellij.psi.tree.IElementType;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.code.common.completion.CodeCompletionContributor.DUMMY_TOKEN;
+import static com.dbn.common.util.Traces.isCalledThroughClass;
 
 public final class ParserBuilder {
     private final PsiBuilder builder;
@@ -36,6 +37,7 @@ public final class ParserBuilder {
     public final TokenMonitor tokenMonitor;
     public final TokenPairMonitor tokenPairMonitor;
     public final ParseErrorMonitor errorMonitor;
+    public final boolean codeCompletion;
 
     public ParserBuilder(PsiBuilder builder, DBLanguageDialect languageDialect) {
         this.builder = builder;
@@ -43,6 +45,11 @@ public final class ParserBuilder {
         this.tokenMonitor = new TokenMonitor(this);
         this.tokenPairMonitor = new TokenPairMonitor(this, languageDialect);
         this.errorMonitor = new ParseErrorMonitor(this);
+        this.codeCompletion = isCodeCompletion();
+    }
+
+    private static boolean isCodeCompletion() {
+        return isCalledThroughClass(c -> c.getName().startsWith("com.intellij.codeInsight.completion"), 30);
     }
 
     public ASTNode getTreeBuilt() {
@@ -67,10 +74,7 @@ public final class ParserBuilder {
 
     @Nullable
     public TokenType getToken() {
-        TokenType currentToken = cache.getCurrentToken();
-        if (currentToken == null) return null;
-        if (currentToken.isChameleon()) return null;
-        return currentToken;
+        return cache.getCurrentToken();
     }
 
     public TokenType getPreviousToken() {
@@ -85,8 +89,8 @@ public final class ParserBuilder {
         return cache.getTokenText();
     }
 
-    public boolean isDummyToken(){
-        return cache.isDummyToken();
+    public boolean isDummyToken() {
+        return codeCompletion && cache.isDummyToken();
     }
 
     public boolean eof() {
@@ -180,34 +184,51 @@ public final class ParserBuilder {
 
     private class Cache {
         private String tokenText;
-        private Boolean dummyToken;
         private TokenType currentToken;
         private TokenType previousToken;
         private TokenType nextToken;
+        private boolean dummyToken;
+        private boolean dummyTokenResolved;
+        private boolean currentTokenResolved;
+        private boolean previousTokenResolved;
+        private boolean nextTokenResolved;
 
         public void reset() {
             currentToken = null;
             tokenText = null;
-            dummyToken = null;
             previousToken = null;
             nextToken = null;
+            dummyTokenResolved = false;
+            currentTokenResolved = false;
+            previousTokenResolved = false;
+            nextTokenResolved = false;
         }
 
         public TokenType getPreviousToken() {
-            if (previousToken != null) return previousToken;
-            return previousToken = lookBack(1);
+            if (previousTokenResolved) return previousToken;
+
+            previousToken = lookBack(1);
+            previousTokenResolved = true;
+            return previousToken;
         }
 
         public TokenType getCurrentToken() {
-            if (currentToken != null) return currentToken;
+            if (currentTokenResolved) return currentToken;
 
             IElementType tokenType = builder.getTokenType();
-            return currentToken = tokenType instanceof TokenType ? (TokenType) tokenType : null;
+            if (tokenType instanceof TokenType type && !type.isChameleon()) {
+                currentToken = type;
+            }
+            currentTokenResolved = true;
+            return currentToken;
         }
 
         public TokenType getNextToken() {
-            if (nextToken != null) return nextToken;
-            return nextToken = lookAhead(1);
+            if (nextTokenResolved) return nextToken;
+
+            nextToken = lookAhead(1);
+            nextTokenResolved = true;
+            return nextToken;
         }
 
         public String getTokenText() {
@@ -216,10 +237,13 @@ public final class ParserBuilder {
         }
 
         public boolean isDummyToken() {
-            if (dummyToken != null) return dummyToken == Boolean.TRUE;
+            if (!codeCompletion) return false;
+            if (dummyTokenResolved) return dummyToken;
 
             String tokenText = getTokenText();
-            return dummyToken = tokenText != null && tokenText.contains(DUMMY_TOKEN) ? Boolean.TRUE : Boolean.FALSE;
+            dummyToken = tokenText != null && tokenText.endsWith(DUMMY_TOKEN);
+            dummyTokenResolved = true;
+            return dummyToken;
         }
     }
 

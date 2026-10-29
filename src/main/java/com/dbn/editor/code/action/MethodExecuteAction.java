@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import com.dbn.debugger.DBDebuggerType;
 import com.dbn.editor.code.SourceCodeEditor;
 import com.dbn.execution.method.MethodExecutionManager;
 import com.dbn.object.DBMethod;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -59,8 +59,8 @@ public class MethodExecuteAction extends AbstractCodeEditorAction {
     private static boolean isVisible(@Nullable DBSourceCodeVirtualFile sourceCodeFile) {
         if (isNotValid(sourceCodeFile)) return false;
 
-        DBSchemaObject schemaObject = sourceCodeFile.getObject();
-        DBObjectType objectType = schemaObject.getObjectType();
+        DBObject object = sourceCodeFile.getObject();
+        DBObjectType objectType = object.getObjectType();
         return objectType.matches(DBObjectType.METHOD);
     }
 }

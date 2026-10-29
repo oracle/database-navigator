@@ -191,6 +191,22 @@ public final class Data {
         return asTypeList(object, Double.class);
     }
 
+    public static Double[] asDoubleArray(@Nullable Object object) {
+        List<Double> values = asDoubleList(object);
+        return values == null ? new Double[0] : values.toArray(new Double[0]);
+    }
+
+    public static double[] asDoublePrimitiveArray(@Nullable Object object) {
+        List<Double> values = asDoubleList(object);
+        if (values == null) return new double[0];
+
+        double[] array = new double[values.size()];
+        for (int i = 0; i < values.size(); i++) {
+            array[i] = asDoublePrimitive(values.get(i));
+        }
+        return array;
+    }
+
     public static double asDoublePrimitive(@Nullable Object object) {
         Double doubleVal = asDouble(object);
         return doubleVal == null ? 0 : doubleVal;

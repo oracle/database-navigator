@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,9 +35,7 @@ import com.dbn.language.common.element.impl.NamedElementType;
 import com.dbn.language.common.element.impl.OneOfElementType;
 import com.dbn.language.common.element.impl.QualifiedIdentifierVariant;
 import com.dbn.language.common.element.impl.TokenElementType;
-import com.dbn.language.common.element.impl.WrapperElementType;
 import com.dbn.language.common.element.parser.Branch;
-import com.dbn.language.common.element.path.AstNode;
 import com.dbn.language.common.psi.BasePsiElement;
 import com.dbn.language.common.psi.IdentifierPsiElement;
 import com.dbn.language.common.psi.LeafPsiElement;
@@ -76,6 +74,7 @@ import java.util.Set;
 
 import static com.dbn.common.util.Naming.nextNumberedIdentifier;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
+import static com.dbn.language.common.element.lookup.NextLeafResolver.nextPossibleLeafs;
 import static com.dbn.language.common.element.util.ElementTypeAttribute.SCOPE_ISOLATION;
 import static com.dbn.language.common.element.util.ElementTypeAttribute.STATEMENT;
 import static com.dbn.language.common.psi.lookup.LookupAdapters.aliasDefinition;
@@ -208,29 +207,17 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
                     parentObject = parentPsiElement.getUnderlyingObject();
                 }
             }
-        } else if (parent instanceof BasePsiElement basePsiElement) {
-            ElementTypeBase elementType = basePsiElement.elementType;
-            if (elementType.isWrappingBegin((LeafElementType) element.elementType)) {
-                if (elementType instanceof WrapperElementType wrapperElementType) {
-                    var completionCandidates = wrapperElementType.wrappedElement.cache.getFirstPossibleLeafs();
-                    context.addCompletionCandidates(completionCandidates);
-                } else {
-                    var candidates = elementType.cache.getFirstPossibleLeafs();
-                    context.addCompletionCandidates(candidates);
-                }
-            }
         }
 
         if (!context.hasCompletionCandidates()) {
             collectExtendedOneOfVariants(element, context);
 
-            LeafElementType elementType = (LeafElementType) element.elementType;
-            AstNode node = new AstNode(element.getNode());
-            ElementLookupContext lookupContext = computeParseBranches(element.getNode(), context.getDatabaseVersion());
+            ASTNode node = element.getNode();
+            ElementLookupContext lookupContext = computeParseBranches(node, context.getDatabaseVersion());
             if (!context.isNewLine()) {
                 lookupContext.addBreakOnAttribute(STATEMENT);
             }
-            var candidates = elementType.getNextPossibleLeafs(node, lookupContext);
+            var candidates = nextPossibleLeafs(node, lookupContext);
             context.addCompletionCandidates(candidates);
         }
 

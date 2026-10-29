@@ -19,7 +19,6 @@ package com.dbn.editor.data.filter;
 import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
-import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Dialogs.DialogCallback;
 import com.dbn.connection.ConnectionHandler;
@@ -29,19 +28,18 @@ import com.dbn.editor.data.DatasetEditorManager;
 import com.dbn.editor.data.filter.ui.DatasetFilterDialog;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBDataset;
+import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 
 @State(
     name = DatasetFilterManager.COMPONENT_NAME,
@@ -147,35 +145,35 @@ public class DatasetFilterManager extends ProjectComponentBase implements Persis
     }
 
     private void addFilterGroup(@NotNull DatasetFilterGroup filterGroup) {
-        ConnectionId connectionId = filterGroup.getConnectionId();
-        String datasetName = filterGroup.getDatasetName();
+        DBObjectRef<DBDataset> dataset = filterGroup.getDataset();
+        if (dataset == null) return;
+
+        ConnectionId connectionId = dataset.getConnectionId();
+        String datasetName = dataset.getQualifiedName();
         Map<String, DatasetFilterGroup> filterGroups = getFilterGroups(connectionId);
 
         filterGroups.put(datasetName, filterGroup);
     }
 
     public DatasetFilterGroup getFilterGroup(@NotNull DBDataset dataset) {
-        ConnectionHandler connection = Failsafe.nn(dataset.getConnection());
-        ConnectionId connectionId = connection.getConnectionId();
-        String datasetName = dataset.getQualifiedName();
-        return getFilterGroup(connectionId, datasetName);
+        return getFilterGroup(DBObjectRef.of(dataset));
     }
 
     public DatasetFilterGroup getFilterGroup(@NotNull DatasetFilter filter) {
-        ConnectionId connectionId = filter.getConnectionId();
-        String datasetName = filter.getDatasetName();
-        return getFilterGroup(connectionId, datasetName);
+        return getFilterGroup(filter.getDatasetRef());
+    }
+
+    @NotNull
+    private DatasetFilterGroup getFilterGroup(@NotNull DBObjectRef<DBDataset> dataset) {
+        ConnectionId connectionId = dataset.getConnectionId();
+        String datasetName = dataset.getQualifiedName();
+        Map<String, DatasetFilterGroup> filterGroups = getFilterGroups(connectionId);
+        return filterGroups.computeIfAbsent(datasetName, n -> new DatasetFilterGroup(getProject(), dataset));
     }
 
     @NotNull
     private Map<String, DatasetFilterGroup> getFilterGroups(ConnectionId connectionId) {
         return filters.computeIfAbsent(connectionId, id -> new ConcurrentHashMap<>());
-    }
-
-    @NotNull
-    public DatasetFilterGroup getFilterGroup(ConnectionId connectionId, String datasetName) {
-        Map<String, DatasetFilterGroup> filterGroups = getFilterGroups(connectionId);
-        return filterGroups.computeIfAbsent(datasetName, n -> new DatasetFilterGroup(getProject(), connectionId, n));
     }
 
     public static DatasetFilterManager getInstance(@NotNull Project project) {
@@ -185,10 +183,9 @@ public class DatasetFilterManager extends ProjectComponentBase implements Persis
     /****************************************
      *       PersistentStateComponent       *
      *****************************************/
-    @Nullable
     @Override
-    public Element getComponentState() {
-        Element element = newStateElement();
+    public void writeState(Element element) {
+        super.writeState(element);
 
         for (var entry : filters.entrySet()) {
             ConnectionId connectionId = entry.getKey();
@@ -202,11 +199,12 @@ public class DatasetFilterManager extends ProjectComponentBase implements Persis
                 filterGroup.writeConfiguration(filterListElement);
             }
         }
-        return element;
     }
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
+    public void readState(@NotNull Element element) {
+        super.readState(element);
+
         for (Element child : element.getChildren()) {
             DatasetFilterGroup filterGroup = new DatasetFilterGroup(getProject());
             filterGroup.readConfiguration(child);

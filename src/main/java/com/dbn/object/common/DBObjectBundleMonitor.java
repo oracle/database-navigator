@@ -21,16 +21,22 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.list.DBObjectList;
+import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.event.ObjectChangeAction;
 import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.event.ObjectChangeListener;
 import com.dbn.object.type.DBObjectType;
 import lombok.extern.slf4j.Slf4j;
 
+import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
 import static com.dbn.object.event.ObjectChangeAction.DELETE;
 import static com.dbn.object.event.ObjectChangeAction.DISABLE;
 import static com.dbn.object.event.ObjectChangeAction.ENABLE;
+import static com.dbn.object.event.ObjectChangeAction.LOCK;
+import static com.dbn.object.event.ObjectChangeAction.REFRESH;
+import static com.dbn.object.event.ObjectChangeAction.RENAME;
+import static com.dbn.object.event.ObjectChangeAction.UNLOCK;
 import static com.dbn.object.event.ObjectChangeAction.UNSPECIFIED;
 import static com.dbn.object.event.ObjectChangeAction.UPDATE;
 
@@ -52,7 +58,7 @@ class DBObjectBundleMonitor implements ObjectChangeListener {
 
         DBObject object = event.getObject();
         ObjectChangeAction action = event.getChangeAction();
-        if (object != null && action.isOneOf(UPDATE, ENABLE, DISABLE)) {
+        if (object != null && !event.isRootObjectEvent() && action.isOneOf(UPDATE, REFRESH, ENABLE, DISABLE, LOCK, UNLOCK)) {
             log.info("{}: refreshing {}", connectionName, object.getQualifiedNameWithType());
             object.refresh();
             return;
@@ -61,22 +67,46 @@ class DBObjectBundleMonitor implements ObjectChangeListener {
         DBObjectType objectType = event.getObjectType();
         SchemaId ownerId = event.getOwnerId();
 
-        if (ownerId == null) {
+        if (event.isRootObjectEvent()) {
             log.info("{}: refreshing root objects of type {}", connectionName, objectType);
             refreshRootObjects(objectType, action);
-        } else {
+
+        } else if (event.isSchemaObjectEvent()) {
             log.info("{}: refreshing schema objects of type {} owned by {}", connectionName, objectType, ownerId);
             refreshSchemaObjects(ownerId, objectType, action);
+
+        } else if (event.isChildObjectEvent()) {
+            DBObject parent = nn(object).getParentObject();
+            log.info("{}: refreshing child objects of type {} in {}", connectionName, objectType, parent.getQualifiedNameWithType());
+            refreshChildObjects(parent, objectType, action);
+        }
+    }
+
+    private void refreshChildObjects(DBObject parent, DBObjectType objectType, ObjectChangeAction action) {
+        SchemaId schemaId = parent.getSchemaId();
+        if (schemaId != null) {
+            refreshSchemaObjects(schemaId, objectType, action);
+        }
+
+        if (action.isOneOf(CREATE, DELETE, RENAME, UNSPECIFIED)) {
+            DBObjectList<DBObject> objectList = parent.getChildObjectList(objectType);
+            if (objectList == null) return;
+
+            markDirty(objectList);
         }
     }
 
     private void refreshRootObjects(DBObjectType objectType, ObjectChangeAction action) {
-        // root-object change events do not carry the object instance, so UPDATE cannot be handled by the
-        // object.refresh() path above; reload the root list instead so metadata (e.g. lastUpdated) stays current
-        if (action.isOneOf(CREATE, UPDATE, DELETE, UNSPECIFIED)) {
+        // Reload the root list to update the changed object's own metadata (e.g. lastUpdated).
+        if (action.isOneOf(CREATE, UPDATE, DELETE, RENAME, LOCK, UNLOCK, ENABLE, DISABLE, UNSPECIFIED)) {
             DBObjectBundle objectBundle = getObjectBundle();
-            DBObjectList<DBObject> objectList = objectBundle.getObjectLists().getObjectList(objectType);
+            DBObjectListContainer objectLists = objectBundle.getObjectLists();
+            DBObjectList<DBObject> objectList = objectLists.getObjectList(objectType);
             markDirty(objectList);
+
+            if (objectType == DBObjectType.USER && action.isOneOf(CREATE, DELETE, RENAME, UNSPECIFIED)) {
+                markDirty(objectLists.getObjectList(DBObjectType.SCHEMA));
+            }
         }
     }
 
@@ -85,11 +115,21 @@ class DBObjectBundleMonitor implements ObjectChangeListener {
         DBSchema schema = objectBundle.getSchema(ownerId.id());
         if (schema == null) return;
 
-        if (action.isOneOf(CREATE, DELETE, UNSPECIFIED)) {
+        if (action.isOneOf(CREATE, DELETE, RENAME, UNSPECIFIED)) {
             refreshSchemaObjects(schema, objectType);
         }
 
-        if (action.isOneOf(CREATE, UPDATE, DELETE, UNSPECIFIED)) {
+        if (action == RENAME && objectType == DBObjectType.MINING_MODEL) {
+            refreshSchemaObjects(schema, DBObjectType.VIEW);
+        }
+
+        if (action == RENAME && objectType.isOneOf(DBObjectType.COLUMN, DBObjectType.CONSTRAINT, DBObjectType.INDEX)) {
+            refreshSchemaObjects(schema, DBObjectType.COLUMN);
+            refreshSchemaObjects(schema, DBObjectType.CONSTRAINT);
+            refreshSchemaObjects(schema, DBObjectType.INDEX);
+        }
+
+        if (action.isOneOf(CREATE, UPDATE, DELETE, RENAME, UNSPECIFIED)) {
             for (DBObjectType childObjectType : objectType.getTreeChildren()) {
                 refreshSchemaObjects(schema, childObjectType);
             }

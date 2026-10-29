@@ -33,6 +33,7 @@ import javax.swing.Icon;
 import java.sql.SQLException;
 
 import static com.dbn.common.util.Strings.cachedLowerCase;
+import static com.dbn.object.common.status.DBObjectStatus.*;
 
 class DBDatasetTriggerImpl extends DBTriggerImpl implements DBDatasetTrigger {
     DBDatasetTriggerImpl(DBDataset dataset, DBTriggerMetadata metadata) throws SQLException {
@@ -53,28 +54,26 @@ class DBDatasetTriggerImpl extends DBTriggerImpl implements DBDatasetTrigger {
     @Nullable
     @Override
     public Icon getIcon() {
-        DBObjectStatusHolder objectStatus = getStatus();
-        if (objectStatus.is(DBObjectStatus.VALID)) {
-            if (objectStatus.is(DBObjectStatus.ENABLED)) {
-                if (objectStatus.is(DBObjectStatus.DEBUG)) {
-                    return Icons.DBO_TRIGGER_DEBUG;
-                } else {
-                    return Icons.DBO_TRIGGER;
-                }
-            } else {
-                if (objectStatus.is(DBObjectStatus.DEBUG)) {
+        if (hasStatus(VALID)) {
+            if (hasStatus(DISABLED)) {
+                if (hasStatus(DEBUG)) {
                     return Icons.DBO_TRIGGER_DEBUG_DISABLED;
                 } else {
                     return Icons.DBO_TRIGGER_DISABLED;
                 }
+            } else {
+                if (hasStatus(DEBUG)) {
+                    return Icons.DBO_TRIGGER_DEBUG;
+                } else {
+                    return Icons.DBO_TRIGGER;
+                }
             }
         } else {
-            if (objectStatus.is(DBObjectStatus.ENABLED)) {
-                return Icons.DBO_TRIGGER_ERR;
-            } else {
+            if (hasStatus(DISABLED)) {
                 return Icons.DBO_TRIGGER_ERR_DISABLED;
+            } else {
+                return Icons.DBO_TRIGGER_ERR;
             }
-
         }
     }
 

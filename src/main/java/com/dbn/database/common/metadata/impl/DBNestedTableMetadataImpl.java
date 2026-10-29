@@ -34,8 +34,13 @@ public class DBNestedTableMetadataImpl extends DBObjectMetadataBase implements D
     }
 
     @Override
-    public String getTableName() throws SQLException {
-        return getString("TABLE_NAME");
+    public String getParentTableName() throws SQLException {
+        return getString("PARENT_TABLE_NAME");
+    }
+
+    @Override
+    public String getParentTableColumnName() throws SQLException {
+        return getString("PARENT_TABLE_COLUMN_NAME");
     }
 
     @Override

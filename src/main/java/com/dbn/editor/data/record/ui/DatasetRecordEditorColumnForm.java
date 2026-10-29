@@ -16,7 +16,6 @@
 
 package com.dbn.editor.data.record.ui;
 
-import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.locale.Formatter;
 import com.dbn.common.ui.alignment.FieldAlignerData;
@@ -27,12 +26,15 @@ import com.dbn.data.editor.ui.ListPopupValuesProvider;
 import com.dbn.data.editor.ui.ListPopupValuesProviderBase;
 import com.dbn.data.editor.ui.TextFieldWithPopup;
 import com.dbn.data.editor.ui.TextFieldWithTextEditor;
+import com.dbn.data.editor.ui.TextFieldWithTypeEditor;
 import com.dbn.data.editor.ui.UserValueHolder;
 import com.dbn.data.grid.options.DataGridSettings;
 import com.dbn.data.type.DBDataType;
 import com.dbn.data.type.DBNativeDataType;
 import com.dbn.data.type.DataTypeDefinition;
 import com.dbn.data.type.GenericDataType;
+import com.dbn.data.type.ui.DeclaredTypeValueEditorDialog;
+import com.dbn.data.value.StructureValue;
 import com.dbn.data.value.ValueAdapter;
 import com.dbn.editor.data.model.DatasetEditorColumnInfo;
 import com.dbn.editor.data.model.DatasetEditorModelCell;
@@ -40,16 +42,17 @@ import com.dbn.editor.data.model.DatasetEditorModelRow;
 import com.dbn.editor.data.options.DataEditorSettings;
 import com.dbn.editor.data.options.DataEditorValueListPopupSettings;
 import com.dbn.object.DBColumn;
+import com.dbn.object.DBType;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.JBColor;
 import com.intellij.util.ui.UIUtil;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -61,6 +64,10 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.text.ParseException;
 
+import static com.dbn.common.color.Colors.getLabelDisabledForeground;
+import static com.dbn.common.color.Colors.getLabelForeground;
+import static com.dbn.common.color.Colors.getTextFieldBackground;
+import static com.dbn.common.color.Colors.getTextFieldForeground;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.data.type.GenericDataType.ARRAY;
@@ -69,6 +76,7 @@ import static com.dbn.data.type.GenericDataType.CLOB;
 import static com.dbn.data.type.GenericDataType.DATE_TIME;
 import static com.dbn.data.type.GenericDataType.JSON;
 import static com.dbn.data.type.GenericDataType.LITERAL;
+import static com.dbn.data.type.GenericDataType.STRUCTURE;
 import static com.dbn.data.type.GenericDataType.VECTOR;
 import static com.dbn.data.type.GenericDataType.XMLTYPE;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -81,7 +89,7 @@ public class DatasetRecordEditorColumnForm extends DBNFormBase {
     private JLabel dataTypeLabel;
     private JPanel mainPanel;
 
-    private DatasetEditorModelCell cell;
+    private @Getter DatasetEditorModelCell cell;
     private final DataEditorComponent editorComponent;
 
     public DatasetRecordEditorColumnForm(DatasetRecordEditorForm parentForm, DatasetEditorModelCell cell) {
@@ -96,7 +104,7 @@ public class DatasetRecordEditorColumnForm extends DBNFormBase {
 
         columnLabel.setIcon(column.getIcon());
         columnLabel.setText(column.getName());
-        columnLabel.setForeground(auditColumn ? UIUtil.getLabelDisabledForeground() : UIUtil.getLabelForeground());
+        columnLabel.setForeground(auditColumn ? getLabelDisabledForeground() : getLabelForeground());
         dataTypeLabel.setText(dataType.getQualifiedName());
         dataTypeLabel.setForeground(UIUtil.getInactiveTextColor());
 
@@ -106,10 +114,17 @@ public class DatasetRecordEditorColumnForm extends DBNFormBase {
             editable = dataGridSettings.getAuditColumnSettings().isAllowEditing();
         }
 
+        GenericDataType genericDataType = dataType.getGenericDataType();
         DBNativeDataType nativeDataType = dataType.getNativeType();
-        if (nativeDataType != null) {
+        if (genericDataType == STRUCTURE) {
+            TextFieldWithTypeEditor structureEditorField = new TextFieldWithTypeEditor(project, null);
+            structureEditorField.setOpenAction(() -> openStructureEditor());
+            structureEditorField.getTextField().addKeyListener(keyAdapter);
+            structureEditorField.getTextField().addFocusListener(focusListener);
+            editorComponent = structureEditorField;
+        } else if (nativeDataType != null) {
             DataTypeDefinition dataTypeDefinition = nativeDataType.getDefinition();
-            GenericDataType genericDataType = dataTypeDefinition.getGenericDataType();
+            genericDataType = dataTypeDefinition.getGenericDataType();
 
             DataEditorSettings dataEditorSettings = DataEditorSettings.getInstance(project);
 
@@ -120,7 +135,7 @@ public class DatasetRecordEditorColumnForm extends DBNFormBase {
                 JTextField valueTextField = textFieldWithPopup.getTextField();
                 valueTextField.addKeyListener(keyAdapter);
                 valueTextField.addFocusListener(focusListener);
-                onTextChange(valueTextField, e -> getEditorComponent().setForeground(Colors.getTextFieldForeground()));
+                onTextChange(valueTextField, e -> getEditorComponent().setForeground(getTextFieldForeground()));
 
                 if (editable) {
                     switch (genericDataType) {
@@ -157,7 +172,7 @@ public class DatasetRecordEditorColumnForm extends DBNFormBase {
                 }
                 editorComponent = textFieldWithPopup;
             } else if (genericDataType.is(BLOB, CLOB, JSON, XMLTYPE)) {
-                editorComponent = new TextFieldWithTextEditor(project);
+                editorComponent = new TextFieldWithTextEditor(project, null, column);
             } else {
                 editorComponent = new BasicDataEditorComponent();
             }
@@ -167,7 +182,7 @@ public class DatasetRecordEditorColumnForm extends DBNFormBase {
             editorComponent.setEditable(false);
         }
 
-        valueFieldPanel.add((Component) editorComponent, BorderLayout.CENTER);
+        valueFieldPanel.add((Component) editorComponent);
         JTextField editorTextField = editorComponent.getTextField();
 
         columnLabel.setLabelFor(editorTextField);
@@ -203,28 +218,62 @@ public class DatasetRecordEditorColumnForm extends DBNFormBase {
         editorComponent.setUserValueHolder(cell);
 
         Formatter formatter = cell.getFormatter();
-        if (cell.getUserValue() instanceof String userValue) {
-            if (userValue.indexOf('\n') > -1) {
-                userValue = userValue.replace('\n', ' ');
+        Object userValue = cell.getUserValue();
+        GenericDataType genericDataType = cell.getColumnInfo().getDataType().getGenericDataType();
+        boolean specialValueType = genericDataType.is(
+                GenericDataType.ARRAY,
+                GenericDataType.VECTOR,
+                GenericDataType.BLOB,
+                GenericDataType.CLOB,
+                GenericDataType.NCLOB,
+                GenericDataType.XMLTYPE,
+                GenericDataType.JSON,
+                GenericDataType.STRUCTURE,
+                GenericDataType.TABLE);
+
+        if (genericDataType == GenericDataType.STRUCTURE) {
+            editorComponent.setEditable(false);
+            editorComponent.setText(StructureValue.DISPLAY_VALUE);
+        } else if (userValue instanceof String stringValue) {
+            String userString = stringValue;
+            if (userString.indexOf('\n') > -1) {
+                userString = userString.replace('\n', ' ');
                 editorComponent.setEditable(false);
             } else {
-                editorComponent.setEditable(editable);
+                editorComponent.setEditable(editable && !specialValueType);
             }
-            editorComponent.setText(userValue);
+            editorComponent.setText(userString);
         } else {
-            Object userValue = cell.getUserValue();
-            editable = editable && !(userValue instanceof ValueAdapter);
+            editable = editable && !(userValue instanceof ValueAdapter) && !specialValueType;
             String presentableValue = formatter.formatObject(userValue);
 
             editorComponent.setEditable(editable);
             editorComponent.setText(presentableValue);
         }
         JTextField valueTextField = editorComponent.getTextField();
-        valueTextField.setBackground(Colors.getTextFieldBackground());
+        valueTextField.setBackground(getTextFieldBackground());
     }
 
-    public DatasetEditorModelCell getCell() {
-        return cell;
+    private void openStructureEditor() {
+        DatasetEditorModelCell cell = this.cell;
+        if (cell == null || cell.getRow().is(DELETED) || !cell.getRow().getModel().isEditable()) return;
+
+        DBType declaredType = cell.getColumnInfo().getDataType().getDeclaredType();
+        if (declaredType == null) return;
+
+        DeclaredTypeValueEditorDialog.showEditor(
+                getProject(),
+                mainPanel,
+                cell.getConnection(),
+                declaredType,
+                cell.getUserValue(),
+                cell.getColumn().getQualifiedNameWithType(),
+                cell.getColumn(),
+                () -> !isDisposed() && this.cell == cell && cell.getRow().isNot(DELETED) && cell.getRow().getModel().isEditable(),
+                attributes -> {
+                    cell.updateUserValue(attributes, false);
+                    editorComponent.setText(StructureValue.DISPLAY_VALUE);
+                });
     }
 
     @Override
@@ -236,7 +285,6 @@ public class DatasetRecordEditorColumnForm extends DBNFormBase {
     public JComponent getEditorComponent() {
         return editorComponent.getTextField();
     }
-
 
     public Object getEditorValue() throws ParseException {
         DBDataType dataType = cell.getColumnInfo().getDataType();
@@ -261,7 +309,7 @@ public class DatasetRecordEditorColumnForm extends DBNFormBase {
             Object value = getEditorValue();
             UserValueHolder<Object> userValueHolder = editorComponent.getUserValueHolder();
             userValueHolder.updateUserValue(value, false);
-            valueTextField.setForeground(Colors.getTextFieldForeground());
+            valueTextField.setForeground(getTextFieldForeground());
         } catch (ParseException e) {
             conditionallyLog(e);
             if (highlightError) {

@@ -41,7 +41,6 @@ import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.extern.slf4j.Slf4j;
-import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
@@ -150,7 +149,7 @@ public class SelectAiInitializationManager extends ProjectComponentBase implemen
         } else if (!DatabaseFeature.AI_ASSISTANT.isSupported(connection)) {
             // known already to bot be supported by the given database type
             availability = UNAVAILABLE;
-            
+
         } else {
             // perform deep verification by accessing the database
             try {
@@ -188,19 +187,5 @@ public class SelectAiInitializationManager extends ProjectComponentBase implemen
                 connection.getProject(),
                 connection.getConnectionId(),
                 conn -> connection.getAssistantInterface().getAssistantType(conn));
-    }
-
-
-    /*********************************************
-     *            PersistentStateComponent       *
-     *********************************************/
-    @Override
-    public Element getComponentState() {
-        return null;
-    }
-
-    @Override
-    public void loadComponentState(@NotNull Element element) {
-
     }
 }

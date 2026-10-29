@@ -69,7 +69,7 @@ public class TextEditorPopupProviderForm extends TextFieldPopupProviderForm {
     private JTextArea editorTextArea;
     private DBNScrollPane textEditorScrollPane;
 
-    public TextEditorPopupProviderForm(TextFieldWithPopup<?> textField, boolean autoPopup) {
+    public TextEditorPopupProviderForm(TextFieldWithPopup textField, boolean autoPopup) {
         super(textField, autoPopup, true);
         editorTextArea.setBorder(JBUI.Borders.empty(4));
         editorTextArea.addKeyListener(this);

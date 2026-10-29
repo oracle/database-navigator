@@ -16,7 +16,7 @@
 
 package com.dbn.common.environment.options.ui;
 
-import com.dbn.common.action.BasicActionButton;
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.environment.EnvironmentTypeBundle;
 import com.dbn.common.environment.options.EnvironmentSettings;
 import com.dbn.common.environment.options.EnvironmentVisibilitySettings;
@@ -40,6 +40,7 @@ import javax.swing.table.TableCellEditor;
 import static com.dbn.common.ui.util.ClientProperty.COMPONENT_GROUP_QUALIFIER;
 import static com.dbn.common.ui.util.Decorators.createToolbarDecorator;
 import static com.dbn.common.ui.util.Decorators.createToolbarDecoratorComponent;
+import static com.dbn.nls.NlsResources.txt;
 
 public class EnvironmentSettingsForm extends ConfigurationEditorForm<EnvironmentSettings> {
     private JPanel mainPanel;
@@ -76,7 +77,7 @@ public class EnvironmentSettingsForm extends ConfigurationEditorForm<Environment
         decorator.setRemoveAction(b -> environmentTypesTable.removeRow());
         decorator.setMoveUpAction(b -> environmentTypesTable.moveRowUp());
         decorator.setMoveDownAction(b -> environmentTypesTable.moveRowDown());
-        decorator.addExtraAction(new BasicActionButton("Revert Changes", null, Icons.ACTION_REVERT) {
+        decorator.addExtraAction(new BasicAction(txt("cfg.environment.action.RevertChanges"), null, Icons.ACTION_REVERT) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
                 TableCellEditor cellEditor = environmentTypesTable.getCellEditor();

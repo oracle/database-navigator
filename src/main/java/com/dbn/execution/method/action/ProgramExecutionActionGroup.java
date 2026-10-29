@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,10 +30,14 @@ public class ProgramExecutionActionGroup extends DefaultActionGroup {
         super(txt("app.execution.action.ExecutePlain"), true);
         if (object.getContentType() == DBContentType.CODE_SPEC_AND_BODY) {
             add(new ProgramMethodExecuteAction((DBProgram) object));
-            add(new ProgramMethodDebugAction((DBProgram) object));
+            if (ProgramMethodDebugAction.isSupported(object)) {
+                add(new ProgramMethodDebugAction((DBProgram) object));
+            }
         } else {
             add(new MethodExecuteAction((DBMethod) object, false));
-            add(new MethodDebugAction((DBMethod) object, false));
+            if (MethodDebugAction.isSupported(object)) {
+                add(new MethodDebugAction((DBMethod) object, false));
+            }
         }
     }
 }

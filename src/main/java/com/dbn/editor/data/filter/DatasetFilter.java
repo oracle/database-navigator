@@ -18,9 +18,9 @@ package com.dbn.editor.data.filter;
 
 import com.dbn.common.index.Identifiable;
 import com.dbn.common.options.PersistentConfiguration;
-import com.dbn.connection.ConnectionId;
 import com.dbn.data.sorting.SortingState;
 import com.dbn.object.DBDataset;
+import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.options.UnnamedConfigurable;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -34,8 +34,7 @@ public interface DatasetFilter extends UnnamedConfigurable, PersistentConfigurat
     String getId();
     String getName();
     String getVolatileName();
-    ConnectionId getConnectionId();
-    String getDatasetName();
+    DBObjectRef<DBDataset> getDatasetRef();
     boolean isPersisted();
     boolean isTemporary();
     boolean isIgnored();

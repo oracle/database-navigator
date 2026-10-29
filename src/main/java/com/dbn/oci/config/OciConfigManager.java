@@ -20,23 +20,18 @@ import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.routine.Consumer;
-import com.dbn.common.state.StateAttributes;
-import com.dbn.common.state.StateCategory;
-import com.dbn.common.state.StateContainer;
 import com.dbn.common.util.Dialogs;
 import com.dbn.oci.config.ui.OciConfigSelectionDialog;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import org.jdom.Element;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 import static com.dbn.common.component.Components.projectService;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.oci.config.OciConfigManager.COMPONENT_NAME;
 import static com.intellij.openapi.ui.DialogWrapper.OK_EXIT_CODE;
@@ -48,7 +43,6 @@ import static com.intellij.openapi.ui.DialogWrapper.OK_EXIT_CODE;
 public class OciConfigManager extends ProjectComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Project.OciConfigManager";
 
-    private final StateContainer states = new StateContainer();
     private final OciConfigModels models = new OciConfigModels();
 
     private OciConfigManager(Project project) {
@@ -58,13 +52,6 @@ public class OciConfigManager extends ProjectComponentBase implements Persistent
     public static OciConfigManager getInstance(@NotNull Project project) {
         return projectService(project, OciConfigManager.class);
     }
-
-    @NotNull
-    public StateAttributes getState(@NonNls String category) {
-        StateCategory stateCategory = StateCategory.get(category);
-        return states.ensureAttributes(stateCategory);
-    }
-
 
     public void openOciConfigSelector(Consumer<OciConfig> consumer) {
         Dialogs.show(() -> new OciConfigSelectionDialog(getProject()), (dialog, exitCode) ->
@@ -79,18 +66,19 @@ public class OciConfigManager extends ProjectComponentBase implements Persistent
     /****************************************
      *       PersistentStateComponent       *
      *****************************************/
-    @Nullable
     @Override
-    public Element getComponentState() {
-        Element element = newStateElement();
-        states.writeState(element, "config-states");
+    public void writeState(Element element) {
+        super.writeState(element);
+
         models.writeState(element, "model-names");
-        return element;
+
     }
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
-        states.readState(element, "config-states");
+    public void readState(@NotNull Element element) {
+        super.readState(element);
+
         models.readState(element, "model-names");
+
     }
 }

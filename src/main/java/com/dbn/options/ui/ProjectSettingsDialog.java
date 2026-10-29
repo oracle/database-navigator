@@ -17,7 +17,6 @@
 package com.dbn.options.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
-import com.dbn.common.util.Alarms;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.DatabaseType;
@@ -29,19 +28,14 @@ import com.dbn.help.HelpTopic;
 import com.dbn.oci.OciConnectionData;
 import com.dbn.options.ConfigId;
 import com.dbn.options.ProjectSettings;
-import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.help.HelpManager;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
-import com.intellij.util.Alarm;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.JButton;
-import java.awt.event.ActionEvent;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.exception.Exceptions.getLocalizedMessage;
@@ -50,7 +44,6 @@ import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public class ProjectSettingsDialog extends DBNDialog<ProjectSettingsForm> {
-    private JButton applyButton;
     private final ProjectSettings projectSettings;
 
     public ProjectSettingsDialog(Project project, ConfigId configId) {
@@ -121,24 +114,19 @@ public class ProjectSettingsDialog extends DBNDialog<ProjectSettingsForm> {
     protected final Action[] initializeActions() {
         return actions(
                 getOKAction(),
-                new ApplyAction(),
+                getApplyAction(),
                 getCancelAction());
+    }
+
+    private @NotNull Action getApplyAction() {
+        return createApplyAction(
+                () -> projectSettings.isModified(),
+                () -> projectSettings.apply());
     }
 
     @Override
     protected HelpTopic getHelpTopic() {
         return getForm().getSelectedConfiguration().getConfigHelpTopic();
-    }
-
-    @Override
-    protected JButton createJButtonForAction(Action action) {
-        if (action instanceof ApplyAction) {
-            applyButton = new JButton();
-            applyButton.setAction(action);
-            applyButton.setEnabled(false);
-            return applyButton;
-        }
-        return super.createJButtonForAction(action);
     }
 
     @Override
@@ -161,49 +149,9 @@ public class ProjectSettingsDialog extends DBNDialog<ProjectSettingsForm> {
 
     }
 
-    public void doApplyAction() {
-        try {
-            projectSettings.apply();
-            applyButton.setEnabled(false);
-            setCancelButtonText(txt("msg.shared.button.Close"));
-        } catch (ConfigurationException e) {
-            conditionallyLog(e);
-            Messages.showErrorDialog(getProject(), e.getTitle(), getLocalizedMessage(e));
-        }
-    }
-
     @Override
     protected void doHelpAction() {
         HelpManager.getInstance().invokeHelp(projectSettings.getHelpTopic());
-    }
-
-    private class ApplyAction extends AbstractAction {
-        private final Alarm alarm = Alarms.createAlarm(getForm());
-        private final Runnable reloader = new Runnable() {
-            @Override
-            public void run() {
-                if (isShowing()) {
-                    boolean isModified = projectSettings.isModified();
-                    applyButton.setEnabled(isModified);
-                    //setCancelButtonText(isModified ? "Cancel" : "Close");
-                    addReloadRequest();
-                }
-            }
-        };
-
-        private void addReloadRequest() {
-            alarm.addRequest(reloader, 500, ModalityState.stateForComponent(getWindow()));
-        }
-
-        public ApplyAction() {
-            renameAction(this, txt("msg.shared.button.Apply"));
-            addReloadRequest();
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            doApplyAction();
-        }
     }
 
     public void selectConnectionSettings(@Nullable ConnectionId connectionId) {

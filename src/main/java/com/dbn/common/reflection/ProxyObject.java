@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,11 @@
 
 package com.dbn.common.reflection;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.lang.reflect.Method;
+
+import static com.dbn.common.util.Unsafe.cast;
 
 public interface ProxyObject {
     default Object getDelegate() {
@@ -25,6 +29,10 @@ public interface ProxyObject {
 
     static boolean isDelegateMethod(Method method) {
         return method.getName().equals("getDelegate") && method.getParameterCount() == 0;
+    }
+
+    static <T> T unwrap(@Nullable ProxyObject proxy) {
+        return proxy == null ? null : cast(proxy.getDelegate());
     }
 }
 

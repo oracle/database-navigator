@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import com.dbn.connection.ConnectionBundle;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.action.AbstractConnectionAction;
+import com.dbn.options.general.WorkspaceFeature;
 import com.dbn.vector.DatabaseVectorManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -43,6 +44,11 @@ public class VectorToolboxOpenAction extends ProjectAction {
     }
 
     @Override
+    protected WorkspaceFeature getFeature() {
+        return WorkspaceFeature.VECTOR_TOOLBOX;
+    }
+
+    @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         boolean visible = isVisible(project);
 
@@ -53,7 +59,8 @@ public class VectorToolboxOpenAction extends ProjectAction {
     }
 
     private boolean isVisible(@NotNull Project project) {
-        return VECTOR_EMBEDDING.isSupported(project);
+        return isFeatureEnabled(project) &&
+                VECTOR_EMBEDDING.isSupported(project);
     }
 
     @Override

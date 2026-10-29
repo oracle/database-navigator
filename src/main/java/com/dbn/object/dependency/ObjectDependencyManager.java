@@ -31,7 +31,6 @@ import com.intellij.openapi.project.Project;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.nls.NlsResources.txt;
 
 @State(
@@ -65,14 +64,14 @@ public class ObjectDependencyManager extends ProjectComponentBase implements Per
     }
 
     @Override
-    public Element getComponentState() {
-        Element element = newStateElement();
+    public void writeState(Element element) {
+        super.writeState(element);
         Settings.setEnum(element, "last-used-dependency-type", lastUserDependencyType);
-        return element;
     }
 
     @Override
-    public void loadComponentState(@NotNull final Element element) {
+    public void readState(@NotNull final Element element) {
+        super.readState(element);
         lastUserDependencyType = Settings.getEnum(element, "last-used-dependency-type", lastUserDependencyType);
     }
 

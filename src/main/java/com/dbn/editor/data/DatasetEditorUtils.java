@@ -32,6 +32,8 @@ import java.util.List;
 
 import static com.dbn.common.Priority.HIGH;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.editor.data.DataEditorResourceLimits.getDistinctValuesFetchLimit;
+import static com.dbn.editor.data.DataEditorResourceLimits.normalizeValueListThreshold;
 import static com.dbn.nls.NlsResources.txt;
 
 public class DatasetEditorUtils {
@@ -51,12 +53,13 @@ public class DatasetEditorUtils {
 
     @NotNull
     private static List<String> loadDistinctColumnValues(DBColumn column, DBNConnection conn, int valuesThreshold) throws SQLException {
+        valuesThreshold = normalizeValueListThreshold(valuesThreshold);
         List<String> list = new ArrayList<>();
         ResultSet resultSet = null;
         try {
             DBDataset dataset = column.getDataset();
             DatabaseMetadataInterface metadata = column.getMetadataInterface();
-            int maxValues = valuesThreshold == Integer.MAX_VALUE ? Integer.MAX_VALUE : valuesThreshold + 1;
+            int maxValues = getDistinctValuesFetchLimit(valuesThreshold);
             resultSet = metadata.getDistinctValues(
                     dataset.getSchemaName(true),
                     dataset.getName(true),

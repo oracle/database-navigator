@@ -76,7 +76,7 @@ public class OciConfigSelectionForm extends DBNFormBase {
     protected void initStatePersistence() {
         Project project = ensureProject();
         OciConfigManager ociConfigManager = OciConfigManager.getInstance(project);
-        StateAttributes state = ociConfigManager.getState("CONFIG_FILE_SELECTOR");
+        StateAttributes state = ociConfigManager.getUserInterfaceState("CONFIG_FILE_SELECTOR");
 
         initPersistence(configFileTextField, state, "config-file");
     }

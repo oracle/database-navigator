@@ -110,10 +110,9 @@ public class DatabaseSessionManager extends ProjectComponentBase implements Pers
     /*********************************************
      *            PersistentStateComponent       *
      *********************************************/
-    @Nullable
     @Override
-    public Element getComponentState() {
-        Element element = newElement("state");
+    public void writeState(Element element) {
+        super.writeState(element);
         ConnectionManager connectionManager = ConnectionManager.getInstance(getProject());
         List<ConnectionHandler> connections = connectionManager.getConnectionBundle().getAllConnections();
         for (ConnectionHandler connection : connections) {
@@ -129,11 +128,11 @@ public class DatabaseSessionManager extends ProjectComponentBase implements Pers
                 }
             }
         }
-        return element;
     }
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
+    public void readState(@NotNull Element element) {
+        super.readState(element);
         for (Element connectionElement : element.getChildren()) {
             ConnectionId connectionId = connectionIdAttribute(connectionElement, "id");
             ConnectionHandler connection = ConnectionHandler.get(connectionId);

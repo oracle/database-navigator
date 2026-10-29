@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.assistant.provider.ProviderUrlType;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.util.Environment;
 import com.dbn.common.util.Strings;
@@ -37,6 +36,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.common.ui.util.PasswordFields.getPassword;
 import static com.dbn.common.ui.util.PasswordFields.setPassword;
 import static com.dbn.common.ui.util.TextFields.getText;
@@ -91,8 +91,7 @@ public class AssistantCredentialQuickInputForm extends DBNFormBase {
                         txt("cfg.assistant.hint.OciConfigRequiredToConnect") :
                         txt("cfg.assistant.hint.ApiKeyRequiredToConnect", providerName, ideName));
 
-        DBNHintForm hintForm = new DBNHintForm(this, hintContent, null, true);
-        hintPanel.add(hintForm.getComponent());
+        installHintForm(this, hintContent, hintPanel);
     }
 
     private void initGuideHyperlink() {

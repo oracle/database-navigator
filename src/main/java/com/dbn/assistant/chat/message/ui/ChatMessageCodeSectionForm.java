@@ -29,7 +29,6 @@ import com.dbn.common.util.Viewers;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.mapping.FileConnectionContextManager;
-import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.editor.Document;
@@ -57,6 +56,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Editors.installEditorLayoutUpdater;
 import static com.dbn.language.common.psi.PsiUtil.getFileManager;
+import static com.dbn.language.common.psi.PsiUtil.setHighlightingEnabled;
 import static javax.swing.JLayeredPane.DRAG_LAYER;
 
 public class ChatMessageCodeSectionForm extends ChatMessageSectionForm<ChatMessageTextSection> {
@@ -200,10 +200,7 @@ public class ChatMessageCodeSectionForm extends ChatMessageSectionForm<ChatMessa
             }
         }
 
-        if (psiFile != null) {
-            DaemonCodeAnalyzer codeAnalyzer = DaemonCodeAnalyzer.getInstance(project);
-            codeAnalyzer.setHighlightingEnabled(psiFile, false);
-        }
+        setHighlightingEnabled(psiFile, false);
         return psiFile;
     }
 

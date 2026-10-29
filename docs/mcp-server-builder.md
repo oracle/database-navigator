@@ -125,7 +125,7 @@ Supported parameter types are:
 | Transport | Runtime behavior | Common client use |
 | --- | --- | --- |
 | `STDIO` | MCP client starts the generated JAR with `java -jar`. | Claude Desktop-style local server configuration. |
-| `HTTP` | You start the generated JAR and it serves `http://127.0.0.1:<port>/mcp`. | Streamable HTTP clients such as Cline, or Claude Desktop through `mcp-remote`. |
+| `HTTP` | You start the generated JAR and it serves `http://127.0.0.1:<port>/mcp`. | Streamable HTTP clients such as Cline. For Claude Desktop, use `STDIO`. |
 
 ## Build Output
 

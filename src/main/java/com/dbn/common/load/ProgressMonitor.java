@@ -35,7 +35,8 @@ public final class ProgressMonitor {
         Application application = ApplicationManager.getApplication();
         if (application == null) return null;
 
-        return ProgressManager.getInstance().getProgressIndicator();
+        ProgressManager progressManager = application.getService(ProgressManager.class);
+        return progressManager == null ? null : progressManager.getProgressIndicator();
     }
 
     public static ProgressIndicator getProgressIndicatorDelegate() {

@@ -16,8 +16,10 @@
 
 package com.dbn.execution.java.result.ui;
 
+import com.dbn.common.ui.util.Tooltips;
 import com.dbn.common.ui.tree.DBNColoredTreeCellRenderer;
 import com.dbn.common.ui.tree.DBNTree;
+import com.dbn.common.ui.util.Tooltips;
 import com.dbn.common.util.Strings;
 import com.dbn.execution.common.input.CodeBlocks;
 import com.dbn.execution.common.input.ExecutionValue;
@@ -56,7 +58,7 @@ class ArgumentValuesTreeRenderer extends DBNColoredTreeCellRenderer {
         renderValue(treeNode);
 
         // data type qualification
-        renderDataType(object);
+        renderDataType(object, treeNode);
 
     }
 
@@ -83,7 +85,7 @@ class ArgumentValuesTreeRenderer extends DBNColoredTreeCellRenderer {
             if (CodeBlocks.isCodeBlock(stringValue)) {
                 append(" = " + txt("app.execution.placeholder.Code"), REGULAR_ATTRIBUTES);
                 String content = extractCodeBlock(stringValue);
-                setToolTipText("<html><pre>" + content + "</pre></html>");
+                Tooltips.setPreformattedToolTipText(this, content);
             } else {
                 append(" = ", REGULAR_ATTRIBUTES);
                 append(stringValue, REGULAR_BOLD_ATTRIBUTES);
@@ -91,7 +93,7 @@ class ArgumentValuesTreeRenderer extends DBNColoredTreeCellRenderer {
         }
     }
 
-    private void renderDataType(DBObject object) {
+    private void renderDataType(DBObject object, ArgumentValuesTreeNode treeNode) {
         if (object instanceof DBJavaParameter parameter) {
             String dataType = getCanonicalName(parameter.getJavaClassRef());
             String arrayBrackets = arrayBrackets(parameter.getArrayDepth());
@@ -105,7 +107,7 @@ class ArgumentValuesTreeRenderer extends DBNColoredTreeCellRenderer {
             append(" (" + dataType + arrayBrackets + ")", GRAY_ATTRIBUTES);
             setIcon(object.getIcon());
         } else if (object instanceof DBJavaClass javaClass) {
-            append(" (" + javaClass.getCanonicalName() + ")", GRAY_ATTRIBUTES);
+            append(" (" + javaClass.getCanonicalName() + arrayBrackets(treeNode.getArrayDepth()) + ")", GRAY_ATTRIBUTES);
         }
     }
 }

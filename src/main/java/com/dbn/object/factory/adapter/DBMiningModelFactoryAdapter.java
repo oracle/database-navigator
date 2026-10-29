@@ -20,6 +20,7 @@ import com.dbn.common.exception.Exceptions;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.DatabaseEntity;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
@@ -61,8 +62,8 @@ public class DBMiningModelFactoryAdapter implements ObjectFactoryAdapter {
     }
 
     @Override
-    public DBObjectSpec createInput(DBSchema schema) {
-        DBObjectSpec input = new DBObjectSpec(schema, MINING_MODEL);
+    public DBObjectSpec createInput(DatabaseEntity parentEntity) {
+        DBObjectSpec input = new DBObjectSpec(parentEntity, MINING_MODEL);
         input.setAttributeValue(MINING_MODEL_SOURCE_TYPE, MODEL_FILE);
         return input;
     }
@@ -78,7 +79,7 @@ public class DBMiningModelFactoryAdapter implements ObjectFactoryAdapter {
 
     @Override
     public void createObject(DBObjectSpec input) throws SQLException {
-        DBMiningModelSourceType modelSourceType = MINING_MODEL_SOURCE_TYPE.of(input);
+        DBMiningModelSourceType modelSourceType = MINING_MODEL_SOURCE_TYPE.value(input);
 
         DBObjectType objectType = input.getObjectType();
         DBSchema schema = input.getSchema();
@@ -94,7 +95,7 @@ public class DBMiningModelFactoryAdapter implements ObjectFactoryAdapter {
                 connectionId,
                 conn -> {
                     DatabaseVectorInterface dataDefinition = schema.getVectorInterface();
-                    String modelLocation = MINING_MODEL_SOURCE_LOCATION.of(input);
+                    String modelLocation = MINING_MODEL_SOURCE_LOCATION.value(input);
                     if (modelSourceType == DBMiningModelSourceType.OBJECT_STORAGE) {
 
                         String credentialName = getCredentialName(input);
@@ -123,14 +124,14 @@ public class DBMiningModelFactoryAdapter implements ObjectFactoryAdapter {
     }
 
     private static String getCredentialName(DBObjectSpec input) {
-        return DBObjectRef.getQualifiedObjectName(MINING_MODEL_CREDENTIAL.of(input));
+        return DBObjectRef.getQualifiedObjectName(MINING_MODEL_CREDENTIAL.value(input));
     }
 
     private Blob uploadOnnxModel(
             DBNConnection conn,
             DBObjectSpec input,
             ProgressIndicator progress) throws SQLException {
-        File modelFile = new File(MINING_MODEL_SOURCE_LOCATION.of(input));
+        File modelFile = new File(MINING_MODEL_SOURCE_LOCATION.value(input));
         long fileSize = modelFile.length();
         double totalMB = fileSize / (1024.0 * 1024.0);
 

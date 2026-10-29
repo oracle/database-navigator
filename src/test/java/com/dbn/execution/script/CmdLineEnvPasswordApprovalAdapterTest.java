@@ -30,7 +30,7 @@ public class CmdLineEnvPasswordApprovalAdapterTest {
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Test
-    public void approvalKeyChangesWhenExecutableContentChangesWithStableAttributes() throws Exception {
+    public void approvalSignatureChangesWhenExecutableContentChangesWithStableAttributes() throws Exception {
         File executable = temporaryFolder.newFile("client");
         long lastModified = 1_700_000_000_000L;
         Files.writeString(executable.toPath(), "trusted-client");
@@ -39,12 +39,14 @@ public class CmdLineEnvPasswordApprovalAdapterTest {
         CmdLineInterface cmdLineInterface = new CmdLineInterface(
                 "client-id", DatabaseType.POSTGRES, executable.getPath(), "Client", "client");
         CmdLineEnvPasswordApprovalAdapter adapter = new CmdLineEnvPasswordApprovalAdapter();
-        String approvedKey = adapter.getApprovalKey(cmdLineInterface);
+        String approvalKey = adapter.getApprovalKey(cmdLineInterface);
+        String approvalSignature = adapter.getApprovalSignature(cmdLineInterface);
 
         Files.writeString(executable.toPath(), "changed-client");
         Assert.assertEquals("test executable size must remain unchanged", 14, executable.length());
         Assert.assertTrue(executable.setLastModified(lastModified));
 
-        Assert.assertNotEquals(approvedKey, adapter.getApprovalKey(cmdLineInterface));
+        Assert.assertEquals(approvalKey, adapter.getApprovalKey(cmdLineInterface));
+        Assert.assertNotEquals(approvalSignature, adapter.getApprovalSignature(cmdLineInterface));
     }
 }

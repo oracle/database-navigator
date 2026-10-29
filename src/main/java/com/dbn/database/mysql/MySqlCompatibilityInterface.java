@@ -30,6 +30,8 @@ import com.dbn.language.common.quotes.QuoteDefinition;
 import com.dbn.language.common.quotes.QuotePair;
 import com.dbn.object.DBConstraint;
 import com.dbn.object.common.DBObject;
+import com.dbn.object.event.ObjectChangeAction;
+import com.dbn.object.factory.model.DBObjectTypeSpec;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -52,7 +54,18 @@ import static com.dbn.database.DatabaseFeature.READONLY_CONNECTIVITY;
 import static com.dbn.database.DatabaseFeature.SESSION_BROWSING;
 import static com.dbn.database.DatabaseFeature.SESSION_KILL;
 import static com.dbn.database.DatabaseFeature.UPDATABLE_RESULT_SETS;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_BODY;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_BODY_TEMPLATE;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_EVENTS;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_FOR_EACH_ROW;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TARGET_DATASET;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TRIGGER_TYPE;
 import static com.dbn.object.type.DBConstraintType.CHECK;
+import static com.dbn.object.type.DBTriggerEvent.DELETE;
+import static com.dbn.object.type.DBTriggerEvent.INSERT;
+import static com.dbn.object.type.DBTriggerEvent.UPDATE;
+import static com.dbn.object.type.DBTriggerType.AFTER;
+import static com.dbn.object.type.DBTriggerType.BEFORE;
 
 @NonNls
 public class MySqlCompatibilityInterface extends DatabaseCompatibilityInterfaceImpl {
@@ -60,6 +73,17 @@ public class MySqlCompatibilityInterface extends DatabaseCompatibilityInterfaceI
 
     private interface Property {
         String DISCONNECT_ON_EXPIRED_PASSWORDS = "disconnectOnExpiredPasswords";
+    }
+
+    @Override
+    public boolean supportsObjectAction(DatabaseObjectTypeId objectTypeId, ObjectChangeAction action) {
+        if (action == ObjectChangeAction.RENAME) {
+            return objectTypeId.isOneOf(
+                    DatabaseObjectTypeId.TABLE,
+                    DatabaseObjectTypeId.COLUMN,
+                    DatabaseObjectTypeId.INDEX);
+        }
+        return super.supportsObjectAction(objectTypeId, action);
     }
 
     @Override
@@ -88,6 +112,20 @@ public class MySqlCompatibilityInterface extends DatabaseCompatibilityInterfaceI
                 DatabaseObjectTypeId.ARGUMENT,
                 DatabaseObjectTypeId.SYSTEM_PRIVILEGE,
                 DatabaseObjectTypeId.GRANTED_PRIVILEGE);
+    }
+
+    @Override
+    public DBObjectTypeSpec getObjectTypeSpec(DatabaseObjectTypeId objectTypeId) {
+        return switch (objectTypeId) {
+            case DATASET_TRIGGER -> new DBObjectTypeSpec(objectTypeId)
+                    .withAttribute(TRIGGER_TYPE, List.of(BEFORE, AFTER), false, true)
+                    .withAttribute(TRIGGER_EVENTS, List.of(INSERT, UPDATE, DELETE), false, true)
+                    .withAttribute(TRIGGER_TARGET_DATASET, List.of(), false, true)
+                    .withAttribute(TRIGGER_FOR_EACH_ROW, true, true)
+                    .withAttribute(TRIGGER_BODY_TEMPLATE, "begin\n\nend;", false)
+                    .withAttribute(TRIGGER_BODY, List.of(), false, true);
+            default -> super.getObjectTypeSpec(objectTypeId);
+        };
     }
 
     @Override

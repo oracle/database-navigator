@@ -37,15 +37,19 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
+
 public class PendingTransactionsForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel actionsPanel;
     private JPanel detailsPanel;
+    private JSplitPane contentSplitPane;
     private JList<ConnectionHandler> connectionsList;
     private final List<ConnectionHandler> connections = new ArrayList<>();
 
@@ -53,6 +57,7 @@ public class PendingTransactionsForm extends DBNFormBase {
 
     PendingTransactionsForm(PendingTransactionsDialog parentComponent) {
         super(parentComponent);
+        setSplitPaneProportion(contentSplitPane, 0.3);
         mainPanel.setBorder(Borders.BOTTOM_LINE_BORDER);
 
         connectionsList.addListSelectionListener(e -> {

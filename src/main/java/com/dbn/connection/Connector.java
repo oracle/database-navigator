@@ -111,6 +111,8 @@ class Connector {
         AuthenticationInfo authenticationInfo = null;
         try {
             ConnectorProperties properties = compatibility.createConnectorProperties();
+            ConnectionPropertiesSettings propertiesSettings = connectionSettings.getPropertiesSettings();
+            properties.addAll(propertiesSettings.getProperties());
 
             // AUTHENTICATION
             authenticationInfo = databaseSettings.getAuthenticationInfo();
@@ -127,11 +129,6 @@ class Connector {
 
             // DEBUGGER
             compatibility.initConnectorDebugger(properties, connectionSettings);
-
-            // PROPERTIES
-            // add missing - prevent overriding the OCI properties
-            ConnectionPropertiesSettings propertiesSettings = connectionSettings.getPropertiesSettings();
-            properties.addMissing(propertiesSettings.getProperties());
 
             // DRIVER
             driver = ConnectionUtil.resolveDriver(databaseSettings);

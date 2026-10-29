@@ -37,12 +37,18 @@ public class ArgumentValuesTreeNode implements TreeNode{
     private final List<ArgumentValuesTreeNode> children = new ArrayList<>();
     private final DBObjectRef<?> object;
     private final String name; // optional node name
+    private final short arrayDepth;
     private Object value;
 
     protected ArgumentValuesTreeNode(ArgumentValuesTreeNode parent, @Nullable String name, @Nullable DBObjectRef<?> object, Object value) {
+        this(parent, name, object, value, (short) 0);
+    }
+
+    protected ArgumentValuesTreeNode(ArgumentValuesTreeNode parent, @Nullable String name, @Nullable DBObjectRef<?> object, Object value, short arrayDepth) {
         this.parent = parent;
         this.object = object;
         this.name = name;
+        this.arrayDepth = arrayDepth;
         if (parent != null) {
             parent.children.add(this);
         }

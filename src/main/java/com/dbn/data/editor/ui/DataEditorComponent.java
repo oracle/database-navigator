@@ -17,7 +17,10 @@
 package com.dbn.data.editor.ui;
 
 import com.dbn.common.dispose.StatefulDisposable;
+import org.jetbrains.annotations.Nls;
 
+import javax.swing.Icon;
+import javax.swing.JComponent;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
 import java.awt.Font;
@@ -47,4 +50,8 @@ public interface DataEditorComponent extends StatefulDisposable {
     void setBorder(Border border);
 
     default void afterUpdate() {}
+
+    default void customizeTextField(JTextField textField) {}
+
+    default JComponent createButton(Icon icon, @Nls String name) {return null;}
 }

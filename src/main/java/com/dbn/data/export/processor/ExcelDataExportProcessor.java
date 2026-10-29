@@ -43,17 +43,15 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.Date;
 
+import static com.dbn.data.export.DataExportResourceLimits.MAX_EXCEL_CELL_LENGTH;
+import static com.dbn.data.export.DataExportResourceLimits.isExcelAutoSizingAllowed;
+import static com.dbn.data.export.DataExportResourceLimits.isExcelCellLengthAllowed;
+import static com.dbn.data.export.DataExportResourceLimits.verifyExcelExportCapacity;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 public class ExcelDataExportProcessor extends DataExportProcessor{
-    private static final int MAX_XLS_DATA_ROWS = 65535;
-    private static final int MAX_XLS_COLUMNS = 256;
-    private static final int MAX_XLS_EXPORT_CELLS = 250000;
-    private static final int MAX_AUTO_SIZE_CELLS = 250000;
-    private static final int MAX_EXCEL_CELL_LENGTH = 32767;
-
     @Override
     public DataExportFormat getFormat() {
         return DataExportFormat.EXCEL;
@@ -128,45 +126,11 @@ public class ExcelDataExportProcessor extends DataExportProcessor{
     }
 
     protected void validateExportCapacity(DataExportModel model) throws DataExportException {
-        int rowCount = model.getRowCount();
-        int columnCount = model.getColumnCount();
-        long cellCount = (long) rowCount * columnCount;
-
-        if (rowCount > getMaxDataRows()) {
-            throw new DataExportException(txt("msg.dataExport.error.ExcelRowLimitExceeded", getMaxDataRows(), getFileExtension()));
-        }
-
-        if (columnCount > getMaxColumns()) {
-            throw new DataExportException(txt("msg.dataExport.error.ExcelColumnLimitExceeded", getMaxColumns(), getFileExtension()));
-        }
-
-        if (cellCount > getMaxInMemoryCells()) {
-            throw new DataExportException(txt("msg.dataExport.error.ExcelCellLimitExceeded", getMaxInMemoryCells(), getFileExtension()));
-        }
-    }
-
-    protected int getMaxDataRows() {
-        return MAX_XLS_DATA_ROWS;
-    }
-
-    protected int getMaxColumns() {
-        return MAX_XLS_COLUMNS;
-    }
-
-    protected long getMaxInMemoryCells() {
-        return MAX_XLS_EXPORT_CELLS;
+        verifyExcelExportCapacity(model, getFormat());
     }
 
     protected boolean shouldAutoSizeColumns(DataExportModel model) {
-        return getCellCount(model) <= getMaxAutoSizeCells();
-    }
-
-    protected long getMaxAutoSizeCells() {
-        return MAX_AUTO_SIZE_CELLS;
-    }
-
-    private static long getCellCount(DataExportModel model) {
-        return (long) model.getRowCount() * model.getColumnCount();
+        return isExcelAutoSizingAllowed(model);
     }
 
     private static void createFile(Workbook workbook, DataExportInstructions instructions) throws DataExportException {
@@ -207,7 +171,7 @@ public class ExcelDataExportProcessor extends DataExportProcessor{
                     cellStyleCache.getDateStyle());
         } else {
             String stringValue = formatValue(formatter, model, value);
-            if (stringValue.length() > MAX_EXCEL_CELL_LENGTH) {
+            if (!isExcelCellLengthAllowed(stringValue.length())) {
                 stringValue = stringValue.substring(0, MAX_EXCEL_CELL_LENGTH);
                 model.addWarning(txt("msg.dataExport.warning.ExcelCellValueTruncated", MAX_EXCEL_CELL_LENGTH));
             }

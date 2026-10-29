@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package com.dbn.connection.action;
 import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.ml.DatabaseMLManager;
+import com.dbn.options.general.WorkspaceFeature;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -35,8 +36,14 @@ public class MLToolboxOpenAction extends AbstractConnectionAction {
     }
 
     @Override
+    protected WorkspaceFeature getFeature() {
+        return WorkspaceFeature.MACHINE_LEARNING;
+    }
+
+    @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable ConnectionHandler target) {
-        presentation.setVisible(MACHINE_LEARNING.isSupported(target));
+        presentation.setVisible(isFeatureEnabled(project) &&
+                MACHINE_LEARNING.isSupported(target));
         presentation.setText(txt("app.machineLearning.action.OpenMLToolbox"));
         presentation.setIcon(Icons.DBO_MINING_MODEL); // TODO: Create ML-specific icon
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import com.dbn.editor.data.ui.DatasetEditorLoadErrorNotificationPanel;
 import com.dbn.editor.data.ui.DatasetEditorNotificationPanel;
 import com.dbn.editor.data.ui.DatasetEditorReadonlyNotificationPanel;
 import com.dbn.object.DBTable;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.vfs.DBVirtualFile;
 import com.dbn.vfs.file.DBContentVirtualFile;
 import com.dbn.vfs.file.DBDatasetVirtualFile;
@@ -94,7 +94,7 @@ public class DatasetEditorNotificationProvider extends EditorNotificationProvide
         if (!(fileEditor instanceof DatasetEditor datasetEditor)) return null;
         if (!datasetEditor.isLoaded()) return null;
 
-        DBSchemaObject dataset = datasetFile.getObject();
+        DBObject dataset = datasetFile.getObject();
 
         String dataLoadError = datasetEditor.getDataLoadError();
         if (Strings.isNotEmpty(dataLoadError)) {

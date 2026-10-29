@@ -16,7 +16,6 @@
 
 package com.dbn.database.common.debug;
 
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,7 +26,6 @@ import java.util.Objects;
 
 @Getter
 @Setter
-@EqualsAndHashCode(callSuper = true)
 public class DebuggerRuntimeInfo extends BasicOperationInfo {
     private String ownerName;
     private String programName;
@@ -49,26 +47,26 @@ public class DebuggerRuntimeInfo extends BasicOperationInfo {
 
     @Override
     public void registerParameters(CallableStatement statement) throws SQLException {
-        statement.registerOutParameter(1, Types.VARCHAR);
-        statement.registerOutParameter(2, Types.VARCHAR);
-        statement.registerOutParameter(3, Types.NUMERIC);
-        statement.registerOutParameter(4, Types.NUMERIC);
-        statement.registerOutParameter(5, Types.NUMERIC);
-        statement.registerOutParameter(6, Types.NUMERIC);
-        statement.registerOutParameter(7, Types.NUMERIC);
-        statement.registerOutParameter(8, Types.VARCHAR);
+        registerOutParameter(statement, 1, Types.VARCHAR);
+        registerOutParameter(statement, 2, Types.VARCHAR);
+        registerOutParameter(statement, 3, Types.NUMERIC);
+        registerOutParameter(statement, 4, Types.NUMERIC);
+        registerOutParameter(statement, 5, Types.NUMERIC);
+        registerOutParameter(statement, 6, Types.NUMERIC);
+        registerOutParameter(statement, 7, Types.NUMERIC);
+        registerOutParameter(statement, 8, Types.VARCHAR);
     }
 
     @Override
     public void read(CallableStatement statement) throws SQLException {
-        ownerName = statement.getString(1);
-        programName = statement.getString(2);
-        namespace = statement.getInt(3);
-        lineNumber = Math.max(statement.getInt(4) - 1, 0);
-        terminated = statement.getInt(5) != 0;
-        breakpointId = statement.getInt(6);
-        reason = statement.getInt(7);
-        error = statement.getString(8);
+        ownerName = getString(statement, 1);
+        programName = getString(statement, 2);
+        namespace = getInt(statement, 3);
+        lineNumber = Math.max(getInt(statement, 4) - 1, 0);
+        terminated = getInt(statement, 5) != 0;
+        breakpointId = getInt(statement, 6);
+        reason = getInt(statement, 7);
+        error = getString(statement, 8);
     }
 
     public boolean isSameLocation(DebuggerRuntimeInfo runtimeInfo) {
@@ -79,4 +77,3 @@ public class DebuggerRuntimeInfo extends BasicOperationInfo {
 
     }
 }
-

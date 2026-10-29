@@ -32,6 +32,7 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.jdbc.DBNResultSet;
 import com.dbn.connection.jdbc.DBNStatement;
 import com.dbn.data.model.resultSet.ResultSetDataModel;
+import com.dbn.data.sorting.SortingState;
 import com.dbn.editor.data.DatasetEditor;
 import com.dbn.editor.data.DatasetEditorError;
 import com.dbn.editor.data.filter.DatasetFilter;
@@ -45,6 +46,7 @@ import com.dbn.object.DBConstraint;
 import com.dbn.object.DBDataset;
 import com.dbn.object.DBTable;
 import com.dbn.object.lookup.DBObjectRef;
+import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -68,6 +70,8 @@ import static com.dbn.connection.ConnectionProperty.RS_TYPE_SCROLL_INSENSITIVE;
 import static com.dbn.database.DatabaseFeature.UPDATABLE_RESULT_SETS;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.editor.DBContentType.DATA;
+import static com.dbn.editor.data.DataEditorResourceLimits.normalizeDataEditorFetchBlockSize;
+import static com.dbn.editor.data.DataEditorResourceLimits.normalizeDataEditorReloadRowCount;
 import static com.dbn.editor.data.model.RecordStatus.DELETED;
 import static com.dbn.editor.data.model.RecordStatus.DIRTY;
 import static com.dbn.editor.data.model.RecordStatus.INSERTED;
@@ -93,7 +97,7 @@ public class DatasetEditorModel
     private final List<DatasetEditorModelRow> changedRows = new ArrayList<>();
     private final Latent<List<DBColumn>> uniqueKeyColumns = Latent.basic(() -> loadUniqueKeyColumns());
 
-    public DatasetEditorModel(DatasetEditor datasetEditor) throws SQLException {
+    public DatasetEditorModel(DatasetEditor datasetEditor) {
         super(datasetEditor.getConnection());
         Project project = getProject();
         this.datasetEditor = WeakRef.of(datasetEditor);
@@ -178,12 +182,20 @@ public class DatasetEditorModel
     private int computeRowCount() {
         int originalRowCount = getRowCount();
         int stateRowCount = getState().getRowCount();
-        int fetchRowCount = Math.max(stateRowCount, originalRowCount);
+        long fetchRowCount = Math.max(stateRowCount, originalRowCount);
 
-        int fetchBlockSize = getSettings().getGeneralSettings().getFetchBlockSize().value();
+        int fetchBlockSize = getSettings().getGeneralSettings().getFetchBlockSizeValue();
         fetchRowCount = (fetchRowCount/fetchBlockSize + 1) * fetchBlockSize;
 
-        return Math.max(fetchRowCount, fetchBlockSize);
+        return normalizeDataEditorReloadRowCount(fetchRowCount, originalRowCount);
+    }
+
+    @Override
+    public int fetchNextRecords(int records, boolean reset) throws SQLException {
+        int rowCount = reset ?
+                normalizeDataEditorReloadRowCount(records, getRowCount()) :
+                normalizeDataEditorFetchBlockSize(records);
+        return super.fetchNextRecords(rowCount, reset);
     }
 
     public DataEditorSettings getSettings() {
@@ -203,7 +215,8 @@ public class DatasetEditorModel
             if (filter == null) filter = DatasetFilterManager.EMPTY_FILTER;
         }
 
-        String selectStatement = filter.createSelectStatement(dataset, getState().getSortingState());
+        SortingState sortingState = getState().getSortingState();
+        String selectStatement = filter.createSelectStatement(dataset, sortingState);
         DBNStatement statement = null;
         if (isReadonly()) {
             statement = conn.createStatement();
@@ -242,7 +255,7 @@ public class DatasetEditorModel
         statementRef.set(statement);
         checkDisposed();
 
-        Integer fetchSize = getSettings().getGeneralSettings().getFetchBlockSize().value();
+        int fetchSize = getSettings().getGeneralSettings().getFetchBlockSizeValue();
         statement.setFetchSize(fetchSize);
 
         loadTimestamp = System.currentTimeMillis();
@@ -364,7 +377,6 @@ public class DatasetEditorModel
         if (!column.isForeignKey()) return null;
 
         for (DBConstraint constraint : column.getConstraints()) {
-            constraint = constraint.getUndisposedEntity();
             if (constraint == null || !constraint.isForeignKey()) continue;
 
             DBConstraint fkConstraint = constraint.getForeignKeyConstraint();
@@ -374,17 +386,16 @@ public class DatasetEditorModel
             DatasetFilterInput filterInput = new DatasetFilterInput(fkDataset);
 
             for (DBColumn constraintColumn : constraint.getColumns()) {
-                constraintColumn = constraintColumn.getUndisposedEntity();
-                if (constraintColumn != null) {
-                    DBColumn foreignKeyColumn = constraintColumn.getForeignKeyColumn();
-                    if (foreignKeyColumn != null) {
-                        DatasetEditorModelCell constraintCell = cell.getRow().getCellForColumn(constraintColumn);
-                        if (constraintCell != null) {
-                            Object value = constraintCell.getUserValue();
-                            filterInput.setColumnValue(foreignKeyColumn, value);
-                        }
-                    }
-                }
+                if (constraintColumn == null) continue;
+
+                DBColumn foreignKeyColumn = constraintColumn.getForeignKeyColumn();
+                if (foreignKeyColumn == null) continue;
+
+                DatasetEditorModelCell constraintCell = cell.getRow().getCellForColumn(constraintColumn);
+                if (constraintCell == null) continue;
+
+                Object value = constraintCell.getUserValue();
+                filterInput.setColumnValue(foreignKeyColumn, value);
             }
             return filterInput;
 
@@ -402,7 +413,12 @@ public class DatasetEditorModel
         Progress.prompt(getProject(), dataset, true,
                 txt("prc.dataEditor.title.DeletingRecords"),
                 txt("prc.dataEditor.text.DeletingRecordsFrom", dataset.getQualifiedNameWithType()),
-                progress -> {
+                progress -> deleteRecords(rowIndexes, progress));
+    }
+
+    private void deleteRecords(int[] rowIndexes, ProgressIndicator progress) {
+        try {
+            DBDataset dataset = getDataset();
             progress.setIndeterminate(false);
             for (int index : rowIndexes) {
                 progress.setFraction(Progress.progressOf(index, rowIndexes.length));
@@ -421,7 +437,9 @@ public class DatasetEditorModel
             }
             DBNConnection conn = getResultConnection();
             conn.notifyDataChanges(dataset.getVirtualFile());
-        });
+        } finally {
+            updateActionToolbars();
+        }
     }
 
     public void insertRecord(int rowIndex) {
@@ -447,6 +465,8 @@ public class DatasetEditorModel
             conditionallyLog(e);
             set(INSERTING, false);
             showErrorDialog(getProject(), txt("msg.dataEditor.error.CannotInsertRecord", dataset.getQualifiedNameWithType()), e);
+        } finally {
+            updateActionToolbars();
         }
     }
 
@@ -475,6 +495,8 @@ public class DatasetEditorModel
             conditionallyLog(e);
             set(INSERTING, false);
             showErrorDialog(getProject(), txt("msg.dataEditor.error.CannotDuplicateRecord", dataset.getQualifiedNameWithType()), e);
+        } finally {
+            updateActionToolbars();
         }
     }
 
@@ -505,6 +527,8 @@ public class DatasetEditorModel
                 row.notifyError(error, true, true);
             }
             if (!error.isNotified() || propagateError) throw e;
+        } finally {
+            updateActionToolbars();
         }
     }
 
@@ -524,7 +548,13 @@ public class DatasetEditorModel
         } catch (SQLException e) {
             conditionallyLog(e);
             log.warn("Failed to cancel insert operation", e);
+        } finally {
+            updateActionToolbars();
         }
+    }
+
+    private void updateActionToolbars() {
+        getDatasetEditor().getEditorForm().updateActionToolbars();
     }
 
     /**

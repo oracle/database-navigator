@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import com.dbn.common.ui.ValueFactory;
 import com.dbn.common.ui.ValueSelectorOption;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.util.Commons;
 import com.dbn.connection.ConnectionHandler;
@@ -48,6 +47,7 @@ import java.awt.BorderLayout;
 import java.util.List;
 
 import static com.dbn.common.text.TextContent.plain;
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -80,8 +80,7 @@ public class ScriptExecutionInputForm extends DBNFormBase {
         TextContent hintText = plain(
                 txt("msg.execution.hint.ScriptExecutionInput"));
 
-        DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
-        hintPanel.add(hintForm.getComponent(), BorderLayout.CENTER);
+        installHintForm(this, hintText, hintPanel);
 
         Project project = ensureProject();
         ConnectionManager connectionManager = ConnectionManager.getInstance(project);

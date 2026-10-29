@@ -26,6 +26,8 @@ import com.dbn.browser.options.ObjectFilterChangeListener;
 import com.dbn.browser.ui.BrowserToolWindowForm;
 import com.dbn.browser.ui.DatabaseBrowserForm;
 import com.dbn.browser.ui.DatabaseBrowserTree;
+import com.dbn.common.approval.UserApprovalCancelledException;
+import com.dbn.common.approval.UserApprovalManager;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
@@ -69,13 +71,14 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.dbn.browser.DatabaseBrowserUtils.isSkipBrowserAutoscroll;
+import static com.dbn.common.approval.UserApprovalAction.CONNECTION_WORKSPACE_RESTORE;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.options.setting.Settings.connectionIdAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Getter
 @State(
@@ -329,19 +332,18 @@ public class DatabaseBrowserManager extends ProjectComponentBase implements Pers
     /****************************************
      *       PersistentStateComponent       *
      *****************************************/
-    @Nullable
     @Override
-    public Element getComponentState() {
-        Element element = newStateElement();
+    public void writeState(Element element) {
+        super.writeState(element);
         autoscrollToEditor.writeConfiguration(element);
         autoscrollFromEditor.writeConfiguration(element);
         showObjectProperties.writeConfiguration(element);
         storeTouchedNodes(element);
-        return element;
     }
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
+    public void readState(@NotNull Element element) {
+        super.readState(element);
         autoscrollToEditor.readConfiguration(element);
         autoscrollFromEditor.readConfiguration(element);
         showObjectProperties.readConfiguration(element);
@@ -401,6 +403,15 @@ public class DatabaseBrowserManager extends ProjectComponentBase implements Pers
             ConnectionDetailSettings settings = connection.getSettings().getDetailSettings();
             if (!settings.isRestoreWorkspaceDeep())
                 continue;
+
+            if (!connection.isVirtual()) {
+                try {
+                    UserApprovalManager.getInstance().ensureApproved(CONNECTION_WORKSPACE_RESTORE, connection);
+                } catch (UserApprovalCancelledException e) {
+                    conditionallyLog(e);
+                    continue;
+                }
+            }
 
             DBObjectBundle objectBundle = connection.getObjectBundle();
             List<Element> schemaElements = connectionElement.getChildren();

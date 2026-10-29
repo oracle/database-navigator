@@ -14,6 +14,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
 
+import static com.dbn.object.common.property.DBObjectProperty.RENAMABLE;
+
 @Getter
 public class DBMiningModelImpl extends DBSchemaObjectImpl<DBMiningModelMetadata> implements DBMiningModel {
     private DBMiningModelFunction miningFunction;
@@ -39,6 +41,12 @@ public class DBMiningModelImpl extends DBSchemaObjectImpl<DBMiningModelMetadata>
         this.modelSize = metadata.getModelSize();
 
         return metadata.getModelName();
+    }
+
+    @Override
+    protected void initProperties() {
+        super.initProperties();
+        properties.set(RENAMABLE, true);
     }
 
     @Override

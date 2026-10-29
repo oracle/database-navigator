@@ -43,7 +43,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Unsafe.cast;
 
 @Getter
@@ -98,10 +97,9 @@ public class ObjectQuickFilterManager extends ProjectComponentBase implements Pe
     /*********************************************
      *            PersistentStateComponent       *
      *********************************************/
-    @Nullable
     @Override
-    public Element getComponentState() {
-        Element element = newStateElement();
+    public void writeState(Element element) {
+        super.writeState(element);
         Settings.setEnum(element, "last-used-operator", lastUsedOperator);
         Element filtersElement = newElement(element, "filters");
 
@@ -116,12 +114,11 @@ public class ObjectQuickFilterManager extends ProjectComponentBase implements Pe
                 filter.writeState(filterElement);
             }
         }
-
-        return element;
     }
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
+    public void readState(@NotNull Element element) {
+        super.readState(element);
         lastUsedOperator = Settings.getEnum(element, "last-used-operator", lastUsedOperator);
 
         Element filtersElement = element.getChild("filters");

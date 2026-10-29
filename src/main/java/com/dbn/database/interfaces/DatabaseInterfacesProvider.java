@@ -18,6 +18,18 @@ package com.dbn.database.interfaces;
 
 public interface DatabaseInterfacesProvider {
 
+    default DatabaseDriverInterface getDriverInterface() {
+        return getInterfaces().getDriverInterface();
+    }
+
+    default DatabaseEnvironmentInterface getEnvironmentInterface() {
+        return getInterfaces().getEnvironmentInterface();
+    }
+
+    default DatabaseExecutionInterface getExecutionInterface() {
+        return getInterfaces().getExecutionInterface();
+    }
+
     default DatabaseMetadataInterface getMetadataInterface() {
         return getInterfaces().getMetadataInterface();
     }
@@ -56,6 +68,10 @@ public interface DatabaseInterfacesProvider {
 
     default DatabaseJavaInterface getJavaInterface() {
         return getInterfaces().getJavaInterface();
+    }
+
+    default DatabaseMachineLearningInterface getMachineLearningInterface() {
+        return getInterfaces().getMachineLearningInterface();
     }
 
     DatabaseInterfaces getInterfaces();

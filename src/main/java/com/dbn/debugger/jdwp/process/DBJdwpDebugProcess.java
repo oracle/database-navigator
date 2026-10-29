@@ -21,7 +21,6 @@ import com.dbn.common.exception.ProcessDeferredException;
 import com.dbn.common.network.NetworkAddress;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Commons;
-import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.Resources;
@@ -92,6 +91,13 @@ import static com.dbn.common.util.Classes.simpleClassName;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.debugger.JDWPTunnelType.SSH_REVERSE_TUNNEL;
 import static com.dbn.debugger.JDWPTunnelType.TCP_DRIVER_TUNNEL;
+import static com.dbn.debugger.common.process.DBDebugProcessStatus.BREAKPOINT_SETTING_ALLOWED;
+import static com.dbn.debugger.common.process.DBDebugProcessStatus.DEBUGGER_STOPED;
+import static com.dbn.debugger.common.process.DBDebugProcessStatus.DEBUGGER_STOPPING;
+import static com.dbn.debugger.common.process.DBDebugProcessStatus.SESSION_INITIALIZATION_THREW_EXCEPTION;
+import static com.dbn.debugger.common.process.DBDebugProcessStatus.TARGET_EXECUTION_STARTED;
+import static com.dbn.debugger.common.process.DBDebugProcessStatus.TARGET_EXECUTION_TERMINATED;
+import static com.dbn.debugger.common.process.DBDebugProcessStatus.TARGET_EXECUTION_THREW_EXCEPTION;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 import static com.intellij.debugger.impl.PrioritizedTask.Priority.LOWEST;
@@ -107,7 +113,6 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
     private final DBDebugProcessStatusHolder status = new DBDebugProcessStatusHolder();
     private final DBBreakpointHandler<DBJdwpDebugProcess>[] breakpointHandlers;
     private final DBDebugConsoleLogger console;
-    private final String declaredBlockIdentifier;
     private final DBJdwpTcpConfig tcpConfig;
     private final DBJdwpSourcePathCache sourcePathCache = new DBJdwpSourcePathCache();
 
@@ -128,9 +133,6 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
         DBJdwpBreakpointHandler breakpointHandler = new DBJdwpBreakpointHandler(session, this);
         this.breakpointHandlers = new DBBreakpointHandler[]{breakpointHandler};
         debuggerSession.getProcess().putUserData(KEY, this);
-
-        DatabaseDebuggerInterface debuggerInterface = connection.getDebuggerInterface();
-        this.declaredBlockIdentifier = debuggerInterface.getJdwpBlockIdentifier().replace(".", "\\");
     }
 
     @Override
@@ -145,7 +147,7 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
 
     protected boolean shouldSuspend(XSuspendContext suspendContext) {
         if (suspendContext == null) return false;
-        if (is(DBDebugProcessStatus.TARGET_EXECUTION_TERMINATED)) return false;
+        if (is(TARGET_EXECUTION_TERMINATED)) return false;
 
         XExecutionStack executionStack = suspendContext.getActiveExecutionStack();
         if (executionStack == null) return true;
@@ -200,13 +202,13 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
         return breakpointHandlers;
     }
 
-    public DBBreakpointHandler<DBJdwpDebugProcess> getBreakpointHandler() {
-        return breakpointHandlers[0];
+    public DBJdwpBreakpointHandler getBreakpointHandler() {
+        return (DBJdwpBreakpointHandler) breakpointHandlers[0];
     }
 
     @Override
     public boolean checkCanInitBreakpoints() {
-        return is(DBDebugProcessStatus.BREAKPOINT_SETTING_ALLOWED);
+        return is(BREAKPOINT_SETTING_ALLOWED);
     }
 
     @Override
@@ -217,7 +219,7 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
     @NotNull
     @Override
     public XDebugTabLayouter createTabLayouter() {
-        return new DBDebugTabLayouter(super.createTabLayouter());
+        return new DBDebugTabLayouter(getSession(), super.createTabLayouter());
     }
 
     @Override
@@ -258,7 +260,7 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
                 initializeLocalJdwpSession();
 
                 console.system(txt("log.debugger.info.DebugSessionInitializedJdwp"));
-                set(DBDebugProcessStatus.BREAKPOINT_SETTING_ALLOWED, true);
+                set(BREAKPOINT_SETTING_ALLOWED, true);
 
                 createExecutionWrappers();
                 queueCommand(NORMAL, () -> registerDefaultBreakpoint());
@@ -266,9 +268,9 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
                 queueCommand(LOWEST, () -> startTargetProgram()); // start program after initialization completion
             } catch (Exception e) {
                 conditionallyLog(e);
-                set(DBDebugProcessStatus.SESSION_INITIALIZATION_THREW_EXCEPTION, true);
+                set(SESSION_INITIALIZATION_THREW_EXCEPTION, true);
                 console.error(txt("log.debugger.error.ErrorInitializingDebugEnvironment", e.getMessage()));
-                stop();
+                stopSession();
             }
         });
     }
@@ -307,9 +309,9 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
         }
         catch (Exception e) {
             conditionallyLog(e);
-            set(DBDebugProcessStatus.SESSION_INITIALIZATION_THREW_EXCEPTION, true);
+            set(SESSION_INITIALIZATION_THREW_EXCEPTION, true);
             console.error(txt("log.debugger.error.ErrorInitializingLocalJdwpSession", e.getMessage()));
-            stop();
+            stopSession();
         }
     }
 
@@ -345,6 +347,11 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
         breakpointHandler.registerDefaultBreakpoint(methods.get(0));
     }
 
+    private void unregisterDefaultBreakpoint() {
+        var breakpointHandler = getBreakpointHandler();
+        breakpointHandler.unregisterDefaultBreakpoint();
+    }
+
     private void registerBreakpoints() {
         console.system(txt("log.debugger.info.RegisteringBreakpoints"));
 
@@ -357,6 +364,15 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
 
     private List<XLineBreakpoint<XBreakpointProperties>> getDatabaseBreakpoints() {
         return DBBreakpointUtil.getDatabaseBreakpoints(getConnection(), DBDebuggerType.JDWP);
+    }
+
+    /**
+     * Returns the zero-based JDWP source line for a breakpoint, or {@code null} when
+     * the breakpoint is not applicable to this debug target.
+     */
+    @Nullable
+    public Integer resolveBreakpointLine(@NotNull XLineBreakpoint<XBreakpointProperties> breakpoint) {
+        return breakpoint.getLine();
     }
 
     private void overwriteSuspendContext(final @Nullable XSuspendContext suspendContext) {
@@ -391,42 +407,46 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
         Progress.background(getProject(), getConnection(), false, title, message,
                 progress -> {
                     console.system(txt("log.debugger.info.ExecutingTargetProgram"));
-                    if (is(DBDebugProcessStatus.SESSION_INITIALIZATION_THREW_EXCEPTION)) return;
+                    if (is(SESSION_INITIALIZATION_THREW_EXCEPTION)) return;
                     try {
-                        set(DBDebugProcessStatus.TARGET_EXECUTION_STARTED, true);
+                        set(TARGET_EXECUTION_STARTED, true);
                         executeTarget();
                     } catch (SQLException e) {
                         conditionallyLog(e);
-                        set(DBDebugProcessStatus.TARGET_EXECUTION_THREW_EXCEPTION, true);
-                        if (isNot(DBDebugProcessStatus.DEBUGGER_STOPPING)) {
+                        set(TARGET_EXECUTION_THREW_EXCEPTION, true);
+                        if (isNot(DEBUGGER_STOPPING)) {
                             String errorMessage = e.getMessage();
                             console.error(input == null ?
                                     txt("log.debugger.error.ErrorExecutingTargetProgram", errorMessage) :
                                     txt("log.debugger.error.ErrorExecuting", input.getExecutionContext().getTargetName(), errorMessage));
                         }
                     } finally {
-                        set(DBDebugProcessStatus.TARGET_EXECUTION_TERMINATED, true);
-                        stop();
+                        set(TARGET_EXECUTION_TERMINATED, true);
+                        stopSession();
                     }
                 });
     }
 
     protected abstract void executeTarget() throws SQLException;
 
+    private void stopSession() {
+        getSession().stop();
+    }
+
     @Override
     public synchronized void stop() {
         if (canStopDebugger()) {
-            set(DBDebugProcessStatus.DEBUGGER_STOPPING, true);
-            set(DBDebugProcessStatus.BREAKPOINT_SETTING_ALLOWED, false);
+            set(DEBUGGER_STOPPING, true);
+            set(BREAKPOINT_SETTING_ALLOWED, false);
             console.system(txt("log.debugger.info.StoppingDebugger"));
-            getSession().stop();
+            unregisterDefaultBreakpoint();
             stopDebugger();
             super.stop();
         }
     }
 
     private boolean canStopDebugger() {
-        return isNot(DBDebugProcessStatus.DEBUGGER_STOPPING) && isNot(DBDebugProcessStatus.DEBUGGER_STOPED);
+        return isNot(DEBUGGER_STOPPING) && isNot(DEBUGGER_STOPED);
     }
 
     private void stopDebugger() {
@@ -435,7 +455,7 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
                 txt("prc.debugger.text.StoppingDebugSession"),
                 progress -> {
                     T input = getExecutionInput();
-                    if (input != null && isNot(DBDebugProcessStatus.TARGET_EXECUTION_TERMINATED)) {
+                    if (input != null && isNot(TARGET_EXECUTION_TERMINATED)) {
                         ExecutionContext<?> context = input.getExecutionContext();
                         Resources.cancel(context.getStatement());
                     }
@@ -446,8 +466,8 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
                     debuggerManager.unregisterDebugSession(connection);
                     releaseTargetConnection();
                     console.system(txt("log.debugger.info.DebuggerStopped"));
-                    set(DBDebugProcessStatus.DEBUGGER_STOPED, false);
-                    set(DBDebugProcessStatus.DEBUGGER_STOPPING, false);
+                    set(DEBUGGER_STOPED, true);
+                    set(DEBUGGER_STOPPING, false);
                 });
     }
 
@@ -496,11 +516,10 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
 
     public boolean isDeclaredBlock(@Nullable Location location) {
         if (location == null) return false;
-        if (Strings.isEmptyOrSpaces(declaredBlockIdentifier)) return false;
 
         try {
-            String sourcePath = location.sourcePath();
-            return sourcePath.startsWith(declaredBlockIdentifier);
+            DBJdwpSourcePath sourcePath = DBJdwpSourcePath.from(location.sourcePath());
+            return sourcePath.isAnonymousBlock();
         } catch (Exception e) {
             conditionallyLog(e);
             log.warn("Failed to evaluate declared block", e);

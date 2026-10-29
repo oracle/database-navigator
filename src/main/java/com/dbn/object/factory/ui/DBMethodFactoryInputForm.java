@@ -29,11 +29,9 @@ import com.dbn.data.type.ui.DataTypeEditor;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.database.DatabaseIdentifierCase;
 import com.dbn.object.DBSchema;
-import com.dbn.object.factory.ObjectFactoryManager;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -109,10 +107,7 @@ public class DBMethodFactoryInputForm extends DBSchemaObjectFactoryInputForm {
 
     @Override
     protected void initStatePersistence() {
-        Project project = ensureProject();
-        ObjectFactoryManager factoryManager = ObjectFactoryManager.getInstance(project);
-
-        StateAttributes state = factoryManager.getState(getObjectType());
+        StateAttributes state = getUserInterfaceState();
         initPersistence(preserveCaseCheckBox, state, "preserve-identifier-case");
     }
 
@@ -137,7 +132,7 @@ public class DBMethodFactoryInputForm extends DBSchemaObjectFactoryInputForm {
         input.setIdentifierCase(getSelectedIdentifierCase());
         argumentListForm.applyFormChanges();
 
-        DBObjectSpec returnArgument = RETURN_ARGUMENT.of(input);
+        DBObjectSpec returnArgument = RETURN_ARGUMENT.value(input);
         if (returnArgument != null) {
             String dataType = getReturnDataTypeEditor().getDataTypeRepresentation();
             returnArgument.setAttributeValue(DATA_TYPE, dataType);
@@ -149,9 +144,9 @@ public class DBMethodFactoryInputForm extends DBSchemaObjectFactoryInputForm {
         nameTextField.setText(input.getObjectName());
         argumentListForm.resetFormChanges();
 
-        DBObjectSpec returnArgument = RETURN_ARGUMENT.of(input);
+        DBObjectSpec returnArgument = RETURN_ARGUMENT.value(input);
         if (returnArgument != null) {
-            String dataType = DATA_TYPE.of(returnArgument);
+            String dataType = DATA_TYPE.value(returnArgument);
             getReturnDataTypeEditor().setText(dataType);
         }
     }

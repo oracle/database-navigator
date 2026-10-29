@@ -16,19 +16,23 @@
 
 package com.dbn.assistant.tool;
 
+import com.dbn.assistant.AssistantResourceLimits;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NonNls;
 
+import java.util.function.LongPredicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.dbn.assistant.AssistantResourceLimits.MAX_TOOL_RESPONSE_LENGTH;
+import static com.dbn.assistant.AssistantResourceLimits.MAX_UNTRUSTED_CONTENT_LENGTH;
+import static com.dbn.assistant.AssistantResourceLimits.isToolResponseContentLengthAllowed;
+import static com.dbn.assistant.AssistantResourceLimits.isUntrustedDatabaseContentLengthAllowed;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 
 @NonNls
 @UtilityClass
 public class AssistantToolContents {
-    private static final int MAX_UNTRUSTED_CONTENT_LENGTH = 8192;
-    private static final int MAX_TOOL_RESPONSE_LENGTH = 65536;
     private static final String CONTENT_TRUNCATED_SUFFIX = "\n[Content truncated]";
     private static final String TOOL_RESPONSE_TRUNCATED_SUFFIX = "\n[Tool response truncated]";
     private static final String UNTRUSTED_CONTENT_BEGIN = "[BEGIN UNTRUSTED DATABASE CONTENT]";
@@ -47,14 +51,15 @@ public class AssistantToolContents {
     }
 
     public static String prepareToolResponseContent(String content) {
-        return normalizeContent(content, MAX_TOOL_RESPONSE_LENGTH, TOOL_RESPONSE_TRUNCATED_SUFFIX);
+        return normalizeContent(content, MAX_TOOL_RESPONSE_LENGTH, TOOL_RESPONSE_TRUNCATED_SUFFIX,
+                length -> isToolResponseContentLengthAllowed(length));
     }
 
     public static boolean isToolResponseContentOversized(String content) {
         if (content == null) return false;
 
         String normalized = stripUnsupportedControlCharacters(content);
-        return normalized.length() > MAX_TOOL_RESPONSE_LENGTH;
+        return !isToolResponseContentLengthAllowed(normalized.length());
     }
 
     public static int getMaxToolResponseLength() {
@@ -62,14 +67,15 @@ public class AssistantToolContents {
     }
 
     private static String normalizeUntrustedContent(String content) {
-        return normalizeContent(content, MAX_UNTRUSTED_CONTENT_LENGTH, CONTENT_TRUNCATED_SUFFIX);
+        return normalizeContent(content, MAX_UNTRUSTED_CONTENT_LENGTH, CONTENT_TRUNCATED_SUFFIX,
+                length -> isUntrustedDatabaseContentLengthAllowed(length));
     }
 
-    private static String normalizeContent(String content, int maxLength, String truncatedSuffix) {
+    private static String normalizeContent(String content, int maxLength, String truncatedSuffix, LongPredicate lengthAllowed) {
         if (content == null) return "";
 
         String normalized = stripUnsupportedControlCharacters(content);
-        if (normalized.length() <= maxLength) return normalized;
+        if (lengthAllowed.test(normalized.length())) return normalized;
 
         int length = maxLength - truncatedSuffix.length();
         return normalized.substring(0, length) + truncatedSuffix;

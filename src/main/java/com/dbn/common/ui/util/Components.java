@@ -16,6 +16,7 @@
 
 package com.dbn.common.ui.util;
 
+import com.dbn.common.thread.Dispatch;
 import lombok.experimental.UtilityClass;
 
 import javax.swing.JComponent;
@@ -42,5 +43,10 @@ public class Components {
 
             consumer.accept(e);
         });
+    }
+
+    public static void setComponentVisible(JComponent component, boolean visible) {
+        if (component == null) return;
+        Dispatch.run(component, () -> component.setVisible(visible));
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.dbn.common.icon.Icons;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.debugger.DatabaseDebuggerManager;
 import com.dbn.object.DBMethod;
+import com.dbn.options.general.WorkspaceFeature;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
@@ -29,7 +30,9 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
 
+import static com.dbn.database.DatabaseFeature.*;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.*;
 
 public class DebugMethodIntentionAction extends AbstractMethodExecutionIntentionAction {
     @Override
@@ -55,7 +58,7 @@ public class DebugMethodIntentionAction extends AbstractMethodExecutionIntention
         if (psiFile == null) return false;
 
         DBMethod method = resolveMethod(editor, psiFile);
-        return DatabaseFeature.DEBUGGING.isSupported(method);
+        return DEBUGGER.isEnabled(project) && DEBUGGING.isSupported(method);
     }
 
     @Override

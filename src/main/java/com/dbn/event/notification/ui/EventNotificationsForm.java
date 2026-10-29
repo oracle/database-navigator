@@ -23,6 +23,7 @@ import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNScrollPane;
+import com.dbn.common.ui.panel.DBNLoadingPanel;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Actions;
 import com.dbn.connection.ConnectionId;
@@ -43,16 +44,17 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import static com.dbn.common.ui.panel.DBNLoadingPanel.newLoadingPanel;
 import static com.dbn.common.ui.util.Borderless.markBorderless;
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.nls.NlsResources.txt;
 
 public class EventNotificationsForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel actionsPanel;
     private JPanel controlPanel;
-    private JPanel loadingIconPanel;
-    private JLabel loadingLabel;
     private DBNScrollPane notificationsScrollPane;
+    private JPanel loadingPanel;
 
     private @Getter EventNotificationsTable notificationsTable;
     private @Getter volatile boolean loading;
@@ -79,9 +81,8 @@ public class EventNotificationsForm extends DBNFormBase {
     }
 
     private void initLoadIndicator() {
-        loadingIconPanel.add(new AsyncProcessIcon("Loading"));
-        loadingIconPanel.setVisible(false);
-        loadingLabel.setVisible(false);
+        newLoadingPanel(this, txt("app.eventNotification.text.LoadingNotifications"))
+                .installOn(this.loadingPanel, false);
     }
 
     private void initActionToolbar() {
@@ -138,8 +139,7 @@ public class EventNotificationsForm extends DBNFormBase {
 
     private void updateLoadingState() {
         Dispatch.run(mainPanel, () -> {
-            loadingIconPanel.setVisible(loading);
-            loadingLabel.setVisible(loading);
+            loadingPanel.setVisible(loading);
             notificationsTable.setLoading(loading);
         });
     }

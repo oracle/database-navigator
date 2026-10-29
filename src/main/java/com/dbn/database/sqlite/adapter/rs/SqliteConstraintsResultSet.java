@@ -35,7 +35,7 @@ import static com.dbn.database.sqlite.adapter.rs.SqliteConstraintInfoResultSetSt
  * CONSTRAINT_TYPE,
  * FK_CONSTRAINT_OWNER
  * FK_CONSTRAINT_NAME
- * IS_ENABLED
+ * IS_DISABLED
  * CHECK_CONDITION
  */
 
@@ -95,7 +95,7 @@ public abstract class SqliteConstraintsResultSet extends SqliteConstraintInfoRes
             Objects.equals(columnLabel, "CHECK_CONDITION") ? element.checkCondition :
             Objects.equals(columnLabel, "FK_CONSTRAINT_OWNER") ? element.fkConstraintOwner :
             Objects.equals(columnLabel, "FK_CONSTRAINT_NAME") ? element.fkConstraintName :
-            Objects.equals(columnLabel, "IS_ENABLED") ? "Y" : null;
+            Objects.equals(columnLabel, "IS_DISABLED") ? "N" : null;
     }
 
     @NonNls

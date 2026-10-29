@@ -19,7 +19,9 @@ package com.dbn.database.oracle;
 import com.dbn.common.download.Downloads;
 import com.dbn.connection.config.provider.CloudConfigProviderFamily;
 import com.dbn.database.interfaces.DatabaseDriverInterface;
+import com.dbn.driver.download.DriverPackageTaskExecutor;
 import com.dbn.driver.download.MavenRepositories;
+import com.intellij.openapi.progress.ProcessCanceledException;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 import org.jetbrains.annotations.Nullable;
@@ -65,13 +67,18 @@ public class OracleDriverInterface implements DatabaseDriverInterface {
     public List<Element> discoverDriverPackages(List<Element> packageElements, @Nullable CloudConfigProviderFamily providerFamily) {
         try {
             Set<String> declaredPackageIds = getDeclaredPackageIds(packageElements);
-            return fetchOracleProviderArtifactIds()
-                    .stream()
+            List<Element> driverPackages = new ArrayList<>();
+            List<String> artifactIds = fetchOracleProviderArtifactIds().stream()
                     .filter(artifactId -> matchesProviderFamily(artifactId, providerFamily))
-                    .map(this::createOracleProviderPackageElement)
-                    .filter(Objects::nonNull)
-                    .filter(e -> !declaredPackageIds.contains(stringAttribute(e, "id")))
                     .toList();
+            DriverPackageTaskExecutor.map(artifactIds, this::createOracleProviderPackageElement, driverPackage -> {
+                if (driverPackage != null && !declaredPackageIds.contains(stringAttribute(driverPackage, "id"))) {
+                    driverPackages.add(driverPackage);
+                }
+            });
+            return driverPackages;
+        } catch (ProcessCanceledException e) {
+            throw e;
         } catch (Throwable e) {
             log.warn("Oracle JDBC provider artifact discovery failed", e);
             return List.of();

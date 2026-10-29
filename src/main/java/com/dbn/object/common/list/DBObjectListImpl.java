@@ -138,6 +138,11 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentBase<T> 
         }
     }
 
+    @Override
+    protected boolean needsConnection() {
+        return objectType != DBObjectType.CONSOLE;
+    }
+
     @Nullable
     public static <E extends DBObject> List<E> getObjects(@Nullable DBObjectList<E> objectList) {
         return objectList == null ? null : objectList.getObjects();

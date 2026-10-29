@@ -32,11 +32,14 @@ import dev.langchain4j.service.tool.ToolProvider;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 
 import static com.dbn.assistant.mcp.model.AssistantMcpServer.qualifiedUtilityName;
+import static com.dbn.assistant.mcp.model.AssistantMcpServerType.STDIO;
 import static com.dbn.common.approval.UserApprovalAction.MCP_SERVER_ACCESS;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -47,31 +50,60 @@ public class AssistantMcpToolProviders {
     private static McpTransport createMcpTransport(AssistantMcpServer mcpServer) {
         AssistantMcpServerVerifier.verify(mcpServer);
 
-        AssistantMcpServerType type = mcpServer.getType();
-        UserApprovalManager approvalManager = UserApprovalManager.getInstance();
-        approvalManager.ensureApproved(MCP_SERVER_ACCESS, mcpServer);
-
-        McpTransport transport = switch (type) {
+        return switch (mcpServer.getType()) {
             case HTTP -> createHttpMcpTransport(mcpServer);
             case STDIO -> createStdioMcpTransport(mcpServer);
         };
-
-        return new AssistantMcpGuardedTransport(transport);
     }
 
-    private static StdioMcpTransport createStdioMcpTransport(AssistantMcpServer mcpServer) {
+    private static McpTransport createHttpMcpTransport(AssistantMcpServer mcpServer) {
+        UserApprovalManager.getInstance().ensureApproved(MCP_SERVER_ACCESS, mcpServer);
+        if (mcpServer.getType() != AssistantMcpServerType.HTTP) throw new UserApprovalCancelledException();
+
+        StreamableHttpMcpTransport transport = buildHttpMcpTransport(mcpServer);
+        return new AssistantMcpGuardedTransport(transport, null);
+    }
+
+    private static McpTransport createStdioMcpTransport(AssistantMcpServer mcpServer) {
+        AssistantMcpCommand command = approveStdioMcpServer(mcpServer);
+
+        AssistantMcpServer launchServer = mcpServer.clone();
+        launchServer.setType(STDIO);
+        launchServer.setCommand(command.tokens().get(0));
+        launchServer.setCommandArguments(new ArrayList<>(command.tokens().subList(1, command.tokens().size())));
+
+        StdioMcpTransport transport = buildStdioMcpTransport(launchServer);
+        return new AssistantMcpGuardedTransport(transport, command);
+    }
+
+    private static AssistantMcpCommand approveStdioMcpServer(AssistantMcpServer mcpServer) {
+        List<String> commandTokens = List.copyOf(mcpServer.getCommandTokens());
+        AssistantMcpCommand beforeApproval = AssistantMcpCommandSignature.capture(commandTokens);
+
+        UserApprovalManager.getInstance().ensureApproved(MCP_SERVER_ACCESS, mcpServer);
+        if (mcpServer.getType() != STDIO) throw new UserApprovalCancelledException();
+        if (!commandTokens.equals(mcpServer.getCommandTokens())) throw new UserApprovalCancelledException();
+
+        AssistantMcpCommand afterApproval = AssistantMcpCommandSignature.capture(commandTokens);
+        if (!beforeApproval.equals(afterApproval)) throw new UserApprovalCancelledException();
+
+        return afterApproval;
+    }
+
+    private static StreamableHttpMcpTransport buildHttpMcpTransport(AssistantMcpServer mcpServer) {
+        return StreamableHttpMcpTransport
+                .builder()
+                .url(mcpServer.getUrl())
+                .build();
+    }
+
+    private static StdioMcpTransport buildStdioMcpTransport(AssistantMcpServer mcpServer) {
         return StdioMcpTransport
                 .builder()
                 .command(mcpServer.getCommandTokens())
                 .build();
     }
 
-    private static McpTransport createHttpMcpTransport(AssistantMcpServer mcpServer) {
-        return StreamableHttpMcpTransport
-                .builder()
-                .url(mcpServer.getUrl())
-                .build();
-    }
 
     private static McpClient createMcpClient(AssistantMcpServer mcpServer) {
         McpTransport transport = createMcpTransport(mcpServer);

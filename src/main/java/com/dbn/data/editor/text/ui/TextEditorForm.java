@@ -17,17 +17,19 @@
 package com.dbn.data.editor.text.ui;
 
 import com.dbn.common.action.UserDataKeys;
+import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Json;
 import com.dbn.common.util.Messages;
-import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.data.editor.text.TextContentType;
 import com.dbn.data.editor.text.TextContentTypeOwner;
 import com.dbn.data.editor.text.actions.TextContentTypeComboBoxAction;
+import com.dbn.data.editor.text.actions.TextEditorRevertAction;
 import com.dbn.data.editor.ui.DataEditorComponent;
 import com.dbn.data.editor.ui.UserValueHolder;
 import com.dbn.data.type.GenericDataType;
@@ -37,6 +39,7 @@ import com.dbn.data.value.XmlTypeValue;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.DBLanguageFileType;
+import com.dbn.language.common.psi.PsiUtil;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.event.DocumentListener;
@@ -62,7 +65,9 @@ import static com.dbn.common.file.FileTypes.getDtdFileType;
 import static com.dbn.common.file.FileTypes.getJsonFileType;
 import static com.dbn.common.file.FileTypes.getTextFileType;
 import static com.dbn.common.file.FileTypes.getXmlFileType;
+import static com.dbn.common.ui.panel.DBNLoadingPanel.newLoadingPanel;
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Strings.convertLineSeparators;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.language.common.psi.PsiUtil.getFileManager;
@@ -70,12 +75,16 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class TextEditorForm extends DBNFormBase implements TextContentTypeOwner {
     private JPanel mainPanel;
+    private JPanel headerPanel;
     private JPanel editorPanel;
     private JPanel actionsPanel;
+    private JPanel loadingPanel;
 
     private EditorEx editor;
-    private String error;
+    private PsiFile psiFile;
     private String text;
+    private String originalText;
+    private boolean contentLoading;
 
     private final UserValueHolder<?> userValueHolder;
     private final DataEditorComponent textEditorAdapter;
@@ -88,22 +97,36 @@ public class TextEditorForm extends DBNFormBase implements TextContentTypeOwner 
         return mainPanel;
     }
 
-    public TextEditorForm(TextEditorDialog parent, DocumentListener documentListener, UserValueHolder<?> userValueHolder, DataEditorComponent textEditorAdapter) {
+    public TextEditorForm(
+            TextEditorDialog parent,
+            DocumentListener documentListener,
+            UserValueHolder<?> userValueHolder,
+            DataEditorComponent textEditorAdapter) {
         super(parent);
         this.documentListener = documentListener;
         this.userValueHolder = userValueHolder;
         this.textEditorAdapter = textEditorAdapter;
+
+        installContextHeader(headerPanel);
 
         Project project = getProject();
         if (userValueHolder.getContentType() == null) {
             userValueHolder.setContentType(TextContentType.getPlainText(project));
         }
 
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, new TextContentTypeComboBoxAction(this));
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true,
+                new TextContentTypeComboBoxAction(this),
+                new TextEditorRevertAction(this));
         actionsPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
 
-        text = Strings.removeCharacter(nvl(readUserValue(), ""), '\r');
+        newLoadingPanel(this, "app.dataEditor.text.LoadingContent")
+                .installOn(this.loadingPanel, true);
+
+        contentLoading = true;
+        text = "";
+        originalText = "";
         initEditor();
+        loadContent();
     }
 
     private void initEditor() {
@@ -118,6 +141,7 @@ public class TextEditorForm extends DBNFormBase implements TextContentTypeOwner 
 
         Project project = ensureProject();
         VirtualFile virtualFile = null;
+        psiFile = null;
         FileType fileType = userValueHolder.getContentType().getFileType();
         if (fileType instanceof LanguageFileType languageFileType) {
 
@@ -134,7 +158,10 @@ public class TextEditorForm extends DBNFormBase implements TextContentTypeOwner 
 
             FileManager fileManager = getFileManager(project);
             FileViewProvider viewProvider = fileManager.createFileViewProvider(virtualFile, true);
-            PsiFile psiFile = viewProvider.getPsi(languageFileType.getLanguage());
+            psiFile = viewProvider.getPsi(languageFileType.getLanguage());
+            if (contentLoading) {
+                PsiUtil.setHighlightingEnabled(psiFile, false);
+            }
             document = psiFile == null ? null : Documents.getDocument(psiFile);
         }
 
@@ -145,6 +172,7 @@ public class TextEditorForm extends DBNFormBase implements TextContentTypeOwner 
         editor.setEmbeddedIntoDialogWrapper(true);
         editor.getContentComponent().setFocusTraversalKeysEnabled(false);
         Editors.updateEditorScrollPane(editor);
+        Editors.setEditorReadonly(editor, contentLoading);
 
         if (fileType instanceof DBLanguageFileType dbFileType) {
             DBLanguage language = (DBLanguage) dbFileType.getLanguage();
@@ -159,6 +187,52 @@ public class TextEditorForm extends DBNFormBase implements TextContentTypeOwner 
         }
         editorPanel.add(editor.getComponent());
         editor.getScrollingModel().scrollVertically(scrollOffset);
+    }
+
+    private void loadContent() {
+        Dispatch.async(mainPanel,
+                () -> readUserValue(),
+                t -> contentLoaded(t));
+    }
+
+    private void contentLoaded(@Nullable String loadedText) {
+        if (isDisposed()) return;
+
+        text = convertLineSeparators(nvl(loadedText, ""));
+        originalText = text;
+        Document document = editor.getDocument();
+        document.removeDocumentListener(documentListener);
+        try {
+            Documents.resetText(editor, text, false);
+        } finally {
+            document.addDocumentListener(documentListener, this);
+        }
+
+
+        contentLoading = false;
+        Editors.setEditorReadonly(editor, false);
+        PsiUtil.setHighlightingEnabled(psiFile, true);
+        loadingPanel.setVisible(false);
+    }
+
+    public boolean isContentChanged() {
+        return !contentLoading && editor != null && !editor.getDocument().getText().equals(originalText);
+    }
+
+    public void revertChanges() {
+        if (!isContentChanged()) return;
+
+        text = originalText;
+        Document document = editor.getDocument();
+        document.removeDocumentListener(documentListener);
+        try {
+            Documents.resetText(editor, originalText, false);
+        } finally {
+            document.addDocumentListener(documentListener, this);
+        }
+
+        TextEditorDialog dialog = ensureParentComponent();
+        dialog.resetActions();
     }
 
     public void setContentType(TextContentType contentType){

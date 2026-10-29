@@ -41,22 +41,49 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.intellij.openapi.progress.PerformInBackgroundOption.ALWAYS_BACKGROUND;
 
 @UtilityClass
 public final class Progress {
     public static void background(Project project, DatabaseContext context, boolean cancellable, @ProgressTitle String title, @ProgressText String text, ProgressRunnable runnable) {
-        if (Checks.isNotValid(project)) return;
+        background(project, context, cancellable, title, text, runnable, null);
+    }
+
+    /** Runs the callback if the background task is rejected before its runnable starts. */
+    public static void background(
+            Project project,
+            DatabaseContext context,
+            boolean cancellable,
+            @ProgressTitle String title,
+            @ProgressText String text,
+            ProgressRunnable runnable,
+            @Nullable Runnable onNotStarted) {
+        AtomicBoolean claimed = new AtomicBoolean();
+        Runnable notifyNotStarted = () -> {
+            if (claimed.compareAndSet(false, true) && onNotStarted != null) {
+                Failsafe.guarded(() -> onNotStarted.run());
+            }
+        };
+        if (Checks.isNotValid(project)) {
+            notifyNotStarted.run();
+            return;
+        }
         title = Titles.suffixed(title, context);
 
         ThreadInfo invoker = ThreadInfo.copy();
         schedule(new Backgroundable(project, title, cancellable, ALWAYS_BACKGROUND) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
+                if (!claimed.compareAndSet(false, true)) return;
                 execute(indicator, ThreadProperty.PROGRESS, invoker, text, runnable);
             }
-        });
+            @Override
+            public void onCancel() {
+                notifyNotStarted.run();
+            }
+        }, notifyNotStarted);
     }
 
 
@@ -82,16 +109,42 @@ public final class Progress {
 
 
     public static void modal(Project project, DatabaseContext context, boolean cancellable, @ProgressTitle String title, @ProgressText String text, ProgressRunnable runnable) {
-        if (Checks.isNotValid(project)) return;
+        modal(project, context, cancellable, title, text, runnable, null);
+    }
+
+    /** Runs the callback if the modal task is rejected before its runnable starts. */
+    public static void modal(
+            Project project,
+            DatabaseContext context,
+            boolean cancellable,
+            @ProgressTitle String title,
+            @ProgressText String text,
+            ProgressRunnable runnable,
+            @Nullable Runnable onNotStarted) {
+        AtomicBoolean claimed = new AtomicBoolean();
+        Runnable notifyNotStarted = () -> {
+            if (claimed.compareAndSet(false, true) && onNotStarted != null) {
+                Failsafe.guarded(() -> onNotStarted.run());
+            }
+        };
+        if (Checks.isNotValid(project)) {
+            notifyNotStarted.run();
+            return;
+        }
         title = Titles.suffixed(title, context);
 
         ThreadInfo invoker = ThreadInfo.copy();
         schedule(new Task.Modal(project, title, cancellable) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
+                if (!claimed.compareAndSet(false, true)) return;
                 execute(indicator, ThreadProperty.MODAL, invoker, text, runnable);
             }
-        });
+            @Override
+            public void onCancel() {
+                notifyNotStarted.run();
+            }
+        }, notifyNotStarted);
     }
 
     @SneakyThrows
@@ -103,14 +156,26 @@ public final class Progress {
     }
 
     private static void schedule(Task task) {
+        schedule(task, null);
+    }
+
+    private static void schedule(Task task, @Nullable Runnable onNotStarted) {
         Project project = task.getProject();
-        if (!Checks.allValid(task, project)) return;
+        if (!Checks.allValid(task, project)) {
+            if (onNotStarted != null) onNotStarted.run();
+            return;
+        }
 
         ThreadInfo info = ThreadInfo.copy();
         ProgressManager progressManager = ProgressManager.getInstance();
         Dispatch.run(ModalityState.any(),
-                () -> ThreadMonitor.surround(info, null,
-                        () -> progressManager.run(task)));
+                () -> ThreadMonitor.surround(info, null, () -> {
+                    if (!Checks.allValid(task, project)) {
+                        if (onNotStarted != null) onNotStarted.run();
+                        return;
+                    }
+                    progressManager.run(task);
+                }));
     }
 
     public static double progressOf(int is, int should) {

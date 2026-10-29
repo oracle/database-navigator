@@ -17,17 +17,14 @@
 package com.dbn.connection.ssh;
 
 import com.dbn.common.component.ApplicationComponentBase;
-import com.dbn.common.database.DatabaseInfo;
-import com.dbn.common.network.NetworkAddress;
-import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.config.ConnectionSshTunnelSettings;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.applicationService;
+import static com.dbn.connection.ssh.SshConnections.createTunnelConfig;
 
 public class SshTunnelManager extends ApplicationComponentBase {
     private final Map<SshTunnelConfig, SshTunnelConnector> sshTunnelConnectors = new ConcurrentHashMap<>();
@@ -44,30 +41,12 @@ public class SshTunnelManager extends ApplicationComponentBase {
         ConnectionSshTunnelSettings sshSettings = connectionSettings.getSshTunnelSettings();
         if (!sshSettings.isActive()) return null;
 
-        ConnectionDatabaseSettings databaseSettings = connectionSettings.getDatabaseSettings();
-        SshTunnelConfig config = createConfig(databaseSettings, sshSettings);
+        SshTunnelConfig config = createTunnelConfig(connectionSettings);
         SshTunnelConnector connector = sshTunnelConnectors.computeIfAbsent(config, c -> new SshTunnelConnector(c));
 
         if (!connector.isConnected()) {
             connector.connect();
         }
         return connector;
-    }
-
-    @NotNull
-    private static SshTunnelConfig createConfig(ConnectionDatabaseSettings databaseSettings, ConnectionSshTunnelSettings sshSettings) {
-        DatabaseInfo databaseInfo = databaseSettings.getDatabaseInfo();
-
-        NetworkAddress proxyAddress = new NetworkAddress(sshSettings.getHost(), sshSettings.getPort());
-        NetworkAddress remoteAddress = new NetworkAddress(databaseInfo.getHost(), databaseInfo.getPort());
-
-        return new SshTunnelConfig(
-                proxyAddress,
-                remoteAddress,
-                sshSettings.getAuthType(),
-                sshSettings.getUser(),
-                sshSettings.getPassword(),
-                sshSettings.getKeyFile(),
-                sshSettings.getKeyPassphrase());
     }
 }

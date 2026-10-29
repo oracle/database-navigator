@@ -35,7 +35,6 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
-import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -137,19 +136,5 @@ public class ObjectFilterManager extends ProjectComponentBase implements Persist
 		ProjectSettings projectSettings = ProjectSettings.get(getProject());
 		ConnectionSettings connectionSettings = projectSettings.getConnectionSettings().getConnectionSettings(connectionId);
 		return connectionSettings.getFilterSettings().getObjectFilterSettings();
-	}
-
-	/****************************************
-	 *       PersistentStateComponent       *
-	 *****************************************/
-	@Nullable
-	@Override
-	public Element getComponentState() {
-		Element element = new Element("state");
-		return element;
-	}
-
-	@Override
-	public void loadComponentState(@NotNull Element element) {
 	}
 }

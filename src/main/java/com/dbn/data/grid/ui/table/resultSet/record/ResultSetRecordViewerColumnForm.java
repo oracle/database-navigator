@@ -16,7 +16,6 @@
 
 package com.dbn.data.grid.ui.table.resultSet.record;
 
-import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -38,6 +37,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.text.ParseException;
 
+import static com.dbn.common.color.Colors.getLabelDisabledForeground;
+import static com.dbn.common.color.Colors.getLabelForeground;
+import static com.dbn.common.color.Colors.getTextFieldBackground;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 import static com.dbn.common.ui.util.TextFields.getText;
 
@@ -59,7 +61,7 @@ public class ResultSetRecordViewerColumnForm extends DBNFormBase {
 
         columnLabel.setIcon(Icons.DBO_COLUMN);
         columnLabel.setText(columnInfo.getName());
-        columnLabel.setForeground(auditColumn ? UIUtil.getLabelDisabledForeground() : UIUtil.getLabelForeground());
+        columnLabel.setForeground(auditColumn ? getLabelDisabledForeground() : getLabelForeground());
         if (showDataType) {
             dataTypeLabel.setText(dataType.getQualifiedName());
             dataTypeLabel.setForeground(UIUtil.getInactiveTextColor());
@@ -74,7 +76,7 @@ public class ResultSetRecordViewerColumnForm extends DBNFormBase {
         valueFieldPanel.add(valueTextField, BorderLayout.CENTER);
         valueTextField.setEditable(false);
         valueTextField.setCursor(Cursors.textCursor());
-        valueTextField.setBackground(Colors.getTextFieldBackground());
+        valueTextField.setBackground(getTextFieldBackground());
 
         columnLabel.setLabelFor(valueTextField);
         setAccessibleUnit(valueTextField, dataTypeLabel.getText());

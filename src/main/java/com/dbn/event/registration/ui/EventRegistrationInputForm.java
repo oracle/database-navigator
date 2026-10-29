@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import com.dbn.common.state.StateAttributes;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.event.registration.EventRegistrationManager;
 import com.dbn.object.DBTable;
@@ -36,6 +35,7 @@ import java.awt.BorderLayout;
 
 import static com.dbn.common.text.TextContent.plain;
 import static com.dbn.common.ui.form.DBNFormState.initPersistence;
+import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.nls.NlsResources.txt;
 
 public class EventRegistrationInputForm extends DBNFormBase {
@@ -62,7 +62,7 @@ public class EventRegistrationInputForm extends DBNFormBase {
         Project project = ensureProject();
         EventRegistrationManager registrationManager = EventRegistrationManager.getInstance(project);
 
-        StateAttributes state = registrationManager.getState("REGISTRATION_INPUT");
+        StateAttributes state = registrationManager.getUserInterfaceState("REGISTRATION_INPUT");
         initPersistence(insertCheckBox, state, "insert-selected");
         initPersistence(updateCheckBox, state, "update-selected");
         initPersistence(deleteCheckBox, state, "delete-selected");
@@ -75,8 +75,7 @@ public class EventRegistrationInputForm extends DBNFormBase {
 
     private void initHintForm() {
         TextContent hintText = plain(txt("msg.events.hint.EventListenerRegistration", table.getObjectName(true)));
-        DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
-        hintPanel.add(hintForm.getComponent());
+        installHintForm(this, hintText, hintPanel);
 
     }
 

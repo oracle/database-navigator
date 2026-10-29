@@ -64,9 +64,9 @@ public abstract class DBMethodFactoryAdapter implements ObjectFactoryAdapter {
         }
 
 
-        DBObjectSpec returnArgument = RETURN_ARGUMENT.of(input);
+        DBObjectSpec returnArgument = RETURN_ARGUMENT.value(input);
         if (returnArgument != null) {
-            String dataType = DATA_TYPE.of(returnArgument);
+            String dataType = DATA_TYPE.value(returnArgument);
             if (Strings.isEmpty(dataType)){
                 errors.add(txt("msg.objects.error.ReturnArgumentDataTypeMissing"));
             }

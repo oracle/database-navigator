@@ -16,7 +16,7 @@
 
 package com.dbn.connection.resource.ui;
 
-import com.dbn.common.action.BasicActionButton;
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.component.DBNComponent;
@@ -35,7 +35,6 @@ import com.dbn.connection.transaction.TransactionAction;
 import com.dbn.connection.transaction.TransactionListener;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
-import com.intellij.ui.AnActionButton;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.components.JBScrollPane;
 import org.jetbrains.annotations.NotNull;
@@ -138,7 +137,7 @@ public class ResourceMonitorDetailForm extends DBNFormBase {
         rollbackButton.setEnabled(enabled);
     }
 
-    private final AnActionButton disconnectAction = new BasicActionButton(txt("app.connection.action.Disconnect"), null, Icons.ACTION_DISCONNECT_SESSION) {
+    private final BasicAction disconnectAction = new BasicAction(txt("app.connection.action.Disconnect"), null, Icons.ACTION_DISCONNECT_SESSION) {
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             DatabaseSession session = getSelectedSession();
@@ -164,14 +163,14 @@ public class ResourceMonitorDetailForm extends DBNFormBase {
         }
 
         @Override
-        public void updateButton(AnActionEvent e) {
+        public void update(@NotNull AnActionEvent e) {
             DBNConnection connection = getSelectedConnection();
             e.getPresentation().setEnabled(connection != null && !connection.isClosed());
         }
 
     };
 
-    private final AnActionButton deleteSessionAction = new BasicActionButton(txt("app.connection.action.DeleteSession"), null, Icons.ACTION_DELETE) {
+    private final BasicAction deleteSessionAction = new BasicAction(txt("app.connection.action.DeleteSession"), null, Icons.ACTION_DELETE) {
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             DatabaseSession session = getSelectedSession();
@@ -189,7 +188,7 @@ public class ResourceMonitorDetailForm extends DBNFormBase {
         }
 
         @Override
-        public void updateButton(AnActionEvent e) {
+        public void update(@NotNull AnActionEvent e) {
             DatabaseSession session = getSelectedSession();
             DBNConnection connection = getSelectedConnection();
             e.getPresentation().setEnabled(
@@ -199,7 +198,7 @@ public class ResourceMonitorDetailForm extends DBNFormBase {
         }
     };
 
-    private final AnActionButton renameSessionAction = new BasicActionButton(txt("app.sessions.action.RenameSession"), null, Icons.ACTION_EDIT) {
+    private final BasicAction renameSessionAction = new BasicAction(txt("app.sessions.action.RenameSession"), null, Icons.ACTION_EDIT) {
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             DatabaseSession session = getSelectedSession();
@@ -210,7 +209,7 @@ public class ResourceMonitorDetailForm extends DBNFormBase {
         }
 
         @Override
-        public void updateButton(AnActionEvent e) {
+        public void update(@NotNull AnActionEvent e) {
             DatabaseSession session = getSelectedSession();
             DBNConnection connection = getSelectedConnection();
             e.getPresentation().setEnabled(

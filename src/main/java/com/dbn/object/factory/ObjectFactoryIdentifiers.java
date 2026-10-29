@@ -17,6 +17,7 @@
 package com.dbn.object.factory;
 
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.database.DatabaseIdentifierCase;
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.quotes.QuotePair;
 import com.dbn.language.sql.SQLLanguage;
@@ -28,6 +29,12 @@ import static com.dbn.language.common.quotes.QuoteEscaping.DATABASE;
 
 @UtilityClass
 public class ObjectFactoryIdentifiers {
+
+    public static String adjustIdentifierCase(ConnectionHandler connection, String identifier, DatabaseIdentifierCase requestedCase) {
+        DatabaseIdentifierCase defaultCase = connection.getCompatibility().getIdentifierCase();
+        boolean adjustCase = requestedCase == defaultCase && canUseDefaultCase(connection, identifier);
+        return adjustCase ? requestedCase.format(identifier) : identifier;
+    }
 
     public static String quoteIdentifier(ConnectionHandler connection, String identifier) {
         QuotePair quotes = connection.getDatabaseType() == GENERIC ?

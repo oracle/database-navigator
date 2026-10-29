@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ import com.dbn.mcp.vfs.McpToolSqlVirtualFile;
 import com.dbn.object.DBConsole;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectBundle;
-import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.project.ProjectComponentsInitializer;
@@ -204,8 +203,8 @@ public class DatabaseFileSystem extends VirtualFileSystem implements /*NonPhysic
 
         } else if (OBJECTS.is(relativePath)) {
             String objectIdentifier = OBJECTS.collate(relativePath);
-            DBObjectRef<DBSchemaObject> objectRef = new DBObjectRef<>(connectionId, objectIdentifier);
-            DBSchemaObject object = objectRef.get();
+            DBObjectRef<DBObject> objectRef = new DBObjectRef<>(connectionId, objectIdentifier);
+            DBObject object = objectRef.get();
             if (object == null) return null; // prevent default file history editor restore
 
             return findOrCreateDatabaseFile(project, objectRef);
@@ -216,7 +215,7 @@ public class DatabaseFileSystem extends VirtualFileSystem implements /*NonPhysic
             DBContentType contentType = DBContentType.valueOf(contentTypeStr);
 
             String objectIdentifier = contentIdentifier.substring(contentTypeEndIndex + 1);
-            DBObjectRef<DBSchemaObject> objectRef = new DBObjectRef<>(connectionId, objectIdentifier);
+            DBObjectRef<DBObject> objectRef = new DBObjectRef<>(connectionId, objectIdentifier);
             DBEditableObjectVirtualFile virtualFile = findOrCreateDatabaseFile(project, objectRef);
             if (virtualFile == null) return null;
             return virtualFile.getContentFile(contentType);

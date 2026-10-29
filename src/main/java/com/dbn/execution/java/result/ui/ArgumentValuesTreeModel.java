@@ -68,7 +68,7 @@ public class ArgumentValuesTreeModel implements TreeModel {
 
             String returnLabel = txt("app.execution.label.Return");
             ExecutionValue<String> executionValue = new ExecutionValue<>(returnLabel, ValueHolder.basic(arrayString));
-            new ArgumentValuesTreeNode(parentNode, returnLabel, returnClassRef, executionValue);
+            new ArgumentValuesTreeNode(parentNode, returnLabel, returnClassRef, executionValue, method.getReturnArrayDepth());
             return;
         }
 

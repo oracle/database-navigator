@@ -22,8 +22,11 @@ public interface ObjectPool<T, E extends Throwable> {
     /**
      * Acquire an object from the pool
      *
-     * @param timeout time to give up
-     * @param timeUnit the unit of time to give op
+     * Creation, validation, and lifecycle hooks run synchronously and are not interrupted
+     * when the timeout expires.
+     *
+     * @param timeout total time allowed for waiting and retrying
+     * @param timeUnit the timeout unit
      * @return an object from the pool
      * @throws E when the pool reached limits or failed to initialize the object
      */
@@ -32,6 +35,7 @@ public interface ObjectPool<T, E extends Throwable> {
     /**
      * Release the object back to the pool
      * The object will be made available for the next {@link #acquire(long, TimeUnit)} operation
+     * Returns of objects that are not currently borrowed from this pool are ignored.
      *
      * @param object the object to be released
      * @return the released object
@@ -39,12 +43,13 @@ public interface ObjectPool<T, E extends Throwable> {
     T release(T object);
 
     /**
-     * Drop an object from the pool
+     * Discard an object from the pool and release its resources
+     * Explicit removal may close an object that is currently borrowed.
      *
      * @param object the object to be removed
      * @return the removed object
      */
-    T drop(T object);
+    T discard(T object);
 
     int size();
 

@@ -17,8 +17,12 @@
 package com.dbn.data.editor.ui;
 
 import com.dbn.common.project.ProjectRef;
+import com.dbn.common.ref.WeakRef;
+import com.dbn.common.ui.misc.DBNButton;
 import com.dbn.common.ui.panel.DBNPanelImpl;
+import com.dbn.common.ui.table.DBNTable;
 import com.dbn.common.ui.util.Accessibility;
+import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.TextFields;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBTextField;
@@ -27,6 +31,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -47,9 +52,12 @@ public abstract class TextFieldWithButtons extends DBNPanelImpl implements DataE
     private final JBTextField textField;
     private final ProjectRef project;
     private UserValueHolder<?> userValueHolder;
+    private final WeakRef<DBNTable> parentTable;
+    private @Nullable WeakRef<Object> contextObject;
 
-    public TextFieldWithButtons(Project project) {
+    protected TextFieldWithButtons(@NotNull Project project, @Nullable DBNTable parentTable) {
         this.project = ProjectRef.of(project);
+        this.parentTable = WeakRef.of(parentTable);
 
         setLayout(new BorderLayout());
         this.textField = new JBTextField();
@@ -60,7 +68,21 @@ public abstract class TextFieldWithButtons extends DBNPanelImpl implements DataE
 
         textField.setMaximumSize(maximumSize);
         add(textField, BorderLayout.CENTER);
+    }
 
+    @Nullable
+    public DBNTable getParentTable() {
+        return WeakRef.get(parentTable);
+    }
+
+
+    public void setContextObject(@Nullable Object contextObject) {
+        this.contextObject = WeakRef.of(contextObject);
+    }
+
+    @Nullable
+    public Object getContextObject() {
+        return WeakRef.get(contextObject);
     }
 
     @NotNull
@@ -68,20 +90,47 @@ public abstract class TextFieldWithButtons extends DBNPanelImpl implements DataE
         return project.ensure();
     }
 
-    public void customizeTextField(JTextField textField) {}
+    public void customizeTextField(JTextField textField) {
+        DBNTable parentTable = getParentTable();
+        if (parentTable != null) {
+            textField.setBorder(Borders.EMPTY_BORDER);
+            textField.setMargin(JBUI.emptyInsets());
+            textField.setPreferredSize(new Dimension(textField.getPreferredSize().width, parentTable.getRowHeight()));
+        } else {
+            Dimension preferredSize = textField.getPreferredSize();
+            textField.setPreferredSize(new Dimension(300, preferredSize.height));
+        }
+
+    }
 
     public JComponent createButton(Icon icon, @Nls String name) {
-        JButton button = new JButton(icon);
-        Accessibility.setAccessibleName(button, name);
+        DBNTable parentTable = getParentTable();
+        if (parentTable == null) {
+            JButton button = new JButton(icon);
+            Accessibility.setAccessibleName(button, name);
 
-        int height = (int) textField.getPreferredSize().getHeight();
-        int width = height;
+            int side = (int) textField.getPreferredSize().getHeight();
+            Dimension size = new Dimension(side, side);
+            button.setPreferredSize(size);
+            button.setMaximumSize(size);
 
-        Dimension size = new Dimension(width, height);
-        button.setPreferredSize(size);
-        button.setMaximumSize(size);
+            return button;
+        } else {
+            DBNButton button = new DBNButton(icon, name);
+            button.setBorder(Borders.insetBorder(1));
+            button.setOpaque(false);
+            int rowHeight = parentTable.getRowHeight();
+            button.setPreferredSize(new Dimension(Math.max(20, rowHeight), rowHeight - 2));
+            parentTable.addPropertyChangeListener(e -> {
+                Object newProperty = e.getNewValue();
+                if (newProperty instanceof Font) {
+                    int rowHeight1 = parentTable.getRowHeight();
+                    button.setPreferredSize(new Dimension(Math.max(20, rowHeight1), parentTable.getRowHeight() - 2));
+                }
+            });
 
-        return button;
+            return button;
+        }
     }
 
     @Override
@@ -112,6 +161,10 @@ public abstract class TextFieldWithButtons extends DBNPanelImpl implements DataE
 
     public void setEditable(boolean editable){
         textField.setEditable(editable);
+        DBNTable parentTable = getParentTable();
+        if (parentTable != null) {
+            setBackground(getTextField().getBackground());
+        }
     }
 
     public boolean isEditable() {

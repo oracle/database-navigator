@@ -24,6 +24,7 @@ import com.dbn.database.interfaces.DatabaseDebuggerInterface;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.editor.DBContentType;
 import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.vfs.DBVirtualFileBase;
 import com.dbn.vfs.DatabaseFileSystem;
 import com.dbn.vfs.file.DBConsoleVirtualFile;
 import com.dbn.vfs.file.DBContentVirtualFile;
@@ -118,16 +119,22 @@ public class DBBreakpointUtil {
     }
 
     @NotNull
-    public static String getBreakpointDesc(@NotNull XLineBreakpoint<XBreakpointProperties> breakpoint) {
+    public static String getBreakpointLocation(@NotNull XLineBreakpoint<XBreakpointProperties> breakpoint) {
         DBObjectRef object = getDatabaseObject(breakpoint);
         VirtualFile virtualFile = getBreakpointFile(breakpoint);
         int line = breakpoint.getLine() + 1;
-        Integer breakpointId = getBreakpointId(breakpoint);
         String base = object == null ?
                 virtualFile == null ? "unknown" : virtualFile.getName():
                 object.getQualifiedName();
 
-        return base + ":" + line + " (id=" + breakpointId + ")";
+        return base + ":" + line;
+    }
+
+    @NotNull
+    public static String getBreakpointDesc(@NotNull XLineBreakpoint<XBreakpointProperties> breakpoint) {
+        String location = getBreakpointLocation(breakpoint);
+        Integer breakpointId = getBreakpointId(breakpoint);
+        return location + " (id=" + breakpointId + ")";
     }
 
     public static List<XLineBreakpoint<XBreakpointProperties>> getDatabaseBreakpoints(ConnectionHandler connection, DBDebuggerType debuggerType) {
@@ -208,12 +215,18 @@ public class DBBreakpointUtil {
         return debuggerManager.getBreakpointManager();
     }
 
-    public static void registerBreakpoint(DBContentVirtualFile contentFile, int line, boolean enabled, boolean temporary) {
-        Read.run(() -> {
-            ConnectionHandler connection = contentFile.getConnection();
+    @NotNull
+    public static XLineBreakpoint<XBreakpointProperties> registerBreakpoint(DBContentVirtualFile contentFile, int line, boolean enabled, boolean temporary) {
+        return registerBreakpoint((DBVirtualFileBase) contentFile, line, enabled, temporary);
+    }
 
-            String fileUrl = contentFile.getUrl();
-            Project project = contentFile.getProject();
+    @NotNull
+    public static XLineBreakpoint<XBreakpointProperties> registerBreakpoint(DBVirtualFileBase file, int line, boolean enabled, boolean temporary) {
+        return Read.call(() -> {
+            ConnectionHandler connection = file.getConnection();
+
+            String fileUrl = file.getUrl();
+            Project project = file.getProject();
 
             XBreakpointProperties properties = createBreakpointProperties(connection);
             DBBreakpointType breakpointType = DBBreakpointType.get();
@@ -221,6 +234,7 @@ public class DBBreakpointUtil {
             XBreakpointManager breakpointManager = getBreakpointManager(project);
             XLineBreakpoint<XBreakpointProperties> breakpoint = breakpointManager.addLineBreakpoint(breakpointType, fileUrl, line, properties, temporary);
             breakpoint.setEnabled(enabled);
+            return breakpoint;
         });
     }
 }

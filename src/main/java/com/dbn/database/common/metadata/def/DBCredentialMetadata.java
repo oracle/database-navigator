@@ -35,7 +35,7 @@ public interface DBCredentialMetadata extends DBObjectMetadata {
 
     String getComments() throws SQLException;
 
-    boolean isEnabled() throws SQLException;
+    boolean isDisabled() throws SQLException;
 
     @Getter
     @Builder
@@ -44,6 +44,6 @@ public interface DBCredentialMetadata extends DBObjectMetadata {
         private final String credentialType;
         private final String userName;
         private final String comments;
-        private final boolean enabled;
+        private final boolean disabled;
     }
 }

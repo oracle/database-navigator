@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,19 +35,15 @@ public class SequenceElementTypeCache<T extends SequenceElementType> extends Ele
 
     @Override
     boolean initAsFirstPossibleLeaf(LeafElementType leaf, ElementTypeBase source) {
-        boolean notInitialized = !firstPossibleLeafs.contains(leaf);
-        return notInitialized && (
-                isWrapperBeginLeaf(leaf) ||
-                    (couldStartWithElement(source) &&
-                     source.cache.couldStartWithLeaf(leaf)));
+        if (isWrapperBeginLeaf(leaf)) return true;
+        if (!couldStartWithElement(source)) return false;
+        return source.cache.couldStartWithLeaf(leaf);
     }
 
     @Override
     boolean initAsFirstRequiredLeaf(LeafElementType leaf, ElementTypeBase source) {
-        boolean notInitialized = !firstRequiredLeafs.contains(leaf);
-        return notInitialized &&
-                shouldStartWithElement(source) &&
-                source.cache.shouldStartWithLeaf(leaf);
+        if (!shouldStartWithElement(source)) return false;
+        return source.cache.shouldStartWithLeaf(leaf);
     }
 
     private boolean couldStartWithElement(ElementType elementType) {
@@ -93,8 +89,8 @@ public class SequenceElementTypeCache<T extends SequenceElementType> extends Ele
         while (child != null) {
             if (context.check(child)) {
                 child.elementType.cache.captureFirstPossibleLeafs(context, bucket);
+                if (!child.optional) break;
             }
-            if (!child.optional) break;
             child = child.next;
         }
         return bucket;
@@ -109,8 +105,8 @@ public class SequenceElementTypeCache<T extends SequenceElementType> extends Ele
         while (child != null) {
             if (context.check(child)) {
                 child.elementType.cache.captureFirstPossibleTokens(context, bucket);
+                if (!child.optional) break;
             }
-            if (!child.optional) break;
             child = child.next;
         }
         return bucket;

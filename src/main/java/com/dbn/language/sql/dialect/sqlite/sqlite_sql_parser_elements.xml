@@ -339,7 +339,7 @@
         <qualified-identifier id="00134" separator="CHR_DOT">
             <variant>
                 <object-ref id="00135" optional="true" type="SCHEMA" />
-                <object-ref id="00136" referenceable="true" type="TABLE" />
+                <object-ref attributes="SUBJECT" id="00136" referenceable="true" type="TABLE" />
             </variant>
             <variant>
                 <alias-ref id="00137" referenceable="true" type="TABLE" />
@@ -417,7 +417,7 @@
         <qualified-identifier id="00170" separator="CHR_DOT">
             <variant>
                 <object-ref id="00171" optional="true" type="SCHEMA" />
-                <object-ref id="00172" referenceable="true" type="TABLE" />
+                <object-ref attributes="SUBJECT" id="00172" referenceable="true" type="TABLE" />
             </variant>
             <variant>
                 <alias-ref id="00173" referenceable="true" type="TABLE" />
@@ -1024,14 +1024,14 @@
             <qualified-identifier id="00469" separator="CHR_DOT">
                 <variant>
                     <object-ref id="00470" optional="true" type="SCHEMA" />
-                    <object-ref id="00471" type="TABLE" />
+                    <object-ref attributes="SUBJECT" id="00471" type="TABLE" />
                 </variant>
                 <variant>
                     <object-ref id="00472" optional="true" type="SCHEMA" />
-                    <object-ref id="00473" type="INDEX" />
+                    <object-ref attributes="SUBJECT" id="00473" type="INDEX" />
                 </variant>
                 <variant>
-                    <object-ref type="COLLATION" original-name="collation-name" id="00474" />
+                    <object-ref attributes="SUBJECT" type="COLLATION" original-name="collation-name" id="00474" />
                 </variant>
             </qualified-identifier>
         </one-of>
@@ -1044,11 +1044,11 @@
         <qualified-identifier id="00476" optional="true" separator="CHR_DOT">
             <variant>
                 <object-ref id="00477" optional="true" original-name="schema-name" type="SCHEMA" />
-                <object-ref id="00478" original-name="table-or-index-name" type="DATASET" />
+                <object-ref attributes="SUBJECT" id="00478" original-name="table-or-index-name" type="DATASET" />
             </variant>
             <variant>
                 <object-ref id="00479" optional="true" original-name="schema-name" type="SCHEMA" />
-                <object-ref id="00480" original-name="index-or-table-name" type="INDEX" />
+                <object-ref attributes="SUBJECT" id="00480" original-name="index-or-table-name" type="INDEX" />
             </variant>
             <variant>
                 <object-ref id="00481" original-name="schema-name" type="SCHEMA" />
@@ -1071,7 +1071,7 @@
     <!-- ========= savepoint ========= -->
     <element-def attributes="SPECIFIC, TRANSACTIONAL" description="SAVEPOINT statement" id="savepoint_statement">
         <token id="00486" type-id="KW_SAVEPOINT" />
-        <object-def id="00487" original-name="savepoint-name" type="SAVEPOINT" />
+        <object-def attributes="SUBJECT" id="00487" original-name="savepoint-name" type="SAVEPOINT" />
     </element-def>
 
 
@@ -1079,7 +1079,7 @@
     <element-def attributes="SPECIFIC, TRANSACTIONAL" description="RELEASE SAVEPOINT statement" id="release_savepoint_statement">
         <token id="00488" type-id="KW_RELEASE" />
         <token id="00489" optional="true" type-id="KW_SAVEPOINT" />
-        <object-ref id="00490" original-name="savepoint-name" type="SAVEPOINT" />
+        <object-ref attributes="SUBJECT" id="00490" original-name="savepoint-name" type="SAVEPOINT" />
     </element-def>
 
 
@@ -1090,7 +1090,7 @@
         <sequence id="00493" optional="true">
             <token id="00494" type-id="KW_TO" />
             <token id="00495" optional="true" type-id="KW_SAVEPOINT" />
-            <object-ref id="00496" original-name="savepoint-name" type="SAVEPOINT" />
+            <object-ref attributes="SUBJECT" id="00496" original-name="savepoint-name" type="SAVEPOINT" />
         </sequence>
     </element-def>
 
@@ -1135,7 +1135,7 @@
         <token id="00516" optional="true" type-id="KW_DATABASE" />
         <element ref-id="expr" />
         <token id="00517" type-id="KW_AS" />
-        <object-def id="00518" original-name="schema-name" type="SCHEMA" />
+        <object-def attributes="SUBJECT" id="00518" original-name="schema-name" type="SCHEMA" />
     </element-def>
 
 
@@ -1143,7 +1143,7 @@
     <element-def attributes="SPECIFIC, SCOPE_ISOLATION" description="DETACH DATABASE statement" id="detach_database_statement">
         <token id="00519" type-id="KW_DETACH" />
         <token id="00520" optional="true" type-id="KW_DATABASE" />
-        <object-ref id="00521" original-name="schema-name" type="SCHEMA" />
+        <object-ref attributes="SUBJECT" id="00521" original-name="schema-name" type="SCHEMA" />
     </element-def>
 
 

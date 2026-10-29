@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.icon.Icons;
 import com.dbn.connection.context.action.AbstractFolderContextAction;
+import com.dbn.options.general.WorkspaceFeature;
 import com.dbn.sync.java.upload.JavaUploadManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -37,6 +38,11 @@ import static com.dbn.nls.NlsResources.txt;
 public class JavaObjectUploadAction extends AbstractFolderContextAction {
 	public JavaObjectUploadAction() {
 		super(txt("app.java.action.Upload"));
+	}
+
+	@Override
+	protected WorkspaceFeature getFeature() {
+		return WorkspaceFeature.OJVM;
 	}
 
 	@Override
@@ -63,7 +69,7 @@ public class JavaObjectUploadAction extends AbstractFolderContextAction {
 	@Override
 	protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
 		VirtualFile file = Lookups.getVirtualFile(e);
-		boolean visible = isAvailableFor(project, file);
+		boolean visible = isFeatureEnabled(project) && isAvailableFor(project, file);
 
 
 		Presentation presentation = e.getPresentation();

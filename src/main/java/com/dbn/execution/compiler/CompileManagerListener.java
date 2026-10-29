@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package com.dbn.execution.compiler;
 
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.intellij.util.messages.Topic;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -27,5 +27,5 @@ import java.util.EventListener;
 public interface CompileManagerListener extends EventListener {
     Topic<CompileManagerListener> TOPIC = Topic.create("Compile Manager Event", CompileManagerListener.class);
 
-    void compileFinished(@NotNull ConnectionHandler connection, @Nullable DBSchemaObject object);
+    void compileFinished(@NotNull ConnectionHandler connection, @Nullable DBObject object);
 }

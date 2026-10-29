@@ -18,6 +18,7 @@ package com.dbn.data.model;
 
 import com.dbn.common.dispose.UnlistedDisposable;
 import com.dbn.data.editor.ui.UserValueHolder;
+import com.dbn.data.type.GenericDataType;
 import com.dbn.data.value.LargeObjectValue;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,7 +38,10 @@ public interface DataModelCell<
     R getRow();
 
     default boolean isLargeValue() {
-        return getUserValue() instanceof LargeObjectValue;
+        if (getUserValue() instanceof LargeObjectValue) return true;
+
+        var genericDataType = getColumnInfo().getDataType().getGenericDataType();
+        return genericDataType.isLOB() || genericDataType == GenericDataType.TABLE;
     }
 
     default String getTemporaryUserValue() {

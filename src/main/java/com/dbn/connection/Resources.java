@@ -50,7 +50,6 @@ import static com.dbn.common.notification.NotificationCategory.TRANSACTION;
 import static com.dbn.common.util.Classes.className;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.connection.jdbc.ResourceStatus.ACTIVE;
-import static com.dbn.connection.jdbc.ResourceStatus.CLOSED;
 import static com.dbn.connection.jdbc.ResourceStatus.VALID;
 import static com.dbn.database.DatabaseFeature.READONLY_CONNECTIVITY;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -73,10 +72,7 @@ public final class Resources {
 
     public static void markClosed(DBNConnection connection) {
         if (connection == null) return;
-
-        connection.set(VALID, false);
-        connection.set(ACTIVE, false);
-        connection.set(CLOSED, true);
+        connection.markClosed();
     }
 
     public static void cancel(DBNStatement statement) {
@@ -110,6 +106,25 @@ public final class Resources {
             } catch (Throwable e) {
                 conditionallyLog(e);
             }
+        }
+    }
+
+    /**
+     * Releases a statement after an execution attempt.
+     *
+     * <p>A successfully completed cached statement is parked for reuse. An incomplete or uncached
+     * statement is closed instead, which also discards it from the statement pool. A {@code null}
+     * statement is ignored.
+     *
+     * @param statement the statement to release
+     * @param completed whether the statement execution completed successfully
+     */
+    public static void release(@Nullable DBNStatement statement, boolean completed) {
+        if (statement == null) return;
+        if (completed && statement.isCached()) {
+            statement.park();
+        } else {
+            close((DBNResource) statement);
         }
     }
 

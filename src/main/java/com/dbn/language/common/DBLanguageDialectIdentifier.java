@@ -17,23 +17,28 @@
 package com.dbn.language.common;
 
 import lombok.Getter;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
+
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public enum DBLanguageDialectIdentifier {
-    ORACLE_SQL("ORACLE-SQL"),
-    ORACLE_PLSQL("ORACLE-PLSQL"),
-    MYSQL_SQL("MYSQL-SQL"),
-    MYSQL_PSQL("MYSQL-PSQL"),
-    POSTGRES_SQL("POSTGRES-SQL"),
-    POSTGRES_PSQL("POSTGRES-PSQL"),
-    SQLITE_SQL("SQLITE-SQL"),
-    SQLITE_PSQL("SQLITE-PSQL"),
-    ISO92_SQL("ISO92-SQL");
+    ORACLE_SQL("ORACLE-SQL", txt("app.language.const.Dialect_ORACLE_SQL")),
+    ORACLE_PLSQL("ORACLE-PLSQL", txt("app.language.const.Dialect_ORACLE_PLSQL")),
+    MYSQL_SQL("MYSQL-SQL", txt("app.language.const.Dialect_MYSQL_SQL")),
+    MYSQL_PSQL("MYSQL-PSQL", txt("app.language.const.Dialect_MYSQL_PSQL")),
+    POSTGRES_SQL("POSTGRES-SQL", txt("app.language.const.Dialect_POSTGRES_SQL")),
+    POSTGRES_PSQL("POSTGRES-PSQL", txt("app.language.const.Dialect_POSTGRES_PSQL")),
+    SQLITE_SQL("SQLITE-SQL", txt("app.language.const.Dialect_SQLITE_SQL")),
+    SQLITE_PSQL("SQLITE-PSQL", txt("app.language.const.Dialect_SQLITE_PSQL")),
+    ISO92_SQL("ISO92-SQL", txt("app.language.const.Dialect_ISO92_SQL"));
 
     private final String value;
+    private final @Nls String name;
 
-    DBLanguageDialectIdentifier(@NonNls String value) {
+    DBLanguageDialectIdentifier(@NonNls String value, @Nls String name) {
         this.value = value;
+        this.name = name;
     }
 }

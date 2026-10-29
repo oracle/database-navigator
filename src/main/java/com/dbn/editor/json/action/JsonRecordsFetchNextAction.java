@@ -37,13 +37,13 @@ public class JsonRecordsFetchNextAction extends AbstractJsonDataEditorAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull JsonDataEditor jsonDataEditor) {
         DataEditorSettings settings = DataEditorSettings.getInstance(jsonDataEditor.getProject());
-        jsonDataEditor.fetchNextRecords(settings.getGeneralSettings().getFetchBlockSize().value());
+        jsonDataEditor.fetchNextRecords(settings.getGeneralSettings().getFetchBlockSizeValue());
     }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable JsonDataEditor jsonDataEditor) {
         DataEditorSettings settings = DataEditorSettings.getInstance(project);
-        Integer count = settings.getGeneralSettings().getFetchBlockSize().value();
+        int count = settings.getGeneralSettings().getFetchBlockSizeValue();
         presentation.setText(txt("app.dataEditor.action.FetchNextRecords", count));
         presentation.setIcon(Icons.DATA_EDITOR_FETCH_NEXT_RECORDS);
 

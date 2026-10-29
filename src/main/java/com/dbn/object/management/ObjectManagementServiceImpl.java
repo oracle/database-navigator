@@ -17,6 +17,7 @@
 package com.dbn.object.management;
 
 import com.dbn.DatabaseNavigator;
+import com.dbn.common.attributes.Attributes;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.outcome.OutcomeHandler;
@@ -28,21 +29,22 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import lombok.extern.slf4j.Slf4j;
-import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.dbn.common.exception.Exceptions.unsupported;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
 import static com.dbn.object.event.ObjectChangeAction.DELETE;
 import static com.dbn.object.event.ObjectChangeAction.DISABLE;
 import static com.dbn.object.event.ObjectChangeAction.ENABLE;
+import static com.dbn.object.event.ObjectChangeAction.LOCK;
+import static com.dbn.object.event.ObjectChangeAction.REFRESH;
+import static com.dbn.object.event.ObjectChangeAction.RENAME;
+import static com.dbn.object.event.ObjectChangeAction.UNLOCK;
 import static com.dbn.object.event.ObjectChangeAction.UPDATE;
 
 /**
@@ -111,39 +113,42 @@ final class ObjectManagementServiceImpl extends ProjectComponentBase implements 
     }
 
     @Override
-    public void changeObject(DBObject object, ObjectChangeAction action, OutcomeHandler successHandler) {
-        switch (action) {
-            case CREATE: createObject(object, successHandler); break;
-            case UPDATE: updateObject(object, successHandler); break;
-            case DELETE: deleteObject(object, successHandler); break;
-            case ENABLE: enableObject(object, successHandler); break;
-            case DISABLE: disableObject(object, successHandler); break;
-            default: unsupported(action);
-        }
+    public void lockObject(DBObject object, OutcomeHandler successHandler) {
+        invokeModal(object, LOCK, successHandler);
     }
 
-    private <T extends DBObject> void  invokeModal(T object, ObjectChangeAction action, OutcomeHandler successHandler) {
+    @Override
+    public void unlockObject(DBObject object, OutcomeHandler successHandler) {
+        invokeModal(object, UNLOCK, successHandler);
+    }
+
+    @Override
+    public void refreshObject(DBObject object, OutcomeHandler successHandler) {
+        invokeModal(object, REFRESH, successHandler);
+    }
+
+    @Override
+    public void renameObject(DBObject object, Attributes attributes, OutcomeHandler successHandler) {
+        invokeModal(object, RENAME, attributes, successHandler);
+    }
+
+    @Override
+    public void changeObject(DBObject object, ObjectChangeAction action, Attributes attributes, OutcomeHandler successHandler) {
+        invokeModal(object, action, attributes, successHandler);
+    }
+
+    private <T extends DBObject> void invokeModal(T object, ObjectChangeAction action, OutcomeHandler successHandler) {
+        invokeModal(object, action, Attributes.empty(), successHandler);
+    }
+
+    private <T extends DBObject> void invokeModal(T object, ObjectChangeAction action, Attributes attributes, OutcomeHandler successHandler) {
         DBObjectType objectType = object.getObjectType();
         ObjectManagementAdapterExtension<T> factory = cast(managementAdapters.get(objectType));
         if (factory == null) throw new UnsupportedOperationException("Not supported for objects of type " + objectType);
 
-        ObjectManagementAdapter<T> adapter = factory.createAdapter(object, action);
+        ObjectManagementAdapter<T> adapter = factory.createAdapter(object, action, attributes);
 
         adapter.addOutcomeHandler(OutcomeType.SUCCESS, successHandler);
         adapter.invokeModal();
-    }
-
-    /****************************************
-     *       PersistentStateComponent       *
-     *****************************************/
-    @Nullable
-    @Override
-    public Element getComponentState() {
-        return null;
-    }
-
-    @Override
-    public void loadComponentState(@NotNull Element element) {
-
     }
 }

@@ -18,6 +18,7 @@ package com.dbn.execution.method.ui;
 
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.thread.Dispatch;
+import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -33,7 +34,6 @@ import com.dbn.execution.method.MethodExecutionInput;
 import com.dbn.object.DBArgument;
 import com.dbn.object.DBMethod;
 import com.dbn.object.lookup.DBObjectRef;
-import com.intellij.ui.DocumentAdapter;
 import com.intellij.util.ui.AsyncProcessIcon;
 import lombok.Getter;
 import lombok.Setter;
@@ -45,8 +45,6 @@ import javax.swing.JPanel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.Collections;
@@ -67,7 +65,7 @@ public class MethodExecutionInputForm extends DBNFormBase {
     private JPanel loadingArgumentsIconPanel;
     private DBNScrollPane argumentsScrollPane;
 
-    private final List<MethodExecutionInputArgumentForm> argumentForms = DisposableContainers.list(this);
+    private final List<MethodExecutionInputValueForm> argumentForms = DisposableContainers.list(this);
     private final ExecutionOptionsForm executionOptionsForm;
     private final Listeners<ChangeListener> changeListeners = Listeners.create(this);
 
@@ -120,6 +118,16 @@ public class MethodExecutionInputForm extends DBNFormBase {
         return getParentComponent() instanceof DBNDialog;
     }
 
+    @Override
+    protected void initFieldAlignment() {
+        FieldAlignerData alignerData = getFieldAlignerData();
+        alignerData.registerForms(() -> argumentForms);
+        if (!argumentForms.isEmpty()) {
+            updateFieldAlignment();
+            updatePreferredSize();
+        }
+    }
+
     private void initArgumentsPanel() {
         if (methodDetailsInitialized()) {
             createArgumentsPanel();
@@ -143,20 +151,17 @@ public class MethodExecutionInputForm extends DBNFormBase {
         loadingArgumentsPanel.setVisible(false);
         loadingArgumentsIconPanel.removeAll();
         argumentsPanel.setLayout(new BoxLayout(argumentsPanel, BoxLayout.Y_AXIS));
-        int[] metrics = new int[]{0, 0, 0};
 
         boolean noArguments = true;
         for (DBArgument argument: arguments) {
             if (argument.isInput()) {
-                metrics = addArgumentPanel(argument, metrics);
+                addArgumentPanel(argument);
                 noArguments = false;
             }
         }
         noArgumentsLabel.setVisible(noArguments);
 
-        for (MethodExecutionInputArgumentForm component : argumentForms) {
-            component.adjustMetrics(metrics);
-        }
+        updateFieldAlignment();
 
         if (argumentForms.isEmpty()) {
             argumentsScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
@@ -164,7 +169,7 @@ public class MethodExecutionInputForm extends DBNFormBase {
             preferredSize.setSize(preferredSize.getWidth(), preferredSize.getHeight() + 2);
             argumentsScrollPane.setMinimumSize(preferredSize);
         } else {
-            MethodExecutionInputArgumentForm firstArgumentForm = argumentForms.get(0);
+            MethodExecutionInputValueForm firstArgumentForm = argumentForms.get(0);
             int scrollUnitIncrement = firstArgumentForm.getScrollUnitIncrement();
             Dimension minSize = new Dimension(-1, Math.min(argumentForms.size(), 10) * scrollUnitIncrement + 2);
             argumentsScrollPane.setMinimumSize(minSize);
@@ -172,8 +177,8 @@ public class MethodExecutionInputForm extends DBNFormBase {
             Accessibility.setAccessibleName(argumentsScrollPane, txt("app.execution.aria.MethodArguments"));
         }
 
-        for (MethodExecutionInputArgumentForm argumentComponent : argumentForms){
-            argumentComponent.addDocumentListener(documentListener);
+        for (MethodExecutionInputValueForm argumentComponent : argumentForms){
+            argumentComponent.onInputChange(e -> notifyChangeListeners());
         }
         updatePreferredSize();
     }
@@ -197,15 +202,14 @@ public class MethodExecutionInputForm extends DBNFormBase {
         return mainPanel;
     }
 
-    private int[] addArgumentPanel(DBArgument argument, int[] gridMetrics) {
-        MethodExecutionInputArgumentForm argumentComponent = new MethodExecutionInputArgumentForm(this, argument);
+    private void addArgumentPanel(DBArgument argument) {
+        MethodExecutionInputValueForm argumentComponent = new MethodExecutionInputValueForm(this, argument);
         argumentsPanel.add(argumentComponent.getComponent());
         argumentForms.add(argumentComponent);
-        return argumentComponent.getMetrics(gridMetrics);
-   }
+    }
 
     public void updateExecutionInput() {
-        for (MethodExecutionInputArgumentForm argumentComponent : argumentForms) {
+        for (MethodExecutionInputValueForm argumentComponent : argumentForms) {
             argumentComponent.updateExecutionInput();
         }
         executionOptionsForm.updateExecutionInput();
@@ -215,13 +219,6 @@ public class MethodExecutionInputForm extends DBNFormBase {
         changeListeners.add(changeListener);
         executionOptionsForm.addChangeListener(changeListener);
     }
-
-    private final DocumentListener documentListener = new DocumentAdapter() {
-        @Override
-        protected void textChanged(@NotNull DocumentEvent e) {
-            notifyChangeListeners();
-        }
-    };
 
     private void notifyChangeListeners() {
         ChangeEvent changeEvent = new ChangeEvent(this);

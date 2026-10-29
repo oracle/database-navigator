@@ -16,7 +16,7 @@
 
 package com.dbn.object.factory.adapter;
 
-import com.dbn.object.DBSchema;
+import com.dbn.connection.DatabaseEntity;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.type.DBObjectType;
 
@@ -29,7 +29,7 @@ public class DBProcedureFactoryAdapter extends DBMethodFactoryAdapter {
     }
 
     @Override
-    public DBObjectSpec createInput(DBSchema schema) {
-        return new DBObjectSpec(schema, PROCEDURE);
+    public DBObjectSpec createInput(DatabaseEntity parentEntity) {
+        return new DBObjectSpec(parentEntity, PROCEDURE);
     }
 }
