@@ -52,18 +52,17 @@ public class SessionBrowserDetailsForm extends DBNFormBase {
     private final SessionBrowserCurrentSqlPanel currentSqlPanel;
 
     public SessionBrowserDetailsForm(@NotNull DBNComponent parent, SessionBrowser sessionBrowser) {
-        super(parent);
+        super(parent, sessionBrowser.getConnection());
         this.sessionBrowser = WeakRef.of(sessionBrowser);
         sessionDetailsTable = new SessionDetailsTable(this);
         sessionDetailsTablePane.setViewportView(sessionDetailsTable);
 
         currentSqlPanel = new SessionBrowserCurrentSqlPanel(this, sessionBrowser);
 
-
         JComponent component = currentSqlPanel.getComponent();
         detailsTabbedPane.addTab(txt("app.sessionBrowser.title.CurrentStatement"), Icons.FILE_SQL_CONSOLE, component);
 
-        ConnectionHandler connection = getConnection();
+        ConnectionHandler connection = requireConnection();
         String explainPlanTitle = txt("app.sessionBrowser.title.ExplainPlan");
         if (DatabaseFeature.EXPLAIN_PLAN.isSupported(connection)) {
             explainPlanPanel = new JPanel(new BorderLayout());
@@ -79,11 +78,6 @@ public class SessionBrowserDetailsForm extends DBNFormBase {
 
         });
         setSplitPaneProportion(sessionDetailsSplitPanel, 0.2);
-    }
-
-    @NotNull
-    public ConnectionHandler getConnection() {
-        return getSessionBrowser().getConnection();
     }
 
     @NotNull

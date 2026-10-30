@@ -58,8 +58,6 @@ import com.dbn.common.ui.util.Fonts;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Messages;
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.common.ui.util.Tooltips;
 import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.ActionToolbar;
@@ -121,16 +119,13 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
     private JPanel toolDataPanel;
     private JTextPane descriptionTextPane;
 
-    private final ConnectionRef connection;
-
     @Delegate
     private final AssistantToolInfoProvider info;
 
     private AssistantToolDataForm toolDataForm;
 
-    ChatMessageToolSectionForm(DBNForm parent, ConnectionHandler connection, ChatMessageToolSection section) {
+    ChatMessageToolSectionForm(DBNForm parent, ChatMessageToolSection section) {
         super(parent, section);
-        this.connection = ConnectionRef.of(connection);
         framePanel.setBorder(Borders.COMPONENT_OUTLINE_BORDER);
         framePanel.setBackground(getEditorBackground());
 
@@ -270,7 +265,6 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
         int totalLength = options.stream()
                 .mapToInt(String::length)
                 .sum();
-
 
         if (totalLength > 40) {
             verticalBoxLayout(messageButtonsPanel);
@@ -617,10 +611,6 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
     private ChatContext getChatContext() {
         ChatMessageForm messageForm = ensureParentFrom(ChatMessageForm.class);
         return messageForm.getMessage().getContext();
-    }
-
-    public ConnectionHandler getConnection() {
-        return ConnectionRef.ensure(connection);
     }
 
     @Override

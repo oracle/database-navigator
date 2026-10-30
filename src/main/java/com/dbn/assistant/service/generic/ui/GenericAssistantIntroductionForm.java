@@ -25,7 +25,6 @@ import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.feature.FeatureAvailability;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.text.TextResources;
-import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
@@ -62,7 +61,7 @@ public class GenericAssistantIntroductionForm extends AssistantDetailFormBase im
 
     private void initAssistantState() {
         // generic assistant should always be available (mark as such if reaching this point)
-        ConnectionId connectionId = getConnectionId();
+        ConnectionId connectionId = requireConnectionId();
         DatabaseAssistantManager assistantManager = DatabaseAssistantManager.getInstance(ensureProject());
         AssistantState assistantState = assistantManager.getAssistantState(connectionId, AssistantType.PUBLIC);
         assistantState.setAvailability(FeatureAvailability.AVAILABLE);
@@ -79,7 +78,6 @@ public class GenericAssistantIntroductionForm extends AssistantDetailFormBase im
         return TextContent.html(content);
     }
 
-
     protected void initButtons() {
         onButtonClick(continueButton, e -> getChatBox().acknowledgeIntro());
         onButtonClick(helpButton, e -> showHelpDialog());
@@ -87,11 +85,7 @@ public class GenericAssistantIntroductionForm extends AssistantDetailFormBase im
     }
 
     private void showHelpDialog() {
-        //Dialogs.show(() -> new GenericAssistantHelpDialog(getConnection()));
-    }
-
-    public @NotNull ConnectionHandler getConnection() {
-        return getChatBox().getConnection();
+        //Dialogs.show(() -> new GenericAssistantHelpDialog(requireConnection()));
     }
 
     ChatBoxForm getChatBox() {

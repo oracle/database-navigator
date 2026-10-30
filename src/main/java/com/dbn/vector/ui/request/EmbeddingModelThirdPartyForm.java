@@ -88,14 +88,14 @@ public class EmbeddingModelThirdPartyForm extends VectorToolboxFormBase {
 
         credentialSchemaComboBox
                 .initialize(this, SCHEMA)
-                .withConnectionContext(() -> getConnection())
+                .withConnectionContext(() -> requireConnection())
                 .withValueLoader(() -> loadSchemas())
                 .withValuePreselector(() -> config.getCredentialSchemaName())
                 .triggerLoad();
 
         credentialComboBox
                 .initialize(this, CREDENTIAL)
-                .withConnectionContext(() -> getConnection())
+                .withConnectionContext(() -> requireConnection())
                 .withSchemaContext(() -> getSelectedSchema())
                 .withValueLoader(() -> loadCredentials())
                 .withValuePreselector(() -> config.getCredentialName())

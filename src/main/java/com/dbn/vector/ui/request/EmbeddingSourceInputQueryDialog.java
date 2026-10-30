@@ -50,7 +50,7 @@ public class EmbeddingSourceInputQueryDialog extends DBNDialog<EmbeddingSourceIn
 
     @Override
     protected @NotNull EmbeddingSourceInputQueryForm createForm() {
-        return new EmbeddingSourceInputQueryForm(this, ensureConnection(), sourceQuery);
+        return new EmbeddingSourceInputQueryForm(this, sourceQuery);
     }
 
     @Override

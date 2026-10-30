@@ -16,6 +16,7 @@
 
 package com.dbn.ml.request.ui.trainer;
 
+import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.Priority;
 import com.dbn.common.thread.Background;
 import com.dbn.common.ui.alignment.FieldAlignerData;
@@ -37,7 +38,6 @@ import com.dbn.ml.request.ui.MLToolboxForm;
 import com.dbn.ml.request.ui.MLToolboxFormBase;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.ui.DBObjectSelector;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.util.NlsContexts.DialogMessage;
 import com.intellij.ui.HyperlinkLabel;
 import com.intellij.ui.components.JBTextField;
@@ -55,6 +55,7 @@ import java.sql.ResultSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.ui.link.Hyperlinks.initHyperlink;
 import static com.dbn.common.ui.util.ClientProperty.LOADING;
@@ -88,8 +89,8 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
     private String generatedModelName;
     private String generatedSourceName;
 
-    public MLTrainerForm(Disposable parent, ConnectionHandler connection) {
-        super(parent, connection);
+    public MLTrainerForm(@NotNull DBNComponent parent) {
+        super(parent);
         initComponents();
     }
 
@@ -116,12 +117,12 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
         existingModelNames = null;
         Background.run(() -> {
             Set<String> names = new HashSet<>();
-            ConnectionHandler connection = getConnection();
+            ConnectionHandler connection = requireConnection();
             DatabaseMachineLearningInterface mlInterface = connection.getInterfaces().getMachineLearningInterface();
 
             DatabaseInterfaceInvoker.execute(Priority.LOW,
                     connection.getProject(),
-                    getConnectionId(),
+                    requireConnectionId(),
                     (DBNConnection conn) -> {
                         try (ResultSet rs = mlInterface.getExistingModelNames(conn, schemaId.getName())) {
                             while (rs.next()) {
@@ -183,7 +184,7 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
     public void refreshTrainers(MLMiningFunction miningFunction) {
         MLTaskType taskType = miningFunction != null ? miningFunction.getTaskType() : null;
         List<MLTrainerType> availableTrainers = MLTrainerType.getTrainersForTask(
-                taskType, getConnection().getDatabaseVersion());
+                taskType, requireConnection().getDatabaseVersion());
 
         MLTrainerType currentSelection = algorithmComboBox.getSelectedValue();
         algorithmComboBox.setValues(availableTrainers.toArray(new MLTrainerType[0]));
@@ -232,18 +233,18 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
         DBSchema schema = targetSchemaComboBox.getSelectedValue();
         SchemaId schemaId = schema == null ? null : schema.getSchemaId();
         if (schemaId == null) schemaId = getConfig().getTargetSchemaId();
-        if (schemaId == null) schemaId = getConnection().getUserSchemaId();
+        if (schemaId == null) schemaId = requireConnection().getUserSchemaId();
         return schemaId;
     }
 
     private void initTargetSchemaSelector(MLTrainerConfig config) {
         targetSchemaComboBox
                 .initialize(this, SCHEMA)
-                .withConnectionContext(() -> getConnection())
+                .withConnectionContext(() -> requireConnection())
                 .withValueLoader(() -> loadSchemas())
                 .withValuePreselector(() -> {
                     SchemaId schemaId = config.getTargetSchemaId();
-                    if (schemaId == null) schemaId = getConnection().getUserSchemaId();
+                    if (schemaId == null) schemaId = requireConnection().getUserSchemaId();
                     return schemaId == null ? null : schemaId.getName();
                 })
                 .withValueLoadConsumer(values -> loadExistingModelNames());
@@ -298,7 +299,7 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
         MLToolboxForm toolboxForm = getParentFrom(MLToolboxForm.class);
         MLMiningFunction miningFunction = toolboxForm != null ? toolboxForm.getMLRequest().getMiningFunction() : MLMiningFunction.CLASSIFICATION;
         refreshTrainers(miningFunction);
-        if (trainerType.supportsDatabaseVersion(getConnection().getDatabaseVersion())) {
+        if (trainerType.supportsDatabaseVersion(requireConnection().getDatabaseVersion())) {
             algorithmComboBox.setSelectedValue(trainerType);
         }
 

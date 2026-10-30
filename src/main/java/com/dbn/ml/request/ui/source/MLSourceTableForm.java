@@ -16,15 +16,15 @@
 
 package com.dbn.ml.request.ui.source;
 
+import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
-import com.dbn.connection.ConnectionHandler;
 import com.dbn.ml.request.model.source.MLTableSourceConfig;
 import com.dbn.ml.request.ui.MLToolboxFormBase;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.dbn.object.common.ui.DBObjectSelector;
-import com.intellij.openapi.Disposable;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
@@ -53,8 +53,8 @@ public class MLSourceTableForm extends MLToolboxFormBase {
     private String sourceSchemaName;
     private String sourceTableName;
 
-    public MLSourceTableForm(@Nullable Disposable parent, ConnectionHandler connection) {
-        super(parent, connection);
+    public MLSourceTableForm(@NotNull DBNComponent parent) {
+        super(parent);
     }
 
     @Override
@@ -81,7 +81,7 @@ public class MLSourceTableForm extends MLToolboxFormBase {
 
         schemaComboBox
                 .initialize(this, SCHEMA)
-                .withConnectionContext(() -> getConnection())
+                .withConnectionContext(() -> requireConnection())
                 .withValueLoader(() -> loadSchemas())
                 .withValuePreselector(() -> config.getSchemaName())
                 .withValueLoadConsumer(values -> onSchemasLoaded());
@@ -89,7 +89,7 @@ public class MLSourceTableForm extends MLToolboxFormBase {
         tableComboBox.clearValues();
         tableComboBox
                 .initialize(this, TABLE)
-                .withConnectionContext(() -> getConnection())
+                .withConnectionContext(() -> requireConnection())
                 .withSchemaContext(() -> getSelectedSchema())
                 .withValueLoader(List::of)
                 .withValuePreselector(() -> config.getTableName())

@@ -16,19 +16,19 @@
 
 package com.dbn.ml.request.ui.source;
 
+import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.util.ComboBoxes;
-import com.dbn.connection.ConnectionHandler;
 import com.dbn.ml.request.model.source.MLSourceConfig;
 import com.dbn.ml.request.model.source.MLSourceNames;
 import com.dbn.ml.request.model.source.MLSourceType;
 import com.dbn.ml.request.ui.MLToolboxFormBase;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.util.NlsContexts.DialogMessage;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
@@ -58,8 +58,8 @@ public class MLSourceForm extends MLToolboxFormBase implements DBNCollapsibleFor
     private MLSourceFileForm fileForm;
     private MLSourceCloudForm cloudForm;
 
-    public MLSourceForm(Disposable parent, ConnectionHandler connection) {
-        super(parent, connection);
+    public MLSourceForm(@NotNull DBNComponent parent) {
+        super(parent);
         initComboBox();
         initDataPanel();
     }
@@ -70,10 +70,9 @@ public class MLSourceForm extends MLToolboxFormBase implements DBNCollapsibleFor
     }
 
     private void initDataPanel() {
-        ConnectionHandler connection = getConnection();
-        tableForm = new MLSourceTableForm(this, connection);
-        fileForm = new MLSourceFileForm(this, connection);
-        cloudForm = new MLSourceCloudForm(this, connection);
+        tableForm = new MLSourceTableForm(this);
+        fileForm = new MLSourceFileForm(this);
+        cloudForm = new MLSourceCloudForm(this);
         updateSourceForm();
     }
 

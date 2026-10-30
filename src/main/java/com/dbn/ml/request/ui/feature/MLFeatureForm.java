@@ -19,6 +19,7 @@ package com.dbn.ml.request.ui.feature;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.alignment.FieldAlignerData;
+import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.info.DBNInfoLabel;
@@ -28,7 +29,6 @@ import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.select.DBNComboBoxRenderer;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.common.util.Lists;
-import com.dbn.connection.ConnectionHandler;
 import com.dbn.data.type.GenericDataType;
 import com.dbn.ml.request.model.feature.MLFeatureConfig;
 import com.dbn.ml.request.model.source.MLSourceType;
@@ -38,12 +38,10 @@ import com.dbn.ml.request.ui.source.MLSourceForm;
 import com.dbn.ml.request.util.MLCSVParser;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBTable;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.util.NlsContexts.DialogMessage;
 import com.intellij.ui.HyperlinkLabel;
 import com.intellij.ui.components.JBScrollPane;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
 import javax.swing.JCheckBox;
@@ -60,6 +58,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
+import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.text.TextContent.html;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
@@ -100,8 +99,8 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
     private List<Presentable> columnOptions = Collections.emptyList();
     private boolean restoreConfiguredSelection;
 
-    public MLFeatureForm(Disposable parent, ConnectionHandler connection) {
-        super(parent, connection);
+    public MLFeatureForm(@NotNull DBNComponent parent) {
+        super(parent);
         initComponents();
     }
 

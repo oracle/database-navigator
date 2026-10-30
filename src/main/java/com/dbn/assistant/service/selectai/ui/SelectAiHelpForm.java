@@ -25,7 +25,6 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.intellij.ui.HyperlinkLabel;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -87,25 +86,15 @@ public class SelectAiHelpForm extends DBNFormBase {
   private JPanel headerPanel;
   private HyperlinkLabel docuLink;
 
-  private final ConnectionRef connection;
-
-  // Pass Project object to constructor
   public SelectAiHelpForm(SelectAiHelpDialog dialog) {
     super(dialog);
-
-    ConnectionHandler connection = dialog.getConnection();
-    this.connection = ConnectionRef.of(connection);
 
     initHeaderPanel();
     initializeWindow();
   }
 
-    public ConnectionHandler getConnection() {
-    return connection.ensure();
-  }
-
   private void initHeaderPanel() {
-    ConnectionHandler connection = getConnection();
+    ConnectionHandler connection = requireConnection();
     DBNHeaderForm headerForm = new DBNHeaderForm(this, connection);
     headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
   }
@@ -124,7 +113,7 @@ public class SelectAiHelpForm extends DBNFormBase {
 
     Color background = Colors.lafBrighter(Colors.getEditorBackground(), 5);
 
-    String userName = getConnection().getUserName();
+    String userName = requireConnection().getUserName();
     grantTextField.setText(txt("cfg.assistant.text.GrantExecution", userName));
     grantTextArea.setText(grantExecutionCode(userName));
     grantTextArea.setBackground(background);
@@ -153,14 +142,14 @@ public class SelectAiHelpForm extends DBNFormBase {
     AIProvider selectedProvider = getSelectedProvider();
     if (selectedProvider == null) return;
 
-    ConnectionHandler connection = getConnection();
+    ConnectionHandler connection = requireConnection();
     SelectAiPrerequisiteManager prerequisiteManager = getPrerequisiteManager();
     prerequisiteManager.grantNetworkAccess(connection, selectedProvider, getText(aclTextArea));
   }
 
   private void grantExecutionPrivileges() {
     SelectAiPrerequisiteManager prerequisiteManager = getPrerequisiteManager();
-    ConnectionHandler connection = getConnection();
+    ConnectionHandler connection = requireConnection();
     prerequisiteManager.grantExecutionPrivileges(connection, connection.getUserName());
   }
 

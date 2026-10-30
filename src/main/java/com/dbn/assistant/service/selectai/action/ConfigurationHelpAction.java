@@ -43,7 +43,7 @@ public class ConfigurationHelpAction extends AbstractChatBoxAction {
         ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return;
 
-        Dialogs.show(() -> new SelectAiHelpDialog(chatBox.getConnection()));
+        Dialogs.show(() -> new SelectAiHelpDialog(chatBox.requireConnection()));
     }
 
     @Override

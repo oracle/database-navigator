@@ -18,7 +18,6 @@ package com.dbn.connection.console.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.console.DatabaseConsoleManager;
 import com.dbn.object.DBConsole;
 import com.dbn.vfs.DBConsoleType;
@@ -29,21 +28,18 @@ import javax.swing.Action;
 import static com.dbn.nls.NlsResources.txt;
 
 public class CreateRenameConsoleDialog extends DBNDialog<CreateRenameConsoleForm> {
-    private final ConnectionRef connection;
     private DBConsole console;
     private DBConsoleType consoleType;
 
     public CreateRenameConsoleDialog(ConnectionHandler connection, @NotNull DBConsoleType consoleType) {
-        super(connection.getProject(), txt("msg.consoles.title.CreateConsole", consoleType.getName()), true);
-        this.connection = connection.ref();
+        super(connection, txt("msg.consoles.title.CreateConsole", consoleType.getName()), true);
         this.consoleType = consoleType;
         setModal(true);
         init();
     }
 
     public CreateRenameConsoleDialog(ConnectionHandler connection, @NotNull DBConsole console) {
-        super(connection.getProject(), txt("msg.consoles.title.RenameConsole", console.getConsoleType().getName()), true);
-        this.connection = connection.ref();
+        super(connection, txt("msg.consoles.title.RenameConsole", console.getConsoleType().getName()), true);
         this.console = console;
         setModal(true);
         init();
@@ -52,10 +48,9 @@ public class CreateRenameConsoleDialog extends DBNDialog<CreateRenameConsoleForm
     @NotNull
     @Override
     protected CreateRenameConsoleForm createForm() {
-        ConnectionHandler connection = this.connection.ensure();
         return console == null ?
-                new CreateRenameConsoleForm(this, connection, null, consoleType) :
-                new CreateRenameConsoleForm(this, connection, console, console.getConsoleType());
+                new CreateRenameConsoleForm(this, null, consoleType) :
+                new CreateRenameConsoleForm(this, console, console.getConsoleType());
     }
 
     @Override

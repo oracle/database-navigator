@@ -83,7 +83,7 @@ public class MLPredictionForm extends DBNFormBase {
 
     private final String modelName;
     private final SchemaId modelSchemaId;
-    private final ConnectionHandler connection;
+
     private final MLTaskType taskType;
     private final List<MLPredictionAttribute> attributes;
     private final @NonNls String predictionStatement;
@@ -97,15 +97,15 @@ public class MLPredictionForm extends DBNFormBase {
             MLPredictionDialog parent,
             SchemaId modelSchemaId,
             String modelName,
-            ConnectionHandler connection,
             MLTaskType taskType,
             List<MLPredictionAttribute> attributes,
             @NonNls String predictionStatement) {
 
         super(parent);
+        ConnectionHandler connection = requireConnection();
         this.modelSchemaId = modelSchemaId;
         this.modelName = modelName;
-        this.connection = connection;
+
         this.taskType = taskType;
         this.attributes = new ArrayList<>(attributes);
         this.predictionStatement = predictionStatement;
@@ -136,6 +136,7 @@ public class MLPredictionForm extends DBNFormBase {
     }
 
     private void initResultPanel() {
+        ConnectionHandler connection = requireConnection();
         RecordViewInfo recordViewInfo = new RecordViewInfo(txt("app.machineLearning.title.Result"), null);
         ResultSetDataModel dataModel = new ResultSetDataModel<>(connection);
         resultTable = new ResultSetTable<>(this, dataModel, true, recordViewInfo);
@@ -146,6 +147,7 @@ public class MLPredictionForm extends DBNFormBase {
     }
 
     private void initSqlPreview() {
+        ConnectionHandler connection = requireConnection();
         Project project = getProject();
         if (project == null) return;
 
@@ -245,6 +247,7 @@ public class MLPredictionForm extends DBNFormBase {
         resultTable.setLoading(true);
         predictButton.setEnabled(false);
 
+        ConnectionHandler connection = requireConnection();
         Project project = connection.getProject();
         boolean isClassification = taskType == MLTaskType.CLASSIFICATION;
 
@@ -267,6 +270,7 @@ public class MLPredictionForm extends DBNFormBase {
             Project project,
             List<Object> values,
             boolean withProbability) throws Exception {
+        ConnectionHandler connection = requireConnection();
 
         return DatabaseInterfaceInvoker.load(Priority.HIGH,
                 txt("prc.machineLearning.title.MakingPrediction"),

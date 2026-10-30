@@ -128,7 +128,7 @@ public class AgentChatMessageForm extends ChatMessageForm {
     private void createCodeSectionForm(ChatMessageTextSection section) {
         ChatMessagesForm parent = ensureParentComponent();
         ChatBoxForm chatBoxForm = parent.ensureParentComponent();
-        ConnectionHandler connection = chatBoxForm.getConnection();
+        ConnectionHandler connection = chatBoxForm.requireConnection();
 
         ChatMessageCodeSectionForm messageSectionForm = ChatMessageCodeSectionForm.create(parent, connection, section);
         if (messageSectionForm == null) {
@@ -168,10 +168,7 @@ public class AgentChatMessageForm extends ChatMessageForm {
     }
 
     private void createToolSectionForm(ChatMessageToolSection toolSection) {
-        ChatBoxForm chatBoxForm = ensureParentFrom(ChatBoxForm.class);
-        ConnectionHandler connection = chatBoxForm.getConnection();
-
-        ChatMessageToolSectionForm toolSectionForm = new ChatMessageToolSectionForm(this, connection, toolSection);
+        ChatMessageToolSectionForm toolSectionForm = new ChatMessageToolSectionForm(this, toolSection);
         sectionForms.add(toolSectionForm);
         sectionsPanel.add(toolSectionForm.getComponent());
     }

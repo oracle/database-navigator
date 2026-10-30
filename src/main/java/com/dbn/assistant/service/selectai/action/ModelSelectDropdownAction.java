@@ -71,7 +71,7 @@ public class ModelSelectDropdownAction extends ComboBoxAction implements Assista
         ChatBoxForm chatBox = dataContext.getData(DataKeys.ASSISTANT_CHAT_BOX);
         if (chatBox == null) return emptyList();
 
-        ConnectionId connectionId = chatBox.getConnectionId();
+        ConnectionId connectionId = chatBox.requireConnectionId();
         DBAIProfile profile = SelectAiContextUtil.getSelectedProfile(connectionId);
         if (profile == null) return emptyList();
 

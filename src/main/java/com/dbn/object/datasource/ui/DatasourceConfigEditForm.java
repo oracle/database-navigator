@@ -83,7 +83,6 @@ public class DatasourceConfigEditForm extends DBNFormBase {
     private JTextField configNameTextField;
     private JPanel editorPanel;
 
-    private final ConnectionHandler connection;
     @Nullable private final DBDatasourceConfig entry;
     private final boolean canCreateInAnySchema;
     private EditorEx jsonEditor;
@@ -115,8 +114,7 @@ public class DatasourceConfigEditForm extends DBNFormBase {
             @Nullable DBDatasourceConfig entry,
             @Nullable String value,
             boolean canCreateInAnySchema) {
-        super(parent, connection.getProject());
-        this.connection = connection;
+        super(parent, connection);
         this.entry = entry;
         this.canCreateInAnySchema = canCreateInAnySchema;
 
@@ -127,7 +125,7 @@ public class DatasourceConfigEditForm extends DBNFormBase {
     }
 
     private void initHeader() {
-        headerForm = new DBNHeaderForm(this, connection);
+        headerForm = new DBNHeaderForm(this, requireConnection());
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
     }
 
@@ -163,14 +161,14 @@ public class DatasourceConfigEditForm extends DBNFormBase {
     }
 
     private void initInputs(@Nullable String value) {
-        String ownerName = entry == null ? connection.getUserName() : entry.getSchema().getName();
+        String ownerName = entry == null ? requireConnection().getUserName() : entry.getSchema().getName();
         setText(configNameTextField, entry == null ? DEFAULT_CONFIG_NAME : entry.getName());
 
         boolean creating = entry == null;
         ownerComboBox
                 .initialize(this, SCHEMA)
-                .withConnectionContext(() -> connection)
-                .withValueLoader(() -> connection.getObjectBundle().getSchemas())
+                .withConnectionContext(() -> requireConnection())
+                .withValueLoader(() -> requireConnection().getObjectBundle().getSchemas())
                 .withValuePreselector(() -> ownerName)
                 .triggerLoad();
         if (creating && canCreateInAnySchema) {

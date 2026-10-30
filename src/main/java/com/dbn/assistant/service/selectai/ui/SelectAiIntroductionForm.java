@@ -24,7 +24,6 @@ import com.dbn.common.text.TextContent;
 import com.dbn.common.text.TextResources;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.util.Dialogs;
-import com.dbn.connection.ConnectionHandler;
 import com.intellij.ui.HyperlinkLabel;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
@@ -100,18 +99,13 @@ public class SelectAiIntroductionForm extends DBNFormBase implements AssistantIn
         return TextContent.html(content);
     }
 
-
     protected void initButtons() {
         continueButton.addActionListener(e -> getChatBox().acknowledgeIntro());
         helpButton.addActionListener(e -> showHelpDialog());
     }
 
     private void showHelpDialog() {
-        Dialogs.show(() -> new SelectAiHelpDialog(getConnection()));
-    }
-
-    public @NotNull ConnectionHandler getConnection() {
-        return getChatBox().getConnection();
+        Dialogs.show(() -> new SelectAiHelpDialog(requireConnection()));
     }
 
     ChatBoxForm getChatBox() {

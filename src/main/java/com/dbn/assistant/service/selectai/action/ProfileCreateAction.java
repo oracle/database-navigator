@@ -45,7 +45,7 @@ public class ProfileCreateAction extends AbstractChatBoxAction {
         ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return;
 
-        ConnectionHandler connection = chatBox.getConnection();
+        ConnectionHandler connection = chatBox.requireConnection();
         ConnectionId connectionId = connection.getConnectionId();
         Set<String> profileNames = getProfileNames(connectionId);
 

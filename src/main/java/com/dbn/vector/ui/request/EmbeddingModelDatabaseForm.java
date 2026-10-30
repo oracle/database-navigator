@@ -90,17 +90,16 @@ public class EmbeddingModelDatabaseForm extends VectorToolboxFormBase {
 
     private void initComboBoxes() {
         EmbeddingModelDatabaseSpec config = getConfig();
-        ConnectionHandler connection = getConnection();
 
         schemaComboBox
                 .initialize(this, SCHEMA)
-                .withConnectionContext(() -> getConnection())
+                .withConnectionContext(() -> requireConnection())
                 .withValueLoader(() -> loadSchemas())
                 .withValuePreselector(() -> config.getSchemaName())
                 .triggerLoad();
 
         modelComboBox.initialize(this, MINING_MODEL)
-                .withConnectionContext(() -> getConnection())
+                .withConnectionContext(() -> requireConnection())
                 .withSchemaContext(() -> getSelectedSchema())
                 .withValueLoader(() -> loadModels())
                 .withValuePreselector(() -> config.getModelName())

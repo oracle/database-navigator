@@ -16,16 +16,16 @@
 
 package com.dbn.ml.request.ui.source;
 
+import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.alignment.FieldAlignerData;
-import com.dbn.connection.ConnectionHandler;
 import com.dbn.ml.request.model.source.MLFileSourceConfig;
 import com.dbn.ml.request.ui.MLToolboxFormBase;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.ui.TextComponentAccessor;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.vfs.VirtualFile;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JCheckBox;
@@ -55,8 +55,8 @@ public class MLSourceFileForm extends MLToolboxFormBase {
     private JCheckBox hasHeaderCheckBox;
     private boolean sourceTextChanged;
 
-    public MLSourceFileForm(@Nullable Disposable parent, ConnectionHandler connection) {
-        super(parent, connection);
+    public MLSourceFileForm(@NotNull DBNComponent parent) {
+        super(parent);
         initFileChooser();
     }
 

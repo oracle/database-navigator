@@ -20,7 +20,6 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.util.Naming;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.session.DatabaseSession;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -41,12 +40,12 @@ public class CreateRenameSessionForm extends DBNFormBase {
     private JPanel mainPanel;
     private JTextField sessionNameTextField;
 
-    private final ConnectionRef connection;
     private DatabaseSession session;
 
-    CreateRenameSessionForm(CreateRenameSessionDialog parent, @NotNull ConnectionHandler connection, @Nullable DatabaseSession session) {
+    CreateRenameSessionForm(CreateRenameSessionDialog parent, @Nullable DatabaseSession session) {
         super(parent);
-        this.connection = connection.ref();
+        ConnectionHandler connection = requireConnection();
+
         this.session = session;
 
         DBNHeaderForm headerForm = new DBNHeaderForm(this, connection);
@@ -75,7 +74,7 @@ public class CreateRenameSessionForm extends DBNFormBase {
     private boolean isNotUsed(String name) {
         if (session != null && Objects.equals(session.getName(), name)) return true;
 
-        Set<String> sessionNames = getConnection().getSessionBundle().getSessionNames();
+        Set<String> sessionNames = requireConnection().getSessionBundle().getSessionNames();
         return !sessionNames.contains(name);
     }
 
@@ -87,10 +86,6 @@ public class CreateRenameSessionForm extends DBNFormBase {
 
     public String getSessionName() {
         return getText(sessionNameTextField);
-    }
-
-    public ConnectionHandler getConnection() {
-        return connection.ensure();
     }
 
     public DatabaseSession getSession() {

@@ -23,7 +23,6 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.transaction.DatabaseTransactionManager;
 import com.dbn.connection.transaction.TransactionAction;
@@ -40,7 +39,6 @@ import java.util.List;
 
 import static com.dbn.connection.transaction.TransactionAction.actions;
 
-
 public class PendingTransactionsDetailForm extends DBNFormBase {
     private final PendingTransactionsTable pendingTransactionsTable;
     private JPanel mainPanel;
@@ -50,11 +48,8 @@ public class PendingTransactionsDetailForm extends DBNFormBase {
     private JPanel transactionActionsPanel;
     private DBNScrollPane changesTableScrollPane;
 
-    private final ConnectionRef connection;
-
     PendingTransactionsDetailForm(@NotNull DBNComponent parent, @NotNull ConnectionHandler connection, TransactionAction additionalOperation, boolean showActions) {
-        super(parent);
-        this.connection = connection.ref();
+        super(parent, connection);
 
         DBNHeaderForm headerForm = new DBNHeaderForm(this, connection);
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
@@ -106,10 +101,6 @@ public class PendingTransactionsDetailForm extends DBNFormBase {
         rollbackButton.setEnabled(selectionAvailable);
     }
 
-    public ConnectionHandler getConnection() {
-        return connection.ensure();
-    }
-
     @NotNull
     public List<DBNConnection> getConnections() {
         return pendingTransactionsTable.getModel().getTransactionalConnections();
@@ -127,7 +118,7 @@ public class PendingTransactionsDetailForm extends DBNFormBase {
     private final TransactionListener transactionListener = new TransactionListener() {
         @Override
         public void afterAction(@NotNull ConnectionHandler connection, DBNConnection conn, TransactionAction action, boolean succeeded) {
-            if (connection == getConnection() && succeeded) {
+            if (connection == requireConnection() && succeeded) {
                 refreshForm(connection);
             }
         }

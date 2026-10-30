@@ -66,7 +66,7 @@ public class DatasourceConfigEditDialog extends DBNDialog<DatasourceConfigEditFo
     protected @NotNull DatasourceConfigEditForm createForm() {
         DBDatasourceConfig entry = getEntry();
         return entry == null ?
-                new DatasourceConfigEditForm(this, ensureConnection(), canCreateInAnySchema) :
+                new DatasourceConfigEditForm(this, requireConnection(), canCreateInAnySchema) :
                 new DatasourceConfigEditForm(this, entry, value);
     }
 

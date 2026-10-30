@@ -22,7 +22,6 @@ import com.dbn.common.ui.form.DBNContentWithHeaderForm;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.config.ConnectionFilterSettings;
 import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.options.ProjectSettingsManager;
@@ -37,13 +36,11 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ConnectionFilterSettingsDialog extends DBNDialog<DBNContentWithHeaderForm> {
-    private final ConnectionRef connection;
     private ConnectionFilterSettingsForm configurationEditor;
     private ConnectionFilterSettings filterSettings;
 
     public ConnectionFilterSettingsDialog(@NotNull ConnectionHandler connection) {
-        super(connection.getProject(), txt("msg.connection.title.ObjectFilters"), true);
-        this.connection = connection.ref();
+        super(connection, txt("msg.connection.title.ObjectFilters"), true);
         setModal(true);
         setResizable(true);
         init();
@@ -52,7 +49,7 @@ public class ConnectionFilterSettingsDialog extends DBNDialog<DBNContentWithHead
     @NotNull
     @Override
     protected DBNContentWithHeaderForm createForm() {
-        ConnectionHandler connection = this.connection.ensure();
+        ConnectionHandler connection = requireConnection();
         return new DBNContentWithHeaderForm(this) {
             @Override
             public DBNHeaderForm createHeaderForm() {
@@ -85,7 +82,7 @@ public class ConnectionFilterSettingsDialog extends DBNDialog<DBNContentWithHead
             filterSettings.apply();
 
             ProjectSettingsManager settingsManager = ProjectSettingsManager.getInstance(ensureProject());
-            ConnectionSettings connectionSettings = settingsManager.getConnectionSettings().getConnectionSettings(connection.getConnectionId());
+            ConnectionSettings connectionSettings = settingsManager.getConnectionSettings().getConnectionSettings(requireConnectionId());
             filterSettings.applyTo(connectionSettings.getFilterSettings());
 
             ConfigMonitor.notifyChanges();

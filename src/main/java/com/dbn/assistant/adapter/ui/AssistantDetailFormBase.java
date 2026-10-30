@@ -20,7 +20,6 @@ import com.dbn.assistant.DatabaseAssistantManager;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.connection.ConnectionId;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,11 +30,6 @@ public abstract class AssistantDetailFormBase extends DBNFormBase {
 
     protected ChatBoxForm getChatBoxForm() {
         return ensureParentComponent();
-    }
-
-    public ConnectionId getConnectionId() {
-        ChatBoxForm form = getChatBoxForm();
-        return form.getConnectionId();
     }
 
     protected AssistantState getAssistantState() {

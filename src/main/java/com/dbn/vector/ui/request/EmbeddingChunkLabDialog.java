@@ -49,7 +49,7 @@ public class EmbeddingChunkLabDialog extends DBNDialog<EmbeddingChunkLabForm> {
 
   @Override
   protected @NotNull EmbeddingChunkLabForm createForm() {
-    return new EmbeddingChunkLabForm(this, ensureConnection(), chunkConfig);
+    return new EmbeddingChunkLabForm(this, chunkConfig);
   }
 
   @Override

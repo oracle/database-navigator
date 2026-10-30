@@ -96,18 +96,13 @@ public class McpToolDefinitionListItemForm extends DBNFormBase {
 
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
-            StatementViewerPopup statementViewer = new StatementViewerPopup(null, createPreviewFile(), getConnection());
+            StatementViewerPopup statementViewer = new StatementViewerPopup(null, createPreviewFile(), requireConnection());
             statementViewer.show((Component) Failsafe.nn(e.getInputEvent()).getSource());
         }
     }
 
-    @NotNull
-    public ConnectionHandler getConnection() {
-        return getParentForm().getConnection();
-    }
-
     public DBLanguagePsiFile createPreviewFile() {
-        ConnectionHandler connection = getConnection();
+        ConnectionHandler connection = requireConnection();
         DBLanguageDialect languageDialect = connection.getLanguageDialect(SQLLanguage.INSTANCE);
 
         return DBLanguagePsiFile.createFromText(
@@ -128,7 +123,7 @@ public class McpToolDefinitionListItemForm extends DBNFormBase {
         public void actionPerformed(@NotNull AnActionEvent e) {
             McpToolDefinitionListForm parent = getParentForm();
             Dialogs.show(() -> new McpToolDefinitionDialog(
-                            parent.getConnection(),
+                            parent.requireConnection(),
                             parent.getServerDefinition(),
                             toolDefinition),
                     (dialog, exitCode) ->

@@ -42,7 +42,7 @@ public class ProfilesSetupAction extends AbstractChatBoxAction {
         ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return;
 
-        ConnectionId connectionId = chatBox.getConnectionId();
+        ConnectionId connectionId = chatBox.requireConnectionId();
         SelectAiContextUtil.openProfileConfiguration(connectionId);
     }
 

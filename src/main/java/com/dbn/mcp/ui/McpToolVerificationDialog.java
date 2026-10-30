@@ -26,7 +26,7 @@ public class McpToolVerificationDialog extends DBNDialog<McpToolVerificationForm
 
     @Override
     protected @NotNull McpToolVerificationForm createForm() {
-        return new McpToolVerificationForm(this, ensureConnection(), statement, params);
+        return new McpToolVerificationForm(this, statement, params);
     }
 
     @Override

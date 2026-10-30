@@ -20,8 +20,6 @@ import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.util.Chars;
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.object.DBCredential;
 import com.dbn.object.DBSchema;
 import com.dbn.object.impl.DBCredentialImpl;
@@ -95,7 +93,7 @@ public class CredentialEditForm extends DBNFormBase {
     private JButton ociConfigFileButton;
 
     private DBCredential credential;
-    private final ConnectionRef connection;
+
     private final Set<String> usedCredentialNames;
     private final List<DBCredentialType> credentialTypes;
 
@@ -108,7 +106,7 @@ public class CredentialEditForm extends DBNFormBase {
      */
     public CredentialEditForm(CredentialEditDialog dialog, @Nullable DBCredential credential, List<DBCredentialType> credentialTypes, Set<String> usedCredentialNames) {
         super(dialog);
-        this.connection = ConnectionRef.of(dialog.getConnection());
+
         this.credential = credential;
         this.credentialTypes = credentialTypes == null ? List.of(DBCredentialType.values()) : credentialTypes;
         this.usedCredentialNames = usedCredentialNames;
@@ -135,10 +133,6 @@ public class CredentialEditForm extends DBNFormBase {
     @Override
     protected JComponent getMainComponent() {
         return mainPanel;
-    }
-
-    public ConnectionHandler getConnection() {
-        return connection.ensure();
     }
 
     @Override
@@ -262,7 +256,7 @@ public class CredentialEditForm extends DBNFormBase {
         DBCredentialType credentialType = getCredentialType();
         if (credentialType == null) return null;
 
-        DBSchema schema = getConnection().getObjectBundle().getUserSchema();
+        DBSchema schema = requireConnection().getObjectBundle().getUserSchema();
         String credentialName = getText(credentialNameField);
         boolean selected = statusCheckBox.isSelected();
 

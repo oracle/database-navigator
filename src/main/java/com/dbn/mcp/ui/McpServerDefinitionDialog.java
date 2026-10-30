@@ -48,7 +48,7 @@ public class McpServerDefinitionDialog extends DBNDialog<McpServerDefinitionForm
 
     @NotNull @Override
     protected McpServerDefinitionForm createForm() {
-        return new McpServerDefinitionForm(this, ensureConnection(), definition);
+        return new McpServerDefinitionForm(this, definition);
     }
 
     @Nullable
@@ -93,14 +93,14 @@ public class McpServerDefinitionDialog extends DBNDialog<McpServerDefinitionForm
     protected void doOKAction() {
         snapshotServerDefinition();
 
-        McpBuildTask buildTask = new McpBuildTask(getProject(), ensureConnection(), definition);
+        McpBuildTask buildTask = new McpBuildTask(getProject(), requireConnection(), definition);
         buildTask.execute(
                 () -> closeDialog(),
                 () -> reopenDialog());
     }
 
     private void reopenDialog() {
-        dispatch(() -> Dialogs.show(()-> new McpServerDefinitionDialog(ensureConnection(), definition)));
+        dispatch(() -> Dialogs.show(()-> new McpServerDefinitionDialog(requireConnection(), definition)));
     }
 
     private void closeDialog() {
@@ -113,6 +113,6 @@ public class McpServerDefinitionDialog extends DBNDialog<McpServerDefinitionForm
         definition = form.getServerDefinition();
 
         McpServerBuilderManager builderManager = McpServerBuilderManager.getInstance(getProject());
-        builderManager.setServerDefinition(ensureConnectionId(), definition);
+        builderManager.setServerDefinition(requireConnectionId(), definition);
     }
 }

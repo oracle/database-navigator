@@ -31,6 +31,7 @@ import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.util.ClientProperty;
 import com.dbn.common.ui.util.UserInterface;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.options.general.GeneralProjectSettings;
 import com.intellij.ide.ui.LafManagerListener;
 import com.intellij.ide.ui.UISettingsListener;
@@ -90,13 +91,25 @@ public abstract class DBNFormBase
 
     public DBNFormBase(@Nullable Disposable parent) {
         super(parent);
-        if (parent instanceof DBNComponent component) {
-            setContextObject(component.getContextObject());
-        }
+        initContext(parent);
     }
 
     public DBNFormBase(@Nullable Disposable parent, @Nullable Project project) {
         super(parent, project);
+        initContext(parent);
+    }
+
+    public DBNFormBase(@Nullable Disposable parent, @NotNull ConnectionHandler connection) {
+        this(parent, connection.getProject());
+        if (getConnection() != connection) setConnection(connection);
+    }
+
+    private void initContext(@Nullable Disposable parent) {
+        if (parent instanceof DBNComponent component) {
+            setContextObject(component.getContextObject());
+        } else if (parent instanceof ConnectionHandler connection) {
+            setConnection(connection);
+        }
     }
 
     protected void installContextHeader(JPanel headerPanel) {

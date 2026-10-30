@@ -88,13 +88,13 @@ public class EmbeddingStagingConfigForm extends VectorToolboxFormBase implements
 
         schemaComboBox
                 .initialize(this, SCHEMA)
-                .withConnectionContext(() -> getConnection())
+                .withConnectionContext(() -> requireConnection())
                 .withValueLoader(() -> loadSchemas())
                 .withValuePreselector(() -> config.getSchemaName())
                 .triggerLoad();
 
         tableComboBox.initialize(this, TABLE)
-                .withConnectionContext(() -> getConnection())
+                .withConnectionContext(() -> requireConnection())
                 .withSchemaContext(() -> getSelectedSchema())
                 .withValueLoader(() -> loadTables())
                 .withValuePreselector(() -> config.getTableName())
@@ -114,12 +114,12 @@ public class EmbeddingStagingConfigForm extends VectorToolboxFormBase implements
 
     private DBObjectNameCache<DBTable> getStagingTablesCache() {
         DatabaseVectorManager vectorManager = DatabaseVectorManager.getInstance(getProject());
-        return vectorManager.getObjectNamesCache(getConnectionId(), EMBEDDING_STAGING_TABLES);
+        return vectorManager.getObjectNamesCache(requireConnectionId(), EMBEDDING_STAGING_TABLES);
     }
 
     private DBObjectSpec createTableFactoryInput() {
         DBObjectSpec tableSpec = DBObjectSpecReader.read(getClass(), "embedding-staging-table-definition.xml");
-        tableSpec.setConnectionId(getConnectionId());
+        tableSpec.setConnectionId(requireConnectionId());
         tableSpec.setSchemaId(getSelectedSchemaId());
         return tableSpec;
     }

@@ -71,6 +71,8 @@ public abstract class DBObjectFactoryInputListForm extends DBNFormBase {
 
     protected abstract DBObjectSpecList getChildInputs();
 
+    @NotNull
+    @Override
     public ConnectionHandler getConnection() {
         return getChildInputs().getConnection();
     }

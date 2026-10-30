@@ -16,19 +16,16 @@
 
 package com.dbn.ml.request.ui;
 
+import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.util.ComboBoxes;
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionId;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.SchemaId;
 import com.dbn.ml.request.MLRequest;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectBundle;
-import com.intellij.openapi.Disposable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,20 +38,8 @@ public abstract class MLToolboxFormBase extends DBNFormBase {
             "(?:DM\\$.*|VECTOR\\$.*|ML_(?:STAGING|EXT|TRAIN|TEST|SETTINGS|APPLY|CM|ROC|LIFT|AI)_\\d{8}_\\d{6}(?:_(?:ACC|AUC))?)",
             Pattern.CASE_INSENSITIVE);
 
-    private final ConnectionRef connection;
-
-    public MLToolboxFormBase(@Nullable Disposable parent, ConnectionHandler connection) {
+    public MLToolboxFormBase(@NotNull DBNComponent parent) {
         super(parent);
-        this.connection = connection.ref();
-    }
-
-    @NotNull
-    public ConnectionHandler getConnection() {
-        return connection.ensure();
-    }
-
-    public ConnectionId getConnectionId() {
-        return connection.getId();
     }
 
     protected MLRequest getMLRequest() {
@@ -77,7 +62,7 @@ public abstract class MLToolboxFormBase extends DBNFormBase {
     }
 
     protected List<DBSchema> loadSchemas() {
-        DBObjectBundle objectBundle = getConnection().getObjectBundle();
+        DBObjectBundle objectBundle = requireConnection().getObjectBundle();
         return objectBundle.getUserSchemas();
     }
 

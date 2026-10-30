@@ -19,8 +19,10 @@ package com.dbn.browser.ui;
 import com.dbn.browser.model.BrowserTreeNode;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Getter
@@ -28,6 +30,10 @@ public abstract class DatabaseBrowserForm extends DBNFormBase {
 
     public DatabaseBrowserForm(DBNForm parent) {
         super(parent);
+    }
+
+    public DatabaseBrowserForm(DBNForm parent, @NotNull ConnectionHandler connection) {
+        super(parent, connection);
     }
 
     @Nullable

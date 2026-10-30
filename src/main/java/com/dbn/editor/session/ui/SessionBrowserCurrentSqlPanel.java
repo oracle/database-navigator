@@ -77,9 +77,8 @@ public class SessionBrowserCurrentSqlPanel extends DBNFormBase {
 
     private final AtomicReference<PooledThread> refreshHandle = new AtomicReference<>();
 
-
     SessionBrowserCurrentSqlPanel(DBNComponent parent, SessionBrowser sessionBrowser) {
-        super(parent);
+        super(parent, sessionBrowser.getConnection());
         this.sessionBrowser = WeakRef.of(sessionBrowser);
         createStatementViewer();
 
@@ -126,7 +125,7 @@ public class SessionBrowserCurrentSqlPanel extends DBNFormBase {
                 Project project = sessionBrowser.getProject();
 
                 Background.run(refreshHandle, () -> {
-                    ConnectionHandler connection = getConnection();
+                    ConnectionHandler connection = requireConnection();
                     DBSchema schema = null;
                     if (Strings.isNotEmpty(schemaName)) {
                         schema = connection.getObjectBundle().getSchema(schemaName);
@@ -155,11 +154,6 @@ public class SessionBrowserCurrentSqlPanel extends DBNFormBase {
         }
     }
 
-    @NotNull
-    public ConnectionHandler getConnection() {
-        return getSessionBrowser().getConnection();
-    }
-
     public DBLanguagePsiFile getPsiFile() {
         return psiFile.get();
     }
@@ -167,7 +161,7 @@ public class SessionBrowserCurrentSqlPanel extends DBNFormBase {
     private void createStatementViewer() {
         SessionBrowser sessionBrowser = getSessionBrowser();
         Project project = sessionBrowser.getProject();
-        ConnectionHandler connection = getConnection();
+        ConnectionHandler connection = requireConnection();
         virtualFile = new DBSessionStatementVirtualFile(sessionBrowser, "");
 
         DBLanguageDialect languageDialect = DBLanguageDialect.get(SQLLanguage.INSTANCE, connection);
@@ -177,7 +171,6 @@ public class SessionBrowserCurrentSqlPanel extends DBNFormBase {
         DBLanguagePsiFile psiFile = (DBLanguagePsiFile) virtualFile.initializePsiFile(viewProvider, SQLLanguage.INSTANCE);
         this.psiFile = PsiFileRef.of(psiFile);
         document = Documents.getDocument(psiFile);
-
 
         viewer = Viewers.createViewer(document, project, virtualFile, SQLFileType.INSTANCE);
         viewer.setEmbeddedIntoDialogWrapper(false);
@@ -203,7 +196,6 @@ public class SessionBrowserCurrentSqlPanel extends DBNFormBase {
 
         Editors.updateEditorScrollPane(viewer, null);
     }
-
 
     public class WrapUnwrapContentAction extends ToggleAction {
         WrapUnwrapContentAction() {
@@ -245,7 +237,6 @@ public class SessionBrowserCurrentSqlPanel extends DBNFormBase {
     public EditorEx getViewer() {
         return viewer;
     }
-
 
     @Override
     public void disposeInner() {

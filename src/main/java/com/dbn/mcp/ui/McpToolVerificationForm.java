@@ -3,6 +3,7 @@ package com.dbn.mcp.ui;
 import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.ui.alignment.FieldAlignerData;
+import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.misc.DBNScrollPane;
@@ -10,7 +11,6 @@ import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.PooledConnection;
 import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNPreparedStatement;
@@ -27,13 +27,11 @@ import com.dbn.language.sql.SQLFileType;
 import com.dbn.language.sql.SQLLanguage;
 import com.dbn.mcp.model.McpToolParam;
 import com.dbn.mcp.model.McpToolParamType;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -47,6 +45,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.ui.util.Buttons.onButtonClickAsync;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
@@ -69,7 +68,6 @@ public class McpToolVerificationForm extends DBNFormBase {
     private JPanel outputPanel;
     private DBNScrollPane outputScrollPane;
 
-    private final ConnectionRef connection;
     private final String statement;
 
     private final List<McpToolVerificationParamForm> variableValueForms = DisposableContainers.list(this);
@@ -83,12 +81,10 @@ public class McpToolVerificationForm extends DBNFormBase {
     private @Getter boolean statementVerified;
     private @Getter Exception statementError;
 
-    public McpToolVerificationForm(@NotNull Disposable parent,
-                                   @NotNull ConnectionHandler connection,
+    public McpToolVerificationForm(@NotNull DBNComponent parent,
                                    @NotNull String statement,
                                    @NotNull List<McpToolParam> params) {
-        super(parent, connection.getProject());
-        this.connection = connection.ref();
+        super(parent);
         this.statement = statement;
 
         for (McpToolParam row : params) {
@@ -108,12 +104,8 @@ public class McpToolVerificationForm extends DBNFormBase {
         });
     }
 
-    @NotNull
-    public ConnectionHandler getConnection() {
-        return ConnectionRef.ensure(connection);
-    }
-
     private void initHeaderPanel() {
+        ConnectionHandler connection = requireConnection();
         DBNHeaderForm headerForm = new DBNHeaderForm(this, connection);
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
     }
@@ -123,7 +115,7 @@ public class McpToolVerificationForm extends DBNFormBase {
     }
 
     private void initResolvedPreviewViewer() {
-        ConnectionHandler connection = getConnection();
+        ConnectionHandler connection = requireConnection();
         Project project = getProject();
         if (project == null) return;
 
@@ -226,7 +218,7 @@ public class McpToolVerificationForm extends DBNFormBase {
 
     private void initOutputPanel() {
         RecordViewInfo recordViewInfo = new RecordViewInfo(txt("app.mcp.title.QueryData"), null);
-        ResultSetDataModel dataModel = new ResultSetDataModel<>(getConnection());
+        ResultSetDataModel dataModel = new ResultSetDataModel<>(requireConnection());
         outputTable = new ResultSetTable<>(this, dataModel, true, recordViewInfo);
         outputScrollPane.setViewportView(outputTable);
         outputTable.installValuePopupAddon();
@@ -260,7 +252,7 @@ public class McpToolVerificationForm extends DBNFormBase {
             ResultSetDataModel result = executeStatement();
             return new QueryVerificationResult(result, null);
         } catch (Exception e) {
-            return new QueryVerificationResult(new ResultSetDataModel(getConnection()), e);
+            return new QueryVerificationResult(new ResultSetDataModel(requireConnection()), e);
         }
     }
 
@@ -271,7 +263,7 @@ public class McpToolVerificationForm extends DBNFormBase {
         if (executionVariables.hasErrors()) {
             throw new IllegalStateException(buildValidationMessage());
         }
-        ConnectionHandler connection = getConnection();
+        ConnectionHandler connection = requireConnection();
         return PooledConnection.call(connection.createConnectionContext(), conn -> {
             DBNPreparedStatement<?> statement = null;
             DBNResultSet resultSet = null;
@@ -323,7 +315,7 @@ public class McpToolVerificationForm extends DBNFormBase {
         }
 
         syncVariablesFromInput();
-        String previewText = executionVariables.preparePreviewStatementText(getConnection(), sqlText);
+        String previewText = executionVariables.preparePreviewStatementText(requireConnection(), sqlText);
 
         if (executionVariables.hasErrors()) {
             StringBuilder builder = new StringBuilder(previewText);

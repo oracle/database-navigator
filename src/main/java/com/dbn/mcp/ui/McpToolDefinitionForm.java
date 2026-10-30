@@ -18,6 +18,7 @@ package com.dbn.mcp.ui;
 
 import com.dbn.common.icon.Icons;
 import com.dbn.common.text.TextContent;
+import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
@@ -26,7 +27,6 @@ import com.dbn.common.ui.misc.DBNExpandableTextField;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.language.sql.SQLFileType;
 import com.dbn.language.sql.SQLLanguage;
 import com.dbn.mcp.model.McpServerDefinition;
@@ -37,7 +37,6 @@ import com.dbn.mcp.util.McpToolDefinitions;
 import com.dbn.mcp.util.McpToolDescription;
 import com.dbn.mcp.vfs.McpToolSqlVirtualFile;
 import com.dbn.vfs.DatabaseFileViewProvider;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ex.EditorEx;
@@ -96,11 +95,9 @@ public class McpToolDefinitionForm extends DBNFormBase {
     private JPanel headerPanel;
     private JPanel hintPanel;
 
-    private final ConnectionRef connection;
     private Document document;
     private EditorEx editor;
     private boolean suppressDocEvents;
-
 
     private final @Getter McpServerDefinition serverDefinition;
     private final @Getter McpToolDefinition toolDefinition;
@@ -109,13 +106,11 @@ public class McpToolDefinitionForm extends DBNFormBase {
     private String verifiedStatement;
 
     public McpToolDefinitionForm(
-            Disposable parent,
-            @NotNull ConnectionHandler connection,
+            @NotNull DBNComponent parent,
             @NotNull McpServerDefinition serverDefinition,
             @Nullable McpToolDefinition toolDefinition) {
 
         super(parent);
-        this.connection = connection.ref();
         this.serverDefinition = serverDefinition;
         this.toolDefinition = toolDefinition == null ? new McpToolDefinition() : toolDefinition;
         if (this.toolDefinition.isVerified()) {
@@ -131,12 +126,8 @@ public class McpToolDefinitionForm extends DBNFormBase {
         whenInitialized(() -> initStatementEditor());
     }
 
-    public ConnectionHandler getConnection() {
-        return connection.ensure();
-    }
-
     private void initHeaderPanel() {
-        ConnectionHandler connection = getConnection();
+        ConnectionHandler connection = requireConnection();
         DBNHeaderForm headerForm = new DBNHeaderForm(this, connection);
         headerPanel.add(headerForm.getComponent());
     }
@@ -201,7 +192,7 @@ public class McpToolDefinitionForm extends DBNFormBase {
     }
 
     public void openSqlTestDialog() {
-        ConnectionHandler connection = getConnection();
+        ConnectionHandler connection = requireConnection();
         List<McpToolParam> testParams = copyRows(paramsModel.getRows());
         McpToolVerificationDialog dialog = new McpToolVerificationDialog(connection, getSqlStatement(), testParams);
         dialog.show();
@@ -238,7 +229,7 @@ public class McpToolDefinitionForm extends DBNFormBase {
     }
 
     private void initStatementEditor() {
-        ConnectionHandler connection = getConnection();
+        ConnectionHandler connection = requireConnection();
         Project project = connection.getProject();
         McpToolSqlVirtualFile sqlFile = new McpToolSqlVirtualFile(connection, toolDefinition.getStatement());
         DatabaseFileViewProvider viewProvider = new DatabaseFileViewProvider(project, sqlFile, true);

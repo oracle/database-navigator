@@ -145,7 +145,7 @@ public class ChatBoxInputField extends JPanel implements Disposable {
     }
 
     private ConnectionId getConnectionId() {
-        return getChatBox().getConnection().getConnectionId();
+        return getChatBox().getConnectionId();
     }
 
 

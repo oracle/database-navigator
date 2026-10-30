@@ -23,7 +23,6 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.util.TextFields;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.config.ui.CharsetOption;
 import com.dbn.data.export.DataExportException;
 import com.dbn.data.export.DataExportFormat;
@@ -105,12 +104,11 @@ public class ExportDataForm extends DBNFormBase {
     private JLabel encodingLabel;
 
     private final DataExportInstructions instructions;
-    private final ConnectionRef connection;
+
     private final DBObjectRef<?> sourceObject;
 
     ExportDataForm(ExportDataDialog parentComponent, DataExportInstructions instructions, boolean hasSelection, @NotNull ConnectionHandler connection, @Nullable DBObject sourceObject) {
-        super(parentComponent);
-        this.connection = connection.ref();
+        super(parentComponent, connection);
         this.sourceObject = DBObjectRef.of(sourceObject);
         this.instructions = instructions;
 
@@ -213,10 +211,6 @@ public class ExportDataForm extends DBNFormBase {
                 endQuoteTextField.setText(endQuote);
             }
         };
-    }
-
-    public ConnectionHandler getConnection() {
-        return connection.ensure();
     }
 
     @NotNull

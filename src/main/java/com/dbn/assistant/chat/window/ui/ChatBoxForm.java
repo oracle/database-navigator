@@ -46,7 +46,6 @@ import com.dbn.common.util.Actions;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.action.SelectConnectionAction;
 import com.intellij.openapi.actionSystem.ActionGroup;
@@ -97,7 +96,6 @@ public class ChatBoxForm extends DBNFormBase {
     private JPanel actionsPanel;
     private JPanel footerPanel;
 
-    private final ConnectionRef connection;
     private final AssistantType assistantType;
     private ChatBoxInputField inputField;
     private ChatMessagesForm messagesForm;
@@ -108,7 +106,6 @@ public class ChatBoxForm extends DBNFormBase {
 
     public ChatBoxForm(ConnectionHandler connection, AssistantType assistantType) {
         super(connection, connection.getProject());
-        this.connection = connection.ref();
         this.assistantType = assistantType;
 
         // hide all panels until availability status is known
@@ -167,7 +164,7 @@ public class ChatBoxForm extends DBNFormBase {
             @NotNull
             protected DefaultActionGroup createPopupActionGroup(@NotNull JComponent component, @NotNull DataContext dataContext) {
                 DefaultActionGroup actionGroup = new DefaultActionGroup();
-                ConnectionHandler connection = getConnection();
+                ConnectionHandler connection = requireConnection();
                 if (connection.getDatabaseType() == DatabaseType.ORACLE) {
                     actionGroup.add(new SelectAssistantTypeAction(AssistantType.SELECT_AI));
                 }
@@ -196,7 +193,7 @@ public class ChatBoxForm extends DBNFormBase {
     }
 
     private void initHeaderForm() {
-        ConnectionHandler connection = getConnection();
+        ConnectionHandler connection = requireConnection();
         DBNHeaderForm headerForm = new DBNHeaderForm(this, connection);
         headerForm.setSelector(txt("app.assistant.tooltip.SelectConnection"), createConnectionActions());
         headerForm.setActions(createAssistantTypeActions());
@@ -257,13 +254,8 @@ public class ChatBoxForm extends DBNFormBase {
         return messagesForm.getMessageForms();
     }
 
-    @NotNull
-    public ConnectionHandler getConnection() {
-        return connection.ensure();
-    }
-
     public AssistantState getAssistantState() {
-        return getManager().getAssistantState(getConnectionId(),  assistantType);
+        return getManager().getAssistantState(requireConnectionId(),  assistantType);
     }
 
     public AssistantAdapter getAssistantAdapter() {
@@ -272,9 +264,8 @@ public class ChatBoxForm extends DBNFormBase {
 
     public void showHelpDialog() {
         AssistantAdapter assistantAdapter = getAssistantAdapter();
-        assistantAdapter.showHelpDialog(getConnectionId());
+        assistantAdapter.showHelpDialog(requireConnectionId());
     }
-
 
     public void acknowledgeIntro() {
         AssistantState assistantState = getAssistantState();
@@ -466,7 +457,7 @@ public class ChatBoxForm extends DBNFormBase {
         question = nvl(question, prompt);
         if (isEmptyOrSpaces(question)) return;
 
-        ConnectionId connectionId = getConnectionId();
+        ConnectionId connectionId = requireConnectionId();
 
         AssistantAdapter assistantAdapter = getAssistantAdapter();
         ChatContext chatContext = assistantAdapter.createChatContext(connectionId);
@@ -548,24 +539,18 @@ public class ChatBoxForm extends DBNFormBase {
         return Objects.equals(currentChatId, chatId);
     }
 
-
     protected Chat getChat(String chatId) {
         AssistantState state = getAssistantState();
         return state.getChat(chatId);
     }
 
     public void interruptAssistantSession() {
-        getManager().interruptAssistantSession(getConnection());
+        getManager().interruptAssistantSession(requireConnection());
     }
 
     @NotNull
     public AssistantType getAssistantType() {
         return assistantType;
-    }
-
-    @NotNull
-    public ConnectionId getConnectionId() {
-        return connection.getConnectionId();
     }
 
     @Override
@@ -608,7 +593,7 @@ public class ChatBoxForm extends DBNFormBase {
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             DatabaseAssistantManager assistantManager = getManager();
-            assistantManager.switchContext(getConnectionId(), assistantType);
+            assistantManager.switchContext(requireConnectionId(), assistantType);
         }
     }
 

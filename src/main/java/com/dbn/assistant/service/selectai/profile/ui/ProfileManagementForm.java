@@ -30,9 +30,7 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Lists;
-import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.object.DBAIProfile;
 import com.dbn.object.common.ui.DBObjectListModel;
 import com.dbn.object.event.ObjectChangeListener;
@@ -81,7 +79,6 @@ public class ProfileManagementForm extends DBNFormBase {
     private JPanel initializingIconPanel;
     private JSplitPane contentSplitPane;
 
-    private final ConnectionRef connection;
     private final DatabaseAssistantManager manager;
 
     private Map<String, ProfileDetailsForm> profileDetailForms = new ConcurrentHashMap<>();
@@ -89,12 +86,11 @@ public class ProfileManagementForm extends DBNFormBase {
     @Getter
     private boolean loading;
 
-
-    public ProfileManagementForm(DBNForm parent, @NotNull ConnectionHandler connection) {
+    public ProfileManagementForm(DBNForm parent) {
         super(parent);
         setSplitPaneProportion(contentSplitPane, 0.3);
-        this.connection = ConnectionRef.of(connection);
-        this.manager = DatabaseAssistantManager.getInstance(connection.getProject());
+
+        this.manager = DatabaseAssistantManager.getInstance(ensureProject());
 
         initActionsPanel();
         initProfilesList();
@@ -106,7 +102,7 @@ public class ProfileManagementForm extends DBNFormBase {
 
     private void initChangeListener() {
         ProjectEvents.subscribe(ensureProject(), this, ObjectChangeListener.TOPIC, e -> {
-            if (!e.matches(getConnection())) return;
+            if (!e.matches(requireConnection())) return;
             if (!e.matches(AI_PROFILE)) return;
 
             reloadProfiles();
@@ -129,7 +125,7 @@ public class ProfileManagementForm extends DBNFormBase {
             showDetailForm(getSelectedProfile());
         });
 
-        profilesList.setCellRenderer(new ProfileListCellRenderer(getConnection()));
+        profilesList.setCellRenderer(new ProfileListCellRenderer(requireConnection()));
     }
 
     private void initActionsPanel() {
@@ -161,11 +157,11 @@ public class ProfileManagementForm extends DBNFormBase {
     }
 
     public void promptProfileCreation() {
-        ProfileEditionWizard.showWizard(getConnection(), null, getProfileNames(), null);
+        ProfileEditionWizard.showWizard(requireConnection(), null, getProfileNames(), null);
     }
 
     public void promptProfileEdition(@NotNull DBAIProfile profile) {
-        ProfileEditionWizard.showWizard(getConnection(), profile, getProfileNames(), null);
+        ProfileEditionWizard.showWizard(requireConnection(), profile, getProfileNames(), null);
     }
 
     public void promptProfileDeletion(@NotNull DBAIProfile profile) {
@@ -230,7 +226,6 @@ public class ProfileManagementForm extends DBNFormBase {
                 profilesList.getModel(),
                 DBObjectListModel.create(this, profiles)));
 
-
         // restore selection
         int selectionIndex = Lists.indexOf(profiles, c -> c.getName().equalsIgnoreCase(selectedProfileName));
         if (selectionIndex == -1 && !profiles.isEmpty()) selectionIndex = 0;
@@ -266,14 +261,8 @@ public class ProfileManagementForm extends DBNFormBase {
         managementService.deleteObject(profile, null);
     }
 
-
-    @NotNull
-    public ConnectionHandler getConnection() {
-        return connection.ensure();
-    }
-
     public @NotNull ConnectionId getConnectionId() {
-        return getConnection().getConnectionId();
+        return requireConnection().getConnectionId();
     }
 
     @Nullable

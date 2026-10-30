@@ -17,7 +17,6 @@
 package com.dbn.browser.ui;
 
 import com.dbn.browser.model.BrowserTreeNode;
-import com.dbn.browser.model.ConnectionBrowserTreeModel;
 import com.dbn.browser.options.DatabaseBrowserSettings;
 import com.dbn.browser.options.listener.ObjectDetailSettingsListener;
 import com.dbn.common.dispose.Failsafe;
@@ -40,7 +39,7 @@ public class SimpleBrowserForm extends DatabaseBrowserForm{
     private final DatabaseBrowserTree browserTree;
 
     public SimpleBrowserForm(@NotNull DatabaseBrowserForm parent, @NotNull ConnectionHandler connection) {
-        super(parent);
+        super(parent, connection);
         browserTree = createBrowserTree(connection);
     }
 
@@ -80,21 +79,6 @@ public class SimpleBrowserForm extends DatabaseBrowserForm{
     @Override
     public ConnectionId getSelectedConnection() {
         return getConnectionId();
-    }
-
-    @Nullable
-    public ConnectionId getConnectionId(){
-        ConnectionHandler connection = getConnection();
-        return connection == null ? null : connection.getConnectionId();
-    }
-
-    @Nullable
-    public ConnectionHandler getConnection(){
-        DatabaseBrowserTree browserTree = getBrowserTree();
-        if (browserTree.getModel() instanceof ConnectionBrowserTreeModel treeModel) {
-            return treeModel.getConnection();
-        }
-        return null;
     }
 
     @NotNull

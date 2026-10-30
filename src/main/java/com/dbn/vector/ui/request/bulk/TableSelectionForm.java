@@ -21,8 +21,6 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.common.util.Lists;
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
@@ -106,11 +104,8 @@ public class TableSelectionForm extends VectorToolboxFormBase {
     private final Map<DBTable, DBColumn> keyColumnSelections = new HashMap<>();
     private final Map<DBTable, DBColumn> dataColumnSelections = new HashMap<>();
 
-    private final ConnectionRef connection;
-
-    public TableSelectionForm(@NotNull TableSelectionDialog parent, @NotNull ConnectionHandler connection) {
+    public TableSelectionForm(@NotNull TableSelectionDialog parent) {
         super(parent);
-        this.connection = connection.ref();
 
         initListModels();
         initComboBoxes();
@@ -119,11 +114,6 @@ public class TableSelectionForm extends VectorToolboxFormBase {
         // Initial UI state
         updateHints();
         updateConfigPanel();
-    }
-
-    @Override
-    public ConnectionHandler getConnection() {
-        return connection.ensure();
     }
 
     // ========== Initialization ==========
@@ -142,20 +132,20 @@ public class TableSelectionForm extends VectorToolboxFormBase {
     private void initComboBoxes() {
         schemaComboBox
                 .initialize(this, SCHEMA)
-                .withConnectionContext(this::getConnection)
+                .withConnectionContext(() -> requireConnection())
                 .withValueLoader(this::loadSchemas)
                 .withValuePreselector(() -> null)  // No initial selection
                 .triggerLoad();
 
         keyColumnComboBox
                 .initialize(this, COLUMN)
-                .withConnectionContext(this::getConnection)
+                .withConnectionContext(() -> requireConnection())
                 .withValueLoader(this::loadKeyColumns)
                 .withValuePreselector(() -> null);
 
         dataColumnComboBox
                 .initialize(this, COLUMN)
-                .withConnectionContext(this::getConnection)
+                .withConnectionContext(() -> requireConnection())
                 .withValueLoader(this::loadDataColumns)
                 .withValuePreselector(() -> null);
 

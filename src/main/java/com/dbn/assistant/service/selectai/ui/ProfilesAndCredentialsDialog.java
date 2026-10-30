@@ -75,6 +75,6 @@ public class ProfilesAndCredentialsDialog extends DBNDialog<ProfilesAndCredentia
 
   @Override
   protected @NotNull ProfilesAndCredentialsForm createForm() {
-    return new ProfilesAndCredentialsForm(this, getConnection());
+    return new ProfilesAndCredentialsForm(this);
   }
 }

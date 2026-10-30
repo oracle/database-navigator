@@ -18,13 +18,11 @@ package com.dbn.vector.ui.request;
 
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.alignment.FieldAlignerData;
+import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.common.util.Lists;
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionId;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
@@ -32,7 +30,6 @@ import com.dbn.object.common.ui.DBObjectSelector;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.model.request.EmbeddingSourceTable;
 import com.dbn.vector.ui.VectorToolboxFormBase;
-import com.intellij.openapi.Disposable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -65,12 +62,10 @@ public class EmbeddingSourceInputTableForm extends VectorToolboxFormBase {
     private JPanel headerPanel;
     private JPanel hintPanel;
 
-    private final ConnectionRef connection;
     private final EmbeddingSourceTable config;
 
-    public EmbeddingSourceInputTableForm(@NotNull Disposable parent, ConnectionHandler connection, EmbeddingSourceTable config) {
+    public EmbeddingSourceInputTableForm(@NotNull DBNComponent parent, EmbeddingSourceTable config) {
         super(parent);
-        this.connection = connection.ref();
         this.config = config;
 
         initHeaderPanel();
@@ -80,7 +75,7 @@ public class EmbeddingSourceInputTableForm extends VectorToolboxFormBase {
     }
 
     private void initHeaderPanel() {
-        DBNHeaderForm headerForm = new DBNHeaderForm(this, getConnection());
+        DBNHeaderForm headerForm = new DBNHeaderForm(this, requireConnection());
         headerPanel.add(headerForm.getComponent());
     }
 
@@ -92,16 +87,6 @@ public class EmbeddingSourceInputTableForm extends VectorToolboxFormBase {
 
     protected VectorEmbeddingRequest getEmbeddingRequest() {
         return null;
-    }
-
-    @Override
-    public ConnectionHandler getConnection() {
-        return connection.ensure();
-    }
-
-    @Override
-    public ConnectionId getConnectionId() {
-        return connection.getId();
     }
 
     @Override
@@ -125,14 +110,14 @@ public class EmbeddingSourceInputTableForm extends VectorToolboxFormBase {
     private void initComboBoxes() {
         schemaComboBox
                 .initialize(this, SCHEMA)
-                .withConnectionContext(() -> getConnection())
+                .withConnectionContext(() -> requireConnection())
                 .withValueLoader(() -> loadSchemas())
                 .withValuePreselector(() -> config.getSchemaName())
                 .triggerLoad();
 
         tableComboBox
                 .initialize(this, TABLE)
-                .withConnectionContext(() -> getConnection())
+                .withConnectionContext(() -> requireConnection())
                 .withSchemaContext(() -> getSelectedSchema())
                 .withValueLoader(() -> loadTables())
                 .withValuePreselector(() -> config.getTableName())
@@ -140,14 +125,14 @@ public class EmbeddingSourceInputTableForm extends VectorToolboxFormBase {
 
         keyColumnComboBox
                 .initialize(this, COLUMN)
-                .withConnectionContext(() -> getConnection())
+                .withConnectionContext(() -> requireConnection())
                 .withValueLoader(() -> loadKeyColumns())
                 .withValuePreselector(() -> config.getKeyColumnName())
                 .triggerLoad();
 
         dataColumnComboBox
                 .initialize(this, COLUMN)
-                .withConnectionContext(() -> getConnection())
+                .withConnectionContext(() -> requireConnection())
                 .withValueLoader(() -> loadDataColumns())
                 .withValuePreselector(() -> config.getDataColumnName())
                 .triggerLoad();

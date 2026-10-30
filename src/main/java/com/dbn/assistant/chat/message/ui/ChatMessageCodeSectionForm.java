@@ -27,7 +27,6 @@ import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Viewers;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.mapping.FileConnectionContextManager;
 import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.ActionToolbar;
@@ -66,14 +65,12 @@ public class ChatMessageCodeSectionForm extends ChatMessageSectionForm<ChatMessa
     private JPanel codeViewerPanel;
     private final EditorEx codeViewer;
 
-    private final ConnectionRef connection;
     private Language language;
 
-    private ChatMessageCodeSectionForm(DBNForm parent, ConnectionHandler connection, EditorEx codeViewer, ChatMessageTextSection section) {
+    private ChatMessageCodeSectionForm(DBNForm parent, EditorEx codeViewer, ChatMessageTextSection section) {
         super(parent, section);
         this.codeViewer = codeViewer;
         this.language = section.getLanguage();
-        this.connection = ConnectionRef.of(connection);
 
         mainPanel.setOpaque(false);
         mainPanel.setBorder(JBUI.Borders.empty(10));
@@ -96,17 +93,13 @@ public class ChatMessageCodeSectionForm extends ChatMessageSectionForm<ChatMessa
         UserInterface.visitRecursively(viewerComponent, JLayeredPane.class, p -> p.add(actionPanel, DRAG_LAYER));
     }
 
-    public ConnectionHandler getConnection() {
-        return ConnectionRef.ensure(connection);
-    }
-
     @Nullable
     public static ChatMessageCodeSectionForm create(DBNForm parent, ConnectionHandler connection, ChatMessageTextSection section){
         EditorEx codeViewer = createViewer(connection, section);
         if (codeViewer == null) return null;
 
         installEditorLayoutUpdater(codeViewer, parent);
-        return new ChatMessageCodeSectionForm(parent, connection, codeViewer, section);
+        return new ChatMessageCodeSectionForm(parent, codeViewer, section);
     }
 
     @Override
@@ -122,7 +115,7 @@ public class ChatMessageCodeSectionForm extends ChatMessageSectionForm<ChatMessa
         this.language = language;
 
         EditorEx oldCodeViewer = codeViewer;
-        EditorEx codeViewer = createViewer(getConnection(), text, language);
+        EditorEx codeViewer = createViewer(requireConnection(), text, language);
         if (codeViewer != null) {
             codeViewerPanel.removeAll();
             codeViewerPanel.add(codeViewer.getComponent());

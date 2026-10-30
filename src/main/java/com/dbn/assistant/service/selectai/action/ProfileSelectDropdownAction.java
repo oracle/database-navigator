@@ -62,7 +62,7 @@ public class ProfileSelectDropdownAction extends ComboBoxAction implements Assis
         ChatBoxForm chatBox = dataContext.getData(DataKeys.ASSISTANT_CHAT_BOX);
         if (chatBox == null) return actionGroup;
 
-        List<DBAIProfile> profiles = SelectAiContextUtil.getProfiles(chatBox.getConnectionId());
+        List<DBAIProfile> profiles = SelectAiContextUtil.getProfiles(chatBox.requireConnectionId());
         profiles.forEach(p -> actionGroup.add(new ProfileSelectAction(p)));
         actionGroup.addSeparator();
 

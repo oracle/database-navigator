@@ -54,7 +54,7 @@ public interface DBNComponent extends StatefulDisposable, ProjectSupplier, UserD
     }
 
     @NotNull
-    default ConnectionId ensureConnectionId() {
+    default ConnectionId requireConnectionId() {
         return nn(getConnectionId());
     }
 
@@ -65,7 +65,7 @@ public interface DBNComponent extends StatefulDisposable, ProjectSupplier, UserD
     }
 
     @NotNull
-    default ConnectionHandler ensureConnection() {
+    default ConnectionHandler requireConnection() {
         return nd(getConnection());
     }
 

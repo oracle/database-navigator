@@ -17,13 +17,13 @@
 package com.dbn.vector.ui.request;
 
 import com.dbn.common.color.Colors;
+import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.PooledConnection;
 import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNResultSet;
@@ -37,18 +37,17 @@ import com.dbn.vector.model.request.EmbeddingSourceQuery;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.dbn.vfs.DatabaseFileViewProvider;
 import com.dbn.vfs.file.DBSingleQueryVirtualFile;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
-import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.sql.SQLException;
+import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.ui.util.Buttons.onButtonClickAsync;
 import static com.dbn.common.util.Editors.focusEditor;
@@ -67,7 +66,6 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
     private JButton verifyButton;
     private DBNScrollPane outputScrollPane;
 
-    private final ConnectionRef connection;
     private final EmbeddingSourceQuery config;
     private ResultSetTable outputTable;
 
@@ -75,9 +73,8 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
     private EditorEx editor;
     private String statement;
 
-    public EmbeddingSourceInputQueryForm(@NotNull Disposable parent, ConnectionHandler connection, EmbeddingSourceQuery config) {
+    public EmbeddingSourceInputQueryForm(@NotNull DBNComponent parent, EmbeddingSourceQuery config) {
         super(parent);
-        this.connection = ConnectionRef.of(connection);
         this.config = config;
 
         initHeaderPanel();
@@ -89,12 +86,12 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
     }
 
     private void initHeaderPanel() {
-        DBNHeaderForm headerForm = new DBNHeaderForm(this, getConnection());
+        DBNHeaderForm headerForm = new DBNHeaderForm(this, requireConnection());
         headerPanel.add(headerForm.getComponent());
     }
 
     private void initFilterEditor() {
-        ConnectionHandler connection = getConnection();
+        ConnectionHandler connection = requireConnection();
         Project project = connection.getProject();
 
         DBSingleQueryVirtualFile queryFile = new DBSingleQueryVirtualFile(connection, config.getSelectStatement());
@@ -106,8 +103,6 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
         editor = Editors.createEditor(document, project, queryFile, SQLFileType.INSTANCE);
         editor.setEmbeddedIntoDialogWrapper(true);
         initEditorHighlighter(editor, SQLLanguage.INSTANCE, connection);
-
-
 
         EditorSettings settings = editor.getSettings();
         settings.setFoldingOutlineShown(false);
@@ -129,7 +124,7 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
     }
 
     private void initOutputPanel() {
-        ConnectionHandler connection = getConnection();
+        ConnectionHandler connection = requireConnection();
         RecordViewInfo recordViewInfo = new RecordViewInfo(txt("app.vector.title.QueryData"), null);
         ResultSetDataModel dataModel = new ResultSetDataModel<>(connection);
         outputTable = new ResultSetTable<>(this, dataModel, true, recordViewInfo);
@@ -150,7 +145,7 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
 
     private ResultSetDataModel verifyQuery() {
         startActivityNotifier();
-        ConnectionHandler connection = getConnection();
+        ConnectionHandler connection = requireConnection();
         Project project = connection.getProject();
 
         try {
@@ -164,7 +159,7 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
     }
 
     private ResultSetDataModel executeStatement() throws SQLException {
-        ConnectionHandler connection = getConnection();
+        ConnectionHandler connection = requireConnection();
         return PooledConnection.call(connection.createConnectionContext(), conn -> {
             DBNStatement statement = null;
             DBNResultSet resultSet = null;
@@ -190,11 +185,6 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
 
     private void stopActivityNotifier() {
         outputTable.setLoading(false);
-    }
-
-    @Override
-    public ConnectionHandler getConnection() {
-        return connection.ensure();
     }
 
     @Override

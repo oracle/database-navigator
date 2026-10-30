@@ -50,7 +50,7 @@ public class EmbeddingSourceInputTableDialog extends DBNDialog<EmbeddingSourceIn
 
     @Override
     protected @NotNull EmbeddingSourceInputTableForm createForm() {
-        return new EmbeddingSourceInputTableForm(this, ensureConnection(), tableSource);
+        return new EmbeddingSourceInputTableForm(this, tableSource);
     }
 
     @Override

@@ -38,7 +38,6 @@ import static com.dbn.nls.NlsResources.txt;
 public class MLPredictionDialog extends DBNDialog<MLPredictionForm> {
     private final String modelName;
     private final SchemaId modelSchemaId;
-    private final ConnectionHandler connection;
     private final MLTaskType taskType;
     private final List<MLPredictionAttribute> attributes;
     private final @NonNls String predictionStatement;
@@ -51,8 +50,7 @@ public class MLPredictionDialog extends DBNDialog<MLPredictionForm> {
             List<MLPredictionAttribute> attributes,
             @NonNls String predictionStatement) {
 
-        super(connection.getProject(), txt("msg.machineLearning.title.AdHocPrediction"), true);
-        this.connection = connection;
+        super(connection, txt("msg.machineLearning.title.AdHocPrediction"), true);
         this.modelSchemaId = modelSchemaId;
         this.modelName = modelName;
         this.taskType = taskType;
@@ -66,7 +64,7 @@ public class MLPredictionDialog extends DBNDialog<MLPredictionForm> {
     @NotNull
     @Override
     protected MLPredictionForm createForm() {
-        return new MLPredictionForm(this, modelSchemaId, modelName, connection, taskType, attributes, predictionStatement);
+        return new MLPredictionForm(this, modelSchemaId, modelName, taskType, attributes, predictionStatement);
     }
 
     @Override

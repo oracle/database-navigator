@@ -19,7 +19,6 @@ package com.dbn.connection.session.ui;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.session.DatabaseSession;
 import com.dbn.connection.session.DatabaseSessionManager;
 import org.jetbrains.annotations.NotNull;
@@ -30,14 +29,12 @@ import javax.swing.Action;
 import static com.dbn.nls.NlsResources.txt;
 
 public class CreateRenameSessionDialog extends DBNDialog<CreateRenameSessionForm> {
-    private final ConnectionRef connection;
     private WeakRef<DatabaseSession> session;
 
     public CreateRenameSessionDialog(ConnectionHandler connection, @Nullable DatabaseSession session) {
-        super(connection.getProject(), session == null ?
+        super(connection, session == null ?
                 txt("msg.sessions.title.CreateSession") :
                 txt("msg.sessions.title.RenameSession"), true);
-        this.connection = connection.ref();
         this.session = WeakRef.of(session);
         setModal(true);
         init();
@@ -46,8 +43,7 @@ public class CreateRenameSessionDialog extends DBNDialog<CreateRenameSessionForm
     @NotNull
     @Override
     protected CreateRenameSessionForm createForm() {
-        ConnectionHandler connection = this.connection.ensure();
-        return new CreateRenameSessionForm(this, connection, getSession());
+        return new CreateRenameSessionForm(this, getSession());
     }
 
     @Override

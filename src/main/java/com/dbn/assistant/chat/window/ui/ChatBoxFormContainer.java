@@ -61,7 +61,7 @@ public class ChatBoxFormContainer extends JPanel {
     }
 
     public void addCard(ChatBoxForm chatBox) {
-        ConnectionId connectionId = chatBox.getConnectionId();
+        ConnectionId connectionId = chatBox.requireConnectionId();
         AssistantType assistantType = chatBox.getAssistantType();
         AssistantContext context = new AssistantContext(connectionId, assistantType);
 

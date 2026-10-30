@@ -18,12 +18,11 @@ package com.dbn.assistant.service.selectai.ui;
 
 import com.dbn.assistant.service.selectai.credential.ui.CredentialManagementForm;
 import com.dbn.assistant.service.selectai.profile.ui.ProfileManagementForm;
-import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
@@ -39,29 +38,25 @@ public class ProfilesAndCredentialsForm extends DBNFormBase {
     private JPanel credentialsPanel;
     private JPanel profilesPanel;
 
-    private final ConnectionRef connection;
-
     private ProfileManagementForm profileManagementForm;
     private CredentialManagementForm credentialManagementForm;
 
-    public ProfilesAndCredentialsForm(@Nullable DBNDialog<?> parent, ConnectionHandler connection) {
+    public ProfilesAndCredentialsForm(@NotNull ProfilesAndCredentialsDialog parent) {
         super(parent);
-        this.connection = ConnectionRef.of(connection);
 
         initHeaderPanel();
         initConfigTabs();
     }
 
     private void initHeaderPanel() {
-        ConnectionHandler connection = getConnection();
+        ConnectionHandler connection = requireConnection();
         DBNHeaderForm headerForm = new DBNHeaderForm(this, connection);
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
     }
 
     private void initConfigTabs() {
-        ConnectionHandler connection = getConnection();
-        profileManagementForm = new ProfileManagementForm(this, connection);
-        credentialManagementForm = new CredentialManagementForm(this, connection);
+        profileManagementForm = new ProfileManagementForm(this);
+        credentialManagementForm = new CredentialManagementForm(this);
 
         profilesPanel.add(profileManagementForm.getComponent());
         credentialsPanel.add(credentialManagementForm.getComponent());
@@ -73,10 +68,6 @@ public class ProfilesAndCredentialsForm extends DBNFormBase {
         if (selectedComponent == profilesPanel) return profileManagementForm;
         if (selectedComponent == credentialsPanel) return credentialManagementForm;
         return null;
-    }
-
-    public ConnectionHandler getConnection() {
-        return connection.ensure();
     }
 
     @Override

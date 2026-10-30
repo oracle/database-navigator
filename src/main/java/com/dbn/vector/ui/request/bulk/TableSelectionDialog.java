@@ -41,7 +41,7 @@ public class TableSelectionDialog extends DBNDialog<TableSelectionForm> {
     @Override
     @NotNull
     protected TableSelectionForm createForm() {
-        return new TableSelectionForm(this, ensureConnection());
+        return new TableSelectionForm(this);
     }
 
     @Override

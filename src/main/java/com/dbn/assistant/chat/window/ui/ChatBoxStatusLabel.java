@@ -25,7 +25,6 @@ import com.dbn.common.ui.util.Fonts;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionStatusListener;
 import com.dbn.connection.SessionId;
-import com.dbn.common.ui.util.Tooltips;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.JBColor;
@@ -84,7 +83,7 @@ public class ChatBoxStatusLabel extends DBNPanelImpl implements Disposable {
     }
 
     private ConnectionId getConnectionId() {
-        return getChatBox().getConnection().getConnectionId();
+        return getChatBox().getConnectionId();
     }
 
     private ChatBoxForm getChatBox() {

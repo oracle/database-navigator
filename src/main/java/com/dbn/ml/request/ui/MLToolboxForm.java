@@ -16,13 +16,13 @@
 
 package com.dbn.ml.request.ui;
 
+import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.panel.DBNCollapsiblePanel;
-import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
 import com.dbn.ml.DatabaseMLManager;
@@ -34,13 +34,13 @@ import com.dbn.ml.request.model.trainer.MLTrainerConfig;
 import com.dbn.ml.request.ui.feature.MLFeatureForm;
 import com.dbn.ml.request.ui.source.MLSourceForm;
 import com.dbn.ml.request.ui.trainer.MLTrainerForm;
-import com.intellij.openapi.Disposable;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import java.awt.BorderLayout;
+import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.common.ui.util.ClientProperty.HORIZONTAL_SCROLL_POLICY;
@@ -64,8 +64,8 @@ public class MLToolboxForm extends MLToolboxFormBase {
 
     private final MLRequest request;
 
-    public MLToolboxForm(Disposable parent, ConnectionHandler connection, MLRequest request) {
-        super(parent, connection);
+    public MLToolboxForm(@NotNull DBNComponent parent, MLRequest request) {
+        super(parent);
         this.request = request;
 
         HORIZONTAL_SCROLL_POLICY.set(contentScrollPane, HORIZONTAL_SCROLLBAR_NEVER);
@@ -90,18 +90,17 @@ public class MLToolboxForm extends MLToolboxFormBase {
     }
 
     private void initForms() {
-        ConnectionHandler connection = getConnection();
 
         // Source configuration panel
         MLSourceConfig sourceConfig = request.getSourceConfig();
-        sourceForm = new MLSourceForm(this, connection);
+        sourceForm = new MLSourceForm(this);
         DBNCollapsiblePanel sourceCollapsiblePanel = new DBNCollapsiblePanel(this, sourceForm, true);
         sourceCollapsiblePanel.addToggleListener(expanded -> sourceConfig.setExpanded(expanded));
         sourcePanel.add(sourceCollapsiblePanel.getComponent());
 
         // Feature configuration panel
         MLFeatureConfig featureConfig = request.getFeatureConfig();
-        featureForm = new MLFeatureForm(this, connection);
+        featureForm = new MLFeatureForm(this);
         DBNCollapsiblePanel featureCollapsiblePanel = new DBNCollapsiblePanel(this, featureForm, true);
         featureCollapsiblePanel.addToggleListener(expanded -> {
             featureConfig.setExpanded(expanded);
@@ -111,7 +110,7 @@ public class MLToolboxForm extends MLToolboxFormBase {
 
         // Trainer configuration panel
         MLTrainerConfig trainerConfig = request.getTrainerConfig();
-        trainerForm = new MLTrainerForm(this, connection);
+        trainerForm = new MLTrainerForm(this);
         DBNCollapsiblePanel trainerCollapsiblePanel = new DBNCollapsiblePanel(this, trainerForm, true);
         trainerCollapsiblePanel.addToggleListener(expanded -> trainerConfig.setExpanded(expanded));
         trainerPanel.add(trainerCollapsiblePanel.getComponent());
@@ -143,13 +142,13 @@ public class MLToolboxForm extends MLToolboxFormBase {
             requestTemplate.resetSoft();
         }
 
-        ConnectionId connectionId = getConnectionId();
+        ConnectionId connectionId = requireConnectionId();
         DatabaseMLManager mlManager = DatabaseMLManager.getInstance(getProject());
         mlManager.setRequestTemplate(connectionId, requestTemplate);
     }
 
     protected void reset() {
-        SchemaId userSchema = getConnection().getUserSchemaId();
+        SchemaId userSchema = requireConnection().getUserSchemaId();
         request.reset(userSchema);
         saveRequestTemplate(false);
         resetFormChanges();
@@ -175,7 +174,7 @@ public class MLToolboxForm extends MLToolboxFormBase {
     }
 
     private void initHeaderPanel() {
-        DBNHeaderForm headerForm = new DBNHeaderForm(this, getConnection());
+        DBNHeaderForm headerForm = new DBNHeaderForm(this, requireConnection());
         headerPanel.add(headerForm.getComponent());
     }
 

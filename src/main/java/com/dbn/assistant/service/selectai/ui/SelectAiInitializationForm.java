@@ -100,7 +100,7 @@ public class SelectAiInitializationForm extends DBNFormBase implements Assistant
 
     private FeatureAvailabilityInfo checkAssistantAvailability() {
         ChatBoxForm chatBoxForm = ensureParentFrom(ChatBoxForm.class);
-        ConnectionId connectionId = chatBoxForm.getConnection().getConnectionId();
+        ConnectionId connectionId = chatBoxForm.requireConnection().getConnectionId();
         SelectAiInitializationManager initializationManager = SelectAiInitializationManager.getInstance(ensureProject());
         return initializationManager.verifyAssistantAvailability(connectionId);
     }

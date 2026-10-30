@@ -27,11 +27,10 @@ import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.info.DBNCommentLabel;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.panel.DBNBanner;
+import com.dbn.common.ui.util.Tooltips;
 import com.dbn.common.util.FileChoosers;
 import com.dbn.common.util.Strings;
 import com.dbn.common.util.Titles;
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.mcp.build.McpGraalVmSupport;
 import com.dbn.mcp.build.McpMavenPluginSupport;
 import com.dbn.mcp.model.McpServerDefinition;
@@ -39,7 +38,6 @@ import com.dbn.mcp.model.McpServerImplementation;
 import com.dbn.mcp.model.McpToolDefinition;
 import com.dbn.mcp.model.McpTransportType;
 import com.dbn.mcp.util.McpServerName;
-import com.dbn.common.ui.util.Tooltips;
 import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileChooserFactory;
@@ -96,13 +94,11 @@ public class McpServerDefinitionForm extends DBNFormBase {
     private DBNHyperlinkLabel loadConfigHyperlink;
     private DBNHyperlinkLabel resetHyperlink;
 
-    private final ConnectionRef connection;
     private VirtualFile configFile;
     private final DBNFormModel<McpServerDefinition> formModel;
 
-    public McpServerDefinitionForm(@NotNull McpServerDefinitionDialog parent, @NotNull ConnectionHandler connection, @Nullable McpServerDefinition serverDefinition) {
+    public McpServerDefinitionForm(@NotNull McpServerDefinitionDialog parent, @Nullable McpServerDefinition serverDefinition) {
         super(parent);
-        this.connection = ConnectionRef.of(connection);
 
         serverDefinition = nvl(serverDefinition, () -> new McpServerDefinition());
         this.formModel = new DBNFormModel<>(serverDefinition);
@@ -127,7 +123,7 @@ public class McpServerDefinitionForm extends DBNFormBase {
     }
 
     private void initHeaderPanel() {
-        DBNHeaderForm headerForm = new DBNHeaderForm(this, getConnection());
+        DBNHeaderForm headerForm = new DBNHeaderForm(this, requireConnection());
         headerPanel.add(headerForm.getComponent());
     }
 
@@ -220,7 +216,7 @@ public class McpServerDefinitionForm extends DBNFormBase {
 
     private void initToolDefinitionsPanel() {
         McpServerDefinition serverDefinition = getServerDefinition();
-        toolDefinitionListForm = new McpToolDefinitionListForm(this, getConnection(), serverDefinition);
+        toolDefinitionListForm = new McpToolDefinitionListForm(this, serverDefinition);
         toolDefinitionsPanel.add(toolDefinitionListForm.getComponent());
     }
 
@@ -286,7 +282,7 @@ public class McpServerDefinitionForm extends DBNFormBase {
 
     private void rebuildToolDefinitionForms() {
         McpToolDefinitionListForm oldToolDefinitionListForm = toolDefinitionListForm;
-        toolDefinitionListForm = new McpToolDefinitionListForm(this, getConnection(), getServerDefinition());
+        toolDefinitionListForm = new McpToolDefinitionListForm(this, getServerDefinition());
         toolDefinitionsPanel.removeAll();
         toolDefinitionsPanel.add(toolDefinitionListForm.getComponent());
         revalidateForm();
@@ -346,10 +342,6 @@ public class McpServerDefinitionForm extends DBNFormBase {
     @Override
     protected JComponent getMainComponent() {
         return mainPanel;
-    }
-
-    public ConnectionHandler getConnection() {
-        return ConnectionRef.ensure(connection);
     }
 
     @Override

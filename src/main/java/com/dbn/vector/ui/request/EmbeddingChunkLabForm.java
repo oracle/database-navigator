@@ -16,6 +16,7 @@
 
 package com.dbn.vector.ui.request;
 
+import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.color.Colors;
 import com.dbn.common.file.FileTypes;
 import com.dbn.common.text.TextContent;
@@ -25,14 +26,12 @@ import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.jdbc.DBNResultSet;
 import com.dbn.data.grid.ui.table.resultSet.ResultSetTable;
 import com.dbn.data.model.resultSet.ResultSetDataModel;
 import com.dbn.data.record.RecordViewInfo;
 import com.dbn.vector.DatabaseVectorManager;
 import com.dbn.vector.model.request.EmbeddingChunkingConfig;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ex.EditorEx;
@@ -40,7 +39,6 @@ import com.intellij.openapi.fileTypes.PlainTextFileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.testFramework.LightVirtualFile;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -48,6 +46,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import java.sql.ResultSet;
+import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.common.ui.util.Buttons.onButtonClickAsync;
@@ -70,13 +69,11 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
     private JPanel outputPanel;
     private JPanel hintPanel;
     private JPanel inputPanel;
-    private final ConnectionRef connection;
 
     private EditorEx inputEditor;
 
-    public EmbeddingChunkLabForm(@Nullable Disposable parent, ConnectionHandler connection, EmbeddingChunkingConfig config) {
-        super(parent, connection.getProject());
-        this.connection = connection.ref();
+    public EmbeddingChunkLabForm(@NotNull DBNComponent parent, EmbeddingChunkingConfig config) {
+        super(parent);
 
         initHintPanel();
         initOutputPanel();
@@ -92,7 +89,7 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
     }
 
     private void initOutputPanel() {
-        ConnectionHandler connection = getConnection();
+        ConnectionHandler connection = requireConnection();
         RecordViewInfo recordViewInfo = new RecordViewInfo(txt("app.vector.title.ChunkData"), null);
         ResultSetDataModel dataModel = new ResultSetDataModel<>(connection);
         chunkDataTable = new ResultSetTable<>(this, dataModel, true, recordViewInfo);
@@ -130,10 +127,6 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
         inputPanel.add(inputEditor.getComponent());
     }
 
-    public ConnectionHandler getConnection() {
-        return connection.ensure();
-    }
-
     private void initConfigFields(EmbeddingChunkingConfig chunkConfig) {
         chunkByComboBox.setSelectedItem(chunkConfig.getChunkBy());
         splitByComboBox.setSelectedItem(chunkConfig.getSplitBy());
@@ -153,7 +146,7 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
         String query = inputEditor.getDocument().getText().replace("'", ""); // TODO prepared statement param binding
 
         EmbeddingChunkingConfig configuration = getChunkConfiguration();
-        ConnectionHandler connection = getConnection();
+        ConnectionHandler connection = requireConnection();
         Project project = connection.getProject();
 
         try {

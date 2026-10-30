@@ -20,7 +20,6 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.util.Naming;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.object.DBConsole;
 import com.dbn.vfs.DBConsoleType;
 import org.jetbrains.annotations.NotNull;
@@ -42,13 +41,13 @@ public class CreateRenameConsoleForm extends DBNFormBase {
     private JPanel mainPanel;
     private JTextField consoleNameTextField;
 
-    private final ConnectionRef connection;
     private final DBConsoleType consoleType;
     private final DBConsole console;
 
-    CreateRenameConsoleForm(final CreateRenameConsoleDialog parent, @NotNull ConnectionHandler connection, @Nullable final DBConsole console, DBConsoleType consoleType) {
+    CreateRenameConsoleForm(final CreateRenameConsoleDialog parent, @Nullable final DBConsole console, DBConsoleType consoleType) {
         super(parent);
-        this.connection = connection.ref();
+        ConnectionHandler connection = requireConnection();
+
         this.console = console;
         this.consoleType = consoleType;
 
@@ -80,10 +79,9 @@ public class CreateRenameConsoleForm extends DBNFormBase {
     private boolean isNotUsed(String name) {
         if (console != null && Objects.equals(console.getName(), name)) return true;
 
-        Set<String> consoleNames = getConnection().getConsoleBundle().getConsoleNames();
+        Set<String> consoleNames = requireConnection().getConsoleBundle().getConsoleNames();
         return !consoleNames.contains(name);
     }
-
 
     @Nullable
     @Override
@@ -97,10 +95,6 @@ public class CreateRenameConsoleForm extends DBNFormBase {
 
     public DBConsoleType getConsoleType() {
         return console == null ? consoleType : console.getConsoleType();
-    }
-
-    public ConnectionHandler getConnection() {
-        return connection.ensure();
     }
 
     public DBConsole getConsole() {

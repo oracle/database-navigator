@@ -20,7 +20,6 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
@@ -39,12 +38,8 @@ public abstract class VectorToolboxFormBase extends DBNFormBase {
         super(parent);
     }
 
-    public ConnectionHandler getConnection() {
-        return getEmbeddingRequest().getConnection();
-    }
-
-    public ConnectionId getConnectionId() {
-        return getConnection().getConnectionId();
+    public VectorToolboxFormBase(@NotNull Disposable parent, @NotNull ConnectionHandler connection) {
+        super(parent, connection);
     }
 
     protected VectorEmbeddingRequest getEmbeddingRequest() {
@@ -67,7 +62,7 @@ public abstract class VectorToolboxFormBase extends DBNFormBase {
     }
 
     protected List<DBSchema> loadSchemas() {
-        DBObjectBundle objectBundle = getConnection().getObjectBundle();
+        DBObjectBundle objectBundle = requireConnection().getObjectBundle();
         return objectBundle.getSchemas();
     }
 

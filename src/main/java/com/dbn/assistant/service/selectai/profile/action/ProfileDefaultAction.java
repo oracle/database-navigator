@@ -67,7 +67,7 @@ public class ProfileDefaultAction extends ProfileManagementAction {
         if (profile == null) return false;
         if (!profile.isEnabled()) return false;
 
-        ConnectionId connectionId = managementForm.getConnection().getConnectionId();
+        ConnectionId connectionId = managementForm.requireConnection().getConnectionId();
         return !isDefault(e, connectionId, profile);
     }
 

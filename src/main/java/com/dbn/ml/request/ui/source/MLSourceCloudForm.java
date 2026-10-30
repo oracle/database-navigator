@@ -16,6 +16,7 @@
 
 package com.dbn.ml.request.ui.source;
 
+import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.cloud.CloudSourceConfig;
 import com.dbn.common.thread.Background;
 import com.dbn.common.ui.alignment.FieldAlignerData;
@@ -30,8 +31,8 @@ import com.dbn.ml.request.util.MLCSVParser;
 import com.dbn.object.DBCredential;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.ui.DBObjectSelector;
-import com.intellij.openapi.Disposable;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JButton;
@@ -91,8 +92,8 @@ public class MLSourceCloudForm extends MLToolboxFormBase {
     private String sourceCredentialName;
     private boolean sourceTextChanged;
 
-    public MLSourceCloudForm(@Nullable Disposable parent, ConnectionHandler connection) {
-        super(parent, connection);
+    public MLSourceCloudForm(@NotNull DBNComponent parent) {
+        super(parent);
         loadColumnsInfoLabel.setContent(html(this, "info/load_columns_info.html.ft"));
     }
 
@@ -101,7 +102,7 @@ public class MLSourceCloudForm extends MLToolboxFormBase {
 
         credentialSchemaComboBox
                 .initialize(this, SCHEMA)
-                .withConnectionContext(() -> getConnection())
+                .withConnectionContext(() -> requireConnection())
                 .withValueLoader(() -> loadSchemas())
                 .withValuePreselector(() -> config.getCredentialSchemaName())
                 .withValueLoadConsumer(values -> onCredentialSchemasLoaded());
@@ -109,7 +110,7 @@ public class MLSourceCloudForm extends MLToolboxFormBase {
         credentialComboBox.clearValues();
         credentialComboBox
                 .initialize(this, CREDENTIAL)
-                .withConnectionContext(() -> getConnection())
+                .withConnectionContext(() -> requireConnection())
                 .withSchemaContext(() -> getSelectedCredentialSchema())
                 .withValueLoader(List::of)
                 .withValuePreselector(() -> config.getCredentialName())
@@ -315,7 +316,7 @@ public class MLSourceCloudForm extends MLToolboxFormBase {
         boolean headerPresent = hasHeader();
         sourceTextChanged = false;
 
-        ConnectionHandler connection = getConnection();
+        ConnectionHandler connection = requireConnection();
         int signature = columnLoadSignature.incrementAndGet();
 
         loadColumnsButton.setEnabled(false);

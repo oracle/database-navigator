@@ -64,7 +64,7 @@ public class EmbeddingChunkingConfigForm extends VectorToolboxFormBase implement
         EmbeddingChunkingConfig chunkConfig = new EmbeddingChunkingConfig();
         applyFormChanges(chunkConfig);
 
-        Dialogs.show(() -> new EmbeddingChunkLabDialog(getConnection(), chunkConfig),
+        Dialogs.show(() -> new EmbeddingChunkLabDialog(requireConnection(), chunkConfig),
                 whenOk(d -> resetFormChanges(d.getChunkConfig())));
     }
 

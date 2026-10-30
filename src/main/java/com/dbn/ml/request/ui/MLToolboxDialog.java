@@ -19,7 +19,6 @@ package com.dbn.ml.request.ui;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.diagnostics.Diagnostics;
 import com.dbn.ml.DatabaseMLManager;
 import com.dbn.ml.request.MLRequest;
@@ -30,25 +29,19 @@ import javax.swing.Action;
 import static com.dbn.nls.NlsResources.txt;
 
 public class MLToolboxDialog extends DBNDialog<MLToolboxForm> {
-    private final ConnectionRef connection;
     private final MLRequest request;
 
     public MLToolboxDialog(ConnectionHandler connection, MLRequest request) {
-        super(connection.getProject(), txt("app.machineLearning.title.MLToolbox"), true);
-        this.connection = connection.ref();
+        super(connection, txt("app.machineLearning.title.MLToolbox"), true);
         this.request = request;
 
         setDefaultSize(720, 1100);
         init();
     }
 
-    public ConnectionHandler getConnection() {
-        return connection.ensure();
-    }
-
     @Override
     protected @NotNull MLToolboxForm createForm() {
-        return new MLToolboxForm(this, getConnection(), request);
+        return new MLToolboxForm(this, request);
     }
 
     @Override
@@ -92,7 +85,7 @@ public class MLToolboxDialog extends DBNDialog<MLToolboxForm> {
         super.doOKAction();
 
         DatabaseMLManager mlManager = DatabaseMLManager.getInstance(getProject());
-        mlManager.trainModelAsync(request, getConnection());
+        mlManager.trainModelAsync(request, requireConnection());
     }
 
     @Override

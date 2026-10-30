@@ -19,7 +19,6 @@ package com.dbn.connection.info.ui;
 import com.dbn.common.environment.EnvironmentType;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.info.ConnectionInfo;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -31,15 +30,13 @@ import java.sql.SQLException;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ConnectionInfoDialog extends DBNDialog<ConnectionInfoForm> {
-    private ConnectionRef connection;
     private ConnectionInfo connectionInfo;
     private SQLException connectionError;
     private String connectionName;
     private EnvironmentType environmentType;
 
     public ConnectionInfoDialog(@NotNull ConnectionHandler connection, @Nullable ConnectionInfo connectionInfo, @Nullable SQLException connectionError) {
-        super(connection.getProject(), txt("msg.connection.title.ConnectionInformation"), true);
-        this.connection = connection.ref();
+        super(connection, txt("msg.connection.title.ConnectionInformation"), true);
         this.connectionInfo = connectionInfo;
         this.connectionError = connectionError;
         setModal(true);
@@ -63,8 +60,8 @@ public class ConnectionInfoDialog extends DBNDialog<ConnectionInfoForm> {
     @NotNull
     @Override
     protected ConnectionInfoForm createForm() {
+        ConnectionHandler connection = getConnection();
         if (connection != null) {
-            ConnectionHandler connection = this.connection.ensure();
             return new ConnectionInfoForm(this, connection, connectionInfo, connectionError);
         } else {
             return new ConnectionInfoForm(this, connectionInfo, connectionName, environmentType);

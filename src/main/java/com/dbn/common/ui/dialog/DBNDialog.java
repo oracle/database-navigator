@@ -16,7 +16,6 @@
 
 package com.dbn.common.ui.dialog;
 
-import com.dbn.common.action.UserDataKeys;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.project.ProjectRef;
@@ -31,7 +30,6 @@ import com.dbn.common.util.Commons;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Titles;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.diagnostics.Diagnostics;
 import com.dbn.help.HelpTopic;
 import com.intellij.openapi.Disposable;
@@ -112,7 +110,7 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
 
     protected DBNDialog(@NotNull ConnectionHandler connection, @DialogTitle String title, boolean canBeParent) {
         this(connection.getProject(), title, canBeParent);
-        putUserData(UserDataKeys.CONNECTION_REF, ConnectionRef.of(connection));
+        setConnection(connection);
     }
 
     protected DBNDialog(@Nullable Project project, @DialogTitle String title, boolean canBeParent) {

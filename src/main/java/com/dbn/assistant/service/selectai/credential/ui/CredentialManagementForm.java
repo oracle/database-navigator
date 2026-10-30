@@ -31,7 +31,6 @@ import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Lists;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.object.DBAIProfile;
 import com.dbn.object.DBCredential;
 import com.dbn.object.DBSchema;
@@ -97,7 +96,6 @@ public class CredentialManagementForm extends DBNFormBase {
    */
   private Map<String, Set<String>> credentialUsage = new HashMap<>();
   private Map<String, CredentialDetailsForm> credentialDetailForms = new ConcurrentHashMap<>();
-  private final ConnectionRef connection;
 
   @Getter
   private boolean loading = false;
@@ -105,13 +103,11 @@ public class CredentialManagementForm extends DBNFormBase {
    * Initializes a new instance of the CredentialManagementPanel for managing AI credentials,
    * setting up UI components and fetching credentials for the given connection.
    *
-   * @param connection The ConnectionHandler associated with this panel, used for fetching
-   *                   and managing credentials related to the project's Oracle AI integration.
+   * @param parent The parent form supplying the database connection.
    */
-  public CredentialManagementForm(DBNForm parent, @NotNull ConnectionHandler connection) {
+  public CredentialManagementForm(DBNForm parent) {
     super(parent);
     setSplitPaneProportion(contentSplitPane, 0.3);
-    this.connection = ConnectionRef.of(connection);
 
     initActionsPanel();
     initDetailsPanel();
@@ -128,10 +124,6 @@ public class CredentialManagementForm extends DBNFormBase {
     });
   }
 
-  @NotNull
-  public ConnectionHandler getConnection() {
-    return connection.ensure();
-  }
   @Override
   protected JComponent getMainComponent() {
     return mainPane;
@@ -171,13 +163,13 @@ public class CredentialManagementForm extends DBNFormBase {
 
   public void promptCredentialCreation() {
     Dialogs.show(() -> new CredentialEditDialog(
-            getConnection(), null, null,
+            requireConnection(), null, null,
             credentialUsage.keySet()));
   }
 
   public void promptCredentialEdition(@NotNull DBCredential credential) {
     Dialogs.show(() -> new CredentialEditDialog(
-            getConnection(),
+            requireConnection(),
             credential, null,
             Collections.emptySet()));  // not relevant when editing an existing credential
   }
@@ -220,7 +212,7 @@ public class CredentialManagementForm extends DBNFormBase {
   }
 
   private @Nullable DBSchema getUserSchema() {
-    return getConnection().getObjectBundle().getUserSchema();
+    return requireConnection().getObjectBundle().getUserSchema();
   }
 
   /**
@@ -252,7 +244,7 @@ public class CredentialManagementForm extends DBNFormBase {
   }
 
   public ConnectionId getConnectionId() {
-    return getConnection().getConnectionId();
+    return requireConnection().getConnectionId();
   }
 
   private void handleLoadError(Throwable e) {
@@ -337,7 +329,6 @@ public class CredentialManagementForm extends DBNFormBase {
     CardLayouts.addCard(detailPanel, detailsForm.getComponent(), credential.getName());
     return detailsForm;
   }
-
 
   @Nullable
   public DBCredential getSelectedCredential() {

@@ -101,7 +101,7 @@ public class PromptActionSelectAction extends ToggleAction implements AssistantA
         ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return false;
 
-        ConnectionId connectionId = chatBox.getConnectionId();
+        ConnectionId connectionId = chatBox.requireConnectionId();
         PromptAction action = getSelectedAction(connectionId);
         return this.action == action;
     }

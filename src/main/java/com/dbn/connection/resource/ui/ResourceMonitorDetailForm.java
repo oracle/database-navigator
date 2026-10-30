@@ -25,7 +25,6 @@ import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.table.DBNTable;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionPool;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.session.DatabaseSession;
 import com.dbn.connection.session.DatabaseSessionManager;
@@ -55,7 +54,6 @@ import static com.dbn.common.util.Messages.whenOk;
 import static com.dbn.connection.transaction.TransactionAction.actions;
 import static com.dbn.nls.NlsResources.txt;
 
-
 public class ResourceMonitorDetailForm extends DBNFormBase {
     private final DBNTable<ResourceMonitorSessionsTableModel> sessionsTable;
     private final DBNTable<ResourceMonitorTransactionsTableModel> transactionsTable;
@@ -68,11 +66,8 @@ public class ResourceMonitorDetailForm extends DBNFormBase {
     private JButton commitButton;
     private JButton rollbackButton;
 
-    private final ConnectionRef connection;
-
     ResourceMonitorDetailForm(@NotNull DBNComponent parent, ConnectionHandler connection) {
-        super(parent);
-        this.connection = connection.ref();
+        super(parent, connection);
 
         DBNHeaderForm headerForm = new DBNHeaderForm(this, connection);
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
@@ -142,7 +137,7 @@ public class ResourceMonitorDetailForm extends DBNFormBase {
         public void actionPerformed(@NotNull AnActionEvent e) {
             DatabaseSession session = getSelectedSession();
             if (session != null) {
-                ConnectionHandler connection = getConnection();
+                ConnectionHandler connection = requireConnection();
                 showQuestionDialog(getProject(),
                         txt("msg.sessions.title.DisconnectSession"),
                         txt("msg.sessions.question.DisconnectSession", session, connection),
@@ -177,7 +172,7 @@ public class ResourceMonitorDetailForm extends DBNFormBase {
             if (session != null) {
                 showQuestionDialog(getProject(),
                         txt("msg.sessions.title.DeleteSession"),
-                        txt("msg.sessions.question.DeleteSession", session, getConnection()),
+                        txt("msg.sessions.question.DeleteSession", session, requireConnection()),
                         OPTIONS_YES_NO, 0,
                         whenOk(() -> {
                             Project project = ensureProject();
@@ -219,10 +214,6 @@ public class ResourceMonitorDetailForm extends DBNFormBase {
         }
     };
 
-    public ConnectionHandler getConnection() {
-        return connection.ensure();
-    }
-
     @NotNull
     @Override
     public JPanel getMainComponent() {
@@ -235,7 +226,7 @@ public class ResourceMonitorDetailForm extends DBNFormBase {
     private final TransactionListener transactionListener = new TransactionListener() {
         @Override
         public void afterAction(@NotNull ConnectionHandler connection, DBNConnection conn, TransactionAction action, boolean succeeded) {
-            if (connection == getConnection() && transactionsTable.getModel().getConn() == conn && succeeded) {
+            if (connection == requireConnection() && transactionsTable.getModel().getConn() == conn && succeeded) {
                 refreshTransactionsData(conn);
             }
         }
@@ -244,21 +235,21 @@ public class ResourceMonitorDetailForm extends DBNFormBase {
     private final SessionManagerListener sessionManagerListener = new SessionManagerListener() {
         @Override
         public void sessionCreated(DatabaseSession session) {
-            if (session.getConnection() == getConnection()) {
+            if (session.getConnection() == requireConnection()) {
                 refreshSessionData();
             }
         }
 
         @Override
         public void sessionDeleted(DatabaseSession session) {
-            if (session.getConnection() == getConnection()) {
+            if (session.getConnection() == requireConnection()) {
                 refreshSessionData();
             }
         }
 
         @Override
         public void sessionChanged(DatabaseSession session) {
-            if (session.getConnection() == getConnection()) {
+            if (session.getConnection() == requireConnection()) {
                 refreshSessionData();
             }
         }
@@ -267,7 +258,7 @@ public class ResourceMonitorDetailForm extends DBNFormBase {
     private void refreshSessionData() {
         dispatch(() -> {
             checkDisposed();
-            ConnectionHandler connection = getConnection();
+            ConnectionHandler connection = requireConnection();
 
             ResourceMonitorSessionsTableModel sessionsTableModel = new ResourceMonitorSessionsTableModel(connection);
             sessionsTable.setModel(sessionsTableModel);
@@ -277,7 +268,7 @@ public class ResourceMonitorDetailForm extends DBNFormBase {
     private void refreshTransactionsData(DBNConnection conn) {
         dispatch(() -> {
             checkDisposed();
-            ConnectionHandler connection = getConnection();
+            ConnectionHandler connection = requireConnection();
 
             ResourceMonitorTransactionsTableModel transactionsTableModel = new ResourceMonitorTransactionsTableModel(connection, conn);
             transactionsTable.setModel(transactionsTableModel);
@@ -298,7 +289,7 @@ public class ResourceMonitorDetailForm extends DBNFormBase {
     private DBNConnection getSelectedConnection() {
         DatabaseSession session = getSelectedSession();
         if (session != null) {
-            ConnectionHandler connection = getConnection();
+            ConnectionHandler connection = requireConnection();
             ConnectionPool connectionPool = connection.getConnectionPool();
             return connectionPool.getSessionConnection(session.getId());
         }

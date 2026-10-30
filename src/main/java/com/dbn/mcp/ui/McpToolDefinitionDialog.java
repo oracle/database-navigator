@@ -31,7 +31,7 @@ public class McpToolDefinitionDialog extends DBNDialog<McpToolDefinitionForm> {
 
     @Override
     protected @NotNull McpToolDefinitionForm createForm() {
-        return new McpToolDefinitionForm(this, ensureConnection(), serverDefinition, toolDefinition);
+        return new McpToolDefinitionForm(this, serverDefinition, toolDefinition);
     }
 
     protected final Action[] initializeActions() {

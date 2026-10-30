@@ -23,8 +23,6 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.util.ComboBoxes;
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionId;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectBundle;
@@ -63,7 +61,7 @@ public class DBObjectSelectionForm<T extends DBObject> extends DBNFormBase {
 
     public DBObjectSelectionForm(@NotNull Disposable parent, @NotNull DBObjectSelectionInput<T> input) {
 
-        super(parent);
+        super(parent, input.getConnection());
         this.input = input;
 
         initHeaderPanel();
@@ -74,7 +72,7 @@ public class DBObjectSelectionForm<T extends DBObject> extends DBNFormBase {
     }
 
     private void initHeaderPanel() {
-        DBNHeaderForm headerForm = new DBNHeaderForm(this, getConnection());
+        DBNHeaderForm headerForm = new DBNHeaderForm(this, requireConnection());
         headerPanel.add(headerForm.getComponent());
     }
 
@@ -90,14 +88,6 @@ public class DBObjectSelectionForm<T extends DBObject> extends DBNFormBase {
     private void initObjectLabel() {
         String objectTypeName = input.getObjectType().getTitleCasedDisplayName();
         objectLabel.setText(objectTypeName);
-    }
-
-    public ConnectionHandler getConnection() {
-        return input.getConnection();
-    }
-
-    public ConnectionId getConnectionId() {
-        return getConnection().getConnectionId();
     }
 
     @Override
@@ -116,14 +106,14 @@ public class DBObjectSelectionForm<T extends DBObject> extends DBNFormBase {
     private void initComboBoxes() {
         schemaComboBox
                 .initialize(this, SCHEMA)
-                .withConnectionContext(() -> getConnection())
+                .withConnectionContext(() -> requireConnection())
                 .withValueLoader(() -> loadSchemas())
                 .withValuePreselector(input.getSchemaPreselector())
                 .triggerLoad();
 
         objectComboBox
                 .initialize(this, TABLE)
-                .withConnectionContext(() -> getConnection())
+                .withConnectionContext(() -> requireConnection())
                 .withSchemaContext(() -> getSelectedSchema())
                 .withValueLoader(() -> loadObjects())
                 .withValuePreselector(input.getObjectPreselector())
@@ -133,7 +123,7 @@ public class DBObjectSelectionForm<T extends DBObject> extends DBNFormBase {
     }
 
     protected List<DBSchema> loadSchemas() {
-        DBObjectBundle objectBundle = getConnection().getObjectBundle();
+        DBObjectBundle objectBundle = requireConnection().getObjectBundle();
 
         List<DBSchema> schemas = objectBundle.getSchemas();
         Filter<DBSchema> schemaFilter = input.getSchemaFilter();

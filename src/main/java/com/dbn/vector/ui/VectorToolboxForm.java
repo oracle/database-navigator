@@ -66,7 +66,7 @@ public class VectorToolboxForm extends VectorToolboxFormBase {
   private final VectorEmbeddingRequest request;
 
   public VectorToolboxForm(Disposable parent, VectorEmbeddingRequest request) {
-    super(parent);
+    super(parent, request.getConnection());
     this.request = request;
 
     initHeaderPanel();
@@ -190,20 +190,20 @@ public class VectorToolboxForm extends VectorToolboxFormBase {
     VectorEmbeddingRequest requestTemplate = request.clone();
     if (reset) requestTemplate.resetSoft();
 
-    ConnectionId connectionId = getConnectionId();
+    ConnectionId connectionId = requireConnectionId();
     DatabaseVectorManager vectorManager = DatabaseVectorManager.getInstance(getProject());
     vectorManager.setRequestTemplate(connectionId, requestTemplate);
   }
 
   protected void reset() {
-    SchemaId userSchema = getConnection().getUserSchemaId();
+    SchemaId userSchema = requireConnection().getUserSchemaId();
     request.resetHard(userSchema);
     saveRequestTemplate(false);
     resetFormChanges();
   }
 
   private void initHeaderPanel() {
-    DBNHeaderForm headerForm = new DBNHeaderForm(this, getConnection());
+    DBNHeaderForm headerForm = new DBNHeaderForm(this, requireConnection());
     headerPanel.add(headerForm.getComponent());
   }
 

@@ -77,14 +77,14 @@ public class EmbeddingDestinationConfigForm extends VectorToolboxFormBase implem
         EmbeddingDestinationConfig config = getConfig();
         schemaComboBox
                 .initialize(this, SCHEMA)
-                .withConnectionContext(() -> getConnection())
+                .withConnectionContext(() -> requireConnection())
                 .withValueLoader(() -> loadSchemas())
                 .withValuePreselector(() -> config.getSchemaName())
                 .triggerLoad();
 
         tableComboBox
                 .initialize(this, TABLE)
-                .withConnectionContext(() -> getConnection())
+                .withConnectionContext(() -> requireConnection())
                 .withSchemaContext(() -> getSelectedSchema())
                 .withValueLoader(() -> loadTables())
                 .withValuePreselector(() -> config.getTableName())
@@ -121,7 +121,7 @@ public class EmbeddingDestinationConfigForm extends VectorToolboxFormBase implem
 
     private DBObjectNameCache<DBTable> getDestinationTablesCache() {
         DatabaseVectorManager vectorManager = DatabaseVectorManager.getInstance(getProject());
-        return vectorManager.getObjectNamesCache(getConnectionId(), EMBEDDING_DESTINATION_TABLES);
+        return vectorManager.getObjectNamesCache(requireConnectionId(), EMBEDDING_DESTINATION_TABLES);
     }
 
     @Override
@@ -141,7 +141,7 @@ public class EmbeddingDestinationConfigForm extends VectorToolboxFormBase implem
 
     private DBObjectSpec createTableFactoryInput() {
         DBObjectSpec tableSpec = DBObjectSpecReader.read(getClass(), "embedding-destination-table-definition.xml");
-        tableSpec.setConnectionId(getConnectionId());
+        tableSpec.setConnectionId(requireConnectionId());
         tableSpec.setSchemaId(getSelectedSchemaId());
         return tableSpec;
     }

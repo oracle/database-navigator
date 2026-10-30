@@ -209,6 +209,8 @@ public class ExecutionOptionsForm extends DBNFormBase implements DBNCollapsibleF
         return Failsafe.nn(executionInput);
     }
 
+    @NotNull
+    @Override
     public ConnectionHandler getConnection() {
         ConnectionHandler connection = getExecutionInput().getConnection();
         return Failsafe.nn(connection);

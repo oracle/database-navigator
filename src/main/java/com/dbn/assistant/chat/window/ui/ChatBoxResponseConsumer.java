@@ -205,7 +205,7 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
 
 
     private ConnectionId getConnectionId() {
-        return chatBoxForm.getConnectionId();
+        return chatBoxForm.requireConnectionId();
     }
 
     private Chat getChat() {

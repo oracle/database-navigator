@@ -20,7 +20,6 @@ import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.info.DBNInfoLabel;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.database.DatabaseIdentifierCase;
 import com.dbn.object.common.DBObject;
 import org.jetbrains.annotations.NotNull;
@@ -43,17 +42,15 @@ public class ObjectRenameForm extends DBNFormBase {
     private JTextField nameTextField;
     private JCheckBox preserveCaseCheckBox;
     private DBNInfoLabel preserveCaseInfoLabel;
-    private final ConnectionRef connection;
     private final DatabaseIdentifierCase defaultCase;
     private final String currentName;
 
     ObjectRenameForm(ObjectRenameDialog parent, DBObject object) {
-        super(parent);
-        connection = object.getConnection().ref();
+        super(parent, object.getConnection());
         defaultCase = object.getConnection().getCompatibility().getIdentifierCase();
         currentName = object.getName();
         preserveCaseCheckBox.setSelected(!currentName.equals(
-                adjustIdentifierCase(connection.ensure(), currentName, defaultCase)));
+                adjustIdentifierCase(requireConnection(), currentName, defaultCase)));
         String infoText = txt("app.objects.tooltip.PreserveIdentifierCase",
                 object.getConnection().getDatabaseType().getName(), defaultCase);
         preserveCaseInfoLabel.setContent(TextContent.htmlTooltip(infoText, "width:200px"));
@@ -83,7 +80,7 @@ public class ObjectRenameForm extends DBNFormBase {
     private String adjustName(String name) {
         DatabaseIdentifierCase requestedCase = preserveCaseCheckBox.isSelected() ?
                 DatabaseIdentifierCase.PRESERVE : defaultCase;
-        return adjustIdentifierCase(connection.ensure(), name, requestedCase);
+        return adjustIdentifierCase(requireConnection(), name, requestedCase);
     }
 
     @Override
