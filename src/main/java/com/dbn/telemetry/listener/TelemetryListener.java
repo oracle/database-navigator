@@ -16,12 +16,14 @@
 
 package com.dbn.telemetry.listener;
 
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.telemetry.TelemetryManager;
 import com.dbn.telemetry.metrics.HistogramMetric;
 import com.dbn.telemetry.metrics.MetricKey;
 import com.dbn.telemetry.metrics.MetricType;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -33,6 +35,27 @@ public abstract class TelemetryListener {
     protected abstract @NotNull String getMetricName();
 
     protected abstract @NotNull List<Double> getDurationBucketsSeconds();
+
+    /** Snapshots only cached database attributes; no connection is retained or queried. */
+    protected static @NotNull Map<String, String> databaseAttributes(@NotNull Supplier<ConnectionHandler> connectionSupplier) {
+        if (!isCollectionEnabled()) return Map.of();
+
+        Map<String, String> attributes = new HashMap<>();
+        try {
+            ConnectionHandler connection = connectionSupplier.get();
+            if (connection == null) return Map.of();
+
+            attributes.put("database_type", connection.getDatabaseType().name());
+            double version = connection.getDatabaseVersion();
+            // Connection settings use 9999 until the database version is known.
+            if (Double.isFinite(version) && version > 0 && version != 9999) {
+                attributes.put("database_version", Double.toString(version));
+            }
+        } catch (RuntimeException exception) {
+            conditionallyLog(exception);
+        }
+        return Map.copyOf(attributes);
+    }
 
     protected static boolean isCollectionEnabled() {
         try {

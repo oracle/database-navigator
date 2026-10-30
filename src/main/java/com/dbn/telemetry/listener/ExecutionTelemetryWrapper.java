@@ -26,10 +26,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
 import java.sql.SQLTimeoutException;
-import java.util.HashMap;
 import java.util.Map;
-
-import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 /** Mutable telemetry state for one execution, separate from its cached listener. */
 public final class ExecutionTelemetryWrapper {
@@ -50,24 +47,7 @@ public final class ExecutionTelemetryWrapper {
             @NotNull ExecutionType executionType,
             @Nullable ConnectionHandler connection) {
         ExecutionTelemetryListener listener = ExecutionTelemetryListener.getInstance(executionType);
-        return new ExecutionTelemetryWrapper(listener, databaseAttributes(connection));
-    }
-
-    private static Map<String, String> databaseAttributes(@Nullable ConnectionHandler connection) {
-        Map<String, String> attributes = new HashMap<>();
-        if (connection != null && TelemetryListener.isCollectionEnabled()) {
-            try {
-                attributes.put("database_type", connection.getDatabaseType().name());
-                double version = connection.getDatabaseVersion();
-                // Connection settings use 9999 until the database version is known.
-                if (Double.isFinite(version) && version > 0 && version != 9999) {
-                    attributes.put("database_version", Double.toString(version));
-                }
-            } catch (RuntimeException exception) {
-                conditionallyLog(exception);
-            }
-        }
-        return Map.copyOf(attributes);
+        return new ExecutionTelemetryWrapper(listener, TelemetryListener.databaseAttributes(() -> connection));
     }
 
     public <T> T collectTelemetryData(@NotNull ThrowableCallable<T, SQLException> callable) throws SQLException {

@@ -17,6 +17,7 @@
 package com.dbn.telemetry.listener;
 
 import com.dbn.common.ui.dialog.DBNDialog;
+import com.dbn.connection.ConnectionHandler;
 import com.intellij.openapi.ui.DialogWrapper;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -26,9 +27,11 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.IntSupplier;
+import java.util.function.Supplier;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -43,12 +46,15 @@ public final class DialogTelemetryListener extends TelemetryListener {
 
     private final String dialogId;
     private final IntSupplier exitCode;
+    private final Supplier<ConnectionHandler> connection;
+    private Map<String, String> databaseInfo = Map.of();
     private boolean visible;
     private long visibleSinceNanos;
 
-    private DialogTelemetryListener(@NotNull String dialogId, @NotNull IntSupplier exitCode) {
-        this.dialogId = dialogId;
-        this.exitCode = exitCode;
+    private DialogTelemetryListener(@NotNull DBNDialog<?> dialog) {
+        this.dialogId = dialog.getDialogId();
+        this.exitCode = () -> dialog.getExitCode();
+        this.connection = () -> dialog.getConnection();
     }
 
     @Override
@@ -61,15 +67,12 @@ public final class DialogTelemetryListener extends TelemetryListener {
         return DURATION_BUCKETS_SECONDS;
     }
 
-    public static void installTelemetryListener(DBNDialog dialog) {
+    public static void installTelemetryListener(DBNDialog<?> dialog) {
         try {
             Window window = dialog.getWindow();
             if (window == null) return;
 
-            String dialogId = dialog.getDialogId();
-            IntSupplier exitCode = () -> dialog.getExitCode();
-
-            DialogTelemetryListener listener = new DialogTelemetryListener(dialogId, exitCode);
+            DialogTelemetryListener listener = new DialogTelemetryListener(dialog);
             ComponentAdapter componentListener = listener.new DialogComponentListener();
             window.addComponentListener(componentListener);
             window.addWindowListener(new WindowAdapter() {
@@ -92,6 +95,7 @@ public final class DialogTelemetryListener extends TelemetryListener {
                 if (visible) return;
                 visibleSinceNanos = start();
                 visible = visibleSinceNanos != 0;
+                databaseInfo = visible ? databaseAttributes(connection) : Map.of();
             }
         }
 
@@ -103,14 +107,20 @@ public final class DialogTelemetryListener extends TelemetryListener {
 
     private void recordVisibleDuration() {
         long startedAtNanos;
+        Map<String, String> databaseInfo;
         synchronized (this) {
             if (!visible) return;
             visible = false;
             startedAtNanos = visibleSinceNanos;
+            databaseInfo = this.databaseInfo;
         }
 
-        recordDuration(startedAtNanos,
-                () -> Map.of("dialog_id", dialogId, "exit_action", getExitAction()));
+        recordDuration(startedAtNanos, () -> {
+            Map<String, String> attributes = new HashMap<>(databaseInfo);
+            attributes.put("dialog_id", dialogId);
+            attributes.put("exit_action", getExitAction());
+            return attributes;
+        });
     }
 
     private String getExitAction() {
