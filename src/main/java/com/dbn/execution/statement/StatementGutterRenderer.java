@@ -17,7 +17,7 @@
 package com.dbn.execution.statement;
 
 import com.dbn.common.compatibility.Workaround;
-import com.dbn.execution.statement.action.StatementGutterAction;
+import com.dbn.execution.statement.action.StatementExecutionGutterAction;
 import com.dbn.language.common.psi.ExecutablePsiElement;
 import com.intellij.codeInsight.daemon.impl.ShowIntentionsPass;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -31,11 +31,11 @@ import java.util.Objects;
 import static com.dbn.common.util.Traces.isCalledThroughClass;
 
 public class StatementGutterRenderer extends GutterIconRenderer {
-    private final StatementGutterAction action;
+    private final StatementExecutionGutterAction action;
     private final int hashCode;
 
     public StatementGutterRenderer(ExecutablePsiElement executablePsiElement) {
-        this.action = new StatementGutterAction(executablePsiElement);
+        this.action = new StatementExecutionGutterAction(executablePsiElement);
         hashCode = Objects.hashCode(executablePsiElement);
     }
 

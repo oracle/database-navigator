@@ -39,7 +39,7 @@ public class ActionTelemetry {
         return !(action instanceof ActionGroup);
     }
 
-    /** Keeps registered IDs and class namespaces, but merges presentation-specific suffixes. */
+    /** Uses registered IDs first, then readable class namespaces without infrastructure packages. */
     public static @Nullable String resolveActionId(@NotNull AnAction action) {
         String registeredId = ActionManager.getInstance().getId(action);
         if (registeredId != null) {
@@ -48,7 +48,13 @@ public class ActionTelemetry {
 
         String className = action.getClass().getCanonicalName();
         if (className == null || !className.startsWith("com.dbn.")) return null;
-        return "DBN.Action." + normalizeId(className.substring("com.dbn.".length()));
+        StringBuilder id = new StringBuilder("DBN.Action");
+        for (String segment : className.substring("com.dbn.".length()).split("\\.")) {
+            if (segment.equals("action") || segment.equals("common") || segment.equals("ui")) continue;
+
+            id.append('.').append(Character.toUpperCase(segment.charAt(0))).append(segment.substring(1));
+        }
+        return normalizeId(id.toString());
     }
 
     private static @NotNull String normalizeId(@NotNull String id) {

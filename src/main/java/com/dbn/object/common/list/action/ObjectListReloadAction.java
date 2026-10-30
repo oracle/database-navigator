@@ -31,11 +31,11 @@ import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.options.general.WorkspaceFeature.DATABASE_BROWSER;
 
 @ActionFeature(DATABASE_BROWSER)
-public class ReloadObjectsAction extends ProjectAction {
+public class ObjectListReloadAction extends ProjectAction {
 
     private final DBObjectList objectList;
 
-    ReloadObjectsAction(DBObjectList objectList) {
+    ObjectListReloadAction(DBObjectList objectList) {
         this.objectList = objectList;
     }
 

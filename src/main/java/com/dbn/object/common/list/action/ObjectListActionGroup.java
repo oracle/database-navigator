@@ -53,7 +53,7 @@ public class ObjectListActionGroup extends DefaultActionGroup {
     private void addListActions(DBObjectList objectList) {
         DBObjectType objectType = objectList.getObjectType();
         if (objectType != CONSOLE) {
-            add(new ReloadObjectsAction(objectList));
+            add(new ObjectListReloadAction(objectList));
             add(new ObjectListFilterActionGroup(objectList));
         }
     }

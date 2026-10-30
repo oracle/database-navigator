@@ -49,11 +49,11 @@ import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.options.general.WorkspaceFeature.EXECUTION_ENGINE;
 
 @ActionFeature(EXECUTION_ENGINE)
-public class StatementGutterAction extends BasicAction {
+public class StatementExecutionGutterAction extends BasicAction {
     private final PsiFileRef<DBLanguagePsiFile> psiFile;
     private ExecutablePsiElement psiElement;
 
-    public StatementGutterAction(ExecutablePsiElement psiElement) {
+    public StatementExecutionGutterAction(ExecutablePsiElement psiElement) {
         this.psiFile = PsiFileRef.of(psiElement.getFile());
         this.psiElement = psiElement;
     }
