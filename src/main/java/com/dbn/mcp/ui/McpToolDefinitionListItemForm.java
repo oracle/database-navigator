@@ -16,6 +16,7 @@
 
 package com.dbn.mcp.ui;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.icon.Icons;
@@ -48,6 +49,7 @@ import java.awt.Component;
 
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.MCP_SERVER_BUILDER;
 
 @Getter
 @Setter
@@ -89,6 +91,7 @@ public class McpToolDefinitionListItemForm extends DBNFormBase {
         return mainPanel;
     }
 
+    @ActionFeature(MCP_SERVER_BUILDER)
     public class ViewToolStatementAction extends BasicAction {
         ViewToolStatementAction() {
             super(txt("app.mcp.action.ViewSqlStatement"), null, Icons.ACTION_PREVIEW);
@@ -114,6 +117,7 @@ public class McpToolDefinitionListItemForm extends DBNFormBase {
                 connection.getDefaultSchemaId());
     }
 
+    @ActionFeature(MCP_SERVER_BUILDER)
     public class EditToolAction extends BasicAction {
         EditToolAction() {
             super(txt("app.mcp.action.EditTool"), null, Icons.ACTION_EDIT);
@@ -132,6 +136,7 @@ public class McpToolDefinitionListItemForm extends DBNFormBase {
         }
     }
 
+    @ActionFeature(MCP_SERVER_BUILDER)
     public class RemoveToolAction extends BasicAction {
         RemoveToolAction() {
             super(txt("app.mcp.action.RemoveTool"), null, Icons.ACTION_DELETE);

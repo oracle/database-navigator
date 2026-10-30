@@ -16,12 +16,16 @@
 
 package com.dbn.vector.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ContextAction;
 import com.dbn.common.action.DataKeys;
 import com.dbn.vector.model.VectorEmbeddingExecutionResult;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.options.general.WorkspaceFeature.VECTOR_TOOLBOX;
+
+@ActionFeature(VECTOR_TOOLBOX)
 public abstract class AbstractVectorEmbeddingResultAction extends ContextAction<VectorEmbeddingExecutionResult> {
 
     protected AbstractVectorEmbeddingResultAction(String text) {

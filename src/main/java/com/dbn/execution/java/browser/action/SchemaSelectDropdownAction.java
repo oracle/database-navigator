@@ -16,6 +16,7 @@
 
 package com.dbn.execution.java.browser.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ComboBoxAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.execution.java.browser.ui.JavaExecutionBrowserForm;
@@ -30,7 +31,9 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.OJVM;
 
+@ActionFeature(OJVM)
 public class SchemaSelectDropdownAction extends ComboBoxAction {
     JavaExecutionBrowserForm browserComponent;
 

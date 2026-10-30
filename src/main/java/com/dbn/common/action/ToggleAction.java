@@ -25,7 +25,7 @@ import javax.swing.Icon;
 
 public abstract class ToggleAction
         extends com.intellij.openapi.actionSystem.ToggleAction
-        implements BackgroundUpdateAware, DumbAware {
+        implements BackgroundUpdateAware, FeatureAware, DumbAware {
 
     public ToggleAction() {
     }

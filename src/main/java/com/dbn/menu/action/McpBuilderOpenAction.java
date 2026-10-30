@@ -16,6 +16,7 @@
 
 package com.dbn.menu.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
@@ -36,16 +37,13 @@ import static com.dbn.common.util.Lists.convert;
 import static com.dbn.database.DatabaseFeature.MCP_SERVER_BUILDER;
 import static com.dbn.nls.NlsResources.txt;
 
+@ActionFeature(WorkspaceFeature.MCP_SERVER_BUILDER)
 public class McpBuilderOpenAction extends ProjectAction {
 
     public McpBuilderOpenAction() {
         super(txt("app.menu.action.OpenMcpServerBuilder"));
     }
 
-    @Override
-    protected WorkspaceFeature getFeature() {
-        return WorkspaceFeature.MCP_SERVER_BUILDER;
-    }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {

@@ -16,11 +16,11 @@
 
 package com.dbn.sync.java.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.icon.Icons;
 import com.dbn.connection.context.action.AbstractFolderContextAction;
-import com.dbn.options.general.WorkspaceFeature;
 import com.dbn.sync.java.upload.JavaUploadManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -33,17 +33,15 @@ import static com.dbn.common.file.util.VirtualFiles.isJarFileSystem;
 import static com.dbn.common.util.Java.isDbSupportAvailable;
 import static com.dbn.common.util.Java.isIdeSupportAvailable;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.OJVM;
 
 @BackgroundUpdate
+@ActionFeature(OJVM)
 public class JavaObjectUploadAction extends AbstractFolderContextAction {
 	public JavaObjectUploadAction() {
 		super(txt("app.java.action.Upload"));
 	}
 
-	@Override
-	protected WorkspaceFeature getFeature() {
-		return WorkspaceFeature.OJVM;
-	}
 
 	@Override
 	protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {

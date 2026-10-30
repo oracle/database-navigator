@@ -17,6 +17,7 @@
 package com.dbn.assistant.mcp.action;
 
 import com.dbn.assistant.mcp.ui.AssistantMcpToolApprovalsForm;
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.icon.Icons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -27,7 +28,9 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.action.DataKeys.ASSISTANT_MCP_TOOL_APPROVALS_FORM;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_ASSISTANT;
 
+@ActionFeature(DATABASE_ASSISTANT)
 public class AssistantMcpToolsReloadAction extends ProjectAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {

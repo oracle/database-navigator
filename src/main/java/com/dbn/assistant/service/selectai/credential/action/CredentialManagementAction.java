@@ -17,6 +17,7 @@
 package com.dbn.assistant.service.selectai.credential.action;
 
 import com.dbn.assistant.service.selectai.credential.ui.CredentialManagementForm;
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.object.DBCredential;
@@ -24,12 +25,15 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_ASSISTANT;
+
 /**
  * Generic stub for actions related to management of credentials
  * (features the lookup of the credential management form from the context)
  *
  * @author Dan Cioca (Oracle)
  */
+@ActionFeature(DATABASE_ASSISTANT)
 public abstract class CredentialManagementAction extends ProjectAction {
 
     protected CredentialManagementAction(String text) {

@@ -16,12 +16,12 @@
 
 package com.dbn.sync.java.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Java;
 import com.dbn.object.DBSchema;
 import com.dbn.object.action.AnObjectAction;
 import com.dbn.object.common.DBObject;
-import com.dbn.options.general.WorkspaceFeature;
 import com.dbn.sync.java.download.JavaDownloadManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -30,17 +30,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.OJVM;
 
+@ActionFeature(OJVM)
 public class JavaObjectDownloadAction extends AnObjectAction<DBObject> {
 
 	public JavaObjectDownloadAction(DBObject sourceObject) {
 		super(sourceObject);
 	}
 
-	@Override
-	protected WorkspaceFeature getFeature() {
-		return WorkspaceFeature.OJVM;
-	}
 
 	@Override
 	protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DBObject target) {

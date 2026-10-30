@@ -16,26 +16,24 @@
 
 package com.dbn.menu.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.liquibase.workflow.ui.LiquibaseWorkflowDashboardDialog;
-import com.dbn.options.general.WorkspaceFeature;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.util.Dialogs.show;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.LIQUIBASE;
 
 /** Opens the project-level Liquibase workflow dashboard. */
+@ActionFeature(LIQUIBASE)
 public class LiquibaseWorkflowDashboardOpenAction extends ProjectAction {
     public LiquibaseWorkflowDashboardOpenAction() {
         super(txt("app.menu.action.LiquibaseWorkflowDashboard"));
     }
 
-    @Override
-    protected WorkspaceFeature getFeature() {
-        return WorkspaceFeature.LIQUIBASE;
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {

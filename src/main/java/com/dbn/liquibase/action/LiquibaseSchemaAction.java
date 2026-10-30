@@ -16,6 +16,7 @@
 
 package com.dbn.liquibase.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
@@ -31,8 +32,10 @@ import org.jetbrains.annotations.NotNull;
 import static com.dbn.common.util.Dialogs.show;
 import static com.dbn.common.util.Dialogs.whenOk;
 import static com.dbn.liquibase.operation.LiquibaseOperationConfirmations.confirmWorkspaceAvailable;
+import static com.dbn.options.general.WorkspaceFeature.LIQUIBASE;
 
 /** Base action for Liquibase operations scoped to one database schema. */
+@ActionFeature(LIQUIBASE)
 public abstract class LiquibaseSchemaAction extends ProjectAction {
     private final DBObjectRef<DBSchema> schema;
 

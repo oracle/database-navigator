@@ -16,6 +16,7 @@
 
 package com.dbn.execution.java.result.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.data.grid.ui.table.resultSet.ResultSetTable;
@@ -27,6 +28,9 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.options.general.WorkspaceFeature.OJVM;
+
+@ActionFeature(OJVM)
 public abstract class JavaExecutionCursorResultAction extends ProjectAction {
 
     protected JavaExecutionCursorResultAction(String text) {

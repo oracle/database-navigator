@@ -17,6 +17,7 @@
 package com.dbn.assistant.service.selectai.editor.action;
 
 import com.dbn.assistant.service.selectai.SelectAiContextUtil;
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.action.Selectable;
 import com.dbn.common.util.Strings;
@@ -29,7 +30,10 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_ASSISTANT;
+
 @Getter
+@ActionFeature(DATABASE_ASSISTANT)
 public class SelectAiProfileSelectAction extends ProjectAction implements Selectable {
     private final ConnectionId connectionId;
     private final DBObjectRef<DBAIProfile> profile;

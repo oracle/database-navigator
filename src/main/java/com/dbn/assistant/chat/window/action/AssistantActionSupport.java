@@ -26,6 +26,7 @@ import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.tool.approval.AssistantToolApprovals;
 import com.dbn.assistant.tool.config.AssistantToolSettings;
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.ui.component.DBNDiscardableComponent;
 import com.dbn.common.ui.component.DBNFoldableComponent;
@@ -38,7 +39,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.assistant.profile.AssistantProfileLookup.getProfile;
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_ASSISTANT;
 
+@ActionFeature(DATABASE_ASSISTANT)
 public interface AssistantActionSupport {
 
     default ChatBoxForm getChatBox(DataContext dataContext) {

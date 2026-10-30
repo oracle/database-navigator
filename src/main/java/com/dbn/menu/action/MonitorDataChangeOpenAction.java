@@ -16,9 +16,9 @@
 
 package com.dbn.menu.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.event.notification.EventNotificationManager;
-import com.dbn.options.general.WorkspaceFeature;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -26,16 +26,14 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.database.DatabaseFeature.DATA_CHANGE_NOTIFICATION;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.EVENT_MONITOR;
 
+@ActionFeature(EVENT_MONITOR)
 public class MonitorDataChangeOpenAction extends ProjectAction {
     public MonitorDataChangeOpenAction() {
         super(txt("app.menu.action.DataEventsMonitor"));
     }
 
-    @Override
-    protected WorkspaceFeature getFeature() {
-        return WorkspaceFeature.EVENT_MONITOR;
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {

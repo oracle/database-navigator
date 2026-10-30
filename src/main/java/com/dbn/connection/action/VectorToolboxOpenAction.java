@@ -16,10 +16,10 @@
 
 package com.dbn.connection.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.DatabaseFeature;
-import com.dbn.options.general.WorkspaceFeature;
 import com.dbn.vector.DatabaseVectorManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -29,16 +29,14 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.database.DatabaseFeature.*;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.VECTOR_TOOLBOX;
 
+@ActionFeature(VECTOR_TOOLBOX)
 public class VectorToolboxOpenAction extends AbstractConnectionAction {
     VectorToolboxOpenAction(ConnectionHandler connection) {
         super(connection);
     }
 
-    @Override
-    protected WorkspaceFeature getFeature() {
-        return WorkspaceFeature.VECTOR_TOOLBOX;
-    }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable ConnectionHandler target) {

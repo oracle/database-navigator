@@ -16,6 +16,7 @@
 
 package com.dbn.execution.java.browser.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.action.Lookups;
 import com.dbn.connection.ConnectionBundle;
@@ -37,7 +38,9 @@ import javax.swing.JComponent;
 import java.util.List;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.OJVM;
 
+@ActionFeature(OJVM)
 public class ConnectionSelectDropdownAction extends ComboBoxAction {
     private final JavaExecutionBrowserForm browserComponent;
     private final boolean debug;

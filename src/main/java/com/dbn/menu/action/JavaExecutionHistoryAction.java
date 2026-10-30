@@ -16,11 +16,11 @@
 
 package com.dbn.menu.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.connection.ConnectionBundle;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.execution.java.JavaExecutionManager;
-import com.dbn.options.general.WorkspaceFeature;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -28,18 +28,16 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.database.DatabaseFeature.JAVA_VIRTUAL_MACHINE;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.OJVM;
 
 
+@ActionFeature(OJVM)
 public class JavaExecutionHistoryAction extends ProjectAction {
 
 	public JavaExecutionHistoryAction() {
 		super(txt("app.menu.action.JavaExecutionHistory"));
 	}
 
-	@Override
-	protected WorkspaceFeature getFeature() {
-		return WorkspaceFeature.OJVM;
-	}
 
 	@Override
 	protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {

@@ -22,6 +22,7 @@ import com.dbn.assistant.chat.context.ChatContextImpl;
 import com.dbn.assistant.chat.window.action.AssistantActionSupport;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.service.selectai.PromptAction;
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ToggleAction;
 import com.dbn.common.compatibility.Compatibility;
@@ -37,6 +38,7 @@ import static com.dbn.assistant.service.selectai.PromptAction.NARRATE;
 import static com.dbn.assistant.service.selectai.PromptAction.SHOW_SQL;
 import static com.dbn.assistant.service.selectai.SelectAiContextUtil.getSelectedAction;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_ASSISTANT;
 //import static com.intellij.openapi.actionSystem.ex.ActionUtil.SHOW_TEXT_IN_TOOLBAR;
 
 /**
@@ -45,6 +47,7 @@ import static com.dbn.nls.NlsResources.txt;
  * @author Dan Cioca (Oracle)
  */
 @BackgroundUpdate
+@ActionFeature(DATABASE_ASSISTANT)
 public class PromptActionSelectAction extends ToggleAction implements AssistantActionSupport {
     private final PromptAction action;
 
@@ -65,6 +68,7 @@ public class PromptActionSelectAction extends ToggleAction implements AssistantA
         // TODO only supported in 2024.x or higher
         //getTemplatePresentation().putClientProperty(SHOW_TEXT_IN_TOOLBAR, true);
     }
+
 
     @Override
     @Compatibility

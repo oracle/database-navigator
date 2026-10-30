@@ -17,6 +17,7 @@
 package com.dbn.assistant.service.selectai.profile.action;
 
 import com.dbn.assistant.service.selectai.profile.ui.ProfileManagementForm;
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.object.DBAIProfile;
@@ -24,12 +25,15 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_ASSISTANT;
+
 /**
  * Generic stub for actions related to management of profiles
  * (features the lookup of the profile management form from the context)
  *
  * @author Dan Cioca (Oracle)
  */
+@ActionFeature(DATABASE_ASSISTANT)
 public abstract class ProfileManagementAction extends ProjectAction {
 
     protected ProfileManagementAction(String text) {

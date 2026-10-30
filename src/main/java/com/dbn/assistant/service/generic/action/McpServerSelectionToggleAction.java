@@ -19,6 +19,7 @@ package com.dbn.assistant.service.generic.action;
 import com.dbn.assistant.chat.window.action.AssistantActionSupport;
 import com.dbn.assistant.mcp.AssistantMcpServerState;
 import com.dbn.assistant.mcp.model.AssistantMcpServer;
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ToggleAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -30,14 +31,17 @@ import javax.swing.Icon;
 
 import static com.dbn.common.icon.Icons.ACTION_CHECK;
 import static com.dbn.common.util.Strings.truncateWithMiddleEllipsis;
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_ASSISTANT;
 
 @BackgroundUpdate
+@ActionFeature(DATABASE_ASSISTANT)
 public class McpServerSelectionToggleAction extends ToggleAction implements AssistantActionSupport {
     private final AssistantMcpServer mcpServer;
 
     public McpServerSelectionToggleAction(AssistantMcpServer mcpServer) {
         this.mcpServer = mcpServer;
     }
+
 
     @Override
     public void update(@NotNull AnActionEvent e) {

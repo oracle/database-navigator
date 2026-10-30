@@ -22,11 +22,11 @@ import com.dbn.assistant.editor.AssistantPromptUtil;
 import com.dbn.assistant.service.selectai.PromptAction;
 import com.dbn.assistant.service.selectai.editor.SelectAiEditorAdapter;
 import com.dbn.assistant.state.AssistantState;
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.options.general.WorkspaceFeature;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.editor.Editor;
@@ -40,6 +40,7 @@ import static com.dbn.assistant.service.selectai.editor.SelectAiEditorUtil.getCo
 import static com.dbn.assistant.service.selectai.editor.SelectAiEditorUtil.isAssistantAvailable;
 import static com.dbn.common.action.Lookups.getEditor;
 import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_ASSISTANT;
 
 /**
  * Action stub for DB-Assistant editor context menu
@@ -48,16 +49,13 @@ import static com.dbn.common.dispose.Checks.isNotValid;
  * @author Dan Cioca (Oracle)
  */
 @BackgroundUpdate
+@ActionFeature(DATABASE_ASSISTANT)
 public abstract class SelectAiBaseEditorAction extends ProjectAction {
 
     protected SelectAiBaseEditorAction(String text) {
         super(text);
     }
 
-    @Override
-    protected WorkspaceFeature getFeature() {
-        return WorkspaceFeature.DATABASE_ASSISTANT;
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {

@@ -16,25 +16,23 @@
 
 package com.dbn.menu.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
-import com.dbn.options.general.WorkspaceFeature;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.LIQUIBASE;
 
 /** Opens the project-level Liquibase environment profile settings. */
+@ActionFeature(LIQUIBASE)
 public class LiquibaseEnvironmentProfilesOpenAction extends ProjectAction {
     public LiquibaseEnvironmentProfilesOpenAction() {
         super(txt("app.menu.action.LiquibaseEnvironmentProfiles"));
     }
 
-    @Override
-    protected WorkspaceFeature getFeature() {
-        return WorkspaceFeature.LIQUIBASE;
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {

@@ -16,13 +16,16 @@
 
 package com.dbn.vector.search.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.vector.search.VectorSearchConsole;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.action.DataKeys.VECTOR_SEARCH_CONSOLE;
+import static com.dbn.options.general.WorkspaceFeature.VECTOR_TOOLBOX;
 
+@ActionFeature(VECTOR_TOOLBOX)
 public interface VectorActionSupport {
     default @Nullable VectorSearchConsole getConsole(AnActionEvent e) {
         return e.getData(VECTOR_SEARCH_CONSOLE);

@@ -16,6 +16,7 @@
 
 package com.dbn.event.registration.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.filter.FilterOption;
@@ -38,7 +39,9 @@ import java.util.List;
 import static com.dbn.common.util.Commons.nvln;
 import static com.dbn.event.registration.action.EventRegistrationActionUtil.getRegistrationsForm;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.EVENT_MONITOR;
 
+@ActionFeature(EVENT_MONITOR)
 public abstract class EventRegistrationFilterAction extends ComboBoxAction implements DumbAware {
     private final EventRegistrationFilterType filterType;
 

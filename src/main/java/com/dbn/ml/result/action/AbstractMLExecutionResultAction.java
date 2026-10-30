@@ -16,6 +16,7 @@
 
 package com.dbn.ml.result.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ContextAction;
 import com.dbn.execution.ExecutionManager;
 import com.dbn.execution.ExecutionResult;
@@ -25,11 +26,14 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.options.general.WorkspaceFeature.MACHINE_LEARNING;
+
 /**
  * Base class for ML execution result actions.
  *
  * @author ayoub allali
  */
+@ActionFeature(MACHINE_LEARNING)
 public abstract class AbstractMLExecutionResultAction extends ContextAction<MLExecutionResult> {
 
     @Override

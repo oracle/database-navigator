@@ -16,6 +16,7 @@
 
 package com.dbn.menu.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionBundle;
@@ -38,11 +39,9 @@ import static com.dbn.common.util.Lists.convert;
 import static com.dbn.database.DatabaseFeature.MACHINE_LEARNING;
 import static com.dbn.nls.NlsResources.txt;
 
+@ActionFeature(WorkspaceFeature.MACHINE_LEARNING)
 public class MLToolboxOpenAction extends ProjectAction {
-    @Override
-    protected WorkspaceFeature getFeature() {
-        return WorkspaceFeature.MACHINE_LEARNING;
-    }
+
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {

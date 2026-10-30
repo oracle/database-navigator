@@ -16,11 +16,11 @@
 
 package com.dbn.ml.prediction.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.icon.Icons;
 import com.dbn.ml.DatabaseMLManager;
 import com.dbn.object.DBMiningModel;
 import com.dbn.object.action.AnObjectAction;
-import com.dbn.options.general.WorkspaceFeature;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.MACHINE_LEARNING;
 
 /**
  * Action to run ad-hoc predictions on an existing ML model from the database browser.
@@ -36,16 +37,13 @@ import static com.dbn.nls.NlsResources.txt;
  *
  * @author ayoub allali
  */
+@ActionFeature(MACHINE_LEARNING)
 public class AIModelPredictAction extends AnObjectAction<DBMiningModel> {
 
     public AIModelPredictAction(@NotNull DBMiningModel model) {
         super(model);
     }
 
-    @Override
-    protected WorkspaceFeature getFeature() {
-        return WorkspaceFeature.MACHINE_LEARNING;
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DBMiningModel model) {

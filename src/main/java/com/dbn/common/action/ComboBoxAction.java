@@ -59,7 +59,7 @@ import static com.dbn.common.text.TextContent.htmlTooltip;
 @NoArgsConstructor
 public abstract class ComboBoxAction
         extends com.intellij.openapi.actionSystem.ex.ComboBoxAction
-        implements BackgroundUpdateAware, DumbAware {
+        implements BackgroundUpdateAware, FeatureAware, DumbAware {
 
     private static WeakRef<Balloon> currentBalloon;
 

@@ -16,6 +16,7 @@
 
 package com.dbn.event.notification.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.ui.table.DBNTable;
@@ -37,7 +38,9 @@ import java.util.List;
 
 import static com.dbn.event.notification.action.EventNotificationActionUtil.getNotificationForm;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.EVENT_MONITOR;
 
+@ActionFeature(EVENT_MONITOR)
 public abstract class EventNotificationFilterAction extends ComboBoxAction implements DumbAware {
     private final EventNotificationFilterType filterType;
 

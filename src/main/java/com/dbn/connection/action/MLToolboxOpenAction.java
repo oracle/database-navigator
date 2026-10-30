@@ -16,6 +16,7 @@
 
 package com.dbn.connection.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.ml.DatabaseMLManager;
@@ -29,16 +30,13 @@ import org.jetbrains.annotations.Nullable;
 import static com.dbn.database.DatabaseFeature.MACHINE_LEARNING;
 import static com.dbn.nls.NlsResources.txt;
 
+@ActionFeature(WorkspaceFeature.MACHINE_LEARNING)
 public class MLToolboxOpenAction extends AbstractConnectionAction {
     
     public MLToolboxOpenAction(ConnectionHandler connection) {
         super(connection);
     }
 
-    @Override
-    protected WorkspaceFeature getFeature() {
-        return WorkspaceFeature.MACHINE_LEARNING;
-    }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable ConnectionHandler target) {

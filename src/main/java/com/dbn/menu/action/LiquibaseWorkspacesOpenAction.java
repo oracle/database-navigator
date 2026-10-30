@@ -16,9 +16,9 @@
 
 package com.dbn.menu.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.liquibase.DatabaseLiquibaseManager;
-import com.dbn.options.general.WorkspaceFeature;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -27,8 +27,10 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.LIQUIBASE;
 
 /** Opens the project-level Liquibase workspace overview. */
+@ActionFeature(LIQUIBASE)
 public class LiquibaseWorkspacesOpenAction extends ProjectAction {
     public LiquibaseWorkspacesOpenAction() {
         this(txt("app.menu.action.LiquibaseWorkspaces"), null);
@@ -39,10 +41,6 @@ public class LiquibaseWorkspacesOpenAction extends ProjectAction {
         super(text, null, icon);
     }
 
-    @Override
-    protected WorkspaceFeature getFeature() {
-        return WorkspaceFeature.LIQUIBASE;
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {

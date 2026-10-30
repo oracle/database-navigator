@@ -16,12 +16,12 @@
 
 package com.dbn.execution.java.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.icon.Icons;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.execution.java.JavaExecutionManager;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.action.AnObjectAction;
-import com.dbn.options.general.WorkspaceFeature;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -30,7 +30,9 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.operation.DatabaseOperation.EXECUTE_JAVA_CODE;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.OJVM;
 
+@ActionFeature(OJVM)
 public class JavaMethodExecuteAction extends AnObjectAction<DBJavaMethod> {
     private final boolean listElement;
     public JavaMethodExecuteAction(DBJavaMethod method, boolean listElement) {
@@ -38,10 +40,6 @@ public class JavaMethodExecuteAction extends AnObjectAction<DBJavaMethod> {
         this.listElement = listElement;
     }
 
-    @Override
-    protected WorkspaceFeature getFeature() {
-        return WorkspaceFeature.OJVM;
-    }
 
     @Override
     protected void actionPerformed(

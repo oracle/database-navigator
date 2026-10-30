@@ -16,6 +16,7 @@
 
 package com.dbn.execution.java.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.execution.java.wrapper.JavaExecutionWrapperManager;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.action.AnObjectAction;
@@ -27,7 +28,9 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.operation.DatabaseOperation.CREATE_JAVA_WRAPPER;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.OJVM;
 
+@ActionFeature(OJVM)
 public class JavaMethodWrapperAction extends AnObjectAction<DBJavaMethod> {
 	public JavaMethodWrapperAction(DBJavaMethod method) {
 		super(method);

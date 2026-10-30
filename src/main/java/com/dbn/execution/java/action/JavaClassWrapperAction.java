@@ -16,6 +16,7 @@
 
 package com.dbn.execution.java.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
@@ -42,7 +43,9 @@ import static com.dbn.common.util.Messages.showWarningDialog;
 import static com.dbn.common.util.Titles.titleCased;
 import static com.dbn.help.HelpTopic.JAVA_EXECUTION_WRAPPERS;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.OJVM;
 
+@ActionFeature(OJVM)
 public class JavaClassWrapperAction extends AnObjectAction<DBJavaClass> {
 	public JavaClassWrapperAction(DBJavaClass sourceObject) {
 		super(sourceObject);

@@ -16,6 +16,7 @@
 
 package com.dbn.liquibase.operation.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.liquibase.operation.ui.LiquibaseOperationDashboardDialog;
 import com.dbn.object.DBSchema;
@@ -27,8 +28,10 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.util.Dialogs.show;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.LIQUIBASE;
 
 /** Opens the project-level Liquibase dashboard from a database context. */
+@ActionFeature(LIQUIBASE)
 public class LiquibaseOperationDashboardAction extends ProjectAction {
     private final DBObjectRef<DBSchema> schema;
 

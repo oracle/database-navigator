@@ -16,6 +16,7 @@
 
 package com.dbn.liquibase.task.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ContextAction;
 import com.dbn.common.action.DataKeys;
@@ -26,7 +27,10 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.options.general.WorkspaceFeature.LIQUIBASE;
+
 @BackgroundUpdate
+@ActionFeature(LIQUIBASE)
 public abstract class AbstractLiquibaseTaskResultAction extends ContextAction<LiquibaseTaskResult<?, ?, ?>> {
     protected AbstractLiquibaseTaskResultAction(String text) {
         super(text);

@@ -16,6 +16,7 @@
 
 package com.dbn.editor.code.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.icon.Icons;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.debugger.DatabaseDebuggerManager;
@@ -23,7 +24,6 @@ import com.dbn.editor.code.SourceCodeEditor;
 import com.dbn.object.DBMethod;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.type.DBObjectType;
-import com.dbn.options.general.WorkspaceFeature;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -33,17 +33,15 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DEBUGGER;
 
+@ActionFeature(DEBUGGER)
 public class MethodDebugAction extends AbstractCodeEditorAction {
 
     public MethodDebugAction() {
         super(txt("app.codeEditor.action.CodeEditorDebugMethod"));
     }
 
-    @Override
-    protected WorkspaceFeature getFeature() {
-        return WorkspaceFeature.DEBUGGER;
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull SourceCodeEditor fileEditor, @NotNull DBSourceCodeVirtualFile sourceCodeFile) {

@@ -16,6 +16,7 @@
 
 package com.dbn.editor.code.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.icon.Icons;
 import com.dbn.database.DatabaseFeature;
@@ -34,18 +35,16 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DEBUGGER;
 
 @BackgroundUpdate
+@ActionFeature(DEBUGGER)
 public class ProgramMethodDebugAction extends ProgramMethodLaunchAction {
 
     public ProgramMethodDebugAction() {
         super(txt("app.codeEditor.action.CodeEditorExecuteMethod"));
     }
 
-    @Override
-    protected WorkspaceFeature getFeature() {
-        return WorkspaceFeature.DEBUGGER;
-    }
 
     @Override
     protected AnAction createExecutionAction(DBObject method) {

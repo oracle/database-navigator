@@ -16,6 +16,7 @@
 
 package com.dbn.event.registration.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.event.registration.ui.EventRegistrationsForm;
@@ -25,7 +26,9 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.event.registration.action.EventRegistrationActionUtil.getRegistrationsForm;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.EVENT_MONITOR;
 
+@ActionFeature(EVENT_MONITOR)
 public class EventRegistrationClearFiltersAction extends BasicAction {
 
     public EventRegistrationClearFiltersAction() {

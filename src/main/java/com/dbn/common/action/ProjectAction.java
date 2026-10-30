@@ -72,11 +72,6 @@ public abstract class ProjectAction extends BasicAction {
         return null;
     }
 
-    @Nullable
-    protected WorkspaceFeature getFeature() {
-        return null;
-    }
-
     protected boolean isFeatureEnabled(@NotNull Project project) {
         WorkspaceFeature feature = getFeature();
         return feature == null || feature.isEnabled(project);

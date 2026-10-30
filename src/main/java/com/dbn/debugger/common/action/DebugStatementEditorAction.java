@@ -16,6 +16,7 @@
 
 package com.dbn.debugger.common.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.action.ProjectAction;
@@ -31,7 +32,6 @@ import com.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dbn.language.common.psi.BasePsiElement;
 import com.dbn.language.common.psi.ExecutablePsiElement;
 import com.dbn.language.common.psi.PsiUtil;
-import com.dbn.options.general.WorkspaceFeature;
 import com.dbn.vfs.DBConsoleType;
 import com.dbn.vfs.file.DBConsoleVirtualFile;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -43,18 +43,16 @@ import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DEBUGGER;
 
 @BackgroundUpdate
+@ActionFeature(DEBUGGER)
 public class DebugStatementEditorAction extends ProjectAction {
 
     public DebugStatementEditorAction() {
         super(txt("app.codeEditor.action.ScriptEditorDebugStatement"));
     }
 
-    @Override
-    protected WorkspaceFeature getFeature() {
-        return WorkspaceFeature.DEBUGGER;
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {

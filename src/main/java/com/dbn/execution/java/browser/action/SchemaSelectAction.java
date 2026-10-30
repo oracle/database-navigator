@@ -16,6 +16,7 @@
 
 package com.dbn.execution.java.browser.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.execution.java.browser.ui.JavaExecutionBrowserForm;
 import com.dbn.object.DBSchema;
@@ -24,6 +25,9 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.options.general.WorkspaceFeature.OJVM;
+
+@ActionFeature(OJVM)
 public class SchemaSelectAction extends AnObjectAction<DBSchema> {
     private WeakRef<JavaExecutionBrowserForm> browserComponent;
 

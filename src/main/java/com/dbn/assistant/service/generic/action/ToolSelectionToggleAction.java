@@ -19,6 +19,7 @@ package com.dbn.assistant.service.generic.action;
 import com.dbn.assistant.chat.window.action.AssistantActionSupport;
 import com.dbn.assistant.tool.AssistantToolType;
 import com.dbn.assistant.tool.approval.AssistantToolApprovals;
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ToggleAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -31,13 +32,16 @@ import static com.dbn.assistant.tool.AssistantToolData.getToolDisplayName;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.BLOCKED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.PROMPTED;
 import static com.dbn.common.icon.Icons.ACTION_CHECK;
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_ASSISTANT;
 
+@ActionFeature(DATABASE_ASSISTANT)
 public class ToolSelectionToggleAction extends ToggleAction implements AssistantActionSupport {
     private final AssistantToolType toolType;
 
     public ToolSelectionToggleAction(AssistantToolType toolType) {
         this.toolType = toolType;
     }
+
 
     @Override
     public void update(@NotNull AnActionEvent e) {

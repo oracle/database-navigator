@@ -16,6 +16,7 @@
 
 package com.dbn.execution.java.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.icon.Icons;
 import com.dbn.debugger.DatabaseDebuggerManager;
 import com.dbn.object.DBJavaMethod;
@@ -34,6 +35,7 @@ import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.options.general.WorkspaceFeature.DEBUGGER;
 import static com.dbn.options.general.WorkspaceFeature.OJVM;
 
+@ActionFeature(DEBUGGER)
 public class JavaMethodDebugAction extends AnObjectAction<DBJavaMethod> {
 
     private final boolean listElement;
@@ -43,10 +45,6 @@ public class JavaMethodDebugAction extends AnObjectAction<DBJavaMethod> {
         this.listElement = listElement;
     }
 
-    @Override
-    protected WorkspaceFeature getFeature() {
-        return DEBUGGER;
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DBJavaMethod method) {

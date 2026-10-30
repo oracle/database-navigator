@@ -16,9 +16,9 @@
 
 package com.dbn.vector.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.options.general.WorkspaceFeature;
 import com.dbn.vector.DatabaseVectorManager;
 import com.dbn.vector.model.VectorEmbeddingExecutionResult;
 import com.dbn.vector.model.VectorEmbeddingRequest;
@@ -30,17 +30,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.VECTOR_TOOLBOX;
 
+@ActionFeature(VECTOR_TOOLBOX)
 public class VectorEmbeddingToolboxAction extends AbstractVectorEmbeddingResultAction {
 
   public VectorEmbeddingToolboxAction() {
     super(txt("app.execution.action.VectorEmbeddingResultOpenVectorToolbox"));
   }
 
-  @Override
-  protected WorkspaceFeature getFeature() {
-    return WorkspaceFeature.VECTOR_TOOLBOX;
-  }
 
   @Override
   protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull VectorEmbeddingExecutionResult executionResult) {

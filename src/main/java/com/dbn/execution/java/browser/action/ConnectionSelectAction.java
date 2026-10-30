@@ -16,12 +16,16 @@
 
 package com.dbn.execution.java.browser.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.execution.java.browser.ui.JavaExecutionBrowserForm;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.options.general.WorkspaceFeature.OJVM;
+
+@ActionFeature(OJVM)
 public class ConnectionSelectAction extends BasicAction {
     private final ConnectionHandler connection;
     private JavaExecutionBrowserForm browserComponent;

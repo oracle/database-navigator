@@ -16,6 +16,7 @@
 
 package com.dbn.execution.java.browser.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ToggleAction;
 import com.dbn.execution.java.browser.ui.JavaExecutionBrowserForm;
 import com.dbn.object.type.DBObjectType;
@@ -23,7 +24,9 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.OJVM;
 
+@ActionFeature(OJVM)
 public class ObjectTypeToggleAction extends ToggleAction {
     private JavaExecutionBrowserForm browserComponent;
     private final DBObjectType objectType;
@@ -33,6 +36,7 @@ public class ObjectTypeToggleAction extends ToggleAction {
         this.objectType = objectType;
         this.browserComponent = browserComponent;
     }
+
 
     @Override
     public boolean isSelected(@NotNull AnActionEvent e) {

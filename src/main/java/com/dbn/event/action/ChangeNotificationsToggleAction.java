@@ -16,13 +16,13 @@
 
 package com.dbn.event.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionId;
 import com.dbn.event.registration.EventRegistrationCache;
 import com.dbn.event.registration.EventRegistrationManager;
 import com.dbn.object.DBTable;
 import com.dbn.object.action.AnObjectAction;
-import com.dbn.options.general.WorkspaceFeature;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -30,17 +30,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.EVENT_MONITOR;
 
+@ActionFeature(EVENT_MONITOR)
 public class ChangeNotificationsToggleAction extends AnObjectAction<DBTable> {
 
     public ChangeNotificationsToggleAction(@NotNull DBTable table) {
         super(table);
     }
 
-    @Override
-    protected WorkspaceFeature getFeature() {
-        return WorkspaceFeature.EVENT_MONITOR;
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DBTable table) {

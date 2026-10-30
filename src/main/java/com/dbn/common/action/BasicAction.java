@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
-public abstract class BasicAction extends AnAction implements BackgroundUpdateAware, DumbAware {
+public abstract class BasicAction extends AnAction implements BackgroundUpdateAware, FeatureAware, DumbAware {
 
     public BasicAction() {
     }

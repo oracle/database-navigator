@@ -16,6 +16,7 @@
 
 package com.dbn.execution.java.result.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ContextAction;
 import com.dbn.common.action.DataKeys;
@@ -23,7 +24,10 @@ import com.dbn.execution.java.result.JavaExecutionResult;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.options.general.WorkspaceFeature.OJVM;
+
 @BackgroundUpdate
+@ActionFeature(OJVM)
 public abstract class AbstractJavaExecutionResultAction extends ContextAction<JavaExecutionResult> {
 
     protected AbstractJavaExecutionResultAction(String text) {

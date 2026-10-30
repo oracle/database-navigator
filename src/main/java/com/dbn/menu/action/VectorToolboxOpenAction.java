@@ -16,13 +16,13 @@
 
 package com.dbn.menu.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionBundle;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.action.AbstractConnectionAction;
-import com.dbn.options.general.WorkspaceFeature;
 import com.dbn.vector.DatabaseVectorManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -37,16 +37,14 @@ import static com.dbn.common.util.Actions.adjustActionName;
 import static com.dbn.common.util.Lists.convert;
 import static com.dbn.database.DatabaseFeature.VECTOR_EMBEDDING;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.VECTOR_TOOLBOX;
 
+@ActionFeature(VECTOR_TOOLBOX)
 public class VectorToolboxOpenAction extends ProjectAction {
     public VectorToolboxOpenAction() {
         super(txt("app.menu.action.OpenVectorToolbox"));
     }
 
-    @Override
-    protected WorkspaceFeature getFeature() {
-        return WorkspaceFeature.VECTOR_TOOLBOX;
-    }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {

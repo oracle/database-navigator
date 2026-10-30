@@ -16,6 +16,7 @@
 
 package com.dbn.execution.java.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.icon.Icons;
 import com.dbn.execution.java.JavaExecutionManager;
 import com.dbn.execution.java.ui.JavaExecutionHistory;
@@ -31,7 +32,9 @@ import java.util.List;
 
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.OJVM;
 
+@ActionFeature(OJVM)
 public class JavaClassExecuteAction extends ObjectListShowAction {
 	public JavaClassExecuteAction(DBJavaClass program) {
 		super(txt("app.execution.action.Execute"), program);

@@ -16,6 +16,7 @@
 
 package com.dbn.execution.java.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.icon.Icons;
 import com.dbn.execution.java.JavaExecutionManager;
 import com.dbn.execution.java.ui.JavaExecutionHistory;
@@ -37,6 +38,7 @@ import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.options.general.WorkspaceFeature.DEBUGGER;
 import static com.dbn.options.general.WorkspaceFeature.OJVM;
 
+@ActionFeature(DEBUGGER)
 public class JavaClassDebugAction extends ObjectListShowAction {
 
     public JavaClassDebugAction(DBJavaClass javaClass) {
