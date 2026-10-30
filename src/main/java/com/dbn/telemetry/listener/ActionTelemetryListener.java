@@ -18,6 +18,7 @@ package com.dbn.telemetry.listener;
 
 import com.dbn.code.common.intention.EditorIntentionActionEvent;
 import com.dbn.code.common.intention.EditorIntentionActionListener;
+import com.dbn.connection.ConnectionHandler;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -28,8 +29,12 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
+
+import static com.dbn.common.action.DataKeys.CONNECTION_HANDLER;
 
 /**
  * Records synchronous invocation durations for registered and dynamically constructed DBN actions and editor intentions. Work started asynchronously
@@ -62,12 +67,12 @@ public final class ActionTelemetryListener extends TelemetryListener implements 
         String actionId = resolveActionId(action);
         if (actionId == null) return;
 
-        startInvocation(event, actionId);
+        startInvocation(event, actionId, () -> event.getData(CONNECTION_HANDLER));
     }
 
     @Override
     public void beforeIntentionInvoked(@NotNull EditorIntentionActionEvent event) {
-        startInvocation(event, event.getAction().getIntentionId());
+        startInvocation(event, event.getAction().getIntentionId(), () -> null);
     }
 
     @Override
@@ -75,9 +80,13 @@ public final class ActionTelemetryListener extends TelemetryListener implements 
         recordInvocation(event);
     }
 
-    private void startInvocation(@NotNull Object event, @NotNull String actionId) {
+    private void startInvocation(
+            @NotNull Object event,
+            @NotNull String actionId,
+            @NotNull Supplier<ConnectionHandler> connection) {
+        Map<String, String> databaseInfo = databaseAttributes(connection);
         long startedAtNanos = start();
-        if (startedAtNanos != 0) actionStarts.put(event, new ActionStart(actionId, startedAtNanos));
+        if (startedAtNanos != 0) actionStarts.put(event, new ActionStart(actionId, startedAtNanos, databaseInfo));
     }
 
     /** Uses registered identifiers first, then the qualified class name for named DBN actions. */
@@ -110,8 +119,12 @@ public final class ActionTelemetryListener extends TelemetryListener implements 
         ActionStart start = actionStarts.remove(event);
         if (start == null) return;
 
-        recordDuration(start.startedAtNanos(), () -> Map.of("action_id", start.actionId()));
+        recordDuration(start.startedAtNanos(), () -> {
+            Map<String, String> attributes = new HashMap<>(start.databaseInfo());
+            attributes.put("action_id", start.actionId());
+            return attributes;
+        });
     }
 
-    private record ActionStart(String actionId, long startedAtNanos) {}
+    private record ActionStart(String actionId, long startedAtNanos, Map<String, String> databaseInfo) {}
 }

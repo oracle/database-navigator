@@ -19,12 +19,14 @@ package com.dbn.common.action;
 import com.dbn.common.Reflection;
 import com.dbn.common.compatibility.Workaround;
 import com.dbn.common.ref.WeakRef;
+import com.dbn.common.ui.component.DBNComponent;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.DataProvider;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.common.action.DataKeys.CONNECTION_HANDLER;
 import static com.dbn.common.action.DataKeys.PARENT_DISPOSABLE;
 
 @Deprecated // TODO consider using com.intellij.openapi.actionSystem.CompositeDataProvider
@@ -60,7 +62,14 @@ public class CompositeDataProvider implements DataProvider {
             return delegate;
         }
 
-        return delegate.getData(dataId);
+        data = delegate.getData(dataId);
+        if (data != null) return data;
+
+        // Form-specific keys retain priority; connection context is supplied independently of getData overrides.
+        if (CONNECTION_HANDLER.is(dataId) && delegate instanceof DBNComponent component) {
+            return component.isDisposed() ? null : component.getConnection();
+        }
+        return null;
     }
 
     @Workaround // OverrideOnly DataProvider

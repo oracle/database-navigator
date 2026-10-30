@@ -28,6 +28,7 @@ import com.dbn.assistant.tool.config.ui.AssistantToolApprovalItemForm;
 import com.dbn.batch.ui.BatchMonitorForm;
 import com.dbn.common.ui.component.DBNDiscardableComponent;
 import com.dbn.common.ui.component.DBNFoldableComponent;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.config.ui.ConnectionBundleSettingsForm;
 import com.dbn.data.editor.ui.array.ArrayEditorPopupProviderForm;
 import com.dbn.data.editor.ui.calendar.CalendarPopupProviderForm;
@@ -57,6 +58,7 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.DataKey;
 
 public interface DataKeys {
+    DataKey<ConnectionHandler> CONNECTION_HANDLER = DataKey.create("DBNavigator.ConnectionHandler");
     DataKey<DatasetEditor> DATASET_EDITOR = DataKey.create("DBNavigator.DatasetEditor");
     DataKey<JsonDataEditor> JSON_DATA_EDITOR = DataKey.create("DBNavigator.JsonDataEditor");
     DataKey<MessagesTree> MESSAGES_TREE = DataKey.create("DBNavigator.MessagesTree");
