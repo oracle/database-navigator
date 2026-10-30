@@ -16,6 +16,7 @@
 
 package com.dbn.object.factory.ui.common;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -27,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JPanel;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_BROWSER;
 
 public class DBObjectFactoryInputListItemForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -67,6 +69,7 @@ public class DBObjectFactoryInputListItemForm extends DBNFormBase {
         objectDetailsComponent = (JPanel) inputForm.getComponent();
     }
 
+    @ActionFeature(DATABASE_BROWSER)
     public class RemoveObjectAction extends BasicAction {
         RemoveObjectAction() {
             super(txt("app.objects.action.RemoveObject", getObjectTypeName()), null, Icons.ACTION_DELETE);
