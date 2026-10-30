@@ -18,23 +18,18 @@ package com.dbn.telemetry.listener;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.telemetry.TelemetryManager;
-import com.dbn.telemetry.metrics.HistogramMetric;
-import com.dbn.telemetry.metrics.MetricKey;
-import com.dbn.telemetry.metrics.MetricType;
+import com.dbn.telemetry.TelemetryType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
-/** Shared consent checks and duration recording for telemetry collectors. */
+/** Shared consent checks and database attributes for telemetry collectors. */
 public abstract class TelemetryListener {
-    protected abstract @NotNull String getMetricName();
-
-    protected abstract @NotNull List<Double> getDurationBucketsSeconds();
+    protected abstract @NotNull TelemetryType getTelemetryType();
 
     /** Snapshots only cached database attributes; no connection is retained or queried. */
     protected static @NotNull Map<String, String> databaseAttributes(@NotNull Supplier<ConnectionHandler> connectionSupplier) {
@@ -63,27 +58,6 @@ public abstract class TelemetryListener {
         } catch (RuntimeException exception) {
             conditionallyLog(exception);
             return false;
-        }
-    }
-
-    protected static long start() {
-        return isCollectionEnabled() ? System.nanoTime() : 0;
-    }
-
-    protected final void recordDuration(
-            long startedAtNanos,
-            @NotNull Supplier<Map<String, String>> attributes) {
-        if (startedAtNanos == 0) return;
-        double durationSeconds = (System.nanoTime() - startedAtNanos) / 1_000_000_000.0;
-        try {
-            TelemetryManager manager = TelemetryManager.getInstance();
-            if (!manager.isCollectionEnabled()) return;
-
-            MetricKey key = new MetricKey(getMetricName(), MetricType.HISTOGRAM, "s", attributes.get());
-            manager.recordMetric(HistogramMetric.observation(key, getDurationBucketsSeconds(), durationSeconds));
-        } catch (RuntimeException exception) {
-            // Telemetry must not interfere with the operation being measured.
-            conditionallyLog(exception);
         }
     }
 }

@@ -51,7 +51,7 @@ public final class ExecutionTelemetryWrapper {
     }
 
     public <T> T collectTelemetryData(@NotNull ThrowableCallable<T, SQLException> callable) throws SQLException {
-        long startedAtNanos = TelemetryListener.start();
+        long startedAtNanos = DurationTelemetryListener.start();
         try {
             T result = callable.call();
             if (outcome == null) outcome = OutcomeType.SUCCESS;
@@ -78,16 +78,9 @@ public final class ExecutionTelemetryWrapper {
         if (this.outcome != OutcomeType.TIMEOUT) this.outcome = outcome;
     }
 
-    public void collectCancellationData(@NotNull Runnable cancellation) {
+    /** Marks the request so cancellation-related SQL failures retain the CANCELLED outcome. */
+    public void runCancellation(@NotNull Runnable cancellation) {
         cancellationRequested = true;
-        long startedAtNanos = TelemetryListener.start();
-        boolean completed = false;
-        try {
-            cancellation.run();
-            completed = true;
-        } finally {
-            OutcomeType cancellationOutcome = completed ? OutcomeType.SUCCESS : OutcomeType.ERROR;
-            listener.recordCancellation(startedAtNanos, cancellationOutcome, databaseAttributes);
-        }
+        cancellation.run();
     }
 }

@@ -16,6 +16,8 @@
 
 package com.dbn.telemetry.listener;
 
+import com.dbn.telemetry.TelemetryType;
+
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -39,8 +41,7 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
  * Records the visible duration of a DBN dialog each time its window is shown.
  */
 @NonNls
-public final class DialogTelemetryListener extends TelemetryListener {
-    private static final String DURATION_METRIC_NAME = "dbn.dialog.duration";
+public final class DialogTelemetryListener extends DurationTelemetryListener {
     private static final List<Double> DURATION_BUCKETS_SECONDS = List.of(
             0.1, 0.5, 1.0, 2.5, 5.0, 10.0, 30.0, 60.0, 120.0, 300.0, 600.0, 1800.0, 3600.0);
 
@@ -58,8 +59,8 @@ public final class DialogTelemetryListener extends TelemetryListener {
     }
 
     @Override
-    protected @NotNull String getMetricName() {
-        return DURATION_METRIC_NAME;
+    protected @NotNull TelemetryType getTelemetryType() {
+        return TelemetryType.DIALOG_USAGE;
     }
 
     @Override

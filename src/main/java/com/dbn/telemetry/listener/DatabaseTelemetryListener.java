@@ -16,6 +16,8 @@
 
 package com.dbn.telemetry.listener;
 
+import com.dbn.telemetry.TelemetryType;
+
 import com.dbn.common.outcome.OutcomeType;
 import com.dbn.common.routine.ThrowableCallable;
 import com.dbn.connection.ConnectionHandler;
@@ -41,15 +43,14 @@ import static com.dbn.common.outcome.OutcomeType.TIMEOUT;
 /** Aggregates database interface execution; result-set consumption is outside this measurement. */
 @NonNls
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class DatabaseTelemetryListener extends TelemetryListener {
+public final class DatabaseTelemetryListener extends DurationTelemetryListener {
     private static final DatabaseTelemetryListener INSTANCE = new DatabaseTelemetryListener();
-    private static final String DURATION_METRIC_NAME = "dbn.database.interface.duration";
     private static final List<Double> DURATION_BUCKETS_SECONDS = List.of(
             0.01, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0, 30.0, 60.0, 120.0);
 
     @Override
-    protected @NotNull String getMetricName() {
-        return DURATION_METRIC_NAME;
+    protected @NotNull TelemetryType getTelemetryType() {
+        return TelemetryType.DATABASE_CALL;
     }
 
     @Override

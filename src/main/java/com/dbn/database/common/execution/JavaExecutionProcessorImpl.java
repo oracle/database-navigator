@@ -271,7 +271,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 
             @Override
             public void cancel() {
-                telemetry.collectCancellationData(() -> Resources.cancel(context.getStatement()));
+                telemetry.runCancellation(() -> Resources.cancel(context.getStatement()));
             }
         };
 		telemetry.collectTelemetryData(call::start);

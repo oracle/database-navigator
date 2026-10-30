@@ -492,7 +492,7 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
             @Override
             public void cancel() {
                 try {
-                    telemetry.collectCancellationData(() -> Resources.cancel(statement));
+                    telemetry.runCancellation(() -> Resources.cancel(statement));
                 } finally {
                     databaseCall = null;
                 }

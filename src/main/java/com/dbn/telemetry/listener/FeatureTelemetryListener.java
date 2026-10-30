@@ -20,8 +20,8 @@ import com.dbn.code.common.intention.EditorIntentionActionEvent;
 import com.dbn.code.common.intention.EditorIntentionActionListener;
 import com.dbn.common.action.ActionFeatures;
 import com.dbn.options.general.WorkspaceFeature;
-import com.dbn.telemetry.ActionTelemetry;
 import com.dbn.telemetry.TelemetryManager;
+import com.dbn.telemetry.TelemetryType;
 import com.dbn.telemetry.metrics.CounterMetric;
 import com.dbn.telemetry.metrics.MetricKey;
 import com.dbn.telemetry.metrics.MetricType;
@@ -42,7 +42,12 @@ import static com.dbn.telemetry.ActionTelemetry.isTelemetryEnabled;
  * or distinct users; reports can be grouped by client ID to evaluate adoption.
  */
 @NonNls
-public final class FeatureTelemetryListener implements AnActionListener, EditorIntentionActionListener {
+public final class FeatureTelemetryListener extends TelemetryListener implements AnActionListener, EditorIntentionActionListener {
+    @Override
+    protected @NotNull TelemetryType getTelemetryType() {
+        return TelemetryType.FEATURE_USAGE;
+    }
+
     @Override
     public void beforeActionPerformed(@NotNull AnAction action, @NotNull AnActionEvent event) {
         if (isTelemetryEnabled(action, event)) recordUsage(action.getClass());
@@ -53,16 +58,16 @@ public final class FeatureTelemetryListener implements AnActionListener, EditorI
         recordUsage(event.getAction().getClass());
     }
 
-    private static void recordUsage(@NotNull Class<?> actionClass) {
+    private void recordUsage(@NotNull Class<?> actionClass) {
         try {
             TelemetryManager manager = TelemetryManager.getInstance();
-            if (!manager.isCollectionEnabled()) return;
+            if (!isCollectionEnabled()) return;
 
             WorkspaceFeature feature = ActionFeatures.getFeature(actionClass);
             if (feature == null) return;
 
             MetricKey key = new MetricKey(
-                    "dbn.feature.usage",
+                    getTelemetryType().getMetricName(),
                     MetricType.SUM,
                     "{invocation}",
                     Map.of("feature", feature.name().toLowerCase(Locale.ROOT)));

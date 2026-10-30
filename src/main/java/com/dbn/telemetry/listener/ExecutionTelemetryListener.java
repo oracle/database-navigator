@@ -18,6 +18,7 @@ package com.dbn.telemetry.listener;
 
 import com.dbn.common.outcome.OutcomeType;
 import com.dbn.execution.ExecutionType;
+import com.dbn.telemetry.TelemetryType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumMap;
@@ -28,13 +29,11 @@ import java.util.Map;
 
 /**
  * Measures the execution engine's cancellable call, excluding prompts, queueing and later result fetching.
- * Cancellation duration measures the cancellation handler, not confirmation that database work has stopped.
  */
-public final class ExecutionTelemetryListener extends TelemetryListener {
+public final class ExecutionTelemetryListener extends DurationTelemetryListener {
 
     private static final List<Double> DURATION_BUCKETS_SECONDS = List.of(
             0.01, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0, 30.0, 60.0, 120.0, 300.0, 600.0);
-    private static final CancellationTelemetryListener CANCELLATION_LISTENER = new CancellationTelemetryListener();
 
     private static final Map<ExecutionType, ExecutionTelemetryListener> LISTENERS = new EnumMap<>(ExecutionType.class);
 
@@ -55,8 +54,8 @@ public final class ExecutionTelemetryListener extends TelemetryListener {
     }
 
     @Override
-    protected @NotNull String getMetricName() {
-        return "dbn.execution.duration";
+    protected @NotNull TelemetryType getTelemetryType() {
+        return TelemetryType.EXECUTION;
     }
 
     @Override
@@ -68,26 +67,10 @@ public final class ExecutionTelemetryListener extends TelemetryListener {
         recordDuration(startedAtNanos, () -> attributes(outcome, databaseAttributes));
     }
 
-    void recordCancellation(long startedAtNanos, @NotNull OutcomeType outcome, @NotNull Map<String, String> databaseAttributes) {
-        CANCELLATION_LISTENER.recordDuration(startedAtNanos, () -> attributes(outcome, databaseAttributes));
-    }
-
     private Map<String, String> attributes(OutcomeType outcome, Map<String, String> databaseAttributes) {
         Map<String, String> attributes = new HashMap<>(databaseAttributes);
         attributes.put("execution_type", executionType.name().toLowerCase(Locale.ROOT));
         attributes.put("outcome", outcome.name().toLowerCase(Locale.ROOT));
         return attributes;
-    }
-
-    private static final class CancellationTelemetryListener extends TelemetryListener {
-        @Override
-        protected @NotNull String getMetricName() {
-            return "dbn.execution.cancellation.duration";
-        }
-
-        @Override
-        protected @NotNull List<Double> getDurationBucketsSeconds() {
-            return DURATION_BUCKETS_SECONDS;
-        }
     }
 }

@@ -209,7 +209,7 @@ public abstract class MethodExecutionProcessorImpl implements MethodExecutionPro
 
             @Override
             public void cancel() {
-                telemetry.collectCancellationData(() -> Resources.cancel(context.getStatement()));
+                telemetry.runCancellation(() -> Resources.cancel(context.getStatement()));
             }
         };
         MethodExecutionResult executionResult = telemetry.collectTelemetryData(call::start);

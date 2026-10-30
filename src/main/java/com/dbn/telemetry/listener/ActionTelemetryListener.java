@@ -16,10 +16,11 @@
 
 package com.dbn.telemetry.listener;
 
+import com.dbn.telemetry.TelemetryType;
+
 import com.dbn.code.common.intention.EditorIntentionActionEvent;
 import com.dbn.code.common.intention.EditorIntentionActionListener;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.telemetry.ActionTelemetry;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.AnActionResult;
@@ -43,16 +44,15 @@ import static com.dbn.telemetry.ActionTelemetry.resolveActionId;
  * number of invocations observed by this listener.
  */
 @NonNls
-public final class ActionTelemetryListener extends TelemetryListener implements AnActionListener, EditorIntentionActionListener {
-    private static final String DURATION_METRIC_NAME = "dbn.action.duration";
+public final class ActionTelemetryListener extends DurationTelemetryListener implements AnActionListener, EditorIntentionActionListener {
     private static final List<Double> DURATION_BUCKETS_SECONDS = List.of(
             0.01, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0, 30.0);
 
     private final Map<Object, ActionStart> actionStarts = CollectionFactory.createConcurrentWeakMap();
 
     @Override
-    protected @NotNull String getMetricName() {
-        return DURATION_METRIC_NAME;
+    protected @NotNull TelemetryType getTelemetryType() {
+        return TelemetryType.ACTION_INVOCATION;
     }
 
     @Override

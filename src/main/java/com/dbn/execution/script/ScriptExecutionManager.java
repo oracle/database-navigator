@@ -268,7 +268,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
 
                 @Override
                 public void cancel() {
-                    telemetry.collectCancellationData(outputContext::stop);
+                    telemetry.runCancellation(() -> outputContext.stop());
                 }
 
                 @Override

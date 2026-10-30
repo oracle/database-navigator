@@ -16,6 +16,8 @@
 
 package com.dbn.telemetry.listener;
 
+import com.dbn.telemetry.TelemetryType;
+
 import com.dbn.common.outcome.OutcomeType;
 import com.dbn.common.routine.ThrowableCallable;
 import com.dbn.connection.ConnectionHandler;
@@ -42,14 +44,14 @@ import static com.dbn.common.outcome.OutcomeType.TIMEOUT;
 /** Measures managed connection establishment, including session initialization. */
 @NonNls
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class ConnectionTelemetryListener extends TelemetryListener {
+public final class ConnectionTelemetryListener extends DurationTelemetryListener {
     private static final ConnectionTelemetryListener INSTANCE = new ConnectionTelemetryListener();
     private static final List<Double> DURATION_BUCKETS_SECONDS = List.of(
             0.1, 0.5, 1.0, 2.5, 5.0, 10.0, 30.0, 60.0, 120.0);
 
     @Override
-    protected @NotNull String getMetricName() {
-        return "dbn.connection.duration";
+    protected @NotNull TelemetryType getTelemetryType() {
+        return TelemetryType.CONNECTION;
     }
 
     @Override
