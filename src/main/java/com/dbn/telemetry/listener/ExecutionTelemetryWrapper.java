@@ -18,12 +18,18 @@ package com.dbn.telemetry.listener;
 
 import com.dbn.common.outcome.OutcomeType;
 import com.dbn.common.routine.ThrowableCallable;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.execution.ExecutionType;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
 import java.sql.SQLTimeoutException;
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 /** Mutable telemetry state for one execution, separate from its cached listener. */
 public final class ExecutionTelemetryWrapper {
@@ -31,14 +37,37 @@ public final class ExecutionTelemetryWrapper {
     private volatile boolean cancellationRequested;
 
     private final ExecutionTelemetryListener listener;
+    private final Map<String, String> databaseAttributes;
 
-    private ExecutionTelemetryWrapper(@NotNull ExecutionTelemetryListener listener) {
+    private ExecutionTelemetryWrapper(
+            @NotNull ExecutionTelemetryListener listener,
+            @NotNull Map<String, String> databaseAttributes) {
         this.listener = listener;
+        this.databaseAttributes = databaseAttributes;
     }
 
-    public static @NotNull ExecutionTelemetryWrapper telemetryWrapper(@NotNull ExecutionType executionType) {
+    public static @NotNull ExecutionTelemetryWrapper telemetryWrapper(
+            @NotNull ExecutionType executionType,
+            @Nullable ConnectionHandler connection) {
         ExecutionTelemetryListener listener = ExecutionTelemetryListener.getInstance(executionType);
-        return new ExecutionTelemetryWrapper(listener);
+        return new ExecutionTelemetryWrapper(listener, databaseAttributes(connection));
+    }
+
+    private static Map<String, String> databaseAttributes(@Nullable ConnectionHandler connection) {
+        Map<String, String> attributes = new HashMap<>();
+        if (connection != null && TelemetryListener.isCollectionEnabled()) {
+            try {
+                attributes.put("database_type", connection.getDatabaseType().name());
+                double version = connection.getDatabaseVersion();
+                // Connection settings use 9999 until the database version is known.
+                if (Double.isFinite(version) && version > 0 && version != 9999) {
+                    attributes.put("database_version", Double.toString(version));
+                }
+            } catch (RuntimeException exception) {
+                conditionallyLog(exception);
+            }
+        }
+        return Map.copyOf(attributes);
     }
 
     public <T> T collectTelemetryData(@NotNull ThrowableCallable<T, SQLException> callable) throws SQLException {
@@ -60,7 +89,7 @@ public final class ExecutionTelemetryWrapper {
             outcome = OutcomeType.ERROR;
             throw exception;
         } finally {
-            listener.recordExecution(startedAtNanos, outcome == null ? OutcomeType.ERROR : outcome);
+            listener.recordExecution(startedAtNanos, outcome == null ? OutcomeType.ERROR : outcome, databaseAttributes);
         }
     }
 
@@ -78,7 +107,7 @@ public final class ExecutionTelemetryWrapper {
             completed = true;
         } finally {
             OutcomeType cancellationOutcome = completed ? OutcomeType.SUCCESS : OutcomeType.ERROR;
-            listener.recordCancellation(startedAtNanos, cancellationOutcome);
+            listener.recordCancellation(startedAtNanos, cancellationOutcome, databaseAttributes);
         }
     }
 }

@@ -257,7 +257,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		ConnectionHandler connection = nd(context.getTargetConnection());
 		DBNConnection conn = context.getConnection();
 
-		ExecutionTelemetryWrapper telemetry = telemetryWrapper(JAVA);
+		ExecutionTelemetryWrapper telemetry = telemetryWrapper(JAVA, connection);
 		CancellableDatabaseCall<JavaExecutionResult> call = new CancellableDatabaseCall<>(
                 connection,
                 conn,

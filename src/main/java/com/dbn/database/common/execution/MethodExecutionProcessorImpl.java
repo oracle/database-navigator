@@ -195,7 +195,7 @@ public abstract class MethodExecutionProcessorImpl implements MethodExecutionPro
         ConnectionHandler connection = nd(context.getTargetConnection());
         DBNConnection conn = context.getConnection();
 
-        ExecutionTelemetryWrapper telemetry = telemetryWrapper(METHOD);
+        ExecutionTelemetryWrapper telemetry = telemetryWrapper(METHOD, connection);
         CancellableDatabaseCall<MethodExecutionResult> call = new CancellableDatabaseCall<MethodExecutionResult>(
                 connection,
                 conn,

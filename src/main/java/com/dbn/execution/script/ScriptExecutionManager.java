@@ -197,7 +197,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
         int timeout = input.getExecutionTimeout();
         executionManager.writeLogOutput(outputContext, createSysOutput(outputContext, txt("log.execution.info.InitializingScriptExecution"), input.isClearOutput()));
 
-        ExecutionTelemetryWrapper telemetry = telemetryWrapper(SCRIPT);
+        ExecutionTelemetryWrapper telemetry = telemetryWrapper(SCRIPT, connection);
         try {
             CancellableDatabaseCall<Object> call = new CancellableDatabaseCall<>(connection, null, timeout, SECONDS) {
                 @Override

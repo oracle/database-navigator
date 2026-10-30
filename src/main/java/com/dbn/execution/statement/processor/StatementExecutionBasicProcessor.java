@@ -477,7 +477,7 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
         assertNotCancelled();
 
         executionInput.bindExecutionVariables(connection, statement);
-        ExecutionTelemetryWrapper telemetry = telemetryWrapper(STATEMENT);
+        ExecutionTelemetryWrapper telemetry = telemetryWrapper(STATEMENT, connection);
         CancellableDatabaseCall<StatementExecutionResult> call = new CancellableDatabaseCall<>(connection, conn, timeout, TimeUnit.SECONDS) {
             @Override
             public StatementExecutionResult execute() throws Exception {

@@ -21,6 +21,7 @@ import com.dbn.execution.ExecutionType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -63,17 +64,19 @@ public final class ExecutionTelemetryListener extends TelemetryListener {
         return DURATION_BUCKETS_SECONDS;
     }
 
-    void recordExecution(long startedAtNanos, @NotNull OutcomeType outcome) {
-        recordDuration(startedAtNanos, () -> attributes(outcome));
+    void recordExecution(long startedAtNanos, @NotNull OutcomeType outcome, @NotNull Map<String, String> databaseAttributes) {
+        recordDuration(startedAtNanos, () -> attributes(outcome, databaseAttributes));
     }
 
-    void recordCancellation(long startedAtNanos, @NotNull OutcomeType outcome) {
-        CANCELLATION_LISTENER.recordDuration(startedAtNanos, () -> attributes(outcome));
+    void recordCancellation(long startedAtNanos, @NotNull OutcomeType outcome, @NotNull Map<String, String> databaseAttributes) {
+        CANCELLATION_LISTENER.recordDuration(startedAtNanos, () -> attributes(outcome, databaseAttributes));
     }
 
-    private Map<String, String> attributes(OutcomeType outcome) {
-        return Map.of("execution_type", executionType.name().toLowerCase(Locale.ROOT),
-                "outcome", outcome.name().toLowerCase(Locale.ROOT));
+    private Map<String, String> attributes(OutcomeType outcome, Map<String, String> databaseAttributes) {
+        Map<String, String> attributes = new HashMap<>(databaseAttributes);
+        attributes.put("execution_type", executionType.name().toLowerCase(Locale.ROOT));
+        attributes.put("outcome", outcome.name().toLowerCase(Locale.ROOT));
+        return attributes;
     }
 
     private static final class CancellationTelemetryListener extends TelemetryListener {
