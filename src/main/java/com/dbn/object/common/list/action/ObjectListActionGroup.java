@@ -16,6 +16,7 @@
 
 package com.dbn.object.common.list.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.DatabaseEntity;
@@ -40,6 +41,7 @@ import static com.dbn.vfs.DBConsoleType.DEBUG;
 import static com.dbn.vfs.DBConsoleType.SEARCH;
 import static com.dbn.vfs.DBConsoleType.STANDARD;
 
+@ActionFeature(DATABASE_BROWSER)
 public class ObjectListActionGroup extends DefaultActionGroup {
 
     public ObjectListActionGroup(DBObjectList objectList) {

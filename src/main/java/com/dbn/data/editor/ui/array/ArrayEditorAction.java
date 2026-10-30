@@ -16,6 +16,7 @@
 
 package com.dbn.data.editor.ui.array;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.DataKeys;
@@ -25,7 +26,10 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
+import static com.dbn.options.general.WorkspaceFeature.DATA_EDITOR;
+
 @BackgroundUpdate
+@ActionFeature(DATA_EDITOR)
 public abstract class ArrayEditorAction extends BasicAction {
     public ArrayEditorAction(@Nullable String text, @Nullable String description, @Nullable Icon icon) {
         super(text, description, icon);

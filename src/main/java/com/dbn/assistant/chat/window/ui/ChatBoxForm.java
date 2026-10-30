@@ -34,6 +34,7 @@ import com.dbn.assistant.chat.message.ui.ChatMessagesForm;
 import com.dbn.assistant.chat.ui.ChatSaveDialog;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateListener;
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.action.DataKeys;
@@ -73,6 +74,7 @@ import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_ASSISTANT;
 
 /**
  * Database Assistant ChatBox component
@@ -583,6 +585,7 @@ public class ChatBoxForm extends DBNFormBase {
         messagesForm.collapseAllMessages();
     }
 
+    @ActionFeature(DATABASE_ASSISTANT)
     private class SelectAssistantTypeAction extends BasicAction {
         private final AssistantType assistantType;
         public SelectAssistantTypeAction(AssistantType assistantType) {

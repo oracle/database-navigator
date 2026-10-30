@@ -16,6 +16,7 @@
 
 package com.dbn.object.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.attributes.Attributes;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
@@ -34,7 +35,9 @@ import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.common.property.DBObjectProperty.DISABLEABLE;
 import static com.dbn.object.common.property.DBObjectProperty.SYSTEM_OBJECT;
 import static com.dbn.object.common.status.DBObjectStatus.DISABLED;
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_BROWSER;
 
+@ActionFeature(DATABASE_BROWSER)
 public class ObjectEnableDisableAction extends AnObjectAction<DBObject> {
     ObjectEnableDisableAction(DBObject object) {
         super(object);

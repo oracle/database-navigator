@@ -16,6 +16,7 @@
 
 package com.dbn.menu.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.icon.Icons;
@@ -45,12 +46,14 @@ import static com.dbn.common.util.Lists.convert;
 import static com.dbn.database.DatabaseFeature.DEBUGGING;
 import static com.dbn.database.DatabaseFeature.VECTOR_SEARCH;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.CODE_EDITOR;
 import static com.dbn.options.general.WorkspaceFeature.DEBUGGER;
 import static com.dbn.options.general.WorkspaceFeature.VECTOR_TOOLBOX;
 import static com.dbn.vfs.DBConsoleType.DEBUG;
 import static com.dbn.vfs.DBConsoleType.SEARCH;
 import static com.dbn.vfs.DBConsoleType.STANDARD;
 
+@ActionFeature(CODE_EDITOR)
 public class SQLConsoleOpenAction extends ProjectAction {
 
     public SQLConsoleOpenAction() {
@@ -87,6 +90,7 @@ public class SQLConsoleOpenAction extends ProjectAction {
                 buildAndShowCentered();
     }
 
+    @ActionFeature(CODE_EDITOR)
     private static class SelectConnectionAction extends ActionGroup {
         private final ConnectionRef connection;
 
@@ -130,6 +134,7 @@ public class SQLConsoleOpenAction extends ProjectAction {
         }
     }
 
+    @ActionFeature(CODE_EDITOR)
     private static class SelectConsoleAction extends BasicAction {
         private ConnectionRef connection;
         private DBConsole console;

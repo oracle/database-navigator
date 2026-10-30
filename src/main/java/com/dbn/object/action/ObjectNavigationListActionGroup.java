@@ -16,6 +16,7 @@
 
 package com.dbn.object.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.list.DBObjectNavigationList;
@@ -25,7 +26,9 @@ import com.dbn.object.lookup.DBObjectRef;
 import java.util.List;
 
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_BROWSER;
 
+@ActionFeature(DATABASE_BROWSER)
 public class ObjectNavigationListActionGroup extends DefaultActionGroup {
     public static final int MAX_ITEMS = 30;
     private final DBObjectNavigationList<?> navigationList;

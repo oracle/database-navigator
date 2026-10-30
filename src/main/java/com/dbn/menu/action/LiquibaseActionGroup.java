@@ -16,12 +16,16 @@
 
 package com.dbn.menu.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.options.general.WorkspaceFeature;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.options.general.WorkspaceFeature.LIQUIBASE;
+
+@ActionFeature(LIQUIBASE)
 public class LiquibaseActionGroup extends DefaultActionGroup {
     @Override
     public void update(@NotNull AnActionEvent e) {

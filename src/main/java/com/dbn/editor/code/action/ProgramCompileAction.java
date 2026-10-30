@@ -16,6 +16,7 @@
 
 package com.dbn.editor.code.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.connection.operation.options.OperationSettings;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.editor.DBContentType;
@@ -42,7 +43,9 @@ import static com.dbn.editor.DBContentType.CODE_BODY;
 import static com.dbn.editor.DBContentType.CODE_SPEC;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
+import static com.dbn.options.general.WorkspaceFeature.EXECUTION_ENGINE;
 
+@ActionFeature(EXECUTION_ENGINE)
 public class ProgramCompileAction extends AbstractCodeEditorAction {
 
     public ProgramCompileAction() {

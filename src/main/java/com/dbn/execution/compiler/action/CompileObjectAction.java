@@ -16,6 +16,7 @@
 
 package com.dbn.execution.compiler.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.connection.operation.options.OperationSettings;
 import com.dbn.editor.DBContentType;
@@ -37,7 +38,9 @@ import static com.dbn.object.common.status.DBObjectStatus.COMPILING;
 import static com.dbn.object.common.status.DBObjectStatus.DEBUG;
 import static com.dbn.object.common.status.DBObjectStatus.PRESENT;
 import static com.dbn.object.common.status.DBObjectStatus.VALID;
+import static com.dbn.options.general.WorkspaceFeature.EXECUTION_ENGINE;
 
+@ActionFeature(EXECUTION_ENGINE)
 public class CompileObjectAction extends BasicAction {
     private final DBObjectRef<DBSchemaObject> objectRef;
     private final DBContentType contentType;

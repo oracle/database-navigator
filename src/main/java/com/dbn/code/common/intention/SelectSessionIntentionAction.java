@@ -16,6 +16,7 @@
 
 package com.dbn.code.common.intention;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Context;
 import com.dbn.connection.ConnectionHandler;
@@ -37,7 +38,9 @@ import static com.dbn.assistant.editor.AssistantPrompt.Flavor.COMMENT;
 import static com.dbn.common.util.Editors.isMainEditor;
 import static com.dbn.common.util.Files.isDbLanguagePsiFile;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.SESSION_BROWSER;
 
+@ActionFeature(SESSION_BROWSER)
 public class SelectSessionIntentionAction extends EditorIntentionAction  {
     @Override
     public EditorIntentionType getType() {

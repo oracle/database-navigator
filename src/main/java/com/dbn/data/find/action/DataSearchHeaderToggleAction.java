@@ -16,6 +16,7 @@
 
 package com.dbn.data.find.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ToggleAction;
 import com.dbn.data.find.DataSearchComponent;
 import com.intellij.find.FindModel;
@@ -25,7 +26,10 @@ import lombok.Getter;
 
 import javax.swing.Icon;
 
+import static com.dbn.options.general.WorkspaceFeature.DATA_EDITOR;
+
 @Getter
+@ActionFeature(DATA_EDITOR)
 public abstract class DataSearchHeaderToggleAction extends ToggleAction implements DumbAware {
     private final DataSearchComponent searchComponent;
 

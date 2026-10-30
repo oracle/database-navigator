@@ -16,6 +16,7 @@
 
 package com.dbn.execution.logging.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.action.ToggleAction;
@@ -36,8 +37,10 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.EXECUTION_ENGINE;
 
 @BackgroundUpdate
+@ActionFeature(EXECUTION_ENGINE)
 public class DatabaseLoggingToggleAction extends ToggleAction implements DumbAware {
 
     public DatabaseLoggingToggleAction() {

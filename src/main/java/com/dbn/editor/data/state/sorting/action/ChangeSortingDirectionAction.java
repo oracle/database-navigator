@@ -16,6 +16,7 @@
 
 package com.dbn.editor.data.state.sorting.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.data.sorting.SortDirection;
@@ -28,7 +29,9 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.Icon;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DATA_EDITOR;
 
+@ActionFeature(DATA_EDITOR)
 public class ChangeSortingDirectionAction extends BasicAction {
     private final DatasetSortingColumnForm form;
 

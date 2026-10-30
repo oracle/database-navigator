@@ -16,6 +16,7 @@
 
 package com.dbn.ddl.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.options.ConfigId;
 import com.dbn.options.action.ProjectSettingsOpenAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -23,7 +24,9 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DDL_INTEGRATION;
 
+@ActionFeature(DDL_INTEGRATION)
 public class DDLFileSettingsAction extends ProjectSettingsOpenAction {
     public DDLFileSettingsAction() {
         super(ConfigId.DDL_FILES, false);

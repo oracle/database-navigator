@@ -16,6 +16,7 @@
 
 package com.dbn.data.editor.text.actions;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.ref.WeakRef;
@@ -32,6 +33,9 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
 
+import static com.dbn.options.general.WorkspaceFeature.DATA_EDITOR;
+
+@ActionFeature(DATA_EDITOR)
 public class TextContentTypeComboBoxAction extends ComboBoxAction {
     private final WeakRef<TextContentTypeOwner> owner;
 

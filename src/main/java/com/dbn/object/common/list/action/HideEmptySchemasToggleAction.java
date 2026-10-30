@@ -17,6 +17,7 @@
 package com.dbn.object.common.list.action;
 
 import com.dbn.browser.options.ObjectFilterChangeListener;
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
@@ -27,7 +28,9 @@ import org.jetbrains.annotations.NotNull;
 import static com.dbn.database.DatabaseFeature.EMPTY_SCHEMA_EVALUATION;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_BROWSER;
 
+@ActionFeature(DATABASE_BROWSER)
 public class HideEmptySchemasToggleAction extends AbstractConnectionToggleAction {
 
     public HideEmptySchemasToggleAction(ConnectionHandler connection) {

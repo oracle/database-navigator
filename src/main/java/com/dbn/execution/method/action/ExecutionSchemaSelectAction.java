@@ -16,6 +16,7 @@
 
 package com.dbn.execution.method.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.connection.SchemaId;
 import com.dbn.execution.method.MethodExecutionInput;
 import com.dbn.object.DBSchema;
@@ -24,6 +25,9 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.options.general.WorkspaceFeature.EXECUTION_ENGINE;
+
+@ActionFeature(EXECUTION_ENGINE)
 public class ExecutionSchemaSelectAction extends AnObjectAction<DBSchema> {
     private MethodExecutionInput executionInput;
 

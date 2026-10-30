@@ -16,6 +16,7 @@
 
 package com.dbn.connection.transaction.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.action.AbstractConnectionToggleAction;
@@ -26,7 +27,9 @@ import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.EXECUTION_ENGINE;
 
+@ActionFeature(EXECUTION_ENGINE)
 public class DatabaseLoggingToggleAction extends AbstractConnectionToggleAction {
 
     public DatabaseLoggingToggleAction(ConnectionHandler connection) {

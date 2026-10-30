@@ -16,6 +16,7 @@
 
 package com.dbn.diagnostics.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.diagnostics.Diagnostics;
 import com.dbn.diagnostics.ParserDiagnosticsManager;
@@ -26,8 +27,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.CODE_EDITOR;
 
 @Slf4j
+@ActionFeature(CODE_EDITOR)
 public class ParserDiagnosticsOpenAction extends ProjectAction {
 
     public ParserDiagnosticsOpenAction() {

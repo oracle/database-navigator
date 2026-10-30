@@ -16,6 +16,7 @@
 
 package com.dbn.editor.data.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ContextAction;
 import com.dbn.editor.data.DatasetEditor;
@@ -23,8 +24,11 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.options.general.WorkspaceFeature.DATA_EDITOR;
+
 @BackgroundUpdate
 @NoArgsConstructor
+@ActionFeature(DATA_EDITOR)
 abstract class AbstractDataEditorAction extends ContextAction<DatasetEditor> {
 
     protected AbstractDataEditorAction(String text) {

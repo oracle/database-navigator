@@ -16,6 +16,7 @@
 
 package com.dbn.ddl.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.ddl.DDLFileAttachmentManager;
 import com.dbn.object.action.AnObjectAction;
 import com.dbn.object.common.DBObject;
@@ -26,7 +27,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DDL_INTEGRATION;
 
+@ActionFeature(DDL_INTEGRATION)
 public class DDLFileAttachAction extends AnObjectAction<DBObject> {
     public DDLFileAttachAction(@NotNull DBObject object) {
         super(object);

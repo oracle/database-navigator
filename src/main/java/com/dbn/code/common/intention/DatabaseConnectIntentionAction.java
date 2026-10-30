@@ -16,6 +16,7 @@
 
 package com.dbn.code.common.intention;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
@@ -37,7 +38,9 @@ import static com.dbn.assistant.editor.AssistantPrompt.Flavor.COMMENT;
 import static com.dbn.assistant.editor.AssistantPrompt.Flavor.SELECTION;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.CONNECTION_MANAGEMENT;
 
+@ActionFeature(CONNECTION_MANAGEMENT)
 public class DatabaseConnectIntentionAction extends EditorIntentionAction {
     @Override
     public EditorIntentionType getType() {

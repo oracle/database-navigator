@@ -16,6 +16,7 @@
 
 package com.dbn.editor.session.ui;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.ToggleAction;
 import com.dbn.common.action.UserDataKeys;
@@ -62,6 +63,7 @@ import java.awt.BorderLayout;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.SESSION_BROWSER;
 
 public class SessionBrowserCurrentSqlPanel extends DBNFormBase {
     private JPanel actionsPanel;
@@ -197,6 +199,7 @@ public class SessionBrowserCurrentSqlPanel extends DBNFormBase {
         Editors.updateEditorScrollPane(viewer, null);
     }
 
+    @ActionFeature(SESSION_BROWSER)
     public class WrapUnwrapContentAction extends ToggleAction {
         WrapUnwrapContentAction() {
             super(txt("app.data.action.WrapUnwrap"), "", Icons.ACTION_WRAP_TEXT);
@@ -223,6 +226,7 @@ public class SessionBrowserCurrentSqlPanel extends DBNFormBase {
         }
     }
 
+    @ActionFeature(SESSION_BROWSER)
     public class RefreshAction extends BasicAction {
         RefreshAction() {
             super(txt("app.shared.action.Reload"), "", Icons.ACTION_REFRESH);

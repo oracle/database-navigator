@@ -16,6 +16,7 @@
 
 package com.dbn.editor.session.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.action.DataKeys;
@@ -41,7 +42,9 @@ import javax.swing.JComponent;
 import java.util.List;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.SESSION_BROWSER;
 
+@ActionFeature(SESSION_BROWSER)
 public abstract class AbstractFilterComboBoxAction extends ComboBoxAction implements DumbAware {
     private final SessionBrowserFilterType filterType;
 
@@ -119,6 +122,7 @@ public abstract class AbstractFilterComboBoxAction extends ComboBoxAction implem
         return null;
     }
 
+    @ActionFeature(SESSION_BROWSER)
     private class SelectFilterValueAction extends BasicAction {
         private final String filterValue;
 

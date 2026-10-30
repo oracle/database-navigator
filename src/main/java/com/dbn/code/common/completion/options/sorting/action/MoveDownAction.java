@@ -17,6 +17,7 @@
 package com.dbn.code.common.completion.options.sorting.action;
 
 import com.dbn.code.common.completion.options.sorting.CodeCompletionSortingSettings;
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.icon.Icons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -26,7 +27,9 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JList;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.CODE_EDITOR;
 
+@ActionFeature(CODE_EDITOR)
 public class MoveDownAction extends BasicAction {
     private final JList list;
     private final CodeCompletionSortingSettings settings;

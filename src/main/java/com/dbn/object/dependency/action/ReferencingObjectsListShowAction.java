@@ -16,6 +16,7 @@
 
 package com.dbn.object.dependency.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.object.action.NavigateToObjectAction;
 import com.dbn.object.action.ObjectListShowAction;
 import com.dbn.object.common.DBObject;
@@ -25,7 +26,9 @@ import com.intellij.openapi.actionSystem.AnAction;
 import java.util.List;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_BROWSER;
 
+@ActionFeature(DATABASE_BROWSER)
 public class ReferencingObjectsListShowAction extends ObjectListShowAction {
     public ReferencingObjectsListShowAction(DBSchemaObject object) {
         super(txt("app.objects.action.ReferencingObjects"), object);

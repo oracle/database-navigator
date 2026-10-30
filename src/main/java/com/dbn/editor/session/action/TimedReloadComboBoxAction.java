@@ -16,6 +16,7 @@
 
 package com.dbn.editor.session.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.action.DataKeys;
@@ -36,7 +37,9 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.SESSION_BROWSER;
 
+@ActionFeature(SESSION_BROWSER)
 public class TimedReloadComboBoxAction extends ComboBoxAction implements DumbAware {
 
     public TimedReloadComboBoxAction() {
@@ -107,6 +110,7 @@ public class TimedReloadComboBoxAction extends ComboBoxAction implements DumbAwa
         return sessionBrowser;
     }
 
+    @ActionFeature(SESSION_BROWSER)
     private static class SelectRefreshTimeAction extends BasicAction {
         private final int seconds;
 

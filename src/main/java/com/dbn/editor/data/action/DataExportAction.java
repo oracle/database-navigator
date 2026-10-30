@@ -16,6 +16,7 @@
 
 package com.dbn.editor.data.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.icon.Icons;
 import com.dbn.data.export.DataExportManager;
 import com.dbn.data.export.DataExportSource;
@@ -29,7 +30,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DATA_EXPORT;
 
+@ActionFeature(DATA_EXPORT)
 public class DataExportAction extends AbstractDataEditorAction {
 
     public DataExportAction() {

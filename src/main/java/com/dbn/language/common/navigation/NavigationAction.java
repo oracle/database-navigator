@@ -16,6 +16,7 @@
 
 package com.dbn.language.common.navigation;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.editor.code.SourceCodeManager;
 import com.dbn.language.common.PsiElementRef;
@@ -30,6 +31,9 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
+import static com.dbn.options.general.WorkspaceFeature.CODE_EDITOR;
+
+@ActionFeature(CODE_EDITOR)
 public abstract class NavigationAction extends BasicAction {
     private final PsiElementRef<BasePsiElement> navigationElement;
     private final DBObjectRef<DBObject> parentObjectRef;

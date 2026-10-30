@@ -16,6 +16,7 @@
 
 package com.dbn.object.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
@@ -27,7 +28,9 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.CODE_EDITOR;
 
+@ActionFeature(CODE_EDITOR)
 public class ConsoleCreateAction extends ProjectAction {
     private final DBConsoleType consoleType;
     private final ConnectionRef connection;

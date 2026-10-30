@@ -16,6 +16,7 @@
 
 package com.dbn.code.common.intention;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.icon.Icons;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.debugger.DatabaseDebuggerManager;
@@ -34,6 +35,7 @@ import static com.dbn.database.DatabaseFeature.*;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.options.general.WorkspaceFeature.*;
 
+@ActionFeature(DEBUGGER)
 public class DebugMethodIntentionAction extends AbstractMethodExecutionIntentionAction {
     @Override
     public EditorIntentionType getType() {

@@ -15,6 +15,7 @@
  */
 package com.dbn.language.editor.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguageDialect;
@@ -24,6 +25,9 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 
+import static com.dbn.options.general.WorkspaceFeature.CODE_EDITOR;
+
+@ActionFeature(CODE_EDITOR)
 public class DialectSelectActionGroup extends DefaultActionGroup {
     public DialectSelectActionGroup(Project project, VirtualFile virtualFile) {
         add(new DialectSelectAction(null));

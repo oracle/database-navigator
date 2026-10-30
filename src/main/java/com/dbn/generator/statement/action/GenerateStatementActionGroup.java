@@ -17,6 +17,7 @@
 package com.dbn.generator.statement.action;
 
 import com.dbn.browser.DatabaseBrowserManager;
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.object.DBColumn;
@@ -29,7 +30,9 @@ import com.dbn.object.common.DBSchemaObject;
 import java.util.List;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.CODE_EDITOR;
 
+@ActionFeature(CODE_EDITOR)
 public class GenerateStatementActionGroup extends DefaultActionGroup {
 
     public GenerateStatementActionGroup(DBObject object) {

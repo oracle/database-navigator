@@ -18,6 +18,7 @@ package com.dbn.assistant.tool.feature;
 
 import com.dbn.assistant.tool.AssistantToolType;
 import com.dbn.assistant.tool.execution.AssistantToolRequest;
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicTextAction;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.icon.Icons;
@@ -53,6 +54,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.util.Modality.nonModal;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_ASSISTANT;
 
 public class ConsoleUpdateDiffFeature implements AssistantToolFeature {
     private static final @NonNls String UPDATE_SQL_CONSOLE_CONTENT = "UPDATE_SQL_CONSOLE_CONTENT";
@@ -195,6 +197,7 @@ public class ConsoleUpdateDiffFeature implements AssistantToolFeature {
         return project.hashCode() + ":" + requestId;
     }
 
+    @ActionFeature(DATABASE_ASSISTANT)
     private static class ResolveUpdateAction extends BasicTextAction {
         private final AtomicBoolean resolved;
         private final String diffWindowKey;

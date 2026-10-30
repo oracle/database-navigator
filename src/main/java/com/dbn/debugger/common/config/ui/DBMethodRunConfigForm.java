@@ -16,6 +16,7 @@
 
 package com.dbn.debugger.common.config.ui;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.action.ProjectPopupAction;
 import com.dbn.common.color.Colors;
@@ -51,6 +52,7 @@ import java.awt.Color;
 import static com.dbn.common.dispose.Disposer.replace;
 import static com.dbn.common.ui.form.DBNHintForm.installHintForm;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DEBUGGER;
 
 public class DBMethodRunConfigForm extends DBProgramRunConfigForm<DBMethodRunConfig> {
     private JPanel headerPanel;
@@ -82,6 +84,7 @@ public class DBMethodRunConfigForm extends DBProgramRunConfigForm<DBMethodRunCon
         return mainPanel;
     }
 
+    @ActionFeature(DEBUGGER)
     public class SelectMethodAction extends ProjectPopupAction {
         @Override
         public AnAction[] getChildren(AnActionEvent e) {
@@ -100,6 +103,7 @@ public class DBMethodRunConfigForm extends DBProgramRunConfigForm<DBMethodRunCon
         }
     }
 
+    @ActionFeature(DEBUGGER)
     public class MethodBrowserOpenAction extends ProjectAction {
         @Override
         protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
@@ -113,6 +117,7 @@ public class DBMethodRunConfigForm extends DBProgramRunConfigForm<DBMethodRunCon
             e.getPresentation().setText(txt("app.execution.action.MethodBrowser"));
         }
     }
+    @ActionFeature(DEBUGGER)
     public class MethodHistoryOpenAction extends ProjectAction {
 
         @Override

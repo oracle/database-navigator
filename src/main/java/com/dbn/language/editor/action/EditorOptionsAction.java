@@ -16,6 +16,7 @@
 
 package com.dbn.language.editor.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.BasicActionGroup;
 import com.dbn.common.action.Lookups;
@@ -35,10 +36,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.CODE_EDITOR;
 import static com.dbn.vfs.DBConsoleType.DEBUG;
 import static com.dbn.vfs.DBConsoleType.STANDARD;
 
 @BackgroundUpdate
+@ActionFeature(CODE_EDITOR)
 public class EditorOptionsAction extends BasicActionGroup {
     @NotNull
     @Override

@@ -16,6 +16,7 @@
 
 package com.dbn.execution.method.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.icon.Icons;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.execution.method.MethodExecutionManager;
@@ -28,7 +29,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.EXECUTION_ENGINE;
 
+@ActionFeature(EXECUTION_ENGINE)
 public class MethodExecuteAction extends AnObjectAction<DBMethod> {
     private final boolean listElement;
     public MethodExecuteAction(DBMethod method, boolean listElement) {

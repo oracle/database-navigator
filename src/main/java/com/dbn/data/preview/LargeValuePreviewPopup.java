@@ -16,6 +16,7 @@
 
 package com.dbn.data.preview;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.action.ToggleAction;
@@ -65,6 +66,7 @@ import static com.dbn.common.dispose.Disposer.replace;
 import static com.dbn.data.value.LargeValueResourceLimits.*;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DATA_EDITOR;
 
 public class LargeValuePreviewPopup extends DBNFormBase {
     public static final int INITIAL_MAX_SIZE = 4000;
@@ -304,6 +306,7 @@ public class LargeValuePreviewPopup extends DBNFormBase {
      * Actions                         *
      * *******************************************************
      */
+    @ActionFeature(DATA_EDITOR)
     public class WrapUnwrapContentAction extends ToggleAction {
 
         WrapUnwrapContentAction() {
@@ -337,6 +340,7 @@ public class LargeValuePreviewPopup extends DBNFormBase {
         }
     }
 
+    @ActionFeature(DATA_EDITOR)
     public class PinUnpinPopupAction extends ToggleAction {
 
         public PinUnpinPopupAction() {
@@ -365,6 +369,7 @@ public class LargeValuePreviewPopup extends DBNFormBase {
         }
     }
 
+    @ActionFeature(DATA_EDITOR)
     private class LoadReloadAction extends BasicAction {
         private LoadReloadAction() {
             super(txt("app.data.action.LoadReloadContent"), null, Icons.ACTION_RESUME);
@@ -383,6 +388,7 @@ public class LargeValuePreviewPopup extends DBNFormBase {
         }
     }
 
+    @ActionFeature(DATA_EDITOR)
     private class CloseAction extends BasicAction {
         private CloseAction() {
             super(txt("app.shared.action.Close"), null, Icons.ACTION_CLOSE);

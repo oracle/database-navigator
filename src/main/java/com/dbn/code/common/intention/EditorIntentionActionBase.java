@@ -16,6 +16,7 @@
 
 package com.dbn.code.common.intention;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.FeatureAware;
 import com.dbn.common.event.ProjectEvents;
 import com.intellij.openapi.editor.CaretModel;
@@ -36,6 +37,7 @@ import java.util.Map;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.util.Classes.simpleClassName;
+import static com.dbn.options.general.WorkspaceFeature.CODE_EDITOR;
 
 /**
  * Alternative implementation of {@link com.intellij.codeInsight.intention.PsiElementBaseIntentionAction}
@@ -43,6 +45,7 @@ import static com.dbn.common.util.Classes.simpleClassName;
  *
  * @author Dan Cioca (Oracle)
  */
+@ActionFeature(CODE_EDITOR)
 public abstract class EditorIntentionActionBase extends com.intellij.codeInsight.intention.impl.BaseIntentionAction implements FeatureAware {
     private static final Map<EditorIntentionType, EditorIntentionActionBase> REGISTRY = new HashMap<>();
 

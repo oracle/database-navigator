@@ -16,6 +16,7 @@
 
 package com.dbn.connection.config.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.BasicActionGroup;
 import com.dbn.common.icon.Icons;
@@ -27,8 +28,10 @@ import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.CONNECTION_MANAGEMENT;
 
 @BackgroundUpdate
+@ActionFeature(CONNECTION_MANAGEMENT)
 public class CreateConnectionDropdownAction extends BasicActionGroup {
     private final AnAction[] actions = new AnAction[] {
             new ConnectionCreateAction(DatabaseType.ORACLE),

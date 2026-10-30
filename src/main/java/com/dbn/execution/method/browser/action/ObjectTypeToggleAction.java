@@ -16,6 +16,7 @@
 
 package com.dbn.execution.method.browser.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ToggleAction;
 import com.dbn.execution.method.browser.ui.MethodExecutionBrowserForm;
 import com.dbn.object.type.DBObjectType;
@@ -23,7 +24,9 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.EXECUTION_ENGINE;
 
+@ActionFeature(EXECUTION_ENGINE)
 public class ObjectTypeToggleAction extends ToggleAction {
     private MethodExecutionBrowserForm browserComponent;
     private final DBObjectType objectType;

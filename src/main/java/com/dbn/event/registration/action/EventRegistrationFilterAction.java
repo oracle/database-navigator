@@ -96,6 +96,7 @@ public abstract class EventRegistrationFilterAction extends ComboBoxAction imple
         presentation.setIcon(icon);
     }
 
+    @ActionFeature(EVENT_MONITOR)
     private class SelectFilterValueAction extends BasicAction {
         private final FilterOption filterOption;
 

@@ -16,13 +16,17 @@
 
 package com.dbn.editor.json.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ContextAction;
 import com.dbn.editor.json.JsonDataEditor;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.options.general.WorkspaceFeature.DATA_EDITOR;
+
 @BackgroundUpdate
+@ActionFeature(DATA_EDITOR)
 abstract class AbstractJsonDataEditorAction extends ContextAction<JsonDataEditor> {
 
     protected AbstractJsonDataEditorAction(String text) {

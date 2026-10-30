@@ -16,6 +16,7 @@
 
 package com.dbn.menu.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.options.general.WorkspaceFeature;
 import com.dbn.vector.search.VectorSearchConsole;
@@ -26,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import static com.dbn.common.action.DataKeys.VECTOR_SEARCH_CONSOLE;
 import static com.dbn.options.general.WorkspaceFeature.*;
 
+@ActionFeature(VECTOR_TOOLBOX)
 public class VectorSearchActionGroup extends DefaultActionGroup {
     @Override
     public void update(@NotNull AnActionEvent e) {

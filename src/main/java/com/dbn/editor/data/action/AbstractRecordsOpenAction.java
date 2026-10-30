@@ -16,6 +16,7 @@
 
 package com.dbn.editor.data.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.editor.data.DatasetEditorManager;
@@ -25,6 +26,9 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsActions.ActionText;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.options.general.WorkspaceFeature.DATA_EDITOR;
+
+@ActionFeature(DATA_EDITOR)
 public abstract class AbstractRecordsOpenAction extends BasicAction {
     private final DatasetFilterInput filterInput;
 

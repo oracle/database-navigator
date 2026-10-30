@@ -16,6 +16,7 @@
 
 package com.dbn.execution.statement.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.thread.Read;
@@ -45,7 +46,9 @@ import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.thread.ThreadMonitor.isDispatchThread;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.EXECUTION_ENGINE;
 
+@ActionFeature(EXECUTION_ENGINE)
 public class StatementGutterAction extends BasicAction {
     private final PsiFileRef<DBLanguagePsiFile> psiFile;
     private ExecutablePsiElement psiElement;

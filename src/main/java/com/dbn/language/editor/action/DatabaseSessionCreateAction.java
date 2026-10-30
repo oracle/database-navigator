@@ -16,6 +16,7 @@
 
 package com.dbn.language.editor.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.connection.ConnectionHandler;
@@ -29,7 +30,9 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.SESSION_BROWSER;
 
+@ActionFeature(SESSION_BROWSER)
 public class DatabaseSessionCreateAction extends ProjectAction {
     private final ConnectionRef connection;
 

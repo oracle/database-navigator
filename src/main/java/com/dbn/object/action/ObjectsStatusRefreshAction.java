@@ -16,6 +16,7 @@
 
 package com.dbn.object.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
@@ -25,7 +26,9 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_BROWSER;
 
+@ActionFeature(DATABASE_BROWSER)
 public class ObjectsStatusRefreshAction extends BasicAction {
 
     private final ConnectionRef connection;

@@ -16,6 +16,7 @@
 
 package com.dbn.navigation.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicActionGroup;
 import com.dbn.common.clipboard.Clipboard;
 import com.dbn.common.dispose.Disposer;
@@ -61,7 +62,9 @@ import static com.dbn.common.ui.util.Popups.popupBuilder;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Conditional.whenNotEmpty;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_BROWSER;
 
+@ActionFeature(DATABASE_BROWSER)
 public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAware {
     private ConnectionId latestConnectionId;
     private String latestSchemaName = "";
@@ -130,6 +133,7 @@ public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAwar
     }
 
 
+    @ActionFeature(DATABASE_BROWSER)
     private class SelectConnectionAction extends BasicActionGroup {
         private final ConnectionRef connection;
 
@@ -166,6 +170,7 @@ public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAwar
         }
     }
 
+    @ActionFeature(DATABASE_BROWSER)
     private class SelectSchemaAction extends AnObjectAction<DBSchema> {
         private SelectSchemaAction(DBSchema schema) {
             super(schema);

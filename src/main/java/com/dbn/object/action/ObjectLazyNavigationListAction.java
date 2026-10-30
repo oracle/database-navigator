@@ -16,6 +16,7 @@
 
 package com.dbn.object.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.util.Commons;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.list.DBObjectNavigationList;
@@ -26,7 +27,9 @@ import java.util.List;
 
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_BROWSER;
 
+@ActionFeature(DATABASE_BROWSER)
 public class ObjectLazyNavigationListAction extends ObjectListShowAction {
     private final DBObjectRef<DBObject> parentObject;
     private final DBObjectNavigationList<?> navigationList;

@@ -16,6 +16,7 @@
 
 package com.dbn.execution.java.result.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.options.ConfigId;
@@ -26,7 +27,9 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.EXECUTION_ENGINE;
 
+@ActionFeature(EXECUTION_ENGINE)
 public class ExecutionEngineSettingsAction extends ProjectAction {
 
     public ExecutionEngineSettingsAction() {

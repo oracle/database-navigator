@@ -16,6 +16,7 @@
 
 package com.dbn.menu.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionBundle;
@@ -35,7 +36,9 @@ import static com.dbn.common.ui.util.Popups.popupBuilder;
 import static com.dbn.common.util.Actions.adjustActionName;
 import static com.dbn.common.util.Lists.convert;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.SESSION_BROWSER;
 
+@ActionFeature(SESSION_BROWSER)
 public class SessionBrowserOpenAction extends ProjectAction {
     public SessionBrowserOpenAction() {
         super(txt("app.menu.action.OpenSessionBrowser"));
@@ -72,6 +75,7 @@ public class SessionBrowserOpenAction extends ProjectAction {
                 buildAndShowCentered();
     }
 
+    @ActionFeature(SESSION_BROWSER)
     private static class SelectConnectionAction extends AbstractConnectionAction{
 
         SelectConnectionAction(ConnectionHandler connection) {

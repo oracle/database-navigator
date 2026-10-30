@@ -16,6 +16,7 @@
 
 package com.dbn.editor.data.state.sorting.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.editor.data.state.sorting.ui.DatasetSortingColumnForm;
@@ -23,7 +24,9 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DATA_EDITOR;
 
+@ActionFeature(DATA_EDITOR)
 public class DeleteSortingCriteriaAction extends BasicAction {
     private final DatasetSortingColumnForm form;
 

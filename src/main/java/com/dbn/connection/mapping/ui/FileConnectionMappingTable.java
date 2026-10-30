@@ -16,6 +16,7 @@
 
 package com.dbn.connection.mapping.ui;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.color.Colors;
 import com.dbn.common.thread.Dispatch;
@@ -70,6 +71,8 @@ import static com.dbn.common.util.Actions.adjustActionName;
 import static com.dbn.common.util.Lists.convert;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.CONNECTION_MANAGEMENT;
+import static com.dbn.options.general.WorkspaceFeature.SESSION_BROWSER;
 
 public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTableModel> {
     private final FileConnectionContextManager manager;
@@ -272,6 +275,7 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
 
 
 
+    @ActionFeature(CONNECTION_MANAGEMENT)
     private class ConnectionAction extends BasicAction {
         private final VirtualFile virtualFile;
         private final ConnectionRef connection;
@@ -302,6 +306,7 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
     }
 
     @Getter
+    @ActionFeature(CONNECTION_MANAGEMENT)
     private class SchemaAction extends BasicAction {
         private final VirtualFile virtualFile;
         private final SchemaId schemaId;
@@ -319,6 +324,7 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
     }
 
     @Getter
+    @ActionFeature(SESSION_BROWSER)
     private class SessionAction extends BasicAction {
         private final VirtualFile virtualFile;
         private final DatabaseSession session;

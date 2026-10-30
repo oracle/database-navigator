@@ -16,6 +16,7 @@
 
 package com.dbn.execution.script.options.ui;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.approval.UserApprovalManager;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
@@ -45,6 +46,7 @@ import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 import static com.dbn.common.ui.util.Decorators.createToolbarDecorator;
 import static com.dbn.common.ui.util.Decorators.createToolbarDecoratorComponent;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.EXECUTION_ENGINE;
 
 public class ScriptExecutionSettingsForm extends ConfigurationEditorForm<ScriptExecutionSettings> {
     private JPanel mainPanel;
@@ -95,6 +97,7 @@ public class ScriptExecutionSettingsForm extends ConfigurationEditorForm<ScriptE
         popup.show(point);
     }
 
+    @ActionFeature(EXECUTION_ENGINE)
     public class CreateInterfaceAction extends BasicAction {
         private final DatabaseType databaseType;
         CreateInterfaceAction(DatabaseType databaseType) {

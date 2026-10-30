@@ -23,8 +23,8 @@ import com.dbn.connection.ConnectionBundle;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.action.AbstractConnectionAction;
+import com.dbn.database.DatabaseFeature;
 import com.dbn.ml.DatabaseMLManager;
-import com.dbn.options.general.WorkspaceFeature;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -36,10 +36,10 @@ import java.util.List;
 import static com.dbn.common.ui.util.Popups.popupBuilder;
 import static com.dbn.common.util.Actions.adjustActionName;
 import static com.dbn.common.util.Lists.convert;
-import static com.dbn.database.DatabaseFeature.MACHINE_LEARNING;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.MACHINE_LEARNING;
 
-@ActionFeature(WorkspaceFeature.MACHINE_LEARNING)
+@ActionFeature(MACHINE_LEARNING)
 public class MLToolboxOpenAction extends ProjectAction {
 
 
@@ -49,14 +49,14 @@ public class MLToolboxOpenAction extends ProjectAction {
         presentation.setText(txt("app.machineLearning.action.OpenMLToolboxEllipsis"));
         presentation.setIcon(Icons.DBO_MINING_MODEL);
         presentation.setVisible(isFeatureEnabled(project) &&
-                MACHINE_LEARNING.isSupported(project));
+                DatabaseFeature.MACHINE_LEARNING.isSupported(project));
     }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ConnectionManager connectionManager = ConnectionManager.getInstance(project);
         ConnectionBundle connectionBundle = connectionManager.getConnectionBundle();
-        List<ConnectionHandler> connections = connectionBundle.getConnections(MACHINE_LEARNING);
+        List<ConnectionHandler> connections = connectionBundle.getConnections(DatabaseFeature.MACHINE_LEARNING);
 
         if (connections.size() == 1) {
             openMLToolbox(connections.get(0));
@@ -71,6 +71,7 @@ public class MLToolboxOpenAction extends ProjectAction {
                 buildAndShowCentered();
     }
 
+    @ActionFeature(MACHINE_LEARNING)
     private static class SelectConnectionAction extends AbstractConnectionAction {
         SelectConnectionAction(ConnectionHandler connection) {
             super(connection);

@@ -16,6 +16,7 @@
 
 package com.dbn.language.editor.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.action.ProjectAction;
@@ -30,8 +31,10 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.CODE_EDITOR;
 
 @BackgroundUpdate
+@ActionFeature(CODE_EDITOR)
 public class ConsoleSaveToFileAction extends ProjectAction {
 
     @Override

@@ -80,6 +80,7 @@ public class VectorToolboxOpenAction extends ProjectAction {
                 buildAndShowCentered();
     }
 
+    @ActionFeature(VECTOR_TOOLBOX)
     private static class SelectConnectionAction extends AbstractConnectionAction{
         SelectConnectionAction(ConnectionHandler connection) {
             super(connection);

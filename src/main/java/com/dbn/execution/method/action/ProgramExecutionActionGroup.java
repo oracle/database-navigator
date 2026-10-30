@@ -16,6 +16,7 @@
 
 package com.dbn.execution.method.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.editor.DBContentType;
 import com.dbn.object.DBMethod;
@@ -23,7 +24,9 @@ import com.dbn.object.DBProgram;
 import com.dbn.object.common.DBSchemaObject;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.EXECUTION_ENGINE;
 
+@ActionFeature(EXECUTION_ENGINE)
 public class ProgramExecutionActionGroup extends DefaultActionGroup {
 
     public ProgramExecutionActionGroup(DBSchemaObject object) {

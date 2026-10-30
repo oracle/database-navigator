@@ -16,6 +16,7 @@
 
 package com.dbn.object.dependency.ui;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -43,6 +44,7 @@ import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_BROWSER;
 
 public class ObjectDependencyTreeForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -110,6 +112,7 @@ public class ObjectDependencyTreeForm extends DBNFormBase {
         return mainPanel;
     }
 
+    @ActionFeature(DATABASE_BROWSER)
     public class ExpandTreeAction extends BasicAction {
 
         @Override
@@ -125,6 +128,7 @@ public class ObjectDependencyTreeForm extends DBNFormBase {
         }
     }
 
+    @ActionFeature(DATABASE_BROWSER)
     public class PreviousSelectionAction extends BasicAction {
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
@@ -143,6 +147,7 @@ public class ObjectDependencyTreeForm extends DBNFormBase {
         }
     }
 
+    @ActionFeature(DATABASE_BROWSER)
     public class NextSelectionAction extends BasicAction {
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
@@ -160,6 +165,7 @@ public class ObjectDependencyTreeForm extends DBNFormBase {
         }
     }
 
+    @ActionFeature(DATABASE_BROWSER)
     public class CollapseTreeAction extends BasicAction {
 
         @Override

@@ -16,6 +16,7 @@
 
 package com.dbn.browser.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.options.ProjectSettingsManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -24,7 +25,9 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.CONNECTION_MANAGEMENT;
 
+@ActionFeature(CONNECTION_MANAGEMENT)
 public class ConnectionConfigOpenAction extends ProjectAction {
     public ConnectionConfigOpenAction() {
         super(txt("app.browser.action.ConnectionConfig"));

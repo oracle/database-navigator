@@ -16,12 +16,15 @@
 
 package com.dbn.object.dependency.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.common.util.Actions;
 import com.dbn.object.common.DBSchemaObject;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_BROWSER;
 
+@ActionFeature(DATABASE_BROWSER)
 public class DependenciesActionGroup extends DefaultActionGroup {
     public DependenciesActionGroup(DBSchemaObject object) {
         super(txt("app.objects.action.Dependencies"), true);

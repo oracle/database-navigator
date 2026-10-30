@@ -16,6 +16,7 @@
 
 package com.dbn.execution.common.ui;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.common.ref.WeakRef;
@@ -33,7 +34,9 @@ import java.awt.Component;
 
 import static com.dbn.common.ui.util.ClientProperty.FORM;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.EXECUTION_ENGINE;
 
+@ActionFeature(EXECUTION_ENGINE)
 public class ExecutionConsolePopupActionGroup extends DefaultActionGroup {
     private final WeakRef<ExecutionConsoleForm> executionConsoleForm;
 

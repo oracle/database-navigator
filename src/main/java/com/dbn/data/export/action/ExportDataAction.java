@@ -16,6 +16,7 @@
 
 package com.dbn.data.export.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ref.WeakRef;
@@ -30,7 +31,9 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DATA_EXPORT;
 
+@ActionFeature(DATA_EXPORT)
 public class ExportDataAction extends BasicAction {
     private final WeakRef<ResultSetTable<?>> table;
     private final DBObjectRef<DBDataset> dataset;

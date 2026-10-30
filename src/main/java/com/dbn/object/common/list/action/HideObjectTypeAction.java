@@ -17,6 +17,7 @@
 package com.dbn.object.common.list.action;
 
 import com.dbn.browser.options.ObjectFilterChangeListener;
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.util.Conditional;
@@ -33,7 +34,9 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.util.Messages.showQuestionDialog;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_BROWSER;
 
+@ActionFeature(DATABASE_BROWSER)
 public class HideObjectTypeAction extends ProjectAction {
 
     private final DBObjectList objectList;

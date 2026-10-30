@@ -16,6 +16,7 @@
 
 package com.dbn.code.common.intention;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Context;
 import com.dbn.common.util.Editors;
@@ -40,7 +41,9 @@ import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.util.Files.isDbLanguageFile;
 import static com.dbn.debugger.DatabaseDebuggerManager.isDebugConsole;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.EXECUTION_ENGINE;
 
+@ActionFeature(EXECUTION_ENGINE)
 public class ExplainPlanIntentionAction extends EditorIntentionAction {
     @Override
     public EditorIntentionType getType() {

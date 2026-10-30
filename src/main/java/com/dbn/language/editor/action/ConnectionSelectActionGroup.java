@@ -16,6 +16,7 @@
 
 package com.dbn.language.editor.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.connection.ConnectionBundle;
 import com.dbn.connection.ConnectionHandler;
@@ -24,6 +25,9 @@ import com.intellij.openapi.actionSystem.Anchor;
 import com.intellij.openapi.actionSystem.Constraints;
 import com.intellij.openapi.project.Project;
 
+import static com.dbn.options.general.WorkspaceFeature.CONNECTION_MANAGEMENT;
+
+@ActionFeature(CONNECTION_MANAGEMENT)
 public class ConnectionSelectActionGroup extends DefaultActionGroup {
     private static final ConnectionSelectAction NO_CONNECTION = new ConnectionSelectAction(null);
 

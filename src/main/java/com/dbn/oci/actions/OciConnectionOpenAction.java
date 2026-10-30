@@ -1,6 +1,7 @@
 package com.dbn.oci.actions;
 
 import com.dbn.browser.DatabaseBrowserManager;
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.util.Editors;
 import com.dbn.connection.ConnectionAction;
@@ -21,7 +22,9 @@ import java.awt.event.ActionEvent;
 import java.util.Collections;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.CONNECTION_MANAGEMENT;
 
+@ActionFeature(CONNECTION_MANAGEMENT)
 public class OciConnectionOpenAction extends ContributeADBActions.ExtensionContextAction{
   private ConnectionSettings connectionSettings;
   public OciConnectionOpenAction(ConnectionSettings context, String title) {

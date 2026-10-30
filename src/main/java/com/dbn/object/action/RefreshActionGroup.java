@@ -16,6 +16,7 @@
 
 package com.dbn.object.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.common.icon.Icons;
 import com.dbn.database.DatabaseFeature;
@@ -24,7 +25,9 @@ import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.list.DBObjectList;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_BROWSER;
 
+@ActionFeature(DATABASE_BROWSER)
 public class RefreshActionGroup  extends DefaultActionGroup {
     public RefreshActionGroup(DBObject object) {
         super(txt("app.objects.action.Refresh"), true);

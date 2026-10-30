@@ -16,6 +16,7 @@
 
 package com.dbn.data.editor.ui;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.icon.Icons;
@@ -54,6 +55,7 @@ import static com.dbn.common.dispose.Disposer.replace;
 import static com.dbn.common.ui.util.Popups.popupBuilder;
 import static com.dbn.common.util.Strings.nonEmptyStrings;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DATA_EDITOR;
 
 @Getter
 @Setter
@@ -228,6 +230,7 @@ public class ValueListPopupProvider implements TextFieldPopupProvider{
         popup = replace(popup, null);
     }
 
+    @ActionFeature(DATA_EDITOR)
     private class ValueSelectAction extends BasicAction {
         private final String value;
 

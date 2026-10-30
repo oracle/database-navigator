@@ -16,6 +16,7 @@
 
 package com.dbn.editor.session.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.options.action.ProjectSettingsOpenAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
@@ -23,7 +24,9 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.options.ConfigId.OPERATIONS;
+import static com.dbn.options.general.WorkspaceFeature.SESSION_BROWSER;
 
+@ActionFeature(SESSION_BROWSER)
 public class SessionBrowserSettingsAction extends ProjectSettingsOpenAction {
     public SessionBrowserSettingsAction() {
         super(OPERATIONS, true, txt("app.sessionBrowser.action.SessionBrowserSettings"));

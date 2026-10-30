@@ -15,6 +15,7 @@
  */
 package com.dbn.language.editor.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.language.common.DBLanguageDialect;
@@ -33,7 +34,9 @@ import static com.dbn.common.util.Documents.touchDocument;
 import static com.dbn.common.util.Documents.whenDocumentsCommitted;
 import static com.dbn.common.util.Editors.updateEditorNotifications;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.CODE_EDITOR;
 
+@ActionFeature(CODE_EDITOR)
 public class DialectSelectAction extends ProjectAction {
     private final DBLanguageDialect dialect;
 

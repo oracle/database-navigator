@@ -16,6 +16,7 @@
 
 package com.dbn.connection.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
@@ -27,7 +28,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.CONNECTION_MANAGEMENT;
 
+@ActionFeature(CONNECTION_MANAGEMENT)
 public class DatabaseConnectAction extends AbstractConnectionAction {
     DatabaseConnectAction(ConnectionHandler connection) {
         super(connection);

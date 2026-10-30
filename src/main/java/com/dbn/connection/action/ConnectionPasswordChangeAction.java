@@ -16,6 +16,7 @@
 
 package com.dbn.connection.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
@@ -28,7 +29,9 @@ import org.jetbrains.annotations.Nullable;
 import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 import static com.dbn.database.DatabaseFeature.CHANGE_PASSWORD;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.CONNECTION_MANAGEMENT;
 
+@ActionFeature(CONNECTION_MANAGEMENT)
 public class ConnectionPasswordChangeAction extends AbstractConnectionAction {
     ConnectionPasswordChangeAction(ConnectionHandler connection) {
         super(connection);

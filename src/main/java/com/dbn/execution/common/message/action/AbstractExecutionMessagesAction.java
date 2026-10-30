@@ -16,6 +16,7 @@
 
 package com.dbn.execution.common.message.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ContextAction;
 import com.dbn.common.action.DataKeys;
 import com.dbn.execution.common.message.ui.tree.MessagesTree;
@@ -23,6 +24,9 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.options.general.WorkspaceFeature.EXECUTION_ENGINE;
+
+@ActionFeature(EXECUTION_ENGINE)
 abstract class AbstractExecutionMessagesAction extends ContextAction<MessagesTree> {
 
     protected AbstractExecutionMessagesAction(String text) {

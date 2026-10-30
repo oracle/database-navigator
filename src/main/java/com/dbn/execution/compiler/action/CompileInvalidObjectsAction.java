@@ -16,6 +16,7 @@
 
 package com.dbn.execution.compiler.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.connection.operation.options.OperationSettings;
 import com.dbn.execution.compiler.CompileType;
@@ -28,7 +29,9 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.EXECUTION_ENGINE;
 
+@ActionFeature(EXECUTION_ENGINE)
 public class CompileInvalidObjectsAction extends BasicAction {
     private final DBObjectRef<DBSchema> schema;
     public CompileInvalidObjectsAction(DBSchema schema) {

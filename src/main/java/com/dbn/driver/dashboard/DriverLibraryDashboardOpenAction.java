@@ -16,6 +16,7 @@
 
 package com.dbn.driver.dashboard;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.driver.download.DriverDownloadManager;
 import com.intellij.icons.AllIcons;
@@ -24,8 +25,10 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.CONNECTION_MANAGEMENT;
 
 /** Opens the driver library dashboard with no connection-specific filters. */
+@ActionFeature(CONNECTION_MANAGEMENT)
 public class DriverLibraryDashboardOpenAction extends ProjectAction {
     public DriverLibraryDashboardOpenAction() {
         super(txt("app.driver.action.OpenLibraryDashboard"), null, AllIcons.Actions.ListFiles);

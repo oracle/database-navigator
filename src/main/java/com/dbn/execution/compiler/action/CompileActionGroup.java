@@ -16,6 +16,7 @@
 
 package com.dbn.execution.compiler.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.common.icon.Icons;
 import com.dbn.object.common.DBObject;
@@ -35,7 +36,9 @@ import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
 import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
 import static com.dbn.options.general.WorkspaceFeature.DEBUGGER;
+import static com.dbn.options.general.WorkspaceFeature.EXECUTION_ENGINE;
 
+@ActionFeature(EXECUTION_ENGINE)
 public class CompileActionGroup extends DefaultActionGroup implements DumbAware {
 
     public CompileActionGroup(DBSchemaObject object) {

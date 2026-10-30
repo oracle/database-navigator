@@ -16,6 +16,7 @@
 
 package com.dbn.object.filter.custom.ui.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.object.filter.custom.ObjectFilter;
@@ -27,7 +28,9 @@ import org.jetbrains.annotations.NotNull;
 import java.awt.Component;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_BROWSER;
 
+@ActionFeature(DATABASE_BROWSER)
 public class ViewObjectFilterAction extends BasicAction {
     private final ObjectFilterExpressionForm form;
 

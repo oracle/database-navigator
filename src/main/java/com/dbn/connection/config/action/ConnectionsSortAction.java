@@ -16,6 +16,7 @@
 
 package com.dbn.connection.config.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.connection.config.ConnectionBundleSettings;
@@ -30,7 +31,9 @@ import javax.swing.Icon;
 import javax.swing.JList;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.CONNECTION_MANAGEMENT;
 
+@ActionFeature(CONNECTION_MANAGEMENT)
 public class ConnectionsSortAction extends ProjectAction {
     private SortDirection currentSortDirection = SortDirection.ASCENDING;
     private final ConnectionBundleSettings connectionBundleSettings;

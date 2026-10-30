@@ -16,6 +16,7 @@
 
 package com.dbn.ddl.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.ddl.DDLFileAttachmentManager;
 import com.dbn.object.common.DBObject;
@@ -26,7 +27,9 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DDL_INTEGRATION;
 
+@ActionFeature(DDL_INTEGRATION)
 public class DDLFileDetachAction extends ProjectAction {
     private final DBObjectRef<DBObject> object;
 

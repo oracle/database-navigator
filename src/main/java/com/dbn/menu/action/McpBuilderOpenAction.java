@@ -21,8 +21,8 @@ import com.dbn.common.action.ProjectAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.action.AbstractConnectionAction;
+import com.dbn.database.DatabaseFeature;
 import com.dbn.mcp.McpServerBuilderManager;
-import com.dbn.options.general.WorkspaceFeature;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -34,10 +34,10 @@ import java.util.List;
 import static com.dbn.common.ui.util.Popups.popupBuilder;
 import static com.dbn.common.util.Actions.adjustActionName;
 import static com.dbn.common.util.Lists.convert;
-import static com.dbn.database.DatabaseFeature.MCP_SERVER_BUILDER;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.MCP_SERVER_BUILDER;
 
-@ActionFeature(WorkspaceFeature.MCP_SERVER_BUILDER)
+@ActionFeature(MCP_SERVER_BUILDER)
 public class McpBuilderOpenAction extends ProjectAction {
 
     public McpBuilderOpenAction() {
@@ -54,13 +54,13 @@ public class McpBuilderOpenAction extends ProjectAction {
 
     private boolean isVisible(@NotNull Project project) {
         return isFeatureEnabled(project) &&
-                MCP_SERVER_BUILDER.isSupported(project);
+                DatabaseFeature.MCP_SERVER_BUILDER.isSupported(project);
     }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ConnectionManager connectionManager = ConnectionManager.getInstance(project);
-        List<ConnectionHandler> connections = connectionManager.getConnections(MCP_SERVER_BUILDER);
+        List<ConnectionHandler> connections = connectionManager.getConnections(DatabaseFeature.MCP_SERVER_BUILDER);
 
         if (connections.size() == 1) {
             openMcpBuilder(connections.get(0));
@@ -74,6 +74,7 @@ public class McpBuilderOpenAction extends ProjectAction {
                 .buildAndShowCentered();
     }
 
+    @ActionFeature(MCP_SERVER_BUILDER)
     private static class SelectConnectionAction extends AbstractConnectionAction {
         SelectConnectionAction(ConnectionHandler connection) {
             super(connection);

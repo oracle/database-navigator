@@ -16,6 +16,7 @@
 
 package com.dbn.browser.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.options.ConfigId;
 import com.dbn.options.action.ProjectSettingsOpenAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -23,7 +24,9 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_BROWSER;
 
+@ActionFeature(DATABASE_BROWSER)
 public class BrowserProjectSettingsAction extends ProjectSettingsOpenAction {
     public BrowserProjectSettingsAction() {
         super(ConfigId.BROWSER, true, txt("app.browser.action.BrowserSettings"));

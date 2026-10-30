@@ -16,6 +16,7 @@
 
 package com.dbn.connection.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.thread.Progress;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
@@ -27,7 +28,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.CONNECTION_MANAGEMENT;
 
+@ActionFeature(CONNECTION_MANAGEMENT)
 public class DatabaseInformationOpenAction extends AbstractConnectionAction {
 
     DatabaseInformationOpenAction(ConnectionHandler connection) {

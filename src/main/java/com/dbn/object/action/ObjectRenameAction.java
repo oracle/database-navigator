@@ -16,6 +16,7 @@
 
 package com.dbn.object.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.icon.Icons;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
@@ -33,7 +34,9 @@ import static com.dbn.object.common.property.DBObjectProperty.READONLY;
 import static com.dbn.object.common.property.DBObjectProperty.RENAMABLE;
 import static com.dbn.object.common.property.DBObjectProperty.SYSTEM_OBJECT;
 import static com.dbn.object.event.ObjectChangeAction.RENAME;
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_BROWSER;
 
+@ActionFeature(DATABASE_BROWSER)
 public class ObjectRenameAction extends AnObjectAction<DBObject> {
     public ObjectRenameAction(DBObject object) {
         super(object);

@@ -16,6 +16,7 @@
 
 package com.dbn.generator.code.java.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.connection.context.DatabaseContext;
@@ -26,6 +27,9 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.options.general.WorkspaceFeature.CODE_EDITOR;
+
+@ActionFeature(CODE_EDITOR)
 public class JavaCodeGenerationAction extends ProjectAction {
     private final WeakRef<DatabaseContext> context;
     private final CodeGeneratorType type;

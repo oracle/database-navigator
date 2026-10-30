@@ -16,6 +16,7 @@
 
 package com.dbn.object.dependency.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.object.action.AnObjectAction;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.dependency.ObjectDependencyManager;
@@ -26,7 +27,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_BROWSER;
 
+@ActionFeature(DATABASE_BROWSER)
 public class ObjectDependencyTreeAction extends AnObjectAction<DBSchemaObject> {
     public ObjectDependencyTreeAction(DBSchemaObject schemaObject) {
         super(schemaObject);

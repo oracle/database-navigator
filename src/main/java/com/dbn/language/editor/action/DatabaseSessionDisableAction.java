@@ -16,6 +16,7 @@
 
 package com.dbn.language.editor.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.connection.ConnectionHandler;
@@ -30,7 +31,9 @@ import static com.dbn.common.util.Messages.OPTIONS_YES_NO;
 import static com.dbn.common.util.Messages.showQuestionDialog;
 import static com.dbn.common.util.Messages.whenOk;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.SESSION_BROWSER;
 
+@ActionFeature(SESSION_BROWSER)
 public class DatabaseSessionDisableAction extends ProjectAction {
     private final ConnectionRef connection;
 

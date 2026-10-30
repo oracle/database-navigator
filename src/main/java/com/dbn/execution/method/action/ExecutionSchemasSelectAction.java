@@ -16,6 +16,7 @@
 
 package com.dbn.execution.method.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.util.Commons;
 import com.dbn.connection.ConnectionHandler;
@@ -30,6 +31,9 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
 
+import static com.dbn.options.general.WorkspaceFeature.EXECUTION_ENGINE;
+
+@ActionFeature(EXECUTION_ENGINE)
 public class ExecutionSchemasSelectAction extends ComboBoxAction {
     private MethodExecutionInput executionInput;
 

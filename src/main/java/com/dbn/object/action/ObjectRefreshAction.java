@@ -16,6 +16,7 @@
 
 package com.dbn.object.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.attributes.Attributes;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.property.DBObjectProperty;
@@ -29,7 +30,9 @@ import org.jetbrains.annotations.Nullable;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.event.ObjectChangeAction.REFRESH;
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_BROWSER;
 
+@ActionFeature(DATABASE_BROWSER)
 public class ObjectRefreshAction extends AnObjectAction<DBObject> {
     public ObjectRefreshAction(DBObject object) {
         super(object);

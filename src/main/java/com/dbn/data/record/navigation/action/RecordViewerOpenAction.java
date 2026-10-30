@@ -16,6 +16,7 @@
 
 package com.dbn.data.record.navigation.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.editor.data.DatasetEditorManager;
 import com.dbn.editor.data.filter.DatasetFilterInput;
@@ -25,7 +26,9 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DATA_EDITOR;
 
+@ActionFeature(DATA_EDITOR)
 public class RecordViewerOpenAction extends ProjectAction {
     private DatasetFilterInput filterInput;
 

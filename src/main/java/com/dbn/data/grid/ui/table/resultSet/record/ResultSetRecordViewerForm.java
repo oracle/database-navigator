@@ -16,6 +16,7 @@
 
 package com.dbn.data.grid.ui.table.resultSet.record;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.ToggleAction;
 import com.dbn.common.color.Colors;
@@ -57,6 +58,7 @@ import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DATA_EDITOR;
 
 public class ResultSetRecordViewerForm extends DBNFormBase {
     private JPanel actionsPanel;
@@ -228,6 +230,7 @@ public class ResultSetRecordViewerForm extends DBNFormBase {
     /*********************************************************      
      *                       Actions                         *
      *********************************************************/
+    @ActionFeature(DATA_EDITOR)
     private class SortAlphabeticallyAction extends ToggleAction {
         private SortAlphabeticallyAction() {
             super(txt("app.data.action.SortColumnsAlphabetically"), null, Icons.ACTION_SORT_ALPHA);
@@ -253,6 +256,7 @@ public class ResultSetRecordViewerForm extends DBNFormBase {
         }
     }
 
+    @ActionFeature(DATA_EDITOR)
     private class FirstRecordAction extends BasicAction {
         private FirstRecordAction() {
             super(txt("app.dataEditor.action.FirstRecord"), null, Icons.DATA_EDITOR_FIRST_RECORD);
@@ -274,6 +278,7 @@ public class ResultSetRecordViewerForm extends DBNFormBase {
         }
     }
 
+    @ActionFeature(DATA_EDITOR)
     private class PreviousRecordAction extends BasicAction {
         private PreviousRecordAction() {
             super(txt("app.dataEditor.action.PreviousRecord"), null, Icons.DATA_EDITOR_PREVIOUS_RECORD);
@@ -299,6 +304,7 @@ public class ResultSetRecordViewerForm extends DBNFormBase {
         }
     }
 
+    @ActionFeature(DATA_EDITOR)
     private class NextRecordAction extends BasicAction {
         private NextRecordAction() {
             super(txt("app.dataEditor.action.NextRecord"), null, Icons.DATA_EDITOR_NEXT_RECORD);
@@ -324,6 +330,7 @@ public class ResultSetRecordViewerForm extends DBNFormBase {
         }
     }
 
+    @ActionFeature(DATA_EDITOR)
     private class LastRecordAction extends BasicAction {
         private LastRecordAction() {
             super(txt("app.dataEditor.action.LastRecord"), null, Icons.DATA_EDITOR_LAST_RECORD);

@@ -16,6 +16,7 @@
 
 package com.dbn.data.record.ui;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ToggleAction;
 import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.DisposableContainers;
@@ -52,6 +53,7 @@ import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DATA_EDITOR;
 
 public class RecordViewerForm extends DBNFormBase {
     private JPanel actionsPanel;
@@ -192,6 +194,7 @@ public class RecordViewerForm extends DBNFormBase {
     /*********************************************************      
      *                       Actions                         *
      *********************************************************/
+    @ActionFeature(DATA_EDITOR)
     private class SortAlphabeticallyAction extends ToggleAction {
         private SortAlphabeticallyAction() {
             super(txt("app.data.action.SortColumnsAlphabetically"), null, Icons.ACTION_SORT_ALPHA);

@@ -17,6 +17,7 @@
 package com.dbn.browser.action;
 
 import com.dbn.browser.DatabaseBrowserManager;
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.action.ProjectPopupAction;
@@ -42,6 +43,7 @@ import java.util.List;
 import static com.dbn.database.DatabaseFeature.DEBUGGING;
 import static com.dbn.database.DatabaseFeature.VECTOR_SEARCH;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.CODE_EDITOR;
 import static com.dbn.options.general.WorkspaceFeature.DEBUGGER;
 import static com.dbn.options.general.WorkspaceFeature.VECTOR_TOOLBOX;
 import static com.dbn.vfs.DBConsoleType.DEBUG;
@@ -49,6 +51,7 @@ import static com.dbn.vfs.DBConsoleType.SEARCH;
 import static com.dbn.vfs.DBConsoleType.STANDARD;
 
 @BackgroundUpdate
+@ActionFeature(CODE_EDITOR)
 public class SQLConsoleOpenAction extends ProjectPopupAction {
     public SQLConsoleOpenAction() {
         super(txt("app.browser.action.BrowserSqlConsole"));
@@ -99,6 +102,7 @@ public class SQLConsoleOpenAction extends ProjectPopupAction {
     }
 
 
+    @ActionFeature(CODE_EDITOR)
     private static class SelectConsoleAction extends AbstractConnectionAction{
         private DBConsole console;
         private DBConsoleType consoleType;

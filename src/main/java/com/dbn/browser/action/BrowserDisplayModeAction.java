@@ -18,6 +18,7 @@ package com.dbn.browser.action;
 
 import com.dbn.browser.DatabaseBrowserManager;
 import com.dbn.browser.options.BrowserDisplayMode;
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.action.ToggleAction;
 import com.intellij.ide.IdeEventQueue;
@@ -30,7 +31,9 @@ import static com.dbn.browser.options.BrowserDisplayMode.SELECTOR;
 import static com.dbn.browser.options.BrowserDisplayMode.SIMPLE;
 import static com.dbn.browser.options.BrowserDisplayMode.TABBED;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_BROWSER;
 
+@ActionFeature(DATABASE_BROWSER)
 public abstract class BrowserDisplayModeAction extends ToggleAction {
     private final BrowserDisplayMode displayMode;
 

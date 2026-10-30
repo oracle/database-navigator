@@ -16,6 +16,7 @@
 
 package com.dbn.connection.transaction.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.action.AbstractConnectionAction;
@@ -27,7 +28,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.TRANSACTIONS;
 
+@ActionFeature(TRANSACTIONS)
 public class TransactionRollbackAction extends AbstractConnectionAction {
 
     public TransactionRollbackAction(ConnectionHandler connection) {

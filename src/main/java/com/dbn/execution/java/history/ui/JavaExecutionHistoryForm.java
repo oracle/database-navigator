@@ -16,6 +16,7 @@
 
 package com.dbn.execution.java.history.ui;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.action.ToggleAction;
@@ -55,6 +56,7 @@ import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.ui.util.Splitters.makeRegular;
 import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.OJVM;
 
 public class JavaExecutionHistoryForm extends DBNFormBase {
 	private JPanel mainPanel;
@@ -155,6 +157,7 @@ public class JavaExecutionHistoryForm extends DBNFormBase {
 		getTree().setSelectedInput(selectedExecutionInput);
 	}
 
+	@ActionFeature(OJVM)
 	public class DeleteHistoryEntryAction extends ProjectAction {
 		@Override
 		protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
@@ -171,6 +174,7 @@ public class JavaExecutionHistoryForm extends DBNFormBase {
 		}
 	}
 
+	@ActionFeature(OJVM)
 	public static class ProjectSettingsOpenAction extends ProjectAction {
 		@Override
 		protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
@@ -186,6 +190,7 @@ public class JavaExecutionHistoryForm extends DBNFormBase {
 		}
 	}
 
+	@ActionFeature(OJVM)
 	public class ShowGroupedTreeAction extends ToggleAction {
 		ShowGroupedTreeAction() {
 			super(txt("app.execution.action.GroupByProgram"), txt("app.execution.tooltip.GroupByProgram"), Icons.ACTION_GROUP);

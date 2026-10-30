@@ -16,6 +16,7 @@
 
 package com.dbn.execution.method.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.icon.Icons;
 import com.dbn.execution.method.MethodExecutionManager;
 import com.dbn.execution.method.ui.MethodExecutionHistory;
@@ -38,6 +39,7 @@ import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
 import static com.dbn.options.general.WorkspaceFeature.DEBUGGER;
 
+@ActionFeature(DEBUGGER)
 public class ProgramMethodDebugAction extends ObjectListShowAction {
     public ProgramMethodDebugAction(DBProgram program) {
         super(txt("app.execution.action.Debug"), program);

@@ -16,6 +16,7 @@
 
 package com.dbn.editor.code.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.icon.Icons;
 import com.dbn.debugger.DBDebuggerType;
@@ -36,6 +37,8 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.operation.DatabaseOperation.EXECUTE_JAVA_CODE;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.EXECUTION_ENGINE;
+import static com.dbn.options.general.WorkspaceFeature.OJVM;
 
 @BackgroundUpdate
 public class ProgramMethodExecuteAction extends ProgramMethodLaunchAction {
@@ -70,6 +73,7 @@ public class ProgramMethodExecuteAction extends ProgramMethodLaunchAction {
         presentation.setIcon(Icons.METHOD_EXECUTION_RUN);
     }
 
+    @ActionFeature(EXECUTION_ENGINE)
     private static class ExecuteMethodAction extends AnObjectAction<DBMethod> {
         ExecuteMethodAction(DBMethod method) {
             super(method);
@@ -86,6 +90,7 @@ public class ProgramMethodExecuteAction extends ProgramMethodLaunchAction {
         }
     }
 
+    @ActionFeature(OJVM)
     private static class ExecuteJavaMethodAction extends AnObjectAction<DBJavaMethod> {
         ExecuteJavaMethodAction(DBJavaMethod method) {
             super(method);

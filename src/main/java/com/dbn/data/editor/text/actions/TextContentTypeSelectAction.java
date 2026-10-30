@@ -16,6 +16,7 @@
 
 package com.dbn.data.editor.text.actions;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.data.editor.text.TextContentType;
@@ -24,7 +25,10 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.options.general.WorkspaceFeature.DATA_EDITOR;
+
 @Getter
+@ActionFeature(DATA_EDITOR)
 public class TextContentTypeSelectAction extends BasicAction {
     private final WeakRef<TextContentTypeOwner> owner;
     private final TextContentType contentType;

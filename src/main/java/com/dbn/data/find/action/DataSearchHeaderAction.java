@@ -17,6 +17,7 @@
 package com.dbn.data.find.action;
 
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.data.find.DataSearchComponent;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -27,7 +28,10 @@ import lombok.Getter;
 import javax.swing.JComponent;
 import java.util.Set;
 
+import static com.dbn.options.general.WorkspaceFeature.DATA_EDITOR;
+
 @Getter
+@ActionFeature(DATA_EDITOR)
 public abstract class DataSearchHeaderAction extends BasicAction {
     private final DataSearchComponent searchComponent;
 

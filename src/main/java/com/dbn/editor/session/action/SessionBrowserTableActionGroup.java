@@ -16,6 +16,7 @@
 
 package com.dbn.editor.session.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.common.icon.Icons;
@@ -38,7 +39,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.SESSION_BROWSER;
 
+@ActionFeature(SESSION_BROWSER)
 public class SessionBrowserTableActionGroup extends DefaultActionGroup {
     boolean headerAction;
     private final WeakRef<SessionBrowser> sessionBrowser;
@@ -98,6 +101,7 @@ public class SessionBrowserTableActionGroup extends DefaultActionGroup {
         return getSessionBrowser().getConnection();
     }
 
+    @ActionFeature(SESSION_BROWSER)
     private class ReloadSessionsAction extends BasicAction {
         private ReloadSessionsAction() {
             super(txt("app.shared.action.Reload"), null, Icons.ACTION_REFRESH);
@@ -109,6 +113,7 @@ public class SessionBrowserTableActionGroup extends DefaultActionGroup {
         }
     }
 
+    @ActionFeature(SESSION_BROWSER)
     private class KillSessionAction extends BasicAction {
         private KillSessionAction(boolean multiple) {
             super(multiple ?
@@ -129,6 +134,7 @@ public class SessionBrowserTableActionGroup extends DefaultActionGroup {
         }
     }
 
+    @ActionFeature(SESSION_BROWSER)
     private class DisconnectSessionAction extends BasicAction {
         private DisconnectSessionAction(boolean multiple) {
             super(multiple ?
@@ -147,6 +153,7 @@ public class SessionBrowserTableActionGroup extends DefaultActionGroup {
         }
     }
 
+    @ActionFeature(SESSION_BROWSER)
     private class ClearFilterAction extends BasicAction {
         private ClearFilterAction() {
             super(txt("app.sessions.action.ClearFilter"), null, Icons.DATASET_FILTER_CLEAR);
@@ -158,6 +165,7 @@ public class SessionBrowserTableActionGroup extends DefaultActionGroup {
         }
     }
 
+    @ActionFeature(SESSION_BROWSER)
     private class FilterByAction extends BasicAction {
         private final SessionBrowserFilterType filterType;
         private final String name;

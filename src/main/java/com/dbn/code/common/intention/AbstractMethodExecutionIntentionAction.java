@@ -16,6 +16,7 @@
 
 package com.dbn.code.common.intention;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.language.common.element.util.IdentifierCategory;
 import com.dbn.language.common.psi.BasePsiElement;
@@ -32,7 +33,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.util.Commons.nvln;
+import static com.dbn.options.general.WorkspaceFeature.EXECUTION_ENGINE;
 
+@ActionFeature(EXECUTION_ENGINE)
 public abstract class AbstractMethodExecutionIntentionAction extends EditorIntentionAction {
     private DBObjectRef<DBMethod> lastChecked;
     public static final ObjectLookupAdapter METHOD_LOOKUP_ADAPTER = new ObjectLookupAdapter(null, IdentifierCategory.DEFINITION, DBObjectType.METHOD);

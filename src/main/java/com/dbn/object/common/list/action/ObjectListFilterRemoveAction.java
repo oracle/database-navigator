@@ -16,6 +16,7 @@
 
 package com.dbn.object.common.list.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionId;
@@ -29,7 +30,9 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_BROWSER;
 
+@ActionFeature(DATABASE_BROWSER)
 public class ObjectListFilterRemoveAction extends BasicAction {
 
     private final ConnectionId connectionId;

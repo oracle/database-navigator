@@ -16,14 +16,17 @@
 
 package com.dbn.editor.data.filter.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.editor.data.filter.DatasetFilterGroup;
 import com.dbn.editor.data.filter.ui.DatasetFilterList;
 import lombok.Getter;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DATA_EDITOR;
 
 @Getter
+@ActionFeature(DATA_EDITOR)
 public abstract class AbstractFilterListAction extends BasicAction {
     private final DatasetFilterList filterList;
 

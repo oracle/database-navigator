@@ -16,6 +16,7 @@
 
 package com.dbn.object.dependency.ui;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.dispose.Disposer;
@@ -54,6 +55,7 @@ import javax.swing.tree.TreeSelectionModel;
 import java.awt.event.MouseEvent;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_BROWSER;
 
 public class ObjectDependencyTree extends DBNTree{
     private final DBObjectSelectionHistory selectionHistory =  new DBObjectSelectionHistory();
@@ -181,6 +183,7 @@ public class ObjectDependencyTree extends DBNTree{
         loadInProgressRegistry.register(loadInProgressNode);
     }
 
+    @ActionFeature(DATABASE_BROWSER)
     public class SelectObjectAction extends BasicAction {
         private final DBObjectRef<DBSchemaObject> objectRef;
         SelectObjectAction(DBSchemaObject object) {
@@ -203,6 +206,7 @@ public class ObjectDependencyTree extends DBNTree{
         }
     }
 
+    @ActionFeature(DATABASE_BROWSER)
     public static class EditObjectAction extends ProjectAction {
         private final DBObjectRef<DBSchemaObject> object;
 

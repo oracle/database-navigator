@@ -16,6 +16,7 @@
 
 package com.dbn.connection.context.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.connection.mapping.FileConnectionContext;
 import com.dbn.connection.mapping.FileConnectionContextManager;
@@ -24,6 +25,9 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.options.general.WorkspaceFeature.CONNECTION_MANAGEMENT;
+
+@ActionFeature(CONNECTION_MANAGEMENT)
 public abstract class AbstractFolderContextAction extends ProjectAction {
 
     protected AbstractFolderContextAction(String text) {

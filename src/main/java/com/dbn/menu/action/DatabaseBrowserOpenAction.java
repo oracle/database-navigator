@@ -16,6 +16,7 @@
 
 package com.dbn.menu.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.ui.window.ToolWindows;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -27,7 +28,9 @@ import org.jetbrains.annotations.NotNull;
 import static com.dbn.browser.DatabaseBrowserManager.TOOL_WINDOW_ID;
 import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_BROWSER;
 
+@ActionFeature(DATABASE_BROWSER)
 public class DatabaseBrowserOpenAction extends ProjectAction {
 
     public DatabaseBrowserOpenAction() {

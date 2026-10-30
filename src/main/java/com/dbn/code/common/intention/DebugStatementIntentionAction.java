@@ -16,6 +16,7 @@
 
 package com.dbn.code.common.intention;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Context;
 import com.dbn.common.util.Editors;
@@ -47,6 +48,7 @@ import static com.dbn.common.util.Files.isDbLanguagePsiFile;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.options.general.WorkspaceFeature.*;
 
+@ActionFeature(DEBUGGER)
 public class DebugStatementIntentionAction extends EditorIntentionAction {
     @Override
     public EditorIntentionType getType() {

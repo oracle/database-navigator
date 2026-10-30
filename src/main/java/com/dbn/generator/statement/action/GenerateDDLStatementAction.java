@@ -16,6 +16,7 @@
 
 package com.dbn.generator.statement.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.ddl.DDLManager;
@@ -32,7 +33,9 @@ import java.sql.SQLException;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DDL_INTEGRATION;
 
+@ActionFeature(DDL_INTEGRATION)
 public class GenerateDDLStatementAction extends GenerateStatementAction {
     private final DBObjectRef<?> object;
 

@@ -16,6 +16,7 @@
 
 package com.dbn.browser.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.ConnectionConfigType;
@@ -27,7 +28,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.CONNECTION_MANAGEMENT;
 
+@ActionFeature(CONNECTION_MANAGEMENT)
 public class ConnectionCreateAction extends ProjectAction {
     private final DatabaseType databaseType;
 

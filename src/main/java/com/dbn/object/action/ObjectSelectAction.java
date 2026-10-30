@@ -16,6 +16,7 @@
 
 package com.dbn.object.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.util.Dialogs;
 import com.dbn.object.common.DBObject;
@@ -26,6 +27,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_BROWSER;
+
+@ActionFeature(DATABASE_BROWSER)
 public class ObjectSelectAction<T extends DBObject> extends BasicAction {
     private final DBObjectSelectionInput<T> input;
     private final Consumer<T> callback;

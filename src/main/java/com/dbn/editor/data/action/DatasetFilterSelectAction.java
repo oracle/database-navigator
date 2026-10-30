@@ -16,6 +16,7 @@
 
 package com.dbn.editor.data.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.editor.data.DatasetEditorManager;
 import com.dbn.editor.data.filter.DatasetFilter;
@@ -26,6 +27,9 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.options.general.WorkspaceFeature.DATA_EDITOR;
+
+@ActionFeature(DATA_EDITOR)
 public class DatasetFilterSelectAction extends BasicAction {
     private DBDataset dataset;
     private DatasetFilter filter;

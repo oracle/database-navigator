@@ -80,6 +80,7 @@ public class ProgramMethodDebugAction extends ProgramMethodLaunchAction {
         return DatabaseFeature.DEBUGGING.isSupported(sourceCodeFile);
     }
 
+    @ActionFeature(DEBUGGER)
     private static class DebugMethodAction extends AnObjectAction<DBMethod> {
         DebugMethodAction(DBMethod method) {
             super(method);
@@ -96,6 +97,7 @@ public class ProgramMethodDebugAction extends ProgramMethodLaunchAction {
         }
     }
 
+    @ActionFeature(DEBUGGER)
     private static class DebugJavaMethodAction extends AnObjectAction<DBJavaMethod> {
         DebugJavaMethodAction(DBJavaMethod method) {
             super(method);

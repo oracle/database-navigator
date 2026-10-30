@@ -16,6 +16,7 @@
 
 package com.dbn.editor.code.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.icon.Icons;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.editor.code.SourceCodeEditor;
@@ -32,7 +33,9 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.EXECUTION_ENGINE;
 
+@ActionFeature(EXECUTION_ENGINE)
 public class MethodExecuteAction extends AbstractCodeEditorAction {
 
     public MethodExecuteAction() {

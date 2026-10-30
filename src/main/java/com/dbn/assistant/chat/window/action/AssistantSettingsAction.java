@@ -16,9 +16,13 @@
 
 package com.dbn.assistant.chat.window.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.options.ConfigId;
 import com.dbn.options.action.ProjectSettingsOpenAction;
 
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_ASSISTANT;
+
+@ActionFeature(DATABASE_ASSISTANT)
 public class AssistantSettingsAction extends ProjectSettingsOpenAction {
     public AssistantSettingsAction() {
         super(ConfigId.ASSISTANT, false);

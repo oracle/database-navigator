@@ -16,6 +16,7 @@
 
 package com.dbn.connection.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.generator.code.CodeGeneratorRegistry;
 import com.dbn.generator.code.shared.CodeGenerator;
@@ -26,7 +27,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.CODE_EDITOR;
 
+@ActionFeature(CODE_EDITOR)
 public class GenerateCodeActionGroup extends AbstractConnectionActionGroup {
 
     public GenerateCodeActionGroup(ConnectionHandler connection) {

@@ -18,6 +18,7 @@ package com.dbn.object.action;
 
 import com.dbn.browser.DatabaseBrowserManager;
 import com.dbn.browser.ui.DatabaseBrowserTree;
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.list.DBObjectNavigationList;
@@ -28,7 +29,9 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.ui.util.Popups.popupBuilder;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_BROWSER;
 
+@ActionFeature(DATABASE_BROWSER)
 public class ObjectNavigationListShowAllAction extends ProjectAction {
     private final DBObjectNavigationList navigationList;
     private final DBObject parentObject;

@@ -16,6 +16,7 @@
 
 package com.dbn.connection.transaction.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.action.AbstractConnectionToggleAction;
 import com.dbn.connection.transaction.DatabaseTransactionManager;
@@ -23,7 +24,9 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.TRANSACTIONS;
 
+@ActionFeature(TRANSACTIONS)
 public class AutoCommitToggleAction extends AbstractConnectionToggleAction {
 
     public AutoCommitToggleAction(ConnectionHandler connection) {

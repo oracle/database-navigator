@@ -16,6 +16,7 @@
 
 package com.dbn.generator.statement.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.thread.Command;
 import com.dbn.common.thread.Dispatch;
@@ -44,7 +45,9 @@ import java.awt.datatransfer.StringSelection;
 
 import static com.dbn.common.util.Modality.nonModal;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.CODE_EDITOR;
 
+@ActionFeature(CODE_EDITOR)
 public abstract class GenerateStatementAction extends ProjectAction implements DatabaseContextBase {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {

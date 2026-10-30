@@ -16,6 +16,7 @@
 
 package com.dbn.language.editor.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.action.Lookups;
@@ -38,8 +39,10 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.CONNECTION_MANAGEMENT;
 
 @BackgroundUpdate
+@ActionFeature(CONNECTION_MANAGEMENT)
 public class ConnectionSelectDropdownAction extends ComboBoxAction implements DumbAware {
 
     public ConnectionSelectDropdownAction() {

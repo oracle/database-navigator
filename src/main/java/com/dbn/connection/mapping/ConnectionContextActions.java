@@ -16,6 +16,7 @@
 
 package com.dbn.connection.mapping;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.action.Selectable;
@@ -43,8 +44,11 @@ import java.util.Objects;
 
 import static com.dbn.common.util.Actions.adjustActionName;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.CONNECTION_MANAGEMENT;
+import static com.dbn.options.general.WorkspaceFeature.SESSION_BROWSER;
 
 public class ConnectionContextActions {
+    @ActionFeature(CONNECTION_MANAGEMENT)
     static class ConnectionSelectAction extends AbstractConnectionAction implements Selectable {
         private final VirtualFileRef file;
         private final Runnable callback;
@@ -90,6 +94,7 @@ public class ConnectionContextActions {
         }
     }
 
+    @ActionFeature(CONNECTION_MANAGEMENT)
     static class ConnectionSetupAction extends ProjectAction {
         private final ProjectRef project;
 
@@ -117,6 +122,7 @@ public class ConnectionContextActions {
         }
     }
 
+    @ActionFeature(CONNECTION_MANAGEMENT)
     static class SchemaSelectAction extends AnObjectAction<DBSchema> implements Selectable{
         private final WeakRef<VirtualFile> file;
         private final Runnable callback;
@@ -159,6 +165,7 @@ public class ConnectionContextActions {
         }
     }
 
+    @ActionFeature(SESSION_BROWSER)
     static class SessionSelectAction extends BasicAction implements Selectable {
         private final VirtualFileRef file;
         private final DatabaseSession session;
@@ -199,6 +206,7 @@ public class ConnectionContextActions {
         }
     }
 
+    @ActionFeature(SESSION_BROWSER)
     static class SessionCreateAction extends BasicAction {
         private final VirtualFileRef file;
         private final ConnectionRef connection;

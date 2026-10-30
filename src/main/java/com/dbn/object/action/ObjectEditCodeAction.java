@@ -16,6 +16,7 @@
 
 package com.dbn.object.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.icon.Icons;
 import com.dbn.editor.DatabaseFileEditorManager;
 import com.dbn.editor.EditorProviderId;
@@ -32,7 +33,9 @@ import static com.dbn.database.DatabaseFeature.OBJECT_SOURCE_EDITING;
 import static com.dbn.editor.DBContentType.CODE;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.common.property.DBObjectProperty.EDITABLE;
+import static com.dbn.options.general.WorkspaceFeature.CODE_EDITOR;
 
+@ActionFeature(CODE_EDITOR)
 public class ObjectEditCodeAction extends AnObjectAction<DBObject> {
     ObjectEditCodeAction(DBObject object) {
         super(object);

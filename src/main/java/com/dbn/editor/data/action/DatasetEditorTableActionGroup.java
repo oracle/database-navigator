@@ -16,6 +16,7 @@
 
 package com.dbn.editor.data.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.common.dispose.Failsafe;
@@ -54,8 +55,10 @@ import java.awt.datatransfer.Transferable;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DATA_EDITOR;
 
 @Slf4j
+@ActionFeature(DATA_EDITOR)
 public class DatasetEditorTableActionGroup extends DefaultActionGroup {
     private final ColumnInfo columnInfo;
     private final Object columnValue;
@@ -182,6 +185,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
         return datasetEditor.ensure();
     }
 
+    @ActionFeature(DATA_EDITOR)
     private class HideColumnAction extends BasicAction {
         private HideColumnAction() {
             super(txt("app.dataEditor.action.HideColumn"));
@@ -195,6 +199,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
         }
     }
 
+    @ActionFeature(DATA_EDITOR)
     private class HideAuditColumnsAction extends BasicAction {
         private HideAuditColumnsAction() {
             super(txt("app.dataEditor.action.HideAuditColumns"));
@@ -207,6 +212,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
         }
     }
 
+    @ActionFeature(DATA_EDITOR)
     private class ShowAuditColumnsAction extends BasicAction {
         private ShowAuditColumnsAction() {
             super(txt("app.dataEditor.action.ShowAuditColumns"));
@@ -219,6 +225,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
         }
     }
 
+    @ActionFeature(DATA_EDITOR)
     private class SortAscendingAction extends BasicAction {
         private SortAscendingAction() {
             super(txt("app.data.action.SortAscending"), null, Icons.ACTION_SORT_ASC);
@@ -233,6 +240,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
         }
     }
 
+    @ActionFeature(DATA_EDITOR)
     private class SortDescendingAction extends BasicAction {
         private SortDescendingAction() {
             super(txt("app.data.action.SortDescending"), null, Icons.ACTION_SORT_DESC);
@@ -247,6 +255,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
         }
     }
 
+    @ActionFeature(DATA_EDITOR)
     private class CreateFilterAction extends BasicAction {
         private final boolean filterByValue;
         private CreateFilterAction(boolean filterByValue) {
@@ -265,6 +274,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
         }
     }
 
+    @ActionFeature(DATA_EDITOR)
     private class CreateClipboardFilterAction extends BasicAction {
         private final String text;
         private final boolean like;
@@ -286,6 +296,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
         }
     }
 
+    @ActionFeature(DATA_EDITOR)
     private class CreateAdditionalConditionAction extends BasicAction {
         private CreateAdditionalConditionAction() {
             super(columnValue == null ?

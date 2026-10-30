@@ -16,6 +16,7 @@
 
 package com.dbn.execution.statement.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.action.ProjectAction;
@@ -38,8 +39,10 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.EXECUTION_ENGINE;
 
 @BackgroundUpdate
+@ActionFeature(EXECUTION_ENGINE)
 public class ExecuteStatementEditorAction extends ProjectAction {
 
     public ExecuteStatementEditorAction() {

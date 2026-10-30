@@ -16,6 +16,7 @@
 
 package com.dbn.editor.data.record.ui;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.ToggleAction;
 import com.dbn.common.dispose.DisposableContainers;
@@ -51,6 +52,7 @@ import java.util.List;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DATA_EDITOR;
 
 public class DatasetRecordEditorForm extends DBNFormBase {
     private JPanel actionsPanel;
@@ -216,6 +218,7 @@ public class DatasetRecordEditorForm extends DBNFormBase {
     /*********************************************************      
      *                       Actions                         *
      *********************************************************/
+    @ActionFeature(DATA_EDITOR)
     private class SortAlphabeticallyAction extends ToggleAction {
         private SortAlphabeticallyAction() {
             super(txt("app.data.action.SortColumnsAlphabetically"), null, Icons.ACTION_SORT_ALPHA);
@@ -237,6 +240,7 @@ public class DatasetRecordEditorForm extends DBNFormBase {
         }
     }
 
+    @ActionFeature(DATA_EDITOR)
     private class FirstRecordAction extends BasicAction {
         private FirstRecordAction() {
             super(txt("app.data.action.FirstRecord"), null, Icons.DATA_EDITOR_FIRST_RECORD);
@@ -257,6 +261,7 @@ public class DatasetRecordEditorForm extends DBNFormBase {
         }
     }
 
+    @ActionFeature(DATA_EDITOR)
     private class PreviousRecordAction extends BasicAction {
         private PreviousRecordAction() {
             super(txt("app.data.action.PreviousRecord"), null, Icons.DATA_EDITOR_PREVIOUS_RECORD);
@@ -280,6 +285,7 @@ public class DatasetRecordEditorForm extends DBNFormBase {
         }
     }
 
+    @ActionFeature(DATA_EDITOR)
     private class NextRecordAction extends BasicAction {
         private NextRecordAction() {
             super(txt("app.data.action.NextRecord"), null, Icons.DATA_EDITOR_NEXT_RECORD);
@@ -303,6 +309,7 @@ public class DatasetRecordEditorForm extends DBNFormBase {
         }
     }
 
+    @ActionFeature(DATA_EDITOR)
     private class LastRecordAction extends BasicAction {
         private LastRecordAction() {
             super(txt("app.data.action.LastRecord"), null, Icons.DATA_EDITOR_LAST_RECORD);

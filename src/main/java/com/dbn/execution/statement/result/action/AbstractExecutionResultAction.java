@@ -16,6 +16,7 @@
 
 package com.dbn.execution.statement.result.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ContextAction;
 import com.dbn.common.action.DataKeys;
@@ -23,7 +24,10 @@ import com.dbn.execution.statement.result.StatementExecutionCursorResult;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.options.general.WorkspaceFeature.EXECUTION_ENGINE;
+
 @BackgroundUpdate
+@ActionFeature(EXECUTION_ENGINE)
 public abstract class AbstractExecutionResultAction extends ContextAction<StatementExecutionCursorResult> {
 
     protected AbstractExecutionResultAction(String text) {

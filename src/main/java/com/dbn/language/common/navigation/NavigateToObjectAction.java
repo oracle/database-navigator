@@ -16,6 +16,7 @@
 
 package com.dbn.language.common.navigation;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
@@ -24,7 +25,9 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.CODE_EDITOR;
 
+@ActionFeature(CODE_EDITOR)
 public class NavigateToObjectAction extends BasicAction {
     private final DBObjectRef object;
     public NavigateToObjectAction(DBObject object, DBObjectType objectType) {

@@ -16,6 +16,7 @@
 
 package com.dbn.connection.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.transaction.DatabaseTransactionManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -25,7 +26,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.CONNECTION_MANAGEMENT;
 
+@ActionFeature(CONNECTION_MANAGEMENT)
 public class DatabaseDisconnectAction extends AbstractConnectionAction {
     DatabaseDisconnectAction(ConnectionHandler connection) {
         super(connection);

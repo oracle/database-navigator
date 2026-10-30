@@ -16,6 +16,7 @@
 
 package com.dbn.connection.config.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ContextAction;
 import com.dbn.common.action.DataKeys;
 import com.dbn.connection.config.ui.ConnectionBundleSettingsForm;
@@ -23,6 +24,9 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.options.general.WorkspaceFeature.CONNECTION_MANAGEMENT;
+
+@ActionFeature(CONNECTION_MANAGEMENT)
 public abstract class ConnectionSettingsAction extends ContextAction<ConnectionBundleSettingsForm> {
     protected ConnectionSettingsAction() {
     }

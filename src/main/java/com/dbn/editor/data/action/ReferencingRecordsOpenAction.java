@@ -16,6 +16,7 @@
 
 package com.dbn.editor.data.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.editor.data.filter.DatasetFilterInput;
 import com.dbn.object.DBColumn;
 import com.dbn.object.action.ObjectListShowAction;
@@ -26,7 +27,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DATA_EDITOR;
 
+@ActionFeature(DATA_EDITOR)
 public class ReferencingRecordsOpenAction extends ObjectListShowAction{
     private Object columnValue;
 

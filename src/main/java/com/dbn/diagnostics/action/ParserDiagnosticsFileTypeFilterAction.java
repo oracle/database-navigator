@@ -16,6 +16,7 @@
 
 package com.dbn.diagnostics.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.util.Strings;
@@ -32,7 +33,9 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JComponent;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.CODE_EDITOR;
 
+@ActionFeature(CODE_EDITOR)
 public class ParserDiagnosticsFileTypeFilterAction extends ComboBoxAction implements DumbAware {
     private final ParserDiagnosticsForm form;
 
@@ -67,6 +70,7 @@ public class ParserDiagnosticsFileTypeFilterAction extends ComboBoxAction implem
         return form.getManager().getResultFilter();
     }
 
+    @ActionFeature(CODE_EDITOR)
     private class SelectFilterValueAction extends BasicAction {
         private final String fileType;
 

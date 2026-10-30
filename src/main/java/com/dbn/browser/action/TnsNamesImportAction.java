@@ -17,6 +17,7 @@
 package com.dbn.browser.action;
 
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.connection.config.tns.TnsImportService;
 import com.dbn.options.ProjectSettingsManager;
@@ -26,7 +27,9 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.CONNECTION_MANAGEMENT;
 
+@ActionFeature(CONNECTION_MANAGEMENT)
 public class TnsNamesImportAction extends ProjectAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {

@@ -16,6 +16,7 @@
 
 package com.dbn.object.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.icon.Icons;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBSchema;
@@ -38,7 +39,9 @@ import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
 import static com.dbn.object.common.property.DBObjectProperty.SYSTEM_OBJECT;
 import static com.dbn.object.event.ObjectChangeAction.DELETE;
 import static com.dbn.object.type.DBObjectType.CONSTRAINT;
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_BROWSER;
 
+@ActionFeature(DATABASE_BROWSER)
 public class ObjectDropAction extends AnObjectAction<DBObject> {
     public ObjectDropAction(DBObject object) {
         super(object);

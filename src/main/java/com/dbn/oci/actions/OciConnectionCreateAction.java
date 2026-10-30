@@ -1,5 +1,6 @@
 package com.dbn.oci.actions;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.util.Dialogs;
 import com.dbn.oci.OciConnectionData;
 import com.dbn.oci.ui.OciConnectionInputDialog;
@@ -12,6 +13,9 @@ import com.oracle.oci.intellij.api.ext.ContributeADBActions;
 import java.awt.event.ActionEvent;
 import java.util.Collections;
 
+import static com.dbn.options.general.WorkspaceFeature.CONNECTION_MANAGEMENT;
+
+@ActionFeature(CONNECTION_MANAGEMENT)
 public class OciConnectionCreateAction extends ContributeADBActions.ExtensionContextAction {
   OciConnectionData connectionData;
   public OciConnectionCreateAction(OciConnectionData context, String title) {

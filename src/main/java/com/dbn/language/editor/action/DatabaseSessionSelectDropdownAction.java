@@ -16,6 +16,7 @@
 
 package com.dbn.language.editor.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.action.Lookups;
@@ -41,8 +42,10 @@ import java.util.List;
 
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.SESSION_BROWSER;
 
 @BackgroundUpdate
+@ActionFeature(SESSION_BROWSER)
 public class DatabaseSessionSelectDropdownAction extends ComboBoxAction implements DumbAware {
 
     public DatabaseSessionSelectDropdownAction() {

@@ -16,6 +16,7 @@
 
 package com.dbn.liquibase.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.common.icon.Icons;
 import com.dbn.liquibase.operation.LiquibaseOperation;
@@ -55,8 +56,10 @@ import static com.dbn.liquibase.operation.LiquibaseOperation.UPDATE_SQL;
 import static com.dbn.liquibase.operation.LiquibaseOperation.UPDATE_TESTING_ROLLBACK;
 import static com.dbn.liquibase.operation.LiquibaseOperation.VALIDATE_CHANGELOG;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.LIQUIBASE;
 
 /** Liquibase operations available for a single database schema. */
+@ActionFeature(LIQUIBASE)
 public class LiquibaseSchemaActions extends DefaultActionGroup {
     public LiquibaseSchemaActions(@NotNull DBSchema schema) {
         super(txt("app.liquibase.action.Liquibase"), true);

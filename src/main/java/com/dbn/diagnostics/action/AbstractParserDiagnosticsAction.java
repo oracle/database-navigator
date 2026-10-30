@@ -16,6 +16,7 @@
 
 package com.dbn.diagnostics.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ContextAction;
 import com.dbn.common.action.DataKeys;
@@ -25,7 +26,10 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.options.general.WorkspaceFeature.CODE_EDITOR;
+
 @BackgroundUpdate
+@ActionFeature(CODE_EDITOR)
 public abstract class AbstractParserDiagnosticsAction extends ContextAction<ParserDiagnosticsForm> {
 
     protected AbstractParserDiagnosticsAction(String text) {

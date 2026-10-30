@@ -16,6 +16,7 @@
 
 package com.dbn.object.diagram.actions;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.object.action.AnObjectAction;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.diagram.DatabaseDiagramManager;
@@ -27,7 +28,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_BROWSER;
 
+@ActionFeature(DATABASE_BROWSER)
 public final class OpenDependencyDiagramAction extends AnObjectAction<DBObject> {
     public OpenDependencyDiagramAction(DBObject object) {
         super(object);

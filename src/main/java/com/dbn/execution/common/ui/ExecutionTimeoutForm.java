@@ -16,6 +16,7 @@
 
 package com.dbn.execution.common.ui;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.ProjectPopupAction;
 import com.dbn.common.icon.Icons;
@@ -45,6 +46,7 @@ import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.EXECUTION_ENGINE;
 
 public abstract class ExecutionTimeoutForm extends DBNFormBase {
     private JTextField executionTimeoutTextField;
@@ -131,6 +133,7 @@ public abstract class ExecutionTimeoutForm extends DBNFormBase {
         return hasErrors;
     }
 
+    @ActionFeature(EXECUTION_ENGINE)
     public class SettingsAction extends ProjectPopupAction {
         @Override
         public AnAction[] getChildren(AnActionEvent e) {
@@ -148,6 +151,7 @@ public abstract class ExecutionTimeoutForm extends DBNFormBase {
         }
     }
 
+    @ActionFeature(EXECUTION_ENGINE)
     class SaveToSettingsAction extends BasicAction {
         SaveToSettingsAction() {
             super(txt("app.execution.action.SaveToSettings"));
@@ -173,6 +177,7 @@ public abstract class ExecutionTimeoutForm extends DBNFormBase {
         }
     }
 
+    @ActionFeature(EXECUTION_ENGINE)
     class ReloadDefaultAction extends BasicAction {
 
         ReloadDefaultAction() {

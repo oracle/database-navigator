@@ -18,13 +18,17 @@ package com.dbn.browser.action;
 
 import com.dbn.browser.DatabaseBrowserManager;
 import com.dbn.browser.ui.DatabaseBrowserTree;
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ProjectAction;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_BROWSER;
+
 @BackgroundUpdate
+@ActionFeature(DATABASE_BROWSER)
 public abstract class AbstractBrowserAction extends ProjectAction {
 
     protected AbstractBrowserAction(String text) {

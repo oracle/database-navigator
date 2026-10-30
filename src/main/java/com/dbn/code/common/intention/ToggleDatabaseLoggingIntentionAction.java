@@ -16,6 +16,7 @@
 
 package com.dbn.code.common.intention;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.dispose.Checks;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Strings;
@@ -43,7 +44,9 @@ import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 import static com.dbn.database.DatabaseFeature.DATABASE_LOGGING;
 import static com.dbn.debugger.DatabaseDebuggerManager.isDebugConsole;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.EXECUTION_ENGINE;
 
+@ActionFeature(EXECUTION_ENGINE)
 public class ToggleDatabaseLoggingIntentionAction extends EditorIntentionAction {
     private PsiFileRef<?> lastChecked;
 

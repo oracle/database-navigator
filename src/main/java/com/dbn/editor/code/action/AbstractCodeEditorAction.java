@@ -16,6 +16,7 @@
 
 package com.dbn.editor.code.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.action.ProjectAction;
@@ -31,8 +32,11 @@ import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.options.general.WorkspaceFeature.CODE_EDITOR;
+
 @BackgroundUpdate
 @NoArgsConstructor
+@ActionFeature(CODE_EDITOR)
 public abstract class AbstractCodeEditorAction extends ProjectAction {
 
     protected AbstractCodeEditorAction(String text) {

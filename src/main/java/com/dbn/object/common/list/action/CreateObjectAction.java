@@ -16,6 +16,7 @@
 
 package com.dbn.object.common.list.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.ref.WeakRef;
@@ -32,8 +33,10 @@ import org.jetbrains.annotations.NotNull;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.factory.ObjectFactoryAdapters.isSupported;
 import static com.dbn.object.factory.ObjectFactoryAdapters.isSuppressed;
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_BROWSER;
 
 @BackgroundUpdate
+@ActionFeature(DATABASE_BROWSER)
 public class CreateObjectAction extends BasicAction {
 
     private final WeakRef<DBObjectList> objectList;

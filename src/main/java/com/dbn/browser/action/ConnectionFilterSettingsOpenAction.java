@@ -17,6 +17,7 @@
 package com.dbn.browser.action;
 
 import com.dbn.browser.DatabaseBrowserManager;
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Dialogs;
@@ -28,7 +29,9 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.DATABASE_BROWSER;
 
+@ActionFeature(DATABASE_BROWSER)
 public class ConnectionFilterSettingsOpenAction extends ProjectAction {
     public ConnectionFilterSettingsOpenAction() {
         super(txt("app.browser.action.BrowserObjectFilters"));

@@ -16,6 +16,7 @@
 
 package com.dbn.language.editor.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.action.SelectDropdownAction;
@@ -40,9 +41,11 @@ import static com.dbn.common.action.Lookups.getProject;
 import static com.dbn.common.action.Lookups.getVirtualFile;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.options.general.WorkspaceFeature.CODE_EDITOR;
 import static java.util.Collections.emptyList;
 
 @BackgroundUpdate
+@ActionFeature(CODE_EDITOR)
 public class SchemaSelectDropdownAction extends SelectDropdownAction<DBSchema> implements DumbAware {
 
     public SchemaSelectDropdownAction() {

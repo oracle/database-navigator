@@ -16,6 +16,7 @@
 
 package com.dbn.menu.action;
 
+import com.dbn.common.action.ActionFeature;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.connection.ConnectionBundle;
 import com.dbn.connection.ConnectionManager;
@@ -24,6 +25,9 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.options.general.WorkspaceFeature.TRANSACTIONS;
+
+@ActionFeature(TRANSACTIONS)
 public class PendingTransactionsOpenAction extends ProjectAction {
 
     @Override
