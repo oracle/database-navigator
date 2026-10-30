@@ -29,6 +29,7 @@ import com.dbn.diagnostics.data.DiagnosticBundle;
 import com.dbn.driver.DatabaseDriverManager;
 import com.dbn.driver.DriverBundle;
 import com.dbn.driver.DriverSource;
+import com.dbn.telemetry.listener.ConnectionTelemetryListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,6 +41,7 @@ import java.sql.SQLTimeoutException;
 
 import static com.dbn.common.util.TimeUtil.millisSince;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.telemetry.listener.ConnectionTelemetryListener.collectTelemetryData;
 
 public class ConnectionUtil {
     private ConnectionUtil() {}
@@ -48,47 +50,48 @@ public class ConnectionUtil {
     public static DBNConnection connect(ConnectionHandler connection, SessionId sessionId) throws SQLException {
         AuthenticationInfo authenticationInfo = ensureAuthenticationInfo(connection);
 
-        return ConnectionContext.surround(connection.createConnectionContext(), () -> {
-            long start = System.currentTimeMillis();
-            ConnectionHandlerStatusHolder connectionStatus = connection.getConnectionStatus();
+        return collectTelemetryData(connection, () ->
+                ConnectionContext.surround(connection.createConnectionContext(), () -> {
+                long start = System.currentTimeMillis();
+                ConnectionHandlerStatusHolder connectionStatus = connection.getConnectionStatus();
 
-            DiagnosticsManager diagnosticsManager = DiagnosticsManager.getInstance(connection.getProject());
-            DiagnosticBundle<SessionId> diagnostics = diagnosticsManager.getConnectivityDiagnostics(connection.getConnectionId());
-            try {
-                ConnectionSettings connectionSettings = connection.getSettings();
-                ConnectionPropertiesSettings propertiesSettings = connectionSettings.getPropertiesSettings();
+                DiagnosticsManager diagnosticsManager = DiagnosticsManager.getInstance(connection.getProject());
+                DiagnosticBundle<SessionId> diagnostics = diagnosticsManager.getConnectivityDiagnostics(connection.getConnectionId());
+                try {
+                    ConnectionSettings connectionSettings = connection.getSettings();
+                    ConnectionPropertiesSettings propertiesSettings = connectionSettings.getPropertiesSettings();
 
-                DBNConnection conn = connect(
-                        connectionSettings,
-                        connectionStatus,
-                        connection.getTemporaryAuthenticationInfo(),
-                        sessionId,
-                        propertiesSettings.isEnableAutoCommit());
+                    DBNConnection conn = connect(
+                            connectionSettings,
+                            connectionStatus,
+                            connection.getTemporaryAuthenticationInfo(),
+                            sessionId,
+                            propertiesSettings.isEnableAutoCommit());
 
-                ConnectionInfo connectionInfo = new ConnectionInfo(conn.getMetaData());
-                connection.setConnectionInfo(connectionInfo);
-                connectionStatus.setAuthenticationError(null);
-                connection.getCompatibility().read(conn.getMetaData());
-                initSessionUser(connection, conn);
-                diagnostics.log(sessionId, false, false, millisSince(start));
-                return conn;
-            } catch (SQLTimeoutException e) {
-                conditionallyLog(e);
-                diagnostics.log(sessionId, false, true, millisSince(start));
-                throw e;
-            } catch (SQLException e) {
-                conditionallyLog(e);
-                diagnostics.log(sessionId, true, false, millisSince(start));
-                DatabaseMessageParserInterface messageParser = connection.getMessageParserInterface();
-                boolean passwordExpired = messageParser.isPasswordExpiredException(e);
-                boolean authenticationError = messageParser.isAuthenticationException(e);
-                if (authenticationError || passwordExpired) {
-                    if (!passwordExpired) authenticationInfo.setPassword(null);
-                    connectionStatus.setAuthenticationError(new AuthenticationError(authenticationInfo, e));
+                    ConnectionInfo connectionInfo = new ConnectionInfo(conn.getMetaData());
+                    connection.setConnectionInfo(connectionInfo);
+                    connectionStatus.setAuthenticationError(null);
+                    connection.getCompatibility().read(conn.getMetaData());
+                    initSessionUser(connection, conn);
+                    diagnostics.log(sessionId, false, false, millisSince(start));
+                    return conn;
+                } catch (SQLTimeoutException e) {
+                    conditionallyLog(e);
+                    diagnostics.log(sessionId, false, true, millisSince(start));
+                    throw e;
+                } catch (SQLException e) {
+                    conditionallyLog(e);
+                    diagnostics.log(sessionId, true, false, millisSince(start));
+                    DatabaseMessageParserInterface messageParser = connection.getMessageParserInterface();
+                    boolean passwordExpired = messageParser.isPasswordExpiredException(e);
+                    boolean authenticationError = messageParser.isAuthenticationException(e);
+                    if (authenticationError || passwordExpired) {
+                        if (!passwordExpired) authenticationInfo.setPassword(null);
+                        connectionStatus.setAuthenticationError(new AuthenticationError(authenticationInfo, e));
+                    }
+                    throw e;
                 }
-                throw e;
-            }
-        });
+                }));
     }
 
     /**
