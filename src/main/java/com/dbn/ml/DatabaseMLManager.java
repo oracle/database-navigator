@@ -28,7 +28,6 @@ import com.dbn.common.message.TitledMessage;
 import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.common.outcome.OutcomeHandlers;
 import com.dbn.common.outcome.OutcomeHandlersImpl;
-import com.dbn.common.outcome.OutcomeType;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Conditional;
 import com.dbn.common.util.Dialogs;
@@ -82,6 +81,9 @@ import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.constantAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setConstantAttribute;
+import static com.dbn.common.outcome.OutcomeType.ERROR;
+import static com.dbn.common.outcome.OutcomeType.SUCCESS;
+import static com.dbn.common.outcome.OutcomeType.WARNING;
 import static com.dbn.common.util.Messages.OPTIONS_RETRY_CANCEL;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.common.util.Messages.showMessageDialog;
@@ -344,13 +346,13 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
 
         String modelName = getResultModelName(submission);
         OutcomeHandlers outcomeHandlers = new OutcomeHandlersImpl();
-        outcomeHandlers.addHandler(OutcomeType.SUCCESS,
+        outcomeHandlers.addHandler(SUCCESS,
                 (OutcomeHandler.HighPriority) outcome -> completeTrainingJob(executor, submission, connection, executionResult));
-        outcomeHandlers.addHandler(OutcomeType.WARNING, (OutcomeHandler.HighPriority) outcome ->
+        outcomeHandlers.addHandler(WARNING, (OutcomeHandler.HighPriority) outcome ->
                 executionResult.stopLoading(new TitledMessage(MessageType.WARNING,
                         txt("app.machineLearning.title.MonitoringStopped"),
                         txt("app.machineLearning.text.MonitoringStopped"))));
-        outcomeHandlers.addHandler(OutcomeType.FAILURE, (OutcomeHandler.HighPriority) outcome -> {
+        outcomeHandlers.addHandler(ERROR, (OutcomeHandler.HighPriority) outcome -> {
             SchedulerJobCompletion completion = outcome.getData();
             if (completion != null && completion.getSnapshot().getStatus().isTerminal()) {
                 try {

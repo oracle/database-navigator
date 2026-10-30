@@ -21,7 +21,6 @@ import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.outcome.MessageOutcomeHandler;
 import com.dbn.common.outcome.OutcomeHandler;
-import com.dbn.common.outcome.OutcomeType;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.generator.code.shared.CodeGenerator;
@@ -38,6 +37,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 import static com.dbn.common.component.Components.projectService;
+import static com.dbn.common.outcome.OutcomeType.ERROR;
+import static com.dbn.common.outcome.OutcomeType.SUCCESS;
 import static com.dbn.common.util.Editors.openFileEditor;
 import static com.dbn.generator.code.CodeGeneratorManager.COMPONENT_NAME;
 
@@ -67,8 +68,8 @@ public class CodeGeneratorManager extends ProjectComponentBase implements Persis
 
         // create and initialize context
         CodeGeneratorContext context = new CodeGeneratorContext(type, databaseContext);
-        context.addOutcomeHandler(OutcomeType.FAILURE, MessageOutcomeHandler.get(project));
-        context.addOutcomeHandler(OutcomeType.SUCCESS, createFilesOpener(project));
+        context.addOutcomeHandler(ERROR, MessageOutcomeHandler.get(project));
+        context.addOutcomeHandler(SUCCESS, createFilesOpener(project));
 
         // create empty input
         CodeGenerator generator = context.getGenerator();

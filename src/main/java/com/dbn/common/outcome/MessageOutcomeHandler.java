@@ -56,7 +56,7 @@ public final class MessageOutcomeHandler extends ProjectOutcomeHandler {
         switch (outcome.getType()) {
             case SUCCESS: showInfoDialog(project, title, message); break;
             case WARNING: showWarningDialog(project, title, message); break;
-            case FAILURE: showErrorDialog(project, title, message, exception); break;
+            case ERROR: showErrorDialog(project, title, message, exception); break;
         }
 
     }

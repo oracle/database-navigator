@@ -21,6 +21,7 @@ import com.dbn.common.approval.UserApprovalManager;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.outcome.OutcomeType;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.CancellableDatabaseCall;
@@ -43,6 +44,7 @@ import com.dbn.execution.logging.LogOutputContext;
 import com.dbn.execution.script.options.ScriptExecutionSettings;
 import com.dbn.execution.script.ui.CmdLineInterfaceInputDialog;
 import com.dbn.execution.script.ui.ScriptExecutionInputDialog;
+import com.dbn.telemetry.listener.ExecutionTelemetryWrapper;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.components.State;
@@ -87,10 +89,12 @@ import static com.dbn.common.util.FilePermissions.createOwnerOnlyTempFile;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.common.util.Messages.showInfoDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.execution.ExecutionType.SCRIPT;
 import static com.dbn.execution.logging.LogOutput.createSysOutput;
 import static com.dbn.execution.script.CmdLineExecutableSignature.getApprovalSignature;
 import static com.dbn.execution.script.ScriptExecutionProcessHandler.startProcess;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.telemetry.listener.ExecutionTelemetryWrapper.telemetryWrapper;
 import static com.intellij.openapi.ui.DialogWrapper.OK_EXIT_CODE;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -193,8 +197,9 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
         int timeout = input.getExecutionTimeout();
         executionManager.writeLogOutput(outputContext, createSysOutput(outputContext, txt("log.execution.info.InitializingScriptExecution"), input.isClearOutput()));
 
+        ExecutionTelemetryWrapper telemetry = telemetryWrapper(SCRIPT);
         try {
-            new CancellableDatabaseCall<>(connection, null, timeout, SECONDS) {
+            CancellableDatabaseCall<Object> call = new CancellableDatabaseCall<>(connection, null, timeout, SECONDS) {
                 @Override
                 public Object execute() throws Exception {
                     SchemaId schemaId = input.getSchemaId();
@@ -243,6 +248,12 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                     // start monitoring the process and wait for completion
                     processHandler.startNotify();
                     processHandler.waitFor();
+                    Integer exitCode = processHandler.getExitCode();
+                    if (outputContext.isStopped()) {
+                        telemetry.setOutcome(OutcomeType.CANCELLED);
+                    } else if (exitCode != null && exitCode != 0) {
+                        telemetry.setOutcome(OutcomeType.ERROR);
+                    }
 
                     LogOutput logOutput = createSysOutput(outputContext,
                             outputContext.isStopped() ?
@@ -257,11 +268,12 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
 
                 @Override
                 public void cancel() {
-                    outputContext.stop();
+                    telemetry.collectCancellationData(outputContext::stop);
                 }
 
                 @Override
                 public void handleTimeout() {
+                    telemetry.setOutcome(OutcomeType.TIMEOUT);
                     showErrorDialog(project,
                             txt("msg.execution.title.ScriptExecutionTimeout"),
                             txt("msg.execution.error.ScriptExecutionTimeout"),
@@ -272,7 +284,11 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
 
                 @Override
                 public void handleException(Throwable e) {
-                    if (e instanceof ProcessCanceledException) return;
+                    if (e instanceof ProcessCanceledException) {
+                        telemetry.setOutcome(OutcomeType.CANCELLED);
+                        return;
+                    }
+                    telemetry.setOutcome(OutcomeType.ERROR);
 
                     showErrorDialog(project,
                             txt("msg.execution.title.ScriptExecutionError"),
@@ -280,7 +296,8 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                             Messages.OPTIONS_RETRY_CANCEL, 0,
                             option -> when(option == 0, () -> executeScript(sourceFile)));
                 }
-            }.start();
+            };
+            telemetry.collectTelemetryData(() -> call.start());
         } catch (ProcessCanceledException e) {
             conditionallyLog(e);
             //executionManager.writeLogOutput(outputContext, LogOutput.createSysOutput(outputContext, " - Script execution cancelled by user", false));

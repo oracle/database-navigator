@@ -48,7 +48,7 @@ import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.exception.Exceptions.unsupported;
 import static com.dbn.common.outcome.Outcome.failure;
 import static com.dbn.common.outcome.Outcome.success;
-import static com.dbn.common.outcome.OutcomeType.FAILURE;
+import static com.dbn.common.outcome.OutcomeType.ERROR;
 import static com.dbn.common.outcome.OutcomeType.SUCCESS;
 
 /**
@@ -77,7 +77,7 @@ abstract class ObjectManagementAdapterBase<T extends DBObject> extends DBObjectW
 
         outcomeHandlers.addHandler(SUCCESS, ObjectChangeNotifier.create(object, action));
         outcomeHandlers.addNotificationHandler(SUCCESS, getProject(), NotificationCategory.DDL);
-        outcomeHandlers.addMessageHandler(FAILURE, getProject());
+        outcomeHandlers.addMessageHandler(ERROR, getProject());
     }
 
     @Override

@@ -36,6 +36,7 @@ import com.dbn.execution.logging.DatabaseLoggingManager;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.telemetry.listener.ExecutionTelemetryWrapper;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
 import lombok.extern.slf4j.Slf4j;
@@ -53,9 +54,11 @@ import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.common.load.ProgressMonitor.setProgressDetail;
 import static com.dbn.common.util.Lists.sortedCopy;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.execution.ExecutionType.JAVA;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.DBOrderedObject.POSITION_COMPARATOR;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
+import static com.dbn.telemetry.listener.ExecutionTelemetryWrapper.telemetryWrapper;
 
 @Slf4j
 public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcessor {
@@ -254,22 +257,24 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		ConnectionHandler connection = nd(context.getTargetConnection());
 		DBNConnection conn = context.getConnection();
 
-		new CancellableDatabaseCall<JavaExecutionResult>(
-				connection,
-				conn,
-				context.getTimeout(),
-				TimeUnit.SECONDS) {
+		ExecutionTelemetryWrapper telemetry = telemetryWrapper(JAVA);
+		CancellableDatabaseCall<JavaExecutionResult> call = new CancellableDatabaseCall<>(
+                connection,
+                conn,
+                context.getTimeout(),
+                TimeUnit.SECONDS) {
 
-			@Override
-			public JavaExecutionResult execute() throws SQLException {
-				return executeStatement(context, getConnection(), catchResult);
-			}
+            @Override
+            public JavaExecutionResult execute() throws SQLException {
+                return executeStatement(context, getConnection(), catchResult);
+            }
 
-			@Override
-			public void cancel() {
-				Resources.cancel(context.getStatement());
-			}
-		}.start();
+            @Override
+            public void cancel() {
+                telemetry.collectCancellationData(() -> Resources.cancel(context.getStatement()));
+            }
+        };
+		telemetry.collectTelemetryData(call::start);
 
 		JavaExecutionInput executionInput = context.getInput();
 		SessionId targetSessionId = executionInput.getTargetSessionId();

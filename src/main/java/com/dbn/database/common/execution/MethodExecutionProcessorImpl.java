@@ -38,6 +38,7 @@ import com.dbn.execution.method.result.MethodExecutionResult;
 import com.dbn.object.DBArgument;
 import com.dbn.object.DBMethod;
 import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.telemetry.listener.ExecutionTelemetryWrapper;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -51,6 +52,8 @@ import java.util.concurrent.TimeUnit;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.execution.ExecutionType.METHOD;
+import static com.dbn.telemetry.listener.ExecutionTelemetryWrapper.telemetryWrapper;
 
 public abstract class MethodExecutionProcessorImpl implements MethodExecutionProcessor {
     private final DBObjectRef<DBMethod> method;
@@ -192,7 +195,8 @@ public abstract class MethodExecutionProcessorImpl implements MethodExecutionPro
         ConnectionHandler connection = nd(context.getTargetConnection());
         DBNConnection conn = context.getConnection();
 
-        MethodExecutionResult executionResult = new CancellableDatabaseCall<MethodExecutionResult>(
+        ExecutionTelemetryWrapper telemetry = telemetryWrapper(METHOD);
+        CancellableDatabaseCall<MethodExecutionResult> call = new CancellableDatabaseCall<MethodExecutionResult>(
                 connection,
                 conn,
                 context.getTimeout(),
@@ -205,9 +209,10 @@ public abstract class MethodExecutionProcessorImpl implements MethodExecutionPro
 
             @Override
             public void cancel() {
-                Resources.cancel(context.getStatement());
+                telemetry.collectCancellationData(() -> Resources.cancel(context.getStatement()));
             }
-        }.start();
+        };
+        MethodExecutionResult executionResult = telemetry.collectTelemetryData(call::start);
 
         MethodExecutionInput executionInput = context.getInput();
         SessionId targetSessionId = executionInput.getTargetSessionId();

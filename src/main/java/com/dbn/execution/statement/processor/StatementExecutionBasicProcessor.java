@@ -77,6 +77,7 @@ import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.type.DBObjectType;
+import com.dbn.telemetry.listener.ExecutionTelemetryWrapper;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
@@ -105,9 +106,11 @@ import static com.dbn.execution.ExecutionStatus.CANCELLED;
 import static com.dbn.execution.ExecutionStatus.CANCEL_REQUESTED;
 import static com.dbn.execution.ExecutionStatus.EXECUTING;
 import static com.dbn.execution.ExecutionStatus.PROMPTED;
+import static com.dbn.execution.ExecutionType.STATEMENT;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
 import static com.dbn.object.event.ObjectChangeAction.UNSPECIFIED;
+import static com.dbn.telemetry.listener.ExecutionTelemetryWrapper.telemetryWrapper;
 
 @Getter
 public class StatementExecutionBasicProcessor extends StatefulDisposableBase implements StatementExecutionProcessor {
@@ -474,7 +477,8 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
         assertNotCancelled();
 
         executionInput.bindExecutionVariables(connection, statement);
-        databaseCall = new CancellableDatabaseCall<>(connection, conn, timeout, TimeUnit.SECONDS) {
+        ExecutionTelemetryWrapper telemetry = telemetryWrapper(STATEMENT);
+        CancellableDatabaseCall<StatementExecutionResult> call = new CancellableDatabaseCall<>(connection, conn, timeout, TimeUnit.SECONDS) {
             @Override
             public StatementExecutionResult execute() throws Exception {
                 try {
@@ -488,13 +492,14 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
             @Override
             public void cancel() {
                 try {
-                    Resources.cancel(statement);
+                    telemetry.collectCancellationData(() -> Resources.cancel(statement));
                 } finally {
                     databaseCall = null;
                 }
             }
         };
-        return databaseCall.start();
+        databaseCall = call;
+        return telemetry.collectTelemetryData(() -> call.start());
     }
 
     @Override

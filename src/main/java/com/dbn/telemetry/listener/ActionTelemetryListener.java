@@ -90,8 +90,7 @@ public final class ActionTelemetryListener extends TelemetryListener implements 
         ActionStart start = actionStarts.remove(event);
         if (start == null) return;
 
-        recordDuration(start.startedAtNanos(),
-                () -> Map.of("action_id", start.actionId()));
+        recordDuration(start.startedAtNanos(), () -> Map.of("action_id", start.actionId()));
     }
 
     private record ActionStart(String actionId, long startedAtNanos) {}

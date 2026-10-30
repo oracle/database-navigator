@@ -25,5 +25,7 @@ package com.dbn.common.outcome;
 public enum OutcomeType {
     SUCCESS,
     WARNING,
-    FAILURE;
+    ERROR,
+    TIMEOUT,
+    CANCELLED;
 }

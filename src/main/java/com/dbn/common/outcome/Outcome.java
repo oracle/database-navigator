@@ -56,7 +56,7 @@ public class Outcome extends UserDataHolderBase implements Titled, Tagged {
     }
 
     public static Outcome failure() {
-        return new Outcome(OutcomeType.FAILURE);
+        return new Outcome(OutcomeType.ERROR);
     }
 
     public Outcome withTitle(String title) {

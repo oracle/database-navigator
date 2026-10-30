@@ -29,6 +29,9 @@ import com.dbn.generator.code.shared.CodeGeneratorResult;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.common.outcome.OutcomeType.ERROR;
+import static com.dbn.common.outcome.OutcomeType.SUCCESS;
+
 /**
  * Stub implementation of a {@link CodeGenerator}
  * @param <I> the type of {@link CodeGeneratorInput} the generator accepts
@@ -62,11 +65,11 @@ public abstract class CodeGeneratorBase<I extends CodeGeneratorInput, R extends 
                 return;
             }
 
-            Outcome outcome = createOutcome(OutcomeType.SUCCESS, result, null);
+            Outcome outcome = createOutcome(SUCCESS, result, null);
             outcomeHandlers.handle(outcome);
             context.setResult(result);
         } catch (Exception e){
-            Outcome outcome = createOutcome(OutcomeType.FAILURE, null, e);
+            Outcome outcome = createOutcome(ERROR, null, e);
             outcomeHandlers.handle(outcome);
         }
     }

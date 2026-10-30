@@ -16,6 +16,7 @@
 
 package com.dbn.telemetry.listener;
 
+import com.dbn.common.outcome.OutcomeType;
 import com.dbn.common.routine.ThrowableCallable;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
@@ -29,7 +30,13 @@ import java.sql.SQLException;
 import java.sql.SQLTimeoutException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+
+import static com.dbn.common.outcome.OutcomeType.CANCELLED;
+import static com.dbn.common.outcome.OutcomeType.ERROR;
+import static com.dbn.common.outcome.OutcomeType.SUCCESS;
+import static com.dbn.common.outcome.OutcomeType.TIMEOUT;
 
 /** Aggregates database interface execution; result-set consumption is outside this measurement. */
 @NonNls
@@ -56,17 +63,16 @@ public final class DatabaseTelemetryListener extends TelemetryListener {
             @NotNull ThrowableCallable<T, SQLException> callable) throws SQLException {
         long startedAtNanos = start();
 
-        @NonNls
-        String outcome = "error";
+        OutcomeType outcome = ERROR;
         try {
             T result = callable.call();
-            outcome = "success";
+            outcome = SUCCESS;
             return result;
         } catch (SQLTimeoutException exception) {
-            outcome = "timeout";
+            outcome = TIMEOUT;
             throw exception;
         } catch (ProcessCanceledException exception) {
-            outcome = "cancelled";
+            outcome = CANCELLED;
             throw exception;
         } finally {
             record(connection, statementId, startedAtNanos, outcome);
@@ -77,12 +83,12 @@ public final class DatabaseTelemetryListener extends TelemetryListener {
             @NotNull DBNConnection connection,
             @NotNull String statementId,
             long startedAtNanos,
-            @NotNull String outcome) {
+            @NotNull OutcomeType outcome) {
         INSTANCE.recordDuration(startedAtNanos, () -> {
             Map<String, String> attributes = new HashMap<>();
             attributes.put("statement_id", statementId);
             attributes.put("database_type", connection.getDatabaseType().name());
-            attributes.put("outcome", outcome);
+            attributes.put("outcome", outcome.name().toLowerCase(Locale.ROOT));
 
             ConnectionHandler handler = connection.getConnectionHandler();
             if (handler != null) {

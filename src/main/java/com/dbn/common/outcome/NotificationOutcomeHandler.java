@@ -61,7 +61,7 @@ public final class NotificationOutcomeHandler extends ProjectOutcomeHandler  {
         switch (outcome.getType()) {
             case SUCCESS: sendInfoNotification(project, category, message); break;
             case WARNING: sendWarningNotification(project, category, message); break;
-            case FAILURE: sendErrorNotification(project, category, message); break;
+            case ERROR: sendErrorNotification(project, category, message); break;
         }
 
     }
