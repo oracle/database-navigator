@@ -62,6 +62,10 @@ public final class TelemetryBatchCache implements PersistentStateElement {
         batches.removeIf(batch -> batch.isClosed() && batchId.equals(batch.getBatchId()));
     }
 
+    public synchronized void clear() {
+        batches.clear();
+    }
+
     public synchronized List<Metric> snapshot() {
         return batches.stream().flatMap(batch -> batch.snapshot().stream()).toList();
     }

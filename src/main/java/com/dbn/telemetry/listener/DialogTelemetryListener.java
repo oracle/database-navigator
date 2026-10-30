@@ -81,9 +81,14 @@ public final class DialogTelemetryListener extends ComponentAdapter {
     public void componentShown(ComponentEvent event) {
         synchronized (this) {
             if (visible) return;
+            if (!isCollectionEnabled()) return;
             visible = true;
             visibleSinceNanos = System.nanoTime();
         }
+    }
+
+    private static boolean isCollectionEnabled() {
+        return TelemetryManager.getInstance().isCollectionEnabled();
     }
 
     @Override
@@ -98,6 +103,8 @@ public final class DialogTelemetryListener extends ComponentAdapter {
             visible = false;
             startedAtNanos = visibleSinceNanos;
         }
+
+        if (!isCollectionEnabled()) return;
 
         double durationSeconds = (System.nanoTime() - startedAtNanos) / 1_000_000_000.0;
         if (durationSeconds <= 0) return;

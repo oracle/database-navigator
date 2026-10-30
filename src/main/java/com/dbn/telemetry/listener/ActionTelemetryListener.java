@@ -49,6 +49,9 @@ public final class ActionTelemetryListener implements AnActionListener {
 
     @Override
     public void beforeActionPerformed(@NotNull AnAction action, @NotNull AnActionEvent event) {
+        TelemetryManager telemetryManager = TelemetryManager.getInstance();
+        if (!telemetryManager.isCollectionEnabled()) return;
+
         String actionId = resolveActionId(action);
         if (actionId == null) return;
 
@@ -81,6 +84,9 @@ public final class ActionTelemetryListener implements AnActionListener {
         ActionStart start = actionStarts.remove(event);
         if (start == null) return;
 
+        TelemetryManager telemetryManager = TelemetryManager.getInstance();
+        if (!telemetryManager.isCollectionEnabled()) return;
+
         long elapsedNanos = System.nanoTime() - start.startedAtNanos();
         double elapsedSeconds = elapsedNanos / 1_000_000_000.0;
         try {
@@ -91,7 +97,6 @@ public final class ActionTelemetryListener implements AnActionListener {
                     Map.of("action_id", start.actionId()));
             HistogramMetric metric = HistogramMetric.observation(key, DURATION_BUCKETS_SECONDS, elapsedSeconds);
 
-            TelemetryManager telemetryManager = TelemetryManager.getInstance();
             telemetryManager.recordMetric(metric);
         } catch (RuntimeException exception) {
             // Telemetry collection must not interfere with IDE action execution.

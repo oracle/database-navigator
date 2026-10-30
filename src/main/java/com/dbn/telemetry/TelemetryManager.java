@@ -17,25 +17,43 @@
 package com.dbn.telemetry;
 
 import com.dbn.DatabaseNavigator;
+import com.dbn.common.color.Colors;
 import com.dbn.common.component.ApplicationComponentBase;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.dispose.Checks;
+import com.dbn.common.dispose.Disposer;
+import com.dbn.common.icon.Icons;
 import com.dbn.common.project.Projects;
+import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
+import com.dbn.common.ui.messages.DBNMessageDialog;
+import com.dbn.common.util.Dialogs;
+import com.dbn.common.util.Modality;
 import com.dbn.telemetry.data.TelemetryBatchCache;
+import com.dbn.telemetry.data.TelemetryConsent;
 import com.dbn.telemetry.data.TelemetryReport;
 import com.dbn.telemetry.metrics.Metric;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationInfo;
 import com.intellij.openapi.components.RoamingType;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.popup.JBPopup;
+import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.ui.components.JBLabel;
 import com.intellij.util.io.HttpRequests;
+import com.intellij.util.ui.JBUI;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -51,6 +69,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static com.dbn.common.component.Components.applicationService;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
+import static com.intellij.openapi.util.text.StringUtil.escapeXmlEntities;
+import static com.intellij.ui.ColorUtil.toHex;
+import static com.intellij.util.ui.UIUtil.getLabelFont;
 
 /**
  * Persists interaction-driven telemetry batches and submits closed windows in the background.
@@ -71,6 +92,7 @@ public class TelemetryManager extends ApplicationComponentBase implements Persis
 
     private final TelemetryBatchCache telemetryCache = new TelemetryBatchCache();
     private final AtomicBoolean sending = new AtomicBoolean();
+    private final TelemetryConsent telemetryConsent = new TelemetryConsent();
 
     private TelemetryManager() {
         super(COMPONENT_NAME);
@@ -80,10 +102,85 @@ public class TelemetryManager extends ApplicationComponentBase implements Persis
         return applicationService(TelemetryManager.class);
     }
 
+    public boolean isCollectionEnabled() {
+        return telemetryConsent.isEnabled();
+    }
+
+    public void setCollectionEnabled(boolean enabled) {
+        synchronized (telemetryConsent) {
+            if (telemetryConsent.setEnabled(enabled)) telemetryCache.clear();
+        }
+    }
+
+    public void showCollectionDetails(@NotNull Disposable parent, @NotNull JComponent anchor) {
+        String content = escapeXmlEntities(txt("msg.telemetry.text.HelpUsImprove"))
+                .replace("\n\n", "</p><p style='margin-top: 12pt; margin-bottom: 0'>").replace("\n", "<br>");
+        String htmlContent = "<h3 style='text-align: left; font-size: " + (getLabelFont().getSize() + 2) +
+                "pt; color: #" + toHex(Colors.getLabelForeground()) + "; margin-top: 0; margin-bottom: 12pt'>" +
+                escapeXmlEntities(txt("cfg.telemetry.title.UsageStatistics")) +
+                "</h3><p style='margin: 0'>" + content + "</p>";
+        JBLabel label = new JBLabel("<html><body style='width: 560px'>" + htmlContent + "</body></html>");
+        label.setForeground(Colors.getLabelForeground());
+        label.setVerticalAlignment(SwingConstants.TOP);
+        label.setBorder(JBUI.Borders.empty(12));
+        Dimension initialSize = label.getPreferredSize();
+        label.setAllowAutoWrapping(true);
+        label.setCopyable(true);
+        label.setVerticalTextPosition(SwingConstants.TOP);
+        label.setText("<html><body>" + htmlContent + "</body></html>");
+        JPanel contentPanel = new JPanel(new BorderLayout());
+        contentPanel.add(label, BorderLayout.CENTER);
+        contentPanel.setPreferredSize(initialSize);
+        JBPopup popup = JBPopupFactory.getInstance()
+                .createComponentPopupBuilder(contentPanel, null)
+                .setRequestFocus(true)
+                .setResizable(true)
+                .setMovable(true)
+                .createPopup();
+        Disposer.register(parent, popup);
+        popup.showUnderneathOf(anchor);
+    }
+
+    /** Shows the introduction once, across all open projects. */
+    public void requestConsent(@NotNull Project project) {
+        synchronized (telemetryConsent) {
+            if (!telemetryConsent.needsDecision()) return;
+        }
+        if (!telemetryConsent.beginPrompt()) return;
+
+        Dispatch.run(Modality.nonModal(), () -> {
+            try {
+                if (Checks.isNotValid(project)) return;
+                synchronized (telemetryConsent) {
+                    if (!telemetryConsent.needsDecision()) return;
+                }
+                String summary = txt("msg.telemetry.text.HelpUsImproveSummary");
+                // DBNMessageForm expands the text after the first paragraph break following this marker.
+                int marker = summary.lastIndexOf("\n\n") + 2;
+                String message = summary.substring(0, marker) + "\u2063" + summary.substring(marker) +
+                        "\n\n" + txt("msg.telemetry.text.HelpUsImprove");
+                int choice = Dialogs.prompt(() -> new DBNMessageDialog(project, Icons.DIALOG_INFORMATION,
+                        txt("msg.telemetry.title.HelpUsImprove"), message,
+                        new String[]{txt("msg.telemetry.button.Allow"), txt("msg.telemetry.button.Decline")},
+                        1, null));
+                synchronized (telemetryConsent) {
+                    if (telemetryConsent.needsDecision()) {
+                        setCollectionEnabled(choice == 0);
+                    }
+                }
+            } finally {
+                telemetryConsent.endPrompt();
+            }
+        });
+    }
+
     /** Rotates the complete collection window before merging the current observation. */
     public void recordMetric(@NotNull Metric metric) {
-        long now = System.currentTimeMillis();
-        telemetryCache.record(metric, now, () -> createReport(now));
+        synchronized (telemetryConsent) {
+            if (!isCollectionEnabled()) return;
+            long now = System.currentTimeMillis();
+            telemetryCache.record(metric, now, () -> createReport(now));
+        }
         sendPendingBatches();
     }
 
@@ -93,11 +190,15 @@ public class TelemetryManager extends ApplicationComponentBase implements Persis
 
     /** Explicitly closes the current window and submits pending reports regardless of age. */
     public void flushAndReport() {
-        telemetryCache.closeActiveBatch(System.currentTimeMillis());
+        synchronized (telemetryConsent) {
+            if (!isCollectionEnabled()) return;
+            telemetryCache.closeActiveBatch(System.currentTimeMillis());
+        }
         sendPendingBatches();
     }
 
     private void sendPendingBatches() {
+        if (!isCollectionEnabled()) return;
         if (!telemetryCache.hasPendingReports()) return;
         if (sending.get()) return;
 
@@ -113,7 +214,10 @@ public class TelemetryManager extends ApplicationComponentBase implements Persis
                     txt("prc.telemetry.text.SendingTelemetry"), indicator -> {
                 boolean completed = false;
                 try {
-                    for (TelemetryReport report : telemetryCache.pendingReports()) {
+                    while (isCollectionEnabled()) {
+                        List<TelemetryReport> pending = telemetryCache.pendingReports();
+                        if (pending.isEmpty()) break;
+                        TelemetryReport report = pending.get(0);
                         submitReport(report);
                         telemetryCache.acknowledge(report.batchId());
                     }
@@ -124,7 +228,7 @@ public class TelemetryManager extends ApplicationComponentBase implements Persis
                     sending.set(false);
                     if (completed && telemetryCache.hasPendingReports()) sendPendingBatches();
                 }
-            });
+            }, () -> sending.set(false));
         } catch (Throwable e) {
             if (acquired) sending.set(false);
             conditionallyLog(e);
@@ -132,23 +236,36 @@ public class TelemetryManager extends ApplicationComponentBase implements Persis
     }
 
     @Override
-    public Element getComponentState() {
-        Element state = new Element("state");
-        telemetryCache.writeState(state);
-        return state;
+    public void readState(Element element) {
+        super.readState(element);
+        synchronized (telemetryConsent) {
+            telemetryConsent.readState(element);
+            telemetryCache.clear();
+            if (!isCollectionEnabled()) return;
+
+            try {
+                telemetryCache.readState(element);
+            } catch (RuntimeException exception) {
+                conditionallyLog(exception);
+            }
+        }
     }
 
+
     @Override
-    public void loadComponentState(@NotNull Element state) {
-        try {
-            telemetryCache.readState(state);
-        } catch (RuntimeException exception) {
-            conditionallyLog(exception);
+    public void writeState(Element element) {
+        super.writeState(element);
+        synchronized (telemetryConsent) {
+            telemetryConsent.writeState(element);
+            if (isCollectionEnabled()) telemetryCache.writeState(element);
         }
     }
 
     /** Sends a closed batch; its identifier and contents remain unchanged across retries. */
     private int submitReport(TelemetryReport report) throws IOException {
+        if (!isCollectionEnabled()) {
+            throw new IOException("Telemetry consent is not active");
+        }
         byte[] payload = OBJECT_MAPPER.writeValueAsBytes(report);
         if (payload.length > MAX_REPORT_BYTES) {
             throw new IOException("Telemetry report exceeds the 1 MiB gateway limit");
@@ -160,6 +277,9 @@ public class TelemetryManager extends ApplicationComponentBase implements Persis
                 .accept("application/json")
                 .tuner(connection -> connection.setUseCaches(false))
                 .connect(request -> {
+                    if (!isCollectionEnabled()) {
+                        throw new IOException("Telemetry consent was withdrawn");
+                    }
                     request.write(payload);
                     HttpURLConnection connection = (HttpURLConnection) request.getConnection();
                     int status = connection.getResponseCode();

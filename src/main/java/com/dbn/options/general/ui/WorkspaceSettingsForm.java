@@ -22,10 +22,13 @@ import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.ui.info.DBNCommentLabel;
 import com.dbn.options.general.WorkspaceFeature;
 import com.dbn.options.general.WorkspaceSettings;
+import com.dbn.telemetry.TelemetryManager;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.ui.HyperlinkLabel;
 import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
@@ -36,16 +39,25 @@ import java.awt.GridLayout;
 import java.awt.RenderingHints;
 import java.util.List;
 
+import static com.dbn.common.ui.link.Hyperlinks.onHyperlinkAccess;
+import static com.dbn.nls.NlsResources.txt;
+
 public class WorkspaceSettingsForm extends ConfigurationEditorForm<WorkspaceSettings> {
     private JPanel mainPanel;
     private JPanel featuresPanel;
     private DBNCommentLabel hintLabel;
+    private JCheckBox telemetryEnabledCheckBox;
+    private HyperlinkLabel telemetryDetailsLink;
+    private boolean telemetryEnabled;
 
     private final List<WorkspaceFeatureItemForm> featureForms = DisposableContainers.list(this);
 
     public WorkspaceSettingsForm(@NotNull WorkspaceSettings settings) {
         super(settings);
 
+        telemetryDetailsLink.setHyperlinkText(txt("app.shared.link.ShowMore"));
+        onHyperlinkAccess(telemetryDetailsLink, e ->
+                TelemetryManager.getInstance().showCollectionDetails(this, telemetryDetailsLink));
         initFeaturePanel();
         resetFormChanges();
         registerComponent(mainPanel);
@@ -71,12 +83,18 @@ public class WorkspaceSettingsForm extends ConfigurationEditorForm<WorkspaceSett
 
     @Override
     public void resetFormChanges() {
+        telemetryEnabled = TelemetryManager.getInstance().isCollectionEnabled();
+        telemetryEnabledCheckBox.setSelected(telemetryEnabled);
         WorkspaceSettings settings = getConfiguration();
         featureForms.forEach(form -> form.setFeatureEnabled(settings.isEnabled(form.getFeature())));
     }
 
     @Override
     public void applyFormChanges() throws ConfigurationException {
+        if (telemetryEnabledCheckBox.isSelected() != telemetryEnabled) {
+            telemetryEnabled = telemetryEnabledCheckBox.isSelected();
+            TelemetryManager.getInstance().setCollectionEnabled(telemetryEnabled);
+        }
         WorkspaceSettings settings = getConfiguration();
         featureForms.forEach(form -> settings.setEnabled(form.getFeature(), form.isFeatureEnabled()));
     }

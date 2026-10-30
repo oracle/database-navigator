@@ -26,6 +26,7 @@ import com.dbn.connection.console.DatabaseConsoleManager;
 import com.dbn.options.ProjectWorkspaceSettingsManager;
 import com.dbn.plugin.PluginConflictManager;
 import com.dbn.plugin.PluginStatusManager;
+import com.dbn.telemetry.TelemetryManager;
 import com.dbn.vfs.DatabaseFileManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.ProjectActivity;
@@ -56,7 +57,13 @@ public class ProjectStartupActivity implements ProjectActivity {
         initializeStateEncryption();
         reopenDatabaseEditors(project);
         ensureEditorToolbars(project);
+        requestTelemetryConsent(project);
         return null;
+    }
+
+    private static void requestTelemetryConsent(@NotNull Project project) {
+        TelemetryManager telemetryManager = TelemetryManager.getInstance();
+        telemetryManager.requestConsent(project);
     }
 
     private static void evaluatePluginStatus(Project project) {
