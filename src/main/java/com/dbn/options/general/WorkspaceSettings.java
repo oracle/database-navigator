@@ -47,11 +47,11 @@ public class WorkspaceSettings extends BasicProjectConfiguration<ProjectSettings
     }
 
     public boolean isEnabled(@NotNull WorkspaceFeature feature) {
-        return !disabledFeatures.contains(feature);
+        return feature.isAlwaysOn() || !disabledFeatures.contains(feature);
     }
 
     public void setEnabled(@NotNull WorkspaceFeature feature, boolean enabled) {
-        if (enabled) {
+        if (enabled || feature.isAlwaysOn()) {
             disabledFeatures.remove(feature);
         } else {
             disabledFeatures.add(feature);
@@ -90,7 +90,7 @@ public class WorkspaceSettings extends BasicProjectConfiguration<ProjectSettings
         for (Element child : childrenOf(element, "disabled-feature")) {
             WorkspaceFeature feature = enumAttribute(child, "id", WorkspaceFeature.class);
             if (feature != null) {
-                disabledFeatures.add(feature);
+                setEnabled(feature, false);
             }
         }
 

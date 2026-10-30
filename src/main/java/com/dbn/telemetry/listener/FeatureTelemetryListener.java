@@ -16,6 +16,8 @@
 
 package com.dbn.telemetry.listener;
 
+import com.dbn.code.common.intention.EditorIntentionActionEvent;
+import com.dbn.code.common.intention.EditorIntentionActionListener;
 import com.dbn.common.action.ActionFeatures;
 import com.dbn.options.general.WorkspaceFeature;
 import com.dbn.telemetry.TelemetryManager;
@@ -34,18 +36,27 @@ import java.util.Map;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 /**
- * Counts entries through feature-tagged actions. Counts express usage, not successful completion
+ * Counts entries through feature-tagged actions and intentions. Counts express usage, not successful completion
  * or distinct users; reports can be grouped by client ID to evaluate adoption.
  */
 @NonNls
-public final class FeatureTelemetryListener implements AnActionListener {
+public final class FeatureTelemetryListener implements AnActionListener, EditorIntentionActionListener {
     @Override
     public void beforeActionPerformed(@NotNull AnAction action, @NotNull AnActionEvent event) {
+        recordUsage(action.getClass());
+    }
+
+    @Override
+    public void beforeIntentionInvoked(@NotNull EditorIntentionActionEvent event) {
+        recordUsage(event.getAction().getClass());
+    }
+
+    private static void recordUsage(@NotNull Class<?> actionClass) {
         try {
             TelemetryManager manager = TelemetryManager.getInstance();
             if (!manager.isCollectionEnabled()) return;
 
-            WorkspaceFeature feature = ActionFeatures.getFeature(action.getClass());
+            WorkspaceFeature feature = ActionFeatures.getFeature(actionClass);
             if (feature == null) return;
 
             MetricKey key = new MetricKey(

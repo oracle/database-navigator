@@ -16,6 +16,8 @@
 
 package com.dbn.code.common.intention;
 
+import com.dbn.common.action.FeatureAware;
+import com.dbn.common.event.ProjectEvents;
 import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.impl.ImaginaryEditor;
@@ -25,6 +27,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.util.IncorrectOperationException;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,6 +35,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.common.util.Classes.simpleClassName;
 
 /**
  * Alternative implementation of {@link com.intellij.codeInsight.intention.PsiElementBaseIntentionAction}
@@ -39,7 +43,7 @@ import static com.dbn.common.dispose.Checks.isNotValid;
  *
  * @author Dan Cioca (Oracle)
  */
-public abstract class EditorIntentionActionBase extends com.intellij.codeInsight.intention.impl.BaseIntentionAction {
+public abstract class EditorIntentionActionBase extends com.intellij.codeInsight.intention.impl.BaseIntentionAction implements FeatureAware {
     private static final Map<EditorIntentionType, EditorIntentionActionBase> REGISTRY = new HashMap<>();
 
     protected EditorIntentionActionBase() {
@@ -59,6 +63,14 @@ public abstract class EditorIntentionActionBase extends com.intellij.codeInsight
 
     public abstract EditorIntentionType getType();
 
+    public final @NotNull @NonNls String getIntentionId() {
+        String name = simpleClassName(this);
+        if (name.endsWith("IntentionAction")) {
+            name = name.substring(0, name.length() - "IntentionAction".length());
+        }
+        return "DBN.Intention." + name;
+    }
+
     @Nullable
     public static EditorIntentionActionBase get(EditorIntentionType type) {
         return REGISTRY.get(type);
@@ -70,7 +82,15 @@ public abstract class EditorIntentionActionBase extends com.intellij.codeInsight
         if (editor instanceof ImaginaryEditor) return;
 
         PsiElement element = getElement(editor, file);
-        this.invoke(project, editor, element);
+        EditorIntentionActionEvent event = new EditorIntentionActionEvent(this);
+        ProjectEvents.notify(project, EditorIntentionActionListener.TOPIC,
+                listener -> listener.beforeIntentionInvoked(event));
+        try {
+            this.invoke(project, editor, element);
+        } finally {
+            ProjectEvents.notify(project, EditorIntentionActionListener.TOPIC,
+                    listener -> listener.afterIntentionInvoked(event));
+        }
     }
 
     public abstract void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) throws IncorrectOperationException;

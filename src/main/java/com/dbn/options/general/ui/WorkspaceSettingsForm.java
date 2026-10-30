@@ -65,6 +65,8 @@ public class WorkspaceSettingsForm extends ConfigurationEditorForm<WorkspaceSett
 
     private void initFeaturePanel() {
         for (WorkspaceFeature feature : WorkspaceFeature.values()) {
+            if (feature.isAlwaysOn()) continue;
+
             WorkspaceFeatureItemForm form = new WorkspaceFeatureItemForm(this, feature);
             featureForms.add(form);
         }

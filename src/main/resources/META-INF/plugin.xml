@@ -1031,6 +1031,8 @@
         </group>
     </actions>
     <projectListeners>
+        <listener class="com.dbn.telemetry.listener.ActionTelemetryListener" topic="com.dbn.code.common.intention.EditorIntentionActionListener"/>
+        <listener class="com.dbn.telemetry.listener.FeatureTelemetryListener" topic="com.dbn.code.common.intention.EditorIntentionActionListener"/>
         <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener" class="com.dbn.editor.code.SourceCodeEditorListener"/>
         <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener" class="com.dbn.editor.console.SQLConsoleEditorListener"/>
         <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener" class="com.dbn.language.editor.DBLanguageFileEditorListener"/>

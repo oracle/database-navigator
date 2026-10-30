@@ -16,6 +16,8 @@
 
 package com.dbn.telemetry.listener;
 
+import com.dbn.code.common.intention.EditorIntentionActionEvent;
+import com.dbn.code.common.intention.EditorIntentionActionListener;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -30,18 +32,18 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Records synchronous invocation durations for registered and dynamically constructed DBN actions. Work started asynchronously
+ * Records synchronous invocation durations for registered and dynamically constructed DBN actions and editor intentions. Work started asynchronously
  * after an action returns is outside this measurement. The histogram count also represents the
  * number of invocations observed by this listener.
  */
 @NonNls
-public final class ActionTelemetryListener extends TelemetryListener implements AnActionListener {
+public final class ActionTelemetryListener extends TelemetryListener implements AnActionListener, EditorIntentionActionListener {
     private static final String ACTION_ID_PREFIX = "DBN.";
     private static final String DURATION_METRIC_NAME = "dbn.action.duration";
     private static final List<Double> DURATION_BUCKETS_SECONDS = List.of(
             0.01, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0, 30.0);
 
-    private final Map<AnActionEvent, ActionStart> actionStarts = CollectionFactory.createConcurrentWeakMap();
+    private final Map<Object, ActionStart> actionStarts = CollectionFactory.createConcurrentWeakMap();
 
     @Override
     protected @NotNull String getMetricName() {
@@ -60,6 +62,20 @@ public final class ActionTelemetryListener extends TelemetryListener implements 
         String actionId = resolveActionId(action);
         if (actionId == null) return;
 
+        startInvocation(event, actionId);
+    }
+
+    @Override
+    public void beforeIntentionInvoked(@NotNull EditorIntentionActionEvent event) {
+        startInvocation(event, event.getAction().getIntentionId());
+    }
+
+    @Override
+    public void afterIntentionInvoked(@NotNull EditorIntentionActionEvent event) {
+        recordInvocation(event);
+    }
+
+    private void startInvocation(@NotNull Object event, @NotNull String actionId) {
         long startedAtNanos = start();
         if (startedAtNanos != 0) actionStarts.put(event, new ActionStart(actionId, startedAtNanos));
     }
@@ -87,6 +103,10 @@ public final class ActionTelemetryListener extends TelemetryListener implements 
             @NotNull AnActionEvent event,
             @NotNull AnActionResult result) {
 
+        recordInvocation(event);
+    }
+
+    private void recordInvocation(@NotNull Object event) {
         ActionStart start = actionStarts.remove(event);
         if (start == null) return;
 
