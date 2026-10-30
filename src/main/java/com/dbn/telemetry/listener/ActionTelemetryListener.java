@@ -19,7 +19,7 @@ package com.dbn.telemetry.listener;
 import com.dbn.code.common.intention.EditorIntentionActionEvent;
 import com.dbn.code.common.intention.EditorIntentionActionListener;
 import com.dbn.connection.ConnectionHandler;
-import com.intellij.openapi.actionSystem.ActionManager;
+import com.dbn.telemetry.ActionTelemetry;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.AnActionResult;
@@ -27,7 +27,6 @@ import com.intellij.openapi.actionSystem.ex.AnActionListener;
 import com.intellij.util.containers.CollectionFactory;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +34,8 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import static com.dbn.common.action.DataKeys.CONNECTION_HANDLER;
+import static com.dbn.telemetry.ActionTelemetry.isTelemetryEnabled;
+import static com.dbn.telemetry.ActionTelemetry.resolveActionId;
 
 /**
  * Records synchronous invocation durations for registered and dynamically constructed DBN actions and editor intentions. Work started asynchronously
@@ -43,7 +44,6 @@ import static com.dbn.common.action.DataKeys.CONNECTION_HANDLER;
  */
 @NonNls
 public final class ActionTelemetryListener extends TelemetryListener implements AnActionListener, EditorIntentionActionListener {
-    private static final String ACTION_ID_PREFIX = "DBN.";
     private static final String DURATION_METRIC_NAME = "dbn.action.duration";
     private static final List<Double> DURATION_BUCKETS_SECONDS = List.of(
             0.01, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0, 30.0);
@@ -62,7 +62,7 @@ public final class ActionTelemetryListener extends TelemetryListener implements 
 
     @Override
     public void beforeActionPerformed(@NotNull AnAction action, @NotNull AnActionEvent event) {
-        if (!isCollectionEnabled()) return;
+        if (!isCollectionEnabled() || !isTelemetryEnabled(action, event)) return;
 
         String actionId = resolveActionId(action);
         if (actionId == null) return;
@@ -87,23 +87,6 @@ public final class ActionTelemetryListener extends TelemetryListener implements 
         Map<String, String> databaseInfo = databaseAttributes(connection);
         long startedAtNanos = start();
         if (startedAtNanos != 0) actionStarts.put(event, new ActionStart(actionId, startedAtNanos, databaseInfo));
-    }
-
-    /** Uses registered identifiers first, then the qualified class name for named DBN actions. */
-    private static @Nullable String resolveActionId(@NotNull AnAction action) {
-        String registeredId = ActionManager.getInstance().getId(action);
-        if (registeredId != null) {
-            return registeredId.startsWith(ACTION_ID_PREFIX) ? registeredId : null;
-        }
-
-        String className = action.getClass().getCanonicalName();
-        if (className == null || !className.startsWith("com.dbn.")) return null;
-
-        String name = className.substring("com.dbn.".length());
-        if (name.endsWith("Action")) {
-            name = name.substring(0, name.length() - "Action".length());
-        }
-        return "DBN.Action." + name;
     }
 
     @Override

@@ -63,6 +63,11 @@ public abstract class ComboBoxAction
 
     private static WeakRef<Balloon> currentBalloon;
 
+    /** Override only when invoking this control performs work beyond opening its selector. */
+    public boolean isTelemetryEnabled() {
+        return false;
+    }
+
     protected ComboBoxAction(@Nullable String text) {
         getTemplatePresentation().setText(text);
     }
