@@ -44,6 +44,7 @@ import java.util.Map;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.language.common.quotes.QuoteEscaping.DATABASE;
+import static com.dbn.telemetry.listener.DatabaseTelemetryListener.collectTelemetryData;
 
 @Getter
 public abstract class DatabaseInterfaceBase implements DatabaseInterface{
@@ -85,33 +86,41 @@ public abstract class DatabaseInterfaceBase implements DatabaseInterface{
     }
 
     protected ResultSet executeQuery(@NotNull DBNConnection connection, boolean forceExecution, @NonNls String statementId, @Nullable Object... arguments) throws SQLException {
-        StatementExecutionProcessor executionProcessor = getExecutionProcessor(statementId);
-        ResultSet result = executionProcessor.executeQuery(connection, forceExecution, arguments);
-        checkDisposed(connection);
-        return result;
+        return collectTelemetryData(connection, statementId, () -> {
+            StatementExecutionProcessor executionProcessor = getExecutionProcessor(statementId);
+            ResultSet result = executionProcessor.executeQuery(connection, forceExecution, arguments);
+            checkDisposed(connection);
+            return result;
+        });
     }
 
     protected <T extends CallableStatementOutput> T executeCall(@NotNull DBNConnection connection, @Nullable T outputReader, @NonNls String statementId, @Nullable Object... arguments) throws SQLException {
-        StatementExecutionProcessor executionProcessor = getExecutionProcessor(statementId);
-        T result = executionProcessor.executeCall(connection, outputReader, arguments);
-        checkDisposed(connection);
-        return result;
+        return collectTelemetryData(connection, statementId, () -> {
+            StatementExecutionProcessor executionProcessor = getExecutionProcessor(statementId);
+            T result = executionProcessor.executeCall(connection, outputReader, arguments);
+            checkDisposed(connection);
+            return result;
+        });
     }
 
     @NonNls
     protected int executeStatement(@NotNull DBNConnection connection, @NonNls String statementId, @Nullable Object... arguments) throws SQLException {
-        StatementExecutionProcessor executionProcessor = getExecutionProcessor(statementId);
-        int updateCount = executionProcessor.executeStatement(connection, arguments);
-        checkDisposed(connection);
-        return updateCount;
+        return collectTelemetryData(connection, statementId, () -> {
+            StatementExecutionProcessor executionProcessor = getExecutionProcessor(statementId);
+            int updateCount = executionProcessor.executeStatement(connection, arguments);
+            checkDisposed(connection);
+            return updateCount;
+        });
     }
 
     @NonNls
     protected int executeUpdate(@NotNull DBNConnection connection, @NonNls String statementId, @Nullable Object... arguments) throws SQLException {
-        StatementExecutionProcessor executionProcessor = getExecutionProcessor(statementId);
-        int updateCount = executionProcessor.executeUpdate(connection, arguments);
-        checkDisposed(connection);
-        return updateCount;
+        return collectTelemetryData(connection, statementId, () -> {
+            StatementExecutionProcessor executionProcessor = getExecutionProcessor(statementId);
+            int updateCount = executionProcessor.executeUpdate(connection, arguments);
+            checkDisposed(connection);
+            return updateCount;
+        });
     }
 
     @NonNls

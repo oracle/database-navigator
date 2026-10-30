@@ -16,17 +16,13 @@
 
 package com.dbn.telemetry.listener;
 
-import com.dbn.diagnostics.Diagnostics;
-import com.dbn.telemetry.TelemetryManager;
-import com.dbn.telemetry.metrics.HistogramMetric;
-import com.dbn.telemetry.metrics.MetricKey;
-import com.dbn.telemetry.metrics.MetricType;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.AnActionResult;
 import com.intellij.openapi.actionSystem.ex.AnActionListener;
 import com.intellij.util.containers.CollectionFactory;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,24 +34,34 @@ import java.util.Map;
  * after an action returns is outside this measurement. The histogram count also represents the
  * number of invocations observed by this listener.
  */
-public final class ActionTelemetryListener implements AnActionListener {
+@NonNls
+public final class ActionTelemetryListener extends TelemetryListener implements AnActionListener {
     private static final String ACTION_ID_PREFIX = "DBN.";
     private static final String DURATION_METRIC_NAME = "dbn.action.duration";
-    private static final String DURATION_UNIT = "s";
     private static final List<Double> DURATION_BUCKETS_SECONDS = List.of(
             0.01, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0, 30.0);
 
     private final Map<AnActionEvent, ActionStart> actionStarts = CollectionFactory.createConcurrentWeakMap();
 
     @Override
+    protected @NotNull String getMetricName() {
+        return DURATION_METRIC_NAME;
+    }
+
+    @Override
+    protected @NotNull List<Double> getDurationBucketsSeconds() {
+        return DURATION_BUCKETS_SECONDS;
+    }
+
+    @Override
     public void beforeActionPerformed(@NotNull AnAction action, @NotNull AnActionEvent event) {
-        TelemetryManager telemetryManager = TelemetryManager.getInstance();
-        if (!telemetryManager.isCollectionEnabled()) return;
+        if (!isCollectionEnabled()) return;
 
         String actionId = resolveActionId(action);
         if (actionId == null) return;
 
-        actionStarts.put(event, new ActionStart(actionId, System.nanoTime()));
+        long startedAtNanos = start();
+        if (startedAtNanos != 0) actionStarts.put(event, new ActionStart(actionId, startedAtNanos));
     }
 
     /** Uses registered identifiers first, then the qualified class name for named DBN actions. */
@@ -84,24 +90,8 @@ public final class ActionTelemetryListener implements AnActionListener {
         ActionStart start = actionStarts.remove(event);
         if (start == null) return;
 
-        TelemetryManager telemetryManager = TelemetryManager.getInstance();
-        if (!telemetryManager.isCollectionEnabled()) return;
-
-        long elapsedNanos = System.nanoTime() - start.startedAtNanos();
-        double elapsedSeconds = elapsedNanos / 1_000_000_000.0;
-        try {
-            MetricKey key = new MetricKey(
-                    DURATION_METRIC_NAME,
-                    MetricType.HISTOGRAM,
-                    DURATION_UNIT,
-                    Map.of("action_id", start.actionId()));
-            HistogramMetric metric = HistogramMetric.observation(key, DURATION_BUCKETS_SECONDS, elapsedSeconds);
-
-            telemetryManager.recordMetric(metric);
-        } catch (RuntimeException exception) {
-            // Telemetry collection must not interfere with IDE action execution.
-            Diagnostics.conditionallyLog(exception);
-        }
+        recordDuration(start.startedAtNanos(),
+                () -> Map.of("action_id", start.actionId()));
     }
 
     private record ActionStart(String actionId, long startedAtNanos) {}

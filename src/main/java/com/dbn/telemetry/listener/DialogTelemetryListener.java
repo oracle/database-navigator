@@ -17,11 +17,8 @@
 package com.dbn.telemetry.listener;
 
 import com.dbn.common.ui.dialog.DBNDialog;
-import com.dbn.telemetry.TelemetryManager;
-import com.dbn.telemetry.metrics.HistogramMetric;
-import com.dbn.telemetry.metrics.MetricKey;
-import com.dbn.telemetry.metrics.MetricType;
 import com.intellij.openapi.ui.DialogWrapper;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.Window;
@@ -38,9 +35,9 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 /**
  * Records the visible duration of a DBN dialog each time its window is shown.
  */
-public final class DialogTelemetryListener extends ComponentAdapter {
+@NonNls
+public final class DialogTelemetryListener extends TelemetryListener {
     private static final String DURATION_METRIC_NAME = "dbn.dialog.duration";
-    private static final String DURATION_UNIT = "s";
     private static final List<Double> DURATION_BUCKETS_SECONDS = List.of(
             0.1, 0.5, 1.0, 2.5, 5.0, 10.0, 30.0, 60.0, 120.0, 300.0, 600.0, 1800.0, 3600.0);
 
@@ -54,6 +51,16 @@ public final class DialogTelemetryListener extends ComponentAdapter {
         this.exitCode = exitCode;
     }
 
+    @Override
+    protected @NotNull String getMetricName() {
+        return DURATION_METRIC_NAME;
+    }
+
+    @Override
+    protected @NotNull List<Double> getDurationBucketsSeconds() {
+        return DURATION_BUCKETS_SECONDS;
+    }
+
     public static void installTelemetryListener(DBNDialog dialog) {
         try {
             Window window = dialog.getWindow();
@@ -63,12 +70,13 @@ public final class DialogTelemetryListener extends ComponentAdapter {
             IntSupplier exitCode = () -> dialog.getExitCode();
 
             DialogTelemetryListener listener = new DialogTelemetryListener(dialogId, exitCode);
-            window.addComponentListener(listener);
+            ComponentAdapter componentListener = listener.new DialogComponentListener();
+            window.addComponentListener(componentListener);
             window.addWindowListener(new WindowAdapter() {
                 @Override
                 public void windowClosed(WindowEvent event) {
                     listener.recordVisibleDuration();
-                    window.removeComponentListener(listener);
+                    window.removeComponentListener(componentListener);
                     window.removeWindowListener(this);
                 }
             });
@@ -77,23 +85,20 @@ public final class DialogTelemetryListener extends ComponentAdapter {
         }
     }
 
-    @Override
-    public void componentShown(ComponentEvent event) {
-        synchronized (this) {
-            if (visible) return;
-            if (!isCollectionEnabled()) return;
-            visible = true;
-            visibleSinceNanos = System.nanoTime();
+    private final class DialogComponentListener extends ComponentAdapter {
+        @Override
+        public void componentShown(ComponentEvent event) {
+            synchronized (DialogTelemetryListener.this) {
+                if (visible) return;
+                visibleSinceNanos = start();
+                visible = visibleSinceNanos != 0;
+            }
         }
-    }
 
-    private static boolean isCollectionEnabled() {
-        return TelemetryManager.getInstance().isCollectionEnabled();
-    }
-
-    @Override
-    public void componentHidden(ComponentEvent event) {
-        recordVisibleDuration();
+        @Override
+        public void componentHidden(ComponentEvent event) {
+            recordVisibleDuration();
+        }
     }
 
     private void recordVisibleDuration() {
@@ -104,25 +109,8 @@ public final class DialogTelemetryListener extends ComponentAdapter {
             startedAtNanos = visibleSinceNanos;
         }
 
-        if (!isCollectionEnabled()) return;
-
-        double durationSeconds = (System.nanoTime() - startedAtNanos) / 1_000_000_000.0;
-        if (durationSeconds <= 0) return;
-
-        try {
-            MetricKey key = new MetricKey(
-                    DURATION_METRIC_NAME,
-                    MetricType.HISTOGRAM,
-                    DURATION_UNIT,
-                    Map.of("dialog_id", dialogId, "exit_action", getExitAction()));
-            HistogramMetric metric = HistogramMetric.observation(key, DURATION_BUCKETS_SECONDS, durationSeconds);
-
-            TelemetryManager telemetryManager = TelemetryManager.getInstance();
-            telemetryManager.recordMetric(metric);
-        } catch (RuntimeException exception) {
-            // Telemetry collection must not interfere with dialog lifecycle.
-            conditionallyLog(exception);
-        }
+        recordDuration(startedAtNanos,
+                () -> Map.of("dialog_id", dialogId, "exit_action", getExitAction()));
     }
 
     private String getExitAction() {
