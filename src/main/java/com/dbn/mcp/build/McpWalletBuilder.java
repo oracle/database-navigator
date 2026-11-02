@@ -34,6 +34,11 @@ import java.security.SecureRandom;
 import java.sql.Driver;
 import java.util.stream.Stream;
 
+import static com.dbn.common.util.LinkRejectingFiles.createDirectoriesNoFollow;
+import static com.dbn.common.util.LinkRejectingFiles.deleteIfExistsNoFollow;
+import static com.dbn.common.util.LinkRejectingFiles.deleteTreeNoFollow;
+import static com.dbn.common.util.LinkRejectingFiles.validatePathNoFollow;
+import static com.dbn.common.util.LinkRejectingFiles.validateTreeNoFollow;
 import static com.dbn.common.util.Passwords.clearPassword;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -75,7 +80,9 @@ final class McpWalletBuilder extends ConnectionComponent {
             store.setSecret(DEFAULT_SEPS_PASSWORD, password);
             wallet.setSecretStore(store);
 
+            validateTreeNoFollow(walletDir);
             wallet.save();
+            validateTreeNoFollow(walletDir);
             wallet.saveSSO();
             secureWalletContents(walletDir);
             deleteIntermediateWalletFiles(walletDir);
@@ -100,7 +107,8 @@ final class McpWalletBuilder extends ConnectionComponent {
     }
 
     private static boolean prepareWalletDirectory(Path walletDir) throws IOException {
-        Files.createDirectories(walletDir.getParent());
+        createDirectoriesNoFollow(walletDir.getParent());
+        validateTreeNoFollow(walletDir);
         if (Files.isSymbolicLink(walletDir)) {
             throw new IOException("Refusing to create an Oracle wallet through a symbolic link: " + walletDir);
         }
@@ -138,12 +146,14 @@ final class McpWalletBuilder extends ConnectionComponent {
     }
 
     private static void secureWalletContents(Path walletDir) throws IOException {
+        validateTreeNoFollow(walletDir);
         try (Stream<Path> stream = Files.walk(walletDir)) {
             for (Path path : stream.toList()) {
                 if (Files.isSymbolicLink(path)) {
                     throw new IOException("Refusing to use a symbolic link in the Oracle wallet: " + path);
                 }
 
+                validatePathNoFollow(path);
                 if (Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS) ||
                         Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS)) {
                     FilePermissions.restrictToOwner(path);
@@ -153,25 +163,13 @@ final class McpWalletBuilder extends ConnectionComponent {
     }
 
     private static void deleteDirectory(Path directory) throws IOException {
-        if (!Files.exists(directory, LinkOption.NOFOLLOW_LINKS)) return;
-        if (Files.isSymbolicLink(directory)) {
-            throw new IOException("Refusing to delete a symbolic link as an Oracle wallet: " + directory);
-        }
-
-        try (Stream<Path> stream = Files.walk(directory)) {
-            for (Path path : stream.sorted(java.util.Comparator.reverseOrder()).toList()) {
-                if (Files.isSymbolicLink(path)) {
-                    throw new IOException("Refusing to delete a symbolic link in the Oracle wallet: " + path);
-                }
-                Files.deleteIfExists(path);
-            }
-        }
+        deleteTreeNoFollow(directory);
     }
 
     private static void deleteIntermediateWalletFiles(Path walletDir) throws IOException {
-        Files.deleteIfExists(walletDir.resolve(PASSWORD_WALLET));
-        Files.deleteIfExists(walletDir.resolve(PASSWORD_WALLET + ".lck"));
-        Files.deleteIfExists(walletDir.resolve(AUTO_LOGIN_WALLET + ".lck"));
+        deleteIfExistsNoFollow(walletDir.resolve(PASSWORD_WALLET));
+        deleteIfExistsNoFollow(walletDir.resolve(PASSWORD_WALLET + ".lck"));
+        deleteIfExistsNoFollow(walletDir.resolve(AUTO_LOGIN_WALLET + ".lck"));
     }
 
     private ClassLoader getWalletClassLoader() throws Exception {

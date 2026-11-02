@@ -6,13 +6,19 @@ import com.intellij.openapi.project.Project;
 import com.intellij.util.Consumer;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import static com.dbn.common.util.LinkRejectingFiles.copyFileNoFollow;
+import static com.dbn.common.util.LinkRejectingFiles.createDirectoriesNoFollow;
+import static com.dbn.common.util.LinkRejectingFiles.deleteTreeNoFollow;
+import static com.dbn.common.util.LinkRejectingFiles.validatePathNoFollow;
+import static com.dbn.common.util.LinkRejectingFiles.validateTreeNoFollow;
+import static com.dbn.common.util.LinkRejectingFiles.writeStringNoFollow;
 import static com.dbn.nls.NlsResources.txt;
 
 public final class McpMavenBuilder {
@@ -29,25 +35,36 @@ public final class McpMavenBuilder {
             Consumer<String> outputHandler)
             throws IOException {
 
-        Path projDir = uniqueDir(workDir, generator.getServerName());
+        workDir = workDir.toAbsolutePath().normalize();
+        validateTreeNoFollow(artifactDir);
+        createDirectoriesNoFollow(workDir);
+        Path projDir = Files.createTempDirectory(workDir, "mcp-mvn-" + generator.getServerName() + "-");
+        Throwable failure = null;
         try {
             writeSourceFiles(projDir, generator.getSourceFiles());
             writePom(project, projDir, generator);
             runMaven(project, projDir, generator.getMavenGoals(), indicator, outputHandler);
             exportSourceProject(projDir, sourceProjectDir);
             return copyArtifact(generator, projDir, artifactDir);
+        } catch (IOException | RuntimeException | Error e) {
+            failure = e;
+            throw e;
         } finally {
-            deleteDir(projDir);
+            try {
+                deleteTreeNoFollow(projDir);
+            } catch (IOException cleanupFailure) {
+                if (failure == null) throw cleanupFailure;
+                failure.addSuppressed(cleanupFailure);
+            }
         }
     }
 
     private static void exportSourceProject(Path projDir, Path sourceProjectDir) throws IOException {
         if (sourceProjectDir == null) return;
 
-        if (Files.exists(sourceProjectDir)) {
-            deleteDir(sourceProjectDir);
-        }
-        Files.createDirectories(sourceProjectDir);
+        validateTreeNoFollow(projDir);
+        deleteTreeNoFollow(sourceProjectDir);
+        createDirectoriesNoFollow(sourceProjectDir);
 
         copyFileIfExists(projDir.resolve("pom.xml"), sourceProjectDir.resolve("pom.xml"));
         // rendered as "Dockerfile.ci" so micronaut-maven-plugin does not pick it up
@@ -57,15 +74,13 @@ public final class McpMavenBuilder {
     }
 
     private static void copyFileIfExists(Path source, Path target) throws IOException {
+        validatePathNoFollow(source);
         if (!Files.exists(source) || !Files.isRegularFile(source)) return;
-        Path parent = target.getParent();
-        if (parent != null) {
-            Files.createDirectories(parent);
-        }
-        Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+        copyFileNoFollow(source, target);
     }
 
     private static void copyDirIfExists(Path source, Path target) throws IOException {
+        validateTreeNoFollow(source);
         if (!Files.exists(source) || !Files.isDirectory(source)) return;
         copyDirectory(source, target);
     }
@@ -75,47 +90,30 @@ public final class McpMavenBuilder {
             for (Path source : stream.toList()) {
                 Path relative = sourceDir.relativize(source);
                 Path target = targetDir.resolve(relative);
+                validatePathNoFollow(source);
                 if (Files.isDirectory(source)) {
-                    Files.createDirectories(target);
+                    createDirectoriesNoFollow(target);
                 } else {
-                    Path parent = target.getParent();
-                    if (parent != null) {
-                        Files.createDirectories(parent);
-                    }
-                    Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+                    copyFileNoFollow(source, target);
                 }
             }
         }
     }
 
-    private static void deleteDir(Path dir) {
-        try (var stream = Files.walk(dir)) {
-            stream.sorted(java.util.Comparator.reverseOrder())
-                  .forEach(p -> { try { Files.delete(p); } catch (IOException ignored) {} });
-        } catch (IOException ignored) {}
-    }
-
-    private static Path uniqueDir(Path base, String name) throws IOException {
-        Path dir = base.resolve("mcp-mvn-" + name);
-        int i = 1;
-        while (Files.exists(dir)) dir = base.resolve("mcp-mvn-" + name + "-" + i++);
-        return dir;
-    }
-
     private static void writeSourceFiles(Path projDir, Map<String, String> sourceFiles) throws IOException {
         for (Map.Entry<String, String> entry : sourceFiles.entrySet()) {
             Path file = projDir.resolve(entry.getKey());
-            Files.createDirectories(file.getParent());
-            Files.writeString(file, entry.getValue());
+            writeStringNoFollow(file, entry.getValue(), StandardCharsets.UTF_8);
         }
     }
 
     private static void writePom(Project project, Path dir, McpServerGenerator generator) throws IOException {
         String pom = TemplateUtilities.generateCode(project, generator.getPomTemplateName(), generator.getPomProperties());
-        Files.writeString(dir.resolve("pom.xml"), pom);
+        writeStringNoFollow(dir.resolve("pom.xml"), pom, StandardCharsets.UTF_8);
     }
 
     private static void runMaven(Project project, Path dir, List<String> goals, ProgressIndicator indicator, Consumer<String> outputHandler) throws IOException {
+        validateTreeNoFollow(dir);
         McpMavenBuildManager mavenManager = McpMavenBuildManager.getInstance(project);
         if (mavenManager == null) {
             throw new IOException(txt("msg.mcp.exception.MavenServiceUnavailable"));
@@ -127,10 +125,10 @@ public final class McpMavenBuilder {
         Path artifact = generator.locateArtifact(proj.resolve("target"));
         if (artifact == null) return null; // no file artifact (e.g. container image build)
 
-        Files.createDirectories(out);
+        createDirectoriesNoFollow(out);
         Path dest = out.resolve(artifact.getFileName());
         // COPY_ATTRIBUTES preserves the executable bit of native binaries
-        Files.copy(artifact, dest, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+        copyFileNoFollow(artifact, dest);
         return dest;
     }
 }

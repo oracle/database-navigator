@@ -25,12 +25,13 @@ import org.jetbrains.annotations.NonNls;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.dbn.common.util.LinkRejectingFiles.writeStringNoFollow;
 
 @RequiredArgsConstructor
 final class McpReadmeWriter {
@@ -63,7 +64,7 @@ final class McpReadmeWriter {
 
         String template = definition.getImplementation().isNative() ? MICRONAUT_TEMPLATE : STANDARD_TEMPLATE;
         String content = TemplateUtilities.generateCode(project, template, context);
-        Files.writeString(dir.resolve("README.md"), content, StandardCharsets.UTF_8);
+        writeStringNoFollow(dir.resolve("README.md"), content, StandardCharsets.UTF_8);
     }
 
     private static String safe(String value, String defaultValue) {

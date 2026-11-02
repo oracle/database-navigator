@@ -15,11 +15,17 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static com.dbn.common.util.LinkRejectingFiles.createDirectoriesNoFollow;
+import static com.dbn.common.util.LinkRejectingFiles.deleteIfExistsNoFollow;
+import static com.dbn.common.util.LinkRejectingFiles.validateTreeNoFollow;
+import static com.dbn.common.util.LinkRejectingFiles.writeStringNoFollow;
 import static com.dbn.common.util.Messages.options;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -171,8 +177,15 @@ public class McpBuildTask {
             cancelProcess();
         }
 
+        try {
+            validateTreeNoFollow(outputDirectory);
+        } catch (IOException e) {
+            conditionallyLog(e);
+            showErrorDialog(project, txt("msg.mcp.title.McpBuildError"), e);
+            cancelProcess();
+        }
         result.setOutputDirectory(outputDirectory);
-        if (Files.exists(outputDirectory)) {
+        if (Files.exists(outputDirectory, LinkOption.NOFOLLOW_LINKS)) {
             int option = Messages.showConfirmationDialog(project,
                     txt("msg.mcp.title.OverrideExistingServer"),
                     txt("msg.mcp.question.OverrideExistingServer", serverName),
@@ -221,6 +234,7 @@ public class McpBuildTask {
             try {
                 indicator.setText2(txt("prc.mcp.text.PreparingProject"));
                 Path outputDirectory = result.getOutputDirectory();
+                validateTreeNoFollow(outputDirectory);
                 Path sourceDirectory = outputDirectory.resolve(SOURCE_PROJECT).toAbsolutePath().normalize();
                 result.setSourceDirectory(sourceDirectory);
                 indicator.setText2(txt("prc.mcp.text.RunningMavenBuild"));
@@ -241,15 +255,15 @@ public class McpBuildTask {
 
                 Path payloadDirectory = definition.getImplementation().isContainer() ?
                         outputDirectory.resolve(CONTAINER_MOUNT_DIR) : outputDirectory;
-                Files.createDirectories(payloadDirectory);
+                createDirectoriesNoFollow(payloadDirectory);
 
                 Path outputConfigFile = payloadDirectory.resolve(CONFIG).toAbsolutePath().normalize();
-                Files.writeString(outputConfigFile, serverConfig, StandardCharsets.UTF_8);
+                writeStringNoFollow(outputConfigFile, serverConfig, StandardCharsets.UTF_8);
                 result.setConfigFile(outputConfigFile);
 
                 indicator.setText2(txt("prc.mcp.text.WritingReadme"));
                 readmeWriter.write(outputDirectory);
-                Files.deleteIfExists(outputDirectory.resolve("Main.java"));
+                deleteIfExistsNoFollow(outputDirectory.resolve("Main.java"));
                 indicator.setText2(txt("prc.mcp.text.CreatingWallet"));
                 walletBuilder.build(payloadDirectory);
                 indicator.setText2(txt("prc.mcp.text.Done"));
