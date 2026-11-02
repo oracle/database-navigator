@@ -17,13 +17,19 @@
 package com.dbn.data.export.processor;
 
 import com.dbn.data.export.DataExportException;
+import com.dbn.data.export.DataExportInstructions;
 import com.dbn.data.export.DataExportModel;
 import com.dbn.data.type.GenericDataType;
 import com.dbn.data.value.LargeObjectValue;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nullable;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -32,12 +38,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.data.export.DataExportResourceLimits.MAX_EXPORT_CELL_LENGTH;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 public class DataExportProcessorTest {
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+    @Test
+    public void writeContentPreservesSelectedEncoding() throws Exception {
+        Path directory = temporaryFolder.getRoot().toPath().toRealPath();
+        DataExportInstructions instructions = new DataExportInstructions();
+        instructions.setFileLocation(directory.toString());
+        instructions.setFileName("export.csv");
+        instructions.setCharset(StandardCharsets.UTF_16LE);
+
+        new CSVDataExportProcessor().writeContent(instructions, "Grüße");
+
+        assertArrayEquals("Grüße".getBytes(StandardCharsets.UTF_16LE), Files.readAllBytes(directory.resolve("export.csv")));
+    }
+
     @Test
     public void formatValueReadsLargeObjectWithCellLimit() throws Exception {
         TestDataExportModel model = new TestDataExportModel();

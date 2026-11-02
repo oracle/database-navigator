@@ -37,17 +37,15 @@ import org.jetbrains.annotations.NonNls;
 
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.data.export.DataExportFiles.writeFile;
 import static com.dbn.data.export.DataExportResourceLimits.MAX_EXPORT_CELL_LENGTH;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
@@ -96,17 +94,11 @@ public abstract class DataExportProcessor implements ExtensionPoint {
         if (instructions.getDestination() == ExportDestination.CLIPBOARD) {
             writeToClipboard(content);
         } else {
-            writeToFile(instructions.getFile(), content, instructions.getCharset());
-        }
-    }
-
-    private void writeToFile(File file, String content, Charset charset) throws DataExportException {
-        try {
-            Path filePath = file.toPath();
-            Files.writeString(filePath,content, charset);
-        } catch (IOException e) {
-            log.warn("Failed to create export file", e);
-            throw new DataExportException(txt("msg.dataExport.error.CreateExportFileFailed", e.getMessage()));
+            writeFile(instructions, output -> {
+                try (Writer writer = new OutputStreamWriter(output, instructions.getCharset().newEncoder())) {
+                    writer.write(content);
+                }
+            });
         }
     }
 

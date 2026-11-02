@@ -39,10 +39,9 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.util.Date;
 
+import static com.dbn.data.export.DataExportFiles.writeFile;
 import static com.dbn.data.export.DataExportResourceLimits.MAX_EXCEL_CELL_LENGTH;
 import static com.dbn.data.export.DataExportResourceLimits.isExcelAutoSizingAllowed;
 import static com.dbn.data.export.DataExportResourceLimits.isExcelCellLengthAllowed;
@@ -109,7 +108,7 @@ public class ExcelDataExportProcessor extends DataExportProcessor{
                 }
             }
 
-            createFile(workbook, instructions);
+            writeFile(instructions, workbook::write);
         } catch (DataExportException e) {
             conditionallyLog(e);
             throw e;
@@ -131,18 +130,6 @@ public class ExcelDataExportProcessor extends DataExportProcessor{
 
     protected boolean shouldAutoSizeColumns(DataExportModel model) {
         return isExcelAutoSizingAllowed(model);
-    }
-
-    private static void createFile(Workbook workbook, DataExportInstructions instructions) throws DataExportException {
-        File file = instructions.getFile();
-        try (FileOutputStream fileOutputStream = new FileOutputStream(file)){
-            workbook.write(fileOutputStream);
-            fileOutputStream.flush();
-        } catch (Throwable e) {
-            conditionallyLog(e);
-            log.warn("Failed to export data", e);
-            throw new DataExportException(txt("msg.dataExport.error.CreateExportFileFailed", e.getMessage()));
-        }
     }
 
     private static Sheet createSheet(Workbook workbook, String sheetName) {
